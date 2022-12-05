@@ -1,0 +1,9 @@
+interface Echo1
+{
+  string echoString(in string message);
+};
+
+interface Echo2
+{
+  long echoLong(in long message);
+};

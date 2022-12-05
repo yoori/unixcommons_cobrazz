@@ -1,0 +1,231 @@
+#include <Generics/TaskRunner.hpp>
+
+//#define BUILD_WITH_DEBUG_MESSAGES
+#include "Trace.hpp"
+
+namespace Generics
+{
+  //
+  // TaskRunner::TaskRunnerJob class
+  //
+
+  TaskRunner::TaskRunnerJob::TaskRunnerJob(ActiveObjectCallback* callback,
+    unsigned number_of_threads, unsigned max_pending_tasks)
+    throw (eh::Exception)
+    : SingleJob(callback),
+      NUMBER_OF_THREADS_(number_of_threads), number_of_unused_threads_(0),
+      not_full_(std::min<unsigned>(max_pending_tasks, SEM_VALUE_MAX)),
+      LIMITED_(max_pending_tasks)
+  {}
+
+  TaskRunner::TaskRunnerJob::~TaskRunnerJob() throw ()
+  {}
+
+  void
+  TaskRunner::TaskRunnerJob::started(unsigned threads) throw ()
+  {
+    number_of_unused_threads_ = threads;
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::clear() throw (eh::Exception)
+  {
+    Sync::PosixGuard guard(mutex());
+    if (LIMITED_)
+    {
+      for (size_t i = tasks_.size(); i; i--)
+      {
+        not_full_.release();
+      }
+    }
+    tasks_.clear();
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::enqueue_task(Task* task,
+    const Time* timeout, ThreadRunner& thread_runner)
+    throw (InvalidArgument, Overflow, NotActive, eh::Exception)
+  {
+    if (!task)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "task is NULL";
+      throw InvalidArgument(ostr);
+    }
+
+    // Producer
+    if (LIMITED_)
+    {
+      if (!(timeout ? not_full_.timed_acquire(timeout) :
+        not_full_.try_acquire()))
+      {
+        Stream::Error ostr;
+        ostr << FNS << "TaskRunner overflow";
+        throw Overflow(ostr);
+      }
+    }
+
+    try
+    {
+      Task_var push_task(ReferenceCounting::add_ref(task));
+
+      Sync::PosixGuard guard(mutex());
+      tasks_.emplace_back(std::move(push_task));
+
+      add_thread(thread_runner); // noexcept
+    }
+    catch (...)
+    {
+      if(LIMITED_)
+      {
+        not_full_.release();
+      }
+      throw;
+    }
+
+    // Wake any working thread
+    ConditionalGuard new_task_lock(new_task_);
+    new_task_.signal();
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::wait_for_queue_exhausting()
+    throw (eh::Exception)
+  {
+    for (;;)
+    {
+      {
+        Sync::PosixGuard guard(mutex());
+        if (tasks_.empty())
+        {
+          return;
+        }
+      }
+      Generics::Time wait(0, 300000);
+      select(0, 0, 0, 0, &wait);
+    }
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::work() throw ()
+  {
+    try
+    {
+      for (;;)
+      {
+        {
+          // BUG
+          ConditionalGuard new_task_lock(new_task_);
+          new_task_lock.wait();
+        }
+
+        int first_task = 1;
+
+        while(true)
+        {
+          Task_var task;
+
+          {
+            Sync::PosixGuard guard(mutex());
+            if (is_terminating())
+            {
+              return;
+            }
+
+            if (tasks_.empty())
+            {
+              break;
+            }
+
+            task.swap(tasks_.front());
+            tasks_.pop_front();
+            number_of_unused_threads_ -= first_task;
+            first_task = 0;
+          }
+
+          // Tell any blocked thread that the queue is ready for a "new item"
+          if (LIMITED_)
+          {
+            not_full_.release();
+          }
+
+          try
+          {
+            task->execute();
+          }
+          catch (const eh::Exception& ex)
+          {
+            callback()->error(String::SubString(ex.what()));
+          }
+        }
+
+        Sync::PosixGuard guard(mutex());
+        number_of_unused_threads_++;
+      }
+    }
+    catch (const eh::Exception& ex)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "eh::Exception: " << ex.what();
+      callback()->critical(ostr.str());
+    }
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::add_thread(ThreadRunner& thread_runner)
+    throw ()
+  {
+    if (!thread_runner.running() ||
+      thread_runner.running() == thread_runner.number_of_jobs())
+    {
+      return;
+    }
+
+    if (tasks_.size() <= number_of_unused_threads_)
+    {
+      return;
+    }
+
+    try
+    {
+      thread_runner.start_one();
+      number_of_unused_threads_++;
+    }
+    catch (const eh::Exception& ex)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "eh::Exception: " << ex.what();
+      callback()->warning(ostr.str());
+    }
+  }
+
+  void
+  TaskRunner::TaskRunnerJob::terminate() throw ()
+  {
+    for (unsigned long i = NUMBER_OF_THREADS_; i; i--)
+    {
+      new_task_.release();
+    }
+  }
+
+
+  //
+  // TaskRunner class
+  //
+
+  TaskRunner::TaskRunner(ActiveObjectCallback* callback,
+    unsigned threads_number, size_t stack_size,
+    unsigned max_pending_tasks, unsigned start_threads)
+    throw (InvalidArgument, Exception, eh::Exception)
+    : ActiveObjectCommonImpl(
+        TaskRunnerJob_var(new TaskRunnerJob(callback, threads_number,
+          max_pending_tasks)),
+        threads_number, stack_size, start_threads),
+      job_(static_cast<TaskRunnerJob&>(*SINGLE_JOB_))
+  {
+  }
+
+  TaskRunner::~TaskRunner() throw ()
+  {
+  }
+}

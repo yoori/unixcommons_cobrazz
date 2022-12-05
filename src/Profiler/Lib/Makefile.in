@@ -1,0 +1,9 @@
+# @file   Makefile.in
+# @author Karen Aroutiounov
+
+@profiler_deps@
+
+sources := Profiler.cpp
+includes := src
+
+@profiler_post@

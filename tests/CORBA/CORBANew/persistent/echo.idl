@@ -1,0 +1,4 @@
+interface Echo
+{
+  string echoString(in string message);
+};

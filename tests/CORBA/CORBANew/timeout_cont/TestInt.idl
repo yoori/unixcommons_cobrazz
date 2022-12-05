@@ -1,0 +1,7 @@
+typedef sequence<octet> OctetSeq;
+  
+interface TestInt
+{
+  void test(in long number, in OctetSeq param);
+  oneway void oneway_test(in long number, in OctetSeq param);
+};

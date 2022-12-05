@@ -1,0 +1,8 @@
+# @file   Makefile.in
+# @author Pavel Gubin
+
+@ipmap_deps@
+
+sources  := IPMap.cpp
+
+@ipmap_post@

@@ -1,0 +1,9 @@
+# @file   Makefile.in
+# @author Karen Aroutiounov
+
+@parser_deps@
+
+sources := Parser.cpp
+target := Parser
+
+@parser_post@

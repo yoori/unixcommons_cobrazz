@@ -1,0 +1,7 @@
+name="Apache Module"
+so_files=ApacheModule
+
+osbe_cxx_dep "APR"
+osbe_cxx_dep "Apache"
+
+$unixcommons_def_initializer

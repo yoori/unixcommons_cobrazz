@@ -1,0 +1,8 @@
+# @file   Makefile.in
+# @author Pavel Gubin
+
+@testproxyinjector_deps@
+
+sources := ProxyInjector.cpp
+
+@testproxyinjector_post@

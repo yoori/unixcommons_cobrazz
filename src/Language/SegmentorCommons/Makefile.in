@@ -1,0 +1,7 @@
+# @file   Makefile.in
+# @author Karen Aroutiounov
+
+@segmentorcommons_deps@
+
+
+@segmentorcommons_post@

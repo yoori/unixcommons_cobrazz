@@ -1,0 +1,8 @@
+# @file   Makefile.in
+# @author Pavel Gubin
+
+@apacheadapters_deps@
+
+sources := Adapters.cpp
+
+@apacheadapters_post@

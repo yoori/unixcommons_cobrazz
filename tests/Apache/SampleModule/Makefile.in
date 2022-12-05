@@ -1,0 +1,8 @@
+# @file   Makefile.in
+# @author Karen Aroutiounov
+
+@testsamplemodule_deps@
+
+sources := SampleModule.cpp
+
+@testsamplemodule_post@

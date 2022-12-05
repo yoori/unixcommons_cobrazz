@@ -1,0 +1,5 @@
+interface Echo
+{
+  long echoString(in long start, in string message);
+  oneway void shutdown();
+};

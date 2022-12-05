@@ -1,0 +1,9 @@
+# @file   Makefile.in
+# @author Karen Aroutiounov
+
+@probeobj_deps@
+
+sources := Application.cpp
+target := ProbeObj
+
+@probeobj_post@

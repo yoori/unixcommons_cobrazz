@@ -1,0 +1,6 @@
+@testtaskrunnerperf_deps@
+
+sources := Main.cpp
+target := TestTaskRunnerPerf
+
+@testtaskrunnerperf_post@

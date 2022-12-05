@@ -1,0 +1,7 @@
+# @file   dir.ac
+# @author Karen Aroutiounov
+
+OSBE_CONFIG_FILE([Makefile])
+OSBE_CONFIG_SUBDIR([Commons])
+OSBE_CONFIG_SUBDIR([PerformanceTest])
+OSBE_CONFIG_SUBDIR([AllSequencesTest])

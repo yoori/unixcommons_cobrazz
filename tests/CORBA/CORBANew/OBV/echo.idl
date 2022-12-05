@@ -1,0 +1,26 @@
+abstract valuetype A
+{
+};
+
+abstract valuetype B
+{
+};
+
+valuetype C
+{
+};
+
+#ifdef TESTING_CUSTOM
+custom
+#endif
+valuetype MessageHolder : A, B
+{
+  public string message;
+  string get_message();
+};
+
+interface Echo
+{
+  MessageHolder echoString(in MessageHolder message);
+  void shutdown();
+};

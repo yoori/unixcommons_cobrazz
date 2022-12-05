@@ -1,0 +1,8 @@
+# @file   Makefile.in
+# @author Pavel Gubin
+
+@testslowdownfilter_deps@
+
+sources := SlowdownFilter.cpp
+
+@testslowdownfilter_post@

@@ -1,0 +1,6 @@
+# @file   dir.ac
+# @author Yuri Kuznecov
+# 
+
+OSBE_CONFIG_FILE([Makefile])
+OSBE_CXX_DEF([TestBlockFileAdapter])

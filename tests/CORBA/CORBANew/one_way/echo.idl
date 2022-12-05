@@ -1,0 +1,5 @@
+interface Echo
+{
+  void two_way();
+  oneway void one_way();
+};
