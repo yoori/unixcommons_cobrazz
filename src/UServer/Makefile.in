@@ -1,0 +1,7 @@
+@userver_deps@
+
+sources := \
+  Server.cpp \
+
+@userver_post@
+

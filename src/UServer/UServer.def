@@ -1,0 +1,7 @@
+name=UServer
+so_files=UServer
+
+osbe_cxx_dep "Generics"
+
+$unixcommons_def_initializer
+
