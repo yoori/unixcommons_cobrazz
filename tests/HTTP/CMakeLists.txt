@@ -1,0 +1,12 @@
+#cmake_minimum_required (VERSION 2.6)
+
+
+ADD_SUBDIRECTORY(AsyncPoolComplexTest)
+ADD_SUBDIRECTORY(AsyncPoolSimpleTest)
+ADD_SUBDIRECTORY(AsynchVsSynch)
+ADD_SUBDIRECTORY(EmptyPoliciesInternalTest)
+ADD_SUBDIRECTORY(Expiration)
+ADD_SUBDIRECTORY(HTTPAddress)
+ADD_SUBDIRECTORY(HTTPCookie)
+ADD_SUBDIRECTORY(HttpTestCommons)
+ADD_SUBDIRECTORY(IDNA)

@@ -11,7 +11,8 @@
 #include <CORBACommons/CorbaAdapters.hpp>
 #include <CORBAConfigParser/ParameterConfig.hpp>
 
-#include "../Overload/Server/TestInt.hpp"
+//#include "../Overload/Server/TestInt.hpp"
+#include "tests/Overload/TestInt.hpp"
 
 DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 

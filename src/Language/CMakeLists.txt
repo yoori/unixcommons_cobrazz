@@ -1,0 +1,10 @@
+
+ADD_SUBDIRECTORY(BLogic)
+#ADD_SUBDIRECTORY(ChineeseSegmentor)
+ADD_SUBDIRECTORY(GenericSegmentor)
+ADD_SUBDIRECTORY(JapaneseSegmentor)
+ADD_SUBDIRECTORY(KoreanSegmentor)
+ADD_SUBDIRECTORY(Polyglot)
+ADD_SUBDIRECTORY(SegmentorUtil)
+
+

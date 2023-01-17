@@ -8,8 +8,8 @@
 #include <CORBACommons/CorbaAdapters.hpp>
 #include <CORBAConfigParser/ParameterConfig.hpp>
 
-#include "../Server/TestCrash.hpp"
-
+//#include "../Server/TestCrash.hpp"
+#include "tests/CrashCall/TestCrash.hpp"
 
 int
 main(int argc, char** argv)

@@ -1,0 +1,9 @@
+#cmake_minimum_required (VERSION 2.6)
+
+ADD_SUBDIRECTORY(FileLogger)
+ADD_SUBDIRECTORY(MTTesterLog)
+ADD_SUBDIRECTORY(ProcessLogger)
+ADD_SUBDIRECTORY(SStream)
+ADD_SUBDIRECTORY(SysLogger)
+
+
