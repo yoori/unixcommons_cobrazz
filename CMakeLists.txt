@@ -21,7 +21,7 @@ endif()
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
   )
 
-set(INSTALL_DIR "~/unixcommons-cobrazz-bin")
+set(INSTALL_DIR "~/unixcommons-cobrazz-bin2")
 set(INSTALL_LIB ${INSTALL_DIR}/lib)
 set(INSTALL_BIN  ${INSTALL_DIR}/bin)
 
