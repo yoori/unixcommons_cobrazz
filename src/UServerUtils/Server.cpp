@@ -1,28 +1,26 @@
 #include <iostream>
 
-#include <UServer/Server.hpp>
+#include <UServerUtils/Server.hpp>
 
 #include <userver/logging/component.hpp>
 #include <userver/os_signals/component.hpp>
 #include <userver/components/tracer.hpp>
 #include <userver/components/statistics_storage.hpp>
+#include <userver/ugrpc/server/server_component.hpp>
 
-#include <userver/components/run.hpp>
+#include <userver/components/run_embedded.hpp>
 
-namespace UServer
+
+namespace UServerUtils
 {
   //
   // class Server
   //
 
-  Server::Server(unsigned short grpc_port)
+  Server::Server()
     /*throw (eh::Exception)*/
   {
-    components_config_ += "        grpc-server:\n";
-    components_config_ += "            port: ";
-    components_config_ += std::to_string(grpc_port);
-    components_config_ += "\n";
-    (*component_list_)
+    component_list_
       .Append<userver::os_signals::ProcessorComponent>()
       .Append<userver::components::Logging>()
       .Append<userver::components::Tracer>() // used in StatisticsStorage
@@ -79,13 +77,11 @@ components_manager:
         initial_size: 500
         max_size: 10000
 )";
-    thread_ = std::thread([component_list = component_list_, config_str]() {
+    mutex_.lock();
+    thread_ = std::thread([this, config_str]() {
         userver::components::InMemoryConfig config(config_str);
-        userver::components::Run(
-            config,
-            *component_list,
-            {}, // init_log_path
-            userver::logging::Format::kTskv);
+        userver::components::RunEmbedded(
+            mutex_, config, component_list_, {}, userver::logging::Format::kTskv);
     });
   }
 
@@ -93,6 +89,7 @@ components_manager:
   Server::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
+    mutex_.unlock();
     state_ = AS_DEACTIVATING;
   }
 
@@ -100,6 +97,7 @@ components_manager:
   Server::wait_object()
     /*throw (Exception, eh::Exception)*/
   {
+    thread_.join();
     state_ = AS_NOT_ACTIVE;
   }
 
@@ -108,6 +106,15 @@ components_manager:
     /*throw (eh::Exception)*/
   {
     return state_ == AS_ACTIVE;
+  }
+
+  void Server::add_grpc_server(unsigned short port)
+  {
+    components_config_ += "        grpc-server:\n";
+    components_config_ += "            port: ";
+    components_config_ += std::to_string(port);
+    components_config_ += "\n";
+    component_list_.Append<userver::ugrpc::server::ServerComponent>();
   }
 }
 

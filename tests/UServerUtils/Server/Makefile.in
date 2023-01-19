@@ -1,0 +1,7 @@
+@testserver_deps@
+
+sources := TestServer.cpp
+target := TestServer
+
+@testserver_post@
+

@@ -1,7 +1,7 @@
-#ifndef USERVER_SERVER_ACTIVE_OBJECT_HPP
-#define USERVER_SERVER_ACTIVE_OBJECT_HPP
+#ifndef USERVER_UTILS_SERVER_ACTIVE_OBJECT_HPP
+#define USERVER_UTILS_SERVER_ACTIVE_OBJECT_HPP
 
-#include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -10,19 +10,19 @@
 
 #include <Generics/ActiveObject.hpp>
 
-#include <Logger/Logger.hpp>
 
-
-namespace UServer
+namespace UServerUtils
 {
   /**
    * Adapter for logger into reference countable callback.
    * Forward error reports into logger.
    */
-  class Server : public virtual Generics::ActiveObject
+  class Server :
+    public virtual Generics::ActiveObject,
+    public virtual ReferenceCounting::AtomicImpl
   {
   public:
-    Server(unsigned short grpc_port) /*throw (eh::Exception)*/;
+    Server() /*throw (eh::Exception)*/;
 
     virtual
     void
@@ -44,18 +44,22 @@ namespace UServer
     active()
       /*throw (eh::Exception)*/;
 
+    void
+    add_grpc_server(unsigned short port);
+    
     template <class Comp>
     void
-    add_grpc_component();
+    add_grpc_server_component();
 
   protected:
     virtual
     ~Server() throw ();
 
   private:
+    std::mutex mutex_;
     std::thread thread_;
     volatile sig_atomic_t state_;
-    std::shared_ptr<userver::components::ComponentList> component_list_;
+    userver::components::ComponentList component_list_;
     std::string components_config_;
   };
 }
@@ -64,7 +68,7 @@ namespace UServer
 // INLINES
 //
 
-namespace UServer
+namespace UServerUtils
 {
   //
   // Server class
@@ -73,9 +77,9 @@ namespace UServer
   template <class Comp>
   inline
   void
-  Server::add_grpc_component()
+  Server::add_grpc_server_component()
   {
-    component_list_->Append<Comp>();
+    component_list_.Append<Comp>();
     components_config_ += "        ";
     components_config_ += Comp::kName;
     components_config_ += ":\n";
