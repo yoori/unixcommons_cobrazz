@@ -21,9 +21,10 @@ endif()
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
   )
 
-set(INSTALL_DIR "~/unixcommons-cobrazz-bin2")
-set(INSTALL_LIB ${INSTALL_DIR}/lib)
-set(INSTALL_BIN  ${INSTALL_DIR}/bin)
+set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cobrazz-bin)
+
+set(INSTALL_LIB ${INSTALL_DIR})
+set(INSTALL_BIN  ${INSTALL_DIR})
 
 
 find_package(ACE REQUIRED)
@@ -40,7 +41,6 @@ find_package(USERVER REQUIRED)
 
 find_package(IDL REQUIRED)
 
-#find_package(OpenDDS REQUIRED)
 include_directories( /usr/local/include src src/CORBA)
 
 set(IDL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/IDL_COMMON)
