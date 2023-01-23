@@ -1,0 +1,9 @@
+#ifndef USERVER_CONFIG_HPP
+#define USERVER_CONFIG_HPP
+
+#define USERVER_NAMESPACE userver
+#define USERVER_NAMESPACE_BEGIN namespace USERVER_NAMESPACE {
+#define USERVER_NAMESPACE_END }
+
+#endif
+

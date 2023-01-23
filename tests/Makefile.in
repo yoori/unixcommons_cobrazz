@@ -17,6 +17,7 @@ target_directory_list := \
   String \
   Sync \
   TestCommons \
+  UServerUtils \
 
 #  Oracle \
 #  Apache \
