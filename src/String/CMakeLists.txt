@@ -1,6 +1,6 @@
 set(proj "String")
 
-add_library(${proj}  SHARED
+add_library(${proj}  STATIC
   
   
     Analyzer.cpp 
