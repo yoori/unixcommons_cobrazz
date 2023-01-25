@@ -1,14 +1,14 @@
 set (proj "HTTP")
 add_library(${proj}  SHARED
-  Http.cpp 
-  HttpAsync.cpp 
-  HttpAsyncPool.cpp 
-  HttpAsyncPolicies.cpp 
-  HttpClient.cpp 
-  HttpConnection.cpp 
-  HTTPCookie.cpp 
-  HttpSync.cpp 
-  UrlAddress.cpp 
+  Http.cpp
+  HttpAsync.cpp
+  HttpAsyncPool.cpp
+  HttpAsyncPolicies.cpp
+  HttpClient.cpp
+  HttpConnection.cpp
+  HTTPCookie.cpp
+  HttpSync.cpp
+  UrlAddress.cpp
 
 )
 
@@ -17,4 +17,4 @@ add_library(${proj}  SHARED
 target_link_libraries(${proj} Generics Stream event)
 
 
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

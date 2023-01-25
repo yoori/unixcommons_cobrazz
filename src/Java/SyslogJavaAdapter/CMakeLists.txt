@@ -5,9 +5,9 @@
 
 
 add_library(SyslogJavaAdapter  SHARED
-  
+
   JavaAdapter.cpp
-  
+
 )
 #add_library(ApacheModule  SHARED
 #Module.cpp

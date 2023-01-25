@@ -7,4 +7,4 @@ add_library(${proj}  SHARED
 
 
 target_link_libraries(${proj}  Generics pthread  netsnmpagent netsnmp)
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

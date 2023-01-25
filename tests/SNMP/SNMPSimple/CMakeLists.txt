@@ -3,7 +3,7 @@ set(proj "TestSNMPSimple")
 
 add_executable(${proj}
 
-Application.cpp  
+Application.cpp
 
 )
 

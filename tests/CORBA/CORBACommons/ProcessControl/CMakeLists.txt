@@ -8,7 +8,7 @@ Application.cpp
 )
 
 target_link_libraries(${proj} CORBAConfigParser
-#SimpleIDL TestCrashIDL 
+#SimpleIDL TestCrashIDL
     )
 add_test(NAME ${proj}
          COMMAND ${proj})

@@ -8,7 +8,7 @@ add_executable(${proj}
 Application.cpp
 )
 
-target_link_libraries(${proj}  CORBAConfigParser 
+target_link_libraries(${proj}  CORBAConfigParser
 #TestInt2IDL
     )
 add_test(NAME ${proj}

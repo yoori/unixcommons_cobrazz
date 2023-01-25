@@ -3,7 +3,7 @@ set(proj "TestFilter")
 
 add_executable(${proj}
 
-Application.cpp  
+Application.cpp
 
 )
 

@@ -3,7 +3,7 @@ set(proj "TestFileLogger")
 
 add_executable(${proj}
 TestFileLogger.cpp
-  
+
 
 )
 

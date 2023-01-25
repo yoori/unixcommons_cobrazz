@@ -3,11 +3,11 @@
 
 
 
-add_executable(ProbeObj 
+add_executable(ProbeObj
 Application.cpp
 )
 
 target_link_libraries( ProbeObj CORBAConfigParser )
 
 
-install(TARGETS ProbeObj DESTINATION ${INSTALL_LIB})
+#install(TARGETS ProbeObj DESTINATION ${INSTALL_LIB})

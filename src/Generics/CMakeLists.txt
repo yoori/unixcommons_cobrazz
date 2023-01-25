@@ -1,32 +1,32 @@
 set(proj "Generics")
 
 add_library(${proj}  SHARED
-  Allocator.cpp 
-  ActiveObject.cpp 
-  AppUtils.cpp 
-  CommonDecimal.cpp 
-  CompositeActiveObject.cpp 
-  CountryCodeManip.cpp 
-  CRC.cpp 
-  Crypto.cpp 
-  Hash.cpp 
-  Listener.cpp 
-  MMap.cpp 
-  MemBuf.cpp 
-  Network.cpp 
-  Periodic.cpp 
-  Plug.cpp 
-  Proc.cpp 
-  Rand.cpp 
-  Scheduler.cpp 
-  Singleton.cpp 
-  Statistics.cpp 
-  TaskRunner.cpp 
-  TaskPool.cpp 
-  Time.cpp 
-  ThreadRunner.cpp 
-  Uuid.cpp 
-  Values.cpp 
+  Allocator.cpp
+  ActiveObject.cpp
+  AppUtils.cpp
+  CommonDecimal.cpp
+  CompositeActiveObject.cpp
+  CountryCodeManip.cpp
+  CRC.cpp
+  Crypto.cpp
+  Hash.cpp
+  Listener.cpp
+  MMap.cpp
+  MemBuf.cpp
+  Network.cpp
+  Periodic.cpp
+  Plug.cpp
+  Proc.cpp
+  Rand.cpp
+  Scheduler.cpp
+  Singleton.cpp
+  Statistics.cpp
+  TaskRunner.cpp
+  TaskPool.cpp
+  Time.cpp
+  ThreadRunner.cpp
+  Uuid.cpp
+  Values.cpp
  ../String/Analyzer.cpp
 ../String/AsciiStringManip.cpp
 ../String/BasicAnalyzer.cpp
@@ -55,9 +55,9 @@ add_library(${proj}  SHARED
 )
 
 
-target_link_libraries(${proj} Sync  pthread crypto ev pcre dl 
+target_link_libraries(${proj} Sync  pthread crypto ev pcre dl
 #String
 )
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
 
 

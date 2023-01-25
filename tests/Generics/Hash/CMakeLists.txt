@@ -6,16 +6,16 @@
 set(proj "TestHasher")
 
 add_executable(${proj}
-  AvalancheTest.cpp 
-  Bitslice.cpp 
-  Bitvec.cpp 
-  KeysetTest.cpp 
-  Main.cpp 
-  Platform.cpp 
-  Random.cpp 
-  SpeedTest.cpp 
-  Stats.cpp 
-  Test.cpp 
+  AvalancheTest.cpp
+  Bitslice.cpp
+  Bitvec.cpp
+  KeysetTest.cpp
+  Main.cpp
+  Platform.cpp
+  Random.cpp
+  SpeedTest.cpp
+  Stats.cpp
+  Test.cpp
   Types.cpp
 )
 #add_library(ApacheModule  SHARED

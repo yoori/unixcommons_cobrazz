@@ -6,9 +6,9 @@
 set(proj "TestAsynchVsSynch")
 
 add_executable(${proj}
-  Main.cpp 
-  CommonClasses.cpp 
-  Tests.cpp 
+  Main.cpp
+  CommonClasses.cpp
+  Tests.cpp
 
 
 )

@@ -4,7 +4,7 @@ set(proj "MTTesterExceptionsLog")
 add_executable(${proj}
 MTTesterLoggerTest.cpp
 
-  
+
 
 )
 

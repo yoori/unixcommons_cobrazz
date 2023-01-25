@@ -9,4 +9,4 @@ add_library(StatsTool  SHARED
 
 target_link_libraries( StatsTool CORBACommons )
 
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

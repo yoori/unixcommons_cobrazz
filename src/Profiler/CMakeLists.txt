@@ -5,6 +5,6 @@ add_library(${proj}  SHARED
     Parser/Parser.cpp
 )
 target_link_libraries(${proj} pthread)
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
 
 

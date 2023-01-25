@@ -3,7 +3,7 @@ set(proj "TestSelect")
 
 add_executable(${proj}
 
-Application.cpp  
+Application.cpp
 
 )
 

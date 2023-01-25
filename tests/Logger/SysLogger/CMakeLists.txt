@@ -3,7 +3,7 @@ set(proj "TestSysLogger")
 
 add_executable(${proj}
 
-Application.cpp  
+Application.cpp
 
 )
 

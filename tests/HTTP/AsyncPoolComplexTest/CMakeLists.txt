@@ -6,10 +6,10 @@
 set(proj "TestHttpPoolComplex")
 
 add_executable(${proj}
- Main.cpp 
-  CommonClasses.cpp 
-  Tests.cpp 
-  
+ Main.cpp
+  CommonClasses.cpp
+  Tests.cpp
+
 
 )
 #add_library(ApacheModule  SHARED

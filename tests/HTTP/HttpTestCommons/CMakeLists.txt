@@ -6,7 +6,7 @@
 set(proj "HttpTestCommons")
 
 add_library(${proj} SHARED
- CommonClasses.cpp 
+ CommonClasses.cpp
            ApachePorts.cpp
 )
 #add_library(ApacheModule  SHARED

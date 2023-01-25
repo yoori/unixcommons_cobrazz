@@ -1,7 +1,7 @@
 set(proj "TestCommons")
 add_library(TestCommons  SHARED
-  Error.cpp 
-  Memory.cpp 
+  Error.cpp
+  Memory.cpp
 
 )
-install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

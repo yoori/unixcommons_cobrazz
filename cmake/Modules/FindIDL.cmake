@@ -142,5 +142,9 @@ function(add_idl _target _idlfile target_dir)
 #	${OUTPUTC} ${OUTPUTS}
 #    )
     add_dependencies(${_target} ${FINDIDL_TARGET})
-    target_include_directories(${_target} INTERFACE ${MIDL_OUTPUT_PATH})
+
+    target_include_directories(${_target} PUBLIC
+      $<BUILD_INTERFACE:${MIDL_OUTPUT_PATH}>
+      $<INSTALL_INTERFACE:${MIDL_OUTPUT_PATH}>)
+
 endfunction()

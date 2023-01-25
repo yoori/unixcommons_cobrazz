@@ -3,7 +3,7 @@ set(proj "TestSStream")
 
 add_executable(${proj}
 
-Application.cpp  
+Application.cpp
 
 )
 
