@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.19)
 
 project (unixcommons)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if(UNIX AND NOT APPLE)
 SET(LINUX true)
 endif()
@@ -46,11 +51,7 @@ include_directories( /usr/local/include src src/CORBA)
 set(IDL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/IDL_COMMON)
 include_directories(${IDL_DIRECTORY})
 
-
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC ")
-link_directories( /usr/local/lib  )
-
+#link_directories( /usr/local/lib  )
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
