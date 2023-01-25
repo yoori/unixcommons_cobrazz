@@ -55,7 +55,9 @@ add_library(${proj}  SHARED
 )
 
 
-target_link_libraries(${proj} Sync  pthread crypto ev pcre dl)
+target_link_libraries(${proj} Sync  pthread crypto ev pcre dl 
+#String
+)
 install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
 
 
