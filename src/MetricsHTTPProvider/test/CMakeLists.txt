@@ -3,21 +3,21 @@
 
 
 
-add_executable(mp.exe
+add_executable(MpTest 
 
 daemon_run1.cpp
 
 )
-set(USERVER /Users/sergejbelalov/banner/userver)
+#set(USERVER /Users/sergejbelalov/banner/userver)
 include_directories(
-${USERVER}/core/include
+${USERVER}/core/include 
 ${USERVER}
-${USERVER}/core/src
-${USERVER}/shared/include
-${USERVER}/shared/src
-${USERVER}/third_party/fmt/include
-${USERVER}/third_party/cctz/include
-${USERVER}/third_party/moodycamel/include
+${USERVER}/core/src 
+${USERVER}/shared/include 
+${USERVER}/shared/src 
+${USERVER}/third_party/fmt/include 
+${USERVER}/third_party/cctz/include 
+${USERVER}/third_party/moodycamel/include 
 /usr/local/include
 /usr/include/userver
 /home/alexander_belyalov/userver/userver/core/src
@@ -35,6 +35,6 @@ if(LINUX)
 set(LINUXLINK "Generics")
 endif()
 
-target_link_libraries(mp.exe  MetricsHTTPProvider)
+target_link_libraries(MpTest  MetricsHTTPProvider)
 
 

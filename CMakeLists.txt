@@ -20,6 +20,8 @@ endif()
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
   )
 
+set(USERVER /home/alexander_belyalov/userver/userver)
+
 #set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cobrazz-bin)
 #set(INSTALL_LIB ${INSTALL_DIR})
 #set(INSTALL_BIN  ${INSTALL_DIR})
