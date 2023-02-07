@@ -71,7 +71,14 @@ public:
     add_value(std::string_view key, unsigned long value)
     {
         std::lock_guard<std::mutex> g(container.mutex);
-        container.vals_ul[std::string(key)]=value;
+	auto _key=std::string(key);
+	auto it=container.vals_ul.find(_key);
+	if(it==container.vals_ul.end())
+	{
+	    container.vals_ul[std::string(key)]=value;
+	}
+	else it->second+=value;
+    //    container.vals_ul[std::string(key)]+=value;
     }
     static void* worker(MetricsHTTPProviderImpl* _this)
     {
