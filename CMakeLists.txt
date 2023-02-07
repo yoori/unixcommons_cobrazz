@@ -20,11 +20,7 @@ endif()
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
   )
 
-set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
 
-#set(INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cobrazz-bin)
-#set(INSTALL_LIB ${INSTALL_DIR})
-#set(INSTALL_BIN  ${INSTALL_DIR})
 
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -39,6 +35,8 @@ find_package(Threads REQUIRED)
 find_package(USERVER REQUIRED)
 
 find_package(IDL REQUIRED)
+
+set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
 
 include_directories(src src/CORBA)
 
