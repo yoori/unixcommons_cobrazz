@@ -1,7 +1,9 @@
 #ifndef ___METRICS___H
 #define ___METRICS___H
+
 #include <string>
 #include <thread>
+
 #ifdef __MACH__
 namespace Generics {
 class ActiveObject

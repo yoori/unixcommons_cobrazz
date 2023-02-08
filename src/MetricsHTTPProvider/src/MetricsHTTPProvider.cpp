@@ -1,19 +1,20 @@
-#include "MetricsHTTPProvider.hpp"
 #include <string>
 #include <userver/components/minimal_server_component_list.hpp>
 #include <userver/rcu/rcu.hpp>
 #include <userver/server/handlers/http_handler_json_base.hpp>
 #include <userver/utils/daemon_run.hpp>
 #include <userver/utils/datetime.hpp>
-#include <crypto/openssl.hpp>
+//#include <crypto/openssl.hpp>
 #include <userver/components/run.hpp>
 //#include <utils/jemalloc.hpp>
 #include <userver/formats/json.hpp>
 #include <userver/components/manager.hpp>
-#include <core/src/components/manager_config.hpp>
+#include <userver/components/manager_config.hpp>
 #include <userver/utest/using_namespace_userver.hpp>
 #include <userver/logging/log.hpp>
 #include <regex>
+
+#include "MetricsHTTPProvider.hpp"
 
 struct Container
 {

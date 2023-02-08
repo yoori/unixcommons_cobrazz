@@ -32,11 +32,11 @@ find_package(NetSNMP REQUIRED)
 find_package(PCRE REQUIRED)
 find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
-find_package(USERVER REQUIRED)
+find_package(userver REQUIRED)
 
 find_package(IDL REQUIRED)
 
-set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
+#set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
 
 include_directories(src src/CORBA)
 
