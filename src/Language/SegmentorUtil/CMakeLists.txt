@@ -1,9 +1,5 @@
-set(proj "LinguistUtil")
-add_library(${proj}  SHARED
-Application.cpp
+add_executable(LinguistUtil
+  Application.cpp
 )
 
-target_link_libraries(${proj} Generics BLogic GenericSegmentor Polyglot)
-
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+target_link_libraries(LinguistUtil Generics BLogic GenericSegmentor Polyglot)

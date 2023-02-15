@@ -1,11 +1,5 @@
-
-set(proj "HostnameUtil")
-add_library(${proj}  SHARED
-HostnameUtil.cpp
-
+add_executable(HostnameUtil
+  HostnameUtil.cpp
 )
 
-target_link_libraries(${proj} Generics)
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
-
+target_link_libraries(HostnameUtil Generics)
