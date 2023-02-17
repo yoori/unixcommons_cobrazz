@@ -37,8 +37,6 @@ public:
 
 namespace UServerUtils
 {
-  const std::string config;
-
   class MetricsHTTPProviderImpl;
 
   class MetricsHTTPProvider: public Generics::ActiveObject
@@ -46,6 +44,8 @@ namespace UServerUtils
     , public ReferenceCounting::AtomicImpl
 #endif
   {
+    friend class MetricsHTTPProviderImpl;
+
   public:
     MetricsHTTPProvider(unsigned int _listen_port, std::string _uri);
 
@@ -61,32 +61,24 @@ namespace UServerUtils
     void
     add_value(std::string_view key, unsigned long value);
 
-    // определяем интерфейс ActiveObject
+    // override ActiveObject methods
     void
     activate_object() override; // поднять сервис в отдельном потоке
 
     void
-    deactivate_object() override; // начать остановку сервиса
+    deactivate_object() override; // поднять сервис в отдельном потоке
 
     void
     wait_object() override; // дождаться окончания остановки (типа join потока)
 
     bool
-    active() override; // is started ?
+    active() override;
 
   private:
-    MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
-
-    MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
+    ReferenceCounting::FixedPtr<MetricsHTTPProviderImpl> impl_;
 
   private:
-    std::unique_ptr<MetricsHTTPProviderImpl> impl_;
-    int listen_port;
-    std::string uri;
-    std::thread worker;
-    // std::mutex mx;
-
-    bool stop = false;
+    static const std::string config;
   };
 
   typedef ReferenceCounting::SmartPtr<MetricsHTTPProvider> MetricsHTTPProvider_var;

@@ -41,6 +41,7 @@ namespace UServerUtils
       server::request::RequestContext&) const override;
   };
 
+  /*
   struct StActive
   {
     bool *_b;
@@ -49,29 +50,22 @@ namespace UServerUtils
 
     ~StActive() {*_b=false;}
   };
+  */
 
   void copy_json_to_tmp();
 
-  class MetricsHTTPProviderImpl
+  class MetricsHTTPProviderImpl:
+    public Generics::SimpleActiveObject,
+    public ReferenceCounting::AtomicImpl
   {
   public:
-    unsigned int listen_port;
-    std::string_view uri;
-    std::thread thread_;
-    bool stopped_=false;
-    bool active_;
-
-    MetricsHTTPProviderImpl(unsigned int _listen_port, std::string_view _uri)
-      : listen_port(_listen_port),uri(_uri)
+    MetricsHTTPProviderImpl(unsigned int listen_port, std::string uri)
+      : listen_port_(listen_port),
+        uri_(std::move(uri))
     {}
 
     ~MetricsHTTPProviderImpl()
-    {
-      if(active_)
-      {
-        LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
-      }
-    }
+    {}
 
     void
     set_value(std::string_view key, std::string_view value)
@@ -105,9 +99,11 @@ namespace UServerUtils
 
       // crypto::impl::Openssl::Init();
 
-      auto conf_replaced = std::regex_replace(config,std::regex("~port~"), std::to_string(_this->listen_port));
-      conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri));
-      auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
+      auto conf_replaced = std::regex_replace(
+        MetricsHTTPProvider::config, std::regex("~port~"), std::to_string(_this->listen_port_));
+      conf_replaced = std::regex_replace(conf_replaced, std::regex("~uri~"), std::string(_this->uri_));
+      auto conf_prepared = std::make_unique<components::ManagerConfig>(
+        components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
 
       try
@@ -120,62 +116,49 @@ namespace UServerUtils
         throw;
       }
 
-      StActive(&_this->active_);
-
-      while(true)
+      while(_this->active())
       {
-        if(_this->stopped_)
-        {
-          return NULL;
-        }
-
         sleep(1);
       }
 
       return NULL;
     }
 
+    // override SimpleActiveObject hooks
     void
-    activate_object()
+    activate_object_()
     {
       copy_json_to_tmp();
-      thread_ = std::thread(worker,this);
+      thread_ = std::thread(worker, this);
     }
 
     void
-    deactivate_object()
+    wait_object_()
     {
-      stopped_=true;
       thread_.join();
     }
 
-    void
-    wait_object()
-    {}
-
-    bool
-    active()
-    {
-      return active_;
-    }
+  private:
+    unsigned int listen_port_;
+    std::string uri_;
+    std::thread thread_;
   };
 
-  MetricsHTTPProvider::MetricsHTTPProvider(unsigned int _listen_port, std::string _uri): listen_port(_listen_port),uri(_uri)
-  {
-    impl_.reset(new MetricsHTTPProviderImpl(_listen_port, _uri));
-  }
+  MetricsHTTPProvider::MetricsHTTPProvider(unsigned int listen_port, std::string uri)
+    : impl_(new MetricsHTTPProviderImpl(listen_port, uri))
+  {}
 
   MetricsHTTPProvider::~MetricsHTTPProvider()
   {}
 
   void MetricsHTTPProvider::set_value(std::string_view key, std::string_view value)
   {
-    impl_->set_value(key,value);
+    impl_->set_value(key, value);
   }
 
   void MetricsHTTPProvider::add_value(std::string_view key, unsigned long value)
   {
-    impl_->add_value(key,value);
+    impl_->add_value(key, value);
   }
 
   void MetricsHTTPProvider::activate_object()
@@ -196,10 +179,11 @@ namespace UServerUtils
   bool
   MetricsHTTPProvider::active()
   {
-    return impl_->active_;
+    return impl_->active();
   }
 
-  ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
+  ConfigDistributor::ConfigDistributor(
+    const components::ComponentConfig& config, const components::ComponentContext& context)
     : HttpHandlerJsonBase(config, context)
   {}
 
@@ -215,12 +199,12 @@ namespace UServerUtils
       std::lock_guard<std::mutex> lock(container.mutex);
       for(auto&[k,v]: container.vals_string)
       {
-          j[std::string(k)]=v;
+        j[std::string(k)] = v;
       }
 
       for(auto&[k,v]: container.vals_ul)
       {
-          j[std::string(k)]=v;
+        j[std::string(k)] = v;
       }
     }
 
