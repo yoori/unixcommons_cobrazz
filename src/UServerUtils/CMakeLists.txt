@@ -13,6 +13,7 @@ add_library(UServerUtils SHARED
   MetricsHTTPProvider.cpp
   UServerConfigService.cpp
   GRPCServer.cpp
+  CompositeMetricsProvider.cpp
   )
 
 if(APPLE)
