@@ -1,7 +1,0 @@
-@userverutils_deps@
-
-sources := \
-  Server.cpp \
-
-@userverutils_post@
-

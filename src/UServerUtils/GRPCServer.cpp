@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <UServerUtils/Server.hpp>
+#include <UServerUtils/GRPCServer.hpp>
 
 #include <userver/logging/component.hpp>
 #include <userver/os_signals/component.hpp>

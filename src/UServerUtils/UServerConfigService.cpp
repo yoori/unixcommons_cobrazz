@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 
-std::string config=R"x(
+namespace UServerUtils
+{
+  const std::string config = R"x(
 components_manager:
     coro_pool:
         initial_size: 500             # Preallocate 500 coroutines at startup.
@@ -49,8 +51,7 @@ components_manager:
 
 )x";
 
-std::string dynamic_config_fallback_json=
-R"x(
+  const std::string dynamic_config_fallback_json = R"x(
 {
   "HTTP_CLIENT_CONNECTION_POOL_SIZE": 1000,
   "HTTP_CLIENT_ENFORCE_TASK_DEADLINE": {
@@ -114,10 +115,11 @@ R"x(
 }
 )x";
 
-void copy_json_to_tmp()
-{
-    std::ofstream myfile;
-    myfile.open ("/tmp/dynamic_config_fallback.json");
-    myfile << dynamic_config_fallback_json;
-    myfile.close();
+  void copy_json_to_tmp()
+  {
+      std::ofstream myfile;
+      myfile.open ("/tmp/dynamic_config_fallback.json");
+      myfile << dynamic_config_fallback_json;
+      myfile.close();
+  }
 }
