@@ -113,7 +113,7 @@ namespace UServerUtils
       catch (const std::exception& ex)
       {
         LOG_ERROR() << "Loading failed: " << ex;
-        throw;
+//        throw;
       }
 
       while(_this->active())
