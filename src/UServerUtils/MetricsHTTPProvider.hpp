@@ -37,7 +37,7 @@ public:
 
 namespace UServerUtils
 {
-  const std::string config;
+  const extern std::string config_z;
 
   class MetricsHTTPProviderImpl;
 

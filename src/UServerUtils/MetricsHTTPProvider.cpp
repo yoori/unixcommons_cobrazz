@@ -68,10 +68,14 @@ namespace UServerUtils
 
     MetricsHTTPProviderImpl(MetricsProvider *mProv,unsigned int _listen_port, std::string_view _uri)
       : listen_port(_listen_port),uri(_uri), metricsProvider_(mProv)
-    {}
+    {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+	container=mProv;
+    }
 
     ~MetricsHTTPProviderImpl()
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       if(active_)
       {
         LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
@@ -105,25 +109,30 @@ namespace UServerUtils
 
     static void* worker(MetricsHTTPProviderImpl* _this)
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       const components::ComponentList component_list = components::MinimalServerComponentList()
         .Append<ConfigDistributor>();
 
       // crypto::impl::Openssl::Init();
 
-      auto conf_replaced = std::regex_replace(config,std::regex("~port~"), std::to_string(_this->listen_port));
+      auto conf_replaced = std::regex_replace(config_z,std::regex("~port~"), std::to_string(_this->listen_port));
       conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri));
       auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
+      printf("KALL %s %d\n",__FILE__,__LINE__);
 
       try
       {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
         manager.emplace(std::move(conf_prepared), component_list);
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       }
       catch (const std::exception& ex)
       {
         LOG_ERROR() << "Loading failed: " << ex;
 //        throw;
       }
+      printf("KALL %s %d\n",__FILE__,__LINE__);
 
       StActive __act(&_this->active_);
 
@@ -143,6 +152,7 @@ namespace UServerUtils
     void
     activate_object()
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       copy_json_to_tmp();
       thread_ = std::thread(worker,this);
     }
@@ -150,13 +160,17 @@ namespace UServerUtils
     void
     deactivate_object()
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       stopped_=true;
-      thread_.join();
     }
 
     void
     wait_object()
-    {}
+    {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+      thread_.join();
+    
+    }
 
     bool
     active()
@@ -168,6 +182,7 @@ namespace UServerUtils
   MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider* mProv,unsigned int _listen_port, std::string _uri)
   //: listen_port(_listen_port),uri(_uri)
   {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
     impl_.reset(new MetricsHTTPProviderImpl(mProv,_listen_port, _uri));
   }
 
@@ -218,6 +233,7 @@ namespace UServerUtils
     formats::json::ValueBuilder j;
 
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       //std::lock_guard<std::mutex> lock(container.mutex);
       auto p=dynamic_cast<CompositeMetricsProvider*>(container.operator->());
       if(!p)
