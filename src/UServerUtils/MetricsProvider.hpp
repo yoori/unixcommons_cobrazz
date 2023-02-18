@@ -10,9 +10,9 @@ public:
   typedef std::vector<std::pair<std::string, Value> > MetricArray;
 
   virtual MetricArray get_values() = 0;
-  virtual void add_value(double v)=0;
-  virtual void add_value(long v)=0;
-  virtual void add_value(const std::string& v)=0;
+  virtual void add_value(const std::string &n,double v)=0;
+  virtual void add_value(const std::string &n,long v)=0;
+  virtual void add_value(const std::string &n,const std::string& v)=0;
 };
 
 
