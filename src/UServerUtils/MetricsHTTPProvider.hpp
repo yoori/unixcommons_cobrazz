@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 #include <ReferenceCounting/SmartPtr.hpp>
-
+#include "MetricsProvider.hpp"
 #ifdef __MACH__
 namespace Generics {
 class ActiveObject
@@ -47,19 +47,19 @@ namespace UServerUtils
 #endif
   {
   public:
-    MetricsHTTPProvider(unsigned int _listen_port, std::string _uri);
+    MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string _uri);
 
     ~MetricsHTTPProvider();
 
     // собираем значения от приложения
-    void
-    set_value(std::string_view key, std::string_view value);
+//    void
+//    set_value(std::string_view key, std::string_view value);
 
-    void
-    set_value(std::string_view key, unsigned long value);
+//    void
+//    set_value(std::string_view key, unsigned long value);
 
-    void
-    add_value(std::string_view key, unsigned long value);
+//    void
+//    add_value(std::string_view key, unsigned long value);
 
     // определяем интерфейс ActiveObject
     void
@@ -81,8 +81,8 @@ namespace UServerUtils
 
   private:
     std::unique_ptr<MetricsHTTPProviderImpl> impl_;
-    int listen_port;
-    std::string uri;
+//    int listen_port;
+//    std::string uri;
     std::thread worker;
     // std::mutex mx;
 

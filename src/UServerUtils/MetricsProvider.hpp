@@ -1,9 +1,9 @@
 #ifndef __METRICS_PROVIDER__H
 #define __METRICS_PROVIDER__H
-
+#include <vector>
 #include <boost/variant.hpp>
-
-class MetricsProvider : public Refcountable
+#include "ReferenceCounting/AtomicImpl.hpp"
+class MetricsProvider : public ReferenceCounting::AtomicImpl
 {
 public:
   typedef boost::variant<double, long, std::string> Value;

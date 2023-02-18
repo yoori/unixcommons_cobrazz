@@ -19,6 +19,8 @@ ADD_SUBDIRECTORY(Sync)
 
 ADD_SUBDIRECTORY(TestCommons)
 
+ADD_SUBDIRECTORY(UServerUtils)
+
 
 
 

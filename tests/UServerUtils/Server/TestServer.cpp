@@ -3,7 +3,7 @@
  */
 
 #include <iostream>
-#include <UServerUtils/Server.hpp>
+#include <UServerUtils/GRPCServer.hpp>
 
 
 int

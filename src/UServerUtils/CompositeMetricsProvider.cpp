@@ -1,5 +1,25 @@
 #include "CompositeMetricsProvider.hpp"
 
+class to_string_visitor : public boost::static_visitor<>
+{
+public:
+    std::string str;
+    void operator()(long i)
+    {
+        str=std::to_string(i);
+    }
+    void operator()(double i)
+    {
+        str=std::to_string(i);
+    }
+    void operator()(const std::string i)
+    {
+        str=i;
+    }
+
+};
+
+
 void CompositeMetricsProvider::add_provider(MetricsProvider* p)
 {
     providers.insert(p);

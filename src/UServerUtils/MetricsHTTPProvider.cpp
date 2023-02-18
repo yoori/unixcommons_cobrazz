@@ -15,17 +15,20 @@
 #include <regex>
 
 #include "MetricsHTTPProvider.hpp"
+#include "CompositeMetricsProvider.hpp"
 
 namespace UServerUtils
 {
-  struct Container
+/*  struct Container
   {
     std::mutex mutex;
     std::map<std::string, unsigned long> vals_ul;
     std::map<std::string, std::string> vals_string;
-  };
+  };*/
 
-  static Container container;
+  //static Container container;
+  static ReferenceCounting::SmartPtr<MetricsProvider> container;
+  
 
   class ConfigDistributor final: public server::handlers::HttpHandlerJsonBase
   {
@@ -60,9 +63,11 @@ namespace UServerUtils
     std::thread thread_;
     bool stopped_=false;
     bool active_;
+    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
 
-    MetricsHTTPProviderImpl(unsigned int _listen_port, std::string_view _uri)
-      : listen_port(_listen_port),uri(_uri)
+
+    MetricsHTTPProviderImpl(MetricsProvider *mProv,unsigned int _listen_port, std::string_view _uri)
+      : listen_port(_listen_port),uri(_uri), metricsProvider_(mProv)
     {}
 
     ~MetricsHTTPProviderImpl()
@@ -73,14 +78,14 @@ namespace UServerUtils
       }
     }
 
-    void
+/*    void
     set_value(std::string_view key, std::string_view value)
     {
       std::lock_guard<std::mutex> g(container.mutex);
       container.vals_string[std::string(key)] = value;
-    }
+    }*/
 
-    void
+/*    void
     add_value(std::string_view key, unsigned long value)
     {
       std::lock_guard<std::mutex> g(container.mutex);
@@ -96,7 +101,7 @@ namespace UServerUtils
       }
 
       // container.vals_ul[std::string(key)]+=value;
-    }
+    }*/
 
     static void* worker(MetricsHTTPProviderImpl* _this)
     {
@@ -120,7 +125,7 @@ namespace UServerUtils
 //        throw;
       }
 
-      StActive(&_this->active_);
+      StActive __act(&_this->active_);
 
       while(true)
       {
@@ -160,23 +165,24 @@ namespace UServerUtils
     }
   };
 
-  MetricsHTTPProvider::MetricsHTTPProvider(unsigned int _listen_port, std::string _uri): listen_port(_listen_port),uri(_uri)
+  MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider* mProv,unsigned int _listen_port, std::string _uri)
+  //: listen_port(_listen_port),uri(_uri)
   {
-    impl_.reset(new MetricsHTTPProviderImpl(_listen_port, _uri));
+    impl_.reset(new MetricsHTTPProviderImpl(mProv,_listen_port, _uri));
   }
 
   MetricsHTTPProvider::~MetricsHTTPProvider()
   {}
 
-  void MetricsHTTPProvider::set_value(std::string_view key, std::string_view value)
-  {
-    impl_->set_value(key,value);
-  }
+//  void MetricsHTTPProvider::set_value(std::string_view key, std::string_view value)
+//  {
+//    impl_->set_value(key,value);
+//  }
 
-  void MetricsHTTPProvider::add_value(std::string_view key, unsigned long value)
-  {
-    impl_->add_value(key,value);
-  }
+//  void MetricsHTTPProvider::add_value(std::string_view key, unsigned long value)
+//  {
+//    impl_->add_value(key,value);
+//  }
 
   void MetricsHTTPProvider::activate_object()
   {
@@ -212,16 +218,16 @@ namespace UServerUtils
     formats::json::ValueBuilder j;
 
     {
-      std::lock_guard<std::mutex> lock(container.mutex);
-      for(auto&[k,v]: container.vals_string)
+      //std::lock_guard<std::mutex> lock(container.mutex);
+      auto p=dynamic_cast<CompositeMetricsProvider*>(container.operator->());
+      if(!p)
+        throw std::runtime_error("invalid cast");
+      auto vals=p->getStringValues();//provider
+      for(auto&[k,v]: vals)
       {
-          j[std::string(k)]=v;
+          j[k]=v;
       }
 
-      for(auto&[k,v]: container.vals_ul)
-      {
-          j[std::string(k)]=v;
-      }
     }
 
     return j.ExtractValue();
