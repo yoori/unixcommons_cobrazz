@@ -3,7 +3,7 @@
 #include "UServerUtils/MetricsProvider.hpp"
 #include <unistd.h>
 //using UServerUtils;
-int main(int argc, char* argv[])
+int main(int /*argc*/, char** /*argv*/)
 {
 
     CompositeMetricsProvider *cmp=new CompositeMetricsProvider;

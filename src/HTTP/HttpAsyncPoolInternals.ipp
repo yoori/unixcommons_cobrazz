@@ -112,7 +112,7 @@ namespace HTTP
           {
             break;
           }
-
+          [[fallthrough]];
         case 0:
           states[RT_QUIT] = true;
           break;
@@ -184,7 +184,7 @@ namespace HTTP
         {
         case -1:
           eh::throw_errno_exception<SyscallFailure>(FNE, "send");
-
+          [[fallthrough]];
         case 0:
           {
             Stream::Error ostr;
