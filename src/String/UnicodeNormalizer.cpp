@@ -671,7 +671,7 @@ namespace String
     unsigned
     hash(wchar_t starter, wchar_t combiner) throw ()
     {
-      register unsigned hash = starter;
+      unsigned hash = starter;
       hash ^= (hash & 0x800) >> 6;
       hash ^= (hash & 0x200) >> 4;
       hash ^= combiner & 0x20;
