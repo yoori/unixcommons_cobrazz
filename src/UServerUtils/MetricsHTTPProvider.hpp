@@ -40,7 +40,7 @@ namespace UServerUtils
 {
   const extern std::string config_z;
 
-  class MetricsHTTPProviderImpl;
+//  class MetricsHTTPProviderImpl;
 
   class MetricsHTTPProvider: public Generics::ActiveObject
 #ifdef __linux__
@@ -48,19 +48,10 @@ namespace UServerUtils
 #endif
   {
   public:
-    MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string _uri);
+    MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string_view _uri);
 
     ~MetricsHTTPProvider();
 
-    // собираем значения от приложения
-//    void
-//    set_value(std::string_view key, std::string_view value);
-
-//    void
-//    set_value(std::string_view key, unsigned long value);
-
-//    void
-//    add_value(std::string_view key, unsigned long value);
 
     // определяем интерфейс ActiveObject
     void
@@ -81,13 +72,22 @@ namespace UServerUtils
     MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
 
   private:
-    std::unique_ptr<MetricsHTTPProviderImpl> impl_;
-//    int listen_port;
-//    std::string uri;
-    std::thread worker;
+    //MetricsHTTPProviderImpl* impl_;
+    int listen_port;
+    std::string_view uri;
+    std::thread thread_;
+    static void* worker(MetricsHTTPProvider* _this);
+    
+    bool stopped_=false;
+    bool active_;
+    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
+    
     // std::mutex mx;
 
     bool stop = false;
+    volatile sig_atomic_t state_;
+
+
   };
 
   typedef ReferenceCounting::SmartPtr<MetricsHTTPProvider> MetricsHTTPProvider_var;

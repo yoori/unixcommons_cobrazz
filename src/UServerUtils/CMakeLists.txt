@@ -15,6 +15,7 @@ add_library(UServerUtils SHARED
   MetricsHTTPProvider.cpp
   UServerConfigService.cpp
   GRPCServer.cpp
+  ConfigDistributor.cpp
   CompositeMetricsProvider.cpp
   )
 
