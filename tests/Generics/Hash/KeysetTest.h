@@ -171,7 +171,7 @@ bool SparseKeyTest ( hashfunc<hashtype> hash, const int setbits, bool inclusive,
   std::vector<hashtype> hashes;
 
   keytype k;
-  memset(&k,0,sizeof(k));
+  //memset(&k,0,sizeof(k));
 
   if(inclusive)
   {

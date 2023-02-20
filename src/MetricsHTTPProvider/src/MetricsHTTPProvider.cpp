@@ -175,7 +175,7 @@ ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, 
 {
 
 }
-formats::json::Value ConfigDistributor::HandleRequestJsonThrow( const server::http::HttpRequest&, const formats::json::Value& json,
+formats::json::Value ConfigDistributor::HandleRequestJsonThrow( const server::http::HttpRequest&, const formats::json::Value& /*json*/,
     server::request::RequestContext&) const {
 
   formats::json::ValueBuilder j;

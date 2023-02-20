@@ -59,7 +59,7 @@ namespace ReferenceCounting
     template <typename RefCount>
     static
     void
-    check_ref_count(RefCount ref_count) throw ();
+    check_ref_count(const RefCount& ref_count) throw ();
 
   private:
     static const int FLAG_;
@@ -122,7 +122,7 @@ namespace ReferenceCounting
   template <const int C>
   template <typename RefCount>
   void
-  RunningOnValgrind<C>::check_ref_count(RefCount ref_count) throw ()
+  RunningOnValgrind<C>::check_ref_count(const RefCount& ref_count) throw ()
   {
     if (ref_count && FLAG_)
     {

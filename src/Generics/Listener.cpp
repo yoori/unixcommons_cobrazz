@@ -92,7 +92,10 @@ namespace
      * @return current number of descriptors
      */
     size_t
-    count() const throw ();
+    count() const throw ()
+    {
+      return used_count_;
+    }
 
   private:
     /**
@@ -185,12 +188,6 @@ namespace
   DescriptorsHolder::get() const throw ()
   {
     return descriptors_.get();
-  }
-
-  size_t
-  DescriptorsHolder::count() const throw ()
-  {
-    return used_count_;
   }
 
   void
@@ -547,6 +544,7 @@ namespace Generics
           return;
         }
         error = errno;
+        [[fallthrough]];
 
       case 0:
         event_del(&context.read_event);

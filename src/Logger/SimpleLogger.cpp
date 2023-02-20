@@ -189,10 +189,13 @@ namespace Logging
         strftime(buff.get(), buff.size(), "%a %d %b %Y", &record_time);
         buff.advance();
 
-        snprintf(buff.get(), buff.size(), " %02d:%02d:%02d:%06d ",
+        const auto result = snprintf(buff.get(), buff.size(), " %02d:%02d:%02d:%06d ",
           record_time.tm_hour, record_time.tm_min, record_time.tm_sec,
           record_time.tm_usec);
-        buff.advance(17);
+        if (result >= 0 && result < static_cast<int>(buff.size()))
+        {
+          buff.advance(17);
+        }
       }
 
       if (log_code_)
@@ -224,9 +227,12 @@ namespace Logging
         if (record.severity >= SEVERITIES - 1)
         {
           buff.advance(SEVERITY_SIZE + 1);
-          snprintf(buff.get(), buff.size(), " %lu] ",
+          const auto result = snprintf(buff.get(), buff.size(), " %lu] ",
             record.severity - (SEVERITIES - 1));
-          buff.advance();
+          if (result >= 0 && result < static_cast<int>(buff.size()))
+          {
+            buff.advance();
+          }
         }
         else
         {
@@ -250,16 +256,22 @@ namespace Logging
 
       if (log_process_id_)
       {
-        snprintf(buff.get(), buff.size(), "(%u) ",
+        const auto result = snprintf(buff.get(), buff.size(), "(%u) ",
           static_cast<unsigned>(getpid()));
-        buff.advance();
+        if (result >= 0 && result < static_cast<int>(buff.size()))
+        {
+          buff.advance();
+        }
       }
 
       if (log_thread_id_)
       {
-        snprintf(buff.get(), buff.size(), "[%08lX] ",
+        const auto result = snprintf(buff.get(), buff.size(), "[%08lX] ",
           static_cast<unsigned long>(pthread_self()));
-        buff.advance();
+        if (result >= 0 && result < static_cast<int>(buff.size()))
+        {
+          buff.advance();
+        }
       }
 
       if (log_time_ || log_severity_ || log_aspect_ || log_thread_id_ ||
