@@ -28,6 +28,7 @@ void CompositeMetricsProvider::add_provider(MetricsProvider* p)
 
 MetricsProvider::MetricArray CompositeMetricsProvider::get_values()
 {
+    std::lock_guard<std::mutex> g(mx);
     MetricArray ret;
     for(auto& z: container)
     {
@@ -47,6 +48,7 @@ MetricsProvider::MetricArray CompositeMetricsProvider::get_values()
 
 std::map<std::string,std::string> CompositeMetricsProvider::getStringValues()
 {
+    std::lock_guard<std::mutex> g(mx);
     std::map<std::string,std::string> ret;
     MetricArray arr=get_values();
     for(auto& z:arr)
