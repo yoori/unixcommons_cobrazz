@@ -15,17 +15,20 @@
 #include <regex>
 
 #include "MetricsHTTPProvider.hpp"
+#include "CompositeMetricsProvider.hpp"
 
 namespace UServerUtils
 {
-  struct Container
+/*  struct Container
   {
     std::mutex mutex;
     std::map<std::string, unsigned long> vals_ul;
     std::map<std::string, std::string> vals_string;
-  };
+  };*/
 
-  static Container container;
+  //static Container container;
+  static ReferenceCounting::SmartPtr<MetricsProvider> container;
+  
 
   class ConfigDistributor final: public server::handlers::HttpHandlerJsonBase
   {
@@ -41,7 +44,6 @@ namespace UServerUtils
       server::request::RequestContext&) const override;
   };
 
-  /*
   struct StActive
   {
     bool *_b;
@@ -50,31 +52,44 @@ namespace UServerUtils
 
     ~StActive() {*_b=false;}
   };
-  */
 
   void copy_json_to_tmp();
 
-  class MetricsHTTPProviderImpl:
-    public Generics::SimpleActiveObject,
-    public ReferenceCounting::AtomicImpl
+  class MetricsHTTPProviderImpl
   {
   public:
-    MetricsHTTPProviderImpl(unsigned int listen_port, std::string uri)
-      : listen_port_(listen_port),
-        uri_(std::move(uri))
-    {}
+    unsigned int listen_port;
+    std::string_view uri;
+    std::thread thread_;
+    bool stopped_=false;
+    bool active_;
+    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
+
+
+    MetricsHTTPProviderImpl(MetricsProvider *mProv,unsigned int _listen_port, std::string_view _uri)
+      : listen_port(_listen_port),uri(_uri), metricsProvider_(mProv)
+    {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+	container=mProv;
+    }
 
     ~MetricsHTTPProviderImpl()
-    {}
+    {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+      if(active_)
+      {
+        LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
+      }
+    }
 
-    void
+/*    void
     set_value(std::string_view key, std::string_view value)
     {
       std::lock_guard<std::mutex> g(container.mutex);
       container.vals_string[std::string(key)] = value;
-    }
+    }*/
 
-    void
+/*    void
     add_value(std::string_view key, unsigned long value)
     {
       std::lock_guard<std::mutex> g(container.mutex);
@@ -90,76 +105,99 @@ namespace UServerUtils
       }
 
       // container.vals_ul[std::string(key)]+=value;
-    }
+    }*/
 
     static void* worker(MetricsHTTPProviderImpl* _this)
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       const components::ComponentList component_list = components::MinimalServerComponentList()
         .Append<ConfigDistributor>();
 
       // crypto::impl::Openssl::Init();
 
-      auto conf_replaced = std::regex_replace(
-        MetricsHTTPProvider::config, std::regex("~port~"), std::to_string(_this->listen_port_));
-      conf_replaced = std::regex_replace(conf_replaced, std::regex("~uri~"), std::string(_this->uri_));
-      auto conf_prepared = std::make_unique<components::ManagerConfig>(
-        components::ManagerConfig::FromString(conf_replaced, {}, {}));
+      auto conf_replaced = std::regex_replace(config_z,std::regex("~port~"), std::to_string(_this->listen_port));
+      conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri));
+      auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
+      printf("KALL %s %d\n",__FILE__,__LINE__);
 
       try
       {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
         manager.emplace(std::move(conf_prepared), component_list);
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       }
       catch (const std::exception& ex)
       {
         LOG_ERROR() << "Loading failed: " << ex;
 //        throw;
       }
+      printf("KALL %s %d\n",__FILE__,__LINE__);
 
-      while(_this->active())
+      StActive __act(&_this->active_);
+
+      while(true)
       {
+        if(_this->stopped_)
+        {
+          return NULL;
+        }
+
         sleep(1);
       }
 
       return NULL;
     }
 
-    // override SimpleActiveObject hooks
     void
-    activate_object_()
+    activate_object()
     {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
       copy_json_to_tmp();
-      thread_ = std::thread(worker, this);
+      thread_ = std::thread(worker,this);
     }
 
     void
-    wait_object_()
+    deactivate_object()
     {
-      thread_.join();
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+      stopped_=true;
     }
 
-  private:
-    unsigned int listen_port_;
-    std::string uri_;
-    std::thread thread_;
+    void
+    wait_object()
+    {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+      thread_.join();
+    
+    }
+
+    bool
+    active()
+    {
+      return active_;
+    }
   };
 
-  MetricsHTTPProvider::MetricsHTTPProvider(unsigned int listen_port, std::string uri)
-    : impl_(new MetricsHTTPProviderImpl(listen_port, uri))
-  {}
+  MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider* mProv,unsigned int _listen_port, std::string _uri)
+  //: listen_port(_listen_port),uri(_uri)
+  {
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+    impl_.reset(new MetricsHTTPProviderImpl(mProv,_listen_port, _uri));
+  }
 
   MetricsHTTPProvider::~MetricsHTTPProvider()
   {}
 
-  void MetricsHTTPProvider::set_value(std::string_view key, std::string_view value)
-  {
-    impl_->set_value(key, value);
-  }
+//  void MetricsHTTPProvider::set_value(std::string_view key, std::string_view value)
+//  {
+//    impl_->set_value(key,value);
+//  }
 
-  void MetricsHTTPProvider::add_value(std::string_view key, unsigned long value)
-  {
-    impl_->add_value(key, value);
-  }
+//  void MetricsHTTPProvider::add_value(std::string_view key, unsigned long value)
+//  {
+//    impl_->add_value(key,value);
+//  }
 
   void MetricsHTTPProvider::activate_object()
   {
@@ -179,11 +217,10 @@ namespace UServerUtils
   bool
   MetricsHTTPProvider::active()
   {
-    return impl_->active();
+    return impl_->active_;
   }
 
-  ConfigDistributor::ConfigDistributor(
-    const components::ComponentConfig& config, const components::ComponentContext& context)
+  ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
     : HttpHandlerJsonBase(config, context)
   {}
 
@@ -196,16 +233,17 @@ namespace UServerUtils
     formats::json::ValueBuilder j;
 
     {
-      std::lock_guard<std::mutex> lock(container.mutex);
-      for(auto&[k,v]: container.vals_string)
+      printf("KALL %s %d\n",__FILE__,__LINE__);
+      //std::lock_guard<std::mutex> lock(container.mutex);
+      auto p=dynamic_cast<CompositeMetricsProvider*>(container.operator->());
+      if(!p)
+        throw std::runtime_error("invalid cast");
+      auto vals=p->getStringValues();//provider
+      for(auto&[k,v]: vals)
       {
-        j[std::string(k)] = v;
+          j[k]=v;
       }
 
-      for(auto&[k,v]: container.vals_ul)
-      {
-        j[std::string(k)] = v;
-      }
     }
 
     return j.ExtractValue();

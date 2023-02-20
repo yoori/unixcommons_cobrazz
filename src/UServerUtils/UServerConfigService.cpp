@@ -1,11 +1,9 @@
 #include <iostream>
 #include <fstream>
 
-#include "MetricsHTTPProvider.hpp"
-
 namespace UServerUtils
 {
-  const std::string MetricsHTTPProvider::config = R"x(
+  std::string config_z = R"x(
 components_manager:
     coro_pool:
         initial_size: 500             # Preallocate 500 coroutines at startup.

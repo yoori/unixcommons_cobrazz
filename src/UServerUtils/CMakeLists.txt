@@ -1,5 +1,6 @@
 #include_directories(/usr/local/include src)
 
+
 set(USERVER_NAMESPACE_BEGIN "namespace userver {" CACHE STRING "Open C++ namespace to use")
 set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
 
@@ -9,10 +10,12 @@ add_compile_definitions(
   "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}"
 )
 
+
 add_library(UServerUtils SHARED
   MetricsHTTPProvider.cpp
   UServerConfigService.cpp
   GRPCServer.cpp
+  CompositeMetricsProvider.cpp
   )
 
 if(APPLE)
@@ -31,3 +34,7 @@ target_link_libraries(UServerUtils
   ${LINUXLINK}
   pthread
   )
+
+
+
+ADD_SUBDIRECTORY(sample)

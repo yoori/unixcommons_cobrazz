@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 #include <ReferenceCounting/SmartPtr.hpp>
-
+#include "MetricsProvider.hpp"
 #ifdef __MACH__
 namespace Generics {
 class ActiveObject
@@ -37,6 +37,8 @@ public:
 
 namespace UServerUtils
 {
+  const extern std::string config_z;
+
   class MetricsHTTPProviderImpl;
 
   class MetricsHTTPProvider: public Generics::ActiveObject
@@ -44,41 +46,47 @@ namespace UServerUtils
     , public ReferenceCounting::AtomicImpl
 #endif
   {
-    friend class MetricsHTTPProviderImpl;
-
   public:
-    MetricsHTTPProvider(unsigned int _listen_port, std::string _uri);
+    MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string _uri);
 
     ~MetricsHTTPProvider();
 
     // собираем значения от приложения
-    void
-    set_value(std::string_view key, std::string_view value);
+//    void
+//    set_value(std::string_view key, std::string_view value);
 
-    void
-    set_value(std::string_view key, unsigned long value);
+//    void
+//    set_value(std::string_view key, unsigned long value);
 
-    void
-    add_value(std::string_view key, unsigned long value);
+//    void
+//    add_value(std::string_view key, unsigned long value);
 
-    // override ActiveObject methods
+    // определяем интерфейс ActiveObject
     void
     activate_object() override; // поднять сервис в отдельном потоке
 
     void
-    deactivate_object() override; // поднять сервис в отдельном потоке
+    deactivate_object() override; // начать остановку сервиса
 
     void
     wait_object() override; // дождаться окончания остановки (типа join потока)
 
     bool
-    active() override;
+    active() override; // is started ?
 
   private:
-    ReferenceCounting::FixedPtr<MetricsHTTPProviderImpl> impl_;
+    MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
+
+    MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
 
   private:
-    static const std::string config;
+    std::unique_ptr<MetricsHTTPProviderImpl> impl_;
+//    int listen_port;
+//    std::string uri;
+    std::thread worker;
+    // std::mutex mx;
+
+    bool stop = false;
   };
 
   typedef ReferenceCounting::SmartPtr<MetricsHTTPProvider> MetricsHTTPProvider_var;
