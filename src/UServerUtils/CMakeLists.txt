@@ -37,4 +37,4 @@ target_link_libraries(UServerUtils
 
 
 
-ADD_SUBDIRECTORY(sample)
+#ADD_SUBDIRECTORY(sample)

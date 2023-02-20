@@ -5,6 +5,8 @@
 #include <mutex>
 #include "MetricsProvider.hpp"
 #include "ReferenceCounting/SmartPtr.hpp"
+namespace Generics
+{
 class CompositeMetricsProvider : public MetricsProvider
 {
     std::map<std::string,Value> container;
@@ -18,24 +20,24 @@ public:
   MetricArray get_values();
   std::map<std::string,std::string> getStringValues();
   
-  void add_value(const std::string &n,double v)
+  void add_value(std::string_view n,double v)
   {
     std::lock_guard<std::mutex> g(mx);
-    container[n]=v;
+    container[std::string(n)]=v;
   }
-  void add_value(const std::string &n,long v)
+  void add_value(std::string_view n,long v)
   {
     std::lock_guard<std::mutex> g(mx);
-    container[n]=v;
+    container[std::string(n)]=v;
   }
-  void add_value(const std::string &n,const std::string& v)
+  void add_value(std::string_view n,const std::string& v)
   {
     std::lock_guard<std::mutex> g(mx);
-    container[n]=v;
+    container[std::string(n)]=v;
   }
 
 
 };
-
+}
 #endif
 

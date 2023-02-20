@@ -1,5 +1,5 @@
 #include "CompositeMetricsProvider.hpp"
-
+namespace Generics{
 class to_string_visitor : public boost::static_visitor<>
 {
 public:
@@ -60,4 +60,5 @@ std::map<std::string,std::string> CompositeMetricsProvider::getStringValues()
           ret[key]=vis.str;
     }
     return ret;
+}
 }

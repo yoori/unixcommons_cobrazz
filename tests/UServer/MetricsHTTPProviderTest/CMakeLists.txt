@@ -1,5 +1,5 @@
 add_executable(MetricsHTTPProviderTest 
-  daemon_run1.cpp
+  sampleMetrics.cpp
 )
 
 include_directories()

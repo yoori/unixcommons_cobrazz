@@ -5,6 +5,7 @@
 #include <thread>
 #include <ReferenceCounting/SmartPtr.hpp>
 #include "MetricsProvider.hpp"
+using namespace Generics;
 #ifdef __MACH__
 namespace Generics {
 class ActiveObject
