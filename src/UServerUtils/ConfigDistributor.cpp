@@ -29,7 +29,7 @@ namespace UServerUtils
   formats::json::Value
   ConfigDistributor::HandleRequestJsonThrow(
     const server::http::HttpRequest&,
-    const formats::json::Value& json,
+    const formats::json::Value& /*json*/,
     server::request::RequestContext&) const
   {
     formats::json::ValueBuilder j;

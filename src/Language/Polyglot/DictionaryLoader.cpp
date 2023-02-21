@@ -206,17 +206,12 @@ namespace
   struct Word
   {
     Word(const std::wstring& word_val, unsigned long freq_val)
-      /*throw (eh::Exception)*/;
+      : word(word_val), freq(freq_val)
+    {}
 
     std::wstring word;
-    unsigned long freq;
+    unsigned long freq = 0;
   };
-
-  Word::Word(const std::wstring& word_val, unsigned long freq_val)
-    /*throw (eh::Exception)*/
-    : word(word_val), freq(freq_val)
-  {
-  }
 
   typedef Generics::GnuHashTable<
     Generics::NumericHashAdapter<unsigned long>, Word> IdWordMap;

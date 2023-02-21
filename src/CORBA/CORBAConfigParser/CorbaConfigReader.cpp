@@ -39,7 +39,7 @@ namespace
 {
   typedef std::list<std::string> CertificateSeq;
 
-  void
+  inline void
   parse_certificate_seq(const char* certificates,
     CertificateSeq& certificate_seq) /*throw (eh::Exception)*/
   {

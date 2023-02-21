@@ -110,7 +110,7 @@ namespace
       std::string dest;
       dest.reserve((n + 2) / 3 * 4);
 
-      register const unsigned char* p =
+      const unsigned char* p =
         static_cast<const unsigned char*>(src);
 
       for (; n > 2; n -= 3, p += 3)
@@ -126,7 +126,7 @@ namespace
       {
       case 1:
         {
-          register unsigned char c1 = *p;
+          unsigned char c1 = *p;
           char buf[] = { encode(c1 >> 2),
             encode(((c1 << 4) & 060) | (fill & 0x0F)), PADDING,
             PADDING };
@@ -136,8 +136,8 @@ namespace
 
       case 2:
         {
-          register unsigned char c1 = *p;
-          register unsigned char c2 = p[1];
+          unsigned char c1 = *p;
+          unsigned char c2 = p[1];
           char buf[] = { encode(c1 >> 2),
             encode(((c1 << 4) & 060) | ((c2 >> 4) & 017)),
             encode(((c2 << 2) & 074) | (fill & 0x03)), PADDING };
@@ -212,7 +212,7 @@ namespace
     Iterator::skip_blanks()
       /*throw (String::StringManip::InvalidFormatException)*/
     {
-      register uint8_t ch;
+      uint8_t ch;
       while ((ch = operator *()) == 0177)
       {
         operator ++();
@@ -360,13 +360,13 @@ namespace
     }
 
     void
-    wchar_to_hex(std::string& dest, register unsigned ucs)
+    wchar_to_hex(std::string& dest, unsigned ucs)
     {
       assert(ucs > 0 && ucs <= 0xFFFFFFFFu);
       char buf[11] = "&#x";
-      register char* ptr = buf + 3;
-      register unsigned mask = 0xF0000000u;
-      register unsigned shift = 28;
+      char* ptr = buf + 3;
+      unsigned mask = 0xF0000000u;
+      unsigned shift = 28;
       while (!(ucs & mask))
       {
         mask >>= 4;
@@ -466,7 +466,7 @@ namespace String
 
       while (p.available())
       {
-        register uint8_t c1, c2, c3, c4;
+        uint8_t c1, c2, c3, c4;
 
         c1 = p.skip_blanks();
         if (c1 == 0100)
@@ -565,7 +565,7 @@ namespace String
 
         cur = ptr + 1;
 
-        register uint8_t ch = static_cast<uint8_t>(*ptr);
+        uint8_t ch = static_cast<uint8_t>(*ptr);
 
         if (ch == ' ')
         {
@@ -630,14 +630,14 @@ namespace String
     mime_url_decode(std::string& text)
       /*throw (eh::Exception, InvalidFormatException)*/
     {
-      register std::string::size_type size = text.size();
+      std::string::size_type size = text.size();
       if (!size)
       {
         return;
       }
 
-      register char* dest = &text[0];
-      register const char* src = dest;
+      char* dest = &text[0];
+      const char* src = dest;
 
       while (size-- > 0)
       {
@@ -913,9 +913,9 @@ namespace String
       std::string dest;
       dest.reserve(dst.size() * 12);
 
-      for (register wchar_t current; (current = *src) != L'\0'; src++)
+      for (wchar_t current; (current = *src) != L'\0'; src++)
       {
-        const register char l_byte =
+        const char l_byte =
           convert(static_cast<unsigned char>(current));
 
         if ((current >> 8) == 0 && l_byte >= 0x20 && l_byte <= 0x7E)
@@ -951,7 +951,7 @@ namespace String
       dest.reserve(dst.size() * 6);
 
       unsigned long octets_count;
-      for (register char current; (current = *src) != '\0';
+      for (char current; (current = *src) != '\0';
         src += octets_count)
       {
         if (!UTF8Handler::is_correct_utf8_sequence(src, octets_count))
@@ -1311,7 +1311,7 @@ namespace String
 
         cur = ptr + 1;
 
-        register char ch = *ptr;
+        char ch = *ptr;
 
         if (ch == '\\')
         {
@@ -1343,7 +1343,7 @@ namespace String
           src = ptr;
         }
 
-        register uint8_t ch = *ptr;
+        uint8_t ch = *ptr;
 
         if (!ch)
         {
@@ -1360,6 +1360,7 @@ namespace String
             case '\xA9':
               buf = "\\u2029";
               // FALLTHROUGN
+              [[fallthrough]];
             case '\xA8':
               dst.append(buf, 6);
               from = src += 3;
@@ -1394,7 +1395,7 @@ namespace String
         return;
       }
 
-      for (register wchar_t current; (current = *src++) != L'\0';
+      for (wchar_t current; (current = *src++) != L'\0';
         wchar_to_utf8(current, utf8_res))
       {
       }
@@ -1448,8 +1449,8 @@ namespace String
     trim(SubString& str, const AsciiStringManip::CharCategory& trim_set)
       throw ()
     {
-      register const char* end = str.end();
-      register const char* begin =
+      const char* end = str.end();
+      const char* begin =
         trim_set.find_nonowned(str.begin(), end);
       if (begin != end)
       {
@@ -1539,7 +1540,7 @@ namespace String
           break;
         }
 
-        register char ch = *ptr;
+        char ch = *ptr;
 
         if (ptr != src)
         {
