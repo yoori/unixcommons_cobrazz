@@ -21,7 +21,7 @@
 
 namespace UServerUtils
 {
-    extern ReferenceCounting::SmartPtr<MetricsProvider> container;
+//    extern ReferenceCounting::SmartPtr<MetricsProvider> container;
 
   ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
     : HttpHandlerJsonBase(config, context)
@@ -36,12 +36,13 @@ namespace UServerUtils
     formats::json::ValueBuilder j;
 
     {
-      
-      //std::lock_guard<std::mutex> lock(container.mutex);
-      auto p=dynamic_cast<CompositeMetricsProvider*>(container.operator->());
+printf("KALL %s %d\n",__FILE__,__LINE__);
+      auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
       if(!p)
         throw std::runtime_error("invalid cast");
+printf("KALL %s %d\n",__FILE__,__LINE__);
       auto vals=p->getStringValues();//provider
+printf("KALL %s %d\n",__FILE__,__LINE__);
       for(auto&[k,v]: vals)
       {
           j[k]=v;

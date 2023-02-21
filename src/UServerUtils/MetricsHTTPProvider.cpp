@@ -20,59 +20,42 @@
 
 namespace UServerUtils
 {
-/*  struct Container
-  {
-    std::mutex mutex;
-    std::map<std::string, unsigned long> vals_ul;
-    std::map<std::string, std::string> vals_string;
-  };*/
-
-  //static Container container;
-  ReferenceCounting::SmartPtr<MetricsProvider> container;
-  
-
-/*
-  struct StActive
-  {
-    bool *_b;
-
-    StActive(bool* b): _b(b) {*_b=true;}
-
-    ~StActive() {*_b=false;}
-  };*/
-
   void copy_json_to_tmp();
+    ReferenceCounting::SmartPtr<MetricsProvider> MetricsHTTPProvider::container;
 
     void* MetricsHTTPProvider::worker(MetricsHTTPProvider* _this)
     {
     
     
+
+printf("KALL %s %d\n",__FILE__,__LINE__);
       
       const components::ComponentList component_list = components::MinimalServerComponentList()
         .Append<ConfigDistributor>();
 
       // crypto::impl::Openssl::Init();
 
-      auto conf_replaced = std::regex_replace(config_z,std::regex("~port~"), std::to_string(_this->listen_port));
-      conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri));
+      auto conf_replaced = std::regex_replace(config_z_yaml,std::regex("~port~"), std::to_string(_this->listen_port_));
+      conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri_));
       auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
+printf("KALL %s %d\n",__FILE__,__LINE__);
       
 
       try
       {
       
         manager.emplace(std::move(conf_prepared), component_list);
+        _this->state_=AS_ACTIVE;
       
       }
       catch (const std::exception& ex)
       {
         LOG_ERROR() << "Loading failed: " << ex;
-//        throw;
       }
       
+printf("KALL %s %d\n",__FILE__,__LINE__);
 
-//      StActive __act(&_this->active_);
 
       while(true)
       {
@@ -91,6 +74,7 @@ namespace UServerUtils
     MetricsHTTPProvider::activate_object()
     {
       
+printf("KALL %s %d\n",__FILE__,__LINE__);
       copy_json_to_tmp();
       thread_ = std::thread(worker,this);
     }
@@ -98,7 +82,8 @@ namespace UServerUtils
     void
     MetricsHTTPProvider::deactivate_object()
     {
-      
+printf("KALL %s %d\n",__FILE__,__LINE__);
+      state_=AS_DEACTIVATING;
       stopped_=true;
     }
     void
@@ -106,38 +91,25 @@ namespace UServerUtils
     {
       
       thread_.join();
+      state_=AS_NOT_ACTIVE;
     
     }
 
     bool
     MetricsHTTPProvider::active()
     {
-      return active_;
+      return state_==AS_ACTIVE;
     }
 //     AS_ACTIVE,
 //      AS_DEACTIVATING,
 //      AS_NOT_ACTIVE
 
 
-  class MetricsHTTPProviderImpl
-  {
-  public:
-    unsigned int listen_port;
-    std::string_view uri;
-    std::thread thread_;
-    bool stopped_=false;
-    bool active_;
-    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
-
-
-
-
-
-  };
 
     MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider *mProv,unsigned int _listen_port, std::string_view _uri)
-      : listen_port(_listen_port),uri(_uri), metricsProvider_(mProv)
+      : listen_port_(_listen_port),uri_(_uri)//, metricsProvider_(mProv)
     {
+printf("KALL %s %d\n",__FILE__,__LINE__);
       
 	container=mProv;
 	state_=AS_NOT_ACTIVE;
@@ -146,45 +118,11 @@ namespace UServerUtils
     MetricsHTTPProvider::~MetricsHTTPProvider()
     {
       
-      if(active_)
+      if(state_!=AS_NOT_ACTIVE)
       {
         LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
       }
     }
 
 
-/*  MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider* mProv,unsigned int _listen_port, std::string _uri)
-  : impl_(new MetricsHTTPProviderImpl(mProv,_listen_port, _uri))
-  {
-      
-//    impl_.reset(new MetricsHTTPProviderImpl(mProv,_listen_port, _uri));
-  }
-
-  MetricsHTTPProvider::~MetricsHTTPProvider()
-  {
-    delete impl_;
-  }
-
-*/
-//  void MetricsHTTPProvider::activate_object()
-//  {
-//    impl_->activate_object();
-//  }
-
-//  void MetricsHTTPProvider::deactivate_object()
-//  {
-//    impl_->deactivate_object();
-//  }
-
-/*  void MetricsHTTPProvider::wait_object()
-  {
-    impl_->wait_object();
-  }
-
-  bool
-  MetricsHTTPProvider::active()
-  {
-    return impl_->active_;
-  }
-*/
 }

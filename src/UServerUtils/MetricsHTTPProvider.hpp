@@ -6,46 +6,18 @@
 #include <ReferenceCounting/SmartPtr.hpp>
 #include "MetricsProvider.hpp"
 using namespace Generics;
-#ifdef __MACH__
-namespace Generics {
-class ActiveObject
-{
-public:
-    virtual
-    void
-    activate_object()    =0;
-    virtual
-    void
-    deactivate_object() =0;
-    virtual
-    void
-    wait_object() =0;
-    virtual
-    bool
-    active() =0;
-    virtual ~ActiveObject(){}
-};
-
-}
-#elif defined(__linux__)
 
 
 #include <Generics/ActiveObject.hpp>
 #include <ReferenceCounting/AtomicImpl.hpp>
-#else
-#error "! linux && ! macos":
-#endif
 
 namespace UServerUtils
 {
-  const extern std::string config_z;
+  const extern std::string config_z_yaml;
 
-//  class MetricsHTTPProviderImpl;
 
   class MetricsHTTPProvider: public Generics::ActiveObject
-#ifdef __linux__
     , public ReferenceCounting::AtomicImpl
-#endif
   {
   public:
     MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string_view _uri);
@@ -72,21 +44,22 @@ namespace UServerUtils
     MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
 
   private:
-    //MetricsHTTPProviderImpl* impl_;
-    int listen_port;
-    std::string_view uri;
+    int listen_port_;
+    std::string_view uri_;
     std::thread thread_;
     static void* worker(MetricsHTTPProvider* _this);
     
     bool stopped_=false;
-    bool active_;
-    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
+//    bool active_;
+//    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
     
     // std::mutex mx;
 
-    bool stop = false;
+    bool stop_ = false;
     volatile sig_atomic_t state_;
 
+public:
+    static ReferenceCounting::SmartPtr<MetricsProvider> container;
 
   };
 
