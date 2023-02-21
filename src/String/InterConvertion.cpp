@@ -18,7 +18,7 @@ namespace String
   namespace International
   {
     const iconv_t Convertion::INVALID_ =
-      reinterpret_cast<const iconv_t>(-1);
+      reinterpret_cast<iconv_t>(-1);
 
     void
     Convertion::set_encodings(const char* to_code, const char* from_code)
