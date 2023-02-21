@@ -28,7 +28,7 @@ void CompositeMetricsProvider::add_provider(MetricsProvider* p)
 
 MetricsProvider::MetricArray CompositeMetricsProvider::get_values()
 {
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
     std::lock_guard<std::mutex> g(mx);
     MetricArray ret;
     for(auto& z: container)
@@ -49,7 +49,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
 
 std::map<std::string,std::string> CompositeMetricsProvider::getStringValues()
 {
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
 //    std::lock_guard<std::mutex> g(mx);
     std::map<std::string,std::string> ret;
     MetricArray arr=get_values();
@@ -61,7 +61,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
           boost::apply_visitor(vis,v);
           ret[key]=vis.str;
     }
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
     return ret;
 }
 }

@@ -38,6 +38,8 @@ public:
 
 
 };
+  typedef ReferenceCounting::SmartPtr<CompositeMetricsProvider> CompositeMetricsProvider_var;
+
 }
 #endif
 
