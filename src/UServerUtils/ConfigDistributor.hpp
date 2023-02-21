@@ -18,7 +18,7 @@
 #include <regex>
 
 #include "MetricsHTTPProvider.hpp"
-#include "CompositeMetricsProvider.hpp"
+#include "Generics/CompositeMetricsProvider.hpp"
 #include "ConfigDistributor.hpp"
 
 namespace UServerUtils

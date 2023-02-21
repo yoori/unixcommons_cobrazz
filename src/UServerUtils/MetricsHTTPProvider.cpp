@@ -15,7 +15,7 @@
 #include <regex>
 
 #include "MetricsHTTPProvider.hpp"
-#include "CompositeMetricsProvider.hpp"
+#include "Generics/CompositeMetricsProvider.hpp"
 #include "ConfigDistributor.hpp"
 
 namespace UServerUtils
@@ -28,7 +28,7 @@ namespace UServerUtils
     
     
 
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
       
       const components::ComponentList component_list = components::MinimalServerComponentList()
         .Append<ConfigDistributor>();
@@ -39,7 +39,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
       conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri_));
       auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
       
 
       try
@@ -54,7 +54,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
         LOG_ERROR() << "Loading failed: " << ex;
       }
       
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
 
 
       while(true)
@@ -74,7 +74,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
     MetricsHTTPProvider::activate_object()
     {
       
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
       copy_json_to_tmp();
       thread_ = std::thread(worker,this);
     }
@@ -82,7 +82,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
     void
     MetricsHTTPProvider::deactivate_object()
     {
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
       state_=AS_DEACTIVATING;
       stopped_=true;
     }
@@ -109,7 +109,7 @@ printf("KALL %s %d\n",__FILE__,__LINE__);
     MetricsHTTPProvider::MetricsHTTPProvider(MetricsProvider *mProv,unsigned int _listen_port, std::string_view _uri)
       : listen_port_(_listen_port),uri_(_uri)//, metricsProvider_(mProv)
     {
-printf("KALL %s %d\n",__FILE__,__LINE__);
+
       
 	container=mProv;
 	state_=AS_NOT_ACTIVE;

@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 #include <ReferenceCounting/SmartPtr.hpp>
-#include "MetricsProvider.hpp"
+#include "Generics/MetricsProvider.hpp"
 using namespace Generics;
 
 

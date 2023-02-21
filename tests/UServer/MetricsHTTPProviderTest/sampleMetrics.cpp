@@ -1,6 +1,6 @@
 #include "UServerUtils/MetricsHTTPProvider.hpp"
-#include "UServerUtils/CompositeMetricsProvider.hpp"
-#include "UServerUtils/MetricsProvider.hpp"
+#include "Generics/CompositeMetricsProvider.hpp"
+#include "Generics/MetricsProvider.hpp"
 #include <unistd.h>
 //using UServerUtils;
 int main(int argc, char* argv[])

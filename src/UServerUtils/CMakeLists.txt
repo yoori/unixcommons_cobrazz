@@ -16,7 +16,7 @@ add_library(UServerUtils SHARED
   UServerConfigService.cpp
   GRPCServer.cpp
   ConfigDistributor.cpp
-  CompositeMetricsProvider.cpp
+#  CompositeMetricsProvider.cpp
   )
 
 if(APPLE)

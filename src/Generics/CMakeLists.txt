@@ -51,6 +51,7 @@ add_library(${proj}  SHARED
 ../String/UnicodeNormalizer.cpp
 ../String/UnicodeSymbol.cpp
 
+CompositeMetricsProvider.cpp
 
 )
 
