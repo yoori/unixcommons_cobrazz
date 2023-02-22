@@ -142,7 +142,7 @@ namespace Generics
   ISAAC::rng_step_(uint32_t*& m, uint32_t*& m2, uint32_t*& r, uint32_t* mm,
     uint32_t& a, uint32_t& b, uint32_t mix) throw ()
   {
-    register uint32_t x, y;
+    uint32_t x, y;
 
     x = *m;
     a = (a ^ mix) + *(m2++);
@@ -156,10 +156,10 @@ namespace Generics
   {
     uint32_t a = aa_;
     uint32_t b = bb_ + ++cc_;
-    register uint32_t* mm = state_;
+    uint32_t* mm = state_;
     uint32_t* m = mm;
     uint32_t* m2 = mm + SIZE / 2;
-    register uint32_t* mend = m2;
+    uint32_t* mend = m2;
     uint32_t* r = random_;
 
     while (m < mend)

@@ -79,7 +79,7 @@ namespace Generics
      * @param value initial seed number
      */
     void
-    initialize(register uint32_t value) throw ();
+    initialize(uint32_t value) throw ();
 
     /**
      * Refreshes state after each pass
@@ -128,7 +128,7 @@ namespace Generics
     }
     Left_--;
 
-    register uint32_t res = *Next_++;
+    uint32_t res = *Next_++;
     res ^= (res >> 11);
     res ^= (res << 7) & 0x9D2C5680ul;
     res ^= (res << 15) & 0xEFC60000ul;
@@ -161,8 +161,8 @@ namespace Generics
 
     inline
     uint32_t
-    MT19937_mix(const register uint32_t m, const register uint32_t s0,
-      const register uint32_t s1) throw ()
+    MT19937_mix(const uint32_t m, const uint32_t s0,
+      const uint32_t s1) throw ()
     {
       return m ^
         (((s0 & 0x80000000ul) | (s1 & 0x7FFFFFFFul)) >> 1) ^
@@ -176,12 +176,12 @@ namespace Generics
   {
     static const size_t PERIOD_LENGTH = 397;
 
-    register uint32_t* p = State_;
-    for (register int i = STATE_SIZE - PERIOD_LENGTH; i--; ++p)
+    uint32_t* p = State_;
+    for (int i = STATE_SIZE - PERIOD_LENGTH; i--; ++p)
     {
       *p = MT19937Helper::MT19937_mix(p[PERIOD_LENGTH], p[0], p[1]);
     }
-    for (register int i = PERIOD_LENGTH; --i; ++p)
+    for (int i = PERIOD_LENGTH; --i; ++p)
     {
       *p = MT19937Helper::MT19937_mix(p[PERIOD_LENGTH - STATE_SIZE],
         p[0], p[1]);
@@ -241,9 +241,9 @@ namespace Generics
   MT19937::seed(const uint32_t* value, size_t size) throw ()
   {
     initialize(0x21414B53ul);
-    register size_t i = 1;
-    register uint32_t j = 0;
-    for (register size_t k = (STATE_SIZE > size ? STATE_SIZE : size);
+    size_t i = 1;
+    uint32_t j = 0;
+    for (size_t k = (STATE_SIZE > size ? STATE_SIZE : size);
       k; --k)
     {
       State_[i] ^= (State_[i - 1] ^ (State_[i - 1] >> 30)) * 1664525ul;
@@ -258,7 +258,7 @@ namespace Generics
         j = 0;
       }
     }
-    for (register size_t k = STATE_SIZE - 1; k; --k)
+    for (size_t k = STATE_SIZE - 1; k; --k)
     {
       State_[i] ^= (State_[i - 1] ^ (State_[i - 1] >> 30)) * 1566083941ul;
       State_[i] -= i;
@@ -274,11 +274,11 @@ namespace Generics
 
   inline
   void
-  MT19937::initialize(register uint32_t value) throw ()
+  MT19937::initialize(uint32_t value) throw ()
   {
-    register uint32_t* s = State_;
+    uint32_t* s = State_;
     *s++ = value;
-    for (register size_t i = 1; i < STATE_SIZE; ++i)
+    for (size_t i = 1; i < STATE_SIZE; ++i)
     {
       value = 1812433253ul * (value ^ (value >> 30)) + i;
       *s++ = value;
