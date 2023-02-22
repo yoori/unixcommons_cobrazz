@@ -85,7 +85,7 @@ namespace Generics
     /** self sign */
     bool negative_;
     /** number as array of decimals with base BASE */
-    Element array_[SIZE];
+    Element array_[SIZE] = {};
 
   public:
     /** size of array to pack value of decimal */
@@ -590,7 +590,7 @@ namespace Generics
         DecimalHelper::Pow10<Element, DIGITS_PER_ELEMENT -
           (TMP_SIZE * DIGITS_PER_ELEMENT - TMP_TOTAL_RANK)>::Value;
 
-      Element tmp_array_[TMP_SIZE];
+      Element tmp_array_[TMP_SIZE] = {};
     };
     friend class MulTmpArray;
 
@@ -621,7 +621,7 @@ namespace Generics
       dump() const /*throw (eh::Exception)*/;
 
     protected:
-      Element tmp_array_[DIV_TMP_SIZE];
+      Element tmp_array_[DIV_TMP_SIZE] = {};
       unsigned size_;
       unsigned initial_size_;
     };
