@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package UServerUtils.Grpc.Test1;
+
+service TestUnaryService {
+  rpc say_hello(Request) returns(Response) {}
+}
+
+message Request {
+  string request = 1;
+}
+
+message Response {
+  string response = 1;
+}

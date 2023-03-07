@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package test_coro;
+
+message Request {
+  uint32 id_request_grpc = 1;
+  string message = 2;
+}
+
+message Response {
+  uint32 id_request_grpc = 1;
+  string message = 2;
+}
+
+service TestCoroService {
+  rpc Handler(stream Request) returns (stream Response) {}
+}
