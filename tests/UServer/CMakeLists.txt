@@ -1,1 +1,1 @@
-ADD_SUBDIRECTORY(MetricsHTTPProviderTest)
+#ADD_SUBDIRECTORY(MetricsHTTPProviderTest)

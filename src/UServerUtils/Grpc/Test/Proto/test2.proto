@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package UServerUtils.Grpc.Test2;
+
+service TestStreamService {
+  rpc chat(stream Request) returns(stream Response) {}
+}
+
+message Request {
+  string request = 1;
+}
+
+message Response {
+  string response = 1;
+}

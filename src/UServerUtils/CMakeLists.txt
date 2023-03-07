@@ -1,41 +1,60 @@
-#include_directories(/usr/local/include src)
-
-
-set(USERVER_NAMESPACE_BEGIN "namespace userver {" CACHE STRING "Open C++ namespace to use")
-set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
-
-add_compile_definitions(
-  "USERVER_NAMESPACE=userver"
-  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}"
+include(FetchContent)
+option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
+option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
+option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
+option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
+FetchContent_Declare(
+  userver
+  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
+  GIT_TAG grpc
 )
+FetchContent_MakeAvailable(userver)
 
+find_package(GTest REQUIRED)
 
 add_library(UServerUtils SHARED
-  MetricsHTTPProvider.cpp
-  UServerConfigService.cpp
-  GRPCServer.cpp
-  ConfigDistributor.cpp
-#  CompositeMetricsProvider.cpp
-  )
-
-if(APPLE)
-  set(MACLINK "userver-stacktrace")
-endif()
-
-if(LINUX)
-  set(LINUXLINK "Generics")
-endif()
+  #MetricsHTTPProvider.cpp
+  #UServerConfigService.cpp
+  #GRPCServer.cpp
+  #ConfigDistributor.cpp
+  Grpc/ComponentsBuilder.cpp
+  Grpc/ClientFactory.cpp
+  Grpc/Logging.cpp
+  Grpc/Manager.cpp
+  Grpc/Server.cpp
+  Grpc/ServerBuilder.cpp
+  Grpc/TaskProcessorContainer.cpp
+  Grpc/TaskProcessorContainerBuilder.cpp
+)
 
 target_link_libraries(UServerUtils
   userver-core
   userver-grpc
-  http_parser 
-  ${MACLINK}
-  ${LINUXLINK}
+  http_parser
+  Generics
+  Logger
   pthread
-  )
+)
 
+# UnitTests
+include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
+add_grpc_library(UServerUtils_proto
+  PROTOS
+    test1.proto
+    test2.proto
+  SOURCE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Test/Proto
+)
 
+add_executable(TestUserver
+  Grpc/Test/grpc_test.cpp
+)
 
-#ADD_SUBDIRECTORY(sample)
+target_link_libraries(TestUserver
+  GTest::gtest
+  GTest::gtest_main
+  UServerUtils
+  UServerUtils_proto
+)
+
+add_test(TestUserver TestUserver)
