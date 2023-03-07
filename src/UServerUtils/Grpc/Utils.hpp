@@ -36,7 +36,7 @@ auto run_in_coro(
   {
     if (current_task_processor == &task_processor)
     {
-      return func(std::forward<Args>(args)...);
+      return std::forward<Func>(func)(std::forward<Args>(args)...);
     }
     else
     {

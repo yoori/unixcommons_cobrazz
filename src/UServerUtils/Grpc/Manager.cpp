@@ -1,10 +1,15 @@
+// BOOST
+#include <boost/range/adaptor/reversed.hpp>
+
+// USERVER
+#include <userver/logging/log.hpp>
+
 // THIS
-#include "Logging.hpp"
+#include "Logger.hpp"
 #include "Manager.hpp"
 #include "Utils.hpp"
 
-// BOOST
-#include <boost/range/adaptor/reversed.hpp>
+
 
 namespace UServerUtils
 {
@@ -38,16 +43,15 @@ Manager::Manager(
     *task_processor_container_->get_main_task_processor();
   auto& task_processor_container = *task_processor_container_;
 
+  Logger::LoggerPtr logger_userver = std::make_shared<Logger::Logger>(logger);
   auto componets_info = Utils::run_in_coro(
     main_task_processor,
     Utils::Importance::kCritical,
     {},
     [func = std::move(components_initialize_func),
      &task_processor_container,
-     logger = logger] () {
-      Logger::set_logger(logger);
-      Logger::setup_native_logging();
-
+      logger_userver = logger_userver] () {
+      userver::logging::SetDefaultLogger(logger_userver);
       ComponentsBuilderPtr components_builder =
         func(task_processor_container);
       return components_builder->build();

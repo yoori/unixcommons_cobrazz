@@ -19,7 +19,7 @@ add_library(UServerUtils SHARED
   #ConfigDistributor.cpp
   Grpc/ComponentsBuilder.cpp
   Grpc/ClientFactory.cpp
-  Grpc/Logging.cpp
+  Grpc/Logger.cpp
   Grpc/Manager.cpp
   Grpc/Server.cpp
   Grpc/ServerBuilder.cpp
