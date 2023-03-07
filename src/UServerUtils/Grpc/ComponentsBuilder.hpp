@@ -27,7 +27,8 @@ namespace UServerUtils
 namespace Grpc
 {
 
-class ComponentsBuilder final : private Generics::Uncopyable
+class ComponentsBuilder final
+  : private Generics::Uncopyable
 {
 public:
   using TaskProcessor = userver::engine::TaskProcessor;
@@ -57,7 +58,7 @@ private:
   };
 
 public:
-  ComponentsBuilder();
+  explicit ComponentsBuilder();
 
   ~ComponentsBuilder();
 

@@ -52,7 +52,7 @@ public:
   void stop() noexcept;
 
 private:
-  TaskProcessorContainer(
+  explicit TaskProcessorContainer(
     const Logger_var& logger,
     const CoroPoolConfig& coro_pool_config,
     const EventThreadPoolConfig& event_thread_pool_config,

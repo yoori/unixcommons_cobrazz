@@ -23,7 +23,7 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
-  TaskProcessorContainerBuilder(
+  explicit TaskProcessorContainerBuilder(
     const Logger_var& logger,
     const CoroPoolConfig& coro_pool_config,
     const EventThreadPoolConfig& event_thread_pool_config,

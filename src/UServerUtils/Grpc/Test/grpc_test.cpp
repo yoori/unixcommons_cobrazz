@@ -22,7 +22,6 @@
 #include "../ComponentsBuilder.hpp"
 #include "../Manager.hpp"
 #include "../Utils.hpp"
-#include "../TaskProcessorContainerBuilder.hpp"
 
 using namespace UServerUtils::Grpc;
 
@@ -60,9 +59,7 @@ public:
     EXPECT_EQ(name_, kNameService1);
   }
 
-  ~Test1Service()
-  {
-  }
+  ~Test1Service() override = default;
 
   void activate_object() override
   {
@@ -101,6 +98,8 @@ public:
   {
     EXPECT_EQ(name_, kNameService2);
   }
+
+  ~Test2Service() = default;
 
   void chat(chatCall& call) override
   {
@@ -327,9 +326,7 @@ TEST_F(GrpcFixture, Subtest_1)
     {},
     [&client2] () {
       client2.chat();
-    });
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  });
 
   manager->deactivate_object();
   manager->wait_object();

@@ -88,7 +88,7 @@ struct GrpcServerConfig final
   bool enable_channelz = false;
 };
 
-struct GrpcClientFactoryConfig {
+struct GrpcClientFactoryConfig final {
   // gRPC channel credentials, none by default
   std::shared_ptr<grpc::ChannelCredentials> credentials{
     grpc::InsecureChannelCredentials()};

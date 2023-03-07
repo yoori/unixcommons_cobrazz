@@ -20,7 +20,7 @@ namespace UServerUtils
 namespace Grpc
 {
 
-class Manager :
+class Manager final :
   public virtual Generics::ActiveObject,
   public virtual ReferenceCounting::AtomicImpl
 {
@@ -50,7 +50,7 @@ private:
     std::unordered_map<std::string, Component_var>;
 
 public:
-  Manager(
+  explicit Manager(
     TaskProcessorContainerBuilderPtr&& task_processor_builder,
     ComponentsInitializeFunc&& components_initialize_func,
     const Logger_var& logger,

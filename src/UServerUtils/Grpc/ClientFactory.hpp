@@ -44,7 +44,7 @@ public:
   }
 
 private:
-  GrpcClientFactory(
+  explicit GrpcClientFactory(
     GrpcClientFactoryConfig&& config,
     TaskProcessor& channel_task_processor,
     CompletionQueue& queue,
