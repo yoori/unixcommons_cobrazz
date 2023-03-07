@@ -1,0 +1,8 @@
+#!/bin/sh
+
+GRPC_SCRIPTS_PATH="$(dirname $(realpath $0))"
+GEN_USERVER_WRAPPERS="${GRPC_SCRIPTS_PATH}/generator.py"
+
+PYTHON=python3
+
+${PYTHON} "${GEN_USERVER_WRAPPERS}" "$@"
