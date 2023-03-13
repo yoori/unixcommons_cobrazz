@@ -219,7 +219,7 @@ void Manager::deactivate_object()
       [this, &main_task_processor] () {
         std::exception_ptr exc_ptr;
 
-        for (auto& component : boost::adaptors::reverse(components_))
+        for (auto& component : components_)
         {
           try
           {

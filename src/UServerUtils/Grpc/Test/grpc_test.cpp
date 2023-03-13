@@ -2,7 +2,6 @@
 #include <chrono>
 #include <iostream>
 #include <deque>
-#include <thread>
 
 // GTEST
 #include <gtest/gtest.h>
@@ -17,7 +16,7 @@
 #include "test2_client.usrv.pb.hpp"
 
 // THIS
-#include "Logger/Logger.hpp"
+#include <Logger/Logger.hpp>
 #include <Logger/StreamLogger.hpp>
 #include "../ComponentsBuilder.hpp"
 #include "../Manager.hpp"
@@ -99,7 +98,7 @@ public:
     EXPECT_EQ(name_, kNameService2);
   }
 
-  ~Test2Service() = default;
+  ~Test2Service() override = default;
 
   void chat(chatCall& call) override
   {
@@ -109,8 +108,9 @@ public:
     while (call.Read(request))
     {
       count += 1;
-      response.set_response(request.request());
+      response.set_allocated_response(request.release_request());
       call.Write(response);
+      userver::engine::Yield();
     }
     call.Finish();
     EXPECT_EQ(count, kCountRequestService2);
@@ -163,6 +163,8 @@ public:
   {
     EXPECT_TRUE(client_);
   }
+
+  ~Test2Client() override = default;
 
   void chat()
   {
@@ -221,11 +223,8 @@ public:
     channel_task_processor_config.name = kNameChannelTaskProcessor;
     channel_task_processor_config.worker_threads = 3;
     channel_task_processor_config.thread_name = "channel_tskpr";
-    task_processor_container_builder_->add_task_processor(channel_task_processor_config);
 
-    components_builder_ =
-      ComponentsBuilderPtr(
-        new ComponentsBuilder);
+    task_processor_container_builder_->add_task_processor(channel_task_processor_config);
   }
 
   void TearDown() override
@@ -233,7 +232,6 @@ public:
   }
 
   TaskProcessorContainerBuilderPtr task_processor_container_builder_;
-  ComponentsBuilderPtr components_builder_;
   Logging::Logger_var logger_;
 };
 
@@ -278,20 +276,20 @@ TEST_F(GrpcFixture, Subtest_1)
       task_processor_container.get_task_processor(
         kNameChannelTaskProcessor);
     GrpcClientFactoryConfig client_factory_config;
-    client_factory_config.channel_count = 5;
-    auto factory = components_builder->add_grpc_client_factory(
+    client_factory_config.channel_count = 2;
+    auto client_factory = components_builder->add_grpc_client_factory(
       std::move(client_factory_config),
       *channel_task_processor);
     ReferenceCounting::SmartPtr<Test1Client> test1_client(
       new Test1Client(
-        factory,
+        client_factory,
         "127.0.0.1:" + std::to_string(kPortServer1)));
     components_builder->add_user_component(
       kNameClientTest1,
       test1_client);
     ReferenceCounting::SmartPtr<Test2Client> test2_client(
       new Test2Client(
-        factory,
+        client_factory,
         "127.0.0.1:" + std::to_string(kPortServer2)));
     components_builder->add_user_component(
       kNameClientTest2,

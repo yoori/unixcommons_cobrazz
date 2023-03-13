@@ -11,6 +11,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(userver)
 
 find_package(GTest REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
+include_directories(${Boost_INCLUDE_DIRS})
 
 add_library(UServerUtils SHARED
   #MetricsHTTPProvider.cpp
@@ -58,3 +60,14 @@ target_link_libraries(TestUserver
 )
 
 add_test(TestUserver TestUserver)
+
+# Benchmarks
+add_executable(GrpcBenchmark
+  Grpc/Test/grpc_benchmark.cpp
+)
+
+target_link_libraries(GrpcBenchmark
+  UServerUtils
+  UServerUtils_proto
+  ${Boost_LIBRARIES}
+)

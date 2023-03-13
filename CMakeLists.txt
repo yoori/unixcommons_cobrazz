@@ -33,8 +33,6 @@ find_package(Threads REQUIRED)
 
 find_package(IDL REQUIRED)
 
-#set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
-
 include_directories(src src/CORBA)
 
 set(IDL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/IDL_COMMON)
