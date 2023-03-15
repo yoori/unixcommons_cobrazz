@@ -71,3 +71,14 @@ target_link_libraries(GrpcBenchmark
   UServerUtils_proto
   ${Boost_LIBRARIES}
 )
+
+# http service
+add_executable(HttpUserver
+  HelloService/HelloService.cpp
+)
+
+target_link_libraries(HttpUserver
+  UServerUtils
+  UServerUtils_proto
+  ${Boost_LIBRARIES}
+)
