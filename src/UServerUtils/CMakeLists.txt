@@ -14,71 +14,91 @@ find_package(GTest REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_library(UServerUtils SHARED
+#add_library(UServerUtils SHARED
   #MetricsHTTPProvider.cpp
   #UServerConfigService.cpp
   #GRPCServer.cpp
   #ConfigDistributor.cpp
-  Grpc/ComponentsBuilder.cpp
-  Grpc/ClientFactory.cpp
-  Grpc/Logger.cpp
-  Grpc/Manager.cpp
-  Grpc/Server.cpp
-  Grpc/ServerBuilder.cpp
-  Grpc/TaskProcessorContainer.cpp
-  Grpc/TaskProcessorContainerBuilder.cpp
-)
+#  Grpc/ComponentsBuilder.cpp
+#  Grpc/ClientFactory.cpp
+#  Grpc/Logger.cpp
+#  Grpc/Manager.cpp
+#  Grpc/Server.cpp
+#  Grpc/ServerBuilder.cpp
+#  Grpc/TaskProcessorContainer.cpp
+#  Grpc/TaskProcessorContainerBuilder.cpp
+#)
 
-target_link_libraries(UServerUtils
-  userver-core
-  userver-grpc
-  http_parser
-  Generics
-  Logger
-  pthread
-)
+#target_link_libraries(UServerUtils
+#  userver-core
+#  userver-grpc
+#  http_parser
+#  Generics
+#  Logger
+#  pthread
+#)
 
 # UnitTests
-include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
-add_grpc_library(UServerUtils_proto
-  PROTOS
-    test1.proto
-    test2.proto
-  SOURCE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Test/Proto
-)
+#include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
+#add_grpc_library(UServerUtils_proto
+#  PROTOS
+#    test1.proto
+#    test2.proto
+#  SOURCE_PATH
+#    ${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Test/Proto
+#)
 
-add_executable(TestUserver
-  Grpc/Test/grpc_test.cpp
-)
+#add_executable(TestUserver
+#  Grpc/Test/grpc_test.cpp
+#)
 
-target_link_libraries(TestUserver
-  GTest::gtest
-  GTest::gtest_main
-  UServerUtils
-  UServerUtils_proto
-)
+#target_link_libraries(TestUserver
+#  GTest::gtest
+#  GTest::gtest_main
+#  UServerUtils
+#  UServerUtils_proto
+#)
 
-add_test(TestUserver TestUserver)
+#add_test(TestUserver TestUserver)
 
 # Benchmarks
-add_executable(GrpcBenchmark
-  Grpc/Test/grpc_benchmark.cpp
-)
+#add_executable(GrpcBenchmark
+#  Grpc/Test/grpc_benchmark.cpp
+#)
 
-target_link_libraries(GrpcBenchmark
-  UServerUtils
-  UServerUtils_proto
-  ${Boost_LIBRARIES}
-)
+#target_link_libraries(GrpcBenchmark
+#  UServerUtils
+#  UServerUtils_proto
+#  ${Boost_LIBRARIES}
+#)
 
 # http service
-add_executable(HttpUserver
-  HelloService/HelloService.cpp
+#add_executable(HttpUserver
+#  HelloService/HelloService.cpp
+#)
+
+#target_link_libraries(HttpUserver
+#  UServerUtils
+#  UServerUtils_proto
+#  ${Boost_LIBRARIES}
+#)
+
+# http_grpc service
+add_executable(HttpGrpcUserver
+  GrpcHttp/grpc_service.cpp
 )
 
-target_link_libraries(HttpUserver
-  UServerUtils
-  UServerUtils_proto
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../build/_deps/userver-src/cmake/GrpcTargets.cmake)
+add_grpc_library(GrpcHttp_proto
+  PROTOS
+    greeter.proto
+  SOURCE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrpcHttp/proto
+)
+
+target_link_libraries(HttpGrpcUserver
+  userver-core
+  userver-grpc
+  GrpcHttp_proto
   ${Boost_LIBRARIES}
 )

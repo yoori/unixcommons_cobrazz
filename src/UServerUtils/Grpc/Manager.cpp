@@ -243,6 +243,7 @@ void Manager::deactivate_object()
     state_ = AS_DEACTIVATING;
     lock.unlock();
 
+
     condition_variable_.notify_all();
 
     if (exc_ptr)
