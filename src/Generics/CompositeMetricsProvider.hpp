@@ -33,6 +33,29 @@ public:
 	return prometheus_container;
     
    }
+   std::string get_promettheus_formatted()
+   {
+	std::string out;
+	for(auto &a: prometheus_container)
+	{
+	    for(auto &b: a.second)
+	    {
+		auto& maddons=b.first;
+		auto& value=b.second;
+		std::string addons;
+		int idx=0;
+		for(auto &d: maddons)
+		{
+		    if(idx!=0)
+			addons+=", ";
+		    addons=d.first+"=\""+d.second+"\""
+		}
+		out+=name+"{"+addons+"} "+std::to_string(value)+"\n";
+		
+	    }
+	}
+	return out;
+   }
   std::map<std::string,std::string> getStringValues();
   
   void add_value(std::string_view n,double v)
