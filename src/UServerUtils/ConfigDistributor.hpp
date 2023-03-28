@@ -23,7 +23,7 @@
 
 namespace UServerUtils
 {
-  class ConfigDistributor final: public server::handlers::HttpHandlerJsonBase
+  class ConfigDistributor final: public server::handlers::HttpHandlerBase
   {
   public:
     static constexpr std::string_view kName = "handler-config";
@@ -32,8 +32,9 @@ namespace UServerUtils
     ConfigDistributor(const components::ComponentConfig& config,
       const components::ComponentContext& context);
 
-    formats::json::Value HandleRequestJsonThrow(
-      const server::http::HttpRequest&, const formats::json::Value& json,
+    std::string HandleRequestThrow(
+      const server::http::HttpRequest&, 
+      //const formats::json::Value& json,
       server::request::RequestContext&) const override;
   };
 
