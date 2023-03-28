@@ -5,12 +5,21 @@
 #include <mutex>
 #include "MetricsProvider.hpp"
 #include "ReferenceCounting/SmartPtr.hpp"
+
+/*struct Prometheus_record
+{
+    std::string name;
+    std::
+}*/
 namespace Generics
 {
 class CompositeMetricsProvider : public MetricsProvider
 {
     std::map<std::string,Value> container;
     std::set<ReferenceCounting::SmartPtr<MetricsProvider> > providers;
+    /// prometheus
+    std::map<std::string, std::map<std::map<std::string,std::string>, double> > prometheus_container;
+
     std::mutex mx;
 public:
   void
@@ -18,6 +27,12 @@ public:
 
 
   MetricArray get_values();
+   std::map<std::string, std::map<std::map<std::string,std::string>, double> > get_prometheus_values()
+   {
+	std::lock_guard<std::mutex> g(mx);
+	return prometheus_container;
+    
+   }
   std::map<std::string,std::string> getStringValues();
   
   void add_value(std::string_view n,double v)
@@ -35,7 +50,18 @@ public:
     std::lock_guard<std::mutex> g(mx);
     container[std::string(n)]=v;
   }
+  void set_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)
+  {
+    std::lock_guard<std::mutex> g(mx);
+    prometheus_container[parameter][par2]=value;
+  }
+  void add_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)
+  {
+    std::lock_guard<std::mutex> g(mx);
+    prometheus_container[parameter][par2]+=value;
+  }
 
+    
 
 };
   typedef ReferenceCounting::SmartPtr<CompositeMetricsProvider> CompositeMetricsProvider_var;
