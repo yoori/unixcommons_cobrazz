@@ -57,16 +57,8 @@ namespace UServerUtils
       else
       {
       
-        std::map<std::string, std::map<std::map<std::string,std::string>, double> >v=p->get_prometheus_values();
-        for(auto &a: v)
-        {
-    	    std::string& name=a.first;
-    	    for(auto& b: v.second)
-    	    {
-    	    
-    	    
-    	    }
-        }
+        auto s=p->get_prometheus_formatted();
+        return s;
       }
 
     }
