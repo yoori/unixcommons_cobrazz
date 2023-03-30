@@ -28,9 +28,11 @@ add_library(${proj}  SHARED
 #  UTF8IsTitleLetter.cpp
 
 )
+
 target_link_libraries(${proj}
-#Generics
-pcre
+  #Generics
+  pcre
+  Iconv::Iconv
 )
 
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
