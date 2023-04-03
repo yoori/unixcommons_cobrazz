@@ -23,16 +23,15 @@ namespace UServerUtils
 {
 
   ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : HttpHandlerJsonBase(config, context)
+    : HttpHandlerBase(config, context)
   {}
 
-  formats::json::Value
-  ConfigDistributor::HandleRequestJsonThrow(
-    const server::http::HttpRequest&,
-    const formats::json::Value& /*json*/,
+  std::string
+  ConfigDistributor::HandleRequestThrow(
+    const server::http::HttpRequest& r,
+//    const formats::json::Value& /*json*/,
     server::request::RequestContext&) const
   {
-    formats::json::ValueBuilder j;
 
     {
 
@@ -40,16 +39,29 @@ namespace UServerUtils
       if(!p)
         throw std::runtime_error("invalid cast");
 
-      auto vals=p->getStringValues();//provider
+    bool isJson=r.HasArg("json");
 
-      for(auto&[k,v]: vals)
+
+      if(isJson)
       {
+        auto vals=p->getStringValues();//provider
+
+	formats::json::ValueBuilder j;
+        for(auto&[k,v]: vals)
+        {
           j[k]=v;
+        }
+	return ToString(j.ExtractValue());
+
+      }
+      else
+      {
+      
+        auto s=p->get_prometheus_formatted();
+        return s;
       }
 
     }
-
-    return j.ExtractValue();
   }
 
 
