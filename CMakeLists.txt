@@ -21,6 +21,19 @@ endif()
   )
 
 
+if(UNIX AND NOT APPLE)
+SET(LINUX true)
+endif()
+
+
+
+
+if(LINUX)
+    set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
+else()
+endif()
+
+
 
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -35,6 +48,9 @@ find_package(Threads REQUIRED)
 find_package(userver REQUIRED)
 
 find_package(IDL REQUIRED)
+
+find_package(Iconv REQUIRED)
+#message("iconv " ${Iconv_LIBRARIES})
 
 #set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
 

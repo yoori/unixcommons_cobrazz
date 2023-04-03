@@ -38,6 +38,7 @@ namespace Generics
             std::string out;
             for(auto &a: prometheus_container)
             {
+        	auto & name=a.first;
                 for(auto &b: a.second)
                 {
                     auto& maddons=b.first;
@@ -48,7 +49,7 @@ namespace Generics
                     {
                         if(idx!=0)
                             addons+=", ";
-                        addons=d.first+"=\""+d.second+"\""
+                        addons=d.first+"=\""+d.second+"\"";
                     }
                     out+=name+"{"+addons+"} "+std::to_string(value)+"\n";
 

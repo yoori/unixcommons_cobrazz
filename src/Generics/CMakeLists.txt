@@ -55,8 +55,9 @@ CompositeMetricsProvider.cpp
 
 )
 
-
-target_link_libraries(${proj} Sync  pthread crypto ev pcre dl
+link_directories(${Iconv_LIBRARIES}
+)
+target_link_libraries(${proj} /usr/libiconv/lib64/libiconv.so  Sync  pthread crypto ev pcre dl
 #String
 )
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
