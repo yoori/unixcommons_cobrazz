@@ -22,47 +22,47 @@
 namespace UServerUtils
 {
 
-  ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
+ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
     : HttpHandlerBase(config, context)
-  {}
+{}
 
-  std::string
-  ConfigDistributor::HandleRequestThrow(
+std::string
+ConfigDistributor::HandleRequestThrow(
     const server::http::HttpRequest& r,
 //    const formats::json::Value& /*json*/,
     server::request::RequestContext&) const
-  {
+{
 
     {
 
-      auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
-      if(!p)
-        throw std::runtime_error("invalid cast");
+        auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
+        if(!p)
+            throw std::runtime_error("invalid cast");
 
-    bool isJson=r.HasArg("json");
+        bool isJson=r.HasArg("json");
 
 
-      if(isJson)
-      {
-        auto vals=p->getStringValues();//provider
-
-	formats::json::ValueBuilder j;
-        for(auto&[k,v]: vals)
+        if(isJson)
         {
-          j[k]=v;
-        }
-	return ToString(j.ExtractValue());
+            auto vals=p->getStringValues();//provider
 
-      }
-      else
-      {
-      
-        auto s=p->get_prometheus_formatted();
-        return s;
-      }
+            formats::json::ValueBuilder j;
+            for(auto&[k,v]: vals)
+            {
+                j[k]=v;
+            }
+            return ToString(j.ExtractValue());
+
+        }
+        else
+        {
+
+            auto s=p->get_prometheus_formatted();
+            return s;
+        }
 
     }
-  }
+}
 
 
 }
