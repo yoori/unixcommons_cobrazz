@@ -1,1 +1,2 @@
 ADD_SUBDIRECTORY(MetricsHTTPProviderTest)
+ADD_SUBDIRECTORY(MetricsRaii)

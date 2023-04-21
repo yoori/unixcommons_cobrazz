@@ -13,32 +13,32 @@
 
 namespace UServerUtils
 {
-  //
-  // class Server
-  //
+//
+// class Server
+//
 
-  Server::Server()
-    /*throw (eh::Exception)*/
-  {
+Server::Server()
+/*throw (eh::Exception)*/
+{
     component_list_
-      .Append<userver::os_signals::ProcessorComponent>()
-      .Append<userver::components::Logging>()
-      .Append<userver::components::Tracer>() // used in StatisticsStorage
-      .Append<userver::components::StatisticsStorage>();
-  }
+    .Append<userver::os_signals::ProcessorComponent>()
+    .Append<userver::components::Logging>()
+    .Append<userver::components::Tracer>() // used in StatisticsStorage
+    .Append<userver::components::StatisticsStorage>();
+}
 
-  Server::~Server() throw ()
-  {
+Server::~Server() throw ()
+{
     if (state_ != AS_NOT_ACTIVE)
     {
-      std::cerr << "UServer::Server is not deactivated" << std::endl;
+        std::cerr << "UServer::Server is not deactivated" << std::endl;
     }
-  }
+}
 
-  void
-  Server::activate_object()
-    /*throw (AlreadyActive, Exception, eh::Exception)*/
-  {
+void
+Server::activate_object()
+/*throw (AlreadyActive, Exception, eh::Exception)*/
+{
     state_ = AS_ACTIVE;
 
     std::string config_str = R"(
