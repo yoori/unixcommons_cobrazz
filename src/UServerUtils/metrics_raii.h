@@ -1,19 +1,19 @@
 #ifndef metrics_raii__h
 #define metrics_raii__h
-class mestrics_raii
+class metrics_raii
 {
 
     std::string name_;
-    std::mapr<std::string,std::string> subpar_;
+    std::map<std::string,std::string> subpar_;
     timeval start_t_;
     CompositeMetricsProvider *cmp_;
 public:
-    mestrics_raii(CompositeMetricsProvider *cmp,const std::string &name, const std::mapr<std::string,std::string>& subpar)
+    metrics_raii(CompositeMetricsProvider *cmp,const std::string &name, const std::map<std::string,std::string>& subpar)
     {
         cmp_=cmp;
         name_=name;
         subpar_=subpar;
-        if(gettimeofday(&start_t,NULL)!=0)
+        if(gettimeofday(&start_t_,NULL)!=0)
             throw std::runtime_error("gettimeofday error");
     }
     ~metrics_raii()
