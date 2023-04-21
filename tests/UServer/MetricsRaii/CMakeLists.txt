@@ -1,6 +1,3 @@
-add_executable(MetricsHTTPProviderTest 
-  sampleMetrics.cpp
-)
 add_executable(MetricsRAIITest 
   sampleMetricsRAII.cpp
 )
@@ -14,5 +11,5 @@ if(LINUX)
 set(LINUXLINK "Generics")
 endif()
 
-target_link_libraries(MetricsRAIITest. UServerUtils)
+target_link_libraries(MetricsRAIITest UServerUtils)
 
