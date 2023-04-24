@@ -34,7 +34,6 @@ namespace UServerUtils
 
     std::string HandleRequestThrow(
       const server::http::HttpRequest&, 
-      //const formats::json::Value& json,
       server::request::RequestContext&) const override;
   };
 

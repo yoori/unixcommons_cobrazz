@@ -1,5 +1,9 @@
 #ifndef metrics_raii__h
 #define metrics_raii__h
+
+/// RAII objecft
+/// save start time in constructor and appdend metrics on destructor
+/// see example in tests/UServer/MetricsRaii/sampleMetricsRAII.cpp
 class metrics_raii
 {
 
@@ -18,6 +22,7 @@ public:
     }
     ~metrics_raii()
     {
+	try{
         timeval end_t;
         if(gettimeofday(&end_t,NULL)!=0)
             throw std::runtime_error("gettimeofday error");
@@ -38,6 +43,16 @@ public:
             name2+="_gt_100ms";
 
         cmp_->add_value_prometheus(name2,subpar_,1);
+        } 
+        catch(std::exception &e)
+        {
+    	    fprintf(stderr, "std::exception %s",e.what());
+        }
+        catch(...)
+        {
+    	    fprintf(stderr, "exception unknown ... ");
+        }
+        
 
 
 

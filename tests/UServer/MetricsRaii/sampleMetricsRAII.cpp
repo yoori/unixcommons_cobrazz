@@ -17,13 +17,13 @@ int main(int /*argc*/, char** /*argv*/)
             std::map<std::string,std::string> m;
             m["user_bind_mapper"]="get_user_id";
             metrics_raii __r(cmp,"user_bind_resolve_calls", m);
-            usleep(rand()%1000 * 1000);
+            usleep(rand()%1000 * 1000); /// request imitation
         }
         {
             std::map<std::string,std::string> m;
             m["user_bind_mapper"]="get_user_id";
             metrics_raii __r(cmp,"user_bind_add_calls", m);
-            usleep(rand()%1000 * 1000);
+            usleep(rand()%1000 * 1000); /// request imitation
         }
 
     }
