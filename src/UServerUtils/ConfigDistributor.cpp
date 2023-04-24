@@ -20,42 +20,42 @@
 namespace UServerUtils
 {
 
-ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : HttpHandlerBase(config, context)
-{}
+    ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
+        : HttpHandlerBase(config, context)
+    {}
 
-std::string
-ConfigDistributor::HandleRequestThrow(
-    const server::http::HttpRequest& r,
-    server::request::RequestContext&) const
-{
-
+    std::string
+    ConfigDistributor::HandleRequestThrow(
+        const server::http::HttpRequest& r,
+        server::request::RequestContext&) const
     {
 
-        auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
-        if(!p)
-            throw std::runtime_error("invalid cast");
-
-        bool isJson=r.HasArg("json");
-
-        if(isJson)
         {
-            auto vals=p->getStringValues();//provider
-            formats::json::ValueBuilder j;
-            for(auto&[k,v]: vals)
+
+            auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
+            if(!p)
+                throw std::runtime_error("invalid cast");
+
+            bool isJson=r.HasArg("json");
+
+            if(isJson)
             {
-                j[k]=v;
+                auto vals=p->getStringValues();//provider
+                formats::json::ValueBuilder j;
+                for(auto&[k,v]: vals)
+                {
+                    j[k]=v;
+                }
+                return ToString(j.ExtractValue());
             }
-            return ToString(j.ExtractValue());
-        }
-        else
-        {
-            auto s=p->get_prometheus_formatted();
-            return s;
-        }
+            else
+            {
+                auto s=p->get_prometheus_formatted();
+                return s;
+            }
 
+        }
     }
-}
 
 
 }
