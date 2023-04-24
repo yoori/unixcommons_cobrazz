@@ -3,7 +3,7 @@
 
 namespace UServerUtils
 {
-std::string config_z_yaml = R"x(
+    std::string config_z_yaml = R"x(
 components_manager:
     coro_pool:
         initial_size: 500             # Preallocate 500 coroutines at startup.

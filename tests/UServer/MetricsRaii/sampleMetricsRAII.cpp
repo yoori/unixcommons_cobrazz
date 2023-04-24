@@ -1,7 +1,7 @@
 #include "UServerUtils/MetricsHTTPProvider.hpp"
 #include "Generics/CompositeMetricsProvider.hpp"
 #include "Generics/MetricsProvider.hpp"
-#include "UServerUtils/metrics_raii.h"
+#include "UServerUtils/metrics_raii.hpp"
 #include <unistd.h>
 //using UServerUtils;
 int main(int /*argc*/, char** /*argv*/)
