@@ -5,9 +5,7 @@
 #include <userver/server/handlers/http_handler_json_base.hpp>
 #include <userver/utils/daemon_run.hpp>
 #include <userver/utils/datetime.hpp>
-//#include <crypto/openssl.hpp>
 #include <userver/components/run.hpp>
-//#include <utils/jemalloc.hpp>
 #include <userver/formats/json.hpp>
 #include <userver/components/manager.hpp>
 #include <userver/components/manager_config.hpp>
@@ -29,7 +27,6 @@ ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, 
 std::string
 ConfigDistributor::HandleRequestThrow(
     const server::http::HttpRequest& r,
-//    const formats::json::Value& /*json*/,
     server::request::RequestContext&) const
 {
 
@@ -41,22 +38,18 @@ ConfigDistributor::HandleRequestThrow(
 
         bool isJson=r.HasArg("json");
 
-
         if(isJson)
         {
             auto vals=p->getStringValues();//provider
-
             formats::json::ValueBuilder j;
             for(auto&[k,v]: vals)
             {
                 j[k]=v;
             }
             return ToString(j.ExtractValue());
-
         }
         else
         {
-
             auto s=p->get_prometheus_formatted();
             return s;
         }

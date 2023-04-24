@@ -50,10 +50,6 @@ namespace UServerUtils
     static void* worker(MetricsHTTPProvider* _this);
     
     bool stopped_=false;
-//    bool active_;
-//    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
-    
-    // std::mutex mx;
 
     bool stop_ = false;
     volatile sig_atomic_t state_;

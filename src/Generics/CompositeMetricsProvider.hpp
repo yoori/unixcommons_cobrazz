@@ -6,11 +6,6 @@
 #include "MetricsProvider.hpp"
 #include "ReferenceCounting/SmartPtr.hpp"
 
-/*struct Prometheus_record
-{
-    std::string name;
-    std::
-}*/
 namespace Generics
 {
     class CompositeMetricsProvider : public MetricsProvider
@@ -84,9 +79,6 @@ namespace Generics
             std::lock_guard<std::mutex> g(mx);
             prometheus_container[parameter][par2]+=value;
         }
-
-
-
     };
     typedef ReferenceCounting::SmartPtr<CompositeMetricsProvider> CompositeMetricsProvider_var;
 
