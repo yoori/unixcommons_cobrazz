@@ -10,9 +10,9 @@ class metrics_raii
     std::string name_;
     std::map<std::string,std::string> subpar_;
     timeval start_t_;
-    CompositeMetricsProvider *cmp_;
+    Generics::CompositeMetricsProvider *cmp_;
 public:
-    metrics_raii(CompositeMetricsProvider *cmp,const std::string &name, const std::map<std::string,std::string>& subpar)
+    metrics_raii(Generics::CompositeMetricsProvider *cmp,const std::string &name, const std::map<std::string,std::string>& subpar)
     {
         cmp_=cmp;
         name_=name;
