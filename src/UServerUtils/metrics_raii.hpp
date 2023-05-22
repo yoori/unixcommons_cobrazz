@@ -20,6 +20,15 @@ public:
         if(gettimeofday(&start_t_,NULL)!=0)
             throw std::runtime_error("gettimeofday error");
     }
+    metrics_raii(Generics::CompositeMetricsProvider *cmp,const std::string &name)
+    {
+        cmp_=cmp;
+        name_=name;
+//        subpar_=subpar;
+        if(gettimeofday(&start_t_,NULL)!=0)
+            throw std::runtime_error("gettimeofday error");
+    }
+
     ~metrics_raii()
     {
         try {
