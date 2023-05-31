@@ -6,7 +6,7 @@
 
 #include <Generics/CompressedSet.hpp>
 #include <Generics/Uncopyable.hpp>
-
+#include <string.h>
 
 namespace String
 {
@@ -248,8 +248,11 @@ namespace String
   constexpr
   Utf8Category::Utf8Category(UnicodeProperty::TreeStartNode& tree)
     /*throw (eh::Exception)*/
-    : nodes_(tree), need_cleaning_(false)
+    : 
+    //nodes_(tree), 
+    need_cleaning_(false)
   {
+    memcpy((void*)&nodes_,(void*)&tree, sizeof(nodes_));
   }
 
   inline

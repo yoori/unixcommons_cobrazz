@@ -100,6 +100,7 @@ namespace Sync
     pthread_rwlock_t& lock_;
   };
 
+#ifdef __linux__
   class PosixSpinLock : private Generics::Uncopyable
   {
   public:
@@ -134,8 +135,8 @@ namespace Sync
   private:
     pthread_spinlock_t& spinlock_;
   };
+#endif
 }
-
 //
 // INLINES
 //
@@ -313,7 +314,7 @@ namespace Sync
     pthread_rwlock_unlock(&lock_);
   }
 
-
+#ifdef __linux__
   //
   // PosixSpinLock class
   //
@@ -367,6 +368,7 @@ namespace Sync
   {
     pthread_spin_unlock(&spinlock_);
   }
+#endif
 }
 
 #endif
