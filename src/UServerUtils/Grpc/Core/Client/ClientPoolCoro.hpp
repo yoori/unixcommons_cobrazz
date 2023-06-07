@@ -15,15 +15,15 @@
 #include <engine/task/task_processor.hpp>
 
 // THIS
-#include "ClientCoro.hpp"
-#include "ClientObserver.hpp"
-#include "Config.hpp"
-#include "ConfigPoolCoro.hpp"
-#include "Factory.hpp"
-#include "FactoryObserver.hpp"
-#include "Types.hpp"
 #include <Generics/Uncopyable.hpp>
 #include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientCoro.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/Config.hpp>
+#include <UServerUtils/Grpc/Core/Client/ConfigPoolCoro.hpp>
+#include <UServerUtils/Grpc/Core/Client/Factory.hpp>
+#include <UServerUtils/Grpc/Core/Client/FactoryObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
 #include <UServerUtils/Grpc/Utils.hpp>
 
 namespace UServerUtils::Grpc::Core::Client

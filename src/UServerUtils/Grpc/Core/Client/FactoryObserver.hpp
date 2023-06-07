@@ -5,7 +5,7 @@
 #include <functional>
 
 // THIS
-#include "Client.hpp"
+#include <UServerUtils/Grpc/Core/Client/Client.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

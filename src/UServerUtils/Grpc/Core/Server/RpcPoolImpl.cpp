@@ -2,8 +2,8 @@
 #include <thread>
 
 // THIS
-#include "RpcPoolImpl.hpp"
-#include "Event.hpp"
+#include <UServerUtils/Grpc/Core/Server/RpcPoolImpl.hpp>
+#include <UServerUtils/Grpc/Core/Server/Event.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

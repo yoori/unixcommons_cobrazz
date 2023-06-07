@@ -8,9 +8,9 @@
 // THIS
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
-#include "Common/RpcServiceMethodTraits.hpp"
-#include "RpcHandler.hpp"
-#include "Rpc.hpp"
+#include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandler.hpp>
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

@@ -7,7 +7,7 @@
 // THIS
 #include <ReferenceCounting/Interface.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
-#include "Rpc.hpp"
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

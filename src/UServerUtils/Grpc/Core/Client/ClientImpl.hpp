@@ -11,17 +11,17 @@
 #include <grpcpp/impl/codegen/async_unary_call.h>
 
 // THIS
-#include "Client.hpp"
-#include "ClientDelegate.hpp"
-#include "ClientObserver.hpp"
-#include "Event.hpp"
-#include "EventObserver.hpp"
-#include "EventType.hpp"
-#include "PendingQueue.hpp"
-#include "Types.hpp"
-#include "Common/RpcServiceMethodTraits.hpp"
-#include "Generics/Uncopyable.hpp"
-#include "Logger/Logger.hpp"
+#include <Generics/Uncopyable.hpp>
+#include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Client/Client.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientDelegate.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/Event.hpp>
+#include <UServerUtils/Grpc/Core/Client/EventObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/EventType.hpp>
+#include <UServerUtils/Grpc/Core/Client/PendingQueue.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
+#include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

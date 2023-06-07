@@ -5,8 +5,8 @@
 #include <memory>
 
 // THIS
-#include "EventObserverCoro.hpp"
-#include "Common/Event.hpp"
+#include <UServerUtils/Grpc/Core/Client/EventObserverCoro.hpp>
+#include <UServerUtils/Grpc/Core/Common/Event.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

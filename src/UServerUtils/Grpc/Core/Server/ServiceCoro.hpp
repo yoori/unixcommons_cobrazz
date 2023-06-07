@@ -11,7 +11,7 @@
 #include <Generics/Uncopyable.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
-#include "Server/RpcHandlerImpl.hpp"
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerImpl.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

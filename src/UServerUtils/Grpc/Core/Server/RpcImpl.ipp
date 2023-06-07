@@ -1,7 +1,7 @@
 // THIS
-#include "Event.hpp"
-#include "EventType.hpp"
-#include "RpcImpl.hpp"
+#include <UServerUtils/Grpc/Core/Server/Event.hpp>
+#include <UServerUtils/Grpc/Core/Server/EventType.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcImpl.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

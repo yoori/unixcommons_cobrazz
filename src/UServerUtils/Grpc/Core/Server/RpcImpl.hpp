@@ -17,16 +17,16 @@
 #include <thread>
 
 // THIS
-#include "eh/Exception.hpp"
-#include "Logger/Logger.hpp"
-#include "CommonContext.hpp"
-#include "Event.hpp"
-#include "EventObserver.hpp"
-#include "PendingQueue.hpp"
-#include "Rpc.hpp"
-#include "RpcDelegate.hpp"
-#include "RpcHandlerInfo.hpp"
-#include "RpcPool.hpp"
+#include <eh/Exception.hpp>
+#include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/Event.hpp>
+#include <UServerUtils/Grpc/Core/Server/EventObserver.hpp>
+#include <UServerUtils/Grpc/Core/Server/PendingQueue.hpp>
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcDelegate.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerInfo.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcPool.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

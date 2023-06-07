@@ -2,9 +2,9 @@
 #include <sstream>
 
 // THIS
-#include "Common/Logging.hpp"
-#include "Common/Utils.hpp"
-#include "Server.hpp"
+#include <UServerUtils/Grpc/Core/Common/Logging.hpp>
+#include <UServerUtils/Grpc/Core/Common/Utils.hpp>
+#include <UServerUtils/Grpc/Core/Server/Server.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

@@ -5,7 +5,7 @@
 #include <type_traits>
 
 // THIS
-#include "TypeTraits.hpp"
+#include <UServerUtils/Grpc/Core/Common/TypeTraits.hpp>
 
 // PROTOBUF
 #include <google/protobuf/message.h>

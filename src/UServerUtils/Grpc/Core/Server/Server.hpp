@@ -10,12 +10,12 @@
 // THIS
 #include <Generics/CompositeActiveObject.hpp>
 #include <Logger/Logger.hpp>
-#include "Config.hpp"
-#include "Common/Utils.hpp"
-#include "RpcHandlerInfo.hpp"
-#include "RpcPoolImpl.hpp"
-#include "Service.hpp"
-#include "Common/Scheduler.hpp"
+#include <UServerUtils/Grpc/Core/Server/Config.hpp>
+#include <UServerUtils/Grpc/Core/Common/Utils.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerInfo.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcPoolImpl.hpp>
+#include <UServerUtils/Grpc/Core/Server/Service.hpp>
+#include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

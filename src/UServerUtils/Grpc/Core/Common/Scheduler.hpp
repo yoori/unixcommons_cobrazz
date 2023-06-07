@@ -12,7 +12,7 @@
 // THIS
 #include <Generics/ActiveObject.hpp>
 #include <Logger/Logger.hpp>
-#include "ThreadGuard.hpp"
+#include <UServerUtils/Grpc/Core/Common/ThreadGuard.hpp>
 
 namespace UServerUtils::Grpc::Core::Common
 {

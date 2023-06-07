@@ -8,10 +8,10 @@
 #include <grpcpp/grpcpp.h>
 
 // THIS
-#include "Writer.hpp"
-#include "Types.hpp"
-#include "Common/TypeTraits.hpp"
 #include <Generics/Uncopyable.hpp>
+#include <UServerUtils/Grpc/Core/Client/Writer.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
+#include <UServerUtils/Grpc/Core/Common/TypeTraits.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

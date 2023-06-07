@@ -4,7 +4,7 @@
 // THIS
 #include <Generics/ActiveObject.hpp>
 #include <Logger/Logger.hpp>
-#include "RpcPool.hpp"
+#include <UServerUtils/Grpc/Core/Server/RpcPool.hpp>
 
 // STD
 #include <mutex>

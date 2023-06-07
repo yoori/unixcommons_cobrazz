@@ -6,8 +6,8 @@
 
 // THIS
 #include <Generics/Uncopyable.hpp>
-#include "CommonContext.hpp"
-#include "Rpc.hpp"
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

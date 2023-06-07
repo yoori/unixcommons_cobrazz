@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // THIS
-#include "CommonContext.hpp"
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

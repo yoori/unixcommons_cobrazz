@@ -14,13 +14,13 @@
 #include <userver/engine/future.hpp>
 
 // THIS
-#include "EventCoro.hpp"
-#include "EventObserverCoro.hpp"
-#include "ClientObserver.hpp"
-#include "Types.hpp"
-#include "Writer.hpp"
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Client/EventCoro.hpp>
+#include <UServerUtils/Grpc/Core/Client/EventObserverCoro.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
+#include <UServerUtils/Grpc/Core/Client/Writer.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

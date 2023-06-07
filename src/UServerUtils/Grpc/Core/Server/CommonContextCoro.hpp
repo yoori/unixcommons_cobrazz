@@ -13,9 +13,9 @@
 #include <userver/concurrent/queue.hpp>
 
 // THIS
-#include "Logger/Logger.hpp"
-#include "CommonContext.hpp"
-#include "ServiceCoro.hpp"
+#include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/ServiceCoro.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

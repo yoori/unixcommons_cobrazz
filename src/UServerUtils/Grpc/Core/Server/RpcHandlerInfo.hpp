@@ -12,9 +12,9 @@
 #include <grpcpp/impl/rpc_method.h>
 
 // THIS
-#include "CommonContext.hpp"
-#include "Rpc.hpp"
-#include "RpcHandler.hpp"
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandler.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

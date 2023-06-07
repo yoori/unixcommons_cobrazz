@@ -12,15 +12,15 @@
 #include <grpcpp/grpcpp.h>
 
 // THIS
-#include "Config.hpp"
-#include "ClientImpl.hpp"
-#include "FactoryObserver.hpp"
-#include "Writer.hpp"
-#include "Types.hpp"
-#include "Common/QueueAtomic.hpp"
-#include "Common/Scheduler.hpp"
-#include "Common/RpcServiceMethodTraits.hpp"
-#include "Generics/Uncopyable.hpp"
+#include <Generics/Uncopyable.hpp>
+#include <UServerUtils/Grpc/Core/Client/Config.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientImpl.hpp>
+#include <UServerUtils/Grpc/Core/Client/FactoryObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/Writer.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
+#include <UServerUtils/Grpc/Core/Common/QueueAtomic.hpp>
+#include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
+#include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

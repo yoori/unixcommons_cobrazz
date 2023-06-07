@@ -12,7 +12,7 @@
 // THIS
 #include <Generics/Uncopyable.hpp>
 #include <Logger/StreamLogger.hpp>
-#include "Logging.hpp"
+#include <UServerUtils/Grpc/Core/Common/Logging.hpp>
 
 namespace UServerUtils::Grpc::Core::Common::Logger
 {

@@ -2,7 +2,7 @@
 #define GRPC_CORE_CLIENT_CLIENT_DELEGATE_H_
 
 // THIS
-#include "Client.hpp"
+#include <UServerUtils/Grpc/Core/Client/Client.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

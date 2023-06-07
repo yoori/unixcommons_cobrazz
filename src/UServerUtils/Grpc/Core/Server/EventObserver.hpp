@@ -2,8 +2,8 @@
 #define GRPC_CORE_SERVER_EVENT_OBSERVER_H_
 
 // THIS
-#include "EventType.hpp"
-#include "PendingQueue.hpp"
+#include <UServerUtils/Grpc/Core/Server/EventType.hpp>
+#include <UServerUtils/Grpc/Core/Server/PendingQueue.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

@@ -5,9 +5,9 @@
 #include <memory>
 
 // THIS
-#include "Common/Event.hpp"
-#include "EventObserver.hpp"
-#include "EventType.hpp"
+#include <UServerUtils/Grpc/Core/Common/Event.hpp>
+#include <UServerUtils/Grpc/Core/Server/EventObserver.hpp>
+#include <UServerUtils/Grpc/Core/Server/EventType.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

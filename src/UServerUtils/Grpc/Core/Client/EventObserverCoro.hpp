@@ -5,7 +5,7 @@
 #include <userver/engine/future.hpp>
 
 // THIS
-#include "Types.hpp"
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

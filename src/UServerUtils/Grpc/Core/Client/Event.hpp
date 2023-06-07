@@ -6,9 +6,9 @@
 #include <memory>
 
 // THIS
-#include "Common/Event.hpp"
-#include "EventObserver.hpp"
-#include "PendingQueue.hpp"
+#include <UServerUtils/Grpc/Core/Common/Event.hpp>
+#include <UServerUtils/Grpc/Core/Client/EventObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/PendingQueue.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

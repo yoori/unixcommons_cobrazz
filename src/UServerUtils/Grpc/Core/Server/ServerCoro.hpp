@@ -10,11 +10,11 @@
 
 // THIS
 #include <UServerUtils/Grpc/Component.hpp>
-#include "CommonContextCoro.hpp"
-#include "ConfigCoro.hpp"
-#include "RpcHandlerImpl.hpp"
-#include "Server.hpp"
-#include "ServiceCoro.hpp"
+#include <UServerUtils/Grpc/Core/Server/CommonContextCoro.hpp>
+#include <UServerUtils/Grpc/Core/Server/ConfigCoro.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerImpl.hpp>
+#include <UServerUtils/Grpc/Core/Server/Server.hpp>
+#include <UServerUtils/Grpc/Core/Server/ServiceCoro.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

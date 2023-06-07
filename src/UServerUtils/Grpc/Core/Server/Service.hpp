@@ -11,10 +11,10 @@
 // THIS
 #include <Generics/ActiveObject.hpp>
 #include <Logger/Logger.hpp>
-#include "CommonContext.hpp"
-#include "RpcDelegate.hpp"
-#include "RpcHandlerInfo.hpp"
-#include "RpcPool.hpp"
+#include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcDelegate.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerInfo.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcPool.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {

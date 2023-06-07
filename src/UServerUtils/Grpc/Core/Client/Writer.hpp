@@ -8,8 +8,8 @@
 #include <grpcpp/grpcpp.h>
 
 // THIS
-#include "Client.hpp"
-#include "Types.hpp"
+#include <UServerUtils/Grpc/Core/Client/Client.hpp>
+#include <UServerUtils/Grpc/Core/Client/Types.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {

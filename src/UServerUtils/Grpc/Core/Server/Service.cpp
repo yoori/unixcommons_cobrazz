@@ -1,7 +1,7 @@
 // THIS
-#include "Rpc.hpp"
-#include "RpcImpl.hpp"
-#include "Service.hpp"
+#include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcImpl.hpp>
+#include <UServerUtils/Grpc/Core/Server/Service.hpp>
 
 namespace UServerUtils::Grpc::Core::Server
 {
