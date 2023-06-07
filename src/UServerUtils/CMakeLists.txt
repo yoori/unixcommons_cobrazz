@@ -2,6 +2,10 @@ include(FetchContent)
 
 cmake_policy(SET CMP0079 NEW)
 
+set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
+set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
+set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
+
 find_package(absl)
 if (NOT absl_FOUND)
   message(SEND_ERROR "Failed to find absl")
@@ -16,7 +20,7 @@ if (NOT Protobuf_FOUND)
   return()
 else()
   message(STATUS "Using protobuf ${Protobuf_VERSION}")
-  set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}")
+  set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "")
 endif()
 
 find_program(PROTOBUF_PROTOC protoc)
@@ -43,7 +47,7 @@ if (NOT GRPC_CPP_PLUGIN_EXECUTABLE)
   return()
 else()
   message("-- Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN_EXECUTABLE}")
-  set(PROTO_GRPC_CPP_PLUGIN ${GRPC_CPP_PLUGIN_EXECUTABLE})
+  set(PROTO_GRPC_CPP_PLUGIN ${GRPC_CPP_PLUGIN_EXECUTABLE} CACHE INTERNAL "")
 endif()
 
 find_package(GTest REQUIRED)
@@ -128,6 +132,16 @@ target_link_libraries(UServerUtils
   Logger
   pthread
 )
+
+target_compile_definitions(UServerUtils PUBLIC
+  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
+  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
+  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
+
+set(USERVER_INCLUDE_DIRS
+  ${USERVER_PUBLIC_INCLUDE_DIRS}
+  ${userver_SOURCE_DIR}/third_party/moodycamel/include
+  CACHE INTERNAL "")
 
 # UnitTests
 include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)

@@ -1,4 +1,4 @@
-set(PROTO_GRPC_USRV_PLUGIN ${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/protoc_usrv_plugin)
+set(PROTO_GRPC_USRV_PLUGIN ${CMAKE_CURRENT_LIST_DIR}/protoc_usrv_plugin)
 
 function(generate_grpc_files)
   set(options)
@@ -156,17 +156,8 @@ function(add_grpc_library NAME)
     CPP_USRV_FILES generated_usrv_sources
   )
 
-  set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
-  set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
-  set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
-
   add_library(${NAME} STATIC ${generated_sources} ${generated_usrv_sources})
-  message(STATUS "Putting userver into namespace '${USERVER_NAMESPACE}': ${USERVER_NAMESPACE_BEGIN} ${USERVER_NAMESPACE_END}")
   target_compile_options(${NAME} PUBLIC -Wno-unused-parameter)
-  target_compile_definitions(${NAME} PUBLIC
-    "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
-    "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-    "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
   target_include_directories(${NAME} SYSTEM PUBLIC ${include_paths})
   target_link_libraries(${NAME} PUBLIC ${GRPC_GRPCPP} userver-grpc)
 endfunction()
