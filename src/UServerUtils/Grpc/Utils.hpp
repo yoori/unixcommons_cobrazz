@@ -10,6 +10,7 @@
 #include <userver/engine/task/task.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/task/task_with_result.hpp>
+#include <utils/signal_catcher.hpp>
 
 namespace UServerUtils::Grpc::Utils
 {
@@ -57,6 +58,25 @@ inline auto run_in_coro(
   task.BlockingWait();
   return task.Get();
 }
+
+class SignalCatcher final
+{
+public:
+  SignalCatcher(std::initializer_list<int> signals)
+    : signal_catcher_(signals)
+  {
+  }
+
+  ~SignalCatcher() noexcept(false) = default;
+
+  int catch_signal()
+  {
+    return signal_catcher_.Catch();
+  }
+
+private:
+  userver::utils::SignalCatcher signal_catcher_;
+};
 
 namespace Internal
 {
