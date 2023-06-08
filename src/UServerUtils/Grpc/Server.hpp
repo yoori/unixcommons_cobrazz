@@ -15,8 +15,8 @@
 // THIS
 #include <Logger/Logger.hpp>
 #include <ReferenceCounting/AtomicImpl.hpp>
-#include "Component.hpp"
-#include "Config.hpp"
+#include <UServerUtils/Grpc/Component.hpp>
+#include <UServerUtils/Grpc/Config.hpp>
 
 namespace UServerUtils::Grpc
 {

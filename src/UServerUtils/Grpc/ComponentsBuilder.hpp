@@ -16,13 +16,13 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
-#include "ClientFactory.hpp"
-#include "CobrazzClientFactory.hpp"
-#include "CobrazzServerBuilder.hpp"
-#include "Config.hpp"
-#include "Server.hpp"
-#include "ServerBuilder.hpp"
-#include "ServiceBase.hpp"
+#include <UServerUtils/Grpc/ClientFactory.hpp>
+#include <UServerUtils/Grpc/CobrazzClientFactory.hpp>
+#include <UServerUtils/Grpc/CobrazzServerBuilder.hpp>
+#include <UServerUtils/Grpc/Config.hpp>
+#include <UServerUtils/Grpc/Server.hpp>
+#include <UServerUtils/Grpc/ServerBuilder.hpp>
+#include <UServerUtils/Grpc/ServiceBase.hpp>
 
 namespace UServerUtils::Grpc
 {

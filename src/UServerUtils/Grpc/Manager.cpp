@@ -5,9 +5,9 @@
 #include <userver/logging/log.hpp>
 
 // THIS
-#include "Logger.hpp"
-#include "Manager.hpp"
-#include "Utils.hpp"
+#include <UServerUtils/Grpc/Logger.hpp>
+#include <UServerUtils/Grpc/Manager.hpp>
+#include <UServerUtils/Grpc/Utils.hpp>
 
 namespace UServerUtils::Grpc
 {
@@ -53,7 +53,7 @@ Manager::Manager(
     {},
     [func = std::move(components_initialize_func),
      &task_processor_container,
-     logger_userver = logger_userver] () {
+     logger_userver = logger_userver] () mutable {
       userver::logging::SetDefaultLogger(logger_userver);
       ComponentsBuilderPtr components_builder =
         func(task_processor_container);

@@ -10,19 +10,20 @@
 // THIS
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
-#include "ComponentsBuilder.hpp"
-#include "TaskProcessorContainerBuilder.hpp"
+#include <UServerUtils/Grpc/ComponentsBuilder.hpp>
+#include <UServerUtils/Grpc/Utils.hpp>
+#include <UServerUtils/Grpc/TaskProcessorContainerBuilder.hpp>
 
 namespace UServerUtils::Grpc
 {
 
 class Manager final :
-  public virtual Generics::ActiveObject,
+  public Generics::ActiveObject,
   public ReferenceCounting::AtomicImpl
 {
 public:
   using ComponentsInitializeFunc =
-    std::function<ComponentsBuilderPtr(
+    Utils::Internal::Function<ComponentsBuilderPtr(
       TaskProcessorContainer& task_processor_container)>;
 
   using TaskProcessor = userver::engine::TaskProcessor;

@@ -14,8 +14,8 @@
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
-#include "Server.hpp"
-#include "ServiceBase.hpp"
+#include <UServerUtils/Grpc/Server.hpp>
+#include <UServerUtils/Grpc/ServiceBase.hpp>
 
 namespace UServerUtils::Grpc
 {

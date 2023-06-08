@@ -12,8 +12,8 @@
 #include <Generics/CompositeActiveObject.hpp>
 #include <Logger/Logger.hpp>
 #include <ReferenceCounting/AtomicImpl.hpp>
-#include "Component.hpp"
-#include "Core/Client/ConfigPoolCoro.hpp"
+#include <UServerUtils/Grpc/Component.hpp>
+#include <UServerUtils/Grpc/Core/Client/ConfigPoolCoro.hpp>
 
 namespace UServerUtils::Grpc
 {

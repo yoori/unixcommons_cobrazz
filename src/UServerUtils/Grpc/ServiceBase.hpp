@@ -7,7 +7,7 @@
 // THIS
 #include <Generics/ActiveObject.hpp>
 #include <ReferenceCounting/AtomicImpl.hpp>
-#include "Component.hpp"
+#include <UServerUtils/Grpc/Component.hpp>
 
 namespace UServerUtils::Grpc
 {

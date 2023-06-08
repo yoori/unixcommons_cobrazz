@@ -10,9 +10,9 @@
 #include <engine/task/task_processor.hpp>
 
 // THIS
-#include "Core/Server/ConfigCoro.hpp"
-#include "Core/Server/ServerCoro.hpp"
-#include "Core/Server/ServiceCoro.hpp"
+#include <UServerUtils/Grpc/Core/Server/ConfigCoro.hpp>
+#include <UServerUtils/Grpc/Core/Server/ServerCoro.hpp>
+#include <UServerUtils/Grpc/Core/Server/ServiceCoro.hpp>
 #include <Logger/Logger.hpp>
 
 namespace UServerUtils::Grpc

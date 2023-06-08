@@ -1,5 +1,5 @@
 // THIS
-#include "Logger.hpp"
+#include <UServerUtils/Grpc/Logger.hpp>
 
 namespace UServerUtils::Grpc::Logger
 {

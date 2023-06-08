@@ -17,7 +17,7 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <Logger/Logger.hpp>
-#include "Config.hpp"
+#include <UServerUtils/Grpc/Config.hpp>
 
 namespace UServerUtils::Grpc
 {

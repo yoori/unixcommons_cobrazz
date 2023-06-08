@@ -5,7 +5,7 @@
 #include <userver/hostinfo/cpu_limit.hpp>
 
 // THIS
-#include "TaskProcessorContainer.hpp"
+#include <UServerUtils/Grpc/TaskProcessorContainer.hpp>
 
 namespace UServerUtils::Grpc
 {
