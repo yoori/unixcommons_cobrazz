@@ -21,7 +21,7 @@ public:
   {
     auto response = std::make_unique<test_coro::Response>();
     response->set_message(request.message());
-    response->set_id_request(request.id_request());
+    response->set_id_request_grpc(request.id_request_grpc());
     send(std::move(response));
   }
 

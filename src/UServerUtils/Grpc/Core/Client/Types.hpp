@@ -34,21 +34,21 @@ using Response =
   typename Traits<RpcServiceMethodConcept>::Response;
 
 template<class T, class = void>
-struct has_member_id_request : std::false_type {
+struct has_member_id_request_grpc : std::false_type {
 };
 
 template<class T>
-struct has_member_id_request<
+struct has_member_id_request_grpc<
   T,
   std::void_t<
     std::enable_if_t<
       std::is_same_v<
-        decltype(std::declval<T&>().id_request()),
+        decltype(std::declval<T&>().id_request_grpc()),
         std::uint32_t>>>> : std::true_type {
 };
 
 template<class T>
-constexpr bool has_member_id_request_v = has_member_id_request<T>::value;
+constexpr bool has_member_id_request_grpc_v = has_member_id_request_grpc<T>::value;
 
 template<class RpcServiceMethodConcept, class = void>
 struct has_bidi_streaming

@@ -63,11 +63,11 @@ public:
   using ResponsePtr = std::unique_ptr<Response>;
 
   static_assert(
-    Internal::has_member_id_request_v<Request>,
-    "Request must have member 'std::uint32_t id_request'");
+    Internal::has_member_id_request_grpc_v<Request>,
+    "Request must have member 'std::uint32_t id_request_grpc'");
   static_assert(
-    Internal::has_member_id_request_v<Response>,
-    "Response must have member 'std::uint32_t id_request'");
+    Internal::has_member_id_request_grpc_v<Response>,
+    "Response must have member 'std::uint32_t id_request_grpc'");
 
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using WriterPtr = typename Observer::WriterPtr;
@@ -134,7 +134,7 @@ public:
       const auto id = id_request_.fetch_add(
         1,
         std::memory_order_relaxed);
-      request->set_id_request(id);
+      request->set_id_request_grpc(id);
 
       auto event = std::make_unique<EventCoro<Response>>(
         std::move(promise),
@@ -372,7 +372,7 @@ private:
 
   void on_read(Response&& response) override
   {
-    const auto id_request = response.id_request();
+    const auto id_request = response.id_request_grpc();
     const auto it = requests_.find(id_request);
     if (it != std::end(requests_))
     {
