@@ -96,12 +96,14 @@ template<class Request, class Response>
 class Reader final : public ReferenceCounting::AtomicImpl
 {
 public:
+  using RequestPtr = std::unique_ptr<Request>;
+  using WriterPtr = std::unique_ptr<Writer<Response>>;
+  using Logger_var = Logging::Logger_var;
+  using Consumer = typename QueueCoro<Request, Response>::Consumer;
+  using IdRpc = Types::IdRpc;
+
   struct Data final
   {
-    using RequestPtr = std::unique_ptr<Request>;
-    using WriterPtr = std::unique_ptr<Writer<Response>>;
-    using IdRpc = Types::IdRpc;
-
     static constexpr IdRpc k_empty_id_rpc = 0;
 
     Data(
@@ -123,10 +125,6 @@ public:
     RequestPtr request;
     IdRpc id_rpc;
   };
-
-  using Logger_var = Logging::Logger_var;
-  using Consumer = typename QueueCoro<Request, Response>::Consumer;
-  using IdRpc = Types::IdRpc;
 
 private:
   using DataQueue = DataQueueCoro<Request, Response>;
