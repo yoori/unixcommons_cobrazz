@@ -30,7 +30,7 @@ namespace UServerUtils
 
     // Component is valid after construction and is able to accept requests
     ConfigDistributor(const components::ComponentConfig& config,
-      const components::ComponentContext& context);
+                      const components::ComponentContext& context);
 
     formats::json::Value HandleRequestJsonThrow(
       const server::http::HttpRequest&, const formats::json::Value& json,
