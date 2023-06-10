@@ -25,11 +25,6 @@ namespace UServerUtils
 
     void* MetricsHTTPProvider::worker(MetricsHTTPProvider* _this)
     {
-    
-    
-
-
-      
       const components::ComponentList component_list = components::MinimalServerComponentList()
         .Append<ConfigDistributor>();
 
@@ -40,22 +35,15 @@ namespace UServerUtils
       auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
       std::optional<components::Manager> manager;
 
-      
-
       try
       {
-      
         manager.emplace(std::move(conf_prepared), component_list);
         _this->state_=AS_ACTIVE;
-      
       }
       catch (const std::exception& ex)
       {
         LOG_ERROR() << "Loading failed: " << ex;
       }
-      
-
-
 
       while(true)
       {
