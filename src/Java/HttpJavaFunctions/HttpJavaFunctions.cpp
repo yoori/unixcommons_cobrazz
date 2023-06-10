@@ -5,14 +5,14 @@
 #include <HttpJavaFunctions/HttpJavaFunctions.hpp>
 
 #include <Language/GenericSegmentor/Polyglot.hpp>
-#include <Language/ChineeseSegmentor/NLPIR.hpp>
+//#include <Language/ChineeseSegmentor/NLPIR.hpp>
 
 #include <Language/BLogic/NormalizeTrigger.hpp>
 
 
 namespace
 {
-  Language::Segmentor::SegmentorInterface_var polyglot, nlpir;
+  Language::Segmentor::SegmentorInterface_var polyglot; //, nlpir;
 
   jstring
   normalize_keyword(JNIEnv* env, jstring keyword,
@@ -43,7 +43,7 @@ Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize(
   {
     polyglot = new Language::Segmentor::NormalizePolyglotSegmentor(
       "/opt/oix/polyglot/dict/");
-    nlpir = new Language::Segmentor::Chineese::NlpirSegmentor;
+    //nlpir = new Language::Segmentor::Chineese::NlpirSegmentor;
   }
   catch (const eh::Exception& ex)
   {
@@ -84,5 +84,45 @@ JNIEXPORT jstring JNICALL
 Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeChineseKeyword(
     JNIEnv* env, jobject /*object*/, jstring keyword)
 {
-  return normalize_keyword(env, keyword, nlpir);
+  //return normalize_keyword(env, keyword, nlpir);
+  return normalize_keyword(env, keyword, polyglot);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_foros_util_unixcommons_UnixCommonsTools_initialize(
+  JNIEnv* env, jclass cls)
+{
+  return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize(env, cls);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_foros_util_unixcommons_UnixCommonsTools_normalizeURL(
+  JNIEnv* env, jobject object, jstring url)
+{
+  return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeURL(env, object, url);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_foros_util_unixcommons_UnixCommonsTools_normalizeKeyword(
+  JNIEnv* env, jobject object, jstring keyword)
+{
+  Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeKeyword(env, object, keyword);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_foros_util_unixcommons_UnixCommonsTools_validateURL(
+  JNIEnv* env, jobject object, jstring url)
+{
+  JavaCommons::StrPtr original{env, url};
+
+  try
+  {
+    HTTP::BrowserChecker checker;
+    return checker(String::SubString(original.c_str()));
+  }
+  catch (...)
+  {
+  }
+
+  return false;
 }

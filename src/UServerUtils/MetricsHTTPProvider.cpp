@@ -23,42 +23,34 @@ namespace UServerUtils
 
     void* MetricsHTTPProvider::worker(MetricsHTTPProvider* _this)
     {
+      const components::ComponentList component_list = components::MinimalServerComponentList()
+        .Append<ConfigDistributor>();
 
+      auto conf_replaced = std::regex_replace(config_z_yaml,std::regex("~port~"), std::to_string(_this->listen_port_));
+      conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri_));
+      auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
+      std::optional<components::Manager> manager;
 
+      try
+      {
+        manager.emplace(std::move(conf_prepared), component_list);
+        _this->state_ = AS_ACTIVE;
+      }
+      catch (const std::exception& ex)
+      {
+        LOG_ERROR() << "Loading failed: " << ex;
+      }
 
-
-
-        const components::ComponentList component_list = components::MinimalServerComponentList()
-                .Append<ConfigDistributor>();
-
-        auto conf_replaced = std::regex_replace(config_z_yaml,std::regex("~port~"), std::to_string(_this->listen_port_));
-        conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri_));
-        auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
-        std::optional<components::Manager> manager;
-
-        try
+      while(true)
+      {
+        if(_this->stopped_)
         {
-            manager.emplace(std::move(conf_prepared), component_list);
-            _this->state_=AS_ACTIVE;
-        }
-        catch (const std::exception& ex)
-        {
-            LOG_ERROR() << "Loading failed: " << ex;
+          return NULL;
         }
 
-
-
-
-        while(true)
-        {
-            if(_this->stopped_)
-            {
-                return NULL;
-            }
-
-            sleep(1);
-        }
-        return NULL;
+        sleep(1);
+      }
+      return NULL;
     }
 
     void
