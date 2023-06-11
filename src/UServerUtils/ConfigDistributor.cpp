@@ -5,9 +5,7 @@
 #include <userver/server/handlers/http_handler_json_base.hpp>
 #include <userver/utils/daemon_run.hpp>
 #include <userver/utils/datetime.hpp>
-//#include <crypto/openssl.hpp>
 #include <userver/components/run.hpp>
-//#include <utils/jemalloc.hpp>
 #include <userver/formats/json.hpp>
 #include <userver/components/manager.hpp>
 #include <userver/components/manager_config.hpp>
@@ -22,35 +20,42 @@
 namespace UServerUtils
 {
 
-  ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : HttpHandlerJsonBase(config, context)
-  {}
+    ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
+        : HttpHandlerBase(config, context)
+    {}
 
-  formats::json::Value
-  ConfigDistributor::HandleRequestJsonThrow(
-    const server::http::HttpRequest&,
-    const formats::json::Value& /*json*/,
-    server::request::RequestContext&) const
-  {
-    formats::json::ValueBuilder j;
-
+    std::string
+    ConfigDistributor::HandleRequestThrow(
+        const server::http::HttpRequest& r,
+        server::request::RequestContext&) const
     {
 
-      auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
-      if(!p)
-        throw std::runtime_error("invalid cast");
+        {
 
-      auto vals=p->getStringValues();//provider
+            auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
+            if(!p)
+                throw std::runtime_error("invalid cast");
 
-      for(auto&[k,v]: vals)
-      {
-          j[k]=v;
-      }
+            bool isJson=r.HasArg("json");
 
+            if(isJson)
+            {
+                auto vals=p->getStringValues();//provider
+                formats::json::ValueBuilder j;
+                for(auto&[k,v]: vals)
+                {
+                    j[k]=v;
+                }
+                return ToString(j.ExtractValue());
+            }
+            else
+            {
+                auto s=p->get_prometheus_formatted();
+                return s;
+            }
+
+        }
     }
-
-    return j.ExtractValue();
-  }
 
 
 }
