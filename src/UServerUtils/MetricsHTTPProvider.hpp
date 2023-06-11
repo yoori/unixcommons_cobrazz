@@ -13,57 +13,53 @@ using namespace Generics;
 
 namespace UServerUtils
 {
-  const extern std::string config_z_yaml;
+    const extern std::string config_z_yaml;
 
 
-  class MetricsHTTPProvider: public Generics::ActiveObject
-    , public ReferenceCounting::AtomicImpl
-  {
-  public:
-    MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string_view _uri);
+    class MetricsHTTPProvider: public Generics::ActiveObject
+        , public ReferenceCounting::AtomicImpl
+    {
+    public:
+        MetricsHTTPProvider(MetricsProvider * mProv,unsigned int _listen_port, std::string_view _uri);
 
-    ~MetricsHTTPProvider();
+        ~MetricsHTTPProvider();
 
 
-    // определяем интерфейс ActiveObject
-    void
-    activate_object() override; // поднять сервис в отдельном потоке
+        // определяем интерфейс ActiveObject
+        void
+        activate_object() override; // поднять сервис в отдельном потоке
 
-    void
-    deactivate_object() override; // начать остановку сервиса
+        void
+        deactivate_object() override; // начать остановку сервиса
 
-    void
-    wait_object() override; // дождаться окончания остановки (типа join потока)
+        void
+        wait_object() override; // дождаться окончания остановки (типа join потока)
 
-    bool
-    active() override; // is started ?
+        bool
+        active() override; // is started ?
 
-  private:
-    MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
+    private:
+        MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
 
-    MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
+        MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
 
-  private:
-    int listen_port_;
-    std::string_view uri_;
-    std::thread thread_;
-    static void* worker(MetricsHTTPProvider* _this);
-    
-    bool stopped_=false;
-//    bool active_;
-//    ReferenceCounting::SmartPtr<MetricsProvider> metricsProvider_;
-    
-    // std::mutex mx;
+    private:
+        int listen_port_;
+        std::string_view uri_;
+        std::thread thread_;
+        static void* worker(MetricsHTTPProvider* _this);
 
-    bool stop_ = false;
-    volatile sig_atomic_t state_;
+        bool stopped_=false;
 
-public:
-    static ReferenceCounting::SmartPtr<MetricsProvider> container;
+        bool stop_ = false;
+        volatile sig_atomic_t state_;
 
-  };
+    public:
+        static ReferenceCounting::SmartPtr<MetricsProvider> container;
 
-  typedef ReferenceCounting::SmartPtr<MetricsHTTPProvider> MetricsHTTPProvider_var;
+    };
+
+    typedef ReferenceCounting::SmartPtr<MetricsHTTPProvider> MetricsHTTPProvider_var;
 }
 
 #endif

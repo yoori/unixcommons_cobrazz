@@ -4,6 +4,7 @@
 #include <boost/variant.hpp>
 #include "ReferenceCounting/AtomicImpl.hpp"
 #include <string_view>
+#include <map>
 namespace Generics{
 class MetricsProvider : public ReferenceCounting::AtomicImpl
 {
@@ -15,6 +16,9 @@ public:
   virtual void add_value(std::string_view n,double v)=0;
   virtual void add_value(std::string_view n,long v)=0;
   virtual void add_value(std::string_view n,const std::string& v)=0;
+  virtual void add_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)=0;
+  virtual void set_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)=0;
+
 };
 
 }

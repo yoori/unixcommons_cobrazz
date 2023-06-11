@@ -1,6 +1,6 @@
 #ifndef ___ConfigDistributor_hpp
 #define ___ConfigDistributor_hpp
- 
+
 #include <string>
 #include <userver/components/minimal_server_component_list.hpp>
 #include <userver/rcu/rcu.hpp>
@@ -23,20 +23,19 @@
 
 namespace UServerUtils
 {
-  class ConfigDistributor final: public server::handlers::HttpHandlerJsonBase
+  class ConfigDistributor final: public server::handlers::HttpHandlerBase
   {
   public:
     static constexpr std::string_view kName = "handler-config";
 
     // Component is valid after construction and is able to accept requests
     ConfigDistributor(const components::ComponentConfig& config,
-                      const components::ComponentContext& context);
+      const components::ComponentContext& context);
 
-    formats::json::Value HandleRequestJsonThrow(
-      const server::http::HttpRequest&, const formats::json::Value& json,
+    std::string HandleRequestThrow(
+      const server::http::HttpRequest&,
       server::request::RequestContext&) const override;
   };
-
 }
 
 #endif

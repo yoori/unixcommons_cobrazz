@@ -1,6 +1,9 @@
 add_executable(MetricsHTTPProviderTest 
   sampleMetrics.cpp
 )
+add_executable(MetricsHTTPProviderPrometheusTest 
+  sampleMetricsPrometheus.cpp
+)
 
 include_directories()
 
@@ -12,3 +15,5 @@ set(LINUXLINK "Generics")
 endif()
 
 target_link_libraries(MetricsHTTPProviderTest UServerUtils)
+
+target_link_libraries(MetricsHTTPProviderPrometheusTest UServerUtils)
