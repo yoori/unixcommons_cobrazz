@@ -1,23 +1,23 @@
+#include <unistd.h>
+
 #include "UServerUtils/MetricsHTTPProvider.hpp"
 #include "Generics/CompositeMetricsProvider.hpp"
 #include "Generics/MetricsProvider.hpp"
-#include <unistd.h>
-//using UServerUtils;
+
 int main(int /*argc*/, char** /*argv*/)
 {
+  ReferenceCounting::SmartPtr<Generics::CompositeMetricsProvider> cmp(new Generics::CompositeMetricsProvider);
+  ReferenceCounting::SmartPtr<UServerUtils::MetricsHTTPProvider> m(new UServerUtils::MetricsHTTPProvider(cmp,8081,"/metrics"));
 
-    CompositeMetricsProvider *cmp=new CompositeMetricsProvider;
+  m->activate_object();
+  for(long i=0; i<100; i++)
+  {
+      cmp->add_value(("key-"+std::to_string(i)).c_str(),i);
+      cmp->add_value(("key2-"+std::to_string(i)).c_str(),i+100);
+      sleep(1);
+  }
+  m->deactivate_object();
+  m->wait_object();
 
-    UServerUtils::MetricsHTTPProvider *m=new UServerUtils::MetricsHTTPProvider(cmp,8081,"/metrics");
-    m->activate_object();
-    for(long i=0; i<100; i++)
-    {
-        cmp->add_value(("key-"+std::to_string(i)).c_str(),i);
-        cmp->add_value(("key2-"+std::to_string(i)).c_str(),i+100);
-        sleep(1);
-    }
-    m->deactivate_object();
-    m->wait_object();
-    delete m;
-    return 0;
+  return 0;
 }
