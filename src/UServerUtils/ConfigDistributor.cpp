@@ -1,5 +1,6 @@
-#include "ConfigDistributor.hpp"
 #include <string>
+#include <regex>
+
 #include <userver/components/minimal_server_component_list.hpp>
 #include <userver/rcu/rcu.hpp>
 #include <userver/server/handlers/http_handler_json_base.hpp>
@@ -11,7 +12,6 @@
 #include <userver/components/manager_config.hpp>
 #include <userver/utest/using_namespace_userver.hpp>
 #include <userver/logging/log.hpp>
-#include <regex>
 
 #include "MetricsHTTPProvider.hpp"
 #include "Generics/CompositeMetricsProvider.hpp"
@@ -19,43 +19,45 @@
 
 namespace UServerUtils
 {
+  ConfigDistributor::ConfigDistributor(
+    const components::ComponentConfig& config,
+    const components::ComponentContext& context)
+    : HttpHandlerBase(config, context)
+  {}
 
-    ConfigDistributor::ConfigDistributor(const components::ComponentConfig& config, const components::ComponentContext& context)
-        : HttpHandlerBase(config, context)
-    {}
+  std::string
+  ConfigDistributor::HandleRequestThrow(
+      const server::http::HttpRequest& r,
+      server::request::RequestContext&) const
+  {
+    // TO FIX
+    // why dynamic_cast ? why this check is moved to runtime ?
+    // if container is always CompositeMetricsProvider it should have CompositeMetricsProvider type !
+    auto p = dynamic_cast<Generics::CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
 
-    std::string
-    ConfigDistributor::HandleRequestThrow(
-        const server::http::HttpRequest& r,
-        server::request::RequestContext&) const
+    if(!p)
     {
-
-        {
-
-            auto p=dynamic_cast<CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
-            if(!p)
-                throw std::runtime_error("invalid cast");
-
-            bool isJson=r.HasArg("json");
-
-            if(isJson)
-            {
-                auto vals=p->getStringValues();//provider
-                formats::json::ValueBuilder j;
-                for(auto&[k,v]: vals)
-                {
-                    j[k]=v;
-                }
-                return ToString(j.ExtractValue());
-            }
-            else
-            {
-                auto s=p->get_prometheus_formatted();
-                return s;
-            }
-
-        }
+      // TO FIX : we throw only eh::Exception based Exception's
+      throw std::runtime_error("invalid cast");
     }
 
+    bool isJson = r.HasArg("json");
 
+    if(isJson)
+    {
+      auto vals = p->getStringValues(); //provider
+      formats::json::ValueBuilder j;
+      for(auto&[k,v]: vals)
+      {
+        j[k] = v;
+      }
+
+      return ToString(j.ExtractValue());
+    }
+    else
+    {
+      auto s = p->get_prometheus_formatted();
+      return s;
+    }
+  }
 }
