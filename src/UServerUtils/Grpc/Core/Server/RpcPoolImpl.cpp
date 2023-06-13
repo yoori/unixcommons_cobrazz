@@ -15,8 +15,8 @@ const char RPCPOOL[] = "RPCPOOLIMPL";
 
 } // namespace Aspect
 
-RpcPoolImpl::RpcPoolImpl(const Logger_var& logger)
-  : logger_(logger)
+RpcPoolImpl::RpcPoolImpl(Logger* logger)
+  : logger_(ReferenceCounting::add_ref(logger))
 {
   rpcs_.reserve(100000);
 }

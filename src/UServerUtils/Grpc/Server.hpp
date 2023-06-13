@@ -28,7 +28,7 @@ class GrpcServer final
 public:
   using Exception = ActiveObject::Exception;
   using AlreadyActive = ActiveObject::AlreadyActive;
-
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Server = userver::ugrpc::server::Server;
   using ServerConfig = userver::ugrpc::server::ServerConfig;
@@ -54,7 +54,7 @@ private:
   friend class GrpcServerBuilder;
 
   explicit GrpcServer(
-    const Logger_var& logger,
+    Logger* logger,
     ServerConfig&& config,
     StatisticsStorage& statistics_storage);
 

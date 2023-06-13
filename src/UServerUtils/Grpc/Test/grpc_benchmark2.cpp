@@ -265,7 +265,7 @@ public:
           endpoints[i % size_endpoint],
           task_processor,
           statistics));
-      add_child_object(client);
+      add_child_object(client.in());
     }
   }
 
@@ -398,7 +398,7 @@ public:
          GrpcServiceBase_var service(new Service);
          server_builder->add_grpc_service(
            main_task_processor,
-           std::move(service));
+           service.in());
          components_builder->add_grpc_server(std::move(server_builder));
        }
 
@@ -447,7 +447,7 @@ public:
           main_task_processor,
           statistics));
 
-      components_builder->add_user_component("Benchmark", benchmark);
+      components_builder->add_user_component("Benchmark", benchmark.in());
 
       return components_builder;
     };

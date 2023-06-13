@@ -22,13 +22,14 @@ class Scheduler final
     public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Queue = std::shared_ptr<grpc::CompletionQueue>;
   using Queues = std::vector<Queue>;
 
 public:
   explicit Scheduler(
-    const Logger_var& logger,
+    Logger* logger,
     Queues&& queues);
 
   ~Scheduler() override;

@@ -5,7 +5,7 @@ namespace UServerUtils::Grpc
 {
 
 TaskProcessorContainerBuilder::TaskProcessorContainerBuilder(
-  const Logger_var& logger,
+  Logger* logger,
   const CoroPoolConfig& coro_pool_config,
   const EventThreadPoolConfig& event_thread_pool_config,
   const TaskProcessorConfig& main_task_processor_config)

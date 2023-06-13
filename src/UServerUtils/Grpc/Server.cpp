@@ -11,10 +11,10 @@ const char SERVER[] = "SERVER";
 } // namespace Aspect
 
 GrpcServer::GrpcServer(
-  const Logger_var& logger,
+  Logger* logger,
   ServerConfig&& config,
   StatisticsStorage& statistics_storage)
-  : logger_(logger),
+  : logger_(ReferenceCounting::add_ref(logger)),
     server_(std::move(config), statistics_storage)
 {
 }

@@ -214,7 +214,7 @@ public:
     task_processor_container_builder1_ =
       TaskProcessorContainerBuilderPtr(
         new TaskProcessorContainerBuilder(
-          logger_,
+          logger_.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
@@ -222,7 +222,7 @@ public:
     task_processor_container_builder2_ =
       TaskProcessorContainerBuilderPtr(
         new TaskProcessorContainerBuilder(
-          logger_,
+          logger_.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
@@ -269,7 +269,7 @@ TEST_F(GrpcFixture2, Subtest_2)
     GrpcServiceBase_var test_service(new Test1Service(kNameService1));
     server_builder->add_grpc_service(
       main_task_processor,
-      std::move(test_service));
+      test_service.in());
     components_builder->add_grpc_server(std::move(server_builder));
 
     auto& channel_task_processor =
@@ -286,7 +286,7 @@ TEST_F(GrpcFixture2, Subtest_2)
         "127.0.0.1:" + std::to_string(kPortServer1)));
     components_builder->add_user_component(
       kNameClientTest,
-      test_client);
+      test_client.in());
 
     return components_builder;
   };
@@ -311,7 +311,7 @@ TEST_F(GrpcFixture2, Subtest_2)
     GrpcServiceBase_var test_service(new Test2Service(kNameService2));
     server_builder->add_grpc_service(
       main_task_processor,
-      std::move(test_service));
+      test_service.in());
     components_builder->add_grpc_server(std::move(server_builder));
 
     auto& channel_task_processor =
@@ -328,7 +328,7 @@ TEST_F(GrpcFixture2, Subtest_2)
         "127.0.0.1:" + std::to_string(kPortServer2)));
     components_builder->add_user_component(
       kNameClientTest,
-      test_client);
+      test_client.in());
 
     return components_builder;
   };
@@ -337,13 +337,13 @@ TEST_F(GrpcFixture2, Subtest_2)
     new Manager(
       std::move(task_processor_container_builder1_),
       std::move(init_func1),
-      logger_));
+      logger_.in()));
 
   Manager_var manager2(
     new Manager(
       std::move(task_processor_container_builder2_),
       std::move(init_func2),
-      logger_));
+      logger_.in()));
 
   manager1->activate_object();
   manager2->activate_object();

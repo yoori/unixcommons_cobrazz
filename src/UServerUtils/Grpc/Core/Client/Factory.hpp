@@ -50,6 +50,7 @@ public:
 
   using WriterPtr = std::unique_ptr<Writer<Request, k_rpc_type>>;
   using Observer = ClientObserver<RpcServiceMethodConcept>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -101,9 +102,9 @@ private:
 public:
   explicit FactoryImpl(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     FactoryObserver&& factory_observer = {})
-    : logger_(logger),
+    : logger_(ReferenceCounting::add_ref(logger)),
       factory_observer_(std::move(factory_observer))
   {
     auto number_threads = config.number_threads;
@@ -372,7 +373,7 @@ private:
   using Impl = Internal::FactoryImpl<RpcServiceMethodConcept>;
 
 public:
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Observer = typename Impl::Observer;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -382,7 +383,7 @@ public:
 public:
   explicit Factory(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
   {
@@ -422,7 +423,7 @@ private:
   using Impl = Internal::FactoryImpl<RpcServiceMethodConcept>;
 
 public:
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Observer = typename Impl::Observer;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
@@ -433,7 +434,7 @@ public:
 public:
   explicit Factory(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
   {
@@ -473,7 +474,7 @@ private:
   using Impl = Internal::FactoryImpl<RpcServiceMethodConcept>;
 
 public:
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Observer = typename Impl::Observer;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -483,7 +484,7 @@ public:
 public:
   explicit Factory(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
   {
@@ -523,7 +524,7 @@ private:
   using Impl = Internal::FactoryImpl<RpcServiceMethodConcept>;
 
 public:
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Observer = typename Impl::Observer;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
@@ -534,7 +535,7 @@ public:
 public:
   explicit Factory(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
   {

@@ -38,10 +38,11 @@ public:
     return logger_;
   }
 
-  void set(const Logger_var& logger)
+  void set(Logging::Logger* logger)
   {
     std::unique_lock lock(mutex_);
-    logger_ = logger;
+    logger_ = Logging::Logger_var(
+      ReferenceCounting::add_ref(logger));
   }
 
 private:
@@ -61,7 +62,7 @@ inline Logger_var get_logger()
   return get_logger_storage().get();
 }
 
-inline Logger_var set_logger(const Logger_var& logger)
+inline Logger_var set_logger(Logging::Logger* logger)
 {
   auto logger_old = get_logger_storage().get();
   get_logger_storage().set(logger);
@@ -156,7 +157,7 @@ std::mutex mutex_native_log;
 
 } // namespace internal
 
-Logger_var set_logger(const Logger_var& logger)
+Logger_var set_logger(Logging::Logger* logger)
 {
   std::lock_guard lock(internal::mutex_native_log);
   ::gpr_set_log_verbosity(internal::to_grpc_log_severity(logger->log_level()));

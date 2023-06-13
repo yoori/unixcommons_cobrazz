@@ -265,7 +265,7 @@ public:
             endpoint,
             task_processor,
             statistics));
-        add_child_object(client);
+        add_child_object(client.in());
       }
       catch (const std::exception& exc)
       {
@@ -409,7 +409,7 @@ public:
       GrpcServiceBase_var service(new Service(sleep_duration_));
       server_builder->add_grpc_service(
         main_task_processor,
-        std::move(service));
+        service.in());
       components_builder->add_grpc_server(std::move(server_builder));
 
       GrpcClientFactoryConfig client_factory_config;
@@ -436,7 +436,7 @@ public:
           client_task_processor,
           statistics));
 
-      components_builder->add_user_component("Benchmark", benchmark);
+      components_builder->add_user_component("Benchmark", benchmark.in());
 
       return components_builder;
     };

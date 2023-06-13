@@ -85,16 +85,16 @@ public:
 
   void add_user_component(
     const std::string& name,
-    const Component_var& component);
+    Component* component);
 
 private:
   ComponentsInfo build();
 
-  void add_component(const Component_var& component);
+  void add_component(Component* component);
 
-  bool check_component_cash(const Component_var& component);
+  bool check_component_cash(Component* component);
 
-  void add_component_cash(const Component_var& component);
+  void add_component_cash(Component* component);
 
 private:
   friend class Manager;

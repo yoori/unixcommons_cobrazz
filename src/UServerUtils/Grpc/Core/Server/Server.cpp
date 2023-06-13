@@ -18,13 +18,13 @@ const char SERVER[] = "GRPC_SERVER";
 
 Server::Server(
   const Config& config,
-  const Logger_var& logger)
+  Logger* logger)
   : config_(std::move(config)),
-    logger_(logger),
-    rpc_pool_(new RpcPoolImpl(logger_))
+    logger_(ReferenceCounting::add_ref(logger)),
+    rpc_pool_(new RpcPoolImpl(logger_.in()))
 {
   namespace Logger = UServerUtils::Grpc::Core::Common::Logger;
-  Logger::set_logger(logger_);
+  Logger::set_logger(logger_.in());
 
   if (!config_.num_threads)
   {
@@ -55,7 +55,7 @@ Server::Server(
 
   scheduler_ = Common::Scheduler_var(
     new Common::Scheduler(
-      logger_,
+      logger_.in(),
       std::move(queues)));
 }
 
@@ -359,8 +359,8 @@ void Server::register_services()
 
     Service_var service(
       new Service(
-        logger_,
-        rpc_pool_,
+        logger_.in(),
+        rpc_pool_.in(),
         server_completion_queues_,
         config_.common_context,
         std::move(handlers)));

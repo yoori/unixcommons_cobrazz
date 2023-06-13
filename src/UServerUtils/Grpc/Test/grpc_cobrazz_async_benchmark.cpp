@@ -57,7 +57,7 @@ int main(int /*argc*/, char** /*argv*/)
     UServerUtils::Grpc::Core::Server::Server_var server(
       new UServerUtils::Grpc::Core::Server::Server(
         config,
-        logger));
+        logger.in()));
     server->register_handler<StreamStreamHandler>();
 
     server->activate_object();

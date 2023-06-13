@@ -6,7 +6,7 @@ namespace UServerUtils::Grpc
 
 GrpcCobrazzServerBuilder::GrpcCobrazzServerBuilder(
   const Config& config,
-  const Logger_var& logger)
+  Logger* logger)
   : grpc_server_(new Core::Server::ServerCoro(config, logger))
 {
 }

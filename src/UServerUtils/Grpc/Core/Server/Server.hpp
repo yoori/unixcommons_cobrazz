@@ -25,6 +25,7 @@ class Server final
     public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
 private:
@@ -42,7 +43,7 @@ private:
 public:
   explicit Server(
     const Config& config,
-    const Logger_var& logger);
+    Logger* logger);
 
   ~Server() override;
 
@@ -99,7 +100,7 @@ public:
         Request::default_instance().GetDescriptor(),
         Response::default_instance().GetDescriptor(),
         Traits::rpc_type,
-        [] (Rpc* rpc, const CommonContext_var& common_context) {
+        [] (Rpc* rpc, CommonContext* common_context) {
           std::unique_ptr<RpcHandler> rpc_handler =
             std::make_unique<RpcHandlerType>();
           rpc_handler->set_rpc(rpc);

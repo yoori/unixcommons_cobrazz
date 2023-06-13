@@ -30,6 +30,7 @@ public:
   using Components = std::deque<Component_var>;
   using StatisticsStorage = userver::utils::statistics::Storage;
   using StatisticsStoragePtr = std::unique_ptr<StatisticsStorage>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   using Exception = ActiveObject::Exception;
@@ -45,7 +46,7 @@ public:
   explicit Manager(
     TaskProcessorContainerBuilderPtr&& task_processor_builder,
     ComponentsInitializeFunc&& components_initialize_func,
-    const Logger_var& logger);
+    Logger* logger);
 
   ~Manager() override;
 

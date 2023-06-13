@@ -54,6 +54,7 @@ class ClientCoro<
     public std::enable_shared_from_this<ClientCoro<RpcServiceMethodConcept>>
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   using Traits = Internal::Traits<RpcServiceMethodConcept>;
@@ -104,7 +105,7 @@ private:
 public:
   ~ClientCoro() override = default;
 
-  static ClientCoroPtr create(const Logger_var& logger)
+  static ClientCoroPtr create(Logger* logger)
   {
     return std::shared_ptr<ClientCoro>(new ClientCoro(logger));
   }
@@ -270,8 +271,8 @@ public:
   }
 
 private:
-  explicit ClientCoro(const Logger_var& logger)
-    : logger_(logger)
+  explicit ClientCoro(Logger* logger)
+    : logger_(ReferenceCounting::add_ref(logger))
   {
     requests_.reserve(100000);
   }

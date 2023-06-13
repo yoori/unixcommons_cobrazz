@@ -22,7 +22,7 @@ namespace UServerUtils::Grpc::Core::Server
 using RpcHandlerFactory =
   std::function<std::unique_ptr<RpcHandler>(
     Rpc*,
-    const CommonContext_var&)>;
+    CommonContext*)>;
 
 struct RpcHandlerInfo final
 {

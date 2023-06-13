@@ -21,6 +21,7 @@ namespace UServerUtils::Grpc
 class GrpcCobrazzPoolClientFactory final
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
@@ -36,7 +37,7 @@ public:
   // before call Manager::deactivate_object
   template<class ClientPool>
   static std::shared_ptr<ClientPool> create(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool,
     TaskProcessor& task_processor)
   {
@@ -48,7 +49,7 @@ public:
 
   template<class ClientPool>
   static std::shared_ptr<ClientPool> create(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool)
   {
     auto* current_task_processor =

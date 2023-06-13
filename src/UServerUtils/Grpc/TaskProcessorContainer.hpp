@@ -28,6 +28,7 @@ class TaskProcessorContainer final
 public:
   using TaskProcessor = userver::engine::TaskProcessor;
   using TaskProcessorPtr = std::unique_ptr<TaskProcessor>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -48,7 +49,7 @@ public:
 
 private:
   explicit TaskProcessorContainer(
-    const Logger_var& logger,
+    Logger* logger,
     const CoroPoolConfig& coro_pool_config,
     const EventThreadPoolConfig& event_thread_pool_config,
     const TaskProcessorConfig& main_task_processor_config);

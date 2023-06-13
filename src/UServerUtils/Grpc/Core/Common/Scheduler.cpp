@@ -17,9 +17,9 @@ const char SCHEDULER[] = "SCHEDULER";
 } // namespace Aspect
 
 Scheduler::Scheduler(
-  const Logger_var& logger,
+  Logger* logger,
   Queues&& queues)
-  : logger_(logger),
+  : logger_(ReferenceCounting::add_ref(logger)),
     queues_(std::move(queues))
 {
   if (queues_.empty())

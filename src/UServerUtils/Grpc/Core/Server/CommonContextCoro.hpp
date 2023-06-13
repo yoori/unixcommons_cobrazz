@@ -33,6 +33,7 @@ class CommonContextCoro final :
 {
 public:
   using MaxSizeQueue = std::optional<std::size_t>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using TaskProcessorRef = std::reference_wrapper<TaskProcessor>;
@@ -72,11 +73,11 @@ private:
   template<class Request, class Response>
   using Reader = Internal::Reader<Request, Response>;
   template<class Request, class Response>
-  using Reader_var = Internal::Reader_var<Request, Response>;
+  using ReaderPtr = Internal::ReaderPtr<Request, Response>;
 
 public:
   explicit CommonContextCoro(
-    const Logger_var& logger,
+    Logger* logger,
     const MaxSizeQueue max_size_queue = {});
 
   ~CommonContextCoro() override;
@@ -93,7 +94,7 @@ public:
     using QueuePtr = std::shared_ptr<Queue>;
     using Producer = typename Queue::Producer;
     using Reader = Reader<Request, Response>;
-    using Reader_var = Reader_var<Request, Response>;
+    using ReaderPtr = ReaderPtr<Request, Response>;
 
     auto it_queue = queues_.find(method_name);
     if (it_queue != queues_.end())
@@ -104,10 +105,6 @@ public:
 
     const auto queue = Queue::Create(
       max_size_queue_ ? *max_size_queue_ : Queue::kUnbounded);
-
-    const auto reader = Reader_var(new Reader(
-      logger_,
-      queue->GetConsumer()));
 
     auto it_service = services_.find(method_name);
     if (it_service == services_.end())
@@ -127,10 +124,14 @@ public:
     auto producer = std::make_unique<Producer>(
       queue->GetProducer());
 
+    ReaderPtr reader(new Reader(
+      logger_.in(),
+      queue->GetConsumer()));
+
     add_coroutine(
       task_processor,
-      reader,
-      service,
+      std::move(reader),
+      service.in(),
       true,
       service_info.rpc_type).Detach();
 
@@ -140,7 +141,7 @@ public:
   template<class Request, class Response>
   void add_service(
     const MethodName& method_name,
-    const ServiceCoro_var<Request, Response>& service,
+    ServiceCoro<Request, Response>* service,
     const grpc::internal::RpcMethod::RpcType rpc_type,
     TaskProcessor& task_processor,
     const std::optional<std::size_t> number_coro)
@@ -149,7 +150,7 @@ public:
     using QueuePtr = std::shared_ptr<Queue>;
     using Producer = typename Queue::Producer;
     using Reader = Reader<Request, Response>;
-    using Reader_var = Reader_var<Request, Response>;
+    using ReaderPtr = ReaderPtr<Request, Response>;
 
     std::unique_lock<std::mutex> lock(state_mutex_);
     if (state_ != AS_NOT_ACTIVE)
@@ -171,7 +172,7 @@ public:
     }
 
     ServiceInfo service_info(
-      service,
+      ServiceCoro_var<Request, Response>(ReferenceCounting::add_ref(service)),
       rpc_type,
       task_processor);
     services_.try_emplace(method_name, service_info);
@@ -198,7 +199,7 @@ public:
         worker_tasks_.emplace_back(
           add_coroutine(
             task_processor,
-            Reader_var(new Reader(
+            ReaderPtr(new Reader(
               logger_,
               queue->GetConsumer())),
             service,
@@ -220,16 +221,17 @@ private:
   template<class Request, class Response>
   auto add_coroutine(
     TaskProcessor& task_processor,
-    const Reader_var<Request, Response>& reader,
-    const ServiceCoro_var<Request, Response>& service,
+    ReaderPtr<Request, Response>&& reader,
+    ServiceCoro<Request, Response>* service,
     const bool is_coro_per_rpc,
     const grpc::internal::RpcMethod::RpcType rpc_type)
   {
     return userver::engine::AsyncNoSpan(
       task_processor,
       [logger = logger_,
-       reader,
-       service,
+       reader = std::move(reader),
+       service = ServiceCoro_var<Request, Response>(
+         ReferenceCounting::add_ref(service)),
        is_coro_per_rpc,
        rpc_type] () mutable {
         while (!reader->is_finish())

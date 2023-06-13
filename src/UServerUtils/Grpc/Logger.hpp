@@ -27,7 +27,7 @@ private:
   using Format = userver::logging::Format;
 
 public:
-  Logger(const Logger_var& logger);
+  Logger(Logging::Logger* logger);
 
   ~Logger() override = default;
 

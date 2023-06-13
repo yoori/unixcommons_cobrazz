@@ -144,14 +144,14 @@ class StreamStreamClient_ServerFinish final
 private:
   using Factory = test::TestService_HandlerStreamStream_Factory;
   using Config = Client::Config;
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Impl = StreamStreamClient_ServerFinishImpl;
   using WriterStatus = Client::WriterStatus;
 
 public:
   StreamStreamClient_ServerFinish(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     const Common::ShutdownManagerPtr& shutdown_manager,
     const std::string& data)
     : impl_(std::make_unique<Impl>(shutdown_manager, data)),
@@ -200,7 +200,7 @@ public:
     server_ = UServerUtils::Grpc::Core::Server::Server_var(
       new UServerUtils::Grpc::Core::Server::Server(
         config,
-        logger_));
+        logger_.in()));
     server_->register_handler<StreamStreamHandler_ServerFinish>();
   }
 

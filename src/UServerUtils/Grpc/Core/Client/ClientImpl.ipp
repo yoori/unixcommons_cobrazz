@@ -14,7 +14,7 @@ constexpr const char CLIENT_IMPL[] = "CLIENT_IMPL";
 template<class RpcServiceMethodConcept>
 inline typename ClientImpl<RpcServiceMethodConcept>::ClientPtr
 ClientImpl<RpcServiceMethodConcept>::create(
-  const Logger_var& logger,
+  Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
   Delegate& delegate,
@@ -77,14 +77,14 @@ ClientImpl<RpcServiceMethodConcept>::create(
 
 template<class RpcServiceMethodConcept>
 inline ClientImpl<RpcServiceMethodConcept>::ClientImpl(
-  const Logger_var& logger,
+  Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
   Delegate& delegate,
   Observer& observer,
   RequestPtr&& request)
   : client_id_(create_id()),
-    logger_(logger),
+    logger_(ReferenceCounting::add_ref(logger)),
     channel_(channel),
     completion_queue_(completion_queue),
     delegate_(delegate),

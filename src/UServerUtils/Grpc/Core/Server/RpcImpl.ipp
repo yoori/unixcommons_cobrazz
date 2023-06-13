@@ -14,11 +14,11 @@ const char RPCIMPL[] = "RPCIMPL";
 } // namespace Aspect
 
 inline std::shared_ptr<Rpc> RpcImpl::create(
-  const Logger_var& logger,
+  Logger* logger,
   const ServerCompletionQueuePtr& server_completion_queue,
   const int method_index,
   const RpcHandlerInfo& rpc_handler_info,
-  const CommonContext_var& common_context,
+  CommonContext* common_context,
   RpcDelegate& delegate,
   RpcPool& rpc_pool)
 {
@@ -37,18 +37,18 @@ inline std::shared_ptr<Rpc> RpcImpl::create(
 }
 
 inline RpcImpl::RpcImpl(
-  const Logger_var& logger,
+  Logger* logger,
   const ServerCompletionQueuePtr& server_completion_queue,
   const int method_index,
   const RpcHandlerInfo& rpc_handler_info,
-  const CommonContext_var& common_context,
+  CommonContext* common_context,
   RpcDelegate& delegate,
   RpcPool& rpc_pool)
-  : logger_(logger),
+  : logger_(ReferenceCounting::add_ref(logger)),
     server_completion_queue_(server_completion_queue),
     method_index_(method_index),
     rpc_handler_info_(rpc_handler_info),
-    common_context_(common_context),
+    common_context_(ReferenceCounting::add_ref(common_context)),
     delegate_(delegate),
     rpc_pool_(rpc_pool),
     connection_event_(EventType::Connection, *this, false),
@@ -250,7 +250,7 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
 
     handler_ = rpc_handler_info_.rpc_handler_factory(
       this,
-      common_context_);
+      common_context_.in());
 
     try
     {
@@ -274,11 +274,11 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
     try
     {
       std::shared_ptr<Rpc> rpc = RpcImpl::create(
-        logger_,
+        logger_.in(),
         server_completion_queue_,
         method_index_,
         rpc_handler_info_,
-        common_context_,
+        common_context_.in(),
         delegate_,
         rpc_pool_);
 

@@ -29,7 +29,7 @@ public:
   virtual void set_rpc(Rpc* rpc) noexcept = 0;
 
   virtual void set_common_context(
-    const CommonContext_var& common_context) noexcept = 0;
+    CommonContext* common_context) noexcept = 0;
 
 protected:
   virtual void on_request_internal(const Message& request) = 0;

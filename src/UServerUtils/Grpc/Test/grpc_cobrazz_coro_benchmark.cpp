@@ -19,11 +19,12 @@ class StreamStreamService final
     public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
 public:
-  StreamStreamService(const Logger_var& logger)
-    : logger_(logger)
+  StreamStreamService(Logger* logger)
+    : logger_(ReferenceCounting::add_ref(logger))
   {
   }
 
@@ -149,14 +150,13 @@ int main(int /*argc*/, char** /*argv*/)
       auto grpc_builder =
         std::make_unique<GrpcCobrazzServerBuilder>(
           config,
-          logger);
+          logger.in());
 
       echo::EchoService_Handler_Service_var service(
-        new StreamStreamService(logger));
+        new StreamStreamService(logger.in()));
       grpc_builder->add_service(
-        service,
-        main_task_processor,
-        {});
+        service.in(),
+        main_task_processor);
 
       components_builder->add_grpc_cobrazz_server(
         std::move(grpc_builder));

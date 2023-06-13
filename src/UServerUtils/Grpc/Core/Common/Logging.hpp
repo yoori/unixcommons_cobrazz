@@ -9,7 +9,7 @@ namespace UServerUtils::Grpc::Core::Common::Logger
 
 using Logger_var = Logging::Logger_var;
 
-Logger_var set_logger(const Logger_var& logger);
+Logger_var set_logger(Logging::Logger* logger);
 
 } // namespace UServerUtils::Grpc::Core::Common::Logging
 

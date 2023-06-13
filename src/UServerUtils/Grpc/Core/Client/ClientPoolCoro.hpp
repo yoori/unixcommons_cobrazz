@@ -50,6 +50,7 @@ class ClientPoolCoroImpl<
   Internal::has_bidi_streaming_t<RpcServiceMethodConcept>> final
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Traits = Internal::Traits<RpcServiceMethodConcept>;
   using Request = typename Traits::Request;
@@ -69,8 +70,8 @@ private:
   using Mutex = userver::engine::Mutex;
 
 public:
-  ClientPoolCoroImpl(const Logger_var& logger)
-    : logger_(logger)
+  ClientPoolCoroImpl(Logger* logger)
+    : logger_(ReferenceCounting::add_ref(logger))
   {
     client_ids_.reserve(10000);
   }
@@ -295,6 +296,7 @@ public:
   using ClientPoolCoroPtr = std::shared_ptr<ClientPoolCoro>;
   using TaskProcessor = userver::engine::TaskProcessor;
   using TaskProcessorRef = std::reference_wrapper<TaskProcessor>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using WriteResult = typename Impl::WriteResult;
 
@@ -304,7 +306,7 @@ public:
   ~ClientPoolCoro() = default;
 
   static ClientPoolCoroPtr create(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool,
     TaskProcessor& task_processor)
   {
@@ -318,7 +320,7 @@ public:
   }
 
   static ClientPoolCoroPtr create(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool)
   {
     ClientPoolCoroPtr pool(new ClientPoolCoro(
@@ -382,19 +384,19 @@ public:
 
 private:
   explicit ClientPoolCoro(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool,
     TaskProcessor& task_processor)
-    : logger_(logger),
+    : logger_(ReferenceCounting::add_ref(logger)),
       config_pool_(config_pool),
       task_processor_(task_processor)
   {
   }
 
   explicit ClientPoolCoro(
-    const Logger_var& logger,
+    Logger* logger,
     const ConfigPoolCoro& config_pool)
-    : logger_(logger),
+    : logger_(ReferenceCounting::add_ref(logger)),
       config_pool_(config_pool)
   {
     auto* current_task_processor =
