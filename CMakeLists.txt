@@ -42,6 +42,23 @@ find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(IDL REQUIRED)
+find_package(GTest REQUIRED)
+find_package(absl REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread) # TO EXPLAIN WHO USE
+
+find_package(Protobuf REQUIRED)
+message(STATUS "Using protobuf ${Protobuf_VERSION}")
+set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "") # TO EXPLAIN: who use this var ?
+
+find_program(PROTOBUF_PROTOC protoc REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
+set(GRPC_GRPCPP gRPC::grpc++) # TO EXPLAIN
+set(GRPC_EXTERNAL_ENABLE 1) # TO EXPLAIN
+
+find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin REQUIRED)
+message("-- Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN_EXECUTABLE}")
+
+find_package(gRPC REQUIRED)
 
 include_directories(src src/CORBA)
 

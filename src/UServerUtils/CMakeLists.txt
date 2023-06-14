@@ -6,52 +6,52 @@ set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
 set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
 set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
 
-find_package(absl)
-if (NOT absl_FOUND)
-  message(SEND_ERROR "Failed to find absl")
-  return()
-else()
-  message(STATUS "Using absl ${absl_VERSION}")
-endif()
+#find_package(absl)
+#if (NOT absl_FOUND)
+#  message(SEND_ERROR "Failed to find absl")
+#  return()
+#else()
+#  message(STATUS "Using absl ${absl_VERSION}")
+#endif()
 
-find_package(Protobuf)
-if (NOT Protobuf_FOUND)
-  message(SEND_ERROR "Failed to find Protobuf")
-  return()
-else()
-  message(STATUS "Using protobuf ${Protobuf_VERSION}")
-  set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "")
-endif()
+#find_package(Protobuf)
+#if (NOT Protobuf_FOUND)
+#  message(SEND_ERROR "Failed to find Protobuf")
+#  return()
+#else()
+#  message(STATUS "Using protobuf ${Protobuf_VERSION}")
+#  set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "")
+#endif()
 
-find_program(PROTOBUF_PROTOC protoc)
-if(NOT PROTOBUF_PROTOC)
-  message(SEND_ERROR "Failed to find protoc")
-  return()
-else()
-  message("-- Using protoc: ${PROTOBUF_PROTOC}")
-endif()
+#find_program(PROTOBUF_PROTOC protoc)
+#if(NOT PROTOBUF_PROTOC)
+#  message(SEND_ERROR "Failed to find protoc")
+#  return()
+#else()
+#  message("-- Using protoc: ${PROTOBUF_PROTOC}")
+#endif()
 
-find_package(gRPC)
-if (NOT gRPC_FOUND)
-  message(SEND_ERROR "Failed to find GRPC")
-  return()
-else()
-  message(STATUS "Using gRPC ${gRPC_VERSION}")
-  set(GRPC_GRPCPP gRPC::grpc++)
-  set(GRPC_EXTERNAL_ENABLE 1)
-endif()
+#find_package(gRPC)
+#if (NOT gRPC_FOUND)
+#  message(SEND_ERROR "Failed to find GRPC")
+#  return()
+#else()
+#  message(STATUS "Using gRPC ${gRPC_VERSION}")
+#  set(GRPC_GRPCPP gRPC::grpc++)
+#  set(GRPC_EXTERNAL_ENABLE 1)
+#cendif()
 
-find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
-if (NOT GRPC_CPP_PLUGIN_EXECUTABLE)
-  message(SEND_ERROR "Failed to find grpc_cpp_plugin")
-  return()
-else()
-  message("-- Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN_EXECUTABLE}")
-  set(PROTO_GRPC_CPP_PLUGIN ${GRPC_CPP_PLUGIN_EXECUTABLE} CACHE INTERNAL "")
-endif()
+#find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+#if (NOT GRPC_CPP_PLUGIN_EXECUTABLE)
+#  message(SEND_ERROR "Failed to find grpc_cpp_plugin")
+#  return()
+#else()
+#  message("-- Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN_EXECUTABLE}")
+#  set(PROTO_GRPC_CPP_PLUGIN ${GRPC_CPP_PLUGIN_EXECUTABLE} CACHE INTERNAL "")
+#endif()
 
-find_package(GTest REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread)
+#find_package(GTest REQUIRED)
+#find_package(Boost REQUIRED COMPONENTS thread)
 
 include_directories (
   Grpc/Core
@@ -71,23 +71,29 @@ set_property(
   PROPERTY COMPILE_OPTIONS -Wno-error
 )
 
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.10.0)
-FetchContent_MakeAvailable(googletest)
+#FetchContent_Declare(
+#  googletest
+#  GIT_REPOSITORY https://github.com/google/googletest.git
+#  GIT_TAG release-1.10.0)
+#FetchContent_MakeAvailable(googletest)
 
 option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
 option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
 option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
 option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
 option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
+
+message(STATUS ">>>>>>> To fetch userver")
+
 FetchContent_Declare(
   userver
   GIT_REPOSITORY https://github.com/arbogdanov/userver.git
   GIT_TAG cobrazz
 )
+
 FetchContent_MakeAvailable(userver)
+
+message(STATUS ">>>>>>> From fetch userver")
 
 set_property(
   DIRECTORY
