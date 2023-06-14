@@ -353,7 +353,7 @@ public:
 
     TaskProcessorContainerBuilderPtr task_processor_container_builder1(
         new TaskProcessorContainerBuilder(
-          logger,
+          logger.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
@@ -361,7 +361,7 @@ public:
     main_task_processor_config.worker_threads = number_client_thread_;
     TaskProcessorContainerBuilderPtr task_processor_container_builder2(
       new TaskProcessorContainerBuilder(
-        logger,
+        logger.in(),
         coro_pool_config,
         event_thread_pool_config,
         main_task_processor_config));
@@ -392,7 +392,7 @@ public:
           config_server.port = port;
           GrpcServerBuilderPtr server_builder =
             std::make_unique<GrpcServerBuilder>(
-              logger,
+              logger.in(),
               std::move(config_server),
               statistic_storage);
          GrpcServiceBase_var service(new Service);
@@ -456,13 +456,13 @@ public:
       new Manager(
         std::move(task_processor_container_builder1),
         std::move(inititialize_func1),
-        logger));
+        logger.in()));
 
     Manager_var manager2(
       new Manager(
         std::move(task_processor_container_builder2),
         std::move(inititialize_func2),
-        logger));
+        logger.in()));
 
     manager1->activate_object();
     manager2->activate_object();

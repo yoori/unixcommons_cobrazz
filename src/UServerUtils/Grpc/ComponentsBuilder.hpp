@@ -75,13 +75,13 @@ public:
   CompletionQueue& add_grpc_server(
     std::unique_ptr<GrpcServerBuilder>&& builder);
 
-  void add_grpc_cobrazz_server(
-    std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
-
   GrpcClientFactory_var add_grpc_client_factory(
     GrpcClientFactoryConfig&& config,
     TaskProcessor& channel_task_processor,
     grpc::CompletionQueue* queue = nullptr);
+
+  void add_grpc_cobrazz_server(
+    std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
 
   void add_user_component(
     const std::string& name,
