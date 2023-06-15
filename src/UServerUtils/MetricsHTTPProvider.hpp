@@ -34,9 +34,9 @@ namespace UServerUtils
 
   private:
     // TO FIX: remove, AtomicImpl don't allow copying
-    MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
+//    MetricsHTTPProvider(const MetricsHTTPProvider&) = delete; // protect from usage
 
-    MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
+//    MetricsHTTPProvider& operator=(const MetricsHTTPProvider&) = delete; // protect from usage
 
     static void* worker(MetricsHTTPProvider* _this);
 
