@@ -37,23 +37,24 @@ namespace UServerUtils
     try
     {
       manager.emplace(std::move(conf_prepared), component_list);
-      _this->state_ = AS_ACTIVE; // TO FIX: remove it when will use SimpleActiveObject
+      _this->activate_object();
     }
-    catch (const std::exception& ex)
+    catch (const eh::Exception& ex)
     {
       LOG_ERROR() << "Loading failed: " << ex;
     }
+    catch(...)
+    {
+      LOG_ERROR() << "Catchet unknown exception";
+    }
 
     // TO FIX : make it normally - conditional variable with waiting
-    while(true)
-    {
-      if(_this->stopped_)
+      Sync::ConditionalGuard guard(_this->cond_);
+      while (_this->active())
       {
-        return NULL;
+        guard.wait();
       }
 
-      sleep(1);
-    }
 
     return NULL;
   }
@@ -61,6 +62,7 @@ namespace UServerUtils
   void
   MetricsHTTPProvider::activate_object()
   {
+    SimpleActiveObject::activate_object();
     copy_json_to_tmp();
     thread_ = std::thread(worker,this);
   }
@@ -68,36 +70,38 @@ namespace UServerUtils
   void
   MetricsHTTPProvider::deactivate_object()
   {
-    state_ = AS_DEACTIVATING;
-    stopped_ = true;
+    SimpleActiveObject::deactivate_object();
   }
 
   void
   MetricsHTTPProvider::wait_object()
   {
+//    Sync::PosixGuard guard(cond_);
+/*    if (state_ != AS_ACTIVE)
+    {
+      return;
+    }
+    state_ = AS_DEACTIVATING;*/
+    cond_.broadcast();
+
     thread_.join();
-    state_ = AS_NOT_ACTIVE;
+    SimpleActiveObject::wait_object();
   }
 
-  bool
-  MetricsHTTPProvider::active()
-  {
-    return state_ == AS_ACTIVE;
-  }
 
   MetricsHTTPProvider::MetricsHTTPProvider(Generics::MetricsProvider *mProv,unsigned int _listen_port, std::string _uri)
     : listen_port_(_listen_port),
       uri_(std::move(_uri))
   {
     container = ReferenceCounting::add_ref(mProv);
-    state_ = AS_NOT_ACTIVE;
+//    state_ = AS_NOT_ACTIVE;
   }
 
   MetricsHTTPProvider::~MetricsHTTPProvider()
   {
-    if(state_ != AS_NOT_ACTIVE)
-    {
-      LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
-    }
+//    if(state_ != AS_NOT_ACTIVE)
+//    {
+//      LOG_ERROR() << "Try to destruct active object MetricsHTTPProviderImpl";
+//    }
   }
 }

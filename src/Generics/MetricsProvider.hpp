@@ -22,6 +22,11 @@ namespace Generics
     virtual void add_value(std::string_view n,const std::string& v)=0;
     virtual void add_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)=0;
     virtual void set_value_prometheus(const std::string & parameter, const std::map<std::string, std::string>& par2, double value)=0;
+    
+    virtual std::map<std::string,std::string> getStringValues()=0;
+    virtual std::string get_prometheus_formatted()=0;
+
+
 
   };
 }

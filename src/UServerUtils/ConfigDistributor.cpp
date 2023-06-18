@@ -30,16 +30,8 @@ namespace UServerUtils
       const server::http::HttpRequest& r,
       server::request::RequestContext&) const
   {
-    // TO FIX
-    // why dynamic_cast ? why this check is moved to runtime ?
-    // if container is always CompositeMetricsProvider it should have CompositeMetricsProvider type !
-    auto p = dynamic_cast<Generics::CompositeMetricsProvider*>(MetricsHTTPProvider::container.operator->());
+    auto p =  MetricsHTTPProvider::container.operator->();
 
-    if(!p)
-    {
-      // TO FIX : we throw only eh::Exception based Exception's
-      throw std::runtime_error("invalid cast");
-    }
 
     bool isJson = r.HasArg("json");
 
