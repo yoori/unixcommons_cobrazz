@@ -37,7 +37,7 @@ namespace UServerUtils
     try
     {
       manager.emplace(std::move(conf_prepared), component_list);
-      _this->activate_object();
+//      _this->activate_object();
     }
     catch (const eh::Exception& ex)
     {
