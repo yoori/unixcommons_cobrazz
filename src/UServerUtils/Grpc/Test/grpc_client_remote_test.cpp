@@ -81,14 +81,15 @@ public:
     config.number_async_client = 1;
     config.number_threads = 1;
 
+    GrpcCobrazzPoolClientFactory pool_factory(
+      logger_.in(),
+      config);
+
     for (int i = 1; i <= 100; ++i)
     {
       std::cout << "number: " << i << std::endl;
 
-      auto pool = GrpcCobrazzPoolClientFactory::create<
-        test_coro::TestCoroService_Handler_ClientPool>(
-        logger_.in(),
-        config,
+      auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
         task_processor);
 
       auto request = std::make_unique<test_coro::Request>();

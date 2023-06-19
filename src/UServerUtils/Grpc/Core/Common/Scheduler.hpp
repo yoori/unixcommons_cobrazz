@@ -10,7 +10,7 @@
 #include <vector>
 
 // THIS
-#include <Generics/ActiveObject.hpp>
+#include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Core/Common/ThreadGuard.hpp>
 
@@ -18,8 +18,6 @@ namespace UServerUtils::Grpc::Core::Common
 {
 
 class Scheduler final
-  : public Generics::ActiveObject,
-    public ReferenceCounting::AtomicImpl
 {
 public:
   using Logger = Logging::Logger;
@@ -27,22 +25,18 @@ public:
   using Queue = std::shared_ptr<grpc::CompletionQueue>;
   using Queues = std::vector<Queue>;
 
+  DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
+
 public:
   explicit Scheduler(
     Logger* logger,
     Queues&& queues);
 
-  ~Scheduler() override;
-
-  void activate_object() override;
-
-  void deactivate_object() override;
-
-  void wait_object() override;
-
-  bool active() override;
+  ~Scheduler();
 
   std::size_t size() const noexcept;
+
+  const Queues& queues() noexcept;
 
 private:
   Logger_var logger_;
@@ -50,15 +44,9 @@ private:
   Queues queues_;
 
   ThreadsGuard threads_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  mutable std::mutex mutex_;
-
-  std::condition_variable condition_variable_;
 };
 
-using Scheduler_var = ReferenceCounting::SmartPtr<Scheduler>;
+using SchedulerPtr = std::shared_ptr<Scheduler>;
 
 } // namespace UServerUtils::Grpc::Core::Common
 

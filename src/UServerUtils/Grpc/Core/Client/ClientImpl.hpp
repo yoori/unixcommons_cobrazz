@@ -112,8 +112,7 @@ public:
 
   ClientId get_id() const noexcept override;
 
-  bool stop(
-    std::promise<void>&& stopped_promise) noexcept override;
+  bool stop() noexcept override;
 
 private:
   explicit ClientImpl(

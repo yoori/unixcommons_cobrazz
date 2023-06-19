@@ -25,9 +25,7 @@ public:
 
   virtual ClientId get_id() const noexcept = 0;
 
-  // We must ensure that we do not interact with cq queue
-  // in any way after shutdown.
-  virtual bool stop(std::promise<void>&& stopped_promise) noexcept = 0;
+  virtual bool stop() noexcept = 0;
 
 protected:
   Client() = default;

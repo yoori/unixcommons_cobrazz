@@ -184,6 +184,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
 {
   using ConfigPoolCoro =
     UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
+  using GrpcCobrazzPoolClientFactory =
+    UServerUtils::Grpc::GrpcCobrazzPoolClientFactory;
 
   manager_->activate_object();
 
@@ -194,14 +196,16 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
   config.number_async_client = 17;
   config.number_threads = 7;
 
+  GrpcCobrazzPoolClientFactory pool_factory(
+    logger_.in(),
+    config);
+
   const std::size_t number_cycle = 100;
   const std::size_t number_request = 10;
   for (std::size_t i = 1; i <= number_cycle; ++i)
   {
-    auto pool = GrpcCobrazzPoolClientFactory::create<
-      test_coro::TestCoroService_Handler_ClientPool>(
-        logger_.in(),
-        config,
+    auto pool =
+      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
         task_processor);
 
     for (std::size_t i = 1; i <= number_request; ++i)
@@ -244,16 +248,18 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success_MultiThread)
   config.number_async_client = 20;
   config.number_threads = 7;
 
+  GrpcCobrazzPoolClientFactory pool_factory(
+    logger_.in(),
+    config);
+
   const std::size_t number_request = 500;
   const std::size_t number_threads = 100;
   const std::size_t number_cycle = 3;
   for (std::size_t k = 1; k <= number_cycle; ++k)
   {
-    auto pool = GrpcCobrazzPoolClientFactory::create<
-      test_coro::TestCoroService_Handler_ClientPool>(
-      logger_.in(),
-      config,
-      task_processor);
+    auto pool =
+      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+        task_processor);
 
     UServerUtils::Grpc::Core::Common::ThreadsGuard threads_guard;
     UServerUtils::Grpc::Core::Common::ShutdownManagerPtr manager(
@@ -408,11 +414,13 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Timeout, Timeout)
   config.number_async_client = 17;
   config.number_threads = 7;
 
-  auto pool = GrpcCobrazzPoolClientFactory::create<
-    test_coro::TestCoroService_Handler_ClientPool>(
+  GrpcCobrazzPoolClientFactory pool_factory(
     logger_.in(),
-    config,
-    task_processor);
+    config);
+
+  auto pool =
+    pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+      task_processor);
 
   const std::size_t number_request = 10;
   for (std::size_t i = 1; i <= number_request; ++i)
@@ -506,13 +514,15 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
   config.number_async_client = 20;
   config.number_threads = 10;
 
+  GrpcCobrazzPoolClientFactory pool_factory(
+    logger_.in(),
+    config);
+
   for (std::size_t k = 1; k <= 500; ++k)
   {
-    auto pool = GrpcCobrazzPoolClientFactory::create<
-      test_coro::TestCoroService_Handler_ClientPool>(
-      logger_.in(),
-      config,
-      task_processor);
+    auto pool =
+      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+        task_processor);
   }
 
   manager_->deactivate_object();
@@ -533,14 +543,16 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
   config.number_async_client = 20;
   config.number_threads = 10;
 
+  GrpcCobrazzPoolClientFactory pool_factory(
+    logger_.in(),
+    config);
+
   const std::size_t number_request = 100;
   for (std::size_t k = 1; k <= 500; ++k)
   {
-    auto pool = GrpcCobrazzPoolClientFactory::create<
-      test_coro::TestCoroService_Handler_ClientPool>(
-      logger_.in(),
-      config,
-      task_processor);
+    auto pool =
+      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+        task_processor);
 
     for (std::size_t i = 1; i <= number_request; ++i)
     {

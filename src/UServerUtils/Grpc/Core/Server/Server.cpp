@@ -53,7 +53,7 @@ Server::Server(
     queues.emplace_back(server_completion_queue);
   }
 
-  scheduler_ = Common::Scheduler_var(
+  scheduler_ = Common::SchedulerPtr(
     new Common::Scheduler(
       logger_.in(),
       std::move(queues)));
@@ -97,15 +97,6 @@ Server::~Server()
         catch (...)
         {
         }
-      }
-
-      try
-      {
-        scheduler_->deactivate_object();
-        scheduler_->wait_object();
-      }
-      catch (...)
-      {
       }
 
       try
@@ -185,8 +176,6 @@ void Server::activate_object()
       grpc::InsecureServerCredentials());
     register_services();
 
-    scheduler_->activate_object();
-
     server_ = server_builder_.BuildAndStart();
     if (!server_)
     {
@@ -263,20 +252,6 @@ void Server::deactivate_object()
                << exc.what();
         logger_->error(stream.str(), Aspect::SERVER);
       }
-    }
-
-    try
-    {
-      scheduler_->deactivate_object();
-      scheduler_->wait_object();
-    }
-    catch (const eh::Exception& exc)
-    {
-      Stream::Error stream;
-      stream << FNS
-             << ": "
-             << exc.what();
-      logger_->error(stream.str(), Aspect::SERVER);
     }
 
     try

@@ -35,6 +35,86 @@ constexpr const char FACTORY[] = "FACTORY";
 namespace Internal
 {
 
+inline auto create_scheduler(
+  std::optional<std::size_t> number_threads,
+  Logging::Logger* logger)
+{
+  using SchedulerQueue = typename Common::Scheduler::Queue;
+  using SchedulerQueues = typename Common::Scheduler::Queues;
+
+  if (!number_threads)
+  {
+    const auto best_thread_number =
+      std::thread::hardware_concurrency();
+    if (best_thread_number == 0)
+    {
+      Stream::Error stream;
+      stream << FNS
+             << ": hardware_concurrency is failed";
+      logger->error(stream.str(), Aspect::FACTORY);
+    }
+    number_threads =
+      best_thread_number ? best_thread_number : 8;
+  }
+
+  SchedulerQueues scheduler_queues;
+  scheduler_queues.reserve(*number_threads);
+  for (std::size_t i = 1; i <= *number_threads; ++i)
+  {
+    auto completion_queue = std::make_shared<grpc::CompletionQueue>();
+    scheduler_queues.emplace_back(std::move(completion_queue));
+  }
+
+  Common::SchedulerPtr scheduler(
+    new Common::Scheduler(
+      logger,
+      std::move(scheduler_queues)));
+
+  return scheduler;
+}
+
+inline auto create_channels(
+  const std::size_t number_threads,
+  const std::shared_ptr<grpc::ChannelCredentials>& credentials,
+  const std::string& endpoint,
+  const grpc::ChannelArguments& channel_arguments,
+  std::optional<std::size_t> number_channels)
+{
+  using ChannelPtr = std::shared_ptr<grpc::Channel>;
+  using Channels = std::vector<ChannelPtr>;
+
+  static std::atomic<std::size_t> counter_{0};
+
+  if (!number_channels)
+  {
+    number_channels = number_threads;
+  }
+  else
+  {
+    const std::size_t adding =
+      (*number_channels % number_threads != 0);
+    *number_channels =
+      (*number_channels / number_threads + adding) * number_threads;
+  }
+
+  Channels channels;
+  channels.reserve(*number_channels);
+  for (std::size_t i = 1; i <= *number_channels; ++i)
+  {
+    grpc::ChannelArguments result_channel_arguments(channel_arguments);
+    result_channel_arguments.SetString(
+      "key_for_unique_tcp",
+      std::to_string(counter_.fetch_add(1, std::memory_order_relaxed)));
+    auto channel = grpc::CreateCustomChannel(
+      endpoint,
+      credentials,
+      result_channel_arguments);
+    channels.emplace_back(std::move(channel));
+  }
+
+  return channels;
+}
+
 template<class RpcServiceMethodConcept>
 class FactoryImpl final
   : public ClientDelegate<typename Traits<RpcServiceMethodConcept>::Request>
@@ -52,6 +132,9 @@ public:
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
+  using ChannelPtr = std::shared_ptr<grpc::Channel>;
+  using Channels = std::vector<ChannelPtr>;
+  using SchedulerPtr = Common::SchedulerPtr;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -61,7 +144,6 @@ private:
 
   struct ChannelData final
   {
-    using ChannelPtr = std::shared_ptr<grpc::Channel>;
     using CompletionQueue = grpc::CompletionQueue;
     using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
 
@@ -107,93 +189,77 @@ public:
     : logger_(ReferenceCounting::add_ref(logger)),
       factory_observer_(std::move(factory_observer))
   {
-    auto number_threads = config.number_threads;
-    if (!number_threads)
-    {
-      const auto best_thread_number =
-        std::thread::hardware_concurrency();
-      if (best_thread_number == 0)
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": hardware_concurrency is failed";
-        logger_->error(stream.str(), Aspect::FACTORY);
-      }
-      number_threads =
-        best_thread_number ? best_thread_number : 8;
-    }
+    scheduler_ = create_scheduler(
+      config.number_threads,
+      logger_.in());
+    const auto number_threads = scheduler_->size();
+    const auto& scheduler_queues = scheduler_->queues();
 
-    auto number_channels = config.number_channels;
-    if (!number_channels)
-    {
-      number_channels = number_threads;
-    }
-    else
-    {
-      const std::size_t adding =
-        (*number_channels % *number_threads != 0);
-      *number_channels =
-        (*number_channels / *number_threads + adding) * *number_threads;
-    }
+    auto channels = create_channels(
+      number_threads,
+      config.credentials,
+      config.endpoint,
+      config.channel_args,
+      config.number_channels);
 
-    SchedulerQueues scheduler_queues;
-    scheduler_queues.reserve(*number_threads);
-    for (std::size_t i = 1; i <= *number_threads; ++i)
+    const auto size_channels = channels.size();
+    channels_data_.reserve(size_channels);
+    for (std::size_t i = 0; i < size_channels; ++i)
     {
-      auto completion_queue = std::make_shared<grpc::CompletionQueue>();
-      scheduler_queues.emplace_back(std::move(completion_queue));
-    }
-
-    channels_data_.reserve(*number_channels);
-    for (std::size_t i = 1; i <= *number_channels; ++i)
-    {
-      auto channel_args = config.channel_args;
-      channel_args.SetString(
-        "key_for_unique_tcp",
-        std::to_string(i) + std::to_string(std::uintptr_t(this)));
-      auto channel = grpc::CreateCustomChannel(
-        config.endpoint,
-        config.credentials,
-        channel_args);
-
       ChannelData channel_data;
       channel_data.completion_queue = scheduler_queues[i % scheduler_queues.size()];
-      channel_data.channel = std::move(channel);
+      channel_data.channel = std::move(channels[i]);
       channels_data_.emplace_back(std::move(channel_data));
     }
+  }
 
-    scheduler_ = Common::Scheduler_var(
-      new Common::Scheduler(
-        logger_,
-        std::move(scheduler_queues)));
-    scheduler_->activate_object();
+  explicit FactoryImpl(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    FactoryObserver&& factory_observer = {})
+    : logger_(ReferenceCounting::add_ref(logger)),
+      scheduler_(scheduler),
+      factory_observer_(std::move(factory_observer))
+  {
+    const auto& scheduler_queues = scheduler_->queues();
+    const auto size_channels = channels.size();
+    channels_data_.reserve(size_channels);
+    for (std::size_t i = 0; i < size_channels; ++i)
+    {
+      ChannelData channel_data;
+      channel_data.completion_queue = scheduler_queues[i % scheduler_queues.size()];
+      channel_data.channel = channels[i];
+      channels_data_.emplace_back(std::move(channel_data));
+    }
   }
 
   void stop() noexcept
   {
     try
     {
-      std::deque<std::future<void>> futures;
+      std::unique_lock lock(mutex_clients_);
+      is_stopped_ = true;
+      for (auto& client : clients_)
       {
-        std::lock_guard lock(mutex_clients_);
-        for (auto& client : clients_)
-        {
-          std::promise<void> promise;
-          auto future = promise.get_future();
-          if (client.second.client->stop(std::move(promise)))
-          {
-            futures.emplace_back(std::move(future));
-          }
-        }
+        if (!client.second.client->stop())
+          return;
       }
 
-      for (auto& future : futures)
+      const auto status = cv_.wait_for(
+        lock,
+        std::chrono::milliseconds(3000),
+        [this] () {
+          return clients_.empty();
+        });
+      if (!status)
       {
-        future.wait();
+        Stream::Error stream;
+        stream << FNS
+               << ": "
+               << "Logic error. Timout is reached.";
+        logger_->error(stream.str(), Aspect::FACTORY);
       }
-
-      scheduler_->deactivate_object();
-      scheduler_->wait_object();
     }
     catch (const eh::Exception& exc)
     {
@@ -303,7 +369,7 @@ public:
   }
 
 private:
-  void need_remove(const ClientId client_id) noexcept
+  void need_remove(const ClientId client_id) noexcept override
   {
     IndexChannelData index_channel_data = 0;
     {
@@ -317,6 +383,12 @@ private:
         index_channel_data = it->second.index_channel_data;
       }
       clients_.erase(it);
+
+      if (is_stopped_ && clients_.empty())
+      {
+        cv_.notify_one();
+        return;
+      }
     }
 
     if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
@@ -337,11 +409,11 @@ private:
   }
 
 private:
-  Logger_var logger_;
+  const Logger_var logger_;
+
+  Common::SchedulerPtr scheduler_;
 
   FactoryObserver factory_observer_;
-
-  Common::Scheduler_var scheduler_;
 
   ChannelsData channels_data_;
 
@@ -349,11 +421,13 @@ private:
 
   Clients clients_;
 
+  bool is_stopped_ = false;
+
+  std::condition_variable cv_;
+
   mutable std::mutex mutex_clients_;
 
   QueueFinishedIndex queue_finished_index_;
-
-  bool is_stopped = true;
 };
 
 } // namespace Internal
@@ -374,6 +448,8 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using Channels = typename Impl::Channels;
+  using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -386,6 +462,15 @@ public:
     Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
+  {
+  }
+
+  explicit Factory(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    FactoryObserver&& factory_observer = {})
+    : impl_(logger, scheduler, channels, std::move(factory_observer))
   {
   }
 
@@ -424,6 +509,8 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using Channels = typename Impl::Channels;
+  using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
@@ -437,6 +524,15 @@ public:
     Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
+  {
+  }
+
+  explicit Factory(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    FactoryObserver&& factory_observer = {})
+    : impl_(logger, scheduler, channels, std::move(factory_observer))
   {
   }
 
@@ -475,6 +571,8 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using Channels = typename Impl::Channels;
+  using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -487,6 +585,15 @@ public:
     Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
+  {
+  }
+
+  explicit Factory(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    FactoryObserver&& factory_observer = {})
+    : impl_(logger, scheduler, channels, std::move(factory_observer))
   {
   }
 
@@ -525,6 +632,8 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using Channels = typename Impl::Channels;
+  using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
@@ -538,6 +647,15 @@ public:
     Logger* logger,
     FactoryObserver&& factory_observer = {})
     : impl_(config, logger, std::move(factory_observer))
+  {
+  }
+
+  explicit Factory(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    FactoryObserver&& factory_observer = {})
+    : impl_(logger, scheduler, channels, std::move(factory_observer))
   {
   }
 

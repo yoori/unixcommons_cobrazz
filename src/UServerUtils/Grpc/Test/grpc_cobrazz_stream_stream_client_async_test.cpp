@@ -330,14 +330,15 @@ private:
 
 TEST_F(GrpcFixtureStreamStream_Client_ServerFinish, TestStreamStream_Client_ServerNotExist)
 {
-  Common::ShutdownManagerPtr shutdown_manager =
-    std::make_shared<Common::ShutdownManager>();
   Client::Config client_config;
   client_config.endpoint =
     "127.0.0.1:" + std::to_string(port_);
 
   for (std::size_t i = 1; i <= 100; ++i)
   {
+    Common::ShutdownManagerPtr shutdown_manager =
+      std::make_shared<Common::ShutdownManager>();
+
     StreamStreamClient_ServerNotExist client(
       client_config,
       logger_,

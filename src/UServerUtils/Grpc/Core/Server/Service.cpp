@@ -8,7 +8,9 @@ namespace UServerUtils::Grpc::Core::Server
 
 namespace Aspect
 {
-const char SERVICE[] = "SCHEDULER";
+
+const char SERVICE[] = "SERVICE";
+
 }
 
 Service::Service(

@@ -311,7 +311,7 @@ private:
 
   ServerCompletionQueues server_completion_queues_;
 
-  Common::Scheduler_var scheduler_;
+  Common::SchedulerPtr scheduler_;
 
   Services services_;
 

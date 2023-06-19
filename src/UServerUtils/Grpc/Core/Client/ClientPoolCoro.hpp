@@ -292,6 +292,8 @@ private:
   using Client = ClientCoro<RpcServiceMethodConcept>;
 
 public:
+  using Channels = typename Factory<RpcServiceMethodConcept>::Channels;
+  using SchedulerPtr = typename Factory<RpcServiceMethodConcept>::SchedulerPtr;
   using RequestPtr = typename Impl::RequestPtr;
   using ClientPoolCoroPtr = std::shared_ptr<ClientPoolCoro>;
   using TaskProcessor = userver::engine::TaskProcessor;
@@ -307,12 +309,16 @@ public:
 
   static ClientPoolCoroPtr create(
     Logger* logger,
-    const ConfigPoolCoro& config_pool,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    const std::size_t number_async_client,
     TaskProcessor& task_processor)
   {
     ClientPoolCoroPtr pool(new ClientPoolCoro(
       logger,
-      config_pool,
+      scheduler,
+      channels,
+      number_async_client,
       task_processor));
     pool->initialize();
 
@@ -321,11 +327,15 @@ public:
 
   static ClientPoolCoroPtr create(
     Logger* logger,
-    const ConfigPoolCoro& config_pool)
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    const std::size_t number_async_client)
   {
     ClientPoolCoroPtr pool(new ClientPoolCoro(
       logger,
-      config_pool));
+      scheduler,
+      channels,
+      number_async_client));
     pool->initialize();
 
     return pool;
@@ -385,19 +395,27 @@ public:
 private:
   explicit ClientPoolCoro(
     Logger* logger,
-    const ConfigPoolCoro& config_pool,
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    const std::size_t number_async_client,
     TaskProcessor& task_processor)
     : logger_(ReferenceCounting::add_ref(logger)),
-      config_pool_(config_pool),
+      scheduler_(scheduler),
+      channels_(channels),
+      number_async_client_(number_async_client),
       task_processor_(task_processor)
   {
   }
 
   explicit ClientPoolCoro(
     Logger* logger,
-    const ConfigPoolCoro& config_pool)
+    const SchedulerPtr& scheduler,
+    const Channels& channels,
+    const std::size_t number_async_client)
     : logger_(ReferenceCounting::add_ref(logger)),
-      config_pool_(config_pool)
+      scheduler_(scheduler),
+      channels_(channels),
+      number_async_client_(number_async_client)
   {
     auto* current_task_processor =
       userver::engine::current_task::GetTaskProcessorOptional();
@@ -418,18 +436,12 @@ private:
       UServerUtils::Grpc::Utils::Importance::kCritical,
       {},
       [ptr = this->shared_from_this()] () {
-        auto& config_pool = ptr->config_pool_;
-
-        Config config;
-        config.channel_args = config_pool.channel_args;
-        config.credentials = config_pool.credentials;
-        config.endpoint = config_pool.endpoint;
-        config.number_threads = config_pool.number_threads;
-        config.number_channels = config_pool.number_channels;
-
         auto& factory = ptr->factory_;
         auto& impl = ptr->impl_;
+        auto& scheduler = ptr->scheduler_;
+        auto& channels = ptr->channels_;
         auto logger = ptr->logger_;
+        const auto number_async_client = ptr->number_async_client_;
 
         auto* task_processor =
           userver::engine::current_task::GetTaskProcessorOptional();
@@ -491,8 +503,9 @@ private:
          };
 
         factory = std::make_unique<Factory<RpcServiceMethodConcept>>(
-          config,
           logger,
+          scheduler,
+          channels,
           std::move(factory_observer));
         impl = std::make_unique<Impl>(logger);
 
@@ -506,12 +519,7 @@ private:
           throw Exception(stream);
         }
 
-        const std::size_t adding =
-          config_pool.number_async_client % number_thread != 0;
-        const auto number_client =
-          (adding + config_pool.number_async_client / number_thread) * number_thread;
-
-        for (std::size_t i = 0; i < number_client; ++i)
+        for (std::size_t i = 0; i < number_async_client; ++i)
         {
           auto client = Client::create(logger);
           factory->create(*client);
@@ -524,7 +532,11 @@ private:
 private:
   const Logger_var logger_;
 
-  const ConfigPoolCoro config_pool_;
+  const SchedulerPtr scheduler_;
+
+  const Channels channels_;
+
+  const std::size_t number_async_client_;
 
   TaskProcessorRef task_processor_;
 
