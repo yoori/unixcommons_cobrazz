@@ -20,12 +20,13 @@ class RpcPoolImpl final
     public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using RpcPtr = typename RpcPool::RpcPtr;
   using Rpcs = std::unordered_map<Rpc*, RpcPtr>;
 
 public:
-  RpcPoolImpl(const Logger_var& logger);
+  RpcPoolImpl(Logger* logger);
 
   ~RpcPoolImpl() override;
 

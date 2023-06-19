@@ -265,7 +265,7 @@ public:
           endpoints[i % size_endpoint],
           task_processor,
           statistics));
-      add_child_object(client);
+      add_child_object(client.in());
     }
   }
 
@@ -353,7 +353,7 @@ public:
 
     TaskProcessorContainerBuilderPtr task_processor_container_builder1(
         new TaskProcessorContainerBuilder(
-          logger,
+          logger.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
@@ -361,7 +361,7 @@ public:
     main_task_processor_config.worker_threads = number_client_thread_;
     TaskProcessorContainerBuilderPtr task_processor_container_builder2(
       new TaskProcessorContainerBuilder(
-        logger,
+        logger.in(),
         coro_pool_config,
         event_thread_pool_config,
         main_task_processor_config));
@@ -392,13 +392,13 @@ public:
           config_server.port = port;
           GrpcServerBuilderPtr server_builder =
             std::make_unique<GrpcServerBuilder>(
-              logger,
+              logger.in(),
               std::move(config_server),
               statistic_storage);
          GrpcServiceBase_var service(new Service);
          server_builder->add_grpc_service(
            main_task_processor,
-           std::move(service));
+           service.in());
          components_builder->add_grpc_server(std::move(server_builder));
        }
 
@@ -447,7 +447,7 @@ public:
           main_task_processor,
           statistics));
 
-      components_builder->add_user_component("Benchmark", benchmark);
+      components_builder->add_user_component("Benchmark", benchmark.in());
 
       return components_builder;
     };
@@ -456,13 +456,13 @@ public:
       new Manager(
         std::move(task_processor_container_builder1),
         std::move(inititialize_func1),
-        logger));
+        logger.in()));
 
     Manager_var manager2(
       new Manager(
         std::move(task_processor_container_builder2),
         std::move(inititialize_func2),
-        logger));
+        logger.in()));
 
     manager1->activate_object();
     manager2->activate_object();

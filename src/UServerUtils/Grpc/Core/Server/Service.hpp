@@ -26,6 +26,7 @@ class Service final :
   public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using MethodName = std::string_view;
   using Handler = std::pair<MethodName, RpcHandlerInfo>;
@@ -37,10 +38,10 @@ public:
 
 public:
   Service(
-    const Logger_var& logger,
-    const RpcPool_var& rpc_pool,
+    Logger* logger,
+    RpcPool* rpc_pool,
     const ServerCompletionQueues& server_completion_queues,
-    const CommonContext_var& common_context,
+    CommonContext* common_context,
     Handlers&& handlers);
 
   ~Service() override;

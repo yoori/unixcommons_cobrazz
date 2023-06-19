@@ -18,13 +18,13 @@ const char SERVER[] = "GRPC_SERVER";
 
 Server::Server(
   const Config& config,
-  const Logger_var& logger)
+  Logger* logger)
   : config_(std::move(config)),
-    logger_(logger),
-    rpc_pool_(new RpcPoolImpl(logger_))
+    logger_(ReferenceCounting::add_ref(logger)),
+    rpc_pool_(new RpcPoolImpl(logger_.in()))
 {
   namespace Logger = UServerUtils::Grpc::Core::Common::Logger;
-  Logger::set_logger(logger_);
+  Logger::set_logger(logger_.in());
 
   if (!config_.num_threads)
   {
@@ -53,9 +53,9 @@ Server::Server(
     queues.emplace_back(server_completion_queue);
   }
 
-  scheduler_ = Common::Scheduler_var(
+  scheduler_ = Common::SchedulerPtr(
     new Common::Scheduler(
-      logger_,
+      logger_.in(),
       std::move(queues)));
 }
 
@@ -97,15 +97,6 @@ Server::~Server()
         catch (...)
         {
         }
-      }
-
-      try
-      {
-        scheduler_->deactivate_object();
-        scheduler_->wait_object();
-      }
-      catch (...)
-      {
       }
 
       try
@@ -185,8 +176,6 @@ void Server::activate_object()
       grpc::InsecureServerCredentials());
     register_services();
 
-    scheduler_->activate_object();
-
     server_ = server_builder_.BuildAndStart();
     if (!server_)
     {
@@ -263,20 +252,6 @@ void Server::deactivate_object()
                << exc.what();
         logger_->error(stream.str(), Aspect::SERVER);
       }
-    }
-
-    try
-    {
-      scheduler_->deactivate_object();
-      scheduler_->wait_object();
-    }
-    catch (const eh::Exception& exc)
-    {
-      Stream::Error stream;
-      stream << FNS
-             << ": "
-             << exc.what();
-      logger_->error(stream.str(), Aspect::SERVER);
     }
 
     try
@@ -359,8 +334,8 @@ void Server::register_services()
 
     Service_var service(
       new Service(
-        logger_,
-        rpc_pool_,
+        logger_.in(),
+        rpc_pool_.in(),
         server_completion_queues_,
         config_.common_context,
         std::move(handlers)));

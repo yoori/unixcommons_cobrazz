@@ -5,6 +5,7 @@
 #include <grpcpp/grpcpp.h>
 
 // THIS
+#include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
 #include <UServerUtils/Grpc/Core/Common/TypeTraits.hpp>
 
 namespace UServerUtils::Grpc::Core::Client

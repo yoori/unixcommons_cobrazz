@@ -144,14 +144,14 @@ class StreamStreamClient_ServerFinish final
 private:
   using Factory = test::TestService_HandlerStreamStream_Factory;
   using Config = Client::Config;
-  using Logger_var = Logging::Logger_var;
+  using Logger = Logging::Logger;
   using Impl = StreamStreamClient_ServerFinishImpl;
   using WriterStatus = Client::WriterStatus;
 
 public:
   StreamStreamClient_ServerFinish(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     const Common::ShutdownManagerPtr& shutdown_manager,
     const std::string& data)
     : impl_(std::make_unique<Impl>(shutdown_manager, data)),
@@ -200,7 +200,7 @@ public:
     server_ = UServerUtils::Grpc::Core::Server::Server_var(
       new UServerUtils::Grpc::Core::Server::Server(
         config,
-        logger_));
+        logger_.in()));
     server_->register_handler<StreamStreamHandler_ServerFinish>();
   }
 
@@ -330,14 +330,15 @@ private:
 
 TEST_F(GrpcFixtureStreamStream_Client_ServerFinish, TestStreamStream_Client_ServerNotExist)
 {
-  Common::ShutdownManagerPtr shutdown_manager =
-    std::make_shared<Common::ShutdownManager>();
   Client::Config client_config;
   client_config.endpoint =
     "127.0.0.1:" + std::to_string(port_);
 
   for (std::size_t i = 1; i <= 100; ++i)
   {
+    Common::ShutdownManagerPtr shutdown_manager =
+      std::make_shared<Common::ShutdownManager>();
+
     StreamStreamClient_ServerNotExist client(
       client_config,
       logger_,

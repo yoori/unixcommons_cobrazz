@@ -14,7 +14,7 @@ constexpr const char CLIENT_IMPL[] = "CLIENT_IMPL";
 template<class RpcServiceMethodConcept>
 inline typename ClientImpl<RpcServiceMethodConcept>::ClientPtr
 ClientImpl<RpcServiceMethodConcept>::create(
-  const Logger_var& logger,
+  Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
   Delegate& delegate,
@@ -77,14 +77,14 @@ ClientImpl<RpcServiceMethodConcept>::create(
 
 template<class RpcServiceMethodConcept>
 inline ClientImpl<RpcServiceMethodConcept>::ClientImpl(
-  const Logger_var& logger,
+  Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
   Delegate& delegate,
   Observer& observer,
   RequestPtr&& request)
   : client_id_(create_id()),
-    logger_(logger),
+    logger_(ReferenceCounting::add_ref(logger)),
     channel_(channel),
     completion_queue_(completion_queue),
     delegate_(delegate),
@@ -285,14 +285,12 @@ ClientImpl<RpcServiceMethodConcept>::get_id() const noexcept
 
 template<class RpcServiceMethodConcept>
 inline bool
-ClientImpl<RpcServiceMethodConcept>::stop(
-  std::promise<void>&& promise) noexcept
+ClientImpl<RpcServiceMethodConcept>::stop() noexcept
 {
   try
   {
     auto event = std::make_unique<EventStop>(
-      this->weak_from_this(),
-      std::move(promise));
+      this->weak_from_this());
     auto* event_ptr = event.release();
     const bool is_success = notifier_.Notify(
       completion_queue_.get(),
@@ -914,7 +912,8 @@ template<class RpcServiceMethodConcept>
 inline void
 ClientImpl<RpcServiceMethodConcept>::try_close() noexcept
 {
-  if (rpc_state_ != RpcState::Finish)
+  if (rpc_state_ != RpcState::Finish
+   && rpc_state_ != RpcState::Stop)
     return;
 
   if (finish_event_.is_pending()

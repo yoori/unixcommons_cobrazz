@@ -16,13 +16,14 @@ class TaskProcessorContainerBuilder final
   : private Generics::Uncopyable
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
   explicit TaskProcessorContainerBuilder(
-    const Logger_var& logger,
+    Logger* logger,
     const CoroPoolConfig& coro_pool_config,
     const EventThreadPoolConfig& event_thread_pool_config,
     const TaskProcessorConfig& main_task_processor_config);

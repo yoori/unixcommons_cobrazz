@@ -8,19 +8,21 @@ namespace UServerUtils::Grpc::Core::Server
 
 namespace Aspect
 {
-const char SERVICE[] = "SCHEDULER";
+
+const char SERVICE[] = "SERVICE";
+
 }
 
 Service::Service(
-  const Logger_var& logger,
-  const RpcPool_var& rpc_pool,
+  Logger* logger,
+  RpcPool* rpc_pool,
   const ServerCompletionQueues& server_completion_queues,
-  const CommonContext_var& common_context,
+  CommonContext* common_context,
   Handlers&& handlers)
-  : logger_(logger),
-    rpc_pool_(rpc_pool),
+  : logger_(ReferenceCounting::add_ref(logger)),
+    rpc_pool_(ReferenceCounting::add_ref(rpc_pool)),
     server_completion_queues_(server_completion_queues),
-    common_context_(common_context),
+    common_context_(ReferenceCounting::add_ref(common_context)),
     handlers_(std::move(handlers))
 {
   for (const auto& handler : handlers_)
@@ -98,13 +100,13 @@ void Service::activate_object()
       {
         std::shared_ptr<Rpc> rpc =
           RpcImpl::create(
-            logger_,
+            logger_.in(),
             server_completion_queue,
             method_index,
             handler.second,
-            common_context_,
+            common_context_.in(),
             *this,
-            *rpc_pool_);
+            *rpc_pool_.in());
         rpc_pool_->add(rpc);
       }
 

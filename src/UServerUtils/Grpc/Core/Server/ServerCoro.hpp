@@ -68,6 +68,7 @@ class ServerCoro final :
   public ReferenceCounting::AtomicImpl
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using MethodName = std::string;
@@ -75,7 +76,7 @@ public:
 public:
   ServerCoro(
     const ConfigCoro& config,
-    const Logger_var& logger);
+    Logger* logger);
 
   ~ServerCoro() override;
 
@@ -89,7 +90,7 @@ public:
 
   template<class Service>
   void add_service(
-    const ReferenceCounting::SmartPtr<Service>& service,
+    Service* service,
     TaskProcessor& task_processor,
     const std::optional<std::size_t> number_coro = {})
   {
@@ -143,7 +144,7 @@ public:
     constexpr const char* method_name = Traits::method_name();
     common_context_coro_->add_service(
       method_name,
-      ServiceCoro_var<Request, Response>(service),
+      service,
       rpc_type,
       task_processor,
       number_coro);

@@ -130,7 +130,7 @@ public:
     server_ = UServerUtils::Grpc::Core::Server::Server_var(
       new UServerUtils::Grpc::Core::Server::Server(
         config,
-        logger_));
+        logger_.in()));
     server_->register_handler<UnaryStreamHandler>();
   }
 

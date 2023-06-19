@@ -24,6 +24,7 @@ class GrpcServerBuilder final
   : protected Generics::Uncopyable
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using ActiveObjectCallback = Generics::ActiveObjectCallback;
 
@@ -51,7 +52,7 @@ public:
 
 public:
   explicit GrpcServerBuilder(
-    const Logger_var& logger,
+    Logger* logger,
     GrpcServerConfig&& config,
     StatisticsStorage& statistics_storage);
 
@@ -61,7 +62,7 @@ public:
 
   void add_grpc_service(
     TaskProcessor& task_processor,
-    GrpcServiceBase_var&& service);
+    GrpcServiceBase* service);
 
 private:
   ServerInfo build();

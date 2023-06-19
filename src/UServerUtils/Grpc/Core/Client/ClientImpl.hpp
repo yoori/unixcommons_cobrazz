@@ -44,6 +44,7 @@ public:
   using Delegate = ClientDelegate<Request>;
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using ChannelPtr = std::shared_ptr<grpc::Channel>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
 
   using CompletionQueuePtr = std::shared_ptr<grpc::CompletionQueue>;
@@ -94,7 +95,7 @@ private:
 
 public:
   static ClientPtr create(
-    const Logger_var& logger,
+    Logger* logger,
     const ChannelPtr& channel,
     const CompletionQueuePtr& completion_queue,
     Delegate& delegate,
@@ -111,12 +112,11 @@ public:
 
   ClientId get_id() const noexcept override;
 
-  bool stop(
-    std::promise<void>&& stopped_promise) noexcept override;
+  bool stop() noexcept override;
 
 private:
   explicit ClientImpl(
-    const Logger_var& logger,
+    Logger* logger,
     const ChannelPtr& channel,
     const CompletionQueuePtr& completion_queue,
     Delegate& delegate,

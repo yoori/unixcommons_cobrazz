@@ -9,10 +9,8 @@
 
 // THIS
 #include <eh/Exception.hpp>
-#include <Generics/CompositeActiveObject.hpp>
 #include <Logger/Logger.hpp>
-#include <ReferenceCounting/AtomicImpl.hpp>
-#include <UServerUtils/Grpc/Component.hpp>
+#include <UServerUtils/Grpc/Core/Client/Factory.hpp>
 #include <UServerUtils/Grpc/Core/Client/ConfigPoolCoro.hpp>
 
 namespace UServerUtils::Grpc
@@ -21,35 +19,60 @@ namespace UServerUtils::Grpc
 class GrpcCobrazzPoolClientFactory final
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
+private:
+  using ChannelPtr = std::shared_ptr<grpc::Channel>;
+  using Channels = std::vector<ChannelPtr>;
+  using SchedulerPtr = UServerUtils::Grpc::Core::Common::SchedulerPtr;
+
 public:
-  GrpcCobrazzPoolClientFactory() = default;
+  GrpcCobrazzPoolClientFactory(
+    Logger* logger,
+    const ConfigPoolCoro& config_pool)
+    : logger_(ReferenceCounting::add_ref(logger))
+  {
+    scheduler_ = UServerUtils::Grpc::Core::Client::Internal::create_scheduler(
+      config_pool.number_threads,
+      logger_.in());
+    const auto number_thread = scheduler_->size();
+
+    channels_ = UServerUtils::Grpc::Core::Client::Internal::create_channels(
+      scheduler_->size(),
+      config_pool.credentials,
+      config_pool.endpoint,
+      config_pool.channel_args,
+      config_pool.number_channels);
+
+    const auto& number_async_client = config_pool.number_async_client;
+    const std::size_t adding = number_async_client % number_thread != 0;
+    number_client_ =
+      (adding + number_async_client / number_thread) * number_thread;
+  }
 
   ~GrpcCobrazzPoolClientFactory() = default;
 
   // You must ensure that ClientPool is destroyed
   // before call Manager::deactivate_object
   template<class ClientPool>
-  static std::shared_ptr<ClientPool> create(
-    const Logger_var& logger,
-    const ConfigPoolCoro& config_pool,
+  std::shared_ptr<ClientPool> create(
     TaskProcessor& task_processor)
   {
     return ClientPool::create(
-      logger,
-      config_pool,
+      logger_.in(),
+      scheduler_,
+      channels_,
+      number_client_,
       task_processor);
   }
 
   template<class ClientPool>
-  static std::shared_ptr<ClientPool> create(
-    const Logger_var& logger,
-    const ConfigPoolCoro& config_pool)
+  std::shared_ptr<ClientPool> create()
   {
     auto* current_task_processor =
       userver::engine::current_task::GetTaskProcessorOptional();
@@ -63,10 +86,21 @@ public:
     }
 
     return ClientPool::create(
-      logger,
-      config_pool,
+      logger_.in(),
+      scheduler_,
+      channels_,
+      number_client_,
       *current_task_processor);
   }
+
+private:
+  Logger_var logger_;
+
+  SchedulerPtr scheduler_;
+
+  Channels channels_;
+
+  std::size_t number_client_;
 };
 
 } // namespace UServerUtils::Grpc

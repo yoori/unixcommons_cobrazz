@@ -225,9 +225,10 @@ private:
   }
 
   void set_common_context(
-    const CommonContext_var& common_context) noexcept override
+    CommonContext* common_context) noexcept override
  {
-   common_context_ = common_context;
+   common_context_ = CommonContext_var(
+     ReferenceCounting::add_ref(common_context));
  }
 
   void on_request_internal(

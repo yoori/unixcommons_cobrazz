@@ -5,7 +5,7 @@ namespace UServerUtils::Grpc
 {
 
 GrpcServerBuilder::GrpcServerBuilder(
-  const Logger_var& logger,
+  Logger* logger,
   GrpcServerConfig&& config,
   StatisticsStorage& statistics_storage)
 {
@@ -38,7 +38,7 @@ GrpcServerBuilder::get_completion_queue()
 
 void GrpcServerBuilder::add_grpc_service(
   TaskProcessor& task_processor,
-  GrpcServiceBase_var&& service)
+  GrpcServiceBase* service)
 {
   if (!grpc_server_)
   {
@@ -49,7 +49,8 @@ void GrpcServerBuilder::add_grpc_service(
   }
 
   grpc_server_->add_service(*service, task_processor);
-  services_.emplace_back(std::move(service));
+  services_.emplace_back(
+    GrpcServiceBase_var(ReferenceCounting::add_ref(service)));
 }
 
 GrpcServerBuilder::ServerInfo

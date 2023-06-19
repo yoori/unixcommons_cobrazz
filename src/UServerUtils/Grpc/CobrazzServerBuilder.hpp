@@ -22,6 +22,7 @@ class GrpcCobrazzServerBuilder final
   : protected Generics::Uncopyable
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using Config = Core::Server::ConfigCoro;
@@ -47,13 +48,13 @@ public:
 public:
   explicit GrpcCobrazzServerBuilder(
     const Config& config,
-    const Logger_var& logger);
+    Logger* logger);
 
   ~GrpcCobrazzServerBuilder() = default;
 
   template<class Service>
   void add_service(
-    const ReferenceCounting::SmartPtr<Service>& service,
+    Service* service,
     TaskProcessor& task_processor,
     std::optional<std::size_t> number_coro = {})
   {
@@ -73,7 +74,8 @@ public:
       service,
       task_processor,
       number_coro);
-    services_.emplace_back(service);
+    services_.emplace_back(
+      Component_var(ReferenceCounting::add_ref(service)));
   }
 
 private:

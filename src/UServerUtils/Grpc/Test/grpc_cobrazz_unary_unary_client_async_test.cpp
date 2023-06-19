@@ -93,13 +93,14 @@ class UnaryUnaryClient final
 private:
   using Factory = test::TestService_HandlerUnaryUnary_Factory;
   using Config = Client::Config;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Impl = UnaryUnaryClientImpl;
 
 public:
   UnaryUnaryClient(
     const Config& config,
-    const Logger_var& logger,
+    Logger* logger,
     const Common::ShutdownManagerPtr& shutdown_manager)
     : impl_(std::make_unique<Impl>(shutdown_manager)),
       factory_(std::make_unique<Factory>(config, logger))
@@ -147,7 +148,7 @@ public:
       UServerUtils::Grpc::Core::Server::Server_var(
         new UServerUtils::Grpc::Core::Server::Server(
           config,
-          logger_));
+          logger_.in()));
     server_->register_handler<UnaryUnaryHandler>();
   }
 
@@ -175,7 +176,7 @@ TEST_F(GrpcFixtureUnaryUnary_Client, UnaryUnary_Client)
     "127.0.0.1:" + std::to_string(port_);
   UnaryUnaryClient client(
     client_config,
-    logger_,
+    logger_.in(),
     shutdown_manager);
   client.start();
   shutdown_manager->wait();

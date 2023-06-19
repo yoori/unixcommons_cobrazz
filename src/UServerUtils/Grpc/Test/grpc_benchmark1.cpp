@@ -248,7 +248,7 @@ public:
           endpoint,
           task_processor,
           statistics));
-      add_child_object(client);
+      add_child_object(client.in());
     }
   }
 
@@ -332,7 +332,7 @@ public:
 
     TaskProcessorContainerBuilderPtr task_processor_container_builder(
         new TaskProcessorContainerBuilder(
-          logger,
+          logger.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
@@ -376,13 +376,13 @@ public:
       config_server.port = port_;
       GrpcServerBuilderPtr server_builder =
         std::make_unique<GrpcServerBuilder>(
-          logger,
+          logger.in(),
           std::move(config_server),
           statistic_storage);
       GrpcServiceBase_var service(new Service);
       server_builder->add_grpc_service(
         main_task_processor,
-        std::move(service));
+        service.in());
       components_builder->add_grpc_server(std::move(server_builder));
 
       GrpcClientFactoryConfig client_factory_config;
@@ -409,7 +409,7 @@ public:
           client_task_processor,
           statistics));
 
-      components_builder->add_user_component("Benchmark", benchmark);
+      components_builder->add_user_component("Benchmark", benchmark.in());
 
       return components_builder;
     };
@@ -418,7 +418,7 @@ public:
       new Manager(
         std::move(task_processor_container_builder),
         std::move(inititialize_func),
-        logger));
+        logger.in()));
 
     manager->activate_object();
 

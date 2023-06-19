@@ -93,11 +93,12 @@ using QueueCoro =
     true>;
 
 template<class Request, class Response>
-class Reader final : public ReferenceCounting::AtomicImpl
+class Reader final
 {
 public:
   using RequestPtr = std::unique_ptr<Request>;
   using WriterPtr = std::unique_ptr<Writer<Response>>;
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Consumer = typename QueueCoro<Request, Response>::Consumer;
   using IdRpc = Types::IdRpc;
@@ -131,14 +132,14 @@ private:
 
 public:
   explicit Reader(
-    const Logger_var& logger,
+    Logger* logger,
     Consumer&& consumer) noexcept
-    : logger_(logger),
+    : logger_(ReferenceCounting::add_ref(logger)),
       consumer_(std::move(consumer))
   {
   }
 
-  ~Reader() override = default;
+  ~Reader() = default;
 
   // Timeout in milliseconds (optional)
   Data read(std::optional<std::size_t> timeout = {}) const noexcept
@@ -273,8 +274,7 @@ private:
 };
 
 template<class Request, class Response>
-using Reader_var =
-  ReferenceCounting::SmartPtr<Reader<Request, Response>>;
+using ReaderPtr = std::unique_ptr<Reader<Request, Response>>;
 
 } // namespace Internal
 

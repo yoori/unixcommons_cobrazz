@@ -11,9 +11,9 @@ const char USERVER[] = "USERVER";
 
 } // namespace Aspect
 
-Logger::Logger(const Logger_var& logger)
+Logger::Logger(Logging::Logger* logger)
   : LoggerBase(Format::kRaw),
-    logger_(logger)
+    logger_(ReferenceCounting::add_ref(logger))
 {
   if (!logger_)
   {

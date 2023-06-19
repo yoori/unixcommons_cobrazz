@@ -204,7 +204,7 @@ public:
 
     auto task_processor_container_builder =
       std::make_unique<TaskProcessorContainerBuilder>(
-        logger_,
+        logger_.in(),
         coro_pool_config,
         event_thread_pool_config,
         main_task_processor_config);
@@ -230,7 +230,7 @@ public:
         StreamStreamCoroSetService_Ok_var(
           new StreamStreamCoroSetService_Ok);
       grpc_builder->add_service(
-        service,
+        service.in(),
         main_task_processor,
         kNumberCoroutine);
 
@@ -245,7 +245,7 @@ public:
         new Manager(
           std::move(task_processor_container_builder),
           std::move(init_func),
-          logger_));
+          logger_.in()));
   }
 
   void TearDown() override
@@ -442,7 +442,7 @@ public:
         StreamStreamCoroSetService_Finish_var(
           new StreamStreamCoroSetService_Finish);
       grpc_builder->add_service(
-        service,
+        service.in(),
         main_task_processor,
         kNumberCoroutine);
 
@@ -648,7 +648,7 @@ public:
         StreamStreamCoroSetService_Exception_var(
           new StreamStreamCoroSetService_Exception);
       grpc_builder->add_service(
-        service,
+        service.in(),
         main_task_processor,
         kNumberCoroutine);
 
@@ -824,9 +824,8 @@ public:
         StreamStreamCoroPerRpc_Ok_var(
           new StreamStreamCoroPerRpc_Ok);
       grpc_builder->add_service(
-        service,
-        main_task_processor,
-        {});
+        service.in(),
+        main_task_processor);
 
       components_builder->add_grpc_cobrazz_server(
         std::move(grpc_builder));

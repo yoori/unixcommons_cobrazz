@@ -22,10 +22,12 @@ const char MANAGER[] = "MANAGER";
 Manager::Manager(
   TaskProcessorContainerBuilderPtr&& task_processor_builder,
   ComponentsInitializeFunc&& components_initialize_func,
-  const Logger_var& logger)
-  : logger_(logger),
+  Logger* logger)
+  : logger_(ReferenceCounting::add_ref(logger)),
     task_processor_container_(task_processor_builder->build())
 {
+  using LoggerPtr = UServerUtils::Grpc::Logger::LoggerPtr;
+
   if (!logger_)
   {
     Stream::Error stream;
@@ -45,8 +47,8 @@ Manager::Manager(
     task_processor_container_->get_main_task_processor();
   auto& task_processor_container = *task_processor_container_;
 
-  Logger::LoggerPtr logger_userver =
-    std::make_shared<Logger::Logger>(logger_);
+  LoggerPtr logger_userver =
+    std::make_shared<UServerUtils::Grpc::Logger::Logger>(logger_.in());
   auto componets_info = Utils::run_in_coro(
     main_task_processor,
     Utils::Importance::kCritical,

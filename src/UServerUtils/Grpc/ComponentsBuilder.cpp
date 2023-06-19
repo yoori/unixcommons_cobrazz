@@ -106,12 +106,12 @@ ComponentsBuilder::add_grpc_client_factory(
       queue != nullptr ? *queue : queue_holders_.back()->GetQueue(),
       *statistics_storage_));
 
-  add_component(grpc_client_factory);
+  add_component(grpc_client_factory.in());
 
   return grpc_client_factory;
 }
 
-void ComponentsBuilder::add_component(const Component_var& component)
+void ComponentsBuilder::add_component(Component* component)
 {
   if (check_component_cash(component))
   {
@@ -122,12 +122,13 @@ void ComponentsBuilder::add_component(const Component_var& component)
   }
 
   add_component_cash(component);
-  components_.emplace_back(component);
+  components_.emplace_back(
+    Component_var(ReferenceCounting::add_ref(component)));
 }
 
 void ComponentsBuilder::add_user_component(
   const std::string& name,
-  const Component_var& component)
+  Component* component)
 {
   if (name_to_user_component_.count(name) == 1)
   {
@@ -140,14 +141,16 @@ void ComponentsBuilder::add_user_component(
   }
 
   add_component(component);
-  name_to_user_component_.try_emplace(name, component);
+  name_to_user_component_.try_emplace(
+    name,
+    Component_var(ReferenceCounting::add_ref(component)));
 }
 
 bool ComponentsBuilder::check_component_cash(
-  const Component_var& component)
+  Component* component)
 {
   const auto it = cash_existing_component_.find(
-    reinterpret_cast<std::uintptr_t>(component.in()));
+    reinterpret_cast<std::uintptr_t>(component));
   if (it == cash_existing_component_.end())
   {
     return false;
@@ -159,10 +162,10 @@ bool ComponentsBuilder::check_component_cash(
 }
 
 void ComponentsBuilder::add_component_cash(
-  const Component_var& component)
+  Component* component)
 {
   cash_existing_component_.emplace(
-    reinterpret_cast<std::uintptr_t>(component.in()));
+    reinterpret_cast<std::uintptr_t>(component));
 }
 
 ComponentsBuilder::ComponentsInfo

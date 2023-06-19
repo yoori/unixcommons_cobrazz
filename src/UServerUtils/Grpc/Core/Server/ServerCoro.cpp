@@ -13,8 +13,8 @@ const char SERVER_CORO[] = "SERVER_CORO";
 
 ServerCoro::ServerCoro(
   const ConfigCoro& config,
-  const Logger_var& logger)
-  : logger_(logger),
+  Logger* logger)
+  : logger_(ReferenceCounting::add_ref(logger)),
     common_context_coro_(new CommonContextCoro(logger, config.max_size_queue))
 {
   Config config_server;

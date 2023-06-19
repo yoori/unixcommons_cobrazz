@@ -38,6 +38,7 @@ class RpcImpl final :
   public std::enable_shared_from_this<RpcImpl>
 {
 public:
+  using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using ServerCompletionQueuePtr =
     std::shared_ptr<grpc::ServerCompletionQueue>;
@@ -73,11 +74,11 @@ private:
 
 public:
   static std::shared_ptr<Rpc> create(
-    const Logger_var& logger,
+    Logger* logger,
     const ServerCompletionQueuePtr& server_completion_queue,
     const int method_index,
     const RpcHandlerInfo& rpc_handler_info,
-    const CommonContext_var& common_context,
+    CommonContext* common_context,
     RpcDelegate& delegate,
     RpcPool& rpc_pool);
 
@@ -95,11 +96,11 @@ public:
 
 private:
   explicit RpcImpl(
-    const Logger_var& logger,
+    Logger* logger,
     const ServerCompletionQueuePtr& server_completion_queue,
     const int method_index,
     const RpcHandlerInfo& rpc_handler_info,
-    const CommonContext_var& common_context,
+    CommonContext* common_context,
     RpcDelegate& delegate,
     RpcPool& rpc_pool);
 

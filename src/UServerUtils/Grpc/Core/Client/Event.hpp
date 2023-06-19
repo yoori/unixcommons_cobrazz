@@ -132,10 +132,8 @@ public:
 
 public:
   EventStop(
-    const ObserverPtr& observer,
-    StoppedPromise&& stopped_promise)
-    : observer_(observer),
-      stopped_promise_(std::move(stopped_promise))
+    const ObserverPtr& observer)
+    : observer_(observer)
   {
   }
 
@@ -154,14 +152,6 @@ public:
     {
     }
 
-    try
-    {
-      stopped_promise_.set_value();
-    }
-    catch (...)
-    {
-    }
-
     delete this;
   }
 
@@ -169,8 +159,6 @@ private:
   const EventType type_ = EventType::Stop;
 
   const ObserverPtr observer_;
-
-  StoppedPromise stopped_promise_;
 };
 
 } // namespace UServerUtils::Grpc::Core::Client
