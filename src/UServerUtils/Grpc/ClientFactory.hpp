@@ -31,8 +31,6 @@ class GrpcClientFactory final :
   using StatisticsStorage = userver::utils::statistics::Storage;
 
 public:
-  ~GrpcClientFactory() override = default;
-
   template <typename Client>
   std::unique_ptr<Client> make_client(const std::string& endpoint)
   {
@@ -40,6 +38,9 @@ public:
       client_factory_->MakeClient<Client>(
         endpoint));
   }
+
+protected:
+  ~GrpcClientFactory() override = default;
 
 private:
   explicit GrpcClientFactory(

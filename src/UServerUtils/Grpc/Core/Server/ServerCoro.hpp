@@ -78,8 +78,6 @@ public:
     const ConfigCoro& config,
     Logger* logger);
 
-  ~ServerCoro() override;
-
   void activate_object() override;
 
   void deactivate_object() override;
@@ -149,6 +147,9 @@ public:
       task_processor,
       number_coro);
   }
+
+protected:
+  ~ServerCoro() override;
 
 private:
   Logger_var logger_;

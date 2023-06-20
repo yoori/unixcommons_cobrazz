@@ -12,6 +12,7 @@
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Core/Client/Factory.hpp>
 #include <UServerUtils/Grpc/Core/Client/ConfigPoolCoro.hpp>
+#include <UServerUtils/Grpc/Core/Common/Utils.hpp>
 
 namespace UServerUtils::Grpc
 {
@@ -37,22 +38,23 @@ public:
     const ConfigPoolCoro& config_pool)
     : logger_(ReferenceCounting::add_ref(logger))
   {
-    scheduler_ = UServerUtils::Grpc::Core::Client::Internal::create_scheduler(
-      config_pool.number_threads,
-      logger_.in());
+    scheduler_ =
+      UServerUtils::Grpc::Core::Common::Utils::create_scheduler(
+        config_pool.number_threads,
+        logger_.in());
     const auto number_thread = scheduler_->size();
+    initialize(config_pool, number_thread);
+  }
 
-    channels_ = UServerUtils::Grpc::Core::Client::Internal::create_channels(
-      scheduler_->size(),
-      config_pool.credentials,
-      config_pool.endpoint,
-      config_pool.channel_args,
-      config_pool.number_channels);
-
-    const auto& number_async_client = config_pool.number_async_client;
-    const std::size_t adding = number_async_client % number_thread != 0;
-    number_client_ =
-      (adding + number_async_client / number_thread) * number_thread;
+  GrpcCobrazzPoolClientFactory(
+    Logger* logger,
+    const SchedulerPtr& scheduler,
+    const ConfigPoolCoro& config_pool)
+    : logger_(ReferenceCounting::add_ref(logger)),
+      scheduler_(scheduler)
+  {
+    const auto number_thread = scheduler_->size();
+    initialize(config_pool, number_thread);
   }
 
   ~GrpcCobrazzPoolClientFactory() = default;
@@ -94,13 +96,31 @@ public:
   }
 
 private:
+  void initialize(
+    const ConfigPoolCoro& config_pool,
+    const std::size_t number_thread)
+  {
+    channels_ = UServerUtils::Grpc::Core::Client::Internal::create_channels(
+      number_thread,
+      config_pool.credentials,
+      config_pool.endpoint,
+      config_pool.channel_args,
+      config_pool.number_channels);
+
+    const auto& number_async_client = config_pool.number_async_client;
+    const std::size_t adding = number_async_client % number_thread != 0;
+    number_client_ =
+      (adding + number_async_client / number_thread) * number_thread;
+  }
+
+private:
   Logger_var logger_;
 
   SchedulerPtr scheduler_;
 
   Channels channels_;
 
-  std::size_t number_client_;
+  std::size_t number_client_ = 0;
 };
 
 } // namespace UServerUtils::Grpc

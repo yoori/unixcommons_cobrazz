@@ -48,8 +48,6 @@ public:
     ComponentsInitializeFunc&& components_initialize_func,
     Logger* logger);
 
-  ~Manager() override;
-
   void activate_object() override;
 
   void deactivate_object() override;
@@ -88,6 +86,9 @@ public:
 
     return *p;
   }
+
+protected:
+  ~Manager() override;
 
 private:
   const Logger_var logger_;
