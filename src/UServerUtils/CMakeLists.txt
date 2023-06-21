@@ -1,5 +1,7 @@
 include(FetchContent)
 
+find_package(userver)
+
 cmake_policy(SET CMP0079 NEW)
 
 set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
@@ -85,13 +87,13 @@ option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
 
 message(STATUS ">>>>>>> To fetch userver")
 
-FetchContent_Declare(
-  userver
-  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
-  GIT_TAG cobrazz
-)
+#FetchContent_Declare(
+#  userver
+#  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
+#  GIT_TAG cobrazz
+#)
 
-FetchContent_MakeAvailable(userver)
+#FetchContent_MakeAvailable(userver)
 
 message(STATUS ">>>>>>> From fetch userver")
 
@@ -144,10 +146,10 @@ target_compile_definitions(UServerUtils PUBLIC
   "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
   "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
 
-set(USERVER_INCLUDE_DIRS
-  ${USERVER_PUBLIC_INCLUDE_DIRS}
-  ${userver_SOURCE_DIR}/third_party/moodycamel/include
-  CACHE INTERNAL "")
+#set(USERVER_INCLUDE_DIRS
+#  ${USERVER_PUBLIC_INCLUDE_DIRS}
+#  ${userver_SOURCE_DIR}/third_party/moodycamel/include
+#  CACHE INTERNAL "")
 
 # UnitTests
 include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
