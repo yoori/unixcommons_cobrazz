@@ -125,6 +125,7 @@ add_library(UServerUtils STATIC
 
 target_link_libraries(UServerUtils
   ${GRPC_GRPCPP}
+  ${PROTOBUF_LIBRARY}
   userver-core
   userver-grpc
   http_parser
@@ -177,7 +178,6 @@ target_link_libraries(TestUserver
   GTest::gtest_main
   UServerUtils
   UServerUtils_proto
-  ${PROTOBUF_LIBRARY}
 )
 
 add_test(TestUserver TestUserver)

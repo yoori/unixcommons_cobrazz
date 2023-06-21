@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 // GRPC
+#include <grpcpp/impl/codegen/proto_utils.h>
 #include <grpcpp/grpcpp.h>
 
 // USERVER
