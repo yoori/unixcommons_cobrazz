@@ -69,7 +69,7 @@ using {{service.name}}_{{method.name}}_ClientPool =
   UServerUtils::Grpc::Core::Client::ClientPoolCoro<Internal::Client::{{service.name}}_{{method.name}}_Method>;
 
 using {{service.name}}_{{method.name}}_ClientPoolPtr =
-  std::unique_ptr<{{service.name}}_{{method.name}}_ClientPool>;
+  std::shared_ptr<{{service.name}}_{{method.name}}_ClientPool>;
 
 {% endfor %} {% endfor %}
 {% endcall %} {# utils.optional_namespace #}
