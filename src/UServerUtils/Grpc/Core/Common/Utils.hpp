@@ -4,10 +4,24 @@
 // STD
 #include <algorithm>
 #include <list>
+#include <optional>
+#include <sstream>
 #include <string_view>
+#include <thread>
+
+// THIS
+#include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
 
 namespace UServerUtils::Grpc::Core::Common::Utils
 {
+
+namespace Aspect
+{
+
+constexpr const char UTILS[] = "FACTORY";
+
+} // namespace Aspect
 
 inline bool is_integer(std::string_view str)
 {
@@ -39,6 +53,44 @@ inline std::list<std::string_view> split(
   }
 
   return result;
+}
+
+inline auto create_scheduler(
+  std::optional<std::size_t> number_threads,
+  Logging::Logger* logger)
+{
+  using SchedulerQueue = typename Common::Scheduler::Queue;
+  using SchedulerQueues = typename Common::Scheduler::Queues;
+
+  if (!number_threads)
+  {
+    const auto best_thread_number =
+      std::thread::hardware_concurrency();
+    if (best_thread_number == 0)
+    {
+      std::stringstream stream;
+      stream << FNS
+             << ": hardware_concurrency is failed";
+      logger->error(stream.str(), Aspect::UTILS);
+    }
+    number_threads =
+      best_thread_number ? best_thread_number : 25;
+  }
+
+  SchedulerQueues scheduler_queues;
+  scheduler_queues.reserve(*number_threads);
+  for (std::size_t i = 1; i <= *number_threads; ++i)
+  {
+    auto completion_queue = std::make_shared<grpc::CompletionQueue>();
+    scheduler_queues.emplace_back(std::move(completion_queue));
+  }
+
+  Common::SchedulerPtr scheduler(
+    new Common::Scheduler(
+      logger,
+      std::move(scheduler_queues)));
+
+  return scheduler;
 }
 
 } // namespace UServerUtils::Grpc::Core::Common::Utils

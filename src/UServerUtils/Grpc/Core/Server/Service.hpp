@@ -44,8 +44,6 @@ public:
     CommonContext* common_context,
     Handlers&& handlers);
 
-  ~Service() override;
-
   void activate_object() override;
 
   void deactivate_object() override;
@@ -87,6 +85,9 @@ public:
     grpc::CompletionQueue* call_cq,
     grpc::ServerCompletionQueue* notification_cq,
     void* tag) override;
+
+protected:
+  ~Service() override;
 
 private:
   Logger_var logger_;

@@ -80,8 +80,6 @@ public:
     Logger* logger,
     const MaxSizeQueue max_size_queue = {});
 
-  ~CommonContextCoro() override;
-
   Logger_var get_logger() noexcept
   {
     return logger_;
@@ -216,6 +214,9 @@ public:
   void wait_object() override;
 
   bool active() override;
+
+protected:
+  ~CommonContextCoro() override;
 
 private:
   template<class Request, class Response>

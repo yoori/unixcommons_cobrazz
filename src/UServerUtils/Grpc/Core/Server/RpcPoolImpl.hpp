@@ -28,8 +28,6 @@ public:
 public:
   RpcPoolImpl(Logger* logger);
 
-  ~RpcPoolImpl() override;
-
   void add(const RpcPtr& rpc) override;
 
   void remove(Rpc* rpc) noexcept override;
@@ -41,6 +39,9 @@ public:
   void wait_object() override;
 
   bool active() override;
+
+protected:
+  ~RpcPoolImpl() override;
 
 private:
   Logger_var logger_;

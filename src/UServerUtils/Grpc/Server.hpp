@@ -38,8 +38,6 @@ public:
   using Service = userver::ugrpc::server::ServiceBase;
 
 public:
-  ~GrpcServer() override;
-
   void activate_object() override;
 
   void deactivate_object() override;
@@ -49,6 +47,9 @@ public:
   bool active() override;
 
   CompletionQueue& get_completion_queue() noexcept;
+
+protected:
+  ~GrpcServer() override;
 
 private:
   friend class GrpcServerBuilder;

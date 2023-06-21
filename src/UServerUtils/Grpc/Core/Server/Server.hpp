@@ -45,8 +45,6 @@ public:
     const Config& config,
     Logger* logger);
 
-  ~Server() override;
-
   void activate_object() override;
 
   void deactivate_object() override;
@@ -109,6 +107,9 @@ public:
         },
         method_full_name.data()));
   }
+
+protected:
+  ~Server() override;
 
 private:
   template <typename RpcHandlerType>

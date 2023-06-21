@@ -19,8 +19,9 @@
 #include <UServerUtils/Grpc/Core/Client/Writer.hpp>
 #include <UServerUtils/Grpc/Core/Client/Types.hpp>
 #include <UServerUtils/Grpc/Core/Common/QueueAtomic.hpp>
-#include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
 #include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
+#include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
+#include <UServerUtils/Grpc/Core/Common/Utils.hpp>
 
 namespace UServerUtils::Grpc::Core::Client
 {
@@ -34,44 +35,6 @@ constexpr const char FACTORY[] = "FACTORY";
 
 namespace Internal
 {
-
-inline auto create_scheduler(
-  std::optional<std::size_t> number_threads,
-  Logging::Logger* logger)
-{
-  using SchedulerQueue = typename Common::Scheduler::Queue;
-  using SchedulerQueues = typename Common::Scheduler::Queues;
-
-  if (!number_threads)
-  {
-    const auto best_thread_number =
-      std::thread::hardware_concurrency();
-    if (best_thread_number == 0)
-    {
-      Stream::Error stream;
-      stream << FNS
-             << ": hardware_concurrency is failed";
-      logger->error(stream.str(), Aspect::FACTORY);
-    }
-    number_threads =
-      best_thread_number ? best_thread_number : 8;
-  }
-
-  SchedulerQueues scheduler_queues;
-  scheduler_queues.reserve(*number_threads);
-  for (std::size_t i = 1; i <= *number_threads; ++i)
-  {
-    auto completion_queue = std::make_shared<grpc::CompletionQueue>();
-    scheduler_queues.emplace_back(std::move(completion_queue));
-  }
-
-  Common::SchedulerPtr scheduler(
-    new Common::Scheduler(
-      logger,
-      std::move(scheduler_queues)));
-
-  return scheduler;
-}
 
 inline auto create_channels(
   const std::size_t number_threads,
@@ -189,9 +152,10 @@ public:
     : logger_(ReferenceCounting::add_ref(logger)),
       factory_observer_(std::move(factory_observer))
   {
-    scheduler_ = create_scheduler(
-      config.number_threads,
-      logger_.in());
+    scheduler_ =
+      UServerUtils::Grpc::Core::Common::Utils::create_scheduler(
+        config.number_threads,
+        logger_.in());
     const auto number_threads = scheduler_->size();
     const auto& scheduler_queues = scheduler_->queues();
 
