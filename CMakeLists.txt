@@ -47,6 +47,8 @@ find_package(absl REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread) # TO EXPLAIN WHO USE
 
 find_package(Protobuf REQUIRED)
+find_package(gRPC)
+
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "") # TO EXPLAIN: who use this var ?
 

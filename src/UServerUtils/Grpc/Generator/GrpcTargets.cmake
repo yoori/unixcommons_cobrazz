@@ -55,6 +55,8 @@ function(generate_grpc_files)
     endif()
   endforeach()
 
+  get_target_property(PROTO_GRPC_CPP_PLUGIN gRPC::grpc_cpp_plugin LOCATION)
+
   foreach (proto_file ${GEN_RPC_PROTOS})
     get_filename_component(proto_file "${proto_file}" REALPATH BASE_DIR "${root_path}")
 
@@ -69,6 +71,7 @@ function(generate_grpc_files)
     endif()
 
     set(did_generate_proto_sources FALSE)
+    #message(STATUS "PP: ${PROTOBUF_PROTOC} ${include_options} --cpp_out=${GENERATED_PROTO_DIR} --grpc_out=${GENERATED_PROTO_DIR} --usrv_out=${GENERATED_PROTO_DIR} -I ${root_path} -I ${GRPC_PROTOBUF_INCLUDE_DIRS} --plugin=protoc-gen-grpc=${PROTO_GRPC_CPP_PLUGIN} --plugin=protoc-gen-usrv=${PROTO_GRPC_USRV_PLUGIN} ${proto_file}")
     if("${newest_proto_dependency}" IS_NEWER_THAN "${GENERATED_PROTO_DIR}/${path_base}.pb.cc")
       execute_process(
         COMMAND mkdir -p proto
