@@ -1,6 +1,9 @@
 #ifndef metrics_raii__h
 #define metrics_raii__h
 
+#include "MetricsHTTPProvider.hpp"
+#include "Generics/MetricsProvider.hpp"
+
 /// RAII objecft
 /// save start time in constructor and appdend metrics on destructor
 /// see example in tests/UServer/MetricsRaii/sampleMetricsRAII.cpp
@@ -18,7 +21,9 @@ public:
         name_=name;
         subpar_=subpar;
         if(gettimeofday(&start_t_,NULL)!=0)
+        {
             throw std::runtime_error("gettimeofday error");
+        }
     }
     metrics_raii(Generics::CompositeMetricsProvider *cmp,const std::string &name)
     {
@@ -26,7 +31,9 @@ public:
         name_=name;
 //        subpar_=subpar;
         if(gettimeofday(&start_t_,NULL)!=0)
+        {
             throw std::runtime_error("gettimeofday error");
+        }
     }
 
     ~metrics_raii()
@@ -34,7 +41,9 @@ public:
         try {
             timeval end_t;
             if(gettimeofday(&end_t,NULL)!=0)
+            {
                 throw std::runtime_error("gettimeofday error");
+            }
             int microsec=(end_t.tv_sec-start_t_.tv_sec)*1000000 + end_t.tv_usec-start_t_.tv_usec;
             int millisec=microsec/1000;
             std::string name2=name_;
@@ -53,9 +62,9 @@ public:
 
             cmp_->add_value_prometheus(name2,subpar_,1);
         }
-        catch(std::exception &e)
+        catch(eh::Exception &e)
         {
-            fprintf(stderr, "std::exception %s",e.what());
+            fprintf(stderr, "eh::Exception %s",e.what());
         }
         catch(...)
         {

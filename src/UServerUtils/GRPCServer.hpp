@@ -70,9 +70,9 @@ namespace UServerUtils
 
 namespace UServerUtils
 {
-    //
-    // Server class
-    //
+//
+// Server class
+//
 
     template <class Comp>
     inline

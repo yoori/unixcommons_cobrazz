@@ -21,17 +21,17 @@
 
 namespace UServerUtils
 {
-  class ConfigDistributor final: public server::handlers::HttpHandlerBase
-  {
-  public:
-    static constexpr std::string_view kName = "handler-config";
+    class ConfigDistributor final: public server::handlers::HttpHandlerBase
+    {
+    public:
+        static constexpr std::string_view kName = "handler-config";
 
-    // Component is valid after construction and is able to accept requests
-    ConfigDistributor(const components::ComponentConfig& config,
-      const components::ComponentContext& context);
+        // Component is valid after construction and is able to accept requests
+        ConfigDistributor(const components::ComponentConfig& config,
+                          const components::ComponentContext& context);
 
-    std::string HandleRequestThrow(
-      const server::http::HttpRequest&,
-      server::request::RequestContext&) const override;
-  };
+        std::string HandleRequestThrow(
+            const server::http::HttpRequest&,
+            server::request::RequestContext&) const override;
+    };
 }
