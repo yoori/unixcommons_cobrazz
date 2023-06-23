@@ -1,12 +1,10 @@
 include(FetchContent)
 
-find_package(userver)
+#cmake_policy(SET CMP0079 NEW)
 
-cmake_policy(SET CMP0079 NEW)
-
-set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
-set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
-set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
+#set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
+#set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
+#set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
 
 #find_package(absl)
 #if (NOT absl_FOUND)
@@ -142,10 +140,10 @@ target_link_libraries(UServerUtils
   pthread
 )
 
-target_compile_definitions(UServerUtils PUBLIC
-  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
-  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
+#target_compile_definitions(UServerUtils PUBLIC
+#  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
+#  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
+#  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
 
 #set(USERVER_INCLUDE_DIRS
 #  ${USERVER_PUBLIC_INCLUDE_DIRS}
