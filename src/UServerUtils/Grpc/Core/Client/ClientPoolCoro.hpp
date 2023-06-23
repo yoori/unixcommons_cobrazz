@@ -11,7 +11,7 @@
 
 // USERVER
 #include <userver/engine/async.hpp>
-#include <userver/engine/mutex.hpp>
+#include <userver/engine/shared_mutex.hpp>
 #include <userver/engine/sleep.hpp>
 #include <engine/task/task_processor.hpp>
 
@@ -68,7 +68,7 @@ private:
   using Clients = std::unordered_map<ClientId, ClientInfo>;
   using ClientIds = std::vector<ClientId>;
   using Counter = std::atomic<std::uint32_t>;
-  using Mutex = userver::engine::Mutex;
+  using Mutex = userver::engine::SharedMutex;
 
 public:
   ClientPoolCoroImpl(Logger* logger)
@@ -99,7 +99,7 @@ public:
 
       ClientPtr client;
       {
-        std::lock_guard lock(mutex_client_);
+        std::shared_lock lock(mutex_client_);
         const auto size = client_ids_.size();
         if (size == 0)
           return WriteResult(Status::InternalError, {});
@@ -151,7 +151,7 @@ public:
     {
       const auto client_id = client->client_id();
 
-      std::lock_guard lock(mutex_client_);
+      std::unique_lock lock(mutex_client_);
       const auto size = client_ids_.size();
       const auto result = clients_.try_emplace(
         client_id,
@@ -200,7 +200,7 @@ public:
   {
     try
     {
-      std::lock_guard lock(mutex_client_);
+      std::unique_lock lock(mutex_client_);
       auto it_remove = clients_.find(client_id);
       if (it_remove == std::end(clients_))
         return;
