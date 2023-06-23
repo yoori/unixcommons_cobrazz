@@ -1,5 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include "Sync/PosixLock.hpp"
+#include <sys/types.h>
+#include <unistd.h>
 
 namespace UServerUtils
 {
@@ -115,11 +118,18 @@ components_manager:
 }
 )x";
 
+Sync::PosixMutex mutex_;
   void copy_json_to_tmp()
   {
+      Sync::PosixGuard tmpVar(mutex_);
       std::ofstream myfile;
-      myfile.open ("/tmp/dynamic_config_fallback.json");
+      myfile.open ("/tmp/dynamic_config_fallback.json"+std::to_string(getpid()));
       myfile << dynamic_config_fallback_json;
       myfile.close();
+  }
+  void remove_json_from_tmp()
+  {
+    std::string pn="/tmp/dynamic_config_fallback.json"+std::to_string(getpid());
+    unlink(pn.c_str());
   }
 }
