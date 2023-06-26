@@ -86,6 +86,8 @@ struct GrpcServerConfig final
 
   // Serve a web page with runtime info about gRPC connections
   bool enable_channelz = false;
+
+  bool cancel_task_by_deadline = true;
 };
 
 struct GrpcClientFactoryConfig final {
@@ -100,6 +102,8 @@ struct GrpcClientFactoryConfig final {
   // Number of underlying channels that will be created for every client
   // in this factory.
   std::size_t channel_count = 1;
+
+  bool enable_deadline_propagation = true;
 };
 
 } // namespace UServerUtils::Grpc

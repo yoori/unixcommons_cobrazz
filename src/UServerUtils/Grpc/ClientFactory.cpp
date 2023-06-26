@@ -1,3 +1,9 @@
+// USERVER
+#include <ugrpc/client/impl/client_configs.hpp>
+#include <userver/dynamic_config/value.hpp>
+#include <userver/ugrpc/client/client_qos.hpp>
+#include <ugrpc/server/impl/server_configs.hpp>
+
 // THIS
 #include <UServerUtils/Grpc/ClientFactory.hpp>
 
@@ -7,8 +13,11 @@ namespace UServerUtils::Grpc
 GrpcClientFactory::GrpcClientFactory(
   GrpcClientFactoryConfig&& config,
   TaskProcessor& channel_task_processor,
-  CompletionQueue& queue,
-  StatisticsStorage& statistics_storage)
+  CompletionQueue& completion_queue,
+  StatisticsStorage& statistics_storage,
+  const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
+  const MiddlewareFactories& middleware_factories)
+  : testsuite_grpc_({}, false)
 {
   ClientFactoryConfig client_config;
   client_config.channel_args = std::move(config.channel_args);
@@ -16,12 +25,22 @@ GrpcClientFactory::GrpcClientFactory(
   client_config.credentials = grpc::InsecureChannelCredentials();
   client_config.native_log_level = userver::logging::Level::kError;
 
+  const auto& docs_map = registrator_dynamic_settings->docs_map();
+  storage_mock_ = StorageMockPtr(new StorageMock(
+    docs_map,
+    {
+      {userver::ugrpc::client::impl::kEnforceClientTaskDeadline, config.enable_deadline_propagation}
+    }));
+
   client_factory_ =
     std::make_unique<ClientFactory>(
       std::move(client_config),
       channel_task_processor,
-      queue,
-      statistics_storage);
+      middleware_factories,
+      completion_queue,
+      statistics_storage,
+      testsuite_grpc_,
+      storage_mock_->GetSource());
 }
 
 } // namespace UServerUtils::Grpc

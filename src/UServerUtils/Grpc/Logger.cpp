@@ -1,3 +1,6 @@
+// USERVER
+#include <userver/logging/log.hpp>
+
 // THIS
 #include <UServerUtils/Grpc/Logger.hpp>
 
@@ -15,14 +18,6 @@ Logger::Logger(Logging::Logger* logger)
   : LoggerBase(Format::kRaw),
     logger_(ReferenceCounting::add_ref(logger))
 {
-  if (!logger_)
-  {
-    Stream::Error stream;
-    stream << FNS
-           << " : logger is null";
-    throw Exception(stream);
-  }
-
   Level userver_level = Level::kError;
   const auto level = logger_->log_level();
   switch (level)
@@ -100,6 +95,18 @@ void Logger::Log(
 
 void Logger::Flush() const
 {
+}
+
+LoggerScope::LoggerScope(Logging::Logger* logger)
+  : logger_new_(std::make_unique<Logger>(logger)),
+    logger_prev_(userver::logging::impl::DefaultLoggerRef())
+{
+  userver::logging::impl::SetDefaultLoggerRef(*logger_new_);
+}
+
+LoggerScope::~LoggerScope()
+{
+  userver::logging::impl::SetDefaultLoggerRef(logger_prev_);
 }
 
 } // namespace UServerUtils::Grpc::Logger

@@ -1,3 +1,5 @@
+// THIS
+#include <UServerUtils/Grpc/Logger.hpp>
 #include <UServerUtils/Grpc/Server.hpp>
 
 namespace UServerUtils::Grpc
@@ -13,10 +15,16 @@ const char SERVER[] = "SERVER";
 GrpcServer::GrpcServer(
   Logger* logger,
   ServerConfig&& config,
-  StatisticsStorage& statistics_storage)
+  StatisticsStorage& statistics_storage,
+  StorageMockPtr&& storage_mock)
   : logger_(ReferenceCounting::add_ref(logger)),
-    server_(std::move(config), statistics_storage)
+    storage_mock_(std::move(storage_mock))
 {
+  server_ = std::make_unique<Server>(
+    std::move(config),
+    statistics_storage,
+    std::make_shared<UServerUtils::Grpc::Logger::Logger>(logger),
+    storage_mock_->GetSource());
 }
 
 GrpcServer::~GrpcServer()
@@ -32,7 +40,7 @@ GrpcServer::~GrpcServer()
              << "wasn't deactivated.";
       error = true;
 
-      server_.Stop();
+      server_->Stop();
     }
 
     if (state_ != AS_NOT_ACTIVE)
@@ -74,7 +82,7 @@ void GrpcServer::activate_object()
 
   try
   {
-    server_.Start();
+    server_->Start();
     state_ = AS_ACTIVE;
   }
   catch (const eh::Exception& exc)
@@ -93,7 +101,7 @@ void GrpcServer::deactivate_object()
     std::lock_guard lock(state_mutex_);
     if (state_ == AS_ACTIVE)
     {
-      server_.Stop();
+      server_->Stop();
       state_ = AS_DEACTIVATING;
     }
   }
@@ -122,14 +130,15 @@ bool GrpcServer::active()
 
 void GrpcServer::add_service(
   Service& service,
-  TaskProcessor& task_processor)
+  TaskProcessor& task_processor,
+  const Middlewares& middlewares)
 {
-  server_.AddService(service, task_processor);
+  server_->AddService(service, task_processor, middlewares);
 }
 
 GrpcServer::CompletionQueue& GrpcServer::get_completion_queue() noexcept
 {
-  return server_.GetCompletionQueue();
+  return server_->GetCompletionQueue();
 }
 
 } // namespace UServerUtils::Grpc

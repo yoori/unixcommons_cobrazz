@@ -6,6 +6,7 @@
 
 // USERVER
 #include <engine/task/task_processor.hpp>
+#include <userver/dynamic_config/storage_mock.hpp>
 #include <userver/ugrpc/client/client_factory.hpp>
 
 // GRPCCPP
@@ -15,6 +16,7 @@
 #include <ReferenceCounting/AtomicImpl.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
 #include <UServerUtils/Grpc/Config.hpp>
+#include <UServerUtils/Grpc/RegistratorDynamicSettings.hpp>
 
 namespace UServerUtils::Grpc
 {
@@ -29,14 +31,20 @@ class GrpcClientFactory final :
   using TaskProcessor = userver::engine::TaskProcessor;
   using CompletionQueue = grpc::CompletionQueue;
   using StatisticsStorage = userver::utils::statistics::Storage;
+  using GrpcControl = userver::testsuite::GrpcControl;
+  using StorageMock = userver::dynamic_config::StorageMock;
+  using StorageMockPtr = std::unique_ptr<StorageMock>;
+  using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
 
 public:
   template <typename Client>
-  std::unique_ptr<Client> make_client(const std::string& endpoint)
+  std::unique_ptr<Client> make_client(
+    const std::string& client_name,
+    const std::string& endpoint)
   {
     return std::make_unique<Client>(
       client_factory_->MakeClient<Client>(
-        endpoint));
+        client_name, endpoint));
   }
 
 protected:
@@ -47,10 +55,16 @@ private:
     GrpcClientFactoryConfig&& config,
     TaskProcessor& channel_task_processor,
     CompletionQueue& queue,
-    StatisticsStorage& statistics_storage);
+    StatisticsStorage& statistics_storage,
+    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
+    const MiddlewareFactories& middleware_factories = {});
 
 private:
   friend class ComponentsBuilder;
+
+  GrpcControl testsuite_grpc_;
+
+  StorageMockPtr storage_mock_;
 
   ClientFactoryPtr client_factory_;
 };

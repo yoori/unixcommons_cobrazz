@@ -7,10 +7,14 @@
 #include <mutex>
 #include <condition_variable>
 
+// USERVER
+#include <userver/ugrpc/server/middleware_base.hpp>
+
 // THIS
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
+#include <UServerUtils/Grpc/Logger.hpp>
 #include <UServerUtils/Grpc/Utils.hpp>
 #include <UServerUtils/Grpc/TaskProcessorContainerBuilder.hpp>
 
@@ -37,10 +41,15 @@ public:
   using AlreadyActive = ActiveObject::AlreadyActive;
 
 private:
+  using LoggerScope = UServerUtils::Grpc::Logger::LoggerScope;
+  using LoggerScopePtr = UServerUtils::Grpc::Logger::LoggerScopePtr;
   using QueueHolder = userver::ugrpc::client::QueueHolder;
   using QueueHolderPtr = std::unique_ptr<QueueHolder>;
   using QueueHolders = std::deque<QueueHolderPtr>;
   using NameToUserComponent = std::unordered_map<std::string, Component_var>;
+  using Middlewares = userver::ugrpc::server::Middlewares;
+  using MiddlewaresPtr = std::unique_ptr<Middlewares>;
+  using MiddlewaresList = std::list<MiddlewaresPtr>;
 
 public:
   explicit Manager(
@@ -97,7 +106,11 @@ private:
 
   StatisticsStoragePtr statistics_storage_;
 
+  LoggerScopePtr logger_scope_;
+
   QueueHolders queue_holders_;
+
+  MiddlewaresList middlewares_list_;
 
   Components components_;
 

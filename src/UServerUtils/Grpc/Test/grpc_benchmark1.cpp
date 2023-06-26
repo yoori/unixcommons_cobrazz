@@ -80,7 +80,9 @@ public:
     Statistics& statistics)
     : message_(message),
       number_initial_message_(number_initial_message),
-      client_(factory->make_client<Test2::TestStreamServiceClient>(endpoint)),
+      client_(factory->make_client<Test2::TestStreamServiceClient>(
+        "Client",
+        endpoint)),
       task_processor_(task_processor),
       statistics_(statistics)
   {
@@ -97,17 +99,18 @@ public:
 
   void activate_object() override
   {
-    auto* task_processor = userver::engine::current_task::GetTaskProcessorOptional();
-    if (!task_processor)
+    const bool is_task_processor_thread =
+      userver::engine::current_task::IsTaskProcessorThread();
+    if (!is_task_processor_thread)
     {
       Stream::Error stream;
       stream << FNS
-             << "task_processor is null";
+             << ": Not task processor thread";
       throw Exception(stream);
     }
 
     task_ = userver::engine::AsyncNoSpan(
-      *task_processor,
+      task_processor_,
       [this] () {
       this->run();
     });
@@ -374,11 +377,14 @@ public:
 
       GrpcServerConfig config_server;
       config_server.port = port_;
+      auto registrator_dynamic_settings =
+        components_builder->registrator_dynamic_settings();
       GrpcServerBuilderPtr server_builder =
         std::make_unique<GrpcServerBuilder>(
           logger.in(),
           std::move(config_server),
-          statistic_storage);
+          statistic_storage,
+          registrator_dynamic_settings);
       GrpcServiceBase_var service(new Service);
       server_builder->add_grpc_service(
         main_task_processor,

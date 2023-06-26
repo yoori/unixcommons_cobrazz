@@ -26,15 +26,6 @@ Manager::Manager(
   : logger_(ReferenceCounting::add_ref(logger)),
     task_processor_container_(task_processor_builder->build())
 {
-  using LoggerPtr = UServerUtils::Grpc::Logger::LoggerPtr;
-
-  if (!logger_)
-  {
-    Stream::Error stream;
-    stream << FNS << ": logger is null";
-    throw Exception(stream);
-  }
-
   if (!task_processor_container_)
   {
     Stream::Error stream;
@@ -47,16 +38,15 @@ Manager::Manager(
     task_processor_container_->get_main_task_processor();
   auto& task_processor_container = *task_processor_container_;
 
-  LoggerPtr logger_userver =
-    std::make_shared<UServerUtils::Grpc::Logger::Logger>(logger_.in());
   auto componets_info = Utils::run_in_coro(
     main_task_processor,
     Utils::Importance::kCritical,
     {},
     [func = std::move(components_initialize_func),
      &task_processor_container,
-     logger_userver = logger_userver] () mutable {
-      userver::logging::SetDefaultLogger(logger_userver);
+     this] () mutable {
+      logger_scope_ =
+        std::make_unique<UServerUtils::Grpc::Logger::LoggerScope>(logger_.in());
       ComponentsBuilderPtr components_builder =
         func(task_processor_container);
       return components_builder->build();
@@ -66,6 +56,7 @@ Manager::Manager(
   queue_holders_ = std::move(componets_info.queue_holders);
   statistics_storage_ = std::move(componets_info.statistics_storage);
   name_to_user_component_ = std::move(componets_info.name_to_user_component);
+  middlewares_list_ = std::move(componets_info.middlewares_list);
 }
 
 Manager::~Manager()
@@ -113,6 +104,8 @@ Manager::~Manager()
         components_.clear();
         statistics_storage_.reset();
         queue_holders_.clear();
+        middlewares_list_.clear();
+        logger_scope_.reset();
     });
 
     if (state_ != AS_NOT_ACTIVE)

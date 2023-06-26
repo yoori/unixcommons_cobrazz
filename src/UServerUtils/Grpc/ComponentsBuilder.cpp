@@ -1,5 +1,6 @@
 // STD
 #include <algorithm>
+#include <iterator>
 #include <sstream>
 
 // THIS
@@ -16,8 +17,10 @@ const char BUILDER[] = "BUILDER";
 } // namespace Aspect
 
 ComponentsBuilder::ComponentsBuilder()
-  : statistics_storage_(new StatisticsStorage())
+  : registrator_dynamic_settings_(RegistratorDynamicSettingsPtr(new RegistratorDynamicSettings)),
+    statistics_storage_(new StatisticsStorage())
 {
+  RegistratorDynamicSettings registrator;
 }
 
 ComponentsBuilder::StatisticsStorage&
@@ -50,10 +53,16 @@ ComponentsBuilder::add_grpc_server(
   auto server_info = grpc_builder->build();
   auto& server = server_info.server;
   auto& services = server_info.services;
+  auto& middlewares_list = server_info.middlewares_list;
+
   auto& completion_queue = server->get_completion_queue();
 
   add_component_cash(server);
   grpc_servers_.emplace_back(std::move(server));
+  std::move(
+    std::begin(middlewares_list),
+    std::end(middlewares_list),
+    std::back_inserter(middlewares_list_));
 
   for (auto& service : services)
   {
@@ -92,7 +101,8 @@ GrpcClientFactory_var
 ComponentsBuilder::add_grpc_client_factory(
   GrpcClientFactoryConfig&& config,
   TaskProcessor& channel_task_processor,
-  grpc::CompletionQueue* queue)
+  grpc::CompletionQueue* queue,
+  const MiddlewareFactories& middleware_factories)
 {
   if (!queue)
   {
@@ -104,7 +114,9 @@ ComponentsBuilder::add_grpc_client_factory(
       std::move(config),
       channel_task_processor,
       queue != nullptr ? *queue : queue_holders_.back()->GetQueue(),
-      *statistics_storage_));
+      *statistics_storage_,
+      registrator_dynamic_settings_,
+      middleware_factories));
 
   add_component(grpc_client_factory.in());
 
@@ -144,6 +156,12 @@ void ComponentsBuilder::add_user_component(
   name_to_user_component_.try_emplace(
     name,
     Component_var(ReferenceCounting::add_ref(component)));
+}
+
+RegistratorDynamicSettingsPtr
+ComponentsBuilder::registrator_dynamic_settings() noexcept
+{
+  return registrator_dynamic_settings_;
 }
 
 bool ComponentsBuilder::check_component_cash(
@@ -186,6 +204,7 @@ ComponentsBuilder::build()
   components_info.queue_holders = std::move(queue_holders_);
   components_info.components = std::move(components_);
   components_info.name_to_user_component = std::move(name_to_user_component_);
+  components_info.middlewares_list = std::move(middlewares_list_);
 
   return components_info;
 }

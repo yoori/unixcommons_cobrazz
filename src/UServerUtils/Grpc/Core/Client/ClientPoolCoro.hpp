@@ -418,16 +418,19 @@ private:
       channels_(channels),
       number_async_client_(number_async_client)
   {
-    auto* current_task_processor =
-      userver::engine::current_task::GetTaskProcessorOptional();
-    if (!current_task_processor)
+    const bool is_task_processor_thread =
+      userver::engine::current_task::IsTaskProcessorThread();
+    if (!is_task_processor_thread)
     {
       Stream::Error stream;
       stream << FNS
              << ": ClientPoolCoro must be call on coroutine pool";
       throw Exception(stream);
     }
-    task_processor_ = *current_task_processor;
+
+    auto& current_task_processor =
+      userver::engine::current_task::GetTaskProcessor();
+    task_processor_ = current_task_processor;
   }
 
   void initialize()
@@ -444,14 +447,12 @@ private:
         auto logger = ptr->logger_;
         const auto number_async_client = ptr->number_async_client_;
 
-        auto* task_processor =
-          userver::engine::current_task::GetTaskProcessorOptional();
-        if (!task_processor)
-          return;
+        auto& task_processor =
+          userver::engine::current_task::GetTaskProcessor();
 
         auto weak_ptr = std::weak_ptr<ClientPoolCoro>(ptr);
         auto factory_observer =
-          [weak_ptr, task_processor, logger] (
+          [weak_ptr, task_processor = &task_processor, logger] (
             const ClientId client_id) mutable {
             try
             {

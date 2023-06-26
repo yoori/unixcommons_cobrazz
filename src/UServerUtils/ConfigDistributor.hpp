@@ -11,8 +11,8 @@
 #include <userver/components/run.hpp>
 //#include <utils/jemalloc.hpp>
 #include <userver/formats/json.hpp>
-#include <userver/components/manager.hpp>
-#include <userver/components/manager_config.hpp>
+#include <components/manager.hpp>
+#include <components/manager_config.hpp>
 #include <userver/utest/using_namespace_userver.hpp>
 #include <userver/logging/log.hpp>
 #include <regex>

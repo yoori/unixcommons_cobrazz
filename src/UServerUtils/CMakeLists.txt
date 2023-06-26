@@ -115,6 +115,7 @@ set (SOURCES_FILES
   Grpc/ClientFactory.cpp
   Grpc/Logger.cpp
   Grpc/Manager.cpp
+  Grpc/RegistratorDynamicSettings.cpp
   Grpc/Server.cpp
   Grpc/ServerBuilder.cpp
   Grpc/TaskProcessorContainer.cpp

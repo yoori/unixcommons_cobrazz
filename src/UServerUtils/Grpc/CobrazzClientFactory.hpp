@@ -76,9 +76,9 @@ public:
   template<class ClientPool>
   std::shared_ptr<ClientPool> create()
   {
-    auto* current_task_processor =
-      userver::engine::current_task::GetTaskProcessorOptional();
-    if (!current_task_processor)
+    const bool is_task_processor_thread =
+      userver::engine::current_task::IsTaskProcessorThread();
+    if (!is_task_processor_thread)
     {
       Stream::Error stream;
       stream << FNS
@@ -87,12 +87,15 @@ public:
       throw Exception(stream);
     }
 
+    auto& current_task_processor =
+      userver::engine::current_task::GetTaskProcessor();
+
     return ClientPool::create(
       logger_.in(),
       scheduler_,
       channels_,
       number_client_,
-      *current_task_processor);
+      current_task_processor);
   }
 
 private:

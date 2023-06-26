@@ -9,11 +9,13 @@
 #include <grpcpp/completion_queue.h>
 
 // USERVER
-#include <eh/Exception.hpp>
 #include <engine/task/task_processor.hpp>
+#include <userver/ugrpc/server/middleware_base.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
+#include <eh/Exception.hpp>
+#include <UServerUtils/Grpc/RegistratorDynamicSettings.hpp>
 #include <UServerUtils/Grpc/Server.hpp>
 #include <UServerUtils/Grpc/ServiceBase.hpp>
 
@@ -33,6 +35,11 @@ public:
 
   using CompletionQueue = grpc::CompletionQueue;
   using GrpcServices = std::deque<GrpcServiceBase_var>;
+  using Middlewares = userver::ugrpc::server::Middlewares;
+  using MiddlewaresPtr = std::unique_ptr<Middlewares>;
+  using MiddlewaresList = std::list<MiddlewaresPtr>;
+  using StorageMock = userver::dynamic_config::StorageMock;
+  using StorageMockPtr = std::unique_ptr<StorageMock>;
 
   struct ServerInfo final
   {
@@ -46,6 +53,7 @@ public:
 
     GrpcServer_var server;
     GrpcServices services;
+    MiddlewaresList middlewares_list;
   };
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -54,7 +62,8 @@ public:
   explicit GrpcServerBuilder(
     Logger* logger,
     GrpcServerConfig&& config,
-    StatisticsStorage& statistics_storage);
+    StatisticsStorage& statistics_storage,
+    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings);
 
   ~GrpcServerBuilder() = default;
 
@@ -62,7 +71,9 @@ public:
 
   void add_grpc_service(
     TaskProcessor& task_processor,
-    GrpcServiceBase* service);
+    GrpcServiceBase* service,
+
+    const Middlewares& middlewares = {});
 
 private:
   ServerInfo build();
@@ -73,6 +84,8 @@ private:
   GrpcServer_var grpc_server_;
 
   GrpcServices services_;
+
+  MiddlewaresList middlewares_list_;
 };
 
 using GrpcServerBuilderPtr = std::unique_ptr<GrpcServerBuilder>;

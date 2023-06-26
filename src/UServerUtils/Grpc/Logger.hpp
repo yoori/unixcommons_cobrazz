@@ -15,13 +15,11 @@ namespace UServerUtils::Grpc::Logger
 
 using LoggerBase = userver::logging::impl::LoggerBase;
 
-class Logger : public LoggerBase
+class Logger final : public LoggerBase
 {
 public:
   using Logger_var = Logging::Logger_var;
   using Level = userver::logging::Level;
-
-  DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 private:
   using Format = userver::logging::Format;
@@ -39,7 +37,27 @@ private:
   Logger_var logger_;
 };
 
-using LoggerPtr = userver::logging::LoggerPtr;
+using LoggerPtr = std::unique_ptr<Logger>;
+
+class LoggerScope final :
+  private Generics::Uncopyable
+{
+public:
+  using Logger_var = Logging::Logger_var;
+  using Level = userver::logging::Level;
+
+public:
+  LoggerScope(Logging::Logger* logger);
+
+  ~LoggerScope();
+
+private:
+  LoggerPtr logger_new_;
+
+  userver::logging::LoggerRef logger_prev_;
+};
+
+using LoggerScopePtr = std::unique_ptr<LoggerScope>;
 
 } // namespace UServerUtils::Grpc::Logger
 

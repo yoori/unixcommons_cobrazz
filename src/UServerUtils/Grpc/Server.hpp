@@ -7,7 +7,9 @@
 #include <condition_variable>
 
 // USERVER
+#include <userver/dynamic_config/storage_mock.hpp>
 #include <userver/engine/task/task_processor_fwd.hpp>
+#include <userver/ugrpc/server/middleware_base.hpp>
 #include <userver/ugrpc/server/server.hpp>
 #include <userver/utils/statistics/fwd.hpp>
 #include <userver/utils/statistics/storage.hpp>
@@ -36,6 +38,9 @@ public:
   using CompletionQueue = grpc::CompletionQueue;
   using StatisticsStorage = userver::utils::statistics::Storage;
   using Service = userver::ugrpc::server::ServiceBase;
+  using Middlewares = userver::ugrpc::server::Middlewares;
+  using StorageMock = userver::dynamic_config::StorageMock;
+  using StorageMockPtr = std::unique_ptr<StorageMock>;
 
 public:
   void activate_object() override;
@@ -57,16 +62,20 @@ private:
   explicit GrpcServer(
     Logger* logger,
     ServerConfig&& config,
-    StatisticsStorage& statistics_storage);
+    StatisticsStorage& statistics_storage,
+    StorageMockPtr&& storage_mock);
 
   void add_service(
     Service& service,
-    TaskProcessor& task_processor);
+    TaskProcessor& task_processor,
+    const Middlewares& middlewares);
 
 private:
   const Logger_var logger_;
 
-  Server server_;
+  StorageMockPtr storage_mock_;
+
+  std::unique_ptr<Server> server_;
 
   ACTIVE_STATE state_ = AS_NOT_ACTIVE;
 

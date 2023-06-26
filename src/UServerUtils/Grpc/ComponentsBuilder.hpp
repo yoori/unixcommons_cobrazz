@@ -10,6 +10,7 @@
 // USERVER
 #include <engine/task/task_processor.hpp>
 #include <userver/ugrpc/client/queue_holder.hpp>
+#include <userver/ugrpc/server/middleware_base.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
@@ -20,6 +21,7 @@
 #include <UServerUtils/Grpc/CobrazzClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzServerBuilder.hpp>
 #include <UServerUtils/Grpc/Config.hpp>
+#include <UServerUtils/Grpc/RegistratorDynamicSettings.hpp>
 #include <UServerUtils/Grpc/Server.hpp>
 #include <UServerUtils/Grpc/ServerBuilder.hpp>
 #include <UServerUtils/Grpc/ServiceBase.hpp>
@@ -36,6 +38,7 @@ public:
   using StatisticsStoragePtr = std::unique_ptr<StatisticsStorage>;
   using CompletionQueue = grpc::CompletionQueue;
   using Components = std::deque<Component_var>;
+  using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -48,6 +51,9 @@ private:
   using QueueHolders = std::deque<QueueHolderPtr>;
   using CashExistingComponent = std::unordered_set<std::uintptr_t>;
   using NameToUserComponent = std::unordered_map<std::string, Component_var>;
+  using Middlewares = userver::ugrpc::server::Middlewares;
+  using MiddlewaresPtr = std::unique_ptr<Middlewares>;
+  using MiddlewaresList = std::list<MiddlewaresPtr>;
 
   struct ComponentsInfo
   {
@@ -63,6 +69,7 @@ private:
     Components components;
     QueueHolders queue_holders;
     NameToUserComponent name_to_user_component;
+    MiddlewaresList middlewares_list;
   };
 
 public:
@@ -78,7 +85,8 @@ public:
   GrpcClientFactory_var add_grpc_client_factory(
     GrpcClientFactoryConfig&& config,
     TaskProcessor& channel_task_processor,
-    grpc::CompletionQueue* queue = nullptr);
+    grpc::CompletionQueue* queue = nullptr,
+    const MiddlewareFactories& middleware_factories = {});
 
   void add_grpc_cobrazz_server(
     std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
@@ -86,6 +94,9 @@ public:
   void add_user_component(
     const std::string& name,
     Component* component);
+
+  RegistratorDynamicSettingsPtr
+  registrator_dynamic_settings() noexcept;
 
 private:
   ComponentsInfo build();
@@ -99,11 +110,15 @@ private:
 private:
   friend class Manager;
 
+  RegistratorDynamicSettingsPtr registrator_dynamic_settings_;
+
   StatisticsStoragePtr statistics_storage_;
 
   QueueHolders queue_holders_;
 
   GrpcServers grpc_servers_;
+
+  MiddlewaresList middlewares_list_;
 
   GrpcCobrazzServers grpc_cobrazz_servers_;
 

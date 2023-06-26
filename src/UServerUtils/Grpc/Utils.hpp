@@ -28,11 +28,13 @@ inline auto run_in_coro(
   Func&& func,
   Args&& ...args)
 {
-  auto* current_task_processor =
-    engine::current_task::GetTaskProcessorOptional();
-  if (current_task_processor)
+  const bool is_task_processor_thread =
+    userver::engine::current_task::IsTaskProcessorThread();
+  if (is_task_processor_thread)
   {
-    if (current_task_processor == &task_processor)
+    auto& current_task_processor =
+      engine::current_task::GetTaskProcessor();
+    if (&current_task_processor == &task_processor)
     {
       return std::forward<Func>(func)(std::forward<Args>(args)...);
     }
@@ -54,7 +56,6 @@ inline auto run_in_coro(
     deadline,
     std::forward<Func>(func),
     std::forward<Args>(args)...);
-
   task.BlockingWait();
   return task.Get();
 }

@@ -89,8 +89,7 @@ template<class Request, class Response>
 using QueueCoro =
   userver::concurrent::GenericQueue<
     DataQueueCoro<Request, Response>,
-    true,
-    true>;
+    userver::concurrent::impl::SimpleQueuePolicy<true, true>>;
 
 template<class Request, class Response>
 class Reader final

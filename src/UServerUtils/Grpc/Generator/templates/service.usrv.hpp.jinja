@@ -14,8 +14,11 @@
 
 // Service interface for {{service.name}}
 class {{service.name}}Base
-: public UServerUtils::Grpc::GrpcServiceBase {
+    : public UServerUtils::Grpc::GrpcServiceBase {
  public:
+  using Component = USERVER_NAMESPACE::ugrpc::server::impl::ServiceComponentBase<
+      {{service.name}}Base>;
+
   {% for method in service.method %}
   {% if method.client_streaming and method.server_streaming %}
   using {{method.name}}Call =

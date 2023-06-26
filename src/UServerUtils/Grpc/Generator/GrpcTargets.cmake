@@ -126,7 +126,6 @@ function(generate_grpc_files)
       message(STATUS "Generated sources for ${path_base}.proto")
     endif()
 
-    #set_source_files_properties(${files} ${usrv_files} ${cobrazz_files} PROPERTIES GENERATED 1)
     set_source_files_properties(${files} ${usrv_files} ${cobrazz_files} PROPERTIES GENERATED 1)
     list(APPEND generated_cpps ${files})
     list(APPEND generated_usrv_cpps ${usrv_files})
