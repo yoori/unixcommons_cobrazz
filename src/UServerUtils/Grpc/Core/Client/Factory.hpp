@@ -40,7 +40,7 @@ inline auto create_channels(
   const std::size_t number_threads,
   const std::shared_ptr<grpc::ChannelCredentials>& credentials,
   const std::string& endpoint,
-  const grpc::ChannelArguments& channel_arguments,
+  const std::unordered_map<std::string, std::string>& channel_map_args,
   std::optional<std::size_t> number_channels)
 {
   using ChannelPtr = std::shared_ptr<grpc::Channel>;
@@ -58,6 +58,19 @@ inline auto create_channels(
       (*number_channels % number_threads != 0);
     *number_channels =
       (*number_channels / number_threads + adding) * number_threads;
+  }
+
+  grpc::ChannelArguments channel_arguments;
+  for (const auto& [key, value] : channel_map_args)
+  {
+    if (UServerUtils::Grpc::Core::Common::Utils::is_integer(value))
+    {
+      channel_arguments.SetInt(key, std::stoi(value));
+    }
+    else
+    {
+      channel_arguments.SetString(key, value);
+    }
   }
 
   Channels channels;

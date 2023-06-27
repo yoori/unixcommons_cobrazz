@@ -4,6 +4,7 @@
 // STD
 #include <memory>
 #include <optional>
+#include <unordered_map>
 
 // GRPCPP
 #include <grpcpp/security/credentials.h>
@@ -22,9 +23,8 @@ struct ConfigPoolCoro final
   std::shared_ptr<grpc::ChannelCredentials> credentials =
     grpc::InsecureChannelCredentials();
 
-  // Optional grpc-core channel args
   // @see https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
-  grpc::ChannelArguments channel_args;
+  std::unordered_map<std::string, std::string> channel_args;
 
   // If not set, then find number of threads
   // at which performance will be maximum.
