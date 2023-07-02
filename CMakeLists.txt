@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
 
-SET(CMAKE_MODULE_PATH "/home/jurij_kuznecov/UServerInst/usr/lib64/cmake/" ${CMAKE_MODULE_PATH})
-
 project (unixcommons)
 
 include(cmake/SetupEnvironment.cmake)
@@ -49,6 +47,7 @@ find_package(absl REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread) # TO EXPLAIN WHO USE
 
 find_package(Protobuf REQUIRED)
+find_package(Nghttp2 REQUIRED)
 find_package(gRPC)
 find_package(userver)
 
