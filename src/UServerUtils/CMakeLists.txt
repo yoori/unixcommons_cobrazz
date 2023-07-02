@@ -185,6 +185,7 @@ target_link_libraries(TestUserver
   GTest::gtest_main
   UServerUtils
   UServerUtils_proto
+  Boost::thread
 )
 
 add_test(TestUserver TestUserver)
@@ -201,7 +202,7 @@ foreach(_Target
   target_link_libraries(${_Target}
     UServerUtils
     UServerUtils_proto
-    ${Boost_LIBRARIES}
+    Boost::thread
   )
 endforeach()
 
