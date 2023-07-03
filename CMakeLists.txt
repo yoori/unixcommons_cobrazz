@@ -35,7 +35,6 @@ else()
 endif()
 
 
-
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(XercesC REQUIRED)
@@ -46,8 +45,13 @@ find_package(NetSNMP REQUIRED)
 find_package(PCRE REQUIRED)
 find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
-find_package(userver REQUIRED)
 find_package(Iconv REQUIRED)
+
+set(Boost_NO_WARN_NEW_VERSIONS ON)
+find_package(Nghttp2 REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(userver REQUIRED)
 
 find_package(IDL REQUIRED)
 
