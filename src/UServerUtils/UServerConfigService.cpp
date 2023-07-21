@@ -56,18 +56,19 @@ components_manager:
 
   const std::string dynamic_config_fallback_json = R"x(
 {
-  "HTTP_CLIENT_CONNECTION_POOL_SIZE": 1000,
-  "HTTP_CLIENT_ENFORCE_TASK_DEADLINE": {
-    "cancel-request": false,
-    "update-timeout": false
+  "BAGGAGE_SETTINGS": {
+    "allowed_keys": []
   },
+  "HTTP_CLIENT_CONNECTION_POOL_SIZE": 1000,
   "HTTP_CLIENT_CONNECT_THROTTLE": {
     "max-size": 100,
     "token-update-interval-ms": 0
   },
+  "USERVER_BAGGAGE_ENABLED": false,
   "USERVER_CACHES": {},
   "USERVER_CANCEL_HANDLE_REQUEST_BY_DEADLINE": false,
-  "USERVER_CHECK_AUTH_IN_HANDLERS": false,
+  "USERVER_CHECK_AUTH_IN_HANDLERS": true,
+  "USERVER_DEADLINE_PROPAGATION_ENABLED": true,
   "USERVER_DUMPS": {},
   "USERVER_FILES_CONTENT_TYPE_MAP": {
     ".css": "text/css",
@@ -82,11 +83,19 @@ components_manager:
     ".svg": "image/svg+xml",
     "__default__": "text/plain"
   },
+  "USERVER_HANDLER_STREAM_API_ENABLED": false,
+  "USERVER_HTTP_PROXY": "",
+  "USERVER_LOG_DYNAMIC_DEBUG": {
+    "force-disabled": [],
+    "force-enabled": []
+  },
+  "USERVER_LOG_REQUEST": true,
+  "USERVER_LOG_REQUEST_HEADERS": false,
+  "USERVER_LRU_CACHES": {},
   "USERVER_NO_LOG_SPANS": {
     "names": [],
     "prefixes": []
   },
-  "USERVER_RPS_CCONTROL_ENABLED": true,
   "USERVER_RPS_CCONTROL": {
     "down-level": 1,
     "down-rate-percent": 2,
@@ -97,13 +106,19 @@ components_manager:
     "up-level": 2,
     "up-rate-percent": 2
   },
-
-  "USERVER_HTTP_PROXY": "",
-  "USERVER_LOG_REQUEST": true,
-  "USERVER_LOG_REQUEST_HEADERS": false,
-  "USERVER_LRU_CACHES": {},
+  "USERVER_RPS_CCONTROL_ACTIVATED_FACTOR_METRIC": 5,
   "USERVER_RPS_CCONTROL_CUSTOM_STATUS": {},
-  "USERVER_TASK_PROCESSOR_PROFILER_DEBUG": {},
+  "USERVER_RPS_CCONTROL_ENABLED": false,
+  "USERVER_TASK_PROCESSOR_PROFILER_DEBUG": {
+    "fs-task-processor": {
+      "enabled": false,
+      "execution-slice-threshold-us": 1000000
+    },
+    "main-task-processor": {
+      "enabled": false,
+      "execution-slice-threshold-us": 2000
+    }
+  },
   "USERVER_TASK_PROCESSOR_QOS": {
     "default-service": {
       "default-task-processor": {
@@ -116,6 +131,7 @@ components_manager:
     }
   }
 }
+
 )x";
 
 Sync::PosixMutex mutex_;
@@ -123,13 +139,13 @@ Sync::PosixMutex mutex_;
   {
       Sync::PosixGuard tmpVar(mutex_);
       std::ofstream myfile;
-      myfile.open ("/tmp/dynamic_config_fallback.json"+std::to_string(getpid()));
+      myfile.open ("/tmp/dynamic_config_fallback.json");
       myfile << dynamic_config_fallback_json;
       myfile.close();
   }
   void remove_json_from_tmp()
   {
-    std::string pn="/tmp/dynamic_config_fallback.json"+std::to_string(getpid());
+    std::string pn="/tmp/dynamic_config_fallback.json";
     unlink(pn.c_str());
   }
 }
