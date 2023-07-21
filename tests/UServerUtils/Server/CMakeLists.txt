@@ -1,8 +1,7 @@
-
 set(proj "TestServer")
 
 add_executable(${proj} 
-           TestServer.cpp
+  TestServer.cpp
 )
 
 
