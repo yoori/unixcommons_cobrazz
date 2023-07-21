@@ -208,7 +208,7 @@ function(tao_idl_command target)
         -I${TAO_INCLUDE_DIR} -I${_working_source_dir}
         ${_converted_flags}
         ${default_output_args}
-        ${idl_file_path}
+        ${idl_file_path} && sed -i 's/0 == &_tao_elem/false/g' "${_SKEL_CPP_FILES}"
     )
 
     set_property(SOURCE ${idl_file_path} APPEND PROPERTY
