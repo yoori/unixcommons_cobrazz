@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package test;
+
+message Request {
+  string message = 1;
+}
+
+message Reply {
+  string message = 1;
+}
+
+service TestService {
+  rpc HandlerUnaryUnary (Request) returns (Reply) {}
+  rpc HandlerUnaryStream (Request) returns (stream Reply) {}
+  rpc HandlerStreamUnary (stream Request) returns (Reply) {}
+  rpc HandlerStreamStream (stream Request) returns (stream Reply) {}
+}

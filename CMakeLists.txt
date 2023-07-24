@@ -19,21 +19,16 @@ endif()
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
-  )
-
+)
 
 if(UNIX AND NOT APPLE)
-SET(LINUX true)
+  SET(LINUX true)
 endif()
-
-
-
 
 if(LINUX)
-    set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
+  set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
 else()
 endif()
-
 
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -48,17 +43,12 @@ find_package(Threads REQUIRED)
 find_package(Iconv REQUIRED)
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
-find_package(Nghttp2 REQUIRED)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
-find_package(userver REQUIRED)
 
+#find_package(Nghttp2 REQUIRED)
+#find_package(Protobuf REQUIRED)
+#find_package(gRPC REQUIRED)
+#find_package(userver REQUIRED)
 find_package(IDL REQUIRED)
-
-find_package(Iconv REQUIRED)
-#message("iconv " ${Iconv_LIBRARIES})
-
-#set(USERVER ${CMAKE_CURRENT_SOURCE_DIR}/3dparty/userver)
 
 include_directories(src src/CORBA)
 
