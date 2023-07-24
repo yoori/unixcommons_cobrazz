@@ -1,0 +1,75 @@
+{% import "utils.inc.jinja" as utils %}
+{{- utils.do_not_edit() }}
+// This file was generated from {{ proto.source_file }}
+#pragma once
+
+{# All constant includes must go inside this header #}
+// STD
+#include <memory>
+
+// PROTOBUF
+#include "{{ proto.source_file_without_ext }}.pb.h"
+
+// THIS
+#include <UServerUtils/Grpc/Core/Common/RpcServiceMethodTraits.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientObserver.hpp>
+#include <UServerUtils/Grpc/Core/Client/ClientPoolCoro.hpp>
+#include <UServerUtils/Grpc/Core/Client/Factory.hpp>
+#include <UServerUtils/Grpc/Core/Client/Writer.hpp>
+
+{% call utils.optional_namespace(proto.namespace) %}
+{% for service in proto.services %}
+{% for method in service.method %}
+
+namespace Internal::Client
+{
+
+struct {{service.name}}_{{method.name}}_Method final
+{
+  static constexpr const char* method_name()
+  {
+    return "/{{proto.package_prefix}}{{service.name}}/{{method.name}}";
+  }
+
+  {% if method.client_streaming and method.server_streaming %}
+  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  {% elif method.client_streaming %}
+  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
+  {% elif method.server_streaming %}
+  using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
+  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  {% else %}
+  using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
+  using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
+  {% endif %}
+};
+
+using {{service.name}}_{{method.name}}_Traits =
+  UServerUtils::Grpc::Core::Common::RpcServiceMethodTraits<
+    {{service.name}}_{{method.name}}_Method>;
+
+} // namespace Internal::Client
+
+using {{service.name}}_{{method.name}}_ClientObserver =
+  UServerUtils::Grpc::Core::Client::ClientObserver<Internal::Client::{{service.name}}_{{method.name}}_Method>;
+
+using {{service.name}}_{{method.name}}_Factory =
+  UServerUtils::Grpc::Core::Client::Factory<Internal::Client::{{service.name}}_{{method.name}}_Method>;
+
+using {{service.name}}_{{method.name}}_WriterPtr =
+  std::unique_ptr<
+    UServerUtils::Grpc::Core::Client::Writer<
+      typename Internal::Client::{{service.name}}_{{method.name}}_Traits::Request,
+      Internal::Client::{{service.name}}_{{method.name}}_Traits::rpc_type>
+  >;
+
+using {{service.name}}_{{method.name}}_ClientPool =
+  UServerUtils::Grpc::Core::Client::ClientPoolCoro<Internal::Client::{{service.name}}_{{method.name}}_Method>;
+
+using {{service.name}}_{{method.name}}_ClientPoolPtr =
+  std::shared_ptr<{{service.name}}_{{method.name}}_ClientPool>;
+
+{% endfor %} {% endfor %}
+{% endcall %} {# utils.optional_namespace #}

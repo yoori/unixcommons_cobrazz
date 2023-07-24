@@ -1,0 +1,301 @@
+{% import "utils.inc.jinja" as utils %}
+{{- utils.do_not_edit() }}
+// This file was generated from {{ proto.source_file }}
+#pragma once
+
+{# All constant includes must go inside this header #}
+// STD
+#include <memory>
+
+// PROTOBUF
+#include "{{ proto.source_file_without_ext }}.pb.h"
+
+// THIS
+#include <ReferenceCounting/AtomicImpl.hpp>
+#include <ReferenceCounting/SmartPtr.hpp>
+#include <UServerUtils/Grpc/Core/Common/TypeTraits.hpp>
+#include <UServerUtils/Grpc/Core/Server/CommonContextCoro.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcHandlerImpl.hpp>
+#include <UServerUtils/Grpc/Core/Server/ServiceCoro.hpp>
+
+{% call utils.optional_namespace(proto.namespace) %}
+{% for service in proto.services %}
+{% for method in service.method %}
+
+namespace Internal::Server
+{
+
+struct {{service.name}}_{{method.name}}_Method final
+{
+  static constexpr const char* method_name()
+  {
+    return "/{{proto.package_prefix}}{{service.name}}/{{method.name}}";
+  }
+
+  {% if method.client_streaming and method.server_streaming %}
+  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  {% elif method.client_streaming %}
+  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
+  {% elif method.server_streaming %}
+  using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
+  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  {% else %}
+  using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
+  using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
+  {% endif %}
+};
+
+} // namespace Internal::Server
+
+using {{service.name}}_{{method.name}}_Handler =
+  UServerUtils::Grpc::Core::Server::RpcHandlerImpl<Internal::Server::{{service.name}}_{{method.name}}_Method>;
+
+namespace Internal
+{
+
+class {{service.name}}_{{method.name}}_Coro_Handler final
+  : public {{service.name}}_{{method.name}}_Handler
+{
+public:
+  using Logger_var = Logging::Logger_var;
+  using Traits = typename {{service.name}}_{{method.name}}_Handler::Traits;
+  using Request = typename Traits::Request;
+  using Response = typename Traits::Response;
+  using Queue = UServerUtils::Grpc::Core::Server::Internal::QueueCoro<Request, Response>;
+  using QueueData = typename Queue::ValueType;
+  using Producer = typename Queue::Producer;
+  using ProducerPtr = std::unique_ptr<Producer>;
+
+public:
+  {{service.name}}_{{method.name}}_Coro_Handler() = default;
+
+  ~{{service.name}}_{{method.name}}_Coro_Handler() = default;
+
+  void on_request(const {{ method.input_type | grpc_to_cpp_name }}& request) override
+  {
+    try
+    {
+      if (!producer_)
+      {
+        auto status = grpc::Status::CANCELLED;
+        finish(std::move(status));
+
+        Stream::Error stream;
+        stream << FNS
+               << ": producer is null";
+        logger_->error(stream.str());
+
+        return;
+      }
+
+      bool need_finish_on_idle = false;
+      constexpr auto rpc_type = Traits::rpc_type;
+      if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
+                 || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+      {
+        need_finish_on_idle = true;
+      }
+
+      QueueData data(
+        QueueData::Type::Read,
+        std::make_unique<{{ method.input_type | grpc_to_cpp_name }}>(request),
+        get_writer(need_finish_on_idle),
+        reinterpret_cast<std::uintptr_t>(this));
+      if (!producer_->PushNoblock(std::move(data)))
+      {
+        try
+        {
+          auto status = grpc::Status::CANCELLED;
+          finish(std::move(status));
+
+          Stream::Error stream;
+          stream << FNS
+                 << ": push is failed";
+          logger_->error(stream.str());
+        }
+        catch (...)
+        {
+        }
+      }
+    }
+    catch (const eh::Exception& exc)
+    {
+      try
+      {
+        auto status = grpc::Status::CANCELLED;
+        finish(std::move(status));
+
+        Stream::Error stream;
+        stream << FNS
+               << ": "
+               << exc.what();
+        logger_->error(stream.str());
+      }
+      catch (...)
+      {
+      }
+    }
+  }
+
+  void initialize() override
+  {
+    try
+    {
+      auto& context = common_context<
+        UServerUtils::Grpc::Core::Server::CommonContextCoro>();
+      logger_ = context.get_logger();
+      const std::string_view method_name = Traits::method_name();
+      producer_ = context.get_producer<Request, Response>(method_name);
+
+      constexpr auto rpc_type = Traits::rpc_type;
+      if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
+                 || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+      {
+        QueueData data(
+          QueueData::Type::Initialize,
+          {},
+          {},
+          reinterpret_cast<std::uintptr_t>(this));
+        if (!producer_->PushNoblock(std::move(data)))
+        {
+          try
+          {
+            auto status = grpc::Status::CANCELLED;
+            finish(std::move(status));
+
+            Stream::Error stream;
+            stream << FNS
+                   << ": push is failed";
+            logger_->error(stream.str());
+          }
+          catch (...)
+          {
+          }
+        }
+      }
+    }
+    catch (const eh::Exception& exc)
+    {
+      try
+      {
+        auto status = grpc::Status::CANCELLED;
+        finish(std::move(status));
+
+        Stream::Error stream;
+        stream << FNS
+               << ": "
+               << exc.what();
+        logger_->error(stream.str());
+      }
+      catch (...)
+      {
+      }
+    }
+  }
+
+  void on_reads_done() override
+  {
+    constexpr auto rpc_type = Traits::rpc_type;
+    if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
+               || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+    {
+      return;
+    }
+
+    if (!producer_)
+    {
+      auto status = grpc::Status::CANCELLED;
+      finish(std::move(status));
+
+      Stream::Error stream;
+      stream << FNS
+             << ": prodicer is null";
+      logger_->error(stream.str());
+
+      return;
+    }
+
+    QueueData data(
+      QueueData::Type::ReadsDone,
+      {},
+      get_writer(),
+      reinterpret_cast<std::uintptr_t>(this));
+    if (!producer_->PushNoblock(std::move(data)))
+    {
+      try
+      {
+        auto status = grpc::Status::CANCELLED;
+        finish(std::move(status));
+
+        Stream::Error stream;
+        stream << FNS
+               << ": push is failed";
+        logger_->error(stream.str());
+      }
+      catch (...)
+      {
+      }
+    }
+  }
+
+  void on_finish() override
+  {
+    constexpr auto rpc_type = Traits::rpc_type;
+    if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
+               || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+    {
+      QueueData data(
+        QueueData::Type::RpcFinish,
+        {},
+        {},
+        reinterpret_cast<std::uintptr_t>(this));
+      if (!producer_->PushNoblock(std::move(data)))
+      {
+        try
+        {
+          Stream::Error stream;
+          stream << FNS
+                 << ": push is failed";
+          logger_->error(stream.str());
+        }
+        catch (...)
+        {
+        }
+      }
+    }
+
+    producer_.reset();
+  }
+
+private:
+  Logger_var logger_;
+
+  std::unique_ptr<Producer> producer_;
+};
+
+} // namespace Internal
+
+class {{service.name}}_{{method.name}}_Service :
+  public UServerUtils::Grpc::Core::Server::ServiceCoro<{{ method.input_type | grpc_to_cpp_name }}, {{ method.output_type | grpc_to_cpp_name }}>
+{
+public:
+  using Handler = Internal::{{service.name}}_{{method.name}}_Coro_Handler;
+  using Request = typename Handler::Request;
+  using Response = typename Handler::Response;
+  using ReadStatus = UServerUtils::Grpc::Core::Server::ReadStatus;
+  using WriterStatus = UServerUtils::Grpc::Core::Server::WriterStatus;
+
+public:
+  ~{{service.name}}_{{method.name}}_Service() override = default;
+
+protected:
+  {{service.name}}_{{method.name}}_Service() = default;
+};
+
+using {{service.name}}_{{method.name}}_Service_var =
+  ReferenceCounting::SmartPtr<{{service.name}}_{{method.name}}_Service>;
+
+{% endfor %} {% endfor %}
+{% endcall %} {# utils.optional_namespace #}

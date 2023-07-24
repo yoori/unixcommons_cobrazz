@@ -1,4 +1,6 @@
 #include <string>
+#include <components/manager.hpp>
+#include <components/manager_config.hpp>
 #include <userver/components/minimal_server_component_list.hpp>
 #include <userver/rcu/rcu.hpp>
 #include <userver/server/handlers/http_handler_json_base.hpp>
@@ -6,8 +8,6 @@
 #include <userver/utils/datetime.hpp>
 #include <userver/components/run.hpp>
 #include <userver/formats/json.hpp>
-#include <userver/components/manager.hpp>
-#include <userver/components/manager_config.hpp>
 #include <userver/utest/using_namespace_userver.hpp>
 #include <userver/logging/log.hpp>
 #include <regex>
