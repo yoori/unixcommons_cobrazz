@@ -41,7 +41,6 @@ public:
   }
 };
 
-
 int main(int /*argc*/, char** /*argv*/)
 {
   try
@@ -53,7 +52,6 @@ int main(int /*argc*/, char** /*argv*/)
           Logging::Logger::INFO)));
 
     UServerUtils::Grpc::Core::Server::Config config;
-    config.num_threads = 8;
     config.port = 7778;
 
     UServerUtils::Grpc::Core::Server::Server_var server(
