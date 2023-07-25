@@ -196,6 +196,7 @@ foreach(Target
     Grpc/Test/${FileName}.cpp
   )
   target_link_libraries(${Target}
+    ${Boost_LIBRARIES}
     ${GRPC_GRPCPP}
     userver-core
     userver-grpc
