@@ -59,7 +59,7 @@ inline auto create_scheduler(
   std::optional<std::size_t> number_threads,
   Logging::Logger* logger)
 {
-  using SchedulerQueue = typename Common::Scheduler::Queue;
+  //using SchedulerQueue = typename Common::Scheduler::Queue;
   using SchedulerQueues = typename Common::Scheduler::Queues;
 
   if (!number_threads)
