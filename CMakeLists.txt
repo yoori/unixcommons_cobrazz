@@ -8,6 +8,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if(UNIX AND NOT APPLE)
 SET(LINUX true)
 endif()
@@ -41,6 +43,11 @@ find_package(PCRE REQUIRED)
 find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Iconv REQUIRED)
+find_package(GTest REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
+
+set(Boost_NO_WARN_NEW_VERSIONS ON)
+
 find_package(IDL REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)

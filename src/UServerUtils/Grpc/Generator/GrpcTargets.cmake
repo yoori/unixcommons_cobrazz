@@ -44,9 +44,8 @@ function(generate_grpc_files)
   list(TRANSFORM proto_dependencies_globs APPEND "/*.proto")
   list(APPEND proto_dependencies_globs
     "${root_path}/*.proto"
-    "${GRPC_PROTOBUF_INCLUDE_DIRS}/*.proto"
-    "${USERVER_ROOT_DIR}/scripts/grpc/*"
   )
+
   file(GLOB_RECURSE proto_dependencies ${proto_dependencies_globs})
   list(GET proto_dependencies 0 newest_proto_dependency)
   foreach(dependency ${proto_dependencies})
@@ -77,7 +76,6 @@ function(generate_grpc_files)
               --grpc_out=${GENERATED_PROTO_DIR}
               --usrv_out=${GENERATED_PROTO_DIR}
               -I ${root_path}
-              -I ${GRPC_PROTOBUF_INCLUDE_DIRS}
               --plugin=protoc-gen-grpc=${PROTO_GRPC_CPP_PLUGIN}
               --plugin=protoc-gen-usrv=${PROTO_GRPC_USRV_PLUGIN}
               ${proto_file}
@@ -109,7 +107,7 @@ function(generate_grpc_files)
         ${GENERATED_PROTO_DIR}/${path_base}_service.usrv.pb.hpp
         ${GENERATED_PROTO_DIR}/${path_base}_service.usrv.pb.cpp
       )
-      set(cobrazz_files
+      set(usrv_wrap_files
         ${GENERATED_PROTO_DIR}/${path_base}_client.cobrazz.pb.hpp
         ${GENERATED_PROTO_DIR}/${path_base}_client.cobrazz.pb.cpp
         ${GENERATED_PROTO_DIR}/${path_base}_service.cobrazz.pb.hpp
@@ -123,10 +121,10 @@ function(generate_grpc_files)
       message(STATUS "Generated sources for ${path_base}.proto")
     endif()
 
-    set_source_files_properties(${files} ${usrv_files} ${cobrazz_files} PROPERTIES GENERATED 1)
+    set_source_files_properties(${files} ${usrv_files} ${usrv_wrap_files} PROPERTIES GENERATED 1)
     list(APPEND generated_cpps ${files})
     list(APPEND generated_usrv_cpps ${usrv_files})
-    list(APPEND generated_usrv_cpps ${cobrazz_files})
+    list(APPEND generated_usrv_cpps ${usrv_wrap_files})
   endforeach()
 
   if(GEN_RPC_GENERATED_INCLUDES)
@@ -157,6 +155,17 @@ function(add_grpc_library NAME)
 
   add_library(${NAME} STATIC ${generated_sources} ${generated_usrv_sources})
   target_compile_options(${NAME} PUBLIC -Wno-unused-parameter)
-  target_include_directories(${NAME} SYSTEM PUBLIC ${include_paths})
-  target_link_libraries(${NAME} PUBLIC ${GRPC_GRPCPP} userver-grpc)
+
+  target_link_libraries(${NAME} PUBLIC
+    #${GRPC_GRPCPP}
+    userver-core
+    userver-grpc
+    userver-api-common-protos # userver proto files
+    )
+
+  target_include_directories(${NAME}
+    PUBLIC
+      ${include_paths}
+  )
+
 endfunction()

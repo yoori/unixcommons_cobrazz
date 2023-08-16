@@ -1,27 +1,3 @@
-include(FetchContent)
-
-cmake_policy(SET CMP0079 NEW)
-
-#set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
-#set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
-#set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
-
-find_package(absl)
-if (NOT absl_FOUND)
-  message(SEND_ERROR "Failed to find absl")
-  return()
-else()
-  message(STATUS "Using absl ${absl_VERSION}")
-endif()
-
-find_package(Protobuf)
-if (NOT Protobuf_FOUND)
-  message(SEND_ERROR "Failed to find Protobuf")
-  return()
-else()
-  message(STATUS "Using protobuf ${Protobuf_VERSION}")
-  set(GRPC_PROTOBUF_INCLUDE_DIRS "${Protobuf_INCLUDE_DIR}" CACHE INTERNAL "")
-endif()
 
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
@@ -31,16 +7,7 @@ else()
   message("-- Using protoc: ${PROTOBUF_PROTOC}")
 endif()
 
-find_package(gRPC)
-if (NOT gRPC_FOUND)
-  message(SEND_ERROR "Failed to find GRPC")
-  return()
-else()
-  message(STATUS "Using gRPC ${gRPC_VERSION}")
-  set(GRPC_GRPCPP gRPC::grpc++)
-  set(GRPC_EXTERNAL_ENABLE 1)
-endif()
-
+# find grpc_cpp_plugin : part of userver distribution
 find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 if (NOT GRPC_CPP_PLUGIN_EXECUTABLE)
   message(SEND_ERROR "Failed to find grpc_cpp_plugin")
@@ -50,33 +17,11 @@ else()
   set(PROTO_GRPC_CPP_PLUGIN ${GRPC_CPP_PLUGIN_EXECUTABLE} CACHE INTERNAL "")
 endif()
 
-find_package(GTest REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread)
-
 include_directories (
   Grpc/Core
   ${GRPC_PROTOBUF_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
 )
-
-get_property(
-  compile_options
-  DIRECTORY
-  PROPERTY COMPILE_OPTIONS
-)
-
-set_property(
-  DIRECTORY
-  APPEND
-  PROPERTY COMPILE_OPTIONS -Wno-error
-)
-
-set_property(
-  DIRECTORY
-  PROPERTY COMPILE_OPTIONS ${compile_options}
-)
-
-unset(compile_options)
 
 set (SOURCES_FILES
   Grpc/Core/Common/Logging.cpp
@@ -106,29 +51,22 @@ add_library(UServerUtils STATIC
   ${SOURCES_FILES}
 )
 
+# link userver before other libraries, because it can be static (DSO require shared linkage after)
 target_link_libraries(UServerUtils
-  ${GRPC_GRPCPP}
-  ${PROTOBUF_LIBRARY}
   userver-core
   userver-grpc
+  ${GRPC_GRPCPP}
+  ${PROTOBUF_LIBRARY}
   http_parser
   Generics
   Logger
   pthread
+  Boost::thread
 )
-
-#target_compile_definitions(UServerUtils PUBLIC
-#  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
-#  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-#  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
-
-#set(USERVER_INCLUDE_DIRS
-#  ${USERVER_PUBLIC_INCLUDE_DIRS}
-#  ${userver_SOURCE_DIR}/third_party/moodycamel/include
-#  CACHE INTERNAL "")
 
 # UnitTests
 include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
+
 add_grpc_library(UServerUtils_proto
   PROTOS
     echo.proto
@@ -195,10 +133,13 @@ foreach(_Target
     ${GRPC_GRPCPP}
     userver-core
     userver-grpc
+    ${Boost_LIBRARIES}
+    ${GRPC_GRPCPP}
     http_parser
     Generics
     Logger
     pthread
     UServerUtils_proto
+    Boost::thread
   )
 endforeach()
