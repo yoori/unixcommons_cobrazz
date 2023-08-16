@@ -10,7 +10,6 @@
 
 // USERVER
 #include <engine/task/task_processor.hpp>
-#include <userver/ugrpc/server/middleware_base.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
