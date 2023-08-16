@@ -7,9 +7,6 @@
 #include <mutex>
 #include <condition_variable>
 
-// USERVER
-#include <userver/ugrpc/server/middleware_base.hpp>
-
 // THIS
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>

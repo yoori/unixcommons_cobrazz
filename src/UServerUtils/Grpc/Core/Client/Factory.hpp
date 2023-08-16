@@ -270,7 +270,7 @@ public:
       }
     }
 
-    IndexChannelData index_channel_data = 0;
+    //IndexChannelData index_channel_data = 0;
     std::unique_ptr<IndexChannelData> data;
     if constexpr (k_rpc_type != grpc::internal::RpcMethod::NORMAL_RPC)
     {

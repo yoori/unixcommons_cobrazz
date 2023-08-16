@@ -9,7 +9,6 @@
 // USERVER
 #include <userver/dynamic_config/storage_mock.hpp>
 #include <userver/engine/task/task_processor_fwd.hpp>
-#include <userver/ugrpc/server/middleware_base.hpp>
 #include <userver/ugrpc/server/server.hpp>
 #include <userver/utils/statistics/fwd.hpp>
 #include <userver/utils/statistics/storage.hpp>
