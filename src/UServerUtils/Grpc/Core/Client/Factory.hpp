@@ -355,7 +355,7 @@ private:
       if (it == clients_.end())
         return;
 
-      IndexChannelData index_channel_data = it->second.index_channel_data;
+      index_channel_data = it->second.index_channel_data;
     }
 
     if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
