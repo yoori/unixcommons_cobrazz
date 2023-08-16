@@ -156,6 +156,18 @@ function(add_grpc_library NAME)
   add_library(${NAME} STATIC ${generated_sources} ${generated_usrv_sources})
   target_compile_options(${NAME} PUBLIC -Wno-unused-parameter)
 
+  if(NOT TARGET userver-core)
+    message(SEND_ERROR "GrpcTargets: no available userver-core library.")
+  endif()
+
+  if(NOT TARGET userver-grpc)
+    message(SEND_ERROR "GrpcTargets: no available userver-grpc library.")
+  endif()
+
+  if(NOT TARGET userver-api-common-protos)
+    message(SEND_ERROR "GrpcTargets: no available userver-api-common-protos library.")
+  endif()
+
   target_link_libraries(${NAME} PUBLIC
     #${GRPC_GRPCPP}
     userver-core

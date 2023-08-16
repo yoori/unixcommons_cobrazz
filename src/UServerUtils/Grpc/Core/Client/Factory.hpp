@@ -264,13 +264,12 @@ public:
       if (!request)
       {
         Stream::Error stream;
-        stream << FNS
-               << ": Request is null";
+        stream << FNS << ": Request is null";
         throw Exception(stream);
       }
     }
 
-    //IndexChannelData index_channel_data = 0;
+    IndexChannelData index_channel_data = 0;
     std::unique_ptr<IndexChannelData> data;
     if constexpr (k_rpc_type != grpc::internal::RpcMethod::NORMAL_RPC)
     {
@@ -355,8 +354,10 @@ private:
       if (it == clients_.end())
         return;
 
-      IndexChannelData index_channel_data = it->second.index_channel_data;
+      //IndexChannelData index_channel_data = it->second.index_channel_data;
     }
+
+    (void)index_channel_data;
 
     if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
     {
