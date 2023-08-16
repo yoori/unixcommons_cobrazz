@@ -46,6 +46,12 @@ find_package(Iconv REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
 
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(Nghttp2 REQUIRED) # include Nghttp2 local cmake for correct userver linkage
+find_package(userver REQUIRED)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/UServerUtils/Grpc/Generator/GrpcTargets.cmake)
+
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
 find_package(IDL REQUIRED)

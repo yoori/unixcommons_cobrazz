@@ -1,8 +1,3 @@
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
-find_package(Nghttp2 REQUIRED) # include Nghttp2 local cmake for correct userver linkage
-find_package(userver REQUIRED)
-
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
   message(SEND_ERROR "Failed to find protoc")
@@ -80,7 +75,7 @@ target_link_libraries(UServerUtils
 
 
 # UnitTests
-include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
+#include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
 
 add_grpc_library(UServerUtils_proto
   PROTOS

@@ -1,3 +1,5 @@
+include_guard(GLOBAL)
+
 include(FindPackageHandleStandardArgs)
 
 find_path(Nghttp2_INCLUDE_DIR "nghttp2/nghttp2.h")
