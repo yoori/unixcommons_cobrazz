@@ -354,7 +354,7 @@ private:
       if (it == clients_.end())
         return;
 
-      //IndexChannelData index_channel_data = it->second.index_channel_data;
+      index_channel_data = it->second.index_channel_data;
     }
 
     (void)index_channel_data;
