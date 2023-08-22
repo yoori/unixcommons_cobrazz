@@ -169,11 +169,10 @@ function(add_grpc_library NAME)
   endif()
 
   target_link_libraries(${NAME} PUBLIC
-    #${GRPC_GRPCPP}
     userver-core
     userver-grpc
     userver-api-common-protos # userver proto files
-    )
+  )
 
   target_include_directories(${NAME}
     PUBLIC

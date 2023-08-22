@@ -50,7 +50,8 @@ add_library(UServerUtils STATIC
   ${SOURCES_FILES}
 )
 
-# link userver before other libraries, because it can be static (DSO require shared linkage after)
+# link userver before other libraries, because it can be
+# static (DSO require shared linkage after)
 target_link_libraries(UServerUtils
   userver-core
   userver-grpc
@@ -62,20 +63,6 @@ target_link_libraries(UServerUtils
   pthread
   Boost::thread
 )
-
-#target_compile_definitions(UServerUtils PUBLIC
-#  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
-#  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-#  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
-
-#set(USERVER_INCLUDE_DIRS
-#  ${USERVER_PUBLIC_INCLUDE_DIRS}
-#  ${userver_SOURCE_DIR}/third_party/moodycamel/include
-#  CACHE INTERNAL "")
-
-
-# UnitTests
-#include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
 
 add_grpc_library(UServerUtils_proto
   PROTOS
