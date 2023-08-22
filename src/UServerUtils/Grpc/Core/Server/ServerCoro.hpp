@@ -123,8 +123,6 @@ public:
       }
     }
 
-    //using Request = typename Service::Request;
-    //using Response = typename Service::Response;
     using Handler = typename Service::Handler;
     using Traits = typename Handler::Traits;
 
