@@ -51,11 +51,11 @@ inline auto run_in_coro(
 
   auto task =
     engine::impl::MakeTaskWithResult<engine::TaskWithResult>(
-    task_processor,
-    importance,
-    deadline,
-    std::forward<Func>(func),
-    std::forward<Args>(args)...);
+      task_processor,
+      importance,
+      deadline,
+      std::forward<Func>(func),
+      std::forward<Args>(args)...);
   task.BlockingWait();
   return task.Get();
 }
