@@ -17,12 +17,15 @@ else()
 endif()
 
 include_directories (
-  Grpc/Core
-  ${GRPC_PROTOBUF_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${GRPC_PROTOBUF_INCLUDE_DIRS}
+  Grpc/Core
 )
 
 set (SOURCES_FILES
+  Grpc/ClientFactory.cpp
+  Grpc/CobrazzServerBuilder.cpp
+  Grpc/ComponentsBuilder.cpp
   Grpc/Core/Common/Logging.cpp
   Grpc/Core/Common/Scheduler.cpp
   Grpc/Core/Server/CommonContextCoro.cpp
@@ -30,9 +33,6 @@ set (SOURCES_FILES
   Grpc/Core/Server/Server.cpp
   Grpc/Core/Server/ServerCoro.cpp
   Grpc/Core/Server/Service.cpp
-  Grpc/CobrazzServerBuilder.cpp
-  Grpc/ComponentsBuilder.cpp
-  Grpc/ClientFactory.cpp
   Grpc/Logger.cpp
   Grpc/Manager.cpp
   Grpc/RegistratorDynamicSettings.cpp
@@ -53,15 +53,15 @@ add_library(UServerUtils STATIC
 # link userver before other libraries, because it can be
 # static (DSO require shared linkage after)
 target_link_libraries(UServerUtils
-  userver-core
-  userver-grpc
   ${GRPC_GRPCPP}
   ${PROTOBUF_LIBRARY}
-  http_parser
+  Boost::thread
   Generics
   Logger
+  http_parser
   pthread
-  Boost::thread
+  userver-core
+  userver-grpc
 )
 
 add_grpc_library(UServerUtils_proto
@@ -76,19 +76,19 @@ add_grpc_library(UServerUtils_proto
 )
 
 add_executable(TestUserver
-  Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
   Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
   Grpc/Test/grpc_notify_test.cpp
+  Grpc/Test/grpc_test_main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
-  Grpc/Test/grpc_test_main.cpp
 )
 
 target_link_libraries(TestUserver
@@ -127,15 +127,15 @@ foreach(Target
     Grpc/Test/${FileName}.cpp
   )
   target_link_libraries(${Target}
-    userver-core
-    userver-grpc
     ${Boost_LIBRARIES}
     ${GRPC_GRPCPP}
-    http_parser
+    Boost::thread
     Generics
     Logger
-    pthread
     UServerUtils_proto
-    Boost::thread
+    http_parser
+    pthread
+    userver-core
+    userver-grpc
   )
 endforeach()

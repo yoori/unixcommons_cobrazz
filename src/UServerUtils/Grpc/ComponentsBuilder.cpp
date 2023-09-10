@@ -20,7 +20,6 @@ ComponentsBuilder::ComponentsBuilder()
   : registrator_dynamic_settings_(RegistratorDynamicSettingsPtr(new RegistratorDynamicSettings)),
     statistics_storage_(new StatisticsStorage())
 {
-  RegistratorDynamicSettings registrator;
 }
 
 ComponentsBuilder::StatisticsStorage&
