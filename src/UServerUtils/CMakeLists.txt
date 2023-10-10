@@ -33,6 +33,11 @@ set (SOURCES_FILES
   Grpc/Core/Server/Server.cpp
   Grpc/Core/Server/ServerCoro.cpp
   Grpc/Core/Server/Service.cpp
+  Grpc/FileManager/File.cpp
+  Grpc/FileManager/FileManager.cpp
+  Grpc/FileManager/FileManagerPool.cpp
+  Grpc/FileManager/IoUring.cpp
+  Grpc/FileManager/Semaphore.cpp
   Grpc/Logger.cpp
   Grpc/Manager.cpp
   Grpc/RegistratorDynamicSettings.cpp
@@ -62,6 +67,7 @@ target_link_libraries(UServerUtils
   pthread
   userver-core
   userver-grpc
+  uring
 )
 
 add_grpc_library(UServerUtils_proto
@@ -76,6 +82,7 @@ add_grpc_library(UServerUtils_proto
 )
 
 add_executable(TestUserver
+  Grpc/Test/file_manager_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
   Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
@@ -96,6 +103,7 @@ target_link_libraries(TestUserver
   GTest::gtest_main
   UServerUtils
   UServerUtils_proto
+  uring
 )
 
 add_test(TestUserver TestUserver)
@@ -137,5 +145,6 @@ foreach(Target
     pthread
     userver-core
     userver-grpc
+    uring
   )
 endforeach()
