@@ -219,7 +219,7 @@ public:
     {
       auto* ptr = queue_.pop_and_check_end(&empty);
       std::unique_ptr<Node> data(static_cast<Node*>(ptr));
-  }
+    }
     while (!empty);
     counter_.exchange(0, std::memory_order_relaxed);
   }

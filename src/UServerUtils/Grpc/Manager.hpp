@@ -12,7 +12,7 @@
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/Logger.hpp>
-#include <UServerUtils/Grpc/Utils.hpp>
+#include <UServerUtils/Grpc/Function.hpp>
 #include <UServerUtils/Grpc/TaskProcessorContainerBuilder.hpp>
 
 namespace UServerUtils::Grpc
@@ -24,7 +24,7 @@ class Manager final :
 {
 public:
   using ComponentsInitializeFunc =
-    Utils::Internal::Function<ComponentsBuilderPtr(
+    Utils::Function<ComponentsBuilderPtr(
       TaskProcessorContainer& task_processor_container)>;
 
   using TaskProcessor = userver::engine::TaskProcessor;
@@ -33,7 +33,6 @@ public:
   using StatisticsStoragePtr = std::unique_ptr<StatisticsStorage>;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
-
   using Exception = ActiveObject::Exception;
   using AlreadyActive = ActiveObject::AlreadyActive;
 
