@@ -127,6 +127,7 @@ endforeach()
 foreach(Target
   Grpc_Cobrazz_Async_Benchmark
   Grpc_Cobrazz_Coro_Benchmark
+  File_Manager_Benchmark
   Grpc_Client_Remote_Test
   Grpc_Server_Remote_Test)
   string(TOLOWER ${Target} FileName)
