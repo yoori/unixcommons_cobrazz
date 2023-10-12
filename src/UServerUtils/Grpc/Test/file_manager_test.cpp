@@ -122,7 +122,7 @@ TEST(FileManagerTest, Semaphore)
       boost::join_if_joinable,
       std::thread> th([&semaphore] () {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-      semaphore.add();
+        semaphore.add();
     });
     EXPECT_TRUE(semaphore.fetch());
   }

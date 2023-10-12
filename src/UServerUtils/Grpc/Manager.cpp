@@ -266,10 +266,24 @@ void Manager::wait_object()
     return state_ != AS_ACTIVE;
   });
 
-  for (auto& component : components_)
-  {
-    component->wait_object();
-  }
+  auto& main_task_processor =
+    task_processor_container_->get_main_task_processor();
+  Utils::run_in_coro(
+    main_task_processor,
+    Utils::Importance::kCritical,
+    {},
+    [this, &main_task_processor] () {
+      for (auto& component : components_)
+      {
+        try
+        {
+          component->wait_object();
+        }
+        catch (...)
+        {
+        }
+      }
+    });
 
   if (state_ == AS_DEACTIVATING)
   {
