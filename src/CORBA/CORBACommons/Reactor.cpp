@@ -33,7 +33,8 @@ namespace
     };
 
     FDSet() throw ();
-    FDSet(const FDSet&) throw ();
+    FDSet(const FDSet&) = default;
+    FDSet& operator=(const FDSet&) = default;
 
     fd_set*
     operator &() throw ();
@@ -69,10 +70,6 @@ namespace
   FDSet::FDSet() throw ()
   {
     memset(bits_, 0, sizeof(bits_));
-  }
-
-  FDSet::FDSet(const FDSet&) throw ()
-  {
   }
 
   fd_set*

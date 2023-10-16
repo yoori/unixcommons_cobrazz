@@ -9,7 +9,7 @@ namespace ReferenceCounting
   namespace Helper
   {
     template <typename T, typename Alloc>
-    struct Allocator : public Alloc::template rebind<T>::other
+    struct Allocator : public std::allocator_traits<Alloc>::template rebind_alloc<T>
     {
       template <typename D>
       struct rebind
@@ -44,7 +44,7 @@ namespace ReferenceCounting
     template <typename T, typename Alloc>
     template <typename D>
     Allocator<T, Alloc>::Allocator(const Allocator<D, Alloc>&) throw ()
-      : Alloc::template rebind<T>::other()
+      : std::allocator_traits<Alloc>::template rebind_alloc<T>()
     {
     }
 

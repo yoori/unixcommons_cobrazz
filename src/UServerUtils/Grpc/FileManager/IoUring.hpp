@@ -5,6 +5,7 @@
 #include <liburing.h>
 
 // STD
+#include <optional>
 #include <vector>
 
 // THIS
@@ -19,12 +20,15 @@ class IoUring final : private Generics::Uncopyable
 {
 private:
   using Version = std::vector<std::uint32_t>;
+  using UringFd = std::uint32_t;
 
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
-  explicit IoUring(const Config& config);
+  explicit IoUring(
+    const Config& config,
+    const std::optional<UringFd> uring_fd = {});
 
   ~IoUring();
 

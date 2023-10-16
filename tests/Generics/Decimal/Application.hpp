@@ -700,7 +700,8 @@ RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::mul_ceil(
   /*throw (typename SelfDecimal::Overflow)*/
 {
   DecimalState product;
-  state.mul(right.state, product, DMR_CEIL, overflow);
+  const int trunc = static_cast<int>(DMR_CEIL);
+  state.mul(right.state, product, trunc, overflow);
   return RandomTestDecimal(product,
     SelfDecimal::mul(n2, right.n2, DMR_CEIL));
 }
