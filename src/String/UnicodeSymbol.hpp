@@ -385,7 +385,7 @@ namespace String
     if (!check_validity_(code_unit_) || is_null())
     {
       Stream::Error ost;
-      ost << FNS << code_unit_ << "out of range";
+      ost << FNS << static_cast<int>(code_unit_) << "out of range";
       throw RangeException(ost);
     }
 

@@ -79,7 +79,7 @@ namespace String
      * to Unicode database.
      */
     int
-    get_combining_class(unsigned wchar_t wch) throw ();
+    get_combining_class(uint32_t wch) throw ();
 
     /**
      * Decompose and canonical order input data.
