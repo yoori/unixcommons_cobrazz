@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
 
+set(CMAKE_CXX_COMPILER  /opt/rh/gcc-toolset-10/root/usr/bin/g++)
+set(CMAKE_C_COMPILER /opt/rh/gcc-toolset-10/root/usr/bin/gcc)
+
 project (unixcommons)
 
 include(cmake/SetupEnvironment.cmake)
@@ -32,29 +35,30 @@ if(LINUX)
 else()
 endif()
 
-find_package(ACE REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(XercesC REQUIRED)
-find_package(BZip2 REQUIRED)
-find_package(GeoIP REQUIRED)
-find_package(Event REQUIRED)
-find_package(NetSNMP REQUIRED)
-find_package(PCRE REQUIRED)
-find_package(EV REQUIRED)
-find_package(Threads REQUIRED)
-find_package(Iconv REQUIRED)
-find_package(GTest REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread)
-
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
-find_package(Nghttp2 REQUIRED) # include Nghttp2 local cmake for correct userver linkage
-find_package(userver REQUIRED)
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/UServerUtils/Grpc/Generator/GrpcTargets.cmake)
-
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
+add_library(atomic INTERFACE)
+
+find_package(ACE REQUIRED)
+find_package(BZip2 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
+find_package(EV REQUIRED)
+find_package(Event REQUIRED)
+find_package(GTest REQUIRED)
+find_package(GeoIP REQUIRED)
+find_package(Iconv REQUIRED)
 find_package(IDL REQUIRED)
+find_package(NetSNMP REQUIRED)
+find_package(Nghttp2 REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(PCRE REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(Threads REQUIRED)
+find_package(XercesC REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(userver REQUIRED)
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/UServerUtils/Grpc/Generator/GrpcTargets.cmake)
 
 include_directories(src src/CORBA)
 

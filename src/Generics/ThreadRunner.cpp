@@ -157,7 +157,7 @@ namespace Generics
     if (number_running_)
     {
       Stream::Error ostr;
-      for (int i = 0; i < abs(number_running_); i++)
+      for (int i = 0; i < std::abs(number_running_); i++)
       {
         const int RES = pthread_join(jobs_[i].thread_id, 0);
         if (RES)

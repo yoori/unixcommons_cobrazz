@@ -34,7 +34,7 @@ public:
     std::atomic<Node*> next{nullptr};
   };
 
-  MultiProducerSingleConsumerQueue()
+  MultiProducerSingleConsumerQueue() noexcept
     : head_{&stub_},
       tail_(&stub_)
   {
@@ -46,7 +46,7 @@ public:
     assert(tail_ == &stub_);
   }
 
-  bool push(Node* node)
+  bool push(Node* node) noexcept
   {
     node->next.store(nullptr, std::memory_order_relaxed);
     Node* prev = head_.exchange(node, std::memory_order_acq_rel);
@@ -54,13 +54,14 @@ public:
     return prev == &stub_;
   }
 
-  Node* pop()
+  Node* pop() noexcept
   {
     bool empty;
     return pop_and_check_end(&empty);
   }
 
-  Node* pop_and_check_end(bool* empty)
+  // Sets *empty to true if the queue is empty, or false if it is not.
+  Node* pop_and_check_end(bool* empty) noexcept
   {
     Node* tail = tail_;
     Node* next = tail_->next.load(std::memory_order_acquire);
@@ -138,7 +139,8 @@ private:
   };
 
 public:
-  explicit QueueAtomic(const std::int32_t max_size = 1000000)
+  explicit QueueAtomic(
+    const std::int32_t max_size = 1000000) noexcept
     : max_size_(max_size)
   {
   }
@@ -154,6 +156,11 @@ public:
     }
   }
 
+  /**
+   * Add an element to the queue.
+   * If return false - element was not added.
+   * If false or exception is thrown, this function has no effect
+   **/
   template<class... Args>
   bool emplace(Args&&... args)
   {
@@ -174,7 +181,7 @@ public:
     return true;
   }
 
-  std::unique_ptr<T> pop()
+  std::unique_ptr<T> pop() noexcept
   {
     bool empty;
     std::unique_ptr<Node> node(
