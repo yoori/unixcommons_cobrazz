@@ -348,18 +348,18 @@ public:
 private:
   void need_remove(const ClientId client_id) noexcept override
   {
-    IndexChannelData index_channel_data = 0;
-    {
-      std::lock_guard lock(mutex_clients_);
-      auto it = clients_.find(client_id);
-      if (it == clients_.end())
-        return;
-
-      index_channel_data = it->second.index_channel_data;
-    }
-
     if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
     {
+      IndexChannelData index_channel_data = 0;
+      {
+        std::lock_guard lock(mutex_clients_);
+        auto it = clients_.find(client_id);
+        if (it == clients_.end())
+          return;
+
+        index_channel_data = it->second.index_channel_data;
+      }
+
       try
       {
         queue_finished_index_.emplace(index_channel_data);
