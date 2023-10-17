@@ -368,6 +368,10 @@ private:
       {
       }
     }
+    else
+    {
+      (void)index_channel_data;
+    }
 
     if (factory_observer_)
     {
