@@ -1,6 +1,9 @@
 #ifndef USERVER_FILEMANAGER_CONFIG_HPP
 #define USERVER_FILEMANAGER_CONFIG_HPP
 
+// POSIX
+#include <liburing.h>
+
 // STD
 #include <cstdint>
 

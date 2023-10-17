@@ -215,23 +215,28 @@ public:
 
     TaskProcessorConfig main_task_processor_config;
     main_task_processor_config.name = "main_task_processor";
-    main_task_processor_config.worker_threads = std::thread::hardware_concurrency();
+    main_task_processor_config.worker_threads =
+      std::thread::hardware_concurrency();
     main_task_processor_config.thread_name = "main_tskpr";
     main_task_processor_config.should_guess_cpu_limit = false;
     main_task_processor_config.wait_queue_length_limit = 100000;
 
     TaskProcessorContainerBuilderPtr task_processor_container_builder(
       new TaskProcessorContainerBuilder(
-         logger_.in(),
-          coro_pool_config,
-          event_thread_pool_config,
-          main_task_processor_config));
+        logger_.in(),
+        coro_pool_config,
+        event_thread_pool_config,
+        main_task_processor_config));
 
     auto init_func =
-      [benchmark = std::move(benchmark_)] (TaskProcessorContainer& task_processor_container) {
-        ComponentsBuilderPtr components_builder(new ComponentsBuilder);
-        components_builder->add_user_component("Benchmark", benchmark.in());
-        return components_builder;
+      [benchmark = std::move(benchmark_)] (
+        TaskProcessorContainer& task_processor_container) {
+          ComponentsBuilderPtr components_builder(
+            new ComponentsBuilder);
+          components_builder->add_user_component(
+            "Benchmark",
+            benchmark.in());
+          return components_builder;
     };
 
     Manager_var manager(

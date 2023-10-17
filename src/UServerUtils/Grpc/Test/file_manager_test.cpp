@@ -8,6 +8,7 @@
 #include <streambuf>
 #include <string>
 #include <vector>
+#include <coroutine>
 
 // THIS
 #include <Logger/StreamLogger.hpp>
