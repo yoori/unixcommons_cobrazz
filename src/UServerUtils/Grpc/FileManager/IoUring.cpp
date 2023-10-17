@@ -19,7 +19,7 @@ namespace UServerUtils::Grpc::FileManager
 IoUring::IoUring(const Config& config)
 {
   std::memset(&params_, 0, sizeof(params_));
-  params_.flags = config.io_uring_flags;
+  params_.flags |= config.io_uring_flags;
 
   const auto result = io_uring_queue_init_params(
     config.io_uring_size,

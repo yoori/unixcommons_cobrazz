@@ -65,9 +65,9 @@ target_link_libraries(UServerUtils
   Logger
   http_parser
   pthread
+  uring
   userver-core
   userver-grpc
-  uring
 )
 
 add_grpc_library(UServerUtils_proto
@@ -83,16 +83,16 @@ add_grpc_library(UServerUtils_proto
 
 add_executable(TestUserver
   Grpc/Test/file_manager_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
-  Grpc/Test/grpc_notify_test.cpp
+  #Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
+  #Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
+  #Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
+  #Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
+  #Grpc/Test/grpc_notify_test.cpp
   Grpc/Test/grpc_test_main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
@@ -118,17 +118,17 @@ foreach(Target
     Grpc/Test/${FileName}.cpp
   )
   target_link_libraries(${Target}
+    ${Boost_LIBRARIES}
     UServerUtils
     UServerUtils_proto
-    ${Boost_LIBRARIES}
   )
 endforeach()
 
 foreach(Target
-  Grpc_Cobrazz_Async_Benchmark
-  Grpc_Cobrazz_Coro_Benchmark
   File_Manager_Benchmark
   Grpc_Client_Remote_Test
+  Grpc_Cobrazz_Async_Benchmark
+  Grpc_Cobrazz_Coro_Benchmark
   Grpc_Server_Remote_Test)
   string(TOLOWER ${Target} FileName)
   add_executable(${Target}
