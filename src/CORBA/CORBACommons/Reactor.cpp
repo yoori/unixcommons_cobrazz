@@ -859,8 +859,9 @@ namespace
   Reactor::schedule_timer(ACE_Event_Handler*, const void*,
     const ACE_Time_Value&, const ACE_Time_Value&) throw ()
   {
-    abort();
-    return 0;
+    // Expected that will be called only from TAO_Acceptor::handle_accept_error
+    errno = EOPNOTSUPP;
+    return -1;
   }
 
   int
