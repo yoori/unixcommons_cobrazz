@@ -30,6 +30,21 @@ FileManager::FileManager(
     semaphore_(false, 0)
 {
   auto uring = std::make_unique<IoUring>(config);
+  uring_fd_ = uring->get()->ring_fd;
+  initialize(std::move(uring));
+}
+
+FileManager::FileManager(
+  const Config& config,
+  const std::uint32_t uring_fd,
+  Logger* logger)
+  : logger_(ReferenceCounting::add_ref(logger)),
+    event_queue_(std::make_shared<EventQueue>(
+      config.event_queue_max_size)),
+    semaphore_(false, 0)
+{
+  auto uring = std::make_unique<IoUring>(config, uring_fd);
+  uring_fd_ = uring_fd;
   initialize(std::move(uring));
 }
 
@@ -48,6 +63,11 @@ void FileManager::initialize(IoUringPtr&& uring)
     this,
     semaphore_.fd(),
     std::move(uring));
+}
+
+std::uint32_t FileManager::uring_fd() const noexcept
+{
+  return uring_fd_;
 }
 
 FileManager::~FileManager()
@@ -96,11 +116,10 @@ void FileManager::write(
   write_event.fd = file.fd();
   write_event.buffer = buffer;
   write_event.offset = offset;
-  write_event.callback = callback;
+  write_event.callback = std::move(callback);
 
   add_event_to_queue(
-    std::move(write_event),
-    std::move(callback));
+    std::move(write_event));
 }
 
 int FileManager::write(
@@ -125,8 +144,7 @@ void FileManager::read(
   read_event.callback = callback;
 
   add_event_to_queue(
-    std::move(read_event),
-    std::move(callback));
+    std::move(read_event));
 }
 
 int FileManager::read(
@@ -215,8 +233,7 @@ int FileManager::call(
 }
 
 void FileManager::add_event_to_queue(
-  Event&& event,
-  Callback&& callback) noexcept
+  Event&& event) noexcept
 {
   try
   {
@@ -228,7 +245,7 @@ void FileManager::add_event_to_queue(
 
       try
       {
-        callback(-ECANCELED);
+        event.callback(-ECANCELED);
       }
       catch (...)
       {
@@ -241,7 +258,7 @@ void FileManager::add_event_to_queue(
   {
     try
     {
-      callback(-ECANCELED);
+      event.callback(-ECANCELED);
 
       std::ostringstream stream;
       stream << FNS
@@ -257,7 +274,7 @@ void FileManager::add_event_to_queue(
   {
     try
     {
-      callback(-ECANCELED);
+      event.callback(-ECANCELED);
 
       std::ostringstream stream;
       stream << FNS
@@ -321,11 +338,11 @@ void FileManager::run(
         stream << FNS
                << "user_data is null";
         logger_->error(stream.str(), Aspect::FILE_MANAGER);
-        continue;
       }
       catch (...)
       {
       }
+      continue;
     }
 
     switch (user_data->type)

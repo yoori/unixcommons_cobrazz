@@ -23,8 +23,13 @@ public:
   using Callback = typename FileManager::Callback;
 
 public:
-  FileManagerPool(
+  explicit FileManagerPool(
     const Config& config,
+    Logging::Logger* logger);
+
+  explicit FileManagerPool(
+    const Config& config,
+    const std::uint32_t uring_fd,
     Logging::Logger* logger);
 
   ~FileManagerPool() = default;

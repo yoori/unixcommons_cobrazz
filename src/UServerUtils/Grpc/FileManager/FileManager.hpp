@@ -91,7 +91,12 @@ private:
 public:
   explicit FileManager(
     const Config& config,
-    Logging::Logger* logger);
+    Logger* logger);
+
+  explicit FileManager(
+    const Config& config,
+    const std::uint32_t uring_fd,
+    Logger* logger);
 
   /**
    * You must ensure that buffer survives callback.
@@ -139,6 +144,8 @@ public:
 
   ~FileManager();
 
+  std::uint32_t uring_fd() const noexcept;
+
 private:
   void initialize(IoUringPtr&& uring);
 
@@ -171,8 +178,7 @@ private:
     Callback&& callback) const noexcept;
 
   void add_event_to_queue(
-    Event&& event,
-    Callback&& callback) noexcept;
+    Event&& event) noexcept;
 
   int call(
     PointerMember const pointer,
@@ -186,6 +192,8 @@ private:
   EventQueuePtr event_queue_;
 
   Semaphore semaphore_;
+
+  std::uint32_t uring_fd_ = 0;
 
   ThreadPtr thread_;
 };

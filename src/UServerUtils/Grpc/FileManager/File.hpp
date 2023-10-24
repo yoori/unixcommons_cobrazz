@@ -50,7 +50,7 @@ public:
 
   bool is_valid() const noexcept;
 
-  bool initialize(
+  bool open(
     const std::string& path,
     const int flags = O_CREAT | O_APPEND) noexcept;
 

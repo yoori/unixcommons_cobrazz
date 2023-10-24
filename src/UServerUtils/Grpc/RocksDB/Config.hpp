@@ -7,7 +7,7 @@
 namespace UServerUtils::Grpc::RocksDB
 {
 
-using Config = UServerUtils::Grpc::FileManager::Config;
+using Config = FileManager::Config;
 
 } // namespace UServerUtils::Grpc::RocksDB
 

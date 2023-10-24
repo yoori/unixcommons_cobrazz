@@ -1,3 +1,10 @@
+include(FetchContent)
+FetchContent_Declare(rocksdb
+  GIT_REPOSITORY https://github.com/arbogdanov/rocksdb.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(rocksdb)
+
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
   message(SEND_ERROR "Failed to find protoc")
@@ -19,6 +26,7 @@ endif()
 include_directories (
   ${Boost_INCLUDE_DIRS}
   ${GRPC_PROTOBUF_INCLUDE_DIRS}
+  ${rocksdb_SOURCE_DIR}/include
   Grpc/Core
 )
 
@@ -38,6 +46,10 @@ set (SOURCES_FILES
   Grpc/FileManager/FileManagerPool.cpp
   Grpc/FileManager/IoUring.cpp
   Grpc/FileManager/Semaphore.cpp
+  Grpc/RocksDB/DataBase.cpp
+  Grpc/RocksDB/DataBaseManager.cpp
+  Grpc/RocksDB/DataBaseManagerPool.cpp
+  Grpc/RocksDB/Logger.cpp
   Grpc/Logger.cpp
   Grpc/Manager.cpp
   Grpc/RegistratorDynamicSettings.cpp
@@ -65,6 +77,7 @@ target_link_libraries(UServerUtils
   Logger
   http_parser
   pthread
+  rocksdb
   uring
   userver-core
   userver-grpc
@@ -83,16 +96,17 @@ add_grpc_library(UServerUtils_proto
 
 add_executable(TestUserver
   Grpc/Test/file_manager_test.cpp
-  #Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
-  #Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
-  #Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
-  #Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
-  #Grpc/Test/grpc_notify_test.cpp
+  Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
+  Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
+  Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
+  Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
+  Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
+  Grpc/Test/grpc_notify_test.cpp
+  Grpc/Test/rocsdb_test.cpp
   Grpc/Test/grpc_test_main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
@@ -110,9 +124,14 @@ add_test(TestUserver TestUserver)
 
 # Benchmarks
 foreach(Target
+  File_Manager_Benchmark
   Grpc_Benchmark1
   Grpc_Benchmark2
-  Grpc_Benchmark_Sleep)
+  Grpc_Benchmark_Sleep
+  Grpc_Client_Remote_Test
+  Grpc_Cobrazz_Async_Benchmark
+  Grpc_Cobrazz_Coro_Benchmark
+  Grpc_Server_Remote_Test)
   string(TOLOWER ${Target} FileName)
   add_executable(${Target}
     Grpc/Test/${FileName}.cpp
@@ -121,31 +140,5 @@ foreach(Target
     ${Boost_LIBRARIES}
     UServerUtils
     UServerUtils_proto
-  )
-endforeach()
-
-foreach(Target
-  File_Manager_Benchmark
-  Grpc_Client_Remote_Test
-  Grpc_Cobrazz_Async_Benchmark
-  Grpc_Cobrazz_Coro_Benchmark
-  Grpc_Server_Remote_Test)
-  string(TOLOWER ${Target} FileName)
-  add_executable(${Target}
-    ${SOURCES_FILES}
-    Grpc/Test/${FileName}.cpp
-  )
-  target_link_libraries(${Target}
-    ${Boost_LIBRARIES}
-    ${GRPC_GRPCPP}
-    Boost::thread
-    Generics
-    Logger
-    UServerUtils_proto
-    http_parser
-    pthread
-    userver-core
-    userver-grpc
-    uring
   )
 endforeach()

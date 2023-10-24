@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
-set(CMAKE_CXX_COMPILER /home/artem_bogdanov/third_party/gcc_10.5.0/bin/g++)
-set(CMAKE_C_COMPILER /home/artem_bogdanov/third_party/gcc_10.5.0/bin/gcc)
+set(CMAKE_CXX_COMPILER  /opt/rh/gcc-toolset-10/root/usr/bin/g++)
+set(CMAKE_C_COMPILER /opt/rh/gcc-toolset-10/root/usr/bin/gcc)
 
 project (unixcommons)
 
@@ -36,6 +36,8 @@ else()
 endif()
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
+
+add_library(atomic INTERFACE)
 
 find_package(ACE REQUIRED)
 find_package(BZip2 REQUIRED)
