@@ -1,4 +1,5 @@
 include(FetchContent)
+set(USE_RTTI 1 CACHE INTERNAL "USE_RTTI enable")
 FetchContent_Declare(rocksdb
   GIT_REPOSITORY https://github.com/arbogdanov/rocksdb.git
   GIT_TAG master
