@@ -66,7 +66,7 @@ public:
 
   void close() noexcept;
 
-  std::optional<std::int64_t> get_length() const noexcept;
+  std::optional<std::uint64_t> get_length() const noexcept;
 
   bool set_length(const std::int64_t length) const noexcept;
 

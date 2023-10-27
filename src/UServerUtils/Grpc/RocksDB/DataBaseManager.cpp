@@ -25,7 +25,7 @@ DataBaseManager::DataBaseManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(false, 0)
+    semaphore_(Semaphore::Type::Blocking, 0)
 {
   auto uring = std::make_unique<IoUring>(config);
   uring_fd_ = uring->get()->ring_fd;
@@ -39,7 +39,7 @@ DataBaseManager::DataBaseManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(false, 0)
+    semaphore_(Semaphore::Type::Blocking, 0)
 {
   auto uring = std::make_unique<IoUring>(config, uring_fd);
   uring_fd_ = uring_fd;

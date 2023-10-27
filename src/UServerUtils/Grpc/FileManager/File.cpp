@@ -151,7 +151,7 @@ std::string File::error_message() const
   }
 }
 
-std::optional<std::int64_t> File::get_length() const noexcept
+std::optional<std::uint64_t> File::get_length() const noexcept
 {
   if (!is_valid())
     return {};

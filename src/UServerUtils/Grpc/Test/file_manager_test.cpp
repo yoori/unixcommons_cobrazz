@@ -27,7 +27,7 @@ namespace
   const std::string& path,
   const std::string& data)
 {
-  std::ofstream stream(path, std::ios::out | std::ios::trunc);
+  std::ofstream stream(path, std::ios::trunc);
   if (!stream)
   {
     std::ostringstream stream;
@@ -118,41 +118,75 @@ TEST(FileManagerTest, IoUring)
 TEST(FileManagerTest, Semaphore)
 {
   {
-    Semaphore semaphore(true, 0);
+    Semaphore semaphore(Semaphore::Type::NonBlocking, 0);
     EXPECT_TRUE(semaphore.add());
     EXPECT_TRUE(semaphore.add());
 
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
 
     EXPECT_TRUE(semaphore.add());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(4), 3);
   }
 
   {
-    Semaphore semaphore(true, 3);
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    Semaphore semaphore(Semaphore::Type::NonBlocking, 3);
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
   }
 
   {
-    Semaphore semaphore(false, 3);
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
+    Semaphore semaphore(Semaphore::Type::Blocking, 3);
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
     boost::scoped_thread<
       boost::join_if_joinable,
       std::thread> th([&semaphore] () {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         semaphore.add();
     });
-    EXPECT_TRUE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(4), 3);
   }
 }
 
