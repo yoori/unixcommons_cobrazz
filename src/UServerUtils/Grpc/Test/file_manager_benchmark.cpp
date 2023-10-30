@@ -233,7 +233,7 @@ private:
       std::int64_t offset = 0;
       if (test_type_ == TestType::SingleFile)
       {
-        if (is_direct_)
+        if (is_iopoll || is_direct_)
         {
           offset = (dist(gen) / kPageSize) * kPageSize;
         }
@@ -259,7 +259,7 @@ private:
       offset = 0;
       if (test_type_ == TestType::SingleFile)
       {
-        if (is_direct_)
+        if (is_iopoll || is_direct_)
         {
           offset = (dist(gen) / kPageSize) * kPageSize;
         }
@@ -596,7 +596,7 @@ int main(int /*argc*/, char** /*argv*/)
   try
   {
     FileManager::Config config;
-    config.number_io_urings = 2 * std::thread::hardware_concurrency();
+    config.number_io_urings = std::thread::hardware_concurrency();
     config.io_uring_size = 10000;
     config.event_queue_max_size = 1000000;
     config.io_uring_flags = IORING_SETUP_ATTACH_WQ; // | IORING_SETUP_IOPOLL

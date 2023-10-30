@@ -38,6 +38,7 @@ public:
 
   bool consume() const noexcept;
 
+  // This method can be called only from one thread
   std::uint32_t try_consume(const std::uint32_t v) const noexcept;
 
 private:

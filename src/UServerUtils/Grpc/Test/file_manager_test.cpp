@@ -387,7 +387,7 @@ TEST(FileManagerTest, WriteCallback)
 
   {
     const std::string data("qwerty");
-    const std::size_t count_write = 1000;
+    const std::size_t count_write = 3000;
 
     std::vector<File> files;
     files.reserve(count_write);

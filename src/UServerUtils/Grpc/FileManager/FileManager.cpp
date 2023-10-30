@@ -27,7 +27,7 @@ FileManager::FileManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(Semaphore::Type::Blocking, 0)
+    semaphore_(std::make_shared<Semaphore>(Semaphore::Type::Blocking, 0))
 {
   auto uring = std::make_unique<IoUring>(config);
   uring_fd_ = uring->get()->ring_fd;
@@ -41,7 +41,7 @@ FileManager::FileManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(Semaphore::Type::Blocking, 0)
+    semaphore_(std::make_shared<Semaphore>(Semaphore::Type::Blocking, 0))
 {
   auto uring = std::make_unique<IoUring>(config, uring_fd);
   uring_fd_ = uring_fd;
@@ -50,7 +50,7 @@ FileManager::FileManager(
 
 void FileManager::initialize(IoUringPtr&& uring)
 {
-  if (!create_semaphore_event(semaphore_.fd(), uring->get()))
+  if (!create_semaphore_event(semaphore_->fd(), uring->get()))
   {
     std::ostringstream stream;
     stream << FNS
@@ -61,7 +61,7 @@ void FileManager::initialize(IoUringPtr&& uring)
   thread_ = std::make_unique<Thread>(
     &FileManager::run,
     this,
-    semaphore_.fd(),
+    semaphore_,
     std::move(uring));
 }
 
@@ -84,7 +84,7 @@ FileManager::~FileManager()
 
     const std::size_t max_attempts = 5;
     std::size_t i = 0;
-    while (!semaphore_.add() && i < max_attempts)
+    while (!semaphore_->add() && i < max_attempts)
     {
       std::this_thread::sleep_for(
         std::chrono::milliseconds(100));
@@ -287,11 +287,11 @@ void FileManager::add_event_to_queue(
     return;
   }
 
-  semaphore_.add();
+  semaphore_->add();
 }
 
 void FileManager::run(
-  const int semaphore_fd,
+  const SemaphorePtr& semaphore,
   IoUringPtr&& uring) noexcept
 {
   io_uring_cqe* cqe = nullptr;
@@ -302,7 +302,7 @@ void FileManager::run(
     if (!is_semaphore_set)
     {
       is_semaphore_set = create_semaphore_event(
-        semaphore_fd,
+        semaphore_->fd(),
         uring->get());
     }
 
@@ -371,12 +371,16 @@ void FileManager::on_semaphore_ready(
   io_uring* const uring,
   bool& is_cansel) noexcept
 {
-  try
+  const std::uint32_t max_queue_elements = io_uring_sq_space_left(uring) - 1;
+  std::uint32_t count = 1 + semaphore_->try_consume(max_queue_elements);
+  while (count > 0)
   {
     auto data = event_queue_->pop();
+    // Documentation does not say that semaphore performs memory order(acquire/release).
     if (!data)
-      return;
+      continue;
 
+    count -= 1;
     switch (data->type)
     {
       case EventType::Read:
@@ -404,12 +408,9 @@ void FileManager::on_semaphore_ready(
       case EventType::Close:
       {
         is_cansel = true;
-        break;
+        return;
       }
     }
-  }
-  catch (...)
-  {
   }
 }
 

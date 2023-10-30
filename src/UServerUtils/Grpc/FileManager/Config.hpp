@@ -34,7 +34,7 @@ struct Config final
   ~Config() = default;
 
   std::uint32_t io_uring_size = 16384;
-  std::uint32_t io_uring_flags = 0;
+  std::uint32_t io_uring_flags = IORING_SETUP_ATTACH_WQ;
   std::uint32_t event_queue_max_size = 10000;
   std::uint32_t number_io_urings = 1;
 };

@@ -181,7 +181,7 @@ public:
     return true;
   }
 
-  std::unique_ptr<T> pop()
+  std::unique_ptr<T> pop() noexcept
   {
     bool empty;
     std::unique_ptr<Node> node(

@@ -80,6 +80,7 @@ private:
     Callback callback;
   };
 
+  using SemaphorePtr = std::shared_ptr<Semaphore>;
   using EventQueue = UServerUtils::Grpc::Core::Common::QueueAtomic<Event>;
   using EventQueuePtr = std::shared_ptr<EventQueue>;
   using PointerMember = void(FileManager::*) (
@@ -150,7 +151,7 @@ private:
   void initialize(IoUringPtr&& uring);
 
   void run(
-    const int semaphore_fd,
+    const SemaphorePtr& semaphore,
     IoUringPtr&& uring) noexcept;
 
   bool create_semaphore_event(
@@ -191,7 +192,7 @@ private:
 
   EventQueuePtr event_queue_;
 
-  Semaphore semaphore_;
+  SemaphorePtr semaphore_;
 
   std::uint32_t uring_fd_ = 0;
 
