@@ -237,7 +237,8 @@ void FileManager::add_event_to_queue(
 {
   try
   {
-    if (!event_queue_->emplace(std::move(event))) {
+    if (!event_queue_->emplace(std::move(event)))
+    {
       std::stringstream stream;
       stream << FNS
              << "event_queue size limit is reached";
@@ -250,9 +251,9 @@ void FileManager::add_event_to_queue(
       catch (...)
       {
       }
-
       return;
     }
+    semaphore_->add();
   }
   catch (const eh::Exception& exc)
   {
@@ -268,7 +269,6 @@ void FileManager::add_event_to_queue(
     catch (...)
     {
     }
-    return;
   }
   catch (...)
   {
@@ -284,10 +284,7 @@ void FileManager::add_event_to_queue(
     catch (...)
     {
     }
-    return;
   }
-
-  semaphore_->add();
 }
 
 void FileManager::run(
@@ -297,7 +294,8 @@ void FileManager::run(
   io_uring_cqe* cqe = nullptr;
   bool is_stopped = false;
   bool is_semaphore_set = true;
-  while(!is_stopped)
+  std::size_t number_remain_operaions = 0;
+  while(!is_stopped || number_remain_operaions > 0)
   {
     if (!is_semaphore_set)
     {
@@ -350,16 +348,20 @@ void FileManager::run(
       case CompletionType::Semaphore:
       {
         is_semaphore_set = false;
-        on_semaphore_ready(uring->get(), is_stopped);
+        std::size_t number_added_operations = 0;
+        on_semaphore_ready(uring->get(), number_added_operations, is_stopped);
+        number_remain_operaions += number_added_operations;
         break;
       }
       case CompletionType::Read:
       {
+        number_remain_operaions -= 1;
         on_read_ready(cqe->res, std::move(user_data->callback));
         break;
       }
       case CompletionType::Write:
       {
+        number_remain_operaions -= 1;
         on_write_ready(cqe->res, std::move(user_data->callback));
         break;
       }
@@ -369,8 +371,10 @@ void FileManager::run(
 
 void FileManager::on_semaphore_ready(
   io_uring* const uring,
-  bool& is_cansel) noexcept
+  std::size_t& number_added_operation,
+  bool& is_stopped) noexcept
 {
+  number_added_operation = 0;
   const std::uint32_t max_queue_elements = io_uring_sq_space_left(uring) - 1;
   std::uint32_t count = 1 + semaphore_->try_consume(max_queue_elements);
   while (count > 0)
@@ -385,30 +389,38 @@ void FileManager::on_semaphore_ready(
     {
       case EventType::Read:
       {
-        create_read_or_write_event(
+        const auto result = create_read_or_write_event(
           true,
           data->fd,
           data->buffer,
           data->offset,
           std::move(data->callback),
           uring);
+        if (result)
+        {
+          number_added_operation += 1;
+        }
         break;
       }
       case EventType::Write:
       {
-        create_read_or_write_event(
+        const auto result = create_read_or_write_event(
           false,
           data->fd,
           data->buffer,
           data->offset,
           std::move(data->callback),
           uring);
+        if (result)
+        {
+          number_added_operation += 1;
+        }
         break;
       }
       case EventType::Close:
       {
-        is_cansel = true;
-        return;
+        is_stopped = true;
+        break;
       }
     }
   }
@@ -494,7 +506,7 @@ bool FileManager::create_semaphore_event(
   return false;
 }
 
-void FileManager::create_read_or_write_event(
+bool FileManager::create_read_or_write_event(
   const bool is_read,
   const int fd,
   const std::string_view buffer,
@@ -517,7 +529,8 @@ void FileManager::create_read_or_write_event(
     catch (...)
     {
     }
-    return;
+
+    return false;
   }
 
   try
@@ -549,7 +562,11 @@ void FileManager::create_read_or_write_event(
     io_uring_sqe_set_data(sqe, user_data.release());
 
     const auto result = io_uring_submit(uring);
-    if (result < 0)
+    if (result > 0)
+    {
+      return true;
+    }
+    else
     {
       user_data.reset(p_user_data);
 
@@ -571,7 +588,7 @@ void FileManager::create_read_or_write_event(
       {
       }
 
-      return;
+      return false;
     }
   }
   catch (const eh::Exception& exc)
@@ -588,7 +605,8 @@ void FileManager::create_read_or_write_event(
     catch (...)
     {
     }
-    return;
+
+    return false;
   }
   catch (...)
   {
@@ -599,7 +617,8 @@ void FileManager::create_read_or_write_event(
     catch (...)
     {
     }
-    return;
+
+    return false;
   }
 }
 

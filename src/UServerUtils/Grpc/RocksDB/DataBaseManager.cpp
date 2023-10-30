@@ -25,7 +25,7 @@ DataBaseManager::DataBaseManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(Semaphore::Type::Blocking, 0)
+    semaphore_(std::make_shared<Semaphore>(Semaphore::Type::Blocking, 0))
 {
   auto uring = std::make_unique<IoUring>(config);
   uring_fd_ = uring->get()->ring_fd;
@@ -39,7 +39,7 @@ DataBaseManager::DataBaseManager(
   : logger_(ReferenceCounting::add_ref(logger)),
     event_queue_(std::make_shared<EventQueue>(
       config.event_queue_max_size)),
-    semaphore_(Semaphore::Type::Blocking, 0)
+    semaphore_(std::make_shared<Semaphore>(Semaphore::Type::Blocking, 0))
 {
   auto uring = std::make_unique<IoUring>(config, uring_fd);
   uring_fd_ = uring_fd;
@@ -59,7 +59,7 @@ DataBaseManager::~DataBaseManager()
 
     const std::size_t max_attempts = 5;
     std::size_t i = 0;
-    while (!semaphore_.add() && i < max_attempts)
+    while (!semaphore_->add() && i < max_attempts)
     {
       std::this_thread::sleep_for(
         std::chrono::milliseconds(100));
@@ -88,7 +88,7 @@ std::uint32_t DataBaseManager::uring_fd() const noexcept
 void DataBaseManager::initialize(
   IoUringPtr&& uring)
 {
-  if (!create_semaphore_event(semaphore_.fd(), uring->get()))
+  if (!create_semaphore_event(semaphore_->fd(), uring->get()))
   {
     std::ostringstream stream;
     stream << FNS
@@ -99,24 +99,25 @@ void DataBaseManager::initialize(
   thread_ = std::make_unique<Thread>(
     &DataBaseManager::run,
     this,
-    semaphore_.fd(),
+    semaphore_,
     std::move(uring));
 }
 
 void DataBaseManager::run(
-  const int semaphore_fd,
+  const SemaphorePtr& semaphore,
   IoUringPtr&& uring) noexcept
 {
   auto io_uring_options = std::make_unique<IOUringOptions>(uring->get());
   io_uring_cqe* cqe = nullptr;
   bool is_stopped = false;
   bool is_semaphore_set = true;
-  while(!is_stopped)
+  std::size_t number_remain_operaions = 0;
+  while(!is_stopped || number_remain_operaions > 0)
   {
     if (!is_semaphore_set)
     {
       is_semaphore_set = create_semaphore_event(
-        semaphore_fd,
+        semaphore_->fd(),
         uring->get());
     }
 
@@ -163,7 +164,9 @@ void DataBaseManager::run(
     if (p_semaphore_data)
     {
       is_semaphore_set = false;
-      on_semaphore_ready(io_uring_options.get(), is_stopped);
+      std::size_t number_added_operations = 0;
+      on_semaphore_ready(io_uring_options.get(), number_added_operations, is_stopped);
+      number_remain_operaions += number_added_operations;
     }
     else
     {
@@ -229,38 +232,50 @@ bool DataBaseManager::create_semaphore_event(
 
 void DataBaseManager::on_semaphore_ready(
   IOUringOptions* const io_uring_options,
-  bool& is_cansel) noexcept
+  std::size_t& number_added_operation,
+  bool& is_stopped) noexcept
 {
-  try
+  const std::uint32_t max_queue_elements = io_uring_sq_space_left(io_uring_options->ioring) - 1;
+  std::uint32_t count = 1 + semaphore_->try_consume(max_queue_elements);
+  while (count > 0)
   {
     auto data = event_queue_->pop();
+    // Documentation does not say that semaphore performs memory order(acquire/release).
     if (!data)
-      return;
+      continue;
 
+    count -= 1;
     switch (data->type)
     {
       case EventType::Put:
       case EventType::Get:
       case EventType::MultiGet:
       {
-        do_async_work(std::move(data), io_uring_options);
+        OperationCompletedCallback callback =
+          [&number_added_operation] () mutable {
+            number_added_operation -= 1;
+          };
+
+        number_added_operation += 1;
+        do_async_work(
+          std::move(data),
+          io_uring_options,
+          callback);
         break;
       }
       case EventType::Close:
       {
-        is_cansel = true;
-        break;
+        is_stopped = true;
+        continue;
       }
     }
-  }
-  catch (...)
-  {
   }
 }
 
 rocksdb::async_result DataBaseManager::do_async_work(
-  std::unique_ptr<Event>&& event,
-  rocksdb::IOUringOptions* const io_uring_options)
+  EventPtr&& event,
+  rocksdb::IOUringOptions* const io_uring_options,
+  OperationCompletedCallback& callback)
 {
   assert(event);
   switch (event->type)
@@ -284,6 +299,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
         &value,
         nullptr);
       co_await async_result;
+      callback();
 
       const auto& status = async_result.result();
       try
@@ -322,6 +338,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
         &values,
         nullptr);
       co_await async_result;
+      callback();
 
       const auto& status = async_result.result();
       try
@@ -352,6 +369,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
         rocksdb::Slice(key.data(), key.size()),
         rocksdb::Slice(value.data(), value.size()));
       co_await async_result;
+      callback();
 
       const auto& status = async_result.result();
       try
@@ -796,6 +814,8 @@ void DataBaseManager::add_event_to_queue(
 
       return;
     }
+
+    semaphore_->add();
   }
   catch (const eh::Exception& exc)
   {
@@ -811,7 +831,6 @@ void DataBaseManager::add_event_to_queue(
     catch (...)
     {
     }
-    return;
   }
   catch (...)
   {
@@ -827,10 +846,7 @@ void DataBaseManager::add_event_to_queue(
     catch (...)
     {
     }
-    return;
   }
-
-  semaphore_.add();
 }
 
 void DataBaseManager::set_error(

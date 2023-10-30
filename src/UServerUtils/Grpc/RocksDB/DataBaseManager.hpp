@@ -204,6 +204,9 @@ private:
 
   using EventQueue = UServerUtils::Grpc::Core::Common::QueueAtomic<Event>;
   using EventQueuePtr = std::shared_ptr<EventQueue>;
+  using SemaphorePtr = std::shared_ptr<Semaphore>;
+  using EventPtr = std::unique_ptr<Event>;
+  using OperationCompletedCallback = std::function<void()>;
 
 public:
   explicit DataBaseManager(
@@ -289,7 +292,7 @@ private:
     IoUringPtr&& uring);
 
   void run(
-    const int semaphore_fd,
+    const SemaphorePtr& semaphore,
     IoUringPtr&& uring) noexcept;
 
   bool create_semaphore_event(
@@ -298,6 +301,7 @@ private:
 
   void on_semaphore_ready(
     IOUringOptions* const io_uring_options,
+    std::size_t& number_added_operation,
     bool& is_cansel) noexcept;
 
   void add_event_to_queue(
@@ -308,15 +312,16 @@ private:
     const std::string& error_message) noexcept;
 
   rocksdb::async_result do_async_work(
-    std::unique_ptr<Event>&& event,
-    IOUringOptions* const io_uring_options);
+    EventPtr&& event,
+    IOUringOptions* const io_uring_options,
+    OperationCompletedCallback& callback);
 
 private:
   Logger_var logger_;
 
   EventQueuePtr event_queue_;
 
-  Semaphore semaphore_;
+  SemaphorePtr semaphore_;
 
   std::uint32_t uring_fd_ = 0;
 

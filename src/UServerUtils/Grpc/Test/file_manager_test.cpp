@@ -483,6 +483,32 @@ TEST(FileManagerTest, ReadCallback)
   }
 
   {
+    const std::size_t number = 3000;
+    std::atomic<std::size_t> count{0};
+    File file(path_to_file, O_RDONLY);
+    EXPECT_TRUE(file.is_valid());
+    {
+      FileManager file_manager2(config, logger.in());
+      const std::size_t buffer_size = 5;
+      for (std::size_t i = 1; i <= number; ++i)
+      {
+        EXPECT_TRUE(buffer_size < data.size());
+        std::string buffer;
+        buffer.resize(buffer_size);
+        std::string_view buffer_view(buffer);
+        ReadCallback read_callback(
+          [&count, &buffer_size, buffer = std::move(buffer)] (const int result) mutable {
+            count.fetch_add(1, std::memory_order_relaxed);
+            EXPECT_EQ(buffer_size, result);
+          });
+
+        file_manager2.read(file, buffer_view, 0, std::move(read_callback));
+      }
+    }
+    EXPECT_EQ(number, count.load());
+  }
+
+  {
     File file(path_to_file, O_RDONLY);
     EXPECT_TRUE(file.is_valid());
 

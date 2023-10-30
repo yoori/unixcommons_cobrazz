@@ -158,7 +158,7 @@ private:
     const int semaphore_fd,
     io_uring* const uring) noexcept;
 
-  void create_read_or_write_event(
+  bool create_read_or_write_event(
     const bool is_read,
     const int fd,
     const std::string_view buffer,
@@ -168,6 +168,7 @@ private:
 
   void on_semaphore_ready(
     io_uring* const uring,
+    std::size_t& number_added_operation,
     bool& is_cansel) noexcept;
 
   void on_write_ready(

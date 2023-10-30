@@ -205,6 +205,7 @@ TEST(DataBaseManagerTest, DataBaseManagerDestroy)
   for (int i = 0; i <= 100; ++i)
   {
     Config config;
+    config.io_uring_flags = 0;
     config.io_uring_size = 10;
     DataBaseManager data_base_manager(config, logger.in());
   }
@@ -225,6 +226,7 @@ TEST(DataBaseManagerTest, Get)
   auto& column_family_handle = data_base->column_family(column_family_name);
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   DataBaseManager data_base_manager(config, logger.in());
 
@@ -290,6 +292,30 @@ TEST(DataBaseManagerTest, Get)
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(result, value);
   }
+
+  {
+    const std::size_t number = 3000;
+    std::atomic<std::size_t> count{0};
+    {
+      DataBaseManager data_base_manager2(config, logger.in());
+      for (std::size_t i = 1; i <= number; ++i)
+      {
+        data_base_manager2.get(
+          *data_base,
+          column_family_handle,
+          rocksdb::ReadOptions{},
+          key,
+          [&count, value] (
+            const rocksdb::Status& status,
+            const std::string_view result) mutable {
+            EXPECT_TRUE(status.ok());
+            EXPECT_EQ(value, result);
+            count.fetch_add(1, std::memory_order_relaxed);
+          });
+      }
+    }
+    EXPECT_EQ(number, count.load());
+  }
 }
 
 TEST(DataBaseManagerTest, MultiGet) {
@@ -304,6 +330,7 @@ TEST(DataBaseManagerTest, MultiGet) {
   auto &column_family_handle = data_base->column_family(column_family_name);
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   DataBaseManager data_base_manager(config, logger.in());
 
@@ -414,6 +441,7 @@ TEST(DataBaseManagerTest, Put)
         Logging::Logger::ERROR)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   DataBaseManager data_base_manager(config, logger.in());
 
