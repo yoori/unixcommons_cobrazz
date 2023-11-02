@@ -36,26 +36,26 @@ class DataBaseManager final : private Generics::Uncopyable
 public:
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
-  using IoUring = FileManager::IoUring;
-  using IoUringPtr = std::unique_ptr<FileManager::IoUring>;
+  using DB = rocksdb::DB;
   using ColumnFamilyHandle = rocksdb::ColumnFamilyHandle;
   using ColumnFamilies = std::vector<ColumnFamilyHandle*>;
-  using DB = rocksdb::DB;
   using Status = rocksdb::Status;
   using ReadOptions = rocksdb::ReadOptions;
-  using GetCallback = UServerUtils::Grpc::Utils::Function<
-    void(const Status&, const std::string_view)>;
+  using GetCallback = Utils::Function<void(Status&&, const std::string_view)>;
   using Keys = std::vector<std::string_view>;
   using Values = std::vector<std::string>;
-  using MultiGetCallback = UServerUtils::Grpc::Utils::Function<
-    void(const Status&, Values&&)>;
+  using Statuses = std::vector<Status>;
+  using MultiGetCallback = Utils::Function<void(Statuses&&, Values&&)>;
   using WriteOptions = rocksdb::WriteOptions;
-  using PutCallback = UServerUtils::Grpc::Utils::Function<void(const Status&)>;
+  using PutCallback = Utils::Function<void(Status&&)>;
+  using DataBasePtr = std::shared_ptr<DataBase>;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 private:
   using Semaphore = FileManager::Semaphore;
+  using IoUring = FileManager::IoUring;
+  using IoUringPtr = std::unique_ptr<FileManager::IoUring>;
   using IOUringOptions = rocksdb::IOUringOptions;
   using Thread = boost::scoped_thread<boost::join_if_joinable, std::thread>;
   using ThreadPtr = std::unique_ptr<Thread>;
@@ -76,7 +76,7 @@ private:
   struct PutEventData final
   {
     explicit PutEventData(
-      DB* db,
+      const DataBasePtr& db,
       ColumnFamilyHandle* column_family,
       const std::string_view key,
       const std::string_view value,
@@ -93,7 +93,7 @@ private:
 
     ~PutEventData() = default;
 
-    DB* db = nullptr;
+    DataBasePtr db;
     ColumnFamilyHandle* column_family = nullptr;
     std::string_view key;
     std::string_view value;
@@ -104,7 +104,7 @@ private:
   struct GetEventData final
   {
     explicit GetEventData(
-      DB* db,
+      const DataBasePtr& db,
       ColumnFamilyHandle* column_family,
       const std::string_view key,
       const ReadOptions& read_options,
@@ -119,7 +119,7 @@ private:
 
     ~GetEventData() = default;
 
-    DB* db = nullptr;
+    DataBasePtr db;
     ColumnFamilyHandle* column_family = nullptr;
     std::string_view key;
     ReadOptions read_options;
@@ -129,7 +129,7 @@ private:
   struct MultiGetEventData final
   {
     explicit MultiGetEventData(
-      DB* db,
+      const DataBasePtr& db,
       ColumnFamilies&& column_families,
       Keys&& keys,
       const ReadOptions& read_options,
@@ -144,7 +144,7 @@ private:
 
     ~MultiGetEventData() = default;
 
-    DB* db = nullptr;
+    DataBasePtr db;
     ColumnFamilies column_families;
     Keys keys;
     ReadOptions read_options;
@@ -226,7 +226,7 @@ public:
    * You must ensure that db, column_family and key survives callback.
    **/
   void get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const ReadOptions& read_options,
     const std::string_view key,
@@ -237,7 +237,7 @@ public:
    * Otherwise block thread.
    **/
   Status get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const ReadOptions& read_options,
     const std::string_view key,
@@ -247,7 +247,7 @@ public:
    * You must ensure that db, column_families and keys survives callback.
    **/
   void multi_get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilies&& column_families,
     const ReadOptions& read_options,
     Keys&& keys,
@@ -257,8 +257,8 @@ public:
    * If call from coroutine, block coroutine.
    * Otherwise block thread.
    **/
-  Status multi_get(
-    const DataBase& db,
+  Statuses multi_get(
+    const DataBasePtr& db,
     ColumnFamilies&& column_families,
     const ReadOptions& read_options,
     Keys&& keys,
@@ -269,7 +269,7 @@ public:
    * WriteOptions::disableWAL must be true (error in realisation).
    **/
   void put(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const WriteOptions& write_options,
     const std::string_view key,
@@ -281,7 +281,7 @@ public:
    * Otherwise block thread.
    **/
   Status put(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const WriteOptions& write_options,
     const std::string_view key,
@@ -301,7 +301,7 @@ private:
 
   void on_semaphore_ready(
     IOUringOptions* const io_uring_options,
-    std::size_t& number_added_operation,
+    std::size_t& number_remain_operaions,
     bool& is_cansel) noexcept;
 
   void add_event_to_queue(
@@ -312,9 +312,9 @@ private:
     const std::string& error_message) noexcept;
 
   rocksdb::async_result do_async_work(
-    EventPtr&& event,
+    EventPtr event,
     IOUringOptions* const io_uring_options,
-    OperationCompletedCallback& callback);
+    std::size_t* const number_remain_operaions);
 
 private:
   Logger_var logger_;

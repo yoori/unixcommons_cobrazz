@@ -52,7 +52,7 @@ std::size_t DataBaseManagerPool::size() const noexcept
 }
 
 void DataBaseManagerPool::get(
-  const DataBase& db,
+  const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
   const std::string_view key,
@@ -70,7 +70,7 @@ void DataBaseManagerPool::get(
 }
 
 DataBaseManagerPool::Status DataBaseManagerPool::get(
-  const DataBase& db,
+  const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
   const std::string_view key,
@@ -88,7 +88,7 @@ DataBaseManagerPool::Status DataBaseManagerPool::get(
 }
 
 void DataBaseManagerPool::multi_get(
-  const DataBase& db,
+  const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
   Keys&& keys,
@@ -105,8 +105,8 @@ void DataBaseManagerPool::multi_get(
     std::move(callback));
 }
 
-DataBaseManagerPool::Status DataBaseManagerPool::multi_get(
-  const DataBase& db,
+DataBaseManagerPool::Statuses DataBaseManagerPool::multi_get(
+  const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
   Keys&& keys,
@@ -124,7 +124,7 @@ DataBaseManagerPool::Status DataBaseManagerPool::multi_get(
 }
 
 void DataBaseManagerPool::put(
-  const DataBase& db,
+  const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key,
@@ -144,7 +144,7 @@ void DataBaseManagerPool::put(
 }
 
 DataBaseManagerPool::Status DataBaseManagerPool::put(
-  const DataBase& db,
+  const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key,

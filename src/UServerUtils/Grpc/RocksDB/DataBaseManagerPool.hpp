@@ -21,6 +21,7 @@ public:
   using ColumnFamilies = DataBaseManager::ColumnFamilies;
   using DB = DataBaseManager::DB;
   using Status = DataBaseManager::Status;
+  using Statuses = DataBaseManager::Statuses;
   using ReadOptions = DataBaseManager::ReadOptions;
   using GetCallback = DataBaseManager::GetCallback;
   using Keys = DataBaseManager::Keys;
@@ -28,6 +29,7 @@ public:
   using MultiGetCallback = DataBaseManager::MultiGetCallback;
   using WriteOptions = DataBaseManager::WriteOptions;
   using PutCallback = DataBaseManager::PutCallback;
+  using DataBasePtr = DataBaseManager::DataBasePtr;
 
 private:
   using DataBaseManagerPtr = std::unique_ptr<DataBaseManager>;
@@ -49,35 +51,35 @@ public:
   std::size_t size() const noexcept;
 
   void get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const ReadOptions& read_options,
     const std::string_view key,
     GetCallback&& callback) noexcept;
 
   Status get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const ReadOptions& read_options,
     const std::string_view key,
     std::string& value) noexcept;
 
   void multi_get(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilies&& column_families,
     const ReadOptions& read_options,
     Keys&& keys,
     MultiGetCallback&& callback) noexcept;
 
-  Status multi_get(
-    const DataBase& db,
+  Statuses multi_get(
+    const DataBasePtr& db,
     ColumnFamilies&& column_families,
     const ReadOptions& read_options,
     Keys&& keys,
     Values& values) noexcept;
 
   void put(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const WriteOptions& write_options,
     const std::string_view key,
@@ -85,7 +87,7 @@ public:
     PutCallback&& callback) noexcept;
 
   Status put(
-    const DataBase& db,
+    const DataBasePtr& db,
     ColumnFamilyHandle& column_family,
     const WriteOptions& write_options,
     const std::string_view key,

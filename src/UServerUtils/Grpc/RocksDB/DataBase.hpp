@@ -7,6 +7,7 @@
 
 // STD
 #include <memory>
+#include <optional>
 
 // THIS
 #include <eh/Exception.hpp>
@@ -25,7 +26,9 @@ public:
   using DBPtr = std::unique_ptr<rocksdb::DB>;
   using Code = rocksdb::Status::Code;
   using ColumnFamilyDescriptor = rocksdb::ColumnFamilyDescriptor;
+  using Columnfamilies = std::vector<ColumnFamilyDescriptor>;
   using ColumnFamilyHandle = rocksdb::ColumnFamilyHandle;
+  using Ttls = std::vector<std::int32_t>;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -41,8 +44,9 @@ public:
     Logging::Logger* logger,
     const std::string& db_path,
     const DBOptions& db_options,
-    const std::vector<ColumnFamilyDescriptor>& column_families,
-    const bool create_columns_families_if_not_exist = true);
+    const Columnfamilies& column_families,
+    const bool create_columns_families_if_not_exist = true,
+    const std::optional<Ttls>& ttls = {});
 
   ~DataBase();
 

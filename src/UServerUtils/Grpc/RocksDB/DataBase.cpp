@@ -1,3 +1,6 @@
+// ROCKSDB
+#include <rocksdb/utilities/db_ttl.h>
+
 // STD
 #include <sstream>
 
@@ -19,8 +22,9 @@ DataBase::DataBase(
   Logging::Logger* logger,
   const std::string& db_path,
   const DBOptions& db_options,
-  const std::vector<ColumnFamilyDescriptor>& column_families,
-  const bool create_columns_families_if_not_exist)
+  const Columnfamilies& column_families,
+  const bool create_columns_families_if_not_exist,
+  const std::optional<Ttls>& ttls)
   : logger_(ReferenceCounting::add_ref(logger))
 {
   if (column_families.empty())
@@ -32,33 +36,40 @@ DataBase::DataBase(
     throw Exception(stream.str());
   }
 
+  if (ttls && ttls->size() != column_families.size())
+  {
+    std::ostringstream stream;
+    stream << FNS
+           << "In ttl enable mode size of column_families"
+              " and ttls should be the same";
+    throw Exception(stream.str());
+  }
+
+  const bool is_ttl_enable = ttls.has_value();
+  std::unordered_map<std::string, std::int32_t> column_family_to_ttl;
+  if (is_ttl_enable)
+  {
+    for (std::size_t index = 0; index < column_families.size(); ++index)
+    {
+      column_family_to_ttl[column_families[index].name] = (*ttls)[index];
+    }
+
+    const auto it_default = column_family_to_ttl.find(
+      rocksdb::kDefaultColumnFamilyName);
+    if (it_default == std::end(column_family_to_ttl))
+    {
+      column_family_to_ttl[rocksdb::kDefaultColumnFamilyName] = 0;
+    }
+  }
+
   std::vector<ColumnFamilyDescriptor> column_families_result(
     column_families);
-
   std::sort(
     std::begin(column_families_result),
     std::end(column_families_result),
     [] (const auto& value1, const auto& value2) {
       return value1.name < value2.name;
     });
-
-  rocksdb::ColumnFamilyOptions default_column_family_options;
-  bool exist_default_column = false;
-  for (const auto& descriptor : column_families_result)
-  {
-    if (descriptor.name == rocksdb::kDefaultColumnFamilyName)
-    {
-      default_column_family_options = descriptor.options;
-      exist_default_column = true;
-      break;
-    }
-  }
-  if (!exist_default_column)
-  {
-    column_families_result.emplace_back(
-      rocksdb::kDefaultColumnFamilyName,
-      default_column_family_options);
-  }
 
   for (std::size_t i = 1; i < column_families_result.size(); ++i)
   {
@@ -70,6 +81,31 @@ DataBase::DataBase(
              << column_families_result[i].name;
       throw Exception(stream.str());
     }
+  }
+
+  rocksdb::ColumnFamilyOptions default_column_family_options;
+  const auto it_default = std::find_if(
+    std::begin(column_families_result),
+    std::end(column_families_result),
+    [name = rocksdb::kDefaultColumnFamilyName] (const auto& value) {
+      return value.name == name;
+    });
+  if (it_default != std::end(column_families_result))
+  {
+    default_column_family_options = it_default->options;
+  }
+  else
+  {
+    const auto pos = std::upper_bound(
+      std::begin(column_families_result),
+      std::end(column_families_result),
+      rocksdb::kDefaultColumnFamilyName,
+      [] (const std::string& v, const auto& descriptor) {
+        return v < descriptor.name;
+      });
+    column_families_result.insert(
+      pos,
+      ColumnFamilyDescriptor{rocksdb::kDefaultColumnFamilyName, default_column_family_options});
   }
 
   std::vector<std::string> existing_column_families;
@@ -149,37 +185,94 @@ DataBase::DataBase(
       db_options_result,
       default_column_family_options);
     options.create_if_missing = true;
-    DB* db;
-    status = rocksdb::DB::Open(options, db_path, &db);
-    if (!status.ok())
+
+    if (is_ttl_enable)
     {
-      std::ostringstream stream;
-      stream << FNS
-             << "Can't create empty rocsdb. Reason="
-             << status.ToString();
-      throw Exception(stream.str());
+      rocksdb::DBWithTTL* db;
+      status = rocksdb::DBWithTTL::Open(
+        options,
+        db_path,
+        &db,
+        column_family_to_ttl[rocksdb::kDefaultColumnFamilyName],
+        false);
+      if (!status.ok())
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "Can't create empty rocsdb. Reason="
+               << status.ToString();
+        throw Exception(stream.str());
+      }
+      db_.reset(db);
     }
-    db_.reset(db);
+    else
+    {
+      DB* db;
+      status = rocksdb::DB::Open(options, db_path, &db);
+      if (!status.ok())
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "Can't create empty rocsdb. Reason="
+               << status.ToString();
+        throw Exception(stream.str());
+      }
+      db_.reset(db);
+    }
   }
   else
   {
     std::vector<ColumnFamilyHandle*> handles;
-    rocksdb::DB* db;
-    status = rocksdb::DB::Open(
-      db_options_result,
-      db_path,
-      already_created_families,
-      &handles,
-      &db);
-    if (!status.ok())
+    if (is_ttl_enable)
     {
-      std::ostringstream stream;
-      stream << FNS
-             << "Can't open rocksdb. Reason="
-             << status.ToString();
-      throw Exception(stream.str());
+      std::vector<std::int32_t> ttls_open;
+      ttls_open.reserve(already_created_families.size());
+      std::transform(
+        std::begin(already_created_families),
+        std::end(already_created_families),
+        std::back_inserter(ttls_open),
+        [&column_family_to_ttl] (const auto& v) {
+          return column_family_to_ttl[v.name];
+        });
+
+      rocksdb::DBWithTTL *db;
+      status = rocksdb::DBWithTTL::Open(
+        db_options_result,
+        db_path,
+        already_created_families,
+        &handles,
+        &db,
+        ttls_open,
+        false);
+      if (!status.ok())
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "Can't open rocksdb. Reason="
+               << status.ToString();
+        throw Exception(stream.str());
+      }
+      db_.reset(db);
     }
-    db_.reset(db);
+    else
+    {
+      rocksdb::DB *db;
+      status = rocksdb::DB::Open(
+        db_options_result,
+        db_path,
+        already_created_families,
+        &handles,
+        &db);
+      if (!status.ok())
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "Can't open rocksdb. Reason="
+               << status.ToString();
+        throw Exception(stream.str());
+      }
+      db_.reset(db);
+    }
 
     if (handles.size() != already_created_families.size())
     {
@@ -217,10 +310,22 @@ DataBase::DataBase(
     }
 
     ColumnFamilyHandle* column_family = nullptr;
-    status = db_->CreateColumnFamily(
-      descriptor.options,
-      descriptor.name,
-      &column_family);
+    if (is_ttl_enable)
+    {
+      status = static_cast<rocksdb::DBWithTTL*>(db_.get())->CreateColumnFamilyWithTtl(
+        descriptor.options,
+        descriptor.name,
+        &column_family,
+        column_family_to_ttl[descriptor.name]);
+    }
+    else
+    {
+      status = db_->CreateColumnFamily(
+        descriptor.options,
+        descriptor.name,
+        &column_family);
+    }
+
     if (!status.ok())
     {
       std::ostringstream stream;
