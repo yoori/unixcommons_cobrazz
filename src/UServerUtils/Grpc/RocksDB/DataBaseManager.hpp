@@ -151,33 +151,38 @@ private:
     MultiGetCallback callback;
   };
 
+  using CloseEventDataPtr = std::unique_ptr<CloseEventData>;
+  using GetEventDataPtr = std::unique_ptr<GetEventData>;
+  using MultiGetEventDataPtr = std::unique_ptr<MultiGetEventData>;
+  using PutEventDataPtr = std::unique_ptr<PutEventData>;
+
   struct Event final
   {
     using Data = std::variant<
-      CloseEventData,
-      GetEventData,
-      MultiGetEventData,
-      PutEventData>;
+      CloseEventDataPtr,
+      GetEventDataPtr,
+      MultiGetEventDataPtr,
+      PutEventDataPtr>;
 
-    explicit Event(GetEventData&& data)
+    explicit Event(GetEventDataPtr&& data)
       : type(EventType::Get),
         data(std::move(data))
     {
     }
 
-    explicit Event(MultiGetEventData&& data)
+    explicit Event(MultiGetEventDataPtr&& data)
       : type(EventType::MultiGet),
         data(std::move(data))
     {
     }
 
-    Event(PutEventData&& data)
+    Event(PutEventDataPtr&& data)
       : type(EventType::Put),
         data(std::move(data))
     {
     }
 
-    Event(CloseEventData&& data)
+    Event(CloseEventDataPtr&& data)
       : type(EventType::Close),
         data(std::move(data))
     {
@@ -202,11 +207,10 @@ private:
     eventfd_t semaphore_buffer = 0;
   };
 
-  using EventQueue = UServerUtils::Grpc::Core::Common::QueueAtomic<Event>;
+  using EventPtr = std::unique_ptr<Event>;
+  using EventQueue = UServerUtils::Grpc::Core::Common::QueueAtomic<EventPtr>;
   using EventQueuePtr = std::shared_ptr<EventQueue>;
   using SemaphorePtr = std::shared_ptr<Semaphore>;
-  using EventPtr = std::unique_ptr<Event>;
-  using OperationCompletedCallback = std::function<void()>;
 
 public:
   explicit DataBaseManager(
@@ -223,7 +227,7 @@ public:
   std::uint32_t uring_fd() const noexcept;
 
   /**
-   * You must ensure that db, column_family and key survives callback.
+   * You must ensure key survives callback.
    **/
   void get(
     const DataBasePtr& db,
@@ -244,7 +248,7 @@ public:
     std::string& value) noexcept;
 
   /**
-   * You must ensure that db, column_families and keys survives callback.
+   * You must ensure that keys survives callback.
    **/
   void multi_get(
     const DataBasePtr& db,
@@ -265,7 +269,7 @@ public:
     Values& values) noexcept;
 
   /**
-   * You must ensure that db, column_family, key and value survives callback.
+   * You must ensure that key and value survives callback.
    * WriteOptions::disableWAL must be true (error in realisation).
    **/
   void put(
@@ -305,10 +309,10 @@ private:
     bool& is_cansel) noexcept;
 
   void add_event_to_queue(
-    Event&& event) noexcept;
+    EventPtr&& event) noexcept;
 
   void set_error(
-    Event&& event,
+    EventPtr&& event,
     const std::string& error_message) noexcept;
 
   rocksdb::async_result do_async_work(
@@ -317,11 +321,11 @@ private:
     std::size_t* const number_remain_operaions);
 
 private:
-  Logger_var logger_;
+  const Logger_var logger_;
 
-  EventQueuePtr event_queue_;
+  const EventQueuePtr event_queue_;
 
-  SemaphorePtr semaphore_;
+  const SemaphorePtr semaphore_;
 
   std::uint32_t uring_fd_ = 0;
 

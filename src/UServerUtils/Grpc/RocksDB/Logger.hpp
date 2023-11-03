@@ -21,7 +21,7 @@ public:
 public:
   explicit Logger(Logging::Logger* logger);
 
-  ~Logger();
+  ~Logger() override;
 
   void Logv(
     const char* format,
@@ -45,7 +45,7 @@ private:
     va_list ap);
 
 private:
-  Logger_var logger_;
+  const Logger_var logger_;
 
   char buffer_[500];
 };

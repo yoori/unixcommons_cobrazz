@@ -19,7 +19,7 @@ const char DATA_BASE[] = "DATA_BASE";
 } // namespace Aspect
 
 DataBase::DataBase(
-  Logging::Logger* logger,
+  Logging::Logger* const logger,
   const std::string& db_path,
   const DBOptions& db_options,
   const Columnfamilies& column_families,

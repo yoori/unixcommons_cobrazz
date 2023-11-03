@@ -41,7 +41,7 @@ private:
 
 public:
   explicit DataBase(
-    Logging::Logger* logger,
+    Logging::Logger* const logger,
     const std::string& db_path,
     const DBOptions& db_options,
     const Columnfamilies& column_families,
@@ -59,7 +59,7 @@ public:
   ColumnFamilyHandle& default_column_family() const;
 
 private:
-  Logger_var logger_;
+  const Logger_var logger_;
 
   ColumnFamilyHandles column_family_handles_;
 

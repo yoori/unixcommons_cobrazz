@@ -50,29 +50,16 @@ DataBaseManager::~DataBaseManager()
 {
   try
   {
-    Event close_event(CloseEventData{});
+    EventPtr close_event =
+      std::make_unique<Event>(
+        std::make_unique<CloseEventData>());
     while (!event_queue_->emplace(std::move(close_event)))
     {
       std::this_thread::sleep_for(
         std::chrono::milliseconds(100));
     }
 
-    const std::size_t max_attempts = 5;
-    std::size_t i = 0;
-    while (!semaphore_->add() && i < max_attempts)
-    {
-      std::this_thread::sleep_for(
-        std::chrono::milliseconds(100));
-      i += 1;
-    }
-    if (i == max_attempts)
-    {
-      std::ostringstream stream;
-      stream << FNS
-             << "semaphore::add is failed";
-      logger_->error(stream.str(), Aspect::DATA_BASE_MANAGER);
-    }
-
+    semaphore_->add();
     thread_.reset();
   }
   catch (...)
@@ -206,7 +193,6 @@ bool DataBaseManager::create_semaphore_event(
 
     auto* p_semaphore_data = semaphore_data.get();
     io_uring_sqe_set_data(sqe, semaphore_data.release());
-
     const auto result = io_uring_submit(uring);
     if (result < 0)
     {
@@ -247,7 +233,7 @@ void DataBaseManager::on_semaphore_ready(
       continue;
 
     count -= 1;
-    switch (data->type)
+    switch ((*data)->type)
     {
       case EventType::Put:
       case EventType::Get:
@@ -255,7 +241,7 @@ void DataBaseManager::on_semaphore_ready(
       {
         number_remain_operaions += 1;
         do_async_work(
-          std::move(data),
+          std::move(*data),
           io_uring_options,
           &number_remain_operaions);
         break;
@@ -263,7 +249,7 @@ void DataBaseManager::on_semaphore_ready(
       case EventType::Close:
       {
         is_stopped = true;
-        continue;
+        break;
       }
     }
   }
@@ -279,7 +265,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
   {
     case EventType::Get:
     {
-      auto& event_data = std::get<GetEventData>(event->data);
+      auto& event_data = *std::get<GetEventDataPtr>(event->data);
       assert(event_data.callback);
 
       auto& db = event_data.db;
@@ -314,7 +300,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
     case EventType::MultiGet:
     {
-      auto& event_data = std::get<MultiGetEventData>(event->data);
+      auto& event_data = *std::get<MultiGetEventDataPtr>(event->data);
       assert(event_data.callback);
 
       auto& db = event_data.db;
@@ -353,7 +339,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
     case EventType::Put:
     {
-      auto& event_data = std::get<PutEventData>(event->data);
+      auto& event_data = *std::get<PutEventDataPtr>(event->data);
       assert(event_data.callback);
 
       auto& db = event_data.db;
@@ -397,13 +383,13 @@ void DataBaseManager::get(
   const std::string_view key,
   GetCallback&& callback) noexcept
 {
-  GetEventData data(
+  auto data = std::make_unique<GetEventData>(
     db,
     &column_family,
     key,
     read_options,
     std::move(callback));
-  Event event(std::move(data));
+  EventPtr event = std::make_unique<Event>(std::move(data));
   add_event_to_queue(std::move(event));
 }
 
@@ -553,13 +539,13 @@ void DataBaseManager::multi_get(
     }
   }
 
-  MultiGetEventData data(
+  auto data = std::make_unique<MultiGetEventData>(
     db,
     std::move(column_families),
     std::move(keys),
     read_options,
     std::move(callback));
-  Event event(std::move(data));
+  EventPtr event = std::make_unique<Event>(std::move(data));
   add_event_to_queue(std::move(event));
 }
 
@@ -583,21 +569,21 @@ DataBaseManager::Statuses DataBaseManager::multi_get(
       MultiGetCallback callback([promise = std::move(promise)] (
         Statuses&& statuses,
         Values&& values) mutable {
-        try
-        {
-          Data data(std::move(statuses), std::move(values));
-          promise.set_value(std::move(data));
-        }
-        catch (...)
-        {
           try
           {
-            promise.set_exception(std::current_exception());
+            Data data(std::move(statuses), std::move(values));
+            promise.set_value(std::move(data));
           }
           catch (...)
           {
+            try
+            {
+              promise.set_exception(std::current_exception());
+            }
+            catch (...)
+            {
+            }
           }
-        }
       });
 
       multi_get(
@@ -618,21 +604,21 @@ DataBaseManager::Statuses DataBaseManager::multi_get(
       MultiGetCallback callback([promise = std::move(promise)] (
         Statuses&& statuses,
         Values&& values) mutable {
-        try
-        {
-          Data data(std::move(statuses), std::move(values));
-          promise.set_value(std::move(data));
-        }
-        catch (...)
-        {
           try
           {
-            promise.set_exception(std::current_exception());
+            Data data(std::move(statuses), std::move(values));
+            promise.set_value(std::move(data));
           }
           catch (...)
           {
+            try
+            {
+              promise.set_exception(std::current_exception());
+            }
+            catch (...)
+            {
+            }
           }
-        }
       });
 
       multi_get(
@@ -707,14 +693,14 @@ void DataBaseManager::put(
     }
   }
 
-  PutEventData data(
+  auto data = std::make_unique<PutEventData>(
     db,
     &column_family,
     key,
     value,
     write_options,
     std::move(callback));
-  Event event(std::move(data));
+  EventPtr event = std::make_unique<Event>(std::move(data));
   add_event_to_queue(std::move(event));
 }
 
@@ -735,13 +721,13 @@ DataBaseManager::Status DataBaseManager::put(
       auto future = promise.get_future();
       PutCallback callback([promise = std::move(promise)] (
         const Status& status) mutable {
-        try
-        {
-          promise.set_value(status);
-        }
-        catch (...)
-        {
-        }
+          try
+          {
+            promise.set_value(status);
+          }
+          catch (...)
+          {
+          }
       });
 
       put(
@@ -760,13 +746,13 @@ DataBaseManager::Status DataBaseManager::put(
       auto future = promise.get_future();
       PutCallback callback([promise = std::move(promise)] (
         const Status& status) mutable {
-        try
-        {
-          promise.set_value(status);
-        }
-        catch (...)
-        {
-        }
+          try
+          {
+            promise.set_value(status);
+          }
+          catch (...)
+          {
+          }
       });
 
       put(
@@ -811,7 +797,7 @@ DataBaseManager::Status DataBaseManager::put(
 }
 
 void DataBaseManager::add_event_to_queue(
-  Event&& event) noexcept
+  EventPtr&& event) noexcept
 {
   try
   {
@@ -821,15 +807,9 @@ void DataBaseManager::add_event_to_queue(
              << "event_queue size limit is reached";
       logger_->error(stream.str(), Aspect::DATA_BASE_MANAGER);
 
-      try
-      {
-        set_error(
-          std::move(event),
-          "Event_queue size limit is reached");
-      }
-      catch (...)
-      {
-      }
+      set_error(
+        std::move(event),
+        "Event_queue size limit is reached");
 
       return;
     }
@@ -869,44 +849,42 @@ void DataBaseManager::add_event_to_queue(
 }
 
 void DataBaseManager::set_error(
-  Event&& event,
+  EventPtr&& event,
   const std::string& error_message) noexcept
 {
   try
   {
-    switch (event.type) {
+    switch (event->type)
+    {
       case EventType::Get:
       {
-        auto& data = std::get<GetEventData>(event.data);
+        auto& data = *std::get<GetEventDataPtr>(event->data);
         data.callback(rocksdb::Status::Aborted(error_message), {});
         break;
       }
       case EventType::MultiGet:
       {
-        auto& data = std::get<MultiGetEventData>(event.data);
-        if (data.callback)
+        auto& data = *std::get<MultiGetEventDataPtr>(event->data);
+        Statuses statuses;
+        Values values;
+        try
         {
-          Statuses statuses;
-          Values values;
-          try
-          {
-            const auto size = data.keys.size();
-            const Status status = rocksdb::Status::Aborted(
-              "Size of column_families and keys should be same");
-            statuses = Statuses(size, status);
-            values = Values(size, std::string{});
-          }
-          catch (...)
-          {
-          }
-
-          data.callback(std::move(statuses), std::move(values));
+          const auto size = data.keys.size();
+          const Status status = rocksdb::Status::Aborted(
+            "Size of column_families and keys should be same");
+          statuses = Statuses(size, status);
+          values = Values(size, std::string{});
         }
+        catch (...)
+        {
+        }
+
+        data.callback(std::move(statuses), std::move(values));
         break;
       }
       case EventType::Put:
       {
-        auto& data = std::get<PutEventData>(event.data);
+        auto& data = *std::get<PutEventDataPtr>(event->data);
         data.callback(rocksdb::Status::Aborted(error_message));
         break;
       }
