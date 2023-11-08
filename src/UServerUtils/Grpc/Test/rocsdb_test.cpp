@@ -282,7 +282,8 @@ void test_Get(std::optional<std::int32_t> ttl)
     auto& column_family_handle = data_base->column_family(column_family_name);
 
     rocksdb::WriteOptions write_options;
-    write_options.disableWAL = true;
+    write_options.sync = true;
+    write_options.disableWAL = false;
     const auto status = data_base_manager->put(
       data_base,
       column_family_handle,
@@ -353,6 +354,35 @@ void test_Get(std::optional<std::int32_t> ttl)
       EXPECT_TRUE(status.ok());
     }
 
+      write_options.disableWAL = false;
+      for (std::size_t i = number + 1; i <= number * 2; ++i)
+      {
+        const std::string key_result = key + std::to_string(i);
+        const std::string value_result = value + std::to_string(i);
+        const auto status = data_base_manager->put(
+          data_base,
+          column_family_handle,
+          write_options,
+          key_result,
+          value_result);
+          EXPECT_TRUE(status.ok());
+      }
+
+      write_options.sync = true;
+      write_options.disableWAL = false;
+      for (std::size_t i = 2 * number + 1; i <= number * 3; ++i)
+      {
+        const std::string key_result = key + std::to_string(i);
+        const std::string value_result = value + std::to_string(i);
+        const auto status = data_base_manager->put(
+          data_base,
+          column_family_handle,
+          write_options,
+          key_result,
+          value_result);
+        EXPECT_TRUE(status.ok());
+      }
+
     const auto status  = data_base->get().Flush({});
     EXPECT_TRUE(status.ok());
   }
@@ -364,7 +394,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     auto& column_family_handle = data_base->column_family(column_family_name);
     std::atomic<std::size_t> count{0};
     {
-      for (std::size_t i = 1; i <= number; ++i)
+      for (std::size_t i = 1; i <= 3 * number; ++i)
       {
         auto key_result =
           std::make_unique<std::string>(key + std::to_string(i));
@@ -383,8 +413,72 @@ void test_Get(std::optional<std::int32_t> ttl)
           });
       }
     }
+
     data_base_manager.reset();
-    EXPECT_EQ(number, count.load());
+    EXPECT_EQ(3 * number, count.load());
+  }
+
+  data_base_manager = std::make_unique<DataBaseManager>(
+    config,
+    logger.in());
+  const std::string key_delete1 = "key1";
+  const std::string key_delete2 = "key2";
+  const std::string key_existing = "key3";
+  const std::string value_existing = "value3";
+  {
+    auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
+    auto& column_family_handle = data_base->column_family(column_family_name);
+
+    rocksdb::WriteOptions write_options;
+    write_options.disableWAL = true;
+    auto status = data_base_manager->erase(
+      data_base,
+      column_family_handle,
+      write_options,
+      key_delete1);
+    EXPECT_TRUE(status.ok());
+
+    write_options.sync = true;
+    write_options.disableWAL = false;
+    status = data_base_manager->erase(
+      data_base,
+      column_family_handle,
+      write_options,
+      key_delete2);
+    EXPECT_TRUE(status.ok());
+  }
+
+  {
+    auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
+    auto& column_family_handle = data_base->column_family(column_family_name);
+
+    std::string result;
+    auto status = data_base_manager->get(
+      data_base,
+      column_family_handle,
+      rocksdb::ReadOptions{},
+      key_delete1,
+      result);
+    EXPECT_FALSE(status.ok());
+    EXPECT_TRUE(status.code() == rocksdb::Status::kNotFound);
+
+    status = data_base_manager->get(
+      data_base,
+      column_family_handle,
+      rocksdb::ReadOptions{},
+      key_delete2,
+      result);
+    EXPECT_FALSE(status.ok());
+    EXPECT_TRUE(status.code() == rocksdb::Status::kNotFound);
+
+    status = data_base_manager->get(
+      data_base,
+      column_family_handle,
+      rocksdb::ReadOptions{},
+      key_existing,
+      result);
+    EXPECT_TRUE(status.ok());
+    EXPECT_EQ(result, value_existing);
   }
 }
 

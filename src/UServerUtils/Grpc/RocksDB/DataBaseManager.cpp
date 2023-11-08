@@ -59,7 +59,7 @@ DataBaseManager::~DataBaseManager()
         std::chrono::milliseconds(100));
     }
 
-    semaphore_->add();
+    assert(semaphore_->add());
     thread_.reset();
   }
   catch (...)
@@ -236,6 +236,7 @@ void DataBaseManager::on_semaphore_ready(
     switch ((*data)->type)
     {
       case EventType::Put:
+      case EventType::Erase:
       case EventType::Get:
       case EventType::MultiGet:
       {
@@ -268,13 +269,13 @@ rocksdb::async_result DataBaseManager::do_async_work(
       auto& event_data = *std::get<GetEventDataPtr>(event->data);
       assert(event_data.callback);
 
+      const auto& key = event_data.key;
       auto& db = event_data.db;
       auto* column_family = event_data.column_family;
-      const auto& key = event_data.key;
+      auto& callback = event_data.callback;
       auto& read_options = event_data.read_options;
       read_options.io_uring_option = io_uring_options;
 
-      Status status;
       {
         rocksdb::PinnableSlice value;
         auto async_result = db->get().AsyncGet(
@@ -285,10 +286,10 @@ rocksdb::async_result DataBaseManager::do_async_work(
           nullptr);
         co_await async_result;
 
-        status = async_result.result();
+        auto status = async_result.result();
         try
         {
-          event_data.callback(std::move(status), value.ToStringView());
+          callback(std::move(status), value.ToStringView());
         }
         catch (...)
         {
@@ -296,16 +297,17 @@ rocksdb::async_result DataBaseManager::do_async_work(
       }
 
       *number_remain_operaions -= 1;
-      co_return status;
+      break;
     }
     case EventType::MultiGet:
     {
       auto& event_data = *std::get<MultiGetEventDataPtr>(event->data);
       assert(event_data.callback);
 
+      const auto& keys = event_data.keys;
       auto& db = event_data.db;
       auto& column_families = event_data.column_families;
-      const auto& keys = event_data.keys;
+      auto& callback = event_data.callback;
       auto& read_options = event_data.read_options;
       read_options.io_uring_option = io_uring_options;
 
@@ -328,24 +330,25 @@ rocksdb::async_result DataBaseManager::do_async_work(
       auto statuses = async_result.results();
       try
       {
-        event_data.callback(std::move(statuses), std::move(values));
+        callback(std::move(statuses), std::move(values));
       }
       catch (...)
       {
       }
 
       *number_remain_operaions -= 1;
-      co_return statuses;
+      break;
     }
     case EventType::Put:
     {
       auto& event_data = *std::get<PutEventDataPtr>(event->data);
       assert(event_data.callback);
 
-      auto& db = event_data.db;
-      auto* column_family = event_data.column_family;
       const auto& key = event_data.key;
       const auto& value = event_data.value;
+      auto& db = event_data.db;
+      auto* column_family = event_data.column_family;
+      auto& callback = event_data.callback;
       auto& write_options = event_data.write_options;
       write_options.io_uring_option = io_uring_options;
 
@@ -359,14 +362,44 @@ rocksdb::async_result DataBaseManager::do_async_work(
       auto status = async_result.result();
       try
       {
-        event_data.callback(std::move(status));
+        callback(std::move(status));
       }
       catch (...)
       {
       }
 
       *number_remain_operaions -= 1;
-      co_return status;
+      break;
+    }
+    case EventType::Erase:
+    {
+      auto& event_data = *std::get<EraseEventDataPtr>(event->data);
+      assert(event_data.callback);
+
+      const auto& key = event_data.key;
+      auto& db = event_data.db;
+      auto* column_family = event_data.column_family;
+      auto& callback = event_data.callback;
+      auto& write_options = event_data.write_options;
+      write_options.io_uring_option = io_uring_options;
+
+      auto async_result = db->get().AsyncDelete(
+        write_options,
+        column_family,
+        rocksdb::Slice(key.data(), key.size()));
+      co_await async_result;
+
+      auto status = async_result.result();
+      try
+      {
+        callback(std::move(status));
+      }
+      catch (...)
+      {
+      }
+
+      *number_remain_operaions -= 1;
+      break;
     }
     default:
     {
@@ -671,28 +704,6 @@ void DataBaseManager::put(
   const std::string_view value,
   PutCallback&& callback) noexcept
 {
-  if (!write_options.disableWAL)
-  {
-    Status status;
-    try
-    {
-      status = rocksdb::Status::Aborted(
-        "WriteOptions support only option disableWAL=true");
-    }
-    catch (...)
-    {
-    }
-
-    try
-    {
-      callback(std::move(status));
-      return;
-    }
-    catch (...)
-    {
-    }
-  }
-
   auto data = std::make_unique<PutEventData>(
     db,
     &column_family,
@@ -720,10 +731,10 @@ DataBaseManager::Status DataBaseManager::put(
       userver::engine::Promise<Status> promise;
       auto future = promise.get_future();
       PutCallback callback([promise = std::move(promise)] (
-        const Status& status) mutable {
+        Status&& status) mutable {
           try
           {
-            promise.set_value(status);
+            promise.set_value(std::move(status));
           }
           catch (...)
           {
@@ -745,10 +756,10 @@ DataBaseManager::Status DataBaseManager::put(
       std::promise<Status> promise;
       auto future = promise.get_future();
       PutCallback callback([promise = std::move(promise)] (
-        const Status& status) mutable {
+        Status&& status) mutable {
           try
           {
-            promise.set_value(status);
+            promise.set_value(std::move(status));
           }
           catch (...)
           {
@@ -761,6 +772,112 @@ DataBaseManager::Status DataBaseManager::put(
         write_options,
         key,
         value,
+        std::move(callback));
+
+      return future.get();
+    }
+  }
+  catch (const eh::Exception& exc)
+  {
+    try
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(stream.str(), Aspect::DATA_BASE_MANAGER);
+    }
+    catch (...)
+    {
+    }
+  }
+  catch (...)
+  {
+    try
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(stream.str(), Aspect::DATA_BASE_MANAGER);
+    }
+    catch (...)
+    {
+    }
+  }
+
+  return Status::Corruption();
+}
+
+void DataBaseManager::erase(
+  const DataBasePtr& db,
+  ColumnFamilyHandle& column_family,
+  const WriteOptions& write_options,
+  const std::string_view key,
+  EraseCallback&& callback) noexcept
+{
+  auto data = std::make_unique<EraseEventData>(
+    db,
+    &column_family,
+    key,
+    write_options,
+    std::move(callback));
+  EventPtr event = std::make_unique<Event>(std::move(data));
+  add_event_to_queue(std::move(event));
+}
+
+DataBaseManager::Status DataBaseManager::erase(
+  const DataBasePtr& db,
+  ColumnFamilyHandle& column_family,
+  const WriteOptions& write_options,
+  const std::string_view key) noexcept
+{
+  try
+  {
+    const bool is_coroutine_thread =
+      userver::engine::current_task::IsTaskProcessorThread();
+    if (is_coroutine_thread)
+    {
+      userver::engine::Promise<Status> promise;
+      auto future = promise.get_future();
+      EraseCallback callback([promise = std::move(promise)] (
+        Status&& status) mutable {
+          try
+          {
+            promise.set_value(status);
+          }
+          catch (...)
+          {
+          }
+      });
+
+      erase(
+        db,
+        column_family,
+        write_options,
+        key,
+        std::move(callback));
+
+      return future.get();
+    }
+    else
+    {
+      std::promise<Status> promise;
+      auto future = promise.get_future();
+      EraseCallback callback([promise = std::move(promise)] (
+        Status&& status) mutable {
+          try
+          {
+            promise.set_value(status);
+          }
+          catch (...)
+          {
+          }
+      });
+
+      erase(
+        db,
+        column_family,
+        write_options,
+        key,
         std::move(callback));
 
       return future.get();
@@ -814,7 +931,7 @@ void DataBaseManager::add_event_to_queue(
       return;
     }
 
-    semaphore_->add();
+    assert(semaphore_->add());
   }
   catch (const eh::Exception& exc)
   {
@@ -885,6 +1002,12 @@ void DataBaseManager::set_error(
       case EventType::Put:
       {
         auto& data = *std::get<PutEventDataPtr>(event->data);
+        data.callback(rocksdb::Status::Aborted(error_message));
+        break;
+      }
+      case EventType::Erase:
+      {
+        auto& data = *std::get<EraseEventDataPtr>(event->data);
         data.callback(rocksdb::Status::Aborted(error_message));
         break;
       }

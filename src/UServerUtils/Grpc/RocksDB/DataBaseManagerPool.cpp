@@ -161,4 +161,38 @@ DataBaseManagerPool::Status DataBaseManagerPool::put(
     value);
 }
 
+void DataBaseManagerPool::erase(
+  const DataBasePtr& db,
+  ColumnFamilyHandle& column_family,
+  const WriteOptions& write_options,
+  const std::string_view key,
+  EraseCallback&& callback) noexcept
+{
+  const auto index =
+    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  auto& db_manager = db_managers_[index];
+  db_manager->erase(
+    db,
+    column_family,
+    write_options,
+    key,
+    std::move(callback));
+}
+
+DataBaseManagerPool::Status DataBaseManagerPool::erase(
+  const DataBasePtr& db,
+  ColumnFamilyHandle& column_family,
+  const WriteOptions& write_options,
+  const std::string_view key) noexcept
+{
+  const auto index =
+    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  auto& db_manager = db_managers_[index];
+  return db_manager->erase(
+    db,
+    column_family,
+    write_options,
+    key);
+}
+
 } // namespace UServerUtils::Grpc::RocksDB

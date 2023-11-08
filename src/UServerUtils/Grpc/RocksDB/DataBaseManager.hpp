@@ -48,6 +48,7 @@ public:
   using MultiGetCallback = Utils::Function<void(Statuses&&, Values&&)>;
   using WriteOptions = rocksdb::WriteOptions;
   using PutCallback = Utils::Function<void(Status&&)>;
+  using EraseCallback = Utils::Function<void(Status&&)>;
   using DataBasePtr = std::shared_ptr<DataBase>;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -65,6 +66,7 @@ private:
   {
     Close = 0,
     Put,
+    Erase,
     Get,
     MultiGet,
   };
@@ -99,6 +101,31 @@ private:
     std::string_view value;
     WriteOptions write_options;
     PutCallback callback;
+  };
+
+  struct EraseEventData final
+  {
+    explicit EraseEventData(
+      const DataBasePtr& db,
+      ColumnFamilyHandle* column_family,
+      const std::string_view key,
+      const WriteOptions& write_options,
+      EraseCallback&& callback)
+      : db(db),
+        column_family(column_family),
+        key(key),
+        write_options(write_options),
+        callback(std::move(callback))
+    {
+    }
+
+    ~EraseEventData() = default;
+
+    DataBasePtr db;
+    ColumnFamilyHandle* column_family = nullptr;
+    std::string_view key;
+    WriteOptions write_options;
+    EraseCallback callback;
   };
 
   struct GetEventData final
@@ -155,6 +182,7 @@ private:
   using GetEventDataPtr = std::unique_ptr<GetEventData>;
   using MultiGetEventDataPtr = std::unique_ptr<MultiGetEventData>;
   using PutEventDataPtr = std::unique_ptr<PutEventData>;
+  using EraseEventDataPtr = std::unique_ptr<EraseEventData>;
 
   struct Event final
   {
@@ -162,7 +190,8 @@ private:
       CloseEventDataPtr,
       GetEventDataPtr,
       MultiGetEventDataPtr,
-      PutEventDataPtr>;
+      PutEventDataPtr,
+      EraseEventDataPtr>;
 
     explicit Event(GetEventDataPtr&& data)
       : type(EventType::Get),
@@ -178,6 +207,12 @@ private:
 
     Event(PutEventDataPtr&& data)
       : type(EventType::Put),
+        data(std::move(data))
+    {
+    }
+
+    Event(EraseEventDataPtr&& data)
+      : type(EventType::Erase),
         data(std::move(data))
     {
     }
@@ -290,6 +325,27 @@ public:
     const WriteOptions& write_options,
     const std::string_view key,
     const std::string_view value) noexcept;
+
+  /**
+   * You must ensure that key survives callback.
+   * WriteOptions::disableWAL must be true (error in realisation).
+   **/
+  void erase(
+    const DataBasePtr& db,
+    ColumnFamilyHandle& column_family,
+    const WriteOptions& write_options,
+    const std::string_view key,
+    EraseCallback&& callback) noexcept;
+
+  /**
+   * If call from coroutine, block coroutine.
+   * Otherwise block thread.
+   **/
+  Status erase(
+    const DataBasePtr& db,
+    ColumnFamilyHandle& column_family,
+    const WriteOptions& write_options,
+    const std::string_view key) noexcept;
 
 private:
   void initialize(

@@ -29,6 +29,7 @@ public:
   using MultiGetCallback = DataBaseManager::MultiGetCallback;
   using WriteOptions = DataBaseManager::WriteOptions;
   using PutCallback = DataBaseManager::PutCallback;
+  using EraseCallback = DataBaseManager::EraseCallback;
   using DataBasePtr = DataBaseManager::DataBasePtr;
 
 private:
@@ -92,6 +93,19 @@ public:
     const WriteOptions& write_options,
     const std::string_view key,
     const std::string_view value) noexcept;
+
+  void erase(
+    const DataBasePtr& db,
+    ColumnFamilyHandle& column_family,
+    const WriteOptions& write_options,
+    const std::string_view key,
+    EraseCallback&& callback) noexcept;
+
+  Status erase(
+    const DataBasePtr& db,
+    ColumnFamilyHandle& column_family,
+    const WriteOptions& write_options,
+    const std::string_view key) noexcept;
 
 private:
   Counter counter_{0};

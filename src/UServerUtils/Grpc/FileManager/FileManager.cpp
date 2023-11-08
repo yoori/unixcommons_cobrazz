@@ -253,7 +253,7 @@ void FileManager::add_event_to_queue(
       }
       return;
     }
-    semaphore_->add();
+    assert(semaphore_->add());
   }
   catch (const eh::Exception& exc)
   {
