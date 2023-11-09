@@ -394,6 +394,11 @@ DataBase::ColumnFamilyHandle&
 DataBase::column_family(
   const std::string& name) const
 {
+  if (name == rocksdb::kDefaultColumnFamilyName)
+  {
+    return *db_->DefaultColumnFamily();
+  }
+
   const auto it = column_family_handles_.find(name);
   if (it != std::end(column_family_handles_))
   {
