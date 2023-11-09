@@ -23,12 +23,12 @@ namespace Generics
   class GnuHashTable :
     public std::unordered_map<Key, Value, HashFunForHashAdapter<Key>,
       EqualKey,
-      typename Alloc::template rebind<std::pair<const Key, Value> >::other>
+      typename std::allocator_traits<Alloc>::template rebind_alloc<std::pair<const Key, Value>>>
   {
   private:
     typedef std::unordered_map<Key, Value, HashFunForHashAdapter<Key>,
       EqualKey,
-      typename Alloc::template rebind<std::pair<const Key, Value> >::other>
+      typename std::allocator_traits<Alloc>::template rebind_alloc<std::pair<const Key, Value> >>
       Parent;
 
   public:
@@ -53,11 +53,11 @@ namespace Generics
     class EqualKey = std::equal_to<Key> >
   class GnuHashSet :
     public std::unordered_set<Key, HashFunForHashAdapter<Key>,
-      EqualKey, typename Alloc::template rebind<Key>::other>
+      EqualKey, typename std::allocator_traits<Alloc>::template rebind_alloc<Key>>
   {
   public:
     typedef std::unordered_set<Key, HashFunForHashAdapter<Key>,
-      EqualKey, typename Alloc::template rebind<Key>::other>
+      EqualKey, typename std::allocator_traits<Alloc>::template rebind_alloc<Key>>
       Parent;
 
     typedef Key key_type;

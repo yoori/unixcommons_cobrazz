@@ -39,8 +39,7 @@ private:
 
 using LoggerPtr = std::unique_ptr<Logger>;
 
-class LoggerScope final :
-  private Generics::Uncopyable
+class LoggerScope final : private Generics::Uncopyable
 {
 public:
   using Logger_var = Logging::Logger_var;

@@ -8,6 +8,7 @@
 #include <streambuf>
 #include <string>
 #include <vector>
+#include <coroutine>
 
 // THIS
 #include <Logger/StreamLogger.hpp>
@@ -22,11 +23,11 @@ using namespace UServerUtils::Grpc::FileManager;
 namespace
 {
 
-void write_file(
+[[maybe_unused]] void write_file(
   const std::string& path,
   const std::string& data)
 {
-  std::ofstream stream(path, std::ios::out | std::ios::trunc);
+  std::ofstream stream(path, std::ios::trunc);
   if (!stream)
   {
     std::ostringstream stream;
@@ -48,12 +49,12 @@ void write_file(
   }
 }
 
-void remove_file(const std::string& path)
+[[maybe_unused]] void remove_file(const std::string& path)
 {
   std::remove(path.c_str());
 }
 
-std::string read_file(const std::string& path)
+[[maybe_unused]] std::string read_file(const std::string& path)
 {
   std::ifstream stream(path);
   if (!stream)
@@ -87,44 +88,105 @@ std::string read_file(const std::string& path)
 
 } // namespace
 
+TEST(FileManagerTest, IoUring)
+{
+  {
+    Config config;
+    config.io_uring_flags = 0;
+    IoUring uring(config);
+    EXPECT_TRUE(uring.get() != nullptr);
+    EXPECT_EQ(config.io_uring_flags, uring.params().flags);
+  }
+
+  {
+    Config config;
+    config.io_uring_flags = IORING_SETUP_ATTACH_WQ;
+    EXPECT_THROW(IoUring{config}, eh::Exception);
+  }
+
+  {
+    Config config;
+    config.io_uring_flags = 0;
+    IoUring uring(config);
+
+    config.io_uring_flags = IORING_SETUP_ATTACH_WQ;
+    IoUring uring2(config, uring.get()->ring_fd);
+    EXPECT_TRUE(uring.get() != nullptr);
+  }
+}
+
 TEST(FileManagerTest, Semaphore)
 {
   {
-    Semaphore semaphore(true, 0);
+    Semaphore semaphore(Semaphore::Type::NonBlocking, 0);
     EXPECT_TRUE(semaphore.add());
     EXPECT_TRUE(semaphore.add());
 
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
 
     EXPECT_TRUE(semaphore.add());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(4), 3);
   }
 
   {
-    Semaphore semaphore(true, 3);
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_FALSE(semaphore.fetch());
+    Semaphore semaphore(Semaphore::Type::NonBlocking, 3);
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_FALSE(semaphore.consume());
   }
 
   {
-    Semaphore semaphore(false, 3);
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
-    EXPECT_TRUE(semaphore.fetch());
+    Semaphore semaphore(Semaphore::Type::Blocking, 3);
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
+    EXPECT_TRUE(semaphore.consume());
     boost::scoped_thread<
       boost::join_if_joinable,
       std::thread> th([&semaphore] () {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         semaphore.add();
     });
-    EXPECT_TRUE(semaphore.fetch());
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(3), 3);
+    EXPECT_TRUE(semaphore.consume());
+
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_TRUE(semaphore.add());
+    EXPECT_EQ(semaphore.try_consume(4), 3);
   }
 }
 
@@ -137,6 +199,7 @@ TEST(FileManagerTest, FileManagerDestroy)
   for (int i = 0; i <= 100; ++i)
   {
     Config config;
+    config.io_uring_flags = 0;
     config.io_uring_size = 10;
     FileManager file_manager(config, logger.in());
   }
@@ -197,6 +260,7 @@ TEST(FileManagerTest, WriteCallback)
         std::cout)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   config.event_queue_max_size = 10000;
 
@@ -323,7 +387,7 @@ TEST(FileManagerTest, WriteCallback)
 
   {
     const std::string data("qwerty");
-    const std::size_t count_write = 1000;
+    const std::size_t count_write = 3000;
 
     std::vector<File> files;
     files.reserve(count_write);
@@ -389,6 +453,7 @@ TEST(FileManagerTest, ReadCallback)
         std::cout)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   config.event_queue_max_size = 10000;
 
@@ -415,6 +480,32 @@ TEST(FileManagerTest, ReadCallback)
       EXPECT_EQ(future.get(), buffer_size);
       EXPECT_EQ(buffer, data.substr(0, buffer_size));
     }
+  }
+
+  {
+    const std::size_t number = 3000;
+    std::atomic<std::size_t> count{0};
+    File file(path_to_file, O_RDONLY);
+    EXPECT_TRUE(file.is_valid());
+    {
+      FileManager file_manager2(config, logger.in());
+      const std::size_t buffer_size = 5;
+      for (std::size_t i = 1; i <= number; ++i)
+      {
+        EXPECT_TRUE(buffer_size < data.size());
+        std::string buffer;
+        buffer.resize(buffer_size);
+        std::string_view buffer_view(buffer);
+        ReadCallback read_callback(
+          [&count, &buffer_size, buffer = std::move(buffer)] (const int result) mutable {
+            count.fetch_add(1, std::memory_order_relaxed);
+            EXPECT_EQ(buffer_size, result);
+          });
+
+        file_manager2.read(file, buffer_view, 0, std::move(read_callback));
+      }
+    }
+    EXPECT_EQ(number, count.load());
   }
 
   {
@@ -511,6 +602,7 @@ TEST(FileManagerTest, ReadBlockThread)
         std::cout)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   config.event_queue_max_size = 10000;
 
@@ -548,6 +640,7 @@ TEST(FileManagerTest, WriteBlockThread)
         std::cout)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   config.event_queue_max_size = 10000;
 
@@ -584,9 +677,45 @@ TEST(FileManagerTest, FileManagerPool)
         std::cout)));
 
   Config config;
+  config.io_uring_flags = 0;
   config.io_uring_size = 10;
   config.event_queue_max_size = 10000;
   config.number_io_urings = 2;
+
+  FileManagerPool file_manager_pool(config, logger.in());
+
+  {
+    for (std::size_t i = 1; i <= 100; ++i)
+    {
+      File file(path, O_CREAT | O_RDWR | O_APPEND);
+      EXPECT_TRUE(file.is_valid());
+      const int result = file_manager_pool.write(file, data, -1);
+      EXPECT_EQ(result, data.size());
+      file.close();
+      EXPECT_EQ(data, read_file(path));
+      remove_file(path);
+    }
+  }
+}
+
+TEST(FileManagerTest, Flag_IORING_SETUP_ATTACH_WQ)
+{
+  const std::string directory = "/tmp/";
+  const std::string file_name = "test_file_write";
+  const std::string path = directory + file_name;
+  const std::string data("qwerty");
+  remove_file(path);
+
+  Logging::Logger_var logger(
+    new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cout)));
+
+  Config config;
+  config.io_uring_size = 10;
+  config.event_queue_max_size = 10000;
+  config.number_io_urings = 2;
+  config.io_uring_flags = IORING_SETUP_ATTACH_WQ;
 
   FileManagerPool file_manager_pool(config, logger.in());
 

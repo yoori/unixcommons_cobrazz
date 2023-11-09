@@ -9,10 +9,39 @@ FileManagerPool::FileManagerPool(
   Logging::Logger* logger)
 {
   file_managers_.reserve(config.number_io_urings);
+  if ((config.io_uring_flags & IORING_SETUP_ATTACH_WQ) == 0)
+  {
+    for (std::size_t i = 1; i <= config.number_io_urings; ++i)
+    {
+      file_managers_.emplace_back(
+        std::make_unique<FileManager>(config, logger));
+    }
+  }
+  else
+  {
+    Config helper_config(config);
+    helper_config.io_uring_flags &= ~IORING_SETUP_ATTACH_WQ;
+    auto file_manager = std::make_unique<FileManager>(helper_config, logger);
+    const auto uring_fd = file_manager->uring_fd();
+    file_managers_.emplace_back(std::move(file_manager));
+
+    for (std::size_t i = 1; i < config.number_io_urings; ++i)
+    {
+      file_managers_.emplace_back(
+        std::make_unique<FileManager>(config, uring_fd, logger));
+    }
+  }
+}
+
+FileManagerPool::FileManagerPool(
+  const Config& config,
+  const std::uint32_t uring_fd,
+  Logging::Logger* logger)
+{
   for (std::size_t i = 1; i <= config.number_io_urings; ++i)
   {
     file_managers_.emplace_back(
-      std::make_unique<FileManager>(config, logger));
+      std::make_unique<FileManager>(config, uring_fd, logger));
   }
 }
 
@@ -27,7 +56,7 @@ void FileManagerPool::write(
   const std::int64_t offset,
   Callback&& callback) noexcept
 {
-  const std::size_t index =
+  const auto index =
       counter_.fetch_add(1, std::memory_order_relaxed) % file_managers_.size();
   auto& file_manager = file_managers_[index];
   file_manager->write(
@@ -42,7 +71,7 @@ int FileManagerPool::FileManagerPool::write(
   const std::string_view buffer,
   const std::int64_t offset) noexcept
 {
-  const std::size_t index =
+  const auto index =
     counter_.fetch_add(1, std::memory_order_relaxed) % file_managers_.size();
   auto& file_manager = file_managers_[index];
   return file_manager->write(
@@ -57,7 +86,7 @@ void FileManagerPool::read(
   const std::int64_t offset,
   Callback&& callback) noexcept
 {
-  const std::size_t index =
+  const auto index =
     counter_.fetch_add(1, std::memory_order_relaxed) % file_managers_.size();
   auto& file_manager = file_managers_[index];
   file_manager->read(
@@ -72,7 +101,7 @@ int FileManagerPool::read(
   const std::string_view buffer,
   const std::int64_t offset) noexcept
 {
-  const std::size_t index =
+  const auto index =
     counter_.fetch_add(1, std::memory_order_relaxed) % file_managers_.size();
   auto& file_manager = file_managers_[index];
   return file_manager->read(

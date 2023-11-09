@@ -16,16 +16,31 @@
 namespace UServerUtils::Grpc::FileManager
 {
 
-IoUring::IoUring(const Config& config)
+IoUring::IoUring(
+  const Config& config,
+  const std::optional<UringFd> uring_fd)
 {
   std::memset(&params_, 0, sizeof(params_));
-  params_.flags = config.io_uring_flags;
+  params_.flags |= config.io_uring_flags;
+
+  if ((params_.flags & IORING_SETUP_ATTACH_WQ) != 0)
+  {
+    if (!uring_fd.has_value())
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << "with flag IORING_SETUP_ATTACH_WQ uring_fd must be set";
+      throw Exception(stream.str());
+    }
+
+    params_.wq_fd = *uring_fd;
+  }
 
   const auto result = io_uring_queue_init_params(
     config.io_uring_size,
     &ring_,
     &params_);
-  if (result)
+ if (result)
   {
     const auto error = -result;
     std::ostringstream stream;

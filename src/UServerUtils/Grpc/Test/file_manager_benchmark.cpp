@@ -1,6 +1,8 @@
 // STD
 #include <atomic>
+#include <fstream>
 #include <iostream>
+#include <random>
 
 // USERVER
 #include <userver/engine/async.hpp>
@@ -12,7 +14,8 @@
 #include <Logger/Logger.hpp>
 #include <Logger/StreamLogger.hpp>
 #include <UServerUtils/Grpc/FileManager/Config.hpp>
-#include <UServerUtils/Grpc/FileManager/FileManager.hpp>
+#include <UServerUtils/Grpc/FileManager/FileManagerPool.hpp>
+#include <UServerUtils/Grpc/FileManager/Utils.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
@@ -21,6 +24,19 @@
 
 using namespace UServerUtils::Grpc;
 using TaskProcessor = TaskProcessorContainer::TaskProcessor;
+
+enum class OperationType
+{
+  Read,
+  Write,
+  ReadWrite
+};
+
+enum class TestType
+{
+  SingleFile,
+  FileToCoro
+};
 
 struct Statistics final
 {
@@ -45,17 +61,28 @@ public:
 
 public:
   Benchmark(
+    const TestType test_type,
+    const OperationType operation_type,
     Logger* logger,
     const FileManagerConfig& config,
     const std::string& directory_path,
+    const std::string& file_name,
     const std::size_t number_coroutines,
-    const std::string& write_data,
+    const std::size_t file_size,
+    const std::size_t block_size,
+    const bool is_direct,
     Statistics& statistics)
-  : logger_(ReferenceCounting::add_ref(logger)),
-    directory_path_(directory_path),
-    number_coroutines_(number_coroutines),
-    write_data_(write_data),
-    statistics_(statistics)
+    : test_type_(test_type),
+      operation_type_(operation_type),
+      logger_(ReferenceCounting::add_ref(logger)),
+      directory_path_(directory_path),
+      number_coroutines_(number_coroutines),
+      file_size_(file_size),
+      block_size_(block_size),
+      is_direct_(is_direct),
+      config_(config),
+      file_manager_pool_(config, logger_.in()),
+      statistics_(statistics)
   {
   }
 
@@ -66,12 +93,13 @@ protected:
     tasks_.reserve(number_coroutines_);
     for (std::size_t i = 1; i <= number_coroutines_; ++i)
     {
-      tasks_.emplace_back(userver::utils::Async(
-        current_task_processor,
-        "file_manager_task",
-        &Benchmark::run,
-        this,
-        i));
+      tasks_.emplace_back(
+        userver::utils::Async(
+          current_task_processor,
+          "file_manager_task",
+          &Benchmark::run,
+          this,
+          i));
     }
   }
 
@@ -104,11 +132,30 @@ protected:
 private:
   void run(const std::size_t number)
   {
-    const std::string path =
-      directory_path_ + file_name + std::to_string(number);
-    std::remove(path.c_str());
+    const std::size_t kPageSize = 1024;
+    const bool is_iopoll = config_.io_uring_flags & IORING_SETUP_IOPOLL;
 
-    FileManager::File file(path, O_CREAT | O_RDWR);
+    std::string path;
+    if (test_type_ == TestType::FileToCoro)
+    {
+      path = directory_path_ + file_name + std::to_string(number);
+      std::remove(path.c_str());
+    }
+    else
+    {
+      path = directory_path_ + file_name;
+    }
+
+    int flags = O_RDWR;
+    if (test_type_ == TestType::FileToCoro)
+    {
+      flags |= O_CREAT;
+    }
+    if (is_iopoll || is_direct_)
+    {
+      flags |= O_DIRECT;
+    }
+    FileManager::File file(path, flags);
     if (!file.is_valid())
     {
       std::ostringstream stream;
@@ -117,54 +164,155 @@ private:
              << path
              << " not valid, reason="
              << file.error_message();
-      logger_->error(stream.str());
+      logger_->emergency(stream.str());
+      return;
     }
 
-    FileManager::FileManager file_manager(config_, logger_.in());
-
     std::string read_buffer;
-    read_buffer.resize(write_data_.size());
+    std::string write_buffer;
+    std::unique_ptr<char, FileManager::Utils::AlignedFreeDeleter> aligned_read_buffer;
+    std::unique_ptr<char, FileManager::Utils::AlignedFreeDeleter> aligned_write_buffer;
+    std::string_view read_buffer_view;
+    std::string_view write_buffer_view;
+
+    const std::string write_data(block_size_, 'a');
+    const std::size_t size_write_buffer = block_size_;
+    const std::size_t size_read_buffer = block_size_;
+    if (is_iopoll || is_direct_)
+    {
+      aligned_read_buffer.reset(static_cast<char*>(
+        FileManager::Utils::aligned_alloc(
+          size_read_buffer,
+          kPageSize)));
+      read_buffer_view = std::string_view{
+        aligned_read_buffer.get(),
+        size_read_buffer};
+
+      aligned_write_buffer.reset(static_cast<char*>(
+        FileManager::Utils::aligned_alloc(
+          size_write_buffer,
+          kPageSize)));
+      std::memcpy(
+        aligned_write_buffer.get(),
+        write_data.data(),
+        size_write_buffer);
+      write_buffer_view = std::string_view{
+        aligned_write_buffer.get(),
+        size_write_buffer};
+    }
+    else
+    {
+      read_buffer.resize(size_read_buffer);
+      read_buffer_view = read_buffer;
+      write_buffer_view = write_data;
+    }
+
+    if (test_type_ == TestType::FileToCoro)
+    {
+      file_manager_pool_.write(file, write_buffer_view, 0);
+    }
+
+    const auto length = file.get_length();
+    if (!length)
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << "get_length is failed";
+      logger_->emergency(stream.str());
+      return;
+    }
+
+    std::random_device random_device;
+    std::mt19937 gen(random_device());
+    std::uniform_int_distribution<uint32_t> dist(
+      0,
+      *length >= block_size_ ? *length - block_size_ : 0);
 
     while (!is_strop_)
     {
-      int result = file_manager.write(file, write_data_, 0);
-      if (result == static_cast<int>(write_data_.size()))
+      std::int64_t offset = 0;
+      if (test_type_ == TestType::SingleFile)
       {
-        statistics_.success_write.fetch_add(1, std::memory_order_relaxed);
-      }
-      else
-      {
-        statistics_.error_write.fetch_add(1, std::memory_order_relaxed);
+        if (is_iopoll || is_direct_)
+        {
+          offset = (dist(gen) / kPageSize) * kPageSize;
+        }
+        else
+        {
+          offset = dist(gen);
+        }
       }
 
-      result = file_manager.read(file, read_buffer, 0);
-      if (result == static_cast<int>(write_data_.size()))
+      if (operation_type_ == OperationType::Write || operation_type_ == OperationType::ReadWrite)
       {
-        statistics_.success_read.fetch_add(1, std::memory_order_relaxed);
+        int result = file_manager_pool_.write(file, write_buffer_view, offset);
+        if (result == static_cast<int>(block_size_))
+        {
+          statistics_.success_write.fetch_add(1, std::memory_order_relaxed);
+        }
+        else
+        {
+          statistics_.error_write.fetch_add(1, std::memory_order_relaxed);
+        }
       }
-      else
+
+      offset = 0;
+      if (test_type_ == TestType::SingleFile)
       {
-        statistics_.error_read.fetch_add(1, std::memory_order_relaxed);
+        if (is_iopoll || is_direct_)
+        {
+          offset = (dist(gen) / kPageSize) * kPageSize;
+        }
+        else
+        {
+          offset = dist(gen);
+        }
+      }
+
+      if (operation_type_ == OperationType::Read || operation_type_ == OperationType::ReadWrite)
+      {
+        int result = file_manager_pool_.read(file, read_buffer_view, offset);
+        if (result == static_cast<int>(block_size_))
+        {
+          statistics_.success_read.fetch_add(1, std::memory_order_relaxed);
+        }
+        else
+        {
+          statistics_.error_read.fetch_add(1, std::memory_order_relaxed);
+        }
       }
     }
 
-    std::remove(path.c_str());
+    if (test_type_ == TestType::FileToCoro)
+    {
+      std::remove(path.c_str());
+    }
   }
 
 private:
+  const TestType test_type_;
+
+  const OperationType operation_type_;
+
   std::atomic<bool> is_strop_{false};
 
   const std::string file_name = "test_file_manager";
 
   Logger_var logger_;
 
-  const FileManagerConfig config_;
-
   const std::string directory_path_;
 
   const std::size_t number_coroutines_;
 
-  const std::string write_data_;
+  const std::size_t file_size_;
+
+  const std::size_t block_size_;
+
+  const bool is_direct_;
+
+  FileManagerConfig config_;
+
+  FileManager::FileManagerPool file_manager_pool_;
 
   Statistics& statistics_;
 
@@ -181,30 +329,95 @@ public:
 
 public:
   Application(
+    const TestType test_type,
+    const OperationType operation_type,
     const std::size_t time_interval,
     const FileManagerConfig& config,
     const std::string& directory_path,
+    const std::string& file_name,
     const std::size_t number_coroutines,
-    const std::string& write_data)
-    : time_interval_(time_interval)
+    const std::size_t file_size,
+    const std::size_t block_size,
+    const bool is_direct)
+    : test_type_(test_type),
+      operation_type_(operation_type),
+      time_interval_(time_interval),
+      block_size_(block_size)
   {
     logger_ = new Logging::OStream::Logger(
       Logging::OStream::Config(
         std::cerr,
         Logging::Logger::INFO));
 
+    std::ostringstream stream;
+    stream << "\n\nBenchmark: \n"
+           << (test_type == TestType::SingleFile ? "With single file\n" : "With file to coroutine\n");
+    if (test_type == TestType::SingleFile)
+    {
+      stream << "File size = "
+             << file_size
+             << " GB\n";
+    }
+
+    stream << "Io_rings number = "
+           << config.number_io_urings
+           << "\nNumber coroutines = "
+           << number_coroutines
+           << "\nBlock size = "
+           << block_size
+           << " Bytes\n"
+           << "Operation type = ";
+    if (operation_type == OperationType::Read)
+    {
+      stream << "Read";
+    }
+    else if (operation_type == OperationType::Write)
+    {
+      stream << "Write";
+    }
+    else if (operation_type == OperationType::ReadWrite)
+    {
+      stream << "ReadWrite";
+    }
+    stream << std::endl;
+    logger_->info(stream.str());
+
+    if (test_type == TestType::SingleFile)
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << "Start creation file="
+             << (directory_path + file_name)
+             << ". Size of file="
+             << file_size
+             << "GB";
+      logger_->info(stream.str());
+      create_file(file_size, directory_path, file_name);
+      logger_->info(std::string("File is successful created"));
+    }
+
     benchmark_ = new Benchmark(
+      test_type,
+      operation_type,
       logger_.in(),
       config,
       directory_path,
+      file_name,
       number_coroutines,
-      write_data,
+      file_size,
+      block_size,
+      is_direct,
       statistics_);
   }
 
   void run()
   {
     logger_->info(std::string("Start benchmark"));
+
+    Logger_var userver_logger = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::ERROR));
 
     CoroPoolConfig coro_pool_config;
     coro_pool_config.initial_size = 1000;
@@ -215,30 +428,35 @@ public:
 
     TaskProcessorConfig main_task_processor_config;
     main_task_processor_config.name = "main_task_processor";
-    main_task_processor_config.worker_threads = std::thread::hardware_concurrency();
+    main_task_processor_config.worker_threads =
+      std::thread::hardware_concurrency();
     main_task_processor_config.thread_name = "main_tskpr";
     main_task_processor_config.should_guess_cpu_limit = false;
-    main_task_processor_config.wait_queue_length_limit = 100000;
+    main_task_processor_config.wait_queue_length_limit = 200000;
 
     TaskProcessorContainerBuilderPtr task_processor_container_builder(
       new TaskProcessorContainerBuilder(
-         logger_.in(),
-          coro_pool_config,
-          event_thread_pool_config,
-          main_task_processor_config));
+        userver_logger.in(),
+        coro_pool_config,
+        event_thread_pool_config,
+        main_task_processor_config));
 
     auto init_func =
-      [benchmark = std::move(benchmark_)] (TaskProcessorContainer& task_processor_container) {
-        ComponentsBuilderPtr components_builder(new ComponentsBuilder);
-        components_builder->add_user_component("Benchmark", benchmark.in());
-        return components_builder;
-    };
+      [benchmark = std::move(benchmark_)] (
+        TaskProcessorContainer& task_processor_container) {
+          ComponentsBuilderPtr components_builder(
+            new ComponentsBuilder);
+          components_builder->add_user_component(
+            "Benchmark",
+            benchmark.in());
+          return components_builder;
+      };
 
     Manager_var manager(
       new Manager(
         std::move(task_processor_container_builder),
         std::move(init_func),
-        logger_.in()));
+        userver_logger.in()));
 
     manager->activate_object();
 
@@ -263,19 +481,35 @@ public:
 
           logger_->info(std::string("--------------------"));
           std::ostringstream stream;
-          stream << "\n"
-                 << "Success read[count/s] = "
-                 << success_read / time_interval_
-                 << "\n"
-                 << "Error read[count/s] = "
-                 << error_read / time_interval_
-                 << "\n"
-                 << "Success write[count/s] = "
-                 << success_write / time_interval_
-                 << "\n"
-                 << "Error write[count/s] = "
-                 << error_write / time_interval_
-                 << "\n";
+
+          if (operation_type_ == OperationType::Read || operation_type_ == OperationType::ReadWrite)
+          {
+            stream << "\n"
+                   << "Success read[count/s] = "
+                   << success_read / time_interval_
+                   << "\n"
+                   << "Error read[count/s] = "
+                   << error_read / time_interval_
+                   << "\n"
+                   << "Read[Mb/s] = "
+                   << ((success_write * block_size_) / (time_interval_ * 1048576))
+                   << "\n";
+          }
+
+          if (operation_type_ == OperationType::Write || operation_type_ == OperationType::ReadWrite)
+          {
+            stream << "\n"
+                   << "Success write[count/s] = "
+                   << success_write / time_interval_
+                   << "\n"
+                   << "Error write[count/s] = "
+                   << error_write / time_interval_
+                   << "\n"
+                   << "Write[Mb/s] = "
+                   << ((success_write * block_size_) / (time_interval_ * 1048576))
+                   << "\n";
+          }
+
           logger_->info(stream.str());
         }
       }
@@ -308,10 +542,49 @@ private:
     }
   }
 
+  void create_file(
+    const std::size_t file_size,
+    const std::string& directory_path,
+    const std::string& file_name)
+  {
+    const std::string path_to_file = directory_path + file_name;
+    std::remove(path_to_file.c_str());
+    const std::size_t file_size_bytes = 1073741824 * file_size;
+
+    std::ofstream ofs(path_to_file, std::ios::trunc);
+    if (!ofs)
+    {
+      std::ostringstream stream;
+      stream << FNS
+             << "Can't open file="
+             << path_to_file;
+      throw std::runtime_error(stream.str());
+    }
+
+    const std::string data(4 * 1024 * 1024, 'a');
+    const std::size_t number = file_size_bytes / data.size();
+    for (std::size_t i = 1; i <= number; ++i)
+    {
+      if (!(ofs << data))
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "Creation file is failed";
+        throw std::runtime_error(stream.str());
+      }
+    }
+  }
+
 private:
+  const TestType test_type_;
+
+  const OperationType operation_type_;
+
   Statistics statistics_;
 
   const std::size_t time_interval_;
+
+  const std::size_t block_size_;
 
   Logger_var logger_;
 
@@ -323,21 +596,35 @@ int main(int /*argc*/, char** /*argv*/)
   try
   {
     FileManager::Config config;
-    config.number_io_urings = 5;
+    config.number_io_urings = std::thread::hardware_concurrency();
     config.io_uring_size = 10000;
-    config.io_uring_flags = IORING_SETUP_ATTACH_WQ;
+    config.event_queue_max_size = 1000000;
+    config.io_uring_flags = IORING_SETUP_ATTACH_WQ; // | IORING_SETUP_IOPOLL
 
-    const std::size_t time_interval = 2;
-    const std::string directory_path = "/tmp/";
-    const std::size_t number_coroutines = 300;
-    const std::string write_data(100, 'a');
+    const OperationType operation_type = OperationType::ReadWrite;
+    const TestType test_type = TestType::SingleFile;
+    // https://stackoverflow.com/questions/76533640/why-o-direct-is-slower-than-normal-read
+    const bool is_direct = false;
+    const std::size_t time_interval = 5;
+    const std::string directory_path = "/u03/test/";
+    const std::string file_name = "test_file_manager";
+    const std::size_t number_coroutines = 3000;
+    // File size in Gb
+    const std::size_t size_file = 10;
+    // Read/write block in bytes
+    const std::size_t block_size = 32 * 1024;
 
     Application application(
+      test_type,
+      operation_type,
       time_interval,
       config,
       directory_path,
+      file_name,
       number_coroutines,
-      write_data);
+      size_file,
+      block_size,
+      is_direct);
     application.run();
     return EXIT_SUCCESS;
   }
