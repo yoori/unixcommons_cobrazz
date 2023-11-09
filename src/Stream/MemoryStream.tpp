@@ -399,10 +399,9 @@ namespace Stream
 
       template <typename Elem, const size_t SIZE, typename Buffer,
         typename BufferInitializer>
-      typename Simple<Elem, SIZE, Buffer, BufferInitializer>::
-        Allocator::pointer
+      typename Simple<Elem, SIZE, Buffer, BufferInitializer>::Pointer
       Simple<Elem, SIZE, Buffer, BufferInitializer>::allocate(
-        typename Allocator::size_type size, const void*) throw ()
+        Size size, const void*) throw ()
       {
         if (allocated_ || size >= SIZE)
         {
@@ -416,7 +415,7 @@ namespace Stream
         typename BufferInitializer>
       void
       Simple<Elem, SIZE, Buffer, BufferInitializer>::deallocate(
-        typename Allocator::pointer ptr, typename Allocator::size_type size)
+        Pointer ptr, Size size)
         throw ()
       {
         if (!allocated_ || ptr != buffer_ || size >= SIZE)

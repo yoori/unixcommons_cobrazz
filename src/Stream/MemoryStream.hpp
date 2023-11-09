@@ -86,9 +86,10 @@ namespace Stream
       typedef typename Traits::pos_type Position;
       typedef typename Traits::off_type Offset;
 
-      typedef typename Allocator::pointer Pointer;
-      typedef typename Allocator::const_pointer ConstPointer;
-      typedef typename Allocator::size_type Size;
+      typedef std::allocator_traits<Allocator> AllocatorTraits;
+      typedef typename AllocatorTraits::pointer Pointer;
+      typedef typename AllocatorTraits::const_pointer ConstPointer;
+      typedef typename AllocatorTraits::size_type Size;
 
       /**
        * Constructor
@@ -309,6 +310,9 @@ namespace Stream
       {
       public:
         typedef std::allocator<Elem> Allocator;
+        typedef std::allocator_traits<Allocator> AllocatorTraits;
+        typedef AllocatorTraits::pointer Pointer;
+        typedef AllocatorTraits::size_type Size;
 
         /**
          * Constructor without parameters
@@ -327,8 +331,8 @@ namespace Stream
          * @param size should be equal to SIZE
          * @return pointer to size_ternal buffer
          */
-        typename Allocator::pointer
-        allocate(typename Allocator::size_type size, const void* = 0)
+        Pointer
+        allocate(Size size, const void* = 0)
           throw ();
 
         /**
@@ -338,8 +342,7 @@ namespace Stream
          * @param size should be equal to SIZE
          */
         void
-        deallocate(typename Allocator::pointer ptr,
-          typename Allocator::size_type size) throw ();
+        deallocate(Pointer ptr, Size size) throw ();
 
       private:
         Buffer buffer_;

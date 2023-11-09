@@ -3,24 +3,33 @@
 
 // POSIX
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 // STD
+#include <bit>
+#include <cassert>
+#include <sstream>
 #include <string>
+
+// THIS
+#include <eh/Exception.hpp>
+#include <Generics/Function.hpp>
+#include <Generics/Uncopyable.hpp>
+
+#define assertm(exp, msg) assert(((void)msg, exp))
 
 namespace UServerUtils::Grpc::FileManager::Utils
 {
 
+namespace Internal
+{
+
 #if defined(__GLIBC__)
-#define USE_HISTORICAL_STRERROR_R 1
-#elif defined(__BIONIC__) && defined(_GNU_SOURCE) && __ANDROID_API__ >= 23
 #define USE_HISTORICAL_STRERROR_R 1
 #else
 #define USE_HISTORICAL_STRERROR_R 0
 #endif
-
-namespace Internal
-{
 
 #if USE_HISTORICAL_STRERROR_R
 inline void wrap_posix_strerror_r(
@@ -80,6 +89,28 @@ inline void safe_strerror_r(int error, char* buffer, size_t length)
   wrap_posix_strerror_r(&strerror_r, error, buffer, length);
 }
 
+template <class T, class = std::enable_if_t<std::is_integral_v<T>>>
+constexpr bool is_power_of_two(T t) noexcept
+{
+  return std::has_single_bit(t);
+}
+
+#ifdef __has_builtin
+#define SUPPORTS_BUILTIN_IS_ALIGNED (__has_builtin(__builtin_is_aligned))
+#else
+#define SUPPORTS_BUILTIN_IS_ALIGNED 0
+#endif
+
+inline bool is_aligned(const void* val, const std::size_t alignment) noexcept
+{
+#if SUPPORTS_BUILTIN_IS_ALIGNED
+  return __builtin_is_aligned(val, alignment);
+#else
+  assertm(is_power_of_two(alignment), "alignment is not a power of 2");
+  return (reinterpret_cast<uintptr_t>(val) & (alignment - 1)) == 0;
+#endif
+}
+
 } // namespace Internal
 
 inline std::string safe_strerror(const int error)
@@ -90,7 +121,39 @@ inline std::string safe_strerror(const int error)
   return std::string(buffer);
 }
 
-class ScopedErrno final
+inline void* aligned_alloc(const std::size_t size, const std::size_t alignment)
+{
+  assert(size != 0);
+  assert(Internal::is_power_of_two(alignment));
+  assert(alignment % sizeof(void*) == 0);
+
+  void* ptr = nullptr;
+  const int ret = posix_memalign(&ptr, alignment, size);
+  if (ret != 0)
+  {
+    std::ostringstream stream;
+    stream << FNS
+           << safe_strerror(ret);
+    throw std::runtime_error(stream.str().c_str());
+  }
+
+  assert(Internal::is_aligned(ptr, alignment));
+  return ptr;
+}
+
+inline void aligned_free(void* ptr) noexcept
+{
+  free(ptr);
+}
+
+struct AlignedFreeDeleter {
+  void operator()(void* ptr) const noexcept
+  {
+    aligned_free(ptr);
+  }
+};
+
+class ScopedErrno final : private Generics::Uncopyable
 {
 public:
   ScopedErrno() noexcept

@@ -21,7 +21,7 @@ File::File(
   const std::string& path,
   const int flags) noexcept
 {
-  initialize(path, flags);
+  open(path, flags);
 }
 
 File::File(const File& file) noexcept
@@ -113,14 +113,14 @@ bool File::is_valid() const noexcept
   return fd_ != -1;
 }
 
-bool File::initialize(
+bool File::open(
   const std::string& path,
   const int flags) noexcept
 {
   close();
 
   Utils::ScopedErrno scoped_errno;
-  const auto result = open(path.c_str(), flags, 0666);
+  const auto result = ::open(path.c_str(), flags, 0666);
   if (result == -1)
   {
     fd_ = -1;
@@ -151,7 +151,7 @@ std::string File::error_message() const
   }
 }
 
-std::optional<std::int64_t> File::get_length() const noexcept
+std::optional<std::uint64_t> File::get_length() const noexcept
 {
   if (!is_valid())
     return {};

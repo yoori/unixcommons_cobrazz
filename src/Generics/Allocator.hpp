@@ -500,7 +500,7 @@ namespace Generics
       Pointer ptr, size_t size) throw ()
     {
       allocator_.deallocate(
-        static_cast<typename Allocator::pointer>(ptr), size);
+        static_cast<typename std::allocator_traits<Allocator>::pointer>(ptr), size);
     }
 
     template <typename Allocator>
@@ -510,7 +510,7 @@ namespace Generics
       Allocator allocator(allocator_);
       this->~Template();
       allocator.deallocate(
-        reinterpret_cast<typename Allocator::pointer>(
+        reinterpret_cast<typename std::allocator_traits<Allocator>::pointer>(
           const_cast<Template*>(this)), sizeof(Template));
     }
 

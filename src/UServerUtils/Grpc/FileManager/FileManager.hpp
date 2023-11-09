@@ -80,6 +80,7 @@ private:
     Callback callback;
   };
 
+  using SemaphorePtr = std::shared_ptr<Semaphore>;
   using EventQueue = UServerUtils::Grpc::Core::Common::QueueAtomic<Event>;
   using EventQueuePtr = std::shared_ptr<EventQueue>;
   using PointerMember = void(FileManager::*) (
@@ -91,7 +92,12 @@ private:
 public:
   explicit FileManager(
     const Config& config,
-    Logging::Logger* logger);
+    Logger* logger);
+
+  explicit FileManager(
+    const Config& config,
+    const std::uint32_t uring_fd,
+    Logger* logger);
 
   /**
    * You must ensure that buffer survives callback.
@@ -139,18 +145,20 @@ public:
 
   ~FileManager();
 
+  std::uint32_t uring_fd() const noexcept;
+
 private:
   void initialize(IoUringPtr&& uring);
 
   void run(
-    const int semaphore_fd,
+    const SemaphorePtr& semaphore,
     IoUringPtr&& uring) noexcept;
 
   bool create_semaphore_event(
     const int semaphore_fd,
     io_uring* const uring) noexcept;
 
-  void create_read_or_write_event(
+  bool create_read_or_write_event(
     const bool is_read,
     const int fd,
     const std::string_view buffer,
@@ -160,6 +168,7 @@ private:
 
   void on_semaphore_ready(
     io_uring* const uring,
+    std::size_t& number_added_operation,
     bool& is_cansel) noexcept;
 
   void on_write_ready(
@@ -171,8 +180,7 @@ private:
     Callback&& callback) const noexcept;
 
   void add_event_to_queue(
-    Event&& event,
-    Callback&& callback) noexcept;
+    Event&& event) noexcept;
 
   int call(
     PointerMember const pointer,
@@ -185,7 +193,9 @@ private:
 
   EventQueuePtr event_queue_;
 
-  Semaphore semaphore_;
+  SemaphorePtr semaphore_;
+
+  std::uint32_t uring_fd_ = 0;
 
   ThreadPtr thread_;
 };
