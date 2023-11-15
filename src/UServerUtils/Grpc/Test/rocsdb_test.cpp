@@ -275,7 +275,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     future.wait();
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -293,7 +293,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     EXPECT_TRUE(status.ok());
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -316,7 +316,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     future.wait();
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -333,7 +333,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     EXPECT_EQ(result, value);
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   const std::size_t number = 3000;
   {
@@ -387,7 +387,7 @@ void test_Get(std::optional<std::int32_t> ttl)
     EXPECT_TRUE(status.ok());
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -528,7 +528,7 @@ void test_MultiGet(std::optional<std::int32_t> ttl)
     }
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -563,7 +563,7 @@ void test_MultiGet(std::optional<std::int32_t> ttl)
     future.wait();
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
