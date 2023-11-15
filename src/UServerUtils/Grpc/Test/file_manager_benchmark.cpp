@@ -492,7 +492,7 @@ public:
                    << error_read / time_interval_
                    << "\n"
                    << "Read[Mb/s] = "
-                   << ((success_write * block_size_) / (time_interval_ * 1048576))
+                   << ((success_read * block_size_) / (time_interval_ * 1048576))
                    << "\n";
           }
 
