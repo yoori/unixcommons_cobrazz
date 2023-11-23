@@ -91,6 +91,8 @@ namespace String
     operator =(wchar_t new_value)
       /*throw (RangeException, eh::Exception)*/;
 
+    UnicodeSymbol& operator=(const String::UnicodeSymbol& s);
+
     /**
      * @return length of corresponding UTF-8 byte sequence.
      */
@@ -376,6 +378,13 @@ namespace String
   UnicodeSymbol::c_ustr() const /*throw (RangeException)*/
   {
     return reinterpret_cast<const unsigned char*>(c_str());
+  }
+
+  UnicodeSymbol& 
+  UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
+  {
+     code_unit_ = symbol.code_unit_;
+     return *this;
   }
 
   inline
