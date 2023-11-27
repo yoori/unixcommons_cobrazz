@@ -1,10 +1,12 @@
+
 include(FetchContent)
-set(USE_RTTI 1 CACHE INTERNAL "USE_RTTI enable")
-FetchContent_Declare(rocksdb
-  GIT_REPOSITORY https://github.com/arbogdanov/rocksdb.git
-  GIT_TAG master
-)
-FetchContent_MakeAvailable(rocksdb)
+
+#set(USE_RTTI 1 CACHE INTERNAL "USE_RTTI enable")
+#FetchContent_Declare(rocksdb
+#  GIT_REPOSITORY https://github.com/arbogdanov/rocksdb.git
+#  GIT_TAG master
+#)
+#FetchContent_MakeAvailable(rocksdb)
 
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
@@ -27,7 +29,7 @@ endif()
 include_directories (
   ${Boost_INCLUDE_DIRS}
   ${GRPC_PROTOBUF_INCLUDE_DIRS}
-  ${rocksdb_SOURCE_DIR}/include
+  #${rocksdb_SOURCE_DIR}/include
   Grpc/Core
 )
 
