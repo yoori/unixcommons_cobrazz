@@ -42,7 +42,7 @@ components_manager:
         dynamic-config:                      # Dynamic config storage options, do nothing
             fs-cache-path: ''
         dynamic-config-fallbacks:            # Load options from file and push them into the dynamic config storage.
-            fallback-path: /tmp/dynamic_config_fallback.json
+            fallback-path: /tmp/dynamic_config_fallback~pid~.json
         auth-checker-settings:
         # /// [Config service sample - handler static config]
         # yaml
@@ -64,6 +64,8 @@ components_manager:
     "max-size": 100,
     "token-update-interval-ms": 0
   },
+  "USERVER_GRPC_CLIENT_ENABLE_DEADLINE_PROPAGATION": false,
+  "USERVER_GRPC_SERVER_CANCEL_TASK_BY_DEADLINE": true,
   "USERVER_BAGGAGE_ENABLED": false,
   "USERVER_CACHES": {},
   "USERVER_CANCEL_HANDLE_REQUEST_BY_DEADLINE": false,
@@ -134,18 +136,22 @@ components_manager:
 
 )x";
 
-Sync::PosixMutex mutex_;
+  Sync::PosixMutex mutex_;
+  std::string fallback_name()
+  {
+    return "/tmp/dynamic_config_fallback_"+std::to_string(getpid())+".json";
+  }
   void copy_json_to_tmp()
   {
       Sync::PosixGuard tmpVar(mutex_);
       std::ofstream myfile;
-      myfile.open ("/tmp/dynamic_config_fallback.json");
+      myfile.open (fallback_name());
       myfile << dynamic_config_fallback_json;
       myfile.close();
   }
   void remove_json_from_tmp()
   {
-    std::string pn="/tmp/dynamic_config_fallback.json";
+    std::string pn=fallback_name();
     unlink(pn.c_str());
   }
 }
