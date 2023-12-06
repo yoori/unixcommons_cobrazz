@@ -71,23 +71,23 @@ set_property(
   PROPERTY COMPILE_OPTIONS -Wno-error
 )
 
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.10.0)
-FetchContent_MakeAvailable(googletest)
+#FetchContent_Declare(
+#  googletest
+#  GIT_REPOSITORY https://github.com/google/googletest.git
+#  GIT_TAG release-1.10.0)
+#FetchContent_MakeAvailable(googletest)
 
-option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
-option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
-option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
-option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
-option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
-FetchContent_Declare(
-  userver
-  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
-  GIT_TAG cobrazz
-)
-FetchContent_MakeAvailable(userver)
+#option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
+#option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
+#option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
+#option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
+#option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
+#FetchContent_Declare(
+#  userver
+#  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
+#  GIT_TAG cobrazz
+#)
+#FetchContent_MakeAvailable(userver)
 
 set_property(
   DIRECTORY
