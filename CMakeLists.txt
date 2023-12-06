@@ -49,6 +49,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
 find_package(IDL REQUIRED)
+find_package(Nghttp2 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(userver REQUIRED)

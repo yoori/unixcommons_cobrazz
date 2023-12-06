@@ -574,8 +574,8 @@ ClientImpl<RpcServiceMethodConcept>::on_read(
   if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING
              || k_rpc_type == Internal::RpcType::SERVER_STREAMING)
   {
-    if (rpc_state_ != RpcState::Initialize
-     && rpc_state_ != RpcState::WritesDone
+    if ((rpc_state_ != RpcState::Initialize
+     && rpc_state_ != RpcState::WritesDone)
      || !ok)
     {
       return;
