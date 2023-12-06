@@ -42,7 +42,7 @@ components_manager:
         dynamic-config:                      # Dynamic config storage options, do nothing
             fs-cache-path: ''
         dynamic-config-fallbacks:            # Load options from file and push them into the dynamic config storage.
-            fallback-path: /tmp/dynamic_config_fallback~pid~.json
+            fallback-path: /tmp/dynamic_config_fallback_~pid~.json
         auth-checker-settings:
         # /// [Config service sample - handler static config]
         # yaml
