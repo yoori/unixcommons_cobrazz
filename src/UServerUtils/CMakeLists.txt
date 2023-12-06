@@ -2,9 +2,9 @@ include(FetchContent)
 
 cmake_policy(SET CMP0079 NEW)
 
-set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
-set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
-set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
+#set(USERVER_NAMESPACE userver CACHE STRING "Open C++ namespace to use")
+#set(USERVER_NAMESPACE_BEGIN "namespace ${USERVER_NAMESPACE} {" CACHE STRING "Open C++ namespace to use")
+#set(USERVER_NAMESPACE_END "}" CACHE STRING "Close C++ namespace to use")
 
 find_package(absl)
 if (NOT absl_FOUND)
@@ -71,24 +71,6 @@ set_property(
   PROPERTY COMPILE_OPTIONS -Wno-error
 )
 
-#FetchContent_Declare(
-#  googletest
-#  GIT_REPOSITORY https://github.com/google/googletest.git
-#  GIT_TAG release-1.10.0)
-#FetchContent_MakeAvailable(googletest)
-
-#option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
-#option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
-#option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
-#option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
-#option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
-#FetchContent_Declare(
-#  userver
-#  GIT_REPOSITORY https://github.com/arbogdanov/userver.git
-#  GIT_TAG cobrazz
-#)
-#FetchContent_MakeAvailable(userver)
-
 set_property(
   DIRECTORY
   PROPERTY COMPILE_OPTIONS ${compile_options}
@@ -135,15 +117,15 @@ target_link_libraries(UServerUtils
   pthread
 )
 
-target_compile_definitions(UServerUtils PUBLIC
-  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
-  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
-  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
+#target_compile_definitions(UServerUtils PUBLIC
+#  "USERVER_NAMESPACE=${USERVER_NAMESPACE}"
+#  "USERVER_NAMESPACE_BEGIN=${USERVER_NAMESPACE_BEGIN}"
+#  "USERVER_NAMESPACE_END=${USERVER_NAMESPACE_END}")
 
-set(USERVER_INCLUDE_DIRS
-  ${USERVER_PUBLIC_INCLUDE_DIRS}
-  ${userver_SOURCE_DIR}/third_party/moodycamel/include
-  CACHE INTERNAL "")
+#set(USERVER_INCLUDE_DIRS
+#  ${USERVER_PUBLIC_INCLUDE_DIRS}
+#  ${userver_SOURCE_DIR}/third_party/moodycamel/include
+#  CACHE INTERNAL "")
 
 # UnitTests
 include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)

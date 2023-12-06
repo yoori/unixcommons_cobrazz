@@ -42,6 +42,9 @@ find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(IDL REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(userver REQUIRED)
 
 include_directories(src src/CORBA)
 
