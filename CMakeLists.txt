@@ -57,6 +57,9 @@ find_package(Threads REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(userver REQUIRED)
+find_package(uring REQUIRED)
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/") # workaround for snappy-devel installation bug
+find_package(RocksDB REQUIRED)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/UServerUtils/Grpc/Generator/GrpcTargets.cmake)
 
