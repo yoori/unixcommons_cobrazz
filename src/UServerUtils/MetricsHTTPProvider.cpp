@@ -28,11 +28,14 @@ namespace UServerUtils
     {
         // TO FIX: catch eh::exception globally for exclude crashing by unexpected exception if it will be raised by MinimalServerComponentList, ManagerConfig, ...
 
+        copy_json_to_tmp();
+
         const components::ComponentList component_list = components::MinimalServerComponentList()
                 .Append<ConfigDistributor>();
 
         auto conf_replaced = std::regex_replace(config_z_yaml,std::regex("~port~"), std::to_string(_this->listen_port_));
         conf_replaced = std::regex_replace(conf_replaced,std::regex("~uri~"), std::string(_this->uri_));
+        conf_replaced = std::regex_replace(conf_replaced,std::regex("~pid~"), std::to_string(getpid()));
         auto conf_prepared = std::make_unique<components::ManagerConfig>(components::ManagerConfig::FromString(conf_replaced, {}, {}));
         std::optional<components::Manager> manager;
 
@@ -64,7 +67,6 @@ namespace UServerUtils
     MetricsHTTPProvider::activate_object()
     {
         SimpleActiveObject::activate_object();
-        copy_json_to_tmp();
         thread_ = std::thread(worker,this);
     }
 

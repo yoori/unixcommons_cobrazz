@@ -58,15 +58,19 @@ set (SOURCES_FILES
   Grpc/ServerBuilder.cpp
   Grpc/TaskProcessorContainer.cpp
   Grpc/TaskProcessorContainerBuilder.cpp
-  ConfigDistributor.cpp
   GRPCServer.cpp
-  MetricsHTTPProvider.cpp
-  UServerConfigService.cpp
 )
 
 add_library(UServerUtils STATIC
   ${SOURCES_FILES}
 )
+
+add_library(UServerUtilsMetrics SHARED
+  ConfigDistributor.cpp
+  MetricsHTTPProvider.cpp
+  UServerConfigService.cpp
+)
+
 
 # link userver before other libraries, because it can be
 # static (DSO require shared linkage after)
@@ -83,6 +87,15 @@ target_link_libraries(UServerUtils
   userver-core
   userver-grpc
 )
+
+target_link_libraries(UServerUtilsMetrics
+  Generics
+  Logger
+  pthread
+  userver-core
+)
+
+
 
 add_grpc_library(UServerUtils_proto
   PROTOS
