@@ -13,7 +13,7 @@
 #include <userver/engine/async.hpp>
 #include <userver/engine/shared_mutex.hpp>
 #include <userver/engine/sleep.hpp>
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 
 // THIS
 #include <Generics/Uncopyable.hpp>

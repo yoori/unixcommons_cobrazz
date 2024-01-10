@@ -9,7 +9,7 @@
 #include <grpcpp/completion_queue.h>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
@@ -27,11 +27,8 @@ class GrpcServerBuilder final
 public:
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
-  using ActiveObjectCallback = Generics::ActiveObjectCallback;
-
   using TaskProcessor = userver::engine::TaskProcessor;
   using StatisticsStorage = GrpcServer::StatisticsStorage;
-
   using CompletionQueue = grpc::CompletionQueue;
   using GrpcServices = std::deque<GrpcServiceBase_var>;
   using Middlewares = userver::ugrpc::server::Middlewares;
@@ -39,6 +36,8 @@ public:
   using MiddlewaresList = std::list<MiddlewaresPtr>;
   using StorageMock = userver::dynamic_config::StorageMock;
   using StorageMockPtr = std::unique_ptr<StorageMock>;
+  using RegistratorDynamicSettings = UServerUtils::Grpc::RegistratorDynamicSettings;
+  using RegistratorDynamicSettingsPtr = std::unique_ptr<RegistratorDynamicSettings>;
 
   struct ServerInfo final
   {
@@ -61,8 +60,7 @@ public:
   explicit GrpcServerBuilder(
     Logger* logger,
     GrpcServerConfig&& config,
-    StatisticsStorage& statistics_storage,
-    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings);
+    StatisticsStorage& statistics_storage);
 
   ~GrpcServerBuilder() = default;
 
@@ -71,7 +69,6 @@ public:
   void add_grpc_service(
     TaskProcessor& task_processor,
     GrpcServiceBase* service,
-
     const Middlewares& middlewares = {});
 
 private:
@@ -79,6 +76,10 @@ private:
 
 private:
   friend class ComponentsBuilder;
+
+  RegistratorDynamicSettings registrator_dynamic_settings_;
+
+  StorageMockPtr storage_mock_;
 
   GrpcServer_var grpc_server_;
 

@@ -1,12 +1,4 @@
-
 include(FetchContent)
-
-#set(USE_RTTI 1 CACHE INTERNAL "USE_RTTI enable")
-#FetchContent_Declare(rocksdb
-#  GIT_REPOSITORY https://github.com/arbogdanov/rocksdb.git
-#  GIT_TAG master
-#)
-#FetchContent_MakeAvailable(rocksdb)
 
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
@@ -29,7 +21,6 @@ endif()
 include_directories (
   ${Boost_INCLUDE_DIRS}
   ${GRPC_PROTOBUF_INCLUDE_DIRS}
-  #${rocksdb_SOURCE_DIR}/include
   Grpc/Core
 )
 
@@ -49,6 +40,11 @@ set (SOURCES_FILES
   Grpc/FileManager/FileManagerPool.cpp
   Grpc/FileManager/IoUring.cpp
   Grpc/FileManager/Semaphore.cpp
+  Grpc/Http/Client/Client.cpp
+  Grpc/Http/Client/Request.cpp
+  Grpc/Http/Server/HttpHandler.cpp
+  Grpc/Http/Server/HttpServer.cpp
+  Grpc/Http/Server/HttpServerBuilder.cpp
   Grpc/RocksDB/DataBase.cpp
   Grpc/RocksDB/DataBaseManager.cpp
   Grpc/RocksDB/DataBaseManagerPool.cpp
@@ -122,10 +118,11 @@ add_executable(TestUserver
   Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
   Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
   Grpc/Test/grpc_notify_test.cpp
-  Grpc/Test/rocsdb_test.cpp
   Grpc/Test/grpc_test_main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
+  Grpc/Test/http_test.cpp
+  Grpc/Test/rocsdb_test.cpp
 )
 
 target_link_libraries(TestUserver

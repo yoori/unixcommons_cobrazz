@@ -17,8 +17,7 @@ const char BUILDER[] = "BUILDER";
 } // namespace Aspect
 
 ComponentsBuilder::ComponentsBuilder()
-  : registrator_dynamic_settings_(RegistratorDynamicSettingsPtr(new RegistratorDynamicSettings)),
-    statistics_storage_(new StatisticsStorage())
+  : statistics_storage_(new StatisticsStorage())
 {
 }
 
@@ -96,6 +95,31 @@ void ComponentsBuilder::add_grpc_cobrazz_server(
   }
 }
 
+void ComponentsBuilder::add_http_server(
+  std::unique_ptr<HttpServerBuilder>&& builder)
+{
+  auto http_builder = std::move(builder);
+  if (!http_builder)
+  {
+    Stream::Error stream;
+    stream << FNS
+           << ": builder is null";
+    throw Exception(stream);
+  }
+
+  auto server_info = http_builder->build();
+  auto& server = server_info.http_server;
+  auto& handlers = server_info.http_handlers;
+
+  add_component_cash(server);
+  http_servers_.emplace_back(std::move(server));
+
+  for (auto& handler : handlers)
+  {
+    add_component(handler);
+  }
+}
+
 GrpcClientFactory_var
 ComponentsBuilder::add_grpc_client_factory(
   GrpcClientFactoryConfig&& config,
@@ -114,7 +138,6 @@ ComponentsBuilder::add_grpc_client_factory(
       channel_task_processor,
       queue != nullptr ? *queue : queue_holders_.back()->GetQueue(),
       *statistics_storage_,
-      registrator_dynamic_settings_,
       middleware_factories));
 
   add_component(grpc_client_factory.in());
@@ -157,12 +180,6 @@ void ComponentsBuilder::add_user_component(
     Component_var(ReferenceCounting::add_ref(component)));
 }
 
-RegistratorDynamicSettingsPtr
-ComponentsBuilder::registrator_dynamic_settings() noexcept
-{
-  return registrator_dynamic_settings_;
-}
-
 bool ComponentsBuilder::check_component_cash(
   Component* component)
 {
@@ -196,6 +213,11 @@ ComponentsBuilder::build()
   std::move(
     std::begin(grpc_cobrazz_servers_),
     std::end(grpc_cobrazz_servers_),
+    std::back_inserter(components_));
+
+  std::move(
+    std::begin(http_servers_),
+    std::end(http_servers_),
     std::back_inserter(components_));
 
   ComponentsInfo components_info;

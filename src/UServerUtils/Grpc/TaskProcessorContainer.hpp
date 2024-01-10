@@ -10,8 +10,8 @@
 // USERVER
 #include <engine/coro/pool_config.hpp>
 #include <engine/task/task_processor_config.hpp>
-#include <engine/task/task_processor.hpp>
 #include <engine/task/task_processor_pools.hpp>
+#include <userver/engine/task/task_processor.hpp>
 
 // THIS
 #include <eh/Exception.hpp>

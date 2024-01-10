@@ -258,8 +258,6 @@ TEST_F(GrpcFixture2, Subtest_2)
       std::make_unique<ComponentsBuilder>();
     auto& statistic_storage =
       components_builder->get_statistics_storage();
-    auto registrator_dynamic_settings =
-      components_builder->registrator_dynamic_settings();
 
     GrpcServerConfig config_server;
     config_server.port = kPortServer1;
@@ -267,8 +265,7 @@ TEST_F(GrpcFixture2, Subtest_2)
       std::make_unique<GrpcServerBuilder>(
         logger,
         std::move(config_server),
-        statistic_storage,
-        registrator_dynamic_settings);
+        statistic_storage);
     GrpcServiceBase_var test_service(new Test1Service(kNameService1));
     server_builder->add_grpc_service(
       main_task_processor,
@@ -303,8 +300,6 @@ TEST_F(GrpcFixture2, Subtest_2)
       std::make_unique<ComponentsBuilder>();
     auto& statistic_storage =
       components_builder->get_statistics_storage();
-    auto registrator_dynamic_settings =
-      components_builder->registrator_dynamic_settings();
 
     GrpcServerConfig config_server;
     config_server.port = kPortServer2;
@@ -312,8 +307,7 @@ TEST_F(GrpcFixture2, Subtest_2)
       std::make_unique<GrpcServerBuilder>(
         logger,
         std::move(config_server),
-        statistic_storage,
-        registrator_dynamic_settings);
+        statistic_storage);
     GrpcServiceBase_var test_service(new Test2Service(kNameService2));
     server_builder->add_grpc_service(
       main_task_processor,

@@ -377,14 +377,11 @@ public:
 
       GrpcServerConfig config_server;
       config_server.port = port_;
-      auto registrator_dynamic_settings =
-        components_builder->registrator_dynamic_settings();
       GrpcServerBuilderPtr server_builder =
         std::make_unique<GrpcServerBuilder>(
           logger.in(),
           std::move(config_server),
-          statistic_storage,
-          registrator_dynamic_settings);
+          statistic_storage);
       GrpcServiceBase_var service(new Service);
       server_builder->add_grpc_service(
         main_task_processor,
