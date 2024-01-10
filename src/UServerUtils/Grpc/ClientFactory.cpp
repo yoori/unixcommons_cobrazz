@@ -15,7 +15,6 @@ GrpcClientFactory::GrpcClientFactory(
   TaskProcessor& channel_task_processor,
   CompletionQueue& completion_queue,
   StatisticsStorage& statistics_storage,
-  const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
   const MiddlewareFactories& middleware_factories)
   : testsuite_grpc_({}, false)
 {
@@ -25,7 +24,7 @@ GrpcClientFactory::GrpcClientFactory(
   client_config.credentials = grpc::InsecureChannelCredentials();
   client_config.native_log_level = userver::logging::Level::kError;
 
-  const auto& docs_map = registrator_dynamic_settings->docs_map();
+  const auto& docs_map = registrator_dynamic_settings_.docs_map();
   storage_mock_ = StorageMockPtr(new StorageMock(
     docs_map,
     {

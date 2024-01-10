@@ -5,7 +5,7 @@
 #include <memory>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 #include <userver/dynamic_config/storage_mock.hpp>
 #include <userver/ugrpc/client/client_factory.hpp>
 
@@ -56,11 +56,12 @@ private:
     TaskProcessor& channel_task_processor,
     CompletionQueue& queue,
     StatisticsStorage& statistics_storage,
-    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
     const MiddlewareFactories& middleware_factories = {});
 
 private:
   friend class ComponentsBuilder;
+
+  RegistratorDynamicSettings registrator_dynamic_settings_;
 
   GrpcControl testsuite_grpc_;
 

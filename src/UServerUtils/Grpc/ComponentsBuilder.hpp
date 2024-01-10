@@ -8,7 +8,7 @@
 #include <unordered_set>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 #include <userver/ugrpc/client/queue_holder.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
@@ -16,6 +16,7 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpServerBuilder.hpp>
 #include <UServerUtils/Grpc/ClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzServerBuilder.hpp>
@@ -53,6 +54,10 @@ private:
   using Middlewares = userver::ugrpc::server::Middlewares;
   using MiddlewaresPtr = std::unique_ptr<Middlewares>;
   using MiddlewaresList = std::list<MiddlewaresPtr>;
+  using HttpServer = UServerUtils::Http::Server::HttpServer;
+  using HttpServer_var = UServerUtils::Http::Server::HttpServer_var;
+  using HttpServers = std::deque<HttpServer_var>;
+  using HttpServerBuilder = Http::Server::HttpServerBuilder;
 
   struct ComponentsInfo
   {
@@ -90,12 +95,12 @@ public:
   void add_grpc_cobrazz_server(
     std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
 
+  void add_http_server(
+    std::unique_ptr<HttpServerBuilder>&& builder);
+
   void add_user_component(
     const std::string& name,
     Component* component);
-
-  RegistratorDynamicSettingsPtr
-  registrator_dynamic_settings() noexcept;
 
 private:
   ComponentsInfo build();
@@ -109,8 +114,6 @@ private:
 private:
   friend class Manager;
 
-  RegistratorDynamicSettingsPtr registrator_dynamic_settings_;
-
   StatisticsStoragePtr statistics_storage_;
 
   QueueHolders queue_holders_;
@@ -120,6 +123,8 @@ private:
   MiddlewaresList middlewares_list_;
 
   GrpcCobrazzServers grpc_cobrazz_servers_;
+
+  HttpServers http_servers_;
 
   Components components_;
 
