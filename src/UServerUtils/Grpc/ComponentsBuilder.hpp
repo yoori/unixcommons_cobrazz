@@ -24,6 +24,7 @@
 #include <UServerUtils/Grpc/Server.hpp>
 #include <UServerUtils/Grpc/ServerBuilder.hpp>
 #include <UServerUtils/Grpc/ServiceBase.hpp>
+#include <UServerUtils/Grpc/Http/HttpServerBuilder.hpp>
 
 namespace UServerUtils::Grpc
 {
@@ -53,6 +54,9 @@ private:
   using Middlewares = userver::ugrpc::server::Middlewares;
   using MiddlewaresPtr = std::unique_ptr<Middlewares>;
   using MiddlewaresList = std::list<MiddlewaresPtr>;
+  using HttpServer = UServerUtils::Http::HttpServer;
+  using HttpServer_var = UServerUtils::Http::HttpServer_var;
+  using HttpServers = std::deque<HttpServer_var>;
 
   struct ComponentsInfo
   {
@@ -90,12 +94,12 @@ public:
   void add_grpc_cobrazz_server(
     std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
 
+  void add_http_server(
+    std::unique_ptr<Http::HttpServerBuilder>&& builder);
+
   void add_user_component(
     const std::string& name,
     Component* component);
-
-  RegistratorDynamicSettingsPtr
-  registrator_dynamic_settings() noexcept;
 
 private:
   ComponentsInfo build();
@@ -109,8 +113,6 @@ private:
 private:
   friend class Manager;
 
-  RegistratorDynamicSettingsPtr registrator_dynamic_settings_;
-
   StatisticsStoragePtr statistics_storage_;
 
   QueueHolders queue_holders_;
@@ -120,6 +122,8 @@ private:
   MiddlewaresList middlewares_list_;
 
   GrpcCobrazzServers grpc_cobrazz_servers_;
+
+  HttpServers http_servers_;
 
   Components components_;
 

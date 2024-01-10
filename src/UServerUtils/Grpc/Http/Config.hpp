@@ -1,0 +1,32 @@
+#ifndef USERVER_HTTP_CONFIG_HPP
+#define USERVER_HTTP_CONFIG_HPP
+
+// USERVER
+#include <server/net/connection_config.hpp>
+#include <userver/server/request/request_config.hpp>
+#include <userver/server/request/request_config.hpp>
+#include <userver/server/handlers/handler_config.hpp>
+#include <server/server_config.hpp>
+
+namespace UServerUtils::Http
+{
+
+using HandlerConfig = userver::server::handlers::HandlerConfig;
+using ConnectionConfig = userver::server::net::ConnectionConfig;
+using HttpRequestConfig = userver::server::request::HttpRequestConfig;
+using ListenerConfig = userver::server::net::ListenerConfig;
+
+struct ServerConfig final
+{
+  ServerConfig() = default;
+  ~ServerConfig() = default;
+
+  std::string server_name = "HttpServer";
+  ListenerConfig listener_config;
+  ConnectionConfig connection_config;
+  HttpRequestConfig http_request_config;
+};
+
+} // namespace UServerUtils::Http
+
+#endif //USERVER_HTTP_CONFIG_HPP

@@ -56,11 +56,12 @@ private:
     TaskProcessor& channel_task_processor,
     CompletionQueue& queue,
     StatisticsStorage& statistics_storage,
-    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
     const MiddlewareFactories& middleware_factories = {});
 
 private:
   friend class ComponentsBuilder;
+
+  RegistratorDynamicSettings registrator_dynamic_settings_;
 
   GrpcControl testsuite_grpc_;
 

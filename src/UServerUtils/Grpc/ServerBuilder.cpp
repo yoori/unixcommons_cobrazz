@@ -12,8 +12,7 @@ namespace UServerUtils::Grpc
 GrpcServerBuilder::GrpcServerBuilder(
   Logger* logger,
   GrpcServerConfig&& config,
-  StatisticsStorage& statistics_storage,
-  const RegistratorDynamicSettingsPtr& registrator_dynamic_settings)
+  StatisticsStorage& statistics_storage)
 {
   GrpcServer::ServerConfig server_config;
   server_config.port = std::move(config.port);
@@ -21,7 +20,7 @@ GrpcServerBuilder::GrpcServerBuilder(
   server_config.enable_channelz = config.enable_channelz;
   server_config.native_log_level = userver::logging::Level::kError;
 
-  const auto& docs_map = registrator_dynamic_settings->docs_map();
+  const auto& docs_map = registrator_dynamic_settings_.docs_map();
   StorageMockPtr storage_mock(new StorageMock(
     docs_map,
     {
