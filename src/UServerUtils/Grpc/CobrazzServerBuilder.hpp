@@ -7,7 +7,7 @@
 
 // USERVER
 #include <eh/Exception.hpp>
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 
 // THIS
 #include <UServerUtils/Grpc/Core/Server/ConfigCoro.hpp>

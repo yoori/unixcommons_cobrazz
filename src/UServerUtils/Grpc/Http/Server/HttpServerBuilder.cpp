@@ -2,9 +2,9 @@
 #include <userver/tracing/manager.hpp>
 
 // THIS
-#include <UServerUtils/Grpc/Http/HttpServerBuilder.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpServerBuilder.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 HttpServerBuilder::HttpServerBuilder(
@@ -53,4 +53,4 @@ HttpServerBuilder::ServerInfo HttpServerBuilder::build()
   return server_info;
 }
 
-} // namespace UServerUtils::Http
+} // namespace UServerUtils::Http::Server

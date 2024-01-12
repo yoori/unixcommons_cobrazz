@@ -1,5 +1,5 @@
-#ifndef USERVER_HTTP_CONFIG_HPP
-#define USERVER_HTTP_CONFIG_HPP
+#ifndef USERVER_HTTP_SERVER_CONFIG_HPP
+#define USERVER_HTTP_SERVER_CONFIG_HPP
 
 // USERVER
 #include <server/net/connection_config.hpp>
@@ -8,7 +8,7 @@
 #include <userver/server/handlers/handler_config.hpp>
 #include <server/server_config.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 using HandlerConfig = userver::server::handlers::HandlerConfig;
@@ -29,4 +29,4 @@ struct ServerConfig final
 
 } // namespace UServerUtils::Http
 
-#endif //USERVER_HTTP_CONFIG_HPP
+#endif //USERVER_HTTP_SERVER_CONFIG_HPP

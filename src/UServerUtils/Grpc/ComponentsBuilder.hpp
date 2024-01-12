@@ -8,7 +8,7 @@
 #include <unordered_set>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 #include <userver/ugrpc/client/queue_holder.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
@@ -16,6 +16,7 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpServerBuilder.hpp>
 #include <UServerUtils/Grpc/ClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzServerBuilder.hpp>
@@ -24,7 +25,6 @@
 #include <UServerUtils/Grpc/Server.hpp>
 #include <UServerUtils/Grpc/ServerBuilder.hpp>
 #include <UServerUtils/Grpc/ServiceBase.hpp>
-#include <UServerUtils/Grpc/Http/HttpServerBuilder.hpp>
 
 namespace UServerUtils::Grpc
 {
@@ -54,8 +54,8 @@ private:
   using Middlewares = userver::ugrpc::server::Middlewares;
   using MiddlewaresPtr = std::unique_ptr<Middlewares>;
   using MiddlewaresList = std::list<MiddlewaresPtr>;
-  using HttpServer = UServerUtils::Http::HttpServer;
-  using HttpServer_var = UServerUtils::Http::HttpServer_var;
+  using HttpServer = UServerUtils::Http::Server::HttpServer;
+  using HttpServer_var = UServerUtils::Http::Server::HttpServer_var;
   using HttpServers = std::deque<HttpServer_var>;
 
   struct ComponentsInfo
@@ -95,7 +95,7 @@ public:
     std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
 
   void add_http_server(
-    std::unique_ptr<Http::HttpServerBuilder>&& builder);
+    std::unique_ptr<Http::Server::HttpServerBuilder>&& builder);
 
   void add_user_component(
     const std::string& name,

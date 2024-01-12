@@ -1,7 +1,7 @@
 // THIS
-#include <UServerUtils/Grpc/Http/HttpHandler.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpHandler.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 HttpHandler::HttpHandler(
@@ -69,4 +69,4 @@ void HttpHandlerImpl::HandleRequest(
 
 } // namespace internal
 
-} // namespace UServerUtils::Http
+} // namespace UServerUtils::Http::Server

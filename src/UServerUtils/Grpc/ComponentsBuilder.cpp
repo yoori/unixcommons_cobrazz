@@ -96,7 +96,7 @@ void ComponentsBuilder::add_grpc_cobrazz_server(
 }
 
 void ComponentsBuilder::add_http_server(
-  std::unique_ptr<Http::HttpServerBuilder>&& builder)
+  std::unique_ptr<Http::Server::HttpServerBuilder>&& builder)
 {
   auto http_builder = std::move(builder);
   if (!http_builder)

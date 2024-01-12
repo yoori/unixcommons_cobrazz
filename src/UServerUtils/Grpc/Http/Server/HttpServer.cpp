@@ -2,9 +2,9 @@
 #include <iostream>
 
 // THIS
-#include <UServerUtils/Grpc/Http/HttpServer.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpServer.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 namespace Aspect

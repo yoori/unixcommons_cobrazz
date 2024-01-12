@@ -1,12 +1,12 @@
-#ifndef USERVER_HTTP_HTTPSERVERBUILDER_HPP
-#define USERVER_HTTP_HTTPSERVERBUILDER_HPP
+#ifndef USERVER_HTTP_SERVER_HTTPSERVERBUILDER_HPP
+#define USERVER_HTTP_SERVER_HTTPSERVERBUILDER_HPP
 
 // STD
 #include <deque>
 #include <memory>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor.hpp>
 #include <userver/utils/statistics/storage.hpp>
 #include <userver/dynamic_config/storage_mock.hpp>
 
@@ -14,9 +14,9 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <Logger/Logger.hpp>
-#include <UServerUtils/Grpc/Http/Config.hpp>
-#include <UServerUtils/Grpc/Http/HttpHandler.hpp>
-#include <UServerUtils/Grpc/Http/HttpServer.hpp>
+#include <UServerUtils/Grpc/Http/Server/Config.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpHandler.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpServer.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
 #include <UServerUtils/Grpc/RegistratorDynamicSettings.hpp>
 
@@ -27,13 +27,13 @@ class ComponentsBuilder;
 
 } // namespace UServerUtils::Grpc
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 class HttpServerBuilder final : protected Generics::Uncopyable
 {
 public:
-  using ServerConfig = UServerUtils::Http::ServerConfig;
+  using ServerConfig = UServerUtils::Http::Server::ServerConfig;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using StatisticsStorage = userver::utils::statistics::Storage;
@@ -85,6 +85,6 @@ private:
 
 using HttpServerBuilderPtr = std::unique_ptr<HttpServerBuilder>;
 
-} // namespace UServerUtils::Http
+} // namespace UServerUtils::Http::Server
 
-#endif //USERVER_HTTP_HTTPSERVERBUILDER_HPP
+#endif //USERVER_HTTP_SERVER_HTTPSERVERBUILDER_HPP

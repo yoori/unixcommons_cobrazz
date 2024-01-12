@@ -1,5 +1,5 @@
-#ifndef USERVER_HTTP_HTTPSERVER_HPP
-#define USERVER_HTTP_HTTPSERVER_HPP
+#ifndef USERVER_HTTP_SERVER_HTTPSERVER_HPP
+#define USERVER_HTTP_SERVER_HTTPSERVER_HPP
 
 // STD
 #include <mutex>
@@ -16,10 +16,10 @@
 #include <Logger/Logger.hpp>
 #include <ReferenceCounting/AtomicImpl.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
-#include <UServerUtils/Grpc/Http/Config.hpp>
-#include <UServerUtils/Grpc/Http/HttpHandler.hpp>
+#include <UServerUtils/Grpc/Http/Server/Config.hpp>
+#include <UServerUtils/Grpc/Http/Server/HttpHandler.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 class HttpServer final
@@ -41,7 +41,7 @@ public:
   using StatisticsEntry = userver::utils::statistics::Entry;
   using StatisticsEntries = std::vector<StatisticsEntry>;
   using TaskProcessor = userver::engine::TaskProcessor;
-  using ServerConfig = UServerUtils::Http::ServerConfig;
+  using ServerConfig = UServerUtils::Http::Server::ServerConfig;
   using DynamicConfigSource = userver::dynamic_config::Source;
 
 public:
@@ -88,6 +88,6 @@ private:
 
 using HttpServer_var = ReferenceCounting::SmartPtr<HttpServer>;
 
-} // namespace UServerUtils::Http
+} // namespace UServerUtils::Http::Server
 
-#endif //USERVER_HTTP_HTTPSERVER_HPP
+#endif //USERVER_HTTP_SERVER_HTTPSERVER_HPP

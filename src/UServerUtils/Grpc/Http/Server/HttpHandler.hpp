@@ -1,5 +1,5 @@
-#ifndef USERVER_HTTP_HTTPHANDLERBASE_HPP
-#define USERVER_HTTP_HTTPHANDLERBASE_HPP
+#ifndef USERVER_HTTP_SERVER_HTTPHANDLERBASE_HPP
+#define USERVER_HTTP_SERVER_HTTPHANDLERBASE_HPP
 
 // USERVER
 #include <userver/server/handlers/http_handler_base.hpp>
@@ -7,10 +7,10 @@
 #include <userver/server/request/request_context.hpp>
 
 // THIS
-#include <UServerUtils/Grpc/Http/Config.hpp>
+#include <UServerUtils/Grpc/Http/Server/Config.hpp>
 #include <UServerUtils/Grpc/Component.hpp>
 
-namespace UServerUtils::Http
+namespace UServerUtils::Http::Server
 {
 
 class HttpServerBuilder;
@@ -83,7 +83,7 @@ private:
     StatisticsStorage& statistics_storage);
 
 private:
-  friend class UServerUtils::Http::HttpServerBuilder;
+  friend class UServerUtils::Http::Server::HttpServerBuilder;
 
   const HttpHandler_var http_handler_;
 };
@@ -94,4 +94,4 @@ using HttpHandlerImpl_var = ReferenceCounting::SmartPtr<HttpHandlerImpl>;
 
 } // namespace UServerUtils::Http
 
-#endif //USERVER_HTTP_HTTPHANDLERBASE_HPP
+#endif //USERVER_HTTP_SERVER_HTTPHANDLERBASE_HPP
