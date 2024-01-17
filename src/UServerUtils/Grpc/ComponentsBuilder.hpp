@@ -57,6 +57,7 @@ private:
   using HttpServer = UServerUtils::Http::Server::HttpServer;
   using HttpServer_var = UServerUtils::Http::Server::HttpServer_var;
   using HttpServers = std::deque<HttpServer_var>;
+  using HttpServerBuilder = Http::Server::HttpServerBuilder;
 
   struct ComponentsInfo
   {
@@ -95,7 +96,7 @@ public:
     std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
 
   void add_http_server(
-    std::unique_ptr<Http::Server::HttpServerBuilder>&& builder);
+    std::unique_ptr<HttpServerBuilder>&& builder);
 
   void add_user_component(
     const std::string& name,

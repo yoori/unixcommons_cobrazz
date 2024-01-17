@@ -36,6 +36,8 @@ public:
   using MiddlewaresList = std::list<MiddlewaresPtr>;
   using StorageMock = userver::dynamic_config::StorageMock;
   using StorageMockPtr = std::unique_ptr<StorageMock>;
+  using RegistratorDynamicSettings = UServerUtils::Grpc::RegistratorDynamicSettings;
+  using RegistratorDynamicSettingsPtr = std::unique_ptr<RegistratorDynamicSettings>;
 
   struct ServerInfo final
   {
@@ -76,6 +78,8 @@ private:
   friend class ComponentsBuilder;
 
   RegistratorDynamicSettings registrator_dynamic_settings_;
+
+  StorageMockPtr storage_mock_;
 
   GrpcServer_var grpc_server_;
 

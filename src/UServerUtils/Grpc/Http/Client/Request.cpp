@@ -1,3 +1,6 @@
+// STD
+#include <iostream>
+
 //THIS
 #include <UServerUtils/Grpc/Http/Client/Request.hpp>
 #include <UServerUtils/Grpc/Utils.hpp>

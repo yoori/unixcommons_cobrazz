@@ -25,7 +25,7 @@ HttpServerBuilder::HttpServerBuilder(
       config,
       listener_task_processor,
       statistics_storage,
-      storage_mock_->GetSource()));
+      storage_mock_));
 }
 
 void HttpServerBuilder::add_handler(

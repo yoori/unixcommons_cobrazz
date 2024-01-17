@@ -22,7 +22,7 @@ public:
     const ClientConfig& config,
     userver::engine::TaskProcessor& task_processor);
 
-  ~Client() = default;
+  ~Client();
 
   /* *
    * Returns a HTTP request builder type with preset values of

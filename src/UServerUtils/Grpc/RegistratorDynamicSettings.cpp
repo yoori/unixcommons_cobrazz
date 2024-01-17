@@ -93,6 +93,22 @@ void RegistratorDynamicSettings::registrate()
   }
 
   {
+    userver::formats::json::ValueBuilder builder(userver::formats::json::Type::kObject);
+    auto value = builder.ExtractValue();
+    docs_map_.Set(
+      "USERVER_DUMPS",
+      std::move(value));
+  }
+
+  {
+    userver::formats::json::ValueBuilder builder(userver::formats::json::Type::kObject);
+    auto value = builder.ExtractValue();
+    docs_map_.Set(
+      "USERVER_CACHES",
+      std::move(value));
+  }
+
+  {
     userver::formats::json::ValueBuilder builder(false);
     auto value = builder.ExtractValue();
     docs_map_.Set(

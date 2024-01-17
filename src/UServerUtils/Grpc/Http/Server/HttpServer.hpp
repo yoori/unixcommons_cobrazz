@@ -62,7 +62,7 @@ private:
     const ServerConfig& config,
     TaskProcessor& listener_task_processor,
     StatisticsStorage& statistics_storage,
-    const DynamicConfigSource& dynamic_config_source);
+    const StorageMockPtr& storage_mock);
 
   void add_handler(
     internal::HttpHandlerImpl* http_handler,
@@ -70,6 +70,8 @@ private:
 
 private:
   friend class HttpServerBuilder;
+
+  StorageMockPtr storage_mock_;
 
   MetricsStoragePtr metrics_storage_;
 

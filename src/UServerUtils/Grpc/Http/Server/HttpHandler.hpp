@@ -19,17 +19,19 @@ class HttpHandler : public UServerUtils::Grpc::Component
 {
 public:
   using Level = userver::logging::Level;
+  using RequestBase = userver::server::request::RequestBase;
+  using HttpRequest = userver::server::http::HttpRequest;
+  using RequestContext = userver::server::request::RequestContext;
+  using ResponseBodyStream = userver::server::http::ResponseBodyStream;
 
 public:
-  virtual void handle_request(
-    userver::server::request::RequestBase& request,
-    userver::server::request::RequestContext& context) const = 0;
+  virtual std::string handle_request_throw(
+    const HttpRequest& /*request*/,
+    RequestContext& /*context*/) const = 0;
 
   const std::string& handler_name() const noexcept;
 
   const HandlerConfig& handler_config() const noexcept;
-
-  bool is_body_streamed() const noexcept;
 
   const std::optional<Level>& log_level() const noexcept;
 
@@ -37,7 +39,6 @@ protected:
   HttpHandler(
     const std::string& handler_name,
     const HandlerConfig& handler_config,
-    const bool is_body_streamed = false,
     const std::optional<Level> log_level = {});
 
   ~HttpHandler() override = default;
@@ -46,8 +47,6 @@ private:
   const std::string handler_name_;
 
   const HandlerConfig handler_config_;
-
-  const bool is_body_streamed_;
 
   const std::optional<Level> log_level_;
 };
@@ -67,10 +66,14 @@ public:
   using DynamicConfigSource = userver::dynamic_config::Source;
   using TracingManagerBase = userver::tracing::TracingManagerBase;
   using StatisticsStorage = userver::utils::statistics::Storage;
+  using HttpRequest = HttpHandler::HttpRequest;
+  using RequestContext = HttpHandler::RequestContext;
+  using ResponseBodyStream = HttpHandler::ResponseBodyStream;
 
-  void HandleRequest(
-    userver::server::request::RequestBase& request,
-    userver::server::request::RequestContext& context) const override;
+public:
+  std::string HandleRequestThrow(
+    const HttpRequest& request,
+    RequestContext& context) const override;
 
 protected:
   ~HttpHandlerImpl() override = default;

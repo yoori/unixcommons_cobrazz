@@ -7,11 +7,9 @@ namespace UServerUtils::Http::Server
 HttpHandler::HttpHandler(
   const std::string& handler_name,
   const HandlerConfig& handler_config,
-  const bool is_body_streamed,
   const std::optional<Level> log_level)
   : handler_name_(handler_name),
     handler_config_(handler_config),
-    is_body_streamed_(is_body_streamed),
     log_level_(log_level)
 {
 }
@@ -25,11 +23,6 @@ const HandlerConfig&
 HttpHandler::handler_config() const noexcept
 {
   return handler_config_;
-}
-
-bool HttpHandler::is_body_streamed() const noexcept
-{
-  return is_body_streamed_;
 }
 
 const std::optional<userver::logging::Level>&
@@ -52,7 +45,7 @@ HttpHandlerImpl::HttpHandlerImpl(
       dynamic_config_source,
       tracing_manager,
       statistics_storage,
-      http_handler->is_body_streamed(),
+      false,
       http_handler->log_level(),
       false),
     http_handler_(ReferenceCounting::add_ref(http_handler))
@@ -60,11 +53,13 @@ HttpHandlerImpl::HttpHandlerImpl(
   add_child_object(http_handler_.in());
 }
 
-void HttpHandlerImpl::HandleRequest(
-  userver::server::request::RequestBase& request,
-  userver::server::request::RequestContext& context) const
+std::string HttpHandlerImpl::HandleRequestThrow(
+  const HttpRequest& request,
+  RequestContext& context) const
 {
-  http_handler_->handle_request(request, context);
+  return http_handler_->handle_request_throw(
+    request,
+    context);
 }
 
 } // namespace internal

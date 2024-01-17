@@ -23,8 +23,6 @@ struct ServerConfig final
 
   std::string server_name = "HttpServer";
   ListenerConfig listener_config;
-  ConnectionConfig connection_config;
-  HttpRequestConfig http_request_config;
 };
 
 } // namespace UServerUtils::Http

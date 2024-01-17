@@ -46,9 +46,6 @@ public:
 
   struct ServerInfo final
   {
-    ServerInfo() = default;
-    ~ServerInfo() = default;
-
     HttpServer_var http_server;
     HttpHandlers http_handlers;
   };

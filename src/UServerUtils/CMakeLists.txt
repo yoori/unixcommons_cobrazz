@@ -212,6 +212,7 @@ add_executable(TestUserver
   Grpc/Test/grpc_test_main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
+  Grpc/Test/http_test.cpp
   Grpc/Test/rocsdb_test.cpp
 )
 

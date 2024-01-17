@@ -79,7 +79,6 @@ GrpcServerBuilder::build()
   server_info.server = std::move(grpc_server_);
   server_info.services = std::move(services_);
   server_info.middlewares_list = std::move(middlewares_list_);
-
   return server_info;
 }
 

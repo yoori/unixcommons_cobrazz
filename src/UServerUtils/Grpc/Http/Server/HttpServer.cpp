@@ -19,8 +19,9 @@ HttpServer::HttpServer(
   const ServerConfig& config,
   userver::engine::TaskProcessor& listener_task_processor,
   StatisticsStorage& statistics_storage,
-  const DynamicConfigSource& dynamic_config_source)
-  : metrics_storage_(std::make_shared<MetricsStorage>()),
+  const StorageMockPtr& storage_mock)
+  : storage_mock_(storage_mock),
+    metrics_storage_(std::make_shared<MetricsStorage>()),
     metrics_storage_registration_(metrics_storage_->RegisterIn(statistics_storage)),
     logger_(ReferenceCounting::add_ref(logger))
 {
@@ -37,7 +38,7 @@ HttpServer::HttpServer(
     std::move(server_config),
     listener_task_processor,
     metrics_storage_,
-    dynamic_config_source);
+    storage_mock->GetSource());
 }
 
 HttpServer::~HttpServer()
