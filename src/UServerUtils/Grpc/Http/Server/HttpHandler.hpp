@@ -5,6 +5,7 @@
 #include <userver/server/handlers/http_handler_base.hpp>
 #include <userver/server/request/request_base.hpp>
 #include <userver/server/request/request_context.hpp>
+#include <userver/server/http/http_response_body_stream.hpp>
 
 // THIS
 #include <UServerUtils/Grpc/Http/Server/Config.hpp>
@@ -26,8 +27,13 @@ public:
 
 public:
   virtual std::string handle_request_throw(
-    const HttpRequest& /*request*/,
-    RequestContext& /*context*/) const = 0;
+    const HttpRequest& request,
+    RequestContext& context) const;
+
+  virtual void handle_stream_request(
+    const HttpRequest& http_request,
+    RequestContext& context,
+    ResponseBodyStream& response_body_stream) const;
 
   const std::string& handler_name() const noexcept;
 
@@ -74,6 +80,11 @@ public:
   std::string HandleRequestThrow(
     const HttpRequest& request,
     RequestContext& context) const override;
+
+  void HandleStreamRequest(
+    const HttpRequest& http_request,
+    RequestContext& context,
+    ResponseBodyStream& response_body_stream) const override;
 
 protected:
   ~HttpHandlerImpl() override = default;

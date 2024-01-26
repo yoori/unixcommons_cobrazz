@@ -14,6 +14,20 @@ HttpHandler::HttpHandler(
 {
 }
 
+std::string HttpHandler::handle_request_throw(
+  const HttpRequest& /*request*/,
+  RequestContext& /*context*/) const
+{
+  return {};
+}
+
+void HttpHandler::handle_stream_request(
+  const HttpRequest& /*http_request*/,
+  RequestContext& /*context*/,
+  ResponseBodyStream& /*response_body_stream*/) const
+{
+}
+
 const std::string& HttpHandler::handler_name() const noexcept
 {
   return handler_name_;
@@ -60,6 +74,17 @@ std::string HttpHandlerImpl::HandleRequestThrow(
   return http_handler_->handle_request_throw(
     request,
     context);
+}
+
+void HttpHandlerImpl::HandleStreamRequest(
+  const HttpRequest& http_request,
+  RequestContext& context,
+  ResponseBodyStream& response_body_stream) const
+{
+  http_handler_->handle_stream_request(
+    http_request,
+    context,
+    response_body_stream);
 }
 
 } // namespace internal
