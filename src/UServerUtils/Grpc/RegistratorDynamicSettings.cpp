@@ -109,7 +109,7 @@ void RegistratorDynamicSettings::registrate()
   }
 
   {
-    userver::formats::json::ValueBuilder builder(false);
+    userver::formats::json::ValueBuilder builder(true);
     auto value = builder.ExtractValue();
     docs_map_.Set(
       "USERVER_HANDLER_STREAM_API_ENABLED",

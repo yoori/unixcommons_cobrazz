@@ -26,6 +26,14 @@ const std::string kResponseData = "response";
 const std::string kPathService = "/test_service";
 const std::string kNameHeader = "header";
 const std::string kValueHeader = "value_header";
+const userver::server::http::HttpStatus kServerStatusCode =
+  userver::server::http::HttpStatus::kConflict;
+const userver::clients::http::Status kClientStatusCode =
+  userver::clients::http::Status::Conflict;
+
+std::atomic<bool> kIsCallStreamHandler{false};
+std::atomic<std::size_t> kCountGet{0};
+std::atomic<std::size_t> kCountPost{0};
 
 } // namespace
 
@@ -51,14 +59,60 @@ public:
     const HttpRequest& request,
     RequestContext& context) const override
   {
+    const auto& method = request.GetMethod();
+    if (method == userver::server::http::HttpMethod::kGet)
+    {
+      kCountGet.fetch_add(1);
+    }
+    else if (method == userver::server::http::HttpMethod::kPost)
+    {
+      kCountPost.fetch_add(1);
+    }
+
     auto& response = request.GetHttpResponse();
     response.SetHeader(kNameHeader, kValueHeader);
     return kResponseData + request.GetArg(kKeyParam);
+  }
+
+  void handle_stream_request(
+    const HttpRequest& request,
+    RequestContext& context,
+    ResponseBodyStream& response_body_stream) const override
+  {
+    kIsCallStreamHandler = true;
+
+    const auto& method = request.GetMethod();
+    if (method == userver::server::http::HttpMethod::kGet)
+    {
+      kCountGet.fetch_add(1);
+    }
+    else if (method == userver::server::http::HttpMethod::kPost)
+    {
+      kCountPost.fetch_add(1);
+    }
+
+    response_body_stream.SetStatusCode(kServerStatusCode);
+    response_body_stream.SetHeader(kNameHeader, kValueHeader);
+    const std::string data = kResponseData + request.GetArg(kKeyParam);
+
+    for (const char ch : data)
+    {
+      response_body_stream.PushBodyChunk(
+        std::string(1, ch),
+        {});
+    }
   }
 };
 
 class HttpFixture : public testing::Test
 {
+public:
+  enum class Method
+  {
+    GET,
+    POST
+  };
+
 public:
   void SetUp() override
   {
@@ -88,9 +142,18 @@ public:
   {
   }
 
-  void run(const std::optional<std::string> unix_socket_path)
+  void run(
+    const std::optional<std::string> unix_socket_path,
+    const bool response_body_stream,
+    const Method method)
   {
-    auto init_func = [logger = logger_, unix_socket_path] (TaskProcessorContainer& task_processor_container) {
+    kIsCallStreamHandler = false;
+    kCountGet = 0;
+    kCountPost = 0;
+
+    auto init_func = [logger = logger_, unix_socket_path, response_body_stream] (
+      TaskProcessorContainer& task_processor_container) {
+
       auto& main_task_processor = task_processor_container.get_main_task_processor();
       auto components_builder = std::make_unique<ComponentsBuilder>();
       auto& statistic_storage = components_builder->get_statistics_storage();
@@ -124,13 +187,22 @@ public:
       HandlerConfig handler_config;
       handler_config.method = "GET";
       handler_config.path = kPathService;
-      ReferenceCounting::SmartPtr<TestHandler> test_handler(
+      handler_config.response_body_stream = response_body_stream;
+      ReferenceCounting::SmartPtr<TestHandler> test_handler_get(
         new TestHandler(
-          "TestHandler",
+          "TestHandlerGet",
           handler_config));
-
       http_server_builder->add_handler(
-        test_handler.in(),
+        test_handler_get.in(),
+        main_task_processor);
+
+      handler_config.method = "POST";
+      ReferenceCounting::SmartPtr<TestHandler> test_handler_post(
+        new TestHandler(
+          "TestHandlerPost",
+          handler_config));
+      http_server_builder->add_handler(
+        test_handler_post.in(),
         main_task_processor);
 
       components_builder->add_http_server(std::move(http_server_builder));
@@ -151,13 +223,18 @@ public:
     client_config.io_threads = 8;
     Client client(client_config, task_processor);
 
-    auto request =
-      client.create_not_signed_request()
-        .method(HttpMethod::kGet)
-        .retry(10)
-        .timeout(1000);
+    auto request = client.create_request().retry(10).timeout(1000);
+    if (method == Method::GET)
+    {
+      request.method(HttpMethod::kGet);
+    }
+    else if (method == Method::POST)
+    {
+      request.method(HttpMethod::kPost);
+    }
 
-    for (std::size_t i = 1; i <= 1; ++i)
+    const std::size_t number_iterations = 1000;
+    for (std::size_t i = 1; i <= number_iterations; ++i)
     {
       if (unix_socket_path.has_value())
       {
@@ -174,9 +251,28 @@ public:
       }
 
       auto response = request.perform();
-      EXPECT_TRUE(response->IsOk());
+
+      if (response_body_stream)
+      {
+        EXPECT_EQ(response->status_code(), kClientStatusCode);
+        EXPECT_EQ(kIsCallStreamHandler, true);
+      }
+      else
+      {
+        EXPECT_TRUE(response->IsOk());
+        EXPECT_EQ(kIsCallStreamHandler, false);
+      }
       EXPECT_EQ(response->body(), kResponseData + std::to_string(i));
       EXPECT_EQ(response->headers()[kNameHeader], kValueHeader);
+    }
+
+    if (method == Method::GET)
+    {
+      EXPECT_EQ(kCountGet, number_iterations);
+    }
+    else if (method == Method::POST)
+    {
+      EXPECT_EQ(kCountPost, number_iterations);
     }
 
     manager->deactivate_object();
@@ -187,12 +283,42 @@ public:
   Logging::Logger_var logger_;
 };
 
-TEST_F(HttpFixture, TCP)
+TEST_F(HttpFixture, TCP_GET)
 {
-  run({});
+  run({}, false, Method::GET);
 }
 
-TEST_F(HttpFixture, UNIX_SOCKET)
+TEST_F(HttpFixture, TCP_POST)
 {
-  run("/tmp/service.socket");
+  run({}, false, Method::POST);
+}
+
+TEST_F(HttpFixture, TCP_STREAM_BODY_GET)
+{
+  run({}, true, Method::GET);
+}
+
+TEST_F(HttpFixture, TCP_STREAM_BODY_POST)
+{
+  run({}, true, Method::POST);
+}
+
+TEST_F(HttpFixture, UNIX_SOCKET_GET)
+{
+  run("/tmp/service.socket", false, Method::GET);
+}
+
+TEST_F(HttpFixture, UNIX_SOCKET_POST)
+{
+  run("/tmp/service.socket", false, Method::POST);
+}
+
+TEST_F(HttpFixture, UNIX_SOCKET_STREAM_BODY_GET)
+{
+  run("/tmp/service.socket", true, Method::GET);
+}
+
+TEST_F(HttpFixture, UNIX_SOCKET_STREAM_BODY_POST)
+{
+  run("/tmp/service.socket", true, Method::POST);
 }

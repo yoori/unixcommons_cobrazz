@@ -43,7 +43,7 @@ public:
    * userver identity string.
    * */
   void reset_user_agent(
-    const std::optional<std::string> user_agent = std::nullopt);
+    std::optional<std::string> user_agent = std::nullopt);
 
   /* *
    * Returns the current proxy that is automatically used for each
