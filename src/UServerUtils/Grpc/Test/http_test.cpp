@@ -4,6 +4,9 @@
 // STD
 #include <thread>
 
+// USERVER
+#include <userver/dynamic_config/value.hpp>
+
 // THIS
 #include <Logger/Logger.hpp>
 #include <Logger/StreamLogger.hpp>
@@ -20,6 +23,7 @@ namespace
 {
 
 const std::size_t kPort = 7777;
+const std::size_t kMonitorPort = 7778;
 const std::string kKeyParam = "key";
 const std::string kValueParam = "value";
 const std::string kResponseData = "response";
@@ -30,6 +34,13 @@ const userver::server::http::HttpStatus kServerStatusCode =
   userver::server::http::HttpStatus::kConflict;
 const userver::clients::http::Status kClientStatusCode =
   userver::clients::http::Status::Conflict;
+const std::string kStatisticsPrefix = "http_cobrazz_prefix_test";
+const std::size_t kStatisticsValue = 777;
+const std::map<std::string, std::string> kStatisticsLabels = {
+  {"label_1", "value_1"},
+  {"label_2", "value_2"},
+  {"label_3", "value_3"}
+};
 
 std::atomic<bool> kIsCallStreamHandler{false};
 std::atomic<std::size_t> kCountGet{0};
@@ -42,14 +53,17 @@ class TestHandler final
     public ReferenceCounting::AtomicImpl
 {
 public:
+  using StatisticsHolder = userver::utils::statistics::Entry;
+  using StatisticsHolderPtr = std::shared_ptr<StatisticsHolder>;
+
+public:
   TestHandler(
+    const StatisticsHolderPtr& statistics_holder,
     const std::string& handler_name,
     const HandlerConfig& handler_config,
     const std::optional<Level> log_level = {})
-    : HttpHandler(
-        handler_name,
-        handler_config,
-        log_level)
+    : HttpHandler(handler_name, handler_config, log_level),
+      statistics_holder_(statistics_holder)
   {
   }
 
@@ -102,6 +116,9 @@ public:
         {});
     }
   }
+
+private:
+  const StatisticsHolderPtr statistics_holder_;
 };
 
 class HttpFixture : public testing::Test
@@ -156,7 +173,26 @@ public:
 
       auto& main_task_processor = task_processor_container.get_main_task_processor();
       auto components_builder = std::make_unique<ComponentsBuilder>();
+
       auto& statistic_storage = components_builder->get_statistics_storage();
+      auto entry = statistic_storage.RegisterWriter(
+        kStatisticsPrefix,
+        [] (userver::utils::statistics::Writer& writer) {
+          std::vector<userver::utils::statistics::LabelView> labels;
+          labels.reserve(kStatisticsLabels.size());
+          for (const auto& [name, value] : kStatisticsLabels)
+          {
+            labels.emplace_back(name, value);
+          }
+
+          writer.ValueWithLabels(
+            kStatisticsValue,
+            userver::utils::statistics::LabelsSpan(labels));
+        },
+        {});
+      auto statistics_holder =
+        std::make_shared<userver::utils::statistics::Entry>(
+          std::move(entry));
 
       ServerConfig server_config;
       server_config.server_name = "TestServer";
@@ -171,6 +207,10 @@ public:
       {
         listener_config.port = kPort;
       }
+
+      ListenerConfig monitor_listener_config;
+      monitor_listener_config.port = kMonitorPort;
+      server_config.monitor_listener_config = monitor_listener_config;
 
       auto& connection_config = listener_config.connection_config;
       connection_config.keepalive_timeout = std::chrono::seconds{1000000};
@@ -190,6 +230,7 @@ public:
       handler_config.response_body_stream = response_body_stream;
       ReferenceCounting::SmartPtr<TestHandler> test_handler_get(
         new TestHandler(
+          statistics_holder,
           "TestHandlerGet",
           handler_config));
       http_server_builder->add_handler(
@@ -199,6 +240,7 @@ public:
       handler_config.method = "POST";
       ReferenceCounting::SmartPtr<TestHandler> test_handler_post(
         new TestHandler(
+          statistics_holder,
           "TestHandlerPost",
           handler_config));
       http_server_builder->add_handler(
@@ -273,6 +315,48 @@ public:
     else if (method == Method::POST)
     {
       EXPECT_EQ(kCountPost, number_iterations);
+    }
+
+    auto request_monitor = client.create_request()
+      .retry(10)
+      .timeout(1000)
+      .method(HttpMethod::kGet)
+      .url("http://127.0.0.1:" + std::to_string(kMonitorPort) + "/metrics?format=json");
+    auto response_monotor = request_monitor.perform();
+    EXPECT_TRUE(response_monotor->IsOk());
+
+    userver::dynamic_config::DocsMap docs_map;
+    docs_map.Parse(response_monotor->body(), true);
+    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix);
+    EXPECT_TRUE(array.IsArray());
+    if (array.IsArray())
+    {
+      EXPECT_EQ(array.GetSize(), 1);
+      if (array.GetSize() == 1)
+      {
+        const auto value = array[0];
+        EXPECT_TRUE(value["value"].IsInt());
+        if (value["value"].IsInt())
+        {
+          EXPECT_EQ(value["value"].As<int>(), kStatisticsValue);
+        }
+
+        EXPECT_TRUE(value["labels"].IsObject());
+        if (value["labels"].IsObject())
+        {
+          auto labels = value["labels"];
+          std::map<std::string, std::string> result_labels;
+          for (const auto& [k, v]: userver::formats::common::Items(labels))
+          {
+            if (v.IsString())
+            {
+              result_labels.try_emplace(k, v.As<std::string>());
+            }
+          }
+
+          EXPECT_EQ(result_labels, kStatisticsLabels);
+        }
+      }
     }
 
     manager->deactivate_object();

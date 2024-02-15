@@ -16,11 +16,9 @@ using ListenerConfig = userver::server::net::ListenerConfig;
 
 struct ServerConfig final
 {
-  ServerConfig() = default;
-  ~ServerConfig() = default;
-
   std::string server_name = "HttpServer";
   ListenerConfig listener_config;
+  std::optional<ListenerConfig> monitor_listener_config;
 };
 
 } // namespace UServerUtils::Http

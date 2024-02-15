@@ -32,7 +32,7 @@ HttpServer::HttpServer(
   server_config.logger_access = {};
   server_config.logger_access_tskv = {};
   server_config.max_response_size_in_flight = {};
-  server_config.monitor_listener = {};
+  server_config.monitor_listener = config.monitor_listener_config;
 
   server_ = std::make_unique<Server>(
     std::move(server_config),
