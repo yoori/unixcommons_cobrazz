@@ -94,7 +94,8 @@ private:
     HttpHandler* http_handler,
     const DynamicConfigSource& dynamic_config_source,
     const TracingManagerBase& tracing_manager,
-    StatisticsStorage& statistics_storage);
+    StatisticsStorage& statistics_storage,
+    const bool is_monitor);
 
 private:
   friend class UServerUtils::Http::Server::HttpServerBuilder;

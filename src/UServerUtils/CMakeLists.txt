@@ -42,6 +42,7 @@ set (SOURCES_FILES
   Grpc/FileManager/Semaphore.cpp
   Grpc/Http/Client/Client.cpp
   Grpc/Http/Client/Request.cpp
+  Grpc/Http/Server/MonitorHandler.cpp
   Grpc/Http/Server/HttpHandler.cpp
   Grpc/Http/Server/HttpServer.cpp
   Grpc/Http/Server/HttpServerBuilder.cpp
@@ -63,13 +64,6 @@ add_library(UServerUtils STATIC
   ${SOURCES_FILES}
 )
 
-add_library(UServerUtilsMetrics SHARED
-  ConfigDistributor.cpp
-  MetricsHTTPProvider.cpp
-  UServerConfigService.cpp
-)
-
-
 # link userver before other libraries, because it can be
 # static (DSO require shared linkage after)
 target_link_libraries(UServerUtils
@@ -85,15 +79,6 @@ target_link_libraries(UServerUtils
   userver-core
   userver-grpc
 )
-
-target_link_libraries(UServerUtilsMetrics
-  Generics
-  Logger
-  pthread
-  userver-core
-)
-
-
 
 add_grpc_library(UServerUtils_proto
   PROTOS

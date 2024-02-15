@@ -61,7 +61,8 @@ public:
 
   void add_handler(
     HttpHandler* http_handler,
-    TaskProcessor& task_processor);
+    TaskProcessor& task_processor,
+    const bool is_monitor = false);
 
 private:
   ServerInfo build();

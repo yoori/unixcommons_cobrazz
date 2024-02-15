@@ -52,7 +52,8 @@ HttpHandlerImpl::HttpHandlerImpl(
   HttpHandler* http_handler,
   const DynamicConfigSource& dynamic_config_source,
   const TracingManagerBase& tracing_manager,
-  StatisticsStorage& statistics_storage)
+  StatisticsStorage& statistics_storage,
+  const bool is_monitor)
   : HttpHandlerBase(
       http_handler->handler_name(),
       http_handler->handler_config(),
@@ -61,7 +62,7 @@ HttpHandlerImpl::HttpHandlerImpl(
       statistics_storage,
       false,
       http_handler->log_level(),
-      false),
+      is_monitor),
     http_handler_(ReferenceCounting::add_ref(http_handler))
 {
   add_child_object(http_handler_.in());
