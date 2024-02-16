@@ -28,7 +28,6 @@ HttpServerBuilder::HttpServerBuilder(
       statistics_storage,
       storage_mock_));
 
-
   if (config.monitor_listener_config.has_value())
   {
     HandlerConfig handler_config;

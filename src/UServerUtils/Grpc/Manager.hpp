@@ -10,6 +10,7 @@
 // THIS
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Statistics/StatisticsProvider.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/Logger.hpp>
 #include <UServerUtils/Grpc/Function.hpp>
@@ -46,6 +47,23 @@ private:
   using Middlewares = userver::ugrpc::server::Middlewares;
   using MiddlewaresPtr = std::unique_ptr<Middlewares>;
   using MiddlewaresList = std::list<MiddlewaresPtr>;
+  using StatisticsHolder = userver::utils::statistics::Entry;
+  using StatisticsHolderPtr = std::unique_ptr<StatisticsHolder>;
+
+  struct CoroDataContainer final : private Generics::Uncopyable
+  {
+    CoroDataContainer() = default;
+    ~CoroDataContainer() = default;
+
+    LoggerScopePtr logger_scope;
+    MiddlewaresList middlewares_list;
+    QueueHolders queue_holders;
+    StatisticsStoragePtr statistics_storage;
+    Components components;
+    NameToUserComponent name_to_user_component;
+    StatisticsHolderPtr statistics_holder;
+  };
+  using CoroDataContainerPtr = std::unique_ptr<CoroDataContainer>;
 
 public:
   explicit Manager(
@@ -68,8 +86,10 @@ public:
   template<typename T>
   T& get_user_component(const std::string& name)
   {
-    auto it = name_to_user_component_.find(name);
-    if (it == name_to_user_component_.end())
+    auto& name_to_user_component =
+      coro_data_container_->name_to_user_component;
+    auto it = name_to_user_component.find(name);
+    if (it == name_to_user_component.end())
     {
       Stream::Error stream;
       stream << FNS
@@ -100,17 +120,7 @@ private:
 
   TaskProcessorContainerPtr task_processor_container_;
 
-  StatisticsStoragePtr statistics_storage_;
-
-  LoggerScopePtr logger_scope_;
-
-  QueueHolders queue_holders_;
-
-  MiddlewaresList middlewares_list_;
-
-  Components components_;
-
-  NameToUserComponent name_to_user_component_;
+  CoroDataContainerPtr coro_data_container_;
 
   ACTIVE_STATE state_ = AS_NOT_ACTIVE;
 

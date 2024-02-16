@@ -57,7 +57,6 @@ set (SOURCES_FILES
   Grpc/ServerBuilder.cpp
   Grpc/TaskProcessorContainer.cpp
   Grpc/TaskProcessorContainerBuilder.cpp
-  GRPCServer.cpp
 )
 
 add_library(UServerUtils STATIC
