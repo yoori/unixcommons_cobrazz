@@ -17,6 +17,7 @@
 #include <Generics/Uncopyable.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
 #include <UServerUtils/Grpc/Http/Server/HttpServerBuilder.hpp>
+#include <UServerUtils/Grpc/Statistics/StatisticsProvider.hpp>
 #include <UServerUtils/Grpc/ClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzClientFactory.hpp>
 #include <UServerUtils/Grpc/CobrazzServerBuilder.hpp>
@@ -39,6 +40,14 @@ public:
   using CompletionQueue = grpc::CompletionQueue;
   using Components = std::deque<Component_var>;
   using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
+  using StatisticsProvider = UServerUtils::Statistics::StatisticsProvider;
+  using StatisticsProviderPtr = UServerUtils::Statistics::StatisticsProviderPtr;
+
+  struct StatisticsProviderInfo
+  {
+    std::string statistics_prefix;
+    StatisticsProviderPtr statistics_provider;
+  };
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -58,6 +67,8 @@ private:
   using HttpServer_var = UServerUtils::Http::Server::HttpServer_var;
   using HttpServers = std::deque<HttpServer_var>;
   using HttpServerBuilder = Http::Server::HttpServerBuilder;
+  using StatisticsHolder = userver::utils::statistics::Entry;
+  using StatisticsHolderPtr = std::unique_ptr<StatisticsHolder>;
 
   struct ComponentsInfo
   {
@@ -69,15 +80,17 @@ private:
     ComponentsInfo& operator=(const ComponentsInfo&) = delete;
     ComponentsInfo& operator=(ComponentsInfo&&) = default;
 
+    MiddlewaresList middlewares_list;
+    QueueHolders queue_holders;
     StatisticsStoragePtr statistics_storage;
     Components components;
-    QueueHolders queue_holders;
     NameToUserComponent name_to_user_component;
-    MiddlewaresList middlewares_list;
+    StatisticsHolderPtr statistics_holder;
   };
 
 public:
-  explicit ComponentsBuilder();
+  explicit ComponentsBuilder(
+    std::optional<StatisticsProviderInfo> statistics_provider_info = {});
 
   ~ComponentsBuilder() = default;
 
@@ -115,6 +128,10 @@ private:
   friend class Manager;
 
   StatisticsStoragePtr statistics_storage_;
+
+  StatisticsProviderPtr statistics_provider_;
+
+  std::string statistics_prefix_;
 
   QueueHolders queue_holders_;
 

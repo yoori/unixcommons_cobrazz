@@ -26,6 +26,16 @@ Manager::Manager(
   : logger_(ReferenceCounting::add_ref(logger)),
     task_processor_container_(task_processor_builder->build())
 {
+  using LoggerScope = UServerUtils::Grpc::Logger::LoggerScope;
+
+  if (!logger)
+  {
+    Stream::Error stream;
+    stream << FNS
+           << "logger is null";
+    throw Exception(stream);
+  }
+
   if (!task_processor_container_)
   {
     Stream::Error stream;
@@ -38,25 +48,32 @@ Manager::Manager(
     task_processor_container_->get_main_task_processor();
   auto& task_processor_container = *task_processor_container_;
 
-  auto componets_info = Utils::run_in_coro(
+  coro_data_container_ = Utils::run_in_coro(
     main_task_processor,
     Utils::Importance::kCritical,
     {},
     [func = std::move(components_initialize_func),
      &task_processor_container,
-     this] () mutable {
-      logger_scope_ =
-        std::make_unique<UServerUtils::Grpc::Logger::LoggerScope>(logger_.in());
-      ComponentsBuilderPtr components_builder =
-        func(task_processor_container);
-      return components_builder->build();
+     logger = logger_] () mutable {
+      ComponentsBuilderPtr components_builder = func(task_processor_container);
+      auto coro_data_container = std::make_unique<CoroDataContainer>();
+      coro_data_container->logger_scope =
+        std::make_unique<LoggerScope>(logger.in());
+      auto componets_info = components_builder->build();
+      coro_data_container->statistics_holder =
+        std::move(componets_info.statistics_holder);
+      coro_data_container->components =
+        std::move(componets_info.components);
+      coro_data_container->queue_holders =
+        std::move(componets_info.queue_holders);
+      coro_data_container->statistics_storage =
+        std::move(componets_info.statistics_storage);
+      coro_data_container->name_to_user_component =
+        std::move(componets_info.name_to_user_component);
+      coro_data_container->middlewares_list =
+        std::move(componets_info.middlewares_list);
+      return coro_data_container;
     });
-
-  components_ = std::move(componets_info.components);
-  queue_holders_ = std::move(componets_info.queue_holders);
-  statistics_storage_ = std::move(componets_info.statistics_storage);
-  name_to_user_component_ = std::move(componets_info.name_to_user_component);
-  middlewares_list_ = std::move(componets_info.middlewares_list);
 }
 
 Manager::~Manager()
@@ -79,7 +96,8 @@ Manager::~Manager()
         Utils::Importance::kCritical,
         {},
         [this] () {
-          for (auto& component : components_)
+          auto& components = coro_data_container_->components;
+          for (auto& component : components)
           {
             try
             {
@@ -100,18 +118,14 @@ Manager::~Manager()
       Utils::Importance::kCritical,
       {},
       [this] () {
-        name_to_user_component_.clear();
-        auto it = std::rbegin(components_);
-        auto it_end = std::rend(components_);
+        auto& components = coro_data_container_->components;
+        auto it = std::rbegin(components);
+        auto it_end = std::rend(components);
         for (; it != it_end; ++it)
         {
           it->reset();
         }
-        components_.clear();
-        statistics_storage_.reset();
-        queue_holders_.clear();
-        middlewares_list_.clear();
-        logger_scope_.reset();
+        coro_data_container_.reset();
     });
 
     if (state_ != AS_NOT_ACTIVE)
@@ -163,9 +177,10 @@ void Manager::activate_object()
       Utils::Importance::kCritical,
       {},
       [this] () {
+        auto& components = coro_data_container_->components;
         try
         {
-          for (auto& component : components_)
+          for (auto& component : components)
           {
             component->activate_object();
           }
@@ -173,7 +188,7 @@ void Manager::activate_object()
         }
         catch (...)
         {
-          for (auto& component : components_)
+          for (auto& component : components)
           {
             try
             {
@@ -214,8 +229,8 @@ void Manager::deactivate_object()
       {},
       [this, &main_task_processor] () {
         std::exception_ptr exc_ptr;
-
-        for (auto& component : components_)
+        auto& components = coro_data_container_->components;
+        for (auto& component : components)
         {
           try
           {
@@ -273,7 +288,8 @@ void Manager::wait_object()
     Utils::Importance::kCritical,
     {},
     [this, &main_task_processor] () {
-      for (auto& component : components_)
+      auto& components = coro_data_container_->components;
+      for (auto& component : components)
       {
         try
         {
@@ -297,14 +313,12 @@ bool Manager::active()
   return state_ == AS_ACTIVE;
 }
 
-Manager::TaskProcessor&
-Manager::get_main_task_processor()
+Manager::TaskProcessor& Manager::get_main_task_processor()
 {
   return task_processor_container_->get_main_task_processor();
 }
 
-Manager::TaskProcessor&
-Manager::get_task_processor(
+Manager::TaskProcessor& Manager::get_task_processor(
   const std::string& name)
 {
   return task_processor_container_->get_task_processor(name);

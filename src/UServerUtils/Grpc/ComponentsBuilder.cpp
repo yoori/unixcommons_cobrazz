@@ -16,9 +16,15 @@ const char BUILDER[] = "BUILDER";
 
 } // namespace Aspect
 
-ComponentsBuilder::ComponentsBuilder()
+ComponentsBuilder::ComponentsBuilder(
+  std::optional<StatisticsProviderInfo> statistics_provider_info)
   : statistics_storage_(new StatisticsStorage())
 {
+  if (statistics_provider_info.has_value())
+  {
+    statistics_provider_ = statistics_provider_info->statistics_provider;
+    statistics_prefix_ = statistics_provider_info->statistics_prefix;
+  }
 }
 
 ComponentsBuilder::StatisticsStorage&
@@ -220,8 +226,29 @@ ComponentsBuilder::build()
     std::end(http_servers_),
     std::back_inserter(components_));
 
+  StatisticsHolderPtr statistics_holder;
+  if (statistics_provider_)
+  {
+    auto entry = statistics_storage_->RegisterWriter(
+      statistics_prefix_,
+      [statistics_provider = std::move(statistics_provider_)] (userver::utils::statistics::Writer& writer) {
+        try
+        {
+          statistics_provider->write(writer);
+        }
+        catch (...)
+        {
+        }
+      },
+    {});
+
+    statistics_holder = std::make_unique<userver::utils::statistics::Entry>(
+      std::move(entry));
+  }
+
   ComponentsInfo components_info;
   components_info.statistics_storage = std::move(statistics_storage_);
+  components_info.statistics_holder = std::move(statistics_holder);
   components_info.queue_holders = std::move(queue_holders_);
   components_info.components = std::move(components_);
   components_info.name_to_user_component = std::move(name_to_user_component_);

@@ -13,7 +13,9 @@
 #include <UServerUtils/Grpc/Http/Client/Client.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/Manager.hpp>
-#include <UServerUtils/Grpc/Utils.hpp>
+#include <UServerUtils/Grpc/Manager.hpp>
+#include <UServerUtils/Grpc/Statistics/CompositeStatisticsProvider.hpp>
+#include <UServerUtils/Grpc/Statistics/TimeStatisticsProvider.hpp>
 
 using namespace UServerUtils::Grpc;
 using namespace UServerUtils::Http::Client;
@@ -46,7 +48,68 @@ std::atomic<bool> kIsCallStreamHandler{false};
 std::atomic<std::size_t> kCountGet{0};
 std::atomic<std::size_t> kCountPost{0};
 
+enum class EnumId
+{
+  Test1,
+  Test2,
+  Max
+};
+
+class EnumToStringConverter
+{
+public:
+  std::map<EnumId, std::string> operator()()
+  {
+    const std::map<EnumId, std::string> id_to_name = {
+      {EnumId::Test1, "Test1"},
+      {EnumId::Test2, "Test2"}
+    };
+
+    return id_to_name;
+  }
+};
+
+auto get_time_statistics_provider_test()
+{
+  return UServerUtils::Statistics::get_time_statistics_provider<
+    EnumId,
+    EnumToStringConverter,
+    4,
+    50>();
+}
+
 } // namespace
+
+#define DO_TIME_STATISTIC(id) \
+  auto measure = get_time_statistics_provider_test()->make_measure(id);
+
+class TestStatisticsProvider final : public UServerUtils::Statistics::StatisticsProvider
+{
+public:
+  TestStatisticsProvider() = default;
+
+  ~TestStatisticsProvider() override = default;
+
+  std::string name() override
+  {
+    return "test_statistic";
+  }
+
+private:
+  void write(UServerUtils::Statistics::Writer& writer) override
+  {
+    std::vector<userver::utils::statistics::LabelView> labels;
+    labels.reserve(kStatisticsLabels.size());
+    for (const auto& [name, value] : kStatisticsLabels)
+    {
+      labels.emplace_back(name, value);
+    }
+
+    writer.ValueWithLabels(
+      kStatisticsValue,
+      userver::utils::statistics::LabelsSpan(labels));
+  }
+};
 
 class TestHandler final
   : public HttpHandler,
@@ -58,12 +121,10 @@ public:
 
 public:
   TestHandler(
-    const StatisticsHolderPtr& statistics_holder,
     const std::string& handler_name,
     const HandlerConfig& handler_config,
     const std::optional<Level> log_level = {})
-    : HttpHandler(handler_name, handler_config, log_level),
-      statistics_holder_(statistics_holder)
+    : HttpHandler(handler_name, handler_config, log_level)
   {
   }
 
@@ -116,9 +177,6 @@ public:
         {});
     }
   }
-
-private:
-  const StatisticsHolderPtr statistics_holder_;
 };
 
 class HttpFixture : public testing::Test
@@ -168,31 +226,23 @@ public:
     kCountGet = 0;
     kCountPost = 0;
 
-    auto init_func = [logger = logger_, unix_socket_path, response_body_stream] (
+    auto test_statistics_provider = std::make_shared<TestStatisticsProvider>();
+    auto time_statistics_provider = get_time_statistics_provider_test();
+
+    auto statistics_provider = std::make_shared<UServerUtils::Statistics::CompositeStatisticsProviderImpl<std::shared_mutex>>(logger_.in());
+    statistics_provider->add(test_statistics_provider);
+    statistics_provider->add(time_statistics_provider);
+
+    auto init_func = [logger = logger_, unix_socket_path, response_body_stream, statistics_provider] (
       TaskProcessorContainer& task_processor_container) {
 
       auto& main_task_processor = task_processor_container.get_main_task_processor();
-      auto components_builder = std::make_unique<ComponentsBuilder>();
 
+      ComponentsBuilder::StatisticsProviderInfo statistics_provider_info;
+      statistics_provider_info.statistics_provider = statistics_provider;
+      statistics_provider_info.statistics_prefix = kStatisticsPrefix;
+      auto components_builder = std::make_unique<ComponentsBuilder>(std::move(statistics_provider_info));
       auto& statistic_storage = components_builder->get_statistics_storage();
-      auto entry = statistic_storage.RegisterWriter(
-        kStatisticsPrefix,
-        [] (userver::utils::statistics::Writer& writer) {
-          std::vector<userver::utils::statistics::LabelView> labels;
-          labels.reserve(kStatisticsLabels.size());
-          for (const auto& [name, value] : kStatisticsLabels)
-          {
-            labels.emplace_back(name, value);
-          }
-
-          writer.ValueWithLabels(
-            kStatisticsValue,
-            userver::utils::statistics::LabelsSpan(labels));
-        },
-        {});
-      auto statistics_holder =
-        std::make_shared<userver::utils::statistics::Entry>(
-          std::move(entry));
 
       ServerConfig server_config;
       server_config.server_name = "TestServer";
@@ -230,7 +280,6 @@ public:
       handler_config.response_body_stream = response_body_stream;
       ReferenceCounting::SmartPtr<TestHandler> test_handler_get(
         new TestHandler(
-          statistics_holder,
           "TestHandlerGet",
           handler_config));
       http_server_builder->add_handler(
@@ -240,7 +289,6 @@ public:
       handler_config.method = "POST";
       ReferenceCounting::SmartPtr<TestHandler> test_handler_post(
         new TestHandler(
-          statistics_holder,
           "TestHandlerPost",
           handler_config));
       http_server_builder->add_handler(
@@ -317,6 +365,18 @@ public:
       EXPECT_EQ(kCountPost, number_iterations);
     }
 
+    do_statistic_test(client, test_statistics_provider);
+
+    manager->deactivate_object();
+    manager->wait_object();
+  }
+
+  void do_statistic_test(
+    Client& client,
+    const std::shared_ptr<TestStatisticsProvider>& test_statistics_provider)
+  {
+    time_statistic_test();
+
     auto request_monitor = client.create_request()
       .retry(10)
       .timeout(1000)
@@ -325,9 +385,18 @@ public:
     auto response_monotor = request_monitor.perform();
     EXPECT_TRUE(response_monotor->IsOk());
 
+    const auto body = response_monotor->body();
+    const auto test_name = test_statistics_provider->name();
+    check_test_statistic(body, test_name);
+    const auto time_name = get_time_statistics_provider_test()->name();
+    check_time_statistic(body, time_name);
+  }
+
+  void check_test_statistic(const std::string& data, const std::string& name)
+  {
     userver::dynamic_config::DocsMap docs_map;
-    docs_map.Parse(response_monotor->body(), true);
-    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix);
+    docs_map.Parse(data, true);
+    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix + "." + name);
     EXPECT_TRUE(array.IsArray());
     if (array.IsArray())
     {
@@ -336,31 +405,95 @@ public:
       {
         const auto value = array[0];
         EXPECT_TRUE(value["value"].IsInt());
-        if (value["value"].IsInt())
-        {
-          EXPECT_EQ(value["value"].As<int>(), kStatisticsValue);
-        }
-
+        EXPECT_EQ(value["value"].As<int>(), kStatisticsValue);
         EXPECT_TRUE(value["labels"].IsObject());
-        if (value["labels"].IsObject())
-        {
-          auto labels = value["labels"];
-          std::map<std::string, std::string> result_labels;
-          for (const auto& [k, v]: userver::formats::common::Items(labels))
-          {
-            if (v.IsString())
-            {
-              result_labels.try_emplace(k, v.As<std::string>());
-            }
-          }
 
-          EXPECT_EQ(result_labels, kStatisticsLabels);
+        auto labels = value["labels"];
+        std::map<std::string, std::string> result_labels;
+        for (const auto& [k, v]: userver::formats::common::Items(labels))
+        {
+          if (v.IsString())
+          {
+            result_labels.try_emplace(k, v.As<std::string>());
+          }
         }
+
+        EXPECT_EQ(result_labels, kStatisticsLabels);
       }
     }
+  }
 
-    manager->deactivate_object();
-    manager->wait_object();
+  void time_statistic_test()
+  {
+    for (std::size_t  i = 1; i <= 1; ++i)
+    {
+      DO_TIME_STATISTIC(EnumId::Test1)
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    for (std::size_t  i = 1; i <= 2; ++i)
+    {
+      DO_TIME_STATISTIC(EnumId::Test1)
+      std::this_thread::sleep_for(std::chrono::milliseconds(55));
+    }
+
+    for (std::size_t  i = 1; i <= 3; ++i)
+    {
+      DO_TIME_STATISTIC(EnumId::Test1)
+      std::this_thread::sleep_for(std::chrono::milliseconds(105));
+    }
+
+    for (std::size_t  i = 1; i <= 4; ++i)
+    {
+      DO_TIME_STATISTIC(EnumId::Test1)
+      std::this_thread::sleep_for(std::chrono::milliseconds(155));
+    }
+
+    for (std::size_t  i = 1; i <= 5; ++i)
+    {
+      DO_TIME_STATISTIC(EnumId::Test2)
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
+
+  void check_time_statistic(const std::string& data, const std::string& name)
+  {
+    userver::dynamic_config::DocsMap docs_map;
+    docs_map.Parse(data, true);
+    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix + "." + name);
+    EXPECT_TRUE(array.IsArray());
+    if (array.IsArray())
+    {
+      std::list<int> value_list;
+      std::list<std::string> name_list;
+      EXPECT_EQ(array.GetSize(), 8);
+      if (array.GetSize() == 8)
+      {
+        value_list.emplace_back(array[0]["value"].As<int>());
+        value_list.emplace_back(array[1]["value"].As<int>());
+        value_list.emplace_back(array[2]["value"].As<int>());
+        value_list.emplace_back(array[3]["value"].As<int>());
+        value_list.emplace_back(array[4]["value"].As<int>());
+        value_list.emplace_back(array[5]["value"].As<int>());
+        value_list.emplace_back(array[6]["value"].As<int>());
+        value_list.emplace_back(array[7]["value"].As<int>());
+        value_list.sort();
+
+        EXPECT_EQ(value_list, std::list<int>({0, 0, 0, 1, 2, 3, 4, 5}));
+
+        name_list.emplace_back(array[0]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[1]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[2]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[3]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[4]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[5]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[6]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[7]["labels"]["name"].As<std::string>());
+        name_list.sort();
+
+        EXPECT_EQ(name_list, std::list<std::string>({"Test1", "Test1", "Test1", "Test1", "Test2", "Test2", "Test2", "Test2"}));
+      }
+    }
   }
 
   TaskProcessorContainerBuilderPtr task_processor_container_builder_;
