@@ -16,6 +16,7 @@
 #include <UServerUtils/Grpc/Manager.hpp>
 #include <UServerUtils/Grpc/Statistics/CompositeStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/Statistics/TimeStatisticsProvider.hpp>
+#include <UServerUtils/Grpc/Statistics/CounterStatisticsProvider.hpp>
 
 using namespace UServerUtils::Grpc;
 using namespace UServerUtils::Http::Client;
@@ -48,21 +49,46 @@ std::atomic<bool> kIsCallStreamHandler{false};
 std::atomic<std::size_t> kCountGet{0};
 std::atomic<std::size_t> kCountPost{0};
 
-enum class EnumId
+enum class TimeEnumId
 {
   Test1,
   Test2,
   Max
 };
 
+enum class CounterEnumId
+{
+  Test1,
+  Test2,
+  Test3,
+  Test4,
+  Max
+};
+
 class EnumToStringConverter
 {
 public:
-  std::map<EnumId, std::string> operator()()
+  auto operator()()
   {
-    const std::map<EnumId, std::string> id_to_name = {
-      {EnumId::Test1, "Test1"},
-      {EnumId::Test2, "Test2"}
+    const std::map<TimeEnumId, std::string> id_to_name = {
+      {TimeEnumId::Test1, "Test1"},
+      {TimeEnumId::Test2, "Test2"}
+    };
+
+    return id_to_name;
+  }
+};
+
+class EnumCounterConverter
+{
+public:
+  auto operator()()
+  {
+    const std::map<CounterEnumId, std::pair<UServerUtils::Statistics::CounterType, std::string>> id_to_name = {
+      {CounterEnumId::Test1, {UServerUtils::Statistics::CounterType::UInt, "Test1"}},
+      {CounterEnumId::Test2, {UServerUtils::Statistics::CounterType::Int, "Test2"}},
+      {CounterEnumId::Test3, {UServerUtils::Statistics::CounterType::Double, "Test3"}},
+      {CounterEnumId::Test4, {UServerUtils::Statistics::CounterType::Bool, "Test4"}},
     };
 
     return id_to_name;
@@ -72,16 +98,26 @@ public:
 auto get_time_statistics_provider_test()
 {
   return UServerUtils::Statistics::get_time_statistics_provider<
-    EnumId,
+    TimeEnumId,
     EnumToStringConverter,
     4,
     50>();
+}
+
+auto get_counter_statistics_provider_test()
+{
+  return UServerUtils::Statistics::get_counter_statistics_provider<
+    CounterEnumId,
+    EnumCounterConverter>();
 }
 
 } // namespace
 
 #define DO_TIME_STATISTIC(id) \
   auto measure = get_time_statistics_provider_test()->make_measure(id);
+
+#define ADD_COUNTER_STATISTIC(id, value) \
+  get_counter_statistics_provider_test()->add(id, value);
 
 class TestStatisticsProvider final : public UServerUtils::Statistics::StatisticsProvider
 {
@@ -228,10 +264,14 @@ public:
 
     auto test_statistics_provider = std::make_shared<TestStatisticsProvider>();
     auto time_statistics_provider = get_time_statistics_provider_test();
+    auto counter_statustics_provider = get_counter_statistics_provider_test();
 
-    auto statistics_provider = std::make_shared<UServerUtils::Statistics::CompositeStatisticsProviderImpl<std::shared_mutex>>(logger_.in());
+    auto statistics_provider = std::make_shared<
+      UServerUtils::Statistics::CompositeStatisticsProviderImpl<std::shared_mutex>>(
+        logger_.in());
     statistics_provider->add(test_statistics_provider);
     statistics_provider->add(time_statistics_provider);
+    statistics_provider->add(counter_statustics_provider);
 
     auto init_func = [logger = logger_, unix_socket_path, response_body_stream, statistics_provider] (
       TaskProcessorContainer& task_processor_container) {
@@ -376,6 +416,7 @@ public:
     const std::shared_ptr<TestStatisticsProvider>& test_statistics_provider)
   {
     time_statistic_test();
+    counter_statistic_test();
 
     auto request_monitor = client.create_request()
       .retry(10)
@@ -389,7 +430,9 @@ public:
     const auto test_name = test_statistics_provider->name();
     check_test_statistic(body, test_name);
     const auto time_name = get_time_statistics_provider_test()->name();
+    const auto counter_name = get_counter_statistics_provider_test()->name();
     check_time_statistic(body, time_name);
+    check_counter_statistic(body, counter_name);
   }
 
   void check_test_statistic(const std::string& data, const std::string& name)
@@ -427,31 +470,31 @@ public:
   {
     for (std::size_t  i = 1; i <= 1; ++i)
     {
-      DO_TIME_STATISTIC(EnumId::Test1)
+      DO_TIME_STATISTIC(TimeEnumId::Test1)
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     for (std::size_t  i = 1; i <= 2; ++i)
     {
-      DO_TIME_STATISTIC(EnumId::Test1)
+      DO_TIME_STATISTIC(TimeEnumId::Test1)
       std::this_thread::sleep_for(std::chrono::milliseconds(55));
     }
 
     for (std::size_t  i = 1; i <= 3; ++i)
     {
-      DO_TIME_STATISTIC(EnumId::Test1)
+      DO_TIME_STATISTIC(TimeEnumId::Test1)
       std::this_thread::sleep_for(std::chrono::milliseconds(105));
     }
 
     for (std::size_t  i = 1; i <= 4; ++i)
     {
-      DO_TIME_STATISTIC(EnumId::Test1)
+      DO_TIME_STATISTIC(TimeEnumId::Test1)
       std::this_thread::sleep_for(std::chrono::milliseconds(155));
     }
 
     for (std::size_t  i = 1; i <= 5; ++i)
     {
-      DO_TIME_STATISTIC(EnumId::Test2)
+      DO_TIME_STATISTIC(TimeEnumId::Test2)
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
@@ -492,6 +535,73 @@ public:
         name_list.sort();
 
         EXPECT_EQ(name_list, std::list<std::string>({"Test1", "Test1", "Test1", "Test1", "Test2", "Test2", "Test2", "Test2"}));
+      }
+    }
+  }
+
+  void counter_statistic_test()
+  {
+    for (std::size_t  i = 1; i <= 1; ++i)
+    {
+      ADD_COUNTER_STATISTIC(CounterEnumId::Test1, 1)
+    }
+
+    for (std::size_t  i = 1; i <= 2; ++i)
+    {
+      ADD_COUNTER_STATISTIC(CounterEnumId::Test2, 1)
+    }
+
+    for (std::size_t  i = 1; i <= 3; ++i)
+    {
+      ADD_COUNTER_STATISTIC(CounterEnumId::Test3, 1.5)
+    }
+
+    for (std::size_t  i = 1; i <= 4; ++i)
+    {
+      ADD_COUNTER_STATISTIC(CounterEnumId::Test4, true)
+    }
+  }
+
+  void check_counter_statistic(const std::string& data, const std::string& name)
+  {
+    userver::dynamic_config::DocsMap docs_map;
+    docs_map.Parse(data, true);
+    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix + "." + name);
+    EXPECT_TRUE(array.IsArray());
+    if (array.IsArray())
+    {
+      std::list<std::string> value_list;
+      std::list<std::string> name_list;
+      EXPECT_EQ(array.GetSize(), 4);
+      if (array.GetSize() == 4)
+      {
+        for (std::size_t i = 0; i < 4; ++i)
+        {
+          auto value = array[i]["value"];
+          if (value.IsInt())
+          {
+            value_list.emplace_back(std::to_string(value.As<int>()));
+          }
+          else if (value.IsDouble())
+          {
+            std::ostringstream stream;
+            stream << std::fixed
+                   << std::setprecision(1)
+                   << value.As<double>();
+             value_list.emplace_back(stream.str());
+          }
+        }
+        value_list.sort();
+
+        EXPECT_EQ(value_list, std::list<std::string>({"1", "1", "2", "4.5"}));
+
+        name_list.emplace_back(array[0]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[1]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[2]["labels"]["name"].As<std::string>());
+        name_list.emplace_back(array[3]["labels"]["name"].As<std::string>());
+        name_list.sort();
+
+        EXPECT_EQ(name_list, std::list<std::string>({"Test1", "Test2", "Test3", "Test4"}));
       }
     }
   }

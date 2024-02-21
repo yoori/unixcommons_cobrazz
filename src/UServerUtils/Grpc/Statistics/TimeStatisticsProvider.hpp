@@ -15,21 +15,26 @@
 namespace UServerUtils::Statistics
 {
 
+namespace Internal::Time
+{
+
 template<class T>
-concept TimeStatisticsEnum = std::is_enum_v<T> && requires(T t)
+concept EnumConcept = std::is_enum_v<T> && requires(T t)
 {
   T::Max;
 };
 
 template<class T, class E>
-concept EnumToStringConverter =
+concept EnumConverterConcept =
   std::is_object_v<T> &&
   std::is_default_constructible_v<T> &&
   std::is_invocable_r_v<std::map<E, std::string>, T>;
 
+} // namespace Internal::Time
+
 template<
-  TimeStatisticsEnum Enum,
-  EnumToStringConverter<Enum> Converter,
+  Internal::Time::EnumConcept Enum,
+  Internal::Time::EnumConverterConcept<Enum> Converter,
   const std::size_t number_intervals,
   const std::size_t time_interval_ms>
 class TimeStatisticsProvider final : public StatisticsProvider
@@ -125,7 +130,7 @@ public:
       {
         std::ostringstream stream;
         stream << FNS
-               << "Not correct TimeStatisticsEnum";
+               << "Not correct Enum";
         throw Exception(stream.str());
       }
 
@@ -151,6 +156,8 @@ public:
            << "infinity)";
     time_labels_.emplace_back("time", stream.str());
   }
+
+  ~TimeStatisticsProvider() override = default;
 
   Measure make_measure(const Enum id) noexcept
   {
@@ -192,8 +199,8 @@ private:
 };
 
 template<
-  TimeStatisticsEnum Enum,
-  EnumToStringConverter<Enum> Converter,
+  Internal::Time::EnumConcept Enum,
+  Internal::Time::EnumConverterConcept<Enum> Converter,
   const std::size_t number_intervals,
   const std::size_t time_interval_ms>
 auto get_time_statistics_provider()
