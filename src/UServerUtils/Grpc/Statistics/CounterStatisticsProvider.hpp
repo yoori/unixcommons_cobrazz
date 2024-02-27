@@ -13,6 +13,7 @@
 // THIS
 #include <eh/Exception.hpp>
 #include <Generics/Function.hpp>
+#include <UServerUtils/Grpc/Statistics/Concept.hpp>
 #include <UServerUtils/Grpc/Statistics/StatisticsProvider.hpp>
 
 namespace UServerUtils::Statistics
@@ -29,12 +30,6 @@ enum class CounterType
 namespace Internal::Counter
 {
 
-template<class T>
-concept EnumConcept = std::is_enum_v<T> && requires(T t)
-{
-  T::Max;
-};
-
 template<class T, class E>
 concept EnumConverterConcept =
   std::is_object_v<T> &&
@@ -43,13 +38,10 @@ concept EnumConverterConcept =
     std::map<E, std::pair<UServerUtils::Statistics::CounterType, std::string>>,
     T>;
 
-template<typename T>
-concept Numeric = std::is_arithmetic_v<T>;
-
 } // namespace Internal::Counter
 
 template<
-  Internal::Counter::EnumConcept Enum,
+  EnumConcept Enum,
   Internal::Counter::EnumConverterConcept<Enum> Converter>
 class CounterStatisticsProvider final : public StatisticsProvider
 {
@@ -75,8 +67,9 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
-  CounterStatisticsProvider()
-    : statistics_(static_cast<std::size_t>(Enum::Max))
+  CounterStatisticsProvider(const std::string& provider_name = "counter")
+    : provider_name_(provider_name),
+      statistics_(static_cast<std::size_t>(Enum::Max))
   {
     const auto names_with_typed = Converter{}();
     if (names_with_typed.size() != static_cast<std::size_t>(Enum::Max))
@@ -114,67 +107,51 @@ public:
 
   ~CounterStatisticsProvider() override = default;
 
-  template<Internal::Counter::Numeric T>
+  template<NumericConcept T>
   void add(const Enum id, const T t) noexcept
   {
     auto& data = statistics_[static_cast<std::size_t>(id)];
     switch (data.type)
     {
     case CounterType::UInt:
-      data.uint_value.fetch_add(
-        static_cast<std::uint64_t>(t),
-        std::memory_order_relaxed);
+      data.uint_value.fetch_add(static_cast<std::uint64_t>(t), std::memory_order_relaxed);
       break;
     case CounterType::Int:
-      data.int_value.fetch_add(
-        static_cast<std::int64_t>(t),
-        std::memory_order_relaxed);
+      data.int_value.fetch_add(static_cast<std::int64_t>(t), std::memory_order_relaxed);
       break;
     case CounterType::Double:
-      data.double_value.fetch_add(
-        static_cast<double>(t),
-        std::memory_order_relaxed);
+      data.double_value.fetch_add(static_cast<double>(t), std::memory_order_relaxed);
       break;
     case CounterType::Bool:
-      data.bool_value.store(
-        static_cast<bool>(t),
-        std::memory_order_relaxed);
+      data.bool_value.store(static_cast<bool>(t), std::memory_order_relaxed);
       break;
     }
   }
 
-  template<Internal::Counter::Numeric T>
+  template<NumericConcept T>
   void set(const Enum id, const T t) noexcept
   {
     auto& data = statistics_[static_cast<std::size_t>(id)];
     switch (data.type)
     {
     case CounterType::UInt:
-      data.uint_value.store(
-        static_cast<std::uint64_t>(t),
-        std::memory_order_relaxed);
+      data.uint_value.store(static_cast<std::uint64_t>(t), std::memory_order_relaxed);
       break;
     case CounterType::Int:
-      data.int_value.store(
-        static_cast<std::int64_t>(t),
-        std::memory_order_relaxed);
+      data.int_value.store(static_cast<std::int64_t>(t), std::memory_order_relaxed);
       break;
     case CounterType::Double:
-      data.double_value.store(
-        static_cast<double>(t),
-        std::memory_order_relaxed);
+      data.double_value.store(static_cast<double>(t), std::memory_order_relaxed);
       break;
     case CounterType::Bool:
-      data.bool_value.store(
-        static_cast<bool>(t),
-        std::memory_order_relaxed);
+      data.bool_value.store(static_cast<bool>(t), std::memory_order_relaxed);
       break;
     }
   }
 
   std::string name() override
   {
-    return "counter";
+    return provider_name_;
   }
 
 private:
@@ -211,16 +188,18 @@ private:
   }
 
 private:
+  const std::string provider_name_;
+
   Statistics statistics_;
 };
 
 template<
-  Internal::Counter::EnumConcept Enum,
+  EnumConcept Enum,
   Internal::Counter::EnumConverterConcept<Enum> Converter>
-auto get_counter_statistics_provider()
+auto& get_counter_statistics_provider(const std::string& provider_name = "counter")
 {
   using Provider = CounterStatisticsProvider<Enum, Converter>;
-  static std::shared_ptr<Provider> ptr(new Provider);
+  static std::shared_ptr<Provider> ptr(new Provider(provider_name));
   return ptr;
 }
 

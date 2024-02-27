@@ -14,9 +14,10 @@
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/Manager.hpp>
 #include <UServerUtils/Grpc/Manager.hpp>
+#include <UServerUtils/Grpc/Statistics/CommonStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/Statistics/CompositeStatisticsProvider.hpp>
-#include <UServerUtils/Grpc/Statistics/TimeStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/Statistics/CounterStatisticsProvider.hpp>
+#include <UServerUtils/Grpc/Statistics/TimeStatisticsProvider.hpp>
 
 using namespace UServerUtils::Grpc;
 using namespace UServerUtils::Http::Client;
@@ -65,6 +66,13 @@ enum class CounterEnumId
   Max
 };
 
+enum class CommonEnumId
+{
+  Test1,
+  Test2,
+  Max
+};
+
 class EnumToStringConverter
 {
 public:
@@ -95,7 +103,21 @@ public:
   }
 };
 
-auto get_time_statistics_provider_test()
+class EnumCommonConverter
+{
+public:
+  auto operator()()
+  {
+    const std::map<CommonEnumId, std::pair<UServerUtils::Statistics::CommonType, std::string>> id_to_name = {
+      {CommonEnumId::Test1, {UServerUtils::Statistics::CommonType::UInt, "Test1"}},
+      {CommonEnumId::Test2, {UServerUtils::Statistics::CommonType::Double, "Test2"}}
+    };
+
+    return id_to_name;
+  }
+};
+
+[[maybe_unused]] auto get_time_statistics_provider_test()
 {
   return UServerUtils::Statistics::get_time_statistics_provider<
     TimeEnumId,
@@ -104,11 +126,20 @@ auto get_time_statistics_provider_test()
     50>();
 }
 
-auto get_counter_statistics_provider_test()
+[[maybe_unused]] auto get_counter_statistics_provider_test()
 {
   return UServerUtils::Statistics::get_counter_statistics_provider<
     CounterEnumId,
     EnumCounterConverter>();
+}
+
+[[maybe_unused]] auto get_common_statistics_provider_test()
+{
+  return UServerUtils::Statistics::get_common_statistics_provider<
+    CommonEnumId,
+    EnumCommonConverter,
+    std::shared_mutex,
+    std::map>();
 }
 
 } // namespace
@@ -118,6 +149,10 @@ auto get_counter_statistics_provider_test()
 
 #define ADD_COUNTER_STATISTIC(id, value) \
   get_counter_statistics_provider_test()->add(id, value);
+
+#define ADD_COMMON_STATISTIC(id, label, value) \
+  get_common_statistics_provider_test()->add(id, label, value);
+
 
 class TestStatisticsProvider final : public UServerUtils::Statistics::StatisticsProvider
 {
@@ -264,14 +299,16 @@ public:
 
     auto test_statistics_provider = std::make_shared<TestStatisticsProvider>();
     auto time_statistics_provider = get_time_statistics_provider_test();
-    auto counter_statustics_provider = get_counter_statistics_provider_test();
+    auto counter_statistics_provider = get_counter_statistics_provider_test();
+    auto common_statistics_provider = get_common_statistics_provider_test();
 
     auto statistics_provider = std::make_shared<
       UServerUtils::Statistics::CompositeStatisticsProviderImpl<std::shared_mutex>>(
         logger_.in());
     statistics_provider->add(test_statistics_provider);
     statistics_provider->add(time_statistics_provider);
-    statistics_provider->add(counter_statustics_provider);
+    statistics_provider->add(counter_statistics_provider);
+    statistics_provider->add(common_statistics_provider);
 
     auto init_func = [logger = logger_, unix_socket_path, response_body_stream, statistics_provider] (
       TaskProcessorContainer& task_processor_container) {
@@ -417,6 +454,7 @@ public:
   {
     time_statistic_test();
     counter_statistic_test();
+    common_statistic_test();
 
     auto request_monitor = client.create_request()
       .retry(10)
@@ -431,8 +469,10 @@ public:
     check_test_statistic(body, test_name);
     const auto time_name = get_time_statistics_provider_test()->name();
     const auto counter_name = get_counter_statistics_provider_test()->name();
+    const auto common_name = get_common_statistics_provider_test()->name();
     check_time_statistic(body, time_name);
     check_counter_statistic(body, counter_name);
+    check_common_statistic(body, common_name);
   }
 
   void check_test_statistic(const std::string& data, const std::string& name)
@@ -602,6 +642,60 @@ public:
         name_list.sort();
 
         EXPECT_EQ(name_list, std::list<std::string>({"Test1", "Test2", "Test3", "Test4"}));
+      }
+    }
+  }
+
+  void common_statistic_test()
+  {
+    for (std::size_t  i = 1; i <= 3; ++i)
+    {
+      ADD_COMMON_STATISTIC(CommonEnumId::Test1, std::string_view("label1"), 1)
+    }
+
+    for (std::size_t  i = 1; i <= 3; ++i)
+    {
+      ADD_COMMON_STATISTIC(CommonEnumId::Test2, std::string_view("label2"), 1.5)
+    }
+
+    for (std::size_t  i = 1; i <= 4; ++i)
+    {
+      ADD_COMMON_STATISTIC(CommonEnumId::Test1, 777, 1)
+    }
+  }
+
+  void check_common_statistic(const std::string& data, const std::string& name)
+  {
+    userver::dynamic_config::DocsMap docs_map;
+    docs_map.Parse(data, true);
+    userver::formats::json::Value array = docs_map.Get(kStatisticsPrefix + "." + name);
+    EXPECT_TRUE(array.IsArray());
+    if (array.IsArray())
+    {
+      std::list<std::string> value_list;
+      std::list<std::string> name_list;
+      EXPECT_EQ(array.GetSize(), 3);
+      if (array.GetSize() == 3)
+      {
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+          auto value = array[i]["value"];
+          if (value.IsInt())
+          {
+            value_list.emplace_back(std::to_string(value.As<int>()));
+          }
+          else if (value.IsDouble())
+          {
+            std::ostringstream stream;
+            stream << std::fixed
+                   << std::setprecision(1)
+                   << value.As<double>();
+            value_list.emplace_back(stream.str());
+          }
+        }
+        value_list.sort();
+
+        EXPECT_EQ(value_list, std::list<std::string>({"3", "4", "4.5"}));
       }
     }
   }

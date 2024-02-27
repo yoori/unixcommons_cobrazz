@@ -6,8 +6,8 @@
 #include <shared_mutex>
 
 // THIS
-
 #include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Statistics/Concept.hpp>
 #include <UServerUtils/Grpc/Statistics/StatisticsProvider.hpp>
 
 namespace UServerUtils::Statistics
@@ -21,17 +21,6 @@ public:
   ~CompositeStatisticsProvider() override = default;
 
   virtual void add(const StatisticsProviderPtr& statistics_provider) = 0;
-};
-
-template<class T>
-concept SharedMutexConcept = requires(T t)
-{
-  t.lock();
-  t.unlock();
-  t.try_lock();
-  t.lock_shared();
-  t.unlock_shared();
-  t.try_lock_shared();
 };
 
 template<SharedMutexConcept SharedMutex = std::shared_mutex, template<class> class Container = std::deque>

@@ -50,8 +50,6 @@ add_library(${proj} SHARED
   ../String/UnicodeNormTables.cpp
   ../String/UnicodeNormalizer.cpp
   ../String/UnicodeSymbol.cpp
-
-  CompositeMetricsProvider.cpp
 )
 
 target_link_libraries(${proj}
@@ -62,9 +60,5 @@ target_link_libraries(${proj}
   pcre
   dl
   Iconv::Iconv
-  #String
 )
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
 
