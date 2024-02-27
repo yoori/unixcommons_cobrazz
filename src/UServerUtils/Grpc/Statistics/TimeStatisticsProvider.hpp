@@ -5,11 +5,13 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <sstream>
 #include <vector>
 
 // THIS
 #include <eh/Exception.hpp>
 #include <Generics/Function.hpp>
+#include <UServerUtils/Grpc/Statistics/Concept.hpp>
 #include <UServerUtils/Grpc/Statistics/StatisticsProvider.hpp>
 
 namespace UServerUtils::Statistics
@@ -17,12 +19,6 @@ namespace UServerUtils::Statistics
 
 namespace Internal::Time
 {
-
-template<class T>
-concept EnumConcept = std::is_enum_v<T> && requires(T t)
-{
-  T::Max;
-};
 
 template<class T, class E>
 concept EnumConverterConcept =
@@ -33,7 +29,7 @@ concept EnumConverterConcept =
 } // namespace Internal::Time
 
 template<
-  Internal::Time::EnumConcept Enum,
+  EnumConcept Enum,
   Internal::Time::EnumConverterConcept<Enum> Converter,
   const std::size_t number_intervals,
   const std::size_t time_interval_ms>
@@ -91,8 +87,9 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
-  TimeStatisticsProvider()
-   : statistics_(std::make_shared<Statistics>(
+  TimeStatisticsProvider(const std::string& name_provider = "time_statistic")
+   : name_provider_(name_provider),
+     statistics_(std::make_shared<Statistics>(
        static_cast<std::size_t>(Enum::Max)))
   {
     const auto names = Converter{}();
@@ -166,7 +163,7 @@ public:
 
   std::string name() override
   {
-    return "time_statistic";
+    return name_provider_;
   }
 
 private:
@@ -191,6 +188,8 @@ private:
   }
 
 private:
+  const std::string name_provider_;
+
   StatisticsPtr statistics_;
 
   EnumLabels enum_labels_;
@@ -199,11 +198,11 @@ private:
 };
 
 template<
-  Internal::Time::EnumConcept Enum,
+  EnumConcept Enum,
   Internal::Time::EnumConverterConcept<Enum> Converter,
   const std::size_t number_intervals,
   const std::size_t time_interval_ms>
-auto get_time_statistics_provider()
+auto& get_time_statistics_provider(const std::string& name_provider = "time_statistic")
 {
   using Provider = TimeStatisticsProvider<
     Enum,
@@ -211,7 +210,7 @@ auto get_time_statistics_provider()
     number_intervals,
     time_interval_ms>;
 
-  static std::shared_ptr<Provider> ptr(new Provider);
+  static std::shared_ptr<Provider> ptr(new Provider(name_provider));
   return ptr;
 }
 

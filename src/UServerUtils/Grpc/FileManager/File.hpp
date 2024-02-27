@@ -26,9 +26,9 @@ public:
     ~Info() = default;
 
     std::uint64_t size = 0;
-    Time last_modified = {};
-    Time last_accessed = {};
-    Time creation_time = {};
+    Time last_modified;
+    Time last_accessed;
+    Time creation_time;
   };
 
 public:
