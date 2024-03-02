@@ -90,7 +90,9 @@ namespace Generics
   ThreadRunner::ThreadRunner(ThreadJob* job, unsigned number_of_jobs,
     const Options& options) /*throw (eh::Exception, PosixException)*/
     : attr_(options.stack_size), thread_callback_(options.thread_callback),
-      start_semaphore_(0), number_running_(0),
+      start_semaphore_(0),
+      number_running_(0),
+      interrupt_start_(false),
       number_of_jobs_(number_of_jobs), jobs_(number_of_jobs_)
   {
     for (unsigned i = 0; i < number_of_jobs_; i++)
@@ -117,7 +119,8 @@ namespace Generics
     start_semaphore_.acquire();
     start_semaphore_.release();
 
-    if (number_running_ > 0)
+     // Expect that we see more actual interrupt_start_ by memory barrier on semaphore operations.
+    if (!interrupt_start_)
     {
       if (thread_callback_)
       {
@@ -148,7 +151,7 @@ namespace Generics
     {
       eh::throw_errno_exception<PosixException>(RES, FNE, "thread start");
     }
-    number_running_++;
+    ++number_running_;
   }
 
   void
@@ -157,7 +160,7 @@ namespace Generics
     if (number_running_)
     {
       Stream::Error ostr;
-      for (int i = 0; i < abs(number_running_); i++)
+      for (int i = 0; i < number_running_; i++)
       {
         const int RES = pthread_join(jobs_[i].thread_id, 0);
         if (RES)
@@ -195,6 +198,8 @@ namespace Generics
       to_start = number_of_jobs_;
     }
 
+    interrupt_start_ = false;
+
     try
     {
       while (static_cast<unsigned>(number_running_) < to_start)
@@ -204,7 +209,7 @@ namespace Generics
     }
     catch (const eh::Exception&)
     {
-      number_running_ = -number_running_;
+      interrupt_start_ = true;
       start_semaphore_.release();
       try
       {

@@ -203,7 +203,10 @@ namespace Generics
     PThreadAttr attr_;
     ThreadCallback_var thread_callback_;
     Sync::Semaphore start_semaphore_;
-    volatile sig_atomic_t number_running_;
+    int number_running_;
+    // start_interrupted_ : We don't require here strict read/write ordering garantees.
+    // It is required only for faster reaction on thread start error
+    volatile sig_atomic_t interrupt_start_;
     unsigned number_of_jobs_;
     ArrayAutoPtr<JobInfo> jobs_;
   };
