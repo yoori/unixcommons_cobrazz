@@ -37,7 +37,7 @@ private:
 
   std::unique_ptr<Sync::Semaphore> sem_;
   volatile _Atomic_word notify_number_;
-  volatile _Atomic_word waits_number_;
+  std::atomic<int> waits_number_;
 };
 
 typedef ReferenceCounting::QualPtr<NotificationCallback> NotificationCallback_var;
