@@ -41,9 +41,9 @@ struct Stat
 {
   Stat() throw ();
 
-  _Atomic_word usage;
-  _Atomic_word timeouts;
-  _Atomic_word cf_54410306, cfo;
+  std::atomic<int> usage;
+  std::atomic<int> timeouts;
+  std::atomic<int> cf_54410306, cfo;
 };
 
 Stat::Stat() throw ()
@@ -392,7 +392,7 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
     corba_client_adapter->orbs_shutdown();
 #endif
 
-    if (__gnu_cxx::__exchange_and_add(&context.pstat->usage, -1) == 1)
+    if (--context.pstat->usage == 0)
     {
       Stream::Error ostr;
       ostr << "Timeouts: " << context.pstat->timeouts << "\n" <<

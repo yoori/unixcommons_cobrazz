@@ -254,12 +254,13 @@ namespace Generics
     return word_;
   }
 
-  /*template <typename CharType, typename ElementType, typename IncHashType>
+  template <typename CharType, typename ElementType, typename IncHashType>
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::operator const Word&() const throw ()
+  WordHashAdapter::operator const typename IncHashTable<CharType, ElementType, IncHashType>::Word&()
+    const throw ()
   {
     return word_;
-  }*/
+  }
 
   template <typename CharType, typename ElementType, typename IncHashType>
   bool
