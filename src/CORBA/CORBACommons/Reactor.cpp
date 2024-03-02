@@ -32,8 +32,8 @@ namespace
       friend union FDSet;
     };
 
-    FDSet() throw ();
-    FDSet(const FDSet&) throw ();
+    FDSet(bool init = true) throw ();
+    FDSet& operator=(const FDSet&) = default;
 
     fd_set*
     operator &() throw ();
@@ -66,13 +66,12 @@ namespace
   }
 
 
-  FDSet::FDSet() throw ()
+  FDSet::FDSet(bool init) throw ()
   {
-    memset(bits_, 0, sizeof(bits_));
-  }
-
-  FDSet::FDSet(const FDSet&) throw ()
-  {
+    if (init)
+    {
+      ::memset(bits_, 0, sizeof(bits_));
+    }
   }
 
   fd_set*

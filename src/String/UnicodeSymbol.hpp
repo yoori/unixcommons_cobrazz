@@ -91,6 +91,8 @@ namespace String
     operator =(wchar_t new_value)
       /*throw (RangeException, eh::Exception)*/;
 
+    UnicodeSymbol& operator=(const String::UnicodeSymbol& s);
+
     /**
      * @return length of corresponding UTF-8 byte sequence.
      */
@@ -380,12 +382,20 @@ namespace String
 
   inline
   UnicodeSymbol&
+  UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
+  {
+    code_unit_ = symbol.code_unit_;
+    return *this;
+  }
+
+  inline
+  UnicodeSymbol&
   UnicodeSymbol::operator ++() /*throw (RangeException)*/
   {
     if (!check_validity_(code_unit_) || is_null())
     {
       Stream::Error ost;
-      ost << FNS << code_unit_ << "out of range";
+      ost << FNS << static_cast<unsigned long>(code_unit_) << "out of range";
       throw RangeException(ost);
     }
 
