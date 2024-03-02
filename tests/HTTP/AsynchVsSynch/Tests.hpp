@@ -92,7 +92,7 @@ private:
   ReferenceCounting::Vector<HTTP::HttpActiveInterface_var> pools_;
   ReferenceCounting::Vector<NotificationCallback_var> callbacks_;
   std::vector<TestSuite> test_units_;
-  volatile _Atomic_word param_;
+  std::atomic<int> param_;
   char warning_[C_BUFFER_SIZE];
   Sync::Semaphore threads_sem_;
   Sync::Semaphore main_sem_;
