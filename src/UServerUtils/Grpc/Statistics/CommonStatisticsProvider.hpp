@@ -263,7 +263,6 @@ private:
       auto& statistic = statistics_[i];
       auto& mutex = statistic->mutex;
       auto& counters = statistic->counters;
-      auto& name_labels = statistic->name_labels;
       const auto& name = names_[i];
       const auto type = types_[i];
 

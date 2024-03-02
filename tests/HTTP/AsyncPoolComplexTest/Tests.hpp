@@ -97,9 +97,7 @@ private:
 
 class InterruptCallback: public SimpleCounterCallback
 {
-
 public:
-
   InterruptCallback(HTTP::PoolPolicy* policy, Sync::Semaphore& sem)
     /*throw(eh::Exception)*/;
 
@@ -113,14 +111,12 @@ public:
   void check() throw();
 
 protected:
-
   virtual
   ~InterruptCallback() throw ();
 
 private:
-
   Sync::Semaphore& sem_;
-  volatile _Atomic_word cnt_;
+  std::atomic<int> cnt_;
 };
 
 //

@@ -32,8 +32,7 @@ namespace
       friend union FDSet;
     };
 
-    FDSet() throw ();
-    FDSet(const FDSet&) = default;
+    FDSet(bool init = true) throw ();
     FDSet& operator=(const FDSet&) = default;
 
     fd_set*
@@ -67,9 +66,12 @@ namespace
   }
 
 
-  FDSet::FDSet() throw ()
+  FDSet::FDSet(bool init) throw ()
   {
-    memset(bits_, 0, sizeof(bits_));
+    if (init)
+    {
+      ::memset(bits_, 0, sizeof(bits_));
+    }
   }
 
   fd_set*
@@ -483,7 +485,7 @@ namespace
       {
         while (!exit_)
         {
-          FDSet ready(ready);
+          FDSet ready(false);
 
           {
             Sync::PosixGuard guard(part.data);

@@ -380,6 +380,7 @@ namespace String
     return reinterpret_cast<const unsigned char*>(c_str());
   }
 
+  inline
   UnicodeSymbol& 
   UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
   {
@@ -394,7 +395,7 @@ namespace String
     if (!check_validity_(code_unit_) || is_null())
     {
       Stream::Error ost;
-      ost << FNS << static_cast<int>(code_unit_) << "out of range";
+      ost << FNS << static_cast<unsigned long>(code_unit_) << "out of range";
       throw RangeException(ost);
     }
 
