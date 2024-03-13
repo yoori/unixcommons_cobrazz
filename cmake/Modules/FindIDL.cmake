@@ -27,6 +27,7 @@ function(add_idl _target _idlfile target_dir)
 #    add_custom_target(${TGT} ALL
 #    COMMAND ${CMAKE_COMMAND} -E make_directory ${target_dir}
 #    )
+
     file(MAKE_DIRECTORY ${target_dir})
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${target_dir})
     set (SRC ${CMAKE_CURRENT_LIST_DIR}/${_idlfile})
@@ -38,7 +39,7 @@ function(add_idl _target _idlfile target_dir)
 # SOURCES ${_idlfile}
     add_custom_command(
        OUTPUT ${MIDL_OUTPUT} ${OUTPUTC} ${OUTPUTS}
-       COMMAND tao_idl ARGS  -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp  -I ${PROJECT_SOURCE_DIR}/src/CORBA  ${SRC} -o ${MIDL_OUTPUT_PATH} 
+       COMMAND tao_idl ARGS  -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp -I ${PROJECT_SOURCE_DIR}/src/CORBA  ${SRC} -o ${MIDL_OUTPUT_PATH}
        #${MIDL_FLAGS} 
 
 #####################
@@ -122,11 +123,13 @@ function(add_idl _target _idlfile target_dir)
     else()
 #        add_custom_target(${FINDIDL_TARGET} DEPENDS ${MIDL_OUTPUT} SOURCES ${_idlfile} )
     endif()
+
     add_library(${_target} SHARED
 #    ${IDL_FILE_NAME_WE}/${IDL_FILE_NAME_WE}S.cpp
 #    ${IDL_FILE_NAME_WE}/${IDL_FILE_NAME_WE}C.cpp
-	${OUTPUTC} ${OUTPUTS}
-    )    
+      ${OUTPUTC} ${OUTPUTS}
+      )
+
     target_link_libraries(
 	${_target}
 	ACE
