@@ -73,7 +73,7 @@ public:
 
   ~{{service.name}}_{{method.name}}_Coro_Handler() = default;
 
-  void on_request(const {{ method.input_type | grpc_to_cpp_name }}& request) override
+  void on_request(std::unique_ptr<{{ method.input_type | grpc_to_cpp_name }}>&& request) override
   {
     try
     {
@@ -100,7 +100,7 @@ public:
 
       QueueData data(
         QueueData::Type::Read,
-        std::make_unique<{{ method.input_type | grpc_to_cpp_name }}>(request),
+        std::move(request),
         get_writer(need_finish_on_idle),
         reinterpret_cast<std::uintptr_t>(this));
       if (!producer_->PushNoblock(std::move(data)))

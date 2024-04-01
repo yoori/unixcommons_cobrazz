@@ -16,6 +16,7 @@ class RpcHandler : protected Generics::Uncopyable
 {
 public:
   using Message = google::protobuf::Message;
+  using MessagePtr = std::unique_ptr<Message>;
 
 public:
   virtual ~RpcHandler() = default;
@@ -33,6 +34,8 @@ public:
 
 protected:
   virtual void on_request_internal(const Message& request) = 0;
+
+  virtual void on_request_internal(MessagePtr&& request) = 0;
 
   RpcHandler() = default;
 

@@ -98,6 +98,7 @@ public:
         Request::default_instance().GetDescriptor(),
         Response::default_instance().GetDescriptor(),
         Traits::rpc_type,
+        config_.request_handler_type,
         [] (Rpc* rpc, CommonContext* common_context) {
           std::unique_ptr<RpcHandler> rpc_handler =
             std::make_unique<RpcHandlerType>();

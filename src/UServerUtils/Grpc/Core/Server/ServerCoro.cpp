@@ -23,6 +23,7 @@ ServerCoro::ServerCoro(
   config_server.num_threads = config.num_threads;
   config_server.channel_args = config.channel_args;
   config_server.common_context = common_context_coro_;
+  config_server.request_handler_type = RequestHandlerType::Move;
 
   server_ = ReferenceCounting::SmartPtr<Server>(
     new Server(
