@@ -49,8 +49,11 @@ class RpcHandlerImpl : public RpcHandler
 public:
   using Traits = Common::RpcServiceMethodTraits<RpcServiceMethodConcept>;
   using Request = typename Traits::Request;
+  using RequestPtr = std::unique_ptr<Request>;
   using Response = typename Traits::Response;
   using ResponsePtr = std::unique_ptr<Response>;
+  using Message = typename RpcHandler::Message;
+  using MessagePtr = typename RpcHandler::MessagePtr;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -202,7 +205,9 @@ public:
       need_finish_on_idle);
   }
 
-  virtual void on_request(const Request& request) = 0;
+  virtual void on_request(const Request& /*request*/) {}
+
+  virtual void on_request(RequestPtr&& /*request*/) {}
 
   template<class T>
   T& common_context()
@@ -224,19 +229,24 @@ private:
     rpc_ = rpc;
   }
 
-  void set_common_context(
-    CommonContext* common_context) noexcept override
+  void set_common_context(CommonContext* common_context) noexcept override
  {
    common_context_ = CommonContext_var(
      ReferenceCounting::add_ref(common_context));
  }
 
-  void on_request_internal(
-    const google::protobuf::Message& request) override final
+  void on_request_internal(const Message& request) override final
   {
-    static_assert(std::is_base_of_v<google::protobuf::Message, Request>,
+    static_assert(std::is_base_of_v<Message, Request>,
                   "Request must be derived from google::protobuf::Message");
     on_request(static_cast<const Request&>(request));
+  }
+
+  void on_request_internal(MessagePtr&& request) override final
+  {
+    static_assert(std::is_base_of_v<Message, Request>,
+                  "Request must be derived from google::protobuf::Message");
+    on_request(std::unique_ptr<Request>(static_cast<Request*>(request.release())));
   }
 
 private:

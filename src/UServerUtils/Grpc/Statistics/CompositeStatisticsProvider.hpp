@@ -16,11 +16,12 @@ namespace UServerUtils::Statistics
 class CompositeStatisticsProvider : public StatisticsProvider
 {
 public:
+  virtual void add(const StatisticsProviderPtr& statistics_provider) = 0;
+
+protected:
   CompositeStatisticsProvider() = default;
 
   ~CompositeStatisticsProvider() override = default;
-
-  virtual void add(const StatisticsProviderPtr& statistics_provider) = 0;
 };
 
 template<SharedMutexConcept SharedMutex = std::shared_mutex, template<class> class Container = std::deque>

@@ -172,6 +172,8 @@ private:
 
   grpc::Notifier notifier_;
 
+  const Message* request_message_prototype_;
+
   MessagePtr request_;
 
   MessagePtr response_;

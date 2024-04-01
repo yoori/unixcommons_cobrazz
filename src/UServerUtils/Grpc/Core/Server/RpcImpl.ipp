@@ -1,4 +1,5 @@
 // THIS
+#include <UServerUtils/Grpc/Core/Common/Utils.hpp>
 #include <UServerUtils/Grpc/Core/Server/Event.hpp>
 #include <UServerUtils/Grpc/Core/Server/EventType.hpp>
 #include <UServerUtils/Grpc/Core/Server/RpcImpl.hpp>
@@ -91,9 +92,9 @@ inline void RpcImpl::initialize()
     throw Exception(stream);
   }
 
-  const auto* default_request_message_prototype =
-    message_factory->GetPrototype(rpc_handler_info_.request_descriptor);
-  if (!default_request_message_prototype)
+  request_message_prototype_ = message_factory->GetPrototype(
+    rpc_handler_info_.request_descriptor);
+  if (!request_message_prototype_)
   {
     Stream::Error stream;
     stream << FNS
@@ -102,13 +103,12 @@ inline void RpcImpl::initialize()
     throw Exception(stream);
   }
 
-  request_.reset(default_request_message_prototype->New());
-  if (!request_)
+  if (rpc_handler_info_.request_handler_type == RequestHandlerType::Copy ||
+      rpc_handler_info_.rpc_type == grpc::internal::RpcMethod::NORMAL_RPC ||
+      rpc_handler_info_.rpc_type ==  grpc::internal::RpcMethod::SERVER_STREAMING)
   {
-    Stream::Error stream;
-    stream << FNS
-           << ": request is null";
-    throw Exception(stream);
+    request_.reset(request_message_prototype_->New());
+    assertm("Message::New() is failed", request_);
   }
 
   server_context_.AsyncNotifyWhenDone(&done_event_);
@@ -324,7 +324,14 @@ inline void RpcImpl::on_read(const bool ok) noexcept
   {
     try
     {
-      handler_->on_request_internal(*request_);
+      if (rpc_handler_info_.request_handler_type == RequestHandlerType::Move)
+      {
+        handler_->on_request_internal(std::move(request_));
+      }
+      else
+      {
+        handler_->on_request_internal(*request_);
+      }
     }
     catch (const eh::Exception& exc)
     {
@@ -430,6 +437,14 @@ inline void RpcImpl::read_if_needed() noexcept
    || rpc_state_ == RpcState::Stopped)
     return;
 
+  if (rpc_handler_info_.request_handler_type == RequestHandlerType::Move &&
+    (rpc_handler_info_.rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING ||
+     rpc_handler_info_.rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING))
+  {
+    request_.reset(request_message_prototype_->New());
+    assertm("Message::New() is failed", request_);
+  }
+
   switch (rpc_handler_info_.rpc_type)
   {
     case grpc::internal::RpcMethod::BIDI_STREAMING:
@@ -449,7 +464,14 @@ inline void RpcImpl::read_if_needed() noexcept
     {
       try
       {
-        handler_->on_request_internal(*request_);
+        if (rpc_handler_info_.request_handler_type == RequestHandlerType::Move)
+        {
+          handler_->on_request_internal(std::move(request_));
+        }
+        else
+        {
+          handler_->on_request_internal(*request_);
+        }
       }
       catch (const eh::Exception& exc)
       {
@@ -457,7 +479,7 @@ inline void RpcImpl::read_if_needed() noexcept
         {
           Stream::Error stream;
           stream << FNS
-                 << ": on_request :"
+                 << ": read_if_needed :"
                  << exc.what();
           logger_->error(stream.str(), Aspect::RPCIMPL);
         }
@@ -479,7 +501,7 @@ inline void RpcImpl::read_if_needed() noexcept
         {
           Stream::Error stream;
           stream << FNS
-                 << ": on_reads_done :"
+                 << ": read_if_needed :"
                  << exc.what();
           logger_->error(stream.str(), Aspect::RPCIMPL);
         }

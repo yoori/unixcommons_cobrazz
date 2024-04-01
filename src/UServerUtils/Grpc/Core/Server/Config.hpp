@@ -11,6 +11,12 @@
 namespace UServerUtils::Grpc::Core::Server
 {
 
+enum class RequestHandlerType
+{
+  Copy,
+  Move
+};
+
 struct Config final
 {
   Config() = default;
@@ -30,6 +36,10 @@ struct Config final
   std::unordered_map<std::string, std::string> channel_args;
 
   CommonContext_var common_context;
+
+  // Determines which request handler is called
+  // on_request(const Request&) or on_request(std::unique_ptr<RequestPtr>&&)
+  RequestHandlerType request_handler_type = RequestHandlerType::Copy;
 };
 
 } // namespace UServerUtils::Grpc::Core::Server

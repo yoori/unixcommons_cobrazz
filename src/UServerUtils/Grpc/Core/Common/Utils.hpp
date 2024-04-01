@@ -3,6 +3,7 @@
 
 // STD
 #include <algorithm>
+#include <cassert>
 #include <list>
 #include <optional>
 #include <sstream>
@@ -12,6 +13,8 @@
 // THIS
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Core/Common/Scheduler.hpp>
+
+#define assertm(exp, msg) assert(((void)msg, exp))
 
 namespace UServerUtils::Grpc::Core::Common::Utils
 {

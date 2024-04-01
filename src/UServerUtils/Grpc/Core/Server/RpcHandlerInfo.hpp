@@ -13,6 +13,7 @@
 
 // THIS
 #include <UServerUtils/Grpc/Core/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Core/Server/Config.hpp>
 #include <UServerUtils/Grpc/Core/Server/Rpc.hpp>
 #include <UServerUtils/Grpc/Core/Server/RpcHandler.hpp>
 
@@ -30,11 +31,13 @@ struct RpcHandlerInfo final
     const google::protobuf::Descriptor* request_descriptor,
     const google::protobuf::Descriptor* response_descriptor,
     const grpc::internal::RpcMethod::RpcType rpc_type,
+    const RequestHandlerType request_handler_type,
     RpcHandlerFactory&& rpc_handler_factory,
     const std::string_view method_full_name)
     : request_descriptor(request_descriptor),
       response_descriptor(response_descriptor),
       rpc_type(rpc_type),
+      request_handler_type(request_handler_type),
       rpc_handler_factory(std::move(rpc_handler_factory)),
       method_full_name(method_full_name) {
   }
@@ -44,6 +47,7 @@ struct RpcHandlerInfo final
   const google::protobuf::Descriptor* request_descriptor;
   const google::protobuf::Descriptor* response_descriptor;
   const grpc::internal::RpcMethod::RpcType rpc_type;
+  const RequestHandlerType request_handler_type;
   const RpcHandlerFactory rpc_handler_factory;
   const std::string_view method_full_name;
 };
