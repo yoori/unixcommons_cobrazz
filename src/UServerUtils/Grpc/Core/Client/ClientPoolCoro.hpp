@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 // GRPC
+#include <grpc/impl/codegen/connectivity_state.h>
 #include <grpcpp/impl/codegen/proto_utils.h>
 #include <grpcpp/grpcpp.h>
 
@@ -49,6 +50,7 @@ template<class RpcServiceMethodConcept>
 class ClientPoolCoroImpl<
   RpcServiceMethodConcept,
   Internal::has_bidi_streaming_t<RpcServiceMethodConcept>> final
+  : private Generics::Uncopyable
 {
 public:
   using Logger = Logging::Logger;
@@ -393,6 +395,31 @@ public:
     return WriteResult(Status::InternalError, {});
   }
 
+  bool is_ok(const std::optional<std::size_t> max_number_check_channels = {}) const noexcept
+  {
+    std::size_t count = channels_.size();
+    if (max_number_check_channels)
+    {
+      const std::size_t count = std::min(
+        count,
+        *max_number_check_channels);
+    }
+
+    for (std::size_t i = 0; i < count; ++i)
+    {
+      const auto& channel = channels_[i];
+      const auto state = channel->GetState(false);
+      const bool is_bad =
+        state == GRPC_CHANNEL_TRANSIENT_FAILURE || state == GRPC_CHANNEL_SHUTDOWN;
+      if (!is_bad)
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
 private:
   explicit ClientPoolCoro(
     Logger* logger,
@@ -406,6 +433,13 @@ private:
       number_async_client_(number_async_client),
       task_processor_(task_processor)
   {
+    if (channels.empty())
+    {
+      Stream::Error stream;
+      stream << FNS
+             << "Number channels is nil";
+      throw Exception(stream);
+    }
   }
 
   explicit ClientPoolCoro(
@@ -418,13 +452,21 @@ private:
       channels_(channels),
       number_async_client_(number_async_client)
   {
+    if (channels.empty())
+    {
+      Stream::Error stream;
+      stream << FNS
+             << "Number channels is nil";
+      throw Exception(stream);
+    }
+
     const bool is_task_processor_thread =
       userver::engine::current_task::IsTaskProcessorThread();
     if (!is_task_processor_thread)
     {
       Stream::Error stream;
       stream << FNS
-             << ": ClientPoolCoro must be call on coroutine pool";
+             << "ClientPoolCoro must be call on coroutine pool";
       throw Exception(stream);
     }
 
@@ -456,9 +498,15 @@ private:
             const ClientId client_id) mutable {
             try
             {
-              userver::engine::AsyncNoSpan(
+              userver::engine::CriticalAsyncNoSpan(
                 *task_processor,
                 [client_id, weak_ptr, logger] () mutable {
+                  if (auto ptr = weak_ptr.lock())
+                  {
+                    auto& impl = ptr->impl_;
+                    impl->remove(client_id);
+                  }
+
                   //<--! TODO - exponential time growth
                   userver::engine::SleepFor(
                     std::chrono::milliseconds(1000));
@@ -466,8 +514,6 @@ private:
                   {
                     auto& impl = ptr->impl_;
                     auto& factory = ptr->factory_;
-
-                    impl->remove(client_id);
                     auto client = Client::create(logger);
                     factory->create(*client);
                     impl->emplace(std::move(client));
