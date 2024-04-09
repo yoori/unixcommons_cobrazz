@@ -35,8 +35,18 @@ public:
 
   static constexpr auto k_rpc_type = Traits::rpc_type;
   using WriterPtr = std::unique_ptr<Writer<Request, k_rpc_type>>;
+  using Channel = grpc::Channel;
+  using ChannelPtr = std::shared_ptr<Channel>;
+  using CompletionQueue = grpc::CompletionQueue;
+  using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
+  using ClientId = UServerUtils::Grpc::Core::Client::ClientId;
 
 public:
+  virtual void on_data(
+    const ClientId& client_id,
+    const CompletionQueuePtr& completion_queue,
+    const ChannelPtr& channel) = 0;
+
   virtual void on_writer(WriterPtr&& writer) = 0;
 
   virtual void on_initialize(const bool ok) = 0;

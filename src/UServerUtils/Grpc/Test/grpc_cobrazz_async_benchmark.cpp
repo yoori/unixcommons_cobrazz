@@ -72,7 +72,6 @@ class StreamStreamClientImpl final
   : public echo::EchoService_Handler_ClientObserver
 {
 private:
-  using WriterPtr = echo::EchoService_Handler_WriterPtr;
   using WriterStatus = UServerUtils::Grpc::Core::Client::WriterStatus;
   using ShutdownManagerPtr = UServerUtils::Grpc::Core::Common::ShutdownManagerPtr;
   using Logger = Logging::Logger;
@@ -96,6 +95,13 @@ public:
   ~StreamStreamClientImpl() override = default;
 
 private:
+  void on_data(
+    const ClientId& /*client_id*/,
+    const CompletionQueuePtr& /*completion_queue*/,
+    const ChannelPtr& /*channel*/) override
+  {
+  }
+
   void on_writer(WriterPtr&& writer) override
   {
     writer_ = std::move(writer);
