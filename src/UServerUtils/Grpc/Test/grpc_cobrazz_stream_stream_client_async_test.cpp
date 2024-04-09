@@ -81,7 +81,6 @@ class StreamStreamClient_ServerFinishImpl final:
   public test::TestService_HandlerStreamStream_ClientObserver
 {
 public:
-  using WriterPtr = test::TestService_HandlerStreamStream_WriterPtr;
   using WriterStatus = Client::WriterStatus;
 
 public:
@@ -96,6 +95,13 @@ public:
   ~StreamStreamClient_ServerFinishImpl() override = default;
 
 private:
+  void on_data(
+    const ClientId& /*client_id*/,
+    const CompletionQueuePtr& /*completion_queue*/,
+    const ChannelPtr& /*channel*/) override
+  {
+  }
+
   void on_writer(WriterPtr&& writer) override
   {
     writer_ = std::move(writer);
@@ -247,7 +253,6 @@ class StreamStreamClient_ServerNotExistImpl final :
   public test::TestService_HandlerStreamStream_ClientObserver
 {
 public:
-  using WriterPtr = test::TestService_HandlerStreamStream_WriterPtr;
   using WriterStatus = Client::WriterStatus;
 
 public:
@@ -260,6 +265,13 @@ public:
   ~StreamStreamClient_ServerNotExistImpl() override = default;
 
 private:
+  void on_data(
+    const ClientId& /*client_id*/,
+    const CompletionQueuePtr& /*completion_queue*/,
+    const ChannelPtr& /*channel*/) override
+  {
+  }
+
   void on_writer(WriterPtr&& writer) override
   {
     writer_ = std::move(writer);
@@ -293,7 +305,6 @@ class StreamStreamClient_ServerNotExist final
 {
 private:
   using Factory = test::TestService_HandlerStreamStream_Factory;
-  using WriterPtr = test::TestService_HandlerStreamStream_WriterPtr;
   using Config = Client::Config;
   using Logger_var = Logging::Logger_var;
   using WriterStatus = Client::WriterStatus;
@@ -408,7 +419,6 @@ class StreamStreamClient_ClientFinishImpl final:
   public test::TestService_HandlerStreamStream_ClientObserver
 {
 public:
-  using WriterPtr = test::TestService_HandlerStreamStream_WriterPtr;
   using WriterStatus = Client::WriterStatus;
 
 public:
@@ -423,6 +433,13 @@ public:
   ~StreamStreamClient_ClientFinishImpl() override = default;
 
 private:
+  void on_data(
+    const ClientId& /*client_id*/,
+    const CompletionQueuePtr& /*completion_queue*/,
+    const ChannelPtr& /*channel*/) override
+  {
+  }
+
   void on_writer(WriterPtr&& writer) override
   {
     writer_ = std::move(writer);
@@ -480,7 +497,6 @@ class StreamStreamClient_ClientFinish final
 {
 private:
   using Factory = test::TestService_HandlerStreamStream_Factory;
-  using WriterPtr = test::TestService_HandlerStreamStream_WriterPtr;
   using Config = Client::Config;
   using Logger_var = Logging::Logger_var;
   using WriterStatus = Client::WriterStatus;

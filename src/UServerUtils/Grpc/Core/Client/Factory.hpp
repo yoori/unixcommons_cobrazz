@@ -101,8 +101,7 @@ public:
   using Response = typename Traits<RpcServiceMethodConcept>::Response;
   using ResponsePtr = std::unique_ptr<Response>;
 
-  static constexpr auto k_rpc_type =
-    Traits<RpcServiceMethodConcept>::rpc_type;
+  static constexpr auto k_rpc_type = Traits<RpcServiceMethodConcept>::rpc_type;
 
   using WriterPtr = std::unique_ptr<Writer<Request, k_rpc_type>>;
   using Observer = ClientObserver<RpcServiceMethodConcept>;
@@ -165,10 +164,9 @@ public:
     : logger_(ReferenceCounting::add_ref(logger)),
       factory_observer_(std::move(factory_observer))
   {
-    scheduler_ =
-      UServerUtils::Grpc::Core::Common::Utils::create_scheduler(
-        config.number_threads,
-        logger_.in());
+    scheduler_ = UServerUtils::Grpc::Core::Common::Utils::create_scheduler(
+      config.number_threads,
+      logger_.in());
     const auto number_threads = scheduler_->size();
     const auto& scheduler_queues = scheduler_->queues();
 

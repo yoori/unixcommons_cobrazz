@@ -72,9 +72,11 @@ public:
 
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using WriterPtr = typename Observer::WriterPtr;
+  using Channel = typename Observer::Channel;
+  using ChannelPtr = typename Observer::ChannelPtr;
+  using CompletionQueue = typename Observer::CompletionQueue;
+  using CompletionQueuePtr = typename Observer::CompletionQueuePtr;
   using ClientCoroPtr = std::shared_ptr<ClientCoro>;
-  using CompletionQueue = grpc::CompletionQueue;
-  using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
 
   struct WriteResult final
   {
@@ -360,11 +362,19 @@ private:
     }
   }
 
-  void on_writer(WriterPtr&& writer)
+  void on_data(
+    const ClientId& client_id,
+    const CompletionQueuePtr& completion_queue,
+    const ChannelPtr& channel) override
+  {
+    client_id_ = client_id;
+    completion_queue_ = completion_queue;
+    channel_ = channel;
+  }
+
+  void on_writer(WriterPtr&& writer) override
   {
     writer_ = std::move(writer);
-    completion_queue_ = writer_->completion_queue();
-    client_id_ = writer_->client_id();
   }
 
   void on_initialize(const bool /*ok*/) override
@@ -418,6 +428,8 @@ private:
 
   CompletionQueuePtr completion_queue_;
 
+  ChannelPtr channel_;
+
   WriterPtr writer_;
 
   ClientId client_id_ = 0;
@@ -432,8 +444,7 @@ private:
 };
 
 template<class RpcServiceMethodConcept>
-using ClientCoroPtr =
-  std::shared_ptr<ClientCoro<RpcServiceMethodConcept>>;
+using ClientCoroPtr = std::shared_ptr<ClientCoro<RpcServiceMethodConcept>>;
 
 } // namespace UServerUtils::Grpc::Core::Client
 

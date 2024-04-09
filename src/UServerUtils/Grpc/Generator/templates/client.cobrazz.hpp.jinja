@@ -58,13 +58,6 @@ using {{service.name}}_{{method.name}}_ClientObserver =
 using {{service.name}}_{{method.name}}_Factory =
   UServerUtils::Grpc::Core::Client::Factory<Internal::Client::{{service.name}}_{{method.name}}_Method>;
 
-using {{service.name}}_{{method.name}}_WriterPtr =
-  std::unique_ptr<
-    UServerUtils::Grpc::Core::Client::Writer<
-      typename Internal::Client::{{service.name}}_{{method.name}}_Traits::Request,
-      Internal::Client::{{service.name}}_{{method.name}}_Traits::rpc_type>
-  >;
-
 using {{service.name}}_{{method.name}}_ClientPool =
   UServerUtils::Grpc::Core::Client::ClientPoolCoro<Internal::Client::{{service.name}}_{{method.name}}_Method>;
 

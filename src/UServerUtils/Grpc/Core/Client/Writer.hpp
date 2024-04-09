@@ -75,9 +75,7 @@ public:
     const CompletionQueuePtr& completion_queue,
     ClientPtr&& client,
     const ClientId client_id)
-    : completion_queue_(completion_queue),
-      client_(std::move(client)),
-      client_id_(client_id)
+    : client_(std::move(client))
   {
   }
 
@@ -121,22 +119,8 @@ public:
     }
   }
 
-  ClientId client_id() const noexcept
-  {
-    return client_id_;
-  }
-
-  CompletionQueuePtr completion_queue() const noexcept
-  {
-    return completion_queue_;
-  }
-
 private:
-  CompletionQueuePtr completion_queue_;
-
   ClientPtr client_;
-
-  const ClientId client_id_;
 };
 
 template<class Request>

@@ -108,6 +108,43 @@ inline ClientImpl<RpcServiceMethodConcept>::ClientImpl(
       throw Exception(stream);
     }
   }
+  else if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING)
+  {
+    try
+    {
+      observer_.on_data(
+        client_id_,
+        completion_queue_,
+        channel_);
+    }
+    catch (const eh::Exception& exc)
+    {
+      try
+      {
+        Stream::Error stream;
+        stream << FNS
+               << ": "
+               << exc.what();
+        logger_->error(stream.str(), Aspect::CLIENT_IMPL);
+      }
+      catch (...)
+      {
+      }
+    }
+    catch (...)
+    {
+      try
+      {
+        Stream::Error stream;
+        stream << FNS
+               << ": Unknown error";
+        logger_->error(stream.str(), Aspect::CLIENT_IMPL);
+      }
+      catch (...)
+      {
+      }
+    }
+  }
 }
 
 template<class RpcServiceMethodConcept>
