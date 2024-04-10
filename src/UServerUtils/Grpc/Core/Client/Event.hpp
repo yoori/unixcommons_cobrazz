@@ -5,6 +5,9 @@
 #include <future>
 #include <memory>
 
+// USERVER
+#include <userver/engine/future.hpp>
+
 // THIS
 #include <UServerUtils/Grpc/Core/Common/Event.hpp>
 #include <UServerUtils/Grpc/Core/Client/EventObserver.hpp>
@@ -128,7 +131,6 @@ class EventStop final : public Common::Event
 {
 public:
   using ObserverPtr = std::weak_ptr<EventObserver>;
-  using StoppedPromise = std::promise<void>;
 
 public:
   EventStop(
@@ -159,6 +161,36 @@ private:
   const EventType type_ = EventType::Stop;
 
   const ObserverPtr observer_;
+};
+
+class EventChannelState final : public Common::Event
+{
+public:
+  using Promise = userver::engine::Promise<void>;
+
+public:
+  EventChannelState(Promise&& promise)
+    : promise_(std::move(promise))
+  {
+  }
+
+  ~EventChannelState() override = default;
+
+  void handle(const bool /*ok*/) noexcept override
+  {
+    try
+    {
+      promise_.set_value();
+    }
+    catch (...)
+    {
+    }
+
+    delete this;
+  }
+
+private:
+  Promise promise_;
 };
 
 } // namespace UServerUtils::Grpc::Core::Client

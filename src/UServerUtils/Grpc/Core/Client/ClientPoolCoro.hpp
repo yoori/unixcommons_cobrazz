@@ -58,8 +58,7 @@ public:
   using Traits = Internal::Traits<RpcServiceMethodConcept>;
   using Request = typename Traits::Request;
   using RequestPtr = std::unique_ptr<Request>;
-  using WriteResult =
-    typename ClientCoro<RpcServiceMethodConcept>::WriteResult;
+  using WriteResult = typename ClientCoro<RpcServiceMethodConcept>::WriteResult;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
@@ -104,7 +103,9 @@ public:
         std::shared_lock lock(mutex_client_);
         const auto size = client_ids_.size();
         if (size == 0)
+        {
           return WriteResult(Status::InternalError, {});
+        }
 
         const auto client_id = client_ids_[number % size];
         const auto it = clients_.find(client_id);
@@ -198,14 +199,17 @@ public:
     }
   }
 
-  void remove(const ClientId client_id) noexcept
+  ClientPtr remove(const ClientId client_id) noexcept
   {
     try
     {
       std::unique_lock lock(mutex_client_);
       auto it_remove = clients_.find(client_id);
       if (it_remove == std::end(clients_))
-        return;
+      {
+        return {};
+      }
+      auto clinet = it_remove->second.first;
 
       const auto size = client_ids_.size();
       const auto position = it_remove->second.second;
@@ -218,7 +222,7 @@ public:
                << " is larger then "
                << size;
         logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-        return;
+        return clinet;
       }
 
       clients_.erase(it_remove);
@@ -235,10 +239,12 @@ public:
                  << "Logic error. Not existing client_id="
                  << client_ids_[position];
           logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-          return;
+          return clinet;
         }
         it_change->second.second = position;
       }
+
+      return clinet;
     }
     catch (const eh::Exception &exc)
     {
@@ -266,6 +272,8 @@ public:
       catch (...)
       {
       }
+
+      return {};
     }
   }
 
@@ -488,35 +496,76 @@ private:
         auto& channels = ptr->channels_;
         auto logger = ptr->logger_;
         const auto number_async_client = ptr->number_async_client_;
-
-        auto& task_processor =
-          userver::engine::current_task::GetTaskProcessor();
+        auto& task_processor = userver::engine::current_task::GetTaskProcessor();
 
         auto weak_ptr = std::weak_ptr<ClientPoolCoro>(ptr);
-        auto factory_observer =
-          [weak_ptr, task_processor = &task_processor, logger] (
-            const ClientId client_id) mutable {
+        auto factory_observer = [weak_ptr, task_processor = &task_processor, logger] (
+          ClientId client_id) mutable {
             try
             {
               userver::engine::CriticalAsyncNoSpan(
                 *task_processor,
                 [client_id, weak_ptr, logger] () mutable {
+                  std::weak_ptr<grpc::Channel> channel;
+                  std::weak_ptr<grpc::CompletionQueue> completion_queue;
+
                   if (auto ptr = weak_ptr.lock())
                   {
                     auto& impl = ptr->impl_;
-                    impl->remove(client_id);
+                    auto client = impl->remove(client_id);
+                    if (!client)
+                    {
+                      Stream::Error stream;
+                      stream << FNS
+                             << "Logic error... Client is null";
+                      logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
+                      return;
+                    }
+
+                    channel = client->channel();
+                    completion_queue = client->completion_queue();
+                  }
+                  else
+                  {
+                    return;
                   }
 
-                  //<--! TODO - exponential time growth
-                  userver::engine::SleepFor(
-                    std::chrono::milliseconds(1000));
-                  if (auto ptr = weak_ptr.lock())
+                  for (;;)
                   {
-                    auto& impl = ptr->impl_;
-                    auto& factory = ptr->factory_;
-                    auto client = Client::create(logger);
-                    factory->create(*client);
-                    impl->emplace(std::move(client));
+                    auto channel_ptr = channel.lock();
+                    auto completion_queue_ptr = completion_queue.lock();
+                    auto ptr = weak_ptr.lock();
+
+                    if (!ptr || !channel_ptr || !completion_queue_ptr)
+                      return;
+
+                    auto state = channel_ptr->GetState(false);
+                    if (state == GRPC_CHANNEL_READY || state == GRPC_CHANNEL_IDLE)
+                    {
+                      auto& impl = ptr->impl_;
+                      auto& factory = ptr->factory_;
+                      auto client = Client::create(logger);
+                      factory->create(*client, channel_ptr);
+                      impl->emplace(std::move(client));
+                      break;
+                    }
+                    else
+                    {
+                      userver::engine::Promise<void> promise;
+                      auto future = promise.get_future();
+                      auto event = std::make_unique<EventChannelState>(std::move(promise));
+                      channel_ptr->NotifyOnStateChange(
+                        state,
+                        gpr_inf_future(GPR_CLOCK_MONOTONIC),
+                        completion_queue_ptr.get(),
+                        event.release());
+
+                      channel_ptr.reset();
+                      completion_queue_ptr.reset();
+                      ptr.reset();
+
+                      future.get();
+                    }
                   }
                 }
               ).Detach();
@@ -527,7 +576,6 @@ private:
               {
                 Stream::Error stream;
                 stream << FNS
-                       << ": "
                        << exc.what();
                 logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
               }
@@ -541,7 +589,7 @@ private:
               {
                 Stream::Error stream;
                 stream << FNS
-                       << ": Unknown error";
+                       << "Unknown error";
                 logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
               }
               catch (...)

@@ -109,11 +109,10 @@ class GrpcFixtureStreamStreamCoro_ClientTest_Success
 public:
   void SetUp() override
   {
-    logger_ = Logging::Logger_var(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::ERROR)));
+    logger_ = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::ERROR));
 
     CoroPoolConfig coro_pool_config;
     EventThreadPoolConfig event_thread_pool_config;
@@ -131,24 +130,19 @@ public:
 
     auto init_func = [logger = logger_, port = port_] (
       TaskProcessorContainer& task_processor_container) {
-      auto& main_task_processor =
-        task_processor_container.get_main_task_processor();
-
-      auto components_builder =
-        std::make_unique<ComponentsBuilder>();
+      auto& main_task_processor = task_processor_container.get_main_task_processor();
+      auto components_builder = std::make_unique<ComponentsBuilder>();
 
       Core::Server::ConfigCoro config;
       config.num_threads = 3;
       config.port = port;
       config.max_size_queue = {};
 
-      auto grpc_builder =
-        std::make_unique<GrpcCobrazzServerBuilder>(
-          config,
-          logger.in());
-      auto service =
-        StreamStreamCoro_ClientTest_Success_var(
-          new StreamStreamCoro_ClientTest_Success);
+      auto grpc_builder = std::make_unique<GrpcCobrazzServerBuilder>(
+        config,
+        logger.in());
+      auto service = StreamStreamCoro_ClientTest_Success_var(
+        new StreamStreamCoro_ClientTest_Success);
       grpc_builder->add_service(
         service.in(),
         main_task_processor);
@@ -159,12 +153,10 @@ public:
       return components_builder;
     };
 
-    manager_ =
-      Manager_var(
-        new Manager(
-          std::move(task_processor_container_builder),
-          std::move(init_func),
-          logger_.in()));
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
   }
 
   void TearDown() override
@@ -182,10 +174,8 @@ public:
 
 TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
 {
-  using ConfigPoolCoro =
-    UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
-  using GrpcCobrazzPoolClientFactory =
-    UServerUtils::Grpc::GrpcCobrazzPoolClientFactory;
+  using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
+  using GrpcCobrazzPoolClientFactory = UServerUtils::Grpc::GrpcCobrazzPoolClientFactory;
 
   manager_->activate_object();
 
@@ -204,9 +194,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
   const std::size_t number_request = 10;
   for (std::size_t i = 1; i <= number_cycle; ++i)
   {
-    auto pool =
-      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-        task_processor);
+    auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+      task_processor);
 
     for (std::size_t i = 1; i <= number_request; ++i)
     {
@@ -236,8 +225,7 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
 
 TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success_MultiThread)
 {
-  using ConfigPoolCoro =
-    UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
+  using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
 
   manager_->activate_object();
 
@@ -257,9 +245,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success_MultiThread)
   const std::size_t number_cycle = 3;
   for (std::size_t k = 1; k <= number_cycle; ++k)
   {
-    auto pool =
-      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-        task_processor);
+    auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+      task_processor);
 
     UServerUtils::Grpc::Core::Common::ThreadsGuard threads_guard;
     UServerUtils::Grpc::Core::Common::ShutdownManagerPtr manager(
@@ -353,24 +340,19 @@ public:
 
     auto init_func = [logger = logger_, port = port_] (
       TaskProcessorContainer& task_processor_container) {
-      auto& main_task_processor =
-        task_processor_container.get_main_task_processor();
-
-      auto components_builder =
-        std::make_unique<ComponentsBuilder>();
+      auto& main_task_processor = task_processor_container.get_main_task_processor();
+      auto components_builder = std::make_unique<ComponentsBuilder>();
 
       Core::Server::ConfigCoro config;
       config.num_threads = 3;
       config.port = port;
       config.max_size_queue = {};
 
-      auto grpc_builder =
-        std::make_unique<GrpcCobrazzServerBuilder>(
-          config,
-          logger.in());
-      auto service =
-        StreamStreamCoro_ClientTest_Timeout_var(
-          new StreamStreamCoro_ClientTest_Timeout);
+      auto grpc_builder = std::make_unique<GrpcCobrazzServerBuilder>(
+        config,
+        logger.in());
+      auto service = StreamStreamCoro_ClientTest_Timeout_var(
+        new StreamStreamCoro_ClientTest_Timeout);
       grpc_builder->add_service(
         service.in(),
         main_task_processor);
@@ -381,12 +363,10 @@ public:
       return components_builder;
     };
 
-    manager_ =
-      Manager_var(
-        new Manager(
-          std::move(task_processor_container_builder),
-          std::move(init_func),
-          logger_.in()));
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
   }
 
   void TearDown() override
@@ -420,9 +400,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Timeout, Timeout)
     logger_.in(),
     config);
 
-  auto pool =
-    pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-      task_processor);
+  auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+    task_processor);
 
   const std::size_t number_request = 10;
   for (std::size_t i = 1; i <= number_request; ++i)
@@ -481,12 +460,10 @@ public:
       return components_builder;
     };
 
-    manager_ =
-      Manager_var(
-        new Manager(
-          std::move(task_processor_container_builder),
-          std::move(init_func),
-          logger_.in()));
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
   }
 
   void TearDown() override
@@ -504,8 +481,7 @@ public:
 
 TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServer1)
 {
-  using ConfigPoolCoro =
-    UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
+  using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
 
   manager_->activate_object();
 
@@ -522,9 +498,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
 
   for (std::size_t k = 1; k <= 500; ++k)
   {
-    auto pool =
-      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-        task_processor);
+    auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+      task_processor);
   }
 
   manager_->deactivate_object();
@@ -533,8 +508,7 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
 
 TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServer2)
 {
-  using ConfigPoolCoro =
-    UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
+  using ConfigPoolCoro = UServerUtils::Grpc::Core::Client::ConfigPoolCoro;
 
   manager_->activate_object();
 
@@ -552,9 +526,8 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
   const std::size_t number_request = 100;
   for (std::size_t k = 1; k <= 500; ++k)
   {
-    auto pool =
-      pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-        task_processor);
+    auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+      task_processor);
 
     for (std::size_t i = 1; i <= number_request; ++i)
     {

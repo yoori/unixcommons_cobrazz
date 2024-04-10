@@ -117,6 +117,16 @@ public:
     return client_id_;
   }
 
+  ChannelPtr channel() const noexcept
+  {
+    return channel_;
+  }
+
+  CompletionQueuePtr completion_queue() const noexcept
+  {
+    return completion_queue_;
+  }
+
   WriteResult write(
     RequestPtr&& request,
     const std::size_t timeout = 3000) noexcept

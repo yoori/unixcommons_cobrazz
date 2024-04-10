@@ -60,12 +60,10 @@ public:
       return components_builder;
     };
 
-    manager_ =
-      Manager_var(
-        new Manager(
-          std::move(task_processor_container_builder),
-          std::move(init_func),
-          logger_.in()));
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
   }
 
   ~Application() = default;
