@@ -43,10 +43,10 @@ Scheduler::Scheduler(
       auto completion_queue = queues_[i];
       auto function = [completion_queue] () {
         bool ok = false;
-        void *tag = nullptr;
+        void* tag = nullptr;
         while (completion_queue->Next(&tag, &ok))
         {
-          auto *event = static_cast<Event *>(tag);
+          auto* event = static_cast<Event*>(tag);
           event->handle(ok);
         }
       };

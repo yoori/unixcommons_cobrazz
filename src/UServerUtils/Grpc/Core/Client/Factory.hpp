@@ -107,7 +107,8 @@ public:
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
-  using ChannelPtr = std::shared_ptr<grpc::Channel>;
+  using Channel = grpc::Channel;
+  using ChannelPtr = std::shared_ptr<Channel>;
   using Channels = std::vector<ChannelPtr>;
   using SchedulerPtr = Common::SchedulerPtr;
 
@@ -129,7 +130,9 @@ private:
     CompletionQueuePtr completion_queue;
   };
   using ChannelsData = std::vector<ChannelData>;
-  using IndexChannelData = std::size_t;
+  using Index = std::size_t;
+  using ChannelId = std::uintptr_t;
+  using ChannelIdToIndex = std::unordered_map<ChannelId, Index>;
 
   struct ClientInfo final
   {
@@ -138,10 +141,10 @@ private:
 
     ClientInfo(
       const ClientPtr& client,
-      const IndexChannelData index_channel_data,
+      const Index index,
       Observer& observer)
       : client(client),
-        index_channel_data(index_channel_data),
+        index(index),
         observer(observer)
     {
     }
@@ -149,12 +152,10 @@ private:
     ~ClientInfo() = default;
 
     ClientPtr client;
-    IndexChannelData index_channel_data = 0;
+    Index index = 0;
     ObserverRef observer;
   };
   using Clients = std::unordered_map<ClientId, ClientInfo>;
-
-  using QueueFinishedIndex = Common::QueueAtomic<IndexChannelData>;
 
 public:
   explicit FactoryImpl(
@@ -181,10 +182,17 @@ public:
     channels_data_.reserve(size_channels);
     for (std::size_t i = 0; i < size_channels; ++i)
     {
+      auto& channel = channels[i];
+      const ChannelId channel_id = reinterpret_cast<std::uintptr_t>(channel.get());
+
       ChannelData channel_data;
       channel_data.completion_queue = scheduler_queues[i % scheduler_queues.size()];
-      channel_data.channel = std::move(channels[i]);
+      channel_data.channel = std::move(channel);
       channels_data_.emplace_back(std::move(channel_data));
+
+      channel_id_to_index_.emplace(
+        channel_id,
+        channels_data_.size() - 1);
     }
   }
 
@@ -202,10 +210,17 @@ public:
     channels_data_.reserve(size_channels);
     for (std::size_t i = 0; i < size_channels; ++i)
     {
+      auto& channel = channels[i];
+      const ChannelId channel_id = reinterpret_cast<std::uintptr_t>(channel.get());
+
       ChannelData channel_data;
       channel_data.completion_queue = scheduler_queues[i % scheduler_queues.size()];
-      channel_data.channel = channels[i];
+      channel_data.channel = std::move(channel);
       channels_data_.emplace_back(std::move(channel_data));
+
+      channel_id_to_index_.emplace(
+        channel_id,
+        channels_data_.size() - 1);
     }
   }
 
@@ -231,7 +246,6 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": "
                << "Logic error. Timout is reached.";
         logger_->error(stream.str(), Aspect::FACTORY);
       }
@@ -254,7 +268,10 @@ public:
 
   ~FactoryImpl() = default;
 
-  WriterPtr create(Observer& observer, RequestPtr&& request)
+  WriterPtr create(
+    Observer& observer,
+    RequestPtr&& request,
+    const std::optional<ChannelPtr>& channel)
   {
     if constexpr (k_rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
                || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
@@ -263,30 +280,50 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": Request is null";
+               << "Request is null";
         throw Exception(stream);
       }
     }
 
-    IndexChannelData index_channel_data = 0;
-    std::unique_ptr<IndexChannelData> data;
-    if constexpr (k_rpc_type != grpc::internal::RpcMethod::NORMAL_RPC)
+    Index index = 0;
+    if (channel.has_value())
     {
-      data = queue_finished_index_.pop();
-    }
+      if (!*channel)
+      {
+        Stream::Error stream;
+        stream << FNS
+               << "Channel is null";
+        throw Exception(stream);
+      }
 
-    if (data)
-    {
-      index_channel_data = *data;
+      const auto it = channel_id_to_index_.find(
+        reinterpret_cast<ChannelId>(channel->get()));
+      if (it == channel_id_to_index_.end())
+      {
+        Stream::Error stream;
+        stream << FNS
+               << "Logic error... Not existing channel";
+        logger_->error(stream.str(), Aspect::FACTORY);
+
+        const auto number = counter_.fetch_add(
+          1,
+          std::memory_order_relaxed);
+        index = number % channels_data_.size();
+      }
+      else
+      {
+        index = it->second;
+      }
     }
     else
     {
       const auto number = counter_.fetch_add(
         1,
         std::memory_order_relaxed);
-      index_channel_data = number % channels_data_.size();
+      index = number % channels_data_.size();
     }
-    auto& channel_data = channels_data_[index_channel_data];
+
+    auto& channel_data = channels_data_[index];
 
     auto client = ClientImpl<RpcServiceMethodConcept>::create(
       logger_,
@@ -306,14 +343,13 @@ public:
       auto result = clients_.try_emplace(
         client->get_id(),
         client,
-        index_channel_data,
+        index,
         observer);
       if (!result.second)
       {
         Stream::Error stream;
         stream << FNS
-               << ": "
-               << ": Logic error. Client with id="
+               << "Logic error. Client with id="
                << client->get_id()
                << " already exist";
         throw Exception(stream);
@@ -346,25 +382,11 @@ public:
 private:
   void need_remove(const ClientId client_id) noexcept override
   {
-    [[maybe_unused]] IndexChannelData index_channel_data = 0;
     {
       std::lock_guard lock(mutex_clients_);
       auto it = clients_.find(client_id);
       if (it == clients_.end())
         return;
-
-      index_channel_data = it->second.index_channel_data;
-    }
-
-    if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
-    {
-      try
-      {
-        queue_finished_index_.emplace(index_channel_data);
-      }
-      catch (...)
-      {
-      }
     }
 
     if (factory_observer_)
@@ -387,11 +409,13 @@ private:
 private:
   const Logger_var logger_;
 
-  Common::SchedulerPtr scheduler_;
+  SchedulerPtr scheduler_;
 
   FactoryObserver factory_observer_;
 
   ChannelsData channels_data_;
+
+  ChannelIdToIndex channel_id_to_index_;
 
   std::atomic<std::size_t> counter_{0};
 
@@ -402,8 +426,6 @@ private:
   std::condition_variable cv_;
 
   mutable std::mutex mutex_clients_;
-
-  QueueFinishedIndex queue_finished_index_{100000};
 };
 
 } // namespace Internal
@@ -457,7 +479,7 @@ public:
 
   void create(Observer& observer, RequestPtr&& request)
   {
-    impl_.create(observer, std::move(request));
+    impl_.create(observer, std::move(request), {});
   }
 
   std::size_t size() const noexcept
@@ -482,6 +504,7 @@ class Factory<
 {
 private:
   using Impl = Internal::FactoryImpl<RpcServiceMethodConcept>;
+  using ChannelPtr = typename Impl::ChannelPtr;
 
 public:
   using Logger = Logging::Logger;
@@ -517,9 +540,11 @@ public:
     impl_.stop();
   }
 
-  WriterPtr create(Observer& observer)
+  WriterPtr create(
+    Observer& observer,
+    const std::optional<ChannelPtr>& channel = {})
   {
-    return impl_.create(observer, {});
+    return impl_.create(observer, {}, channel);
   }
 
   std::size_t size() const noexcept
@@ -547,6 +572,7 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using ChannelPtr = typename Impl::ChannelPtr;
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
@@ -578,9 +604,12 @@ public:
     impl_.stop();
   }
 
-  void create(Observer& observer, RequestPtr&& request)
+  void create(
+    Observer& observer,
+    RequestPtr&& request,
+    const std::optional<ChannelPtr>& channel = {})
   {
-    impl_.create(observer, std::move(request));
+    impl_.create(observer, std::move(request), channel);
   }
 
   std::size_t size() const noexcept
@@ -608,6 +637,7 @@ private:
 
 public:
   using Logger = Logging::Logger;
+  using ChannelPtr = typename Impl::ChannelPtr;
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
@@ -640,9 +670,11 @@ public:
     impl_.stop();
   }
 
-  WriterPtr create(Observer& observer)
+  WriterPtr create(
+    Observer& observer,
+    const std::optional<ChannelPtr>& channel = {})
   {
-    return impl_.create(observer, {});
+    return impl_.create(observer, {}, channel);
   }
 
   std::size_t size() const noexcept

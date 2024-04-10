@@ -21,15 +21,14 @@ ClientImpl<RpcServiceMethodConcept>::create(
   Observer& observer,
   RequestPtr&& request)
 {
-  auto client =
-    std::shared_ptr<ClientImpl<RpcServiceMethodConcept>>(
-      new ClientImpl<RpcServiceMethodConcept>(
-        logger,
-        channel,
-        completion_queue,
-        delegate,
-        observer,
-        std::move(request)));
+  auto client = std::shared_ptr<ClientImpl<RpcServiceMethodConcept>>(
+    new ClientImpl<RpcServiceMethodConcept>(
+      logger,
+      channel,
+      completion_queue,
+      delegate,
+      observer,
+      std::move(request)));
 
   auto writer = std::make_unique<Writer<Request, k_rpc_type>>(
     completion_queue,
