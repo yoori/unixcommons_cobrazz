@@ -102,7 +102,7 @@ add_executable(TestUserver
   Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
   Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
   Grpc/Test/grpc_notify_test.cpp
-  Grpc/Test/grpc_test_main.cpp
+  Grpc/Test/main.cpp
   Grpc/Test/grpc_userver_test1.cpp
   Grpc/Test/grpc_userver_test2.cpp
   Grpc/Test/http_test.cpp

@@ -95,18 +95,6 @@ public:
   ~StreamStreamClient_ServerFinishImpl() override = default;
 
 private:
-  void on_data(
-    const ClientId& /*client_id*/,
-    const CompletionQueuePtr& /*completion_queue*/,
-    const ChannelPtr& /*channel*/) override
-  {
-  }
-
-  void on_writer(WriterPtr&& writer) override
-  {
-    writer_ = std::move(writer);
-  }
-
   void on_initialize(const bool ok) override
   {
     kCounterClientStreamStream.fetch_add(1);
@@ -121,7 +109,7 @@ private:
 
     auto request = std::make_unique<test::Request>();
     request->set_message(data_ + std::to_string(counter_));
-    auto status = writer_->write(std::move(request));
+    auto status = writer()->write(std::move(request));
     EXPECT_EQ(status, WriterStatus::Ok);
   }
 
@@ -139,8 +127,6 @@ private:
   Common::ShutdownManagerPtr shutdown_manager_;
 
   const std::string data_;
-
-  WriterPtr writer_;
 
   std::size_t counter_ = 1;
 };
@@ -160,9 +146,9 @@ public:
     Logger* logger,
     const Common::ShutdownManagerPtr& shutdown_manager,
     const std::string& data)
-    : impl_(std::make_unique<Impl>(shutdown_manager, data)),
-      factory_(std::make_unique<Factory>(config, logger)),
-      data_(data)
+    : shutdown_manager_(shutdown_manager),
+      data_(data),
+      factory_(std::make_unique<Factory>(config, logger))
   {
   }
 
@@ -170,7 +156,8 @@ public:
 
   void start()
   {
-    auto writer = factory_->create(*impl_);
+    auto writer = factory_->create(
+      std::make_shared<Impl>(shutdown_manager_, data_));
     auto request = std::make_unique<test::Request>();
     request->set_message(data_ + std::to_string(1));
     auto status = writer->write(std::move(request));
@@ -178,11 +165,11 @@ public:
   }
 
 private:
-  std::unique_ptr<Impl> impl_;
-
-  std::unique_ptr<Factory> factory_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
   const std::string data_;
+
+  const std::unique_ptr<Factory> factory_;
 };
 
 class GrpcFixtureStreamStream_Client_ServerFinish : public testing::Test
@@ -265,18 +252,6 @@ public:
   ~StreamStreamClient_ServerNotExistImpl() override = default;
 
 private:
-  void on_data(
-    const ClientId& /*client_id*/,
-    const CompletionQueuePtr& /*completion_queue*/,
-    const ChannelPtr& /*channel*/) override
-  {
-  }
-
-  void on_writer(WriterPtr&& writer) override
-  {
-    writer_ = std::move(writer);
-  }
-
   void on_initialize(const bool ok) override
   {
     kCounterClientStreamStream.fetch_add(1);
@@ -297,8 +272,6 @@ private:
 
 private:
   Common::ShutdownManagerPtr shutdown_manager_;
-
-  WriterPtr writer_;
 };
 
 class StreamStreamClient_ServerNotExist final
@@ -312,10 +285,10 @@ private:
 
 public:
   StreamStreamClient_ServerNotExist(
-    const Config &config,
-    const Logger_var &logger,
-    const Common::ShutdownManagerPtr& shutdown_manager)
-    : impl_(std::make_unique<Impl>(shutdown_manager)),
+    const Common::ShutdownManagerPtr& shutdown_manager,
+    const Config& config,
+    const Logger_var& logger)
+    : shutdown_manager_(shutdown_manager),
       factory_(std::make_unique<Factory>(config, logger))
   {
   }
@@ -324,7 +297,8 @@ public:
 
   void start()
   {
-    auto writer = factory_->create(*impl_);
+    auto writer = factory_->create(
+      std::make_shared<Impl>(shutdown_manager_));
     auto request = std::make_unique<test::Request>();
     request->set_message(kMessageRequest);
     auto status = writer->write(std::move(request));
@@ -332,9 +306,9 @@ public:
   }
 
 private:
-  std::unique_ptr<Impl> impl_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
-  std::unique_ptr<Factory> factory_;
+  const std::unique_ptr<Factory> factory_;
 };
 
 } // namespace
@@ -342,8 +316,7 @@ private:
 TEST_F(GrpcFixtureStreamStream_Client_ServerFinish, TestStreamStream_Client_ServerNotExist)
 {
   Client::Config client_config;
-  client_config.endpoint =
-    "127.0.0.1:" + std::to_string(port_);
+  client_config.endpoint = "127.0.0.1:" + std::to_string(port_);
 
   for (std::size_t i = 1; i <= 100; ++i)
   {
@@ -351,9 +324,9 @@ TEST_F(GrpcFixtureStreamStream_Client_ServerFinish, TestStreamStream_Client_Serv
       std::make_shared<Common::ShutdownManager>();
 
     StreamStreamClient_ServerNotExist client(
+      shutdown_manager,
       client_config,
-      logger_,
-      shutdown_manager);
+      logger_);
     client.start();
     shutdown_manager->wait();
   }
@@ -369,9 +342,9 @@ TEST_F(GrpcFixtureStreamStream_Client_ServerFinish, TestStreamStream_Client_NoAc
     client_config.endpoint =
       "127.0.0.1:" + std::to_string(port_);
     StreamStreamClient_ServerNotExist client(
+      shutdown_manager,
       client_config,
-      logger_,
-      shutdown_manager);
+      logger_);
   }
 }
 
@@ -433,18 +406,6 @@ public:
   ~StreamStreamClient_ClientFinishImpl() override = default;
 
 private:
-  void on_data(
-    const ClientId& /*client_id*/,
-    const CompletionQueuePtr& /*completion_queue*/,
-    const ChannelPtr& /*channel*/) override
-  {
-  }
-
-  void on_writer(WriterPtr&& writer) override
-  {
-    writer_ = std::move(writer);
-  }
-
   void on_initialize(const bool ok) override
   {
     kCounterClientStreamStream.fetch_add(1);
@@ -459,14 +420,14 @@ private:
 
     if (counter_ == kNumberRequest)
     {
-      const auto status = writer_->writes_done();
+      const auto status = writer()->writes_done();
       EXPECT_EQ(status, WriterStatus::Ok);
     }
     else
     {
       auto request = std::make_unique<test::Request>();
       request->set_message(data_ + std::to_string(counter_));
-      const auto status = writer_->write(std::move(request));
+      const auto status = writer()->write(std::move(request));
       EXPECT_EQ(status, WriterStatus::Ok);
     }
   }
@@ -484,11 +445,9 @@ private:
   }
 
 private:
-  Common::ShutdownManagerPtr shutdown_manager_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
   const std::string data_;
-
-  WriterPtr writer_;
 
   std::size_t counter_ = 1;
 };
@@ -508,9 +467,9 @@ public:
     const Logger_var& logger,
     const Common::ShutdownManagerPtr& shutdown_manager,
     const std::string& data)
-    : impl_(std::make_unique<Impl>(shutdown_manager, data)),
-      factory_(std::make_unique<Factory>(config, logger)),
-      data_(data)
+    : shutdown_manager_(shutdown_manager),
+      data_(data),
+      factory_(std::make_unique<Factory>(config, logger))
   {
   }
 
@@ -521,7 +480,8 @@ public:
 
   void start()
   {
-    auto writer = factory_->create(*impl_);
+    auto writer = factory_->create(
+      std::make_shared<Impl>(shutdown_manager_, data_));
     auto request = std::make_unique<test::Request>();
     request->set_message(data_ + std::to_string(1));
     auto status = writer->write(std::move(request));
@@ -529,11 +489,11 @@ public:
   }
 
 private:
-  std::unique_ptr<Impl> impl_;
-
-  std::unique_ptr<Factory> factory_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
   const std::string data_;
+
+  const std::unique_ptr<Factory> factory_;
 };
 
 class GrpcFixtureStreamStream_Client_ClientFinish : public testing::Test
@@ -565,7 +525,7 @@ public:
   {
   }
 
-  std::size_t port_ = 7779;
+  const std::size_t port_ = 7779;
 
   Logging::Logger_var logger_;
 

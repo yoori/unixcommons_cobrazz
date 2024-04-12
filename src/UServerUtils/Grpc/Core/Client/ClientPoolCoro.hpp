@@ -90,7 +90,7 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": request is null";
+               << "request is null";
         throw Exception(stream);
       }
 
@@ -123,7 +123,6 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": "
                << exc.what();
         logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
       }
@@ -137,7 +136,7 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": Unknown error";
+               << "Unknown error";
         logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
       }
       catch (...)
@@ -164,7 +163,7 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": Logic error. Already existing client_id="
+               << "Logic error. Already existing client_id="
                << client_id;
         throw Exception(stream.str());
       }
@@ -176,7 +175,6 @@ public:
       {
         Stream::Error stream;
         stream << FNS
-               << ": "
                << exc.what();
         logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
       }
@@ -403,7 +401,7 @@ public:
     return WriteResult(Status::InternalError, {});
   }
 
-  bool is_ok(const std::optional<std::size_t> max_number_check_channels = {}) const noexcept
+  bool ok(const std::optional<std::size_t> max_number_check_channels = {}) const noexcept
   {
     std::size_t count = channels_.size();
     if (max_number_check_channels)
@@ -485,7 +483,12 @@ private:
 
   void initialize()
   {
-     UServerUtils::Grpc::Utils::run_in_coro(
+    using Channel = grpc::Channel;
+    using ChannelPtr = std::shared_ptr<Channel>;
+    using CompletionQueue = grpc::CompletionQueue;
+    using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
+
+    UServerUtils::Grpc::Utils::run_in_coro(
       task_processor_,
       UServerUtils::Grpc::Utils::Importance::kCritical,
       {},
@@ -500,14 +503,19 @@ private:
 
         auto weak_ptr = std::weak_ptr<ClientPoolCoro>(ptr);
         auto factory_observer = [weak_ptr, task_processor = &task_processor, logger] (
-          ClientId client_id) mutable {
+          const ClientId client_id,
+          const ChannelPtr& channel,
+          const CompletionQueuePtr& completion_queue) mutable {
             try
             {
               userver::engine::CriticalAsyncNoSpan(
                 *task_processor,
-                [client_id, weak_ptr, logger] () mutable {
-                  std::weak_ptr<grpc::Channel> channel;
-                  std::weak_ptr<grpc::CompletionQueue> completion_queue;
+                [
+                  client_id,
+                  weak_ptr,
+                  logger,
+                  channel = std::weak_ptr<Channel>(channel),
+                  completion_queue = std::weak_ptr<CompletionQueue>(completion_queue)] () mutable {
 
                   if (auto ptr = weak_ptr.lock())
                   {
@@ -521,9 +529,6 @@ private:
                       logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
                       return;
                     }
-
-                    channel = client->channel();
-                    completion_queue = client->completion_queue();
                   }
                   else
                   {
@@ -545,7 +550,7 @@ private:
                       auto& impl = ptr->impl_;
                       auto& factory = ptr->factory_;
                       auto client = Client::create(logger);
-                      factory->create(*client, channel_ptr);
+                      factory->create(client, channel_ptr);
                       impl->emplace(std::move(client));
                       break;
                     }
@@ -618,7 +623,7 @@ private:
         for (std::size_t i = 0; i < number_async_client; ++i)
         {
           auto client = Client::create(logger);
-          factory->create(*client);
+          factory->create(client);
           impl->emplace(std::move(client));
         }
       }

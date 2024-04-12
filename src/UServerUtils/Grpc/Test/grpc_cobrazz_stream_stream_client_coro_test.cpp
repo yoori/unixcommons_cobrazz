@@ -192,7 +192,7 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_Success, Success)
 
   const std::size_t number_cycle = 100;
   const std::size_t number_request = 10;
-  for (std::size_t i = 1; i <= number_cycle; ++i)
+  for (std::size_t k = 1; k <= number_cycle; ++k)
   {
     auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
       task_processor);

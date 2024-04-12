@@ -31,28 +31,17 @@ class Writer<Request, Internal::RpcType::NORMAL_RPC>
 {
 public:
   using ClientPtr = std::weak_ptr<Client<Request>>;
-  using CompletionQueue = grpc::CompletionQueue;
-  using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
 
 public:
-  explicit Writer(
-    const CompletionQueuePtr& completion_queue,
-    ClientPtr&& client,
-    const ClientId client_id)
-    : completion_queue_(completion_queue),
-      client_(std::move(client)),
-      client_id_(client_id)
+  explicit Writer(ClientPtr&& client)
+    : client_(std::move(client))
   {
   }
 
   virtual ~Writer() = default;
 
 private:
-  CompletionQueuePtr completion_queue_;
-
   ClientPtr client_;
-
-  const ClientId client_id_;
 };
 
 template<class Request>
@@ -67,14 +56,9 @@ class Writer<Request, Internal::RpcType::BIDI_STREAMING>
 public:
   using RequestPtr = std::unique_ptr<Request>;
   using ClientPtr = std::weak_ptr<Client<Request>>;
-  using CompletionQueue = grpc::CompletionQueue;
-  using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
 
 public:
-  explicit Writer(
-    const CompletionQueuePtr& completion_queue,
-    ClientPtr&& client,
-    const ClientId client_id)
+  explicit Writer(ClientPtr&& client)
     : client_(std::move(client))
   {
   }

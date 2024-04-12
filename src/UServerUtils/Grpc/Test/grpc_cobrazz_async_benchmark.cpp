@@ -95,18 +95,6 @@ public:
   ~StreamStreamClientImpl() override = default;
 
 private:
-  void on_data(
-    const ClientId& /*client_id*/,
-    const CompletionQueuePtr& /*completion_queue*/,
-    const ChannelPtr& /*channel*/) override
-  {
-  }
-
-  void on_writer(WriterPtr&& writer) override
-  {
-    writer_ = std::move(writer);
-  }
-
   void on_initialize(const bool ok) override
   {
     if (ok)
@@ -115,7 +103,7 @@ private:
       {
         auto request = std::make_unique<echo::Request>();
         request->set_message(message_);
-        const auto status = writer_->write(std::move(request));
+        const auto status = writer()->write(std::move(request));
         if (status != WriterStatus::Ok)
         {
           Stream::Error stream;
@@ -150,7 +138,7 @@ private:
 
     auto request = std::make_unique<echo::Request>();
     request->set_message(message_);
-    const auto status = writer_->write(std::move(request));
+    const auto status = writer()->write(std::move(request));
     if (status != WriterStatus::Ok)
     {
       Stream::Error stream;
@@ -175,8 +163,6 @@ private:
   const Logger_var logger_;
 
   Statistics& statistics_;
-
-  WriterPtr writer_;
 };
 
 class PoolClient final
@@ -189,9 +175,8 @@ private:
     UServerUtils::Grpc::Core::Common::ShutdownManager;
   using ShutdownManagerPtr =
     UServerUtils::Grpc::Core::Common::ShutdownManagerPtr;
+  using ShutdownManagers = std::list<ShutdownManagerPtr>;
   using Impl = StreamStreamClientImpl;
-  using ImplPtr = std::unique_ptr<Impl>;
-  using Impls = std::vector<std::pair<ImplPtr, ShutdownManagerPtr>>;
   using Config = UServerUtils::Grpc::Core::Client::Config;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
@@ -207,29 +192,28 @@ public:
     : logger_(ReferenceCounting::add_ref(logger)),
       factory_(std::make_unique<Factory>(config, logger))
   {
-    impls_.reserve(number_async_client);
     for (std::size_t i = 1; i <= number_async_client; ++i)
     {
       ShutdownManagerPtr shutdown_manager(new ShutdownManager);
-      impls_.emplace_back(
-        std::make_unique<Impl>(
-          count_initial,
-          message,
-          shutdown_manager,
-          logger,
-          statistics),
-        shutdown_manager);
-      factory_->create(*impls_.back().first);
+      shutdown_managers_.emplace_back(shutdown_manager);
+
+      auto impl = std::make_shared<Impl>(
+        count_initial,
+        message,
+        shutdown_manager,
+        logger,
+        statistics);
+      factory_->create(impl);
     }
   }
 
   ~PoolClient()
   {
-    for (auto& impl : impls_)
+    for (auto& shutdown_managers : shutdown_managers_)
     {
       try
       {
-        impl.second->wait();
+        shutdown_managers->wait();
       }
       catch (...)
       {
@@ -240,9 +224,9 @@ public:
 private:
   Logger_var logger_;
 
-  Impls impls_;
-
   FactoryPtr factory_;
+
+  ShutdownManagers shutdown_managers_;
 };
 
 class Application : private Generics::Uncopyable

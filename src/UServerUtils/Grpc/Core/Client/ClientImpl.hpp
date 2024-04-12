@@ -40,9 +40,9 @@ public:
   using RequestPtr = std::unique_ptr<Request>;
   using Response = typename Traits::Response;
   using ResponsePtr = std::unique_ptr<Response>;
-
   using Delegate = ClientDelegate<Request>;
   using Observer = ClientObserver<RpcServiceMethodConcept>;
+  using ObserverPtr = std::shared_ptr<Observer>;
   using ChannelPtr = std::shared_ptr<grpc::Channel>;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
@@ -98,8 +98,8 @@ public:
     Logger* logger,
     const ChannelPtr& channel,
     const CompletionQueuePtr& completion_queue,
+    const ObserverPtr& observer,
     Delegate& delegate,
-    Observer& observer,
     RequestPtr&& request);
 
   ~ClientImpl() override = default;
@@ -119,8 +119,8 @@ private:
     Logger* logger,
     const ChannelPtr& channel,
     const CompletionQueuePtr& completion_queue,
+    const ObserverPtr& observer,
     Delegate& delegate,
-    Observer& observer,
     RequestPtr&& request);
 
   static ClientId create_id() noexcept;
@@ -165,9 +165,9 @@ private:
 
   CompletionQueuePtr completion_queue_;
 
-  Delegate& delegate_;
+  ObserverPtr observer_;
 
-  Observer& observer_;
+  Delegate& delegate_;
 
   MessagePtr request_;
 

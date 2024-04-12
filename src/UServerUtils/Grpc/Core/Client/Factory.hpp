@@ -54,10 +54,8 @@ inline auto create_channels(
   }
   else
   {
-    const std::size_t adding =
-      (*number_channels % number_threads != 0);
-    *number_channels =
-      (*number_channels / number_threads + adding) * number_threads;
+    const std::size_t adding = (*number_channels % number_threads != 0);
+    *number_channels = (*number_channels / number_threads + adding) * number_threads;
   }
 
   grpc::ChannelArguments channel_arguments;
@@ -105,6 +103,7 @@ public:
 
   using WriterPtr = std::unique_ptr<Writer<Request, k_rpc_type>>;
   using Observer = ClientObserver<RpcServiceMethodConcept>;
+  using ObserverPtr = std::shared_ptr<Observer>;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Channel = grpc::Channel;
@@ -117,15 +116,12 @@ public:
 private:
   using SchedulerQueue = typename Common::Scheduler::Queue;
   using SchedulerQueues = typename Common::Scheduler::Queues;
+  using CompletionQueue = grpc::CompletionQueue;
+  using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
+  using ClientPtr = std::shared_ptr<Client<Request>>;
 
   struct ChannelData final
   {
-    using CompletionQueue = grpc::CompletionQueue;
-    using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
-
-    ChannelData() = default;
-    ~ChannelData() = default;
-
     ChannelPtr channel;
     CompletionQueuePtr completion_queue;
   };
@@ -136,24 +132,24 @@ private:
 
   struct ClientInfo final
   {
-    using ClientPtr = std::shared_ptr<Client<Request>>;
-    using ObserverRef = std::reference_wrapper<Observer>;
-
     ClientInfo(
       const ClientPtr& client,
-      const Index index,
-      Observer& observer)
+      const ObserverPtr& observer,
+      const Index index)
       : client(client),
-        index(index),
-        observer(observer)
+        observer(observer),
+        index(index)
     {
     }
 
-    ~ClientInfo() = default;
+    ClientInfo(const ClientInfo&) = delete;
+    ClientInfo(ClientInfo&&) = default;
+    ClientInfo& operator=(const ClientInfo&) = delete;
+    ClientInfo& operator=(ClientInfo&&) = default;
 
     ClientPtr client;
+    ObserverPtr observer;
     Index index = 0;
-    ObserverRef observer;
   };
   using Clients = std::unordered_map<ClientId, ClientInfo>;
 
@@ -269,7 +265,7 @@ public:
   ~FactoryImpl() = default;
 
   WriterPtr create(
-    Observer& observer,
+    const ObserverPtr& observer,
     RequestPtr&& request,
     const std::optional<ChannelPtr>& channel)
   {
@@ -324,27 +320,29 @@ public:
     }
 
     auto& channel_data = channels_data_[index];
-
     auto client = ClientImpl<RpcServiceMethodConcept>::create(
       logger_,
       channel_data.channel,
       channel_data.completion_queue,
-      *this,
       observer,
+      *this,
       std::move(request));
 
-    auto writer = std::make_unique<Writer<Request, k_rpc_type>>(
-      channel_data.completion_queue,
-      client,
-      client->get_id());
+    if constexpr (k_rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING
+               || k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING)
+    {
+      auto writer = std::make_shared<Writer<Request, k_rpc_type>>(client);
+      observer->set_writer(writer);
+      observer->set_completion_queue(channel_data.completion_queue);
+    }
 
     {
       std::lock_guard lock(mutex_clients_);
       auto result = clients_.try_emplace(
         client->get_id(),
         client,
-        index,
-        observer);
+        observer,
+        index);
       if (!result.second)
       {
         Stream::Error stream;
@@ -358,7 +356,7 @@ public:
 
     client->start();
 
-    return writer;
+    return std::make_unique<Writer<Request, k_rpc_type>>(client);
   }
 
   std::size_t size() const noexcept
@@ -382,16 +380,24 @@ public:
 private:
   void need_remove(const ClientId client_id) noexcept override
   {
+    ChannelPtr channel;
+    CompletionQueuePtr completion_queue;
     {
       std::lock_guard lock(mutex_clients_);
       auto it = clients_.find(client_id);
       if (it == clients_.end())
         return;
+
+      const auto& client_info = it->second;
+      const auto index = client_info.index;
+      const auto& channel_data = channels_data_[index];
+      channel = channel_data.channel;
+      completion_queue = channel_data.completion_queue;
     }
 
     if (factory_observer_)
     {
-      factory_observer_(client_id);
+      factory_observer_(client_id, channel, completion_queue);
     }
 
     {
@@ -449,6 +455,7 @@ public:
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
+  using ObserverPtr = typename Impl::ObserverPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
   using Response = typename Impl::Response;
@@ -477,7 +484,9 @@ public:
     impl_.stop();
   }
 
-  void create(Observer& observer, RequestPtr&& request)
+  void create(
+    const ObserverPtr& observer,
+    RequestPtr&& request)
   {
     impl_.create(observer, std::move(request), {});
   }
@@ -511,6 +520,7 @@ public:
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
+  using ObserverPtr = typename Impl::ObserverPtr;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -541,7 +551,7 @@ public:
   }
 
   WriterPtr create(
-    Observer& observer,
+    const ObserverPtr& observer,
     const std::optional<ChannelPtr>& channel = {})
   {
     return impl_.create(observer, {}, channel);
@@ -576,6 +586,7 @@ public:
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
+  using ObserverPtr = typename Impl::ObserverPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
   using Response = typename Impl::Response;
@@ -605,7 +616,7 @@ public:
   }
 
   void create(
-    Observer& observer,
+    const ObserverPtr& observer,
     RequestPtr&& request,
     const std::optional<ChannelPtr>& channel = {})
   {
@@ -641,6 +652,7 @@ public:
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
   using Observer = typename Impl::Observer;
+  using ObserverPtr = typename Impl::ObserverPtr;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
@@ -671,7 +683,7 @@ public:
   }
 
   WriterPtr create(
-    Observer& observer,
+    const ObserverPtr& observer,
     const std::optional<ChannelPtr>& channel = {})
   {
     return impl_.create(observer, {}, channel);

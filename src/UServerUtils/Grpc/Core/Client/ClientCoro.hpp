@@ -72,11 +72,11 @@ public:
 
   using Observer = ClientObserver<RpcServiceMethodConcept>;
   using WriterPtr = typename Observer::WriterPtr;
-  using Channel = typename Observer::Channel;
-  using ChannelPtr = typename Observer::ChannelPtr;
   using CompletionQueue = typename Observer::CompletionQueue;
   using CompletionQueuePtr = typename Observer::CompletionQueuePtr;
   using ClientCoroPtr = std::shared_ptr<ClientCoro>;
+  using Channel = grpc::Channel;
+  using ChannelPtr = std::shared_ptr<Channel>;
 
   struct WriteResult final
   {
@@ -114,17 +114,7 @@ public:
 
   ClientId client_id() const noexcept
   {
-    return client_id_;
-  }
-
-  ChannelPtr channel() const noexcept
-  {
-    return channel_;
-  }
-
-  CompletionQueuePtr completion_queue() const noexcept
-  {
-    return completion_queue_;
+    return Observer::client_id();
   }
 
   WriteResult write(
@@ -155,7 +145,7 @@ public:
         this->weak_from_this());
       auto* event_ptr = event.release();
       const bool is_success = notifier_.Notify(
-        completion_queue_.get(),
+        Observer::completion_queue().get(),
         event_ptr);
       if (!is_success)
       {
@@ -163,7 +153,7 @@ public:
         return {Status::InternalError, {}};
       }
 
-      const auto write_status = writer_->write(
+      const auto write_status = Observer::writer()->write(
         std::move(request));
 
       if (write_status != WriterStatus::Ok)
@@ -173,7 +163,7 @@ public:
           this->weak_from_this());
         auto* event_timeout_ptr = event_timeout.release();
         const bool is_success = notifier_.Notify(
-          completion_queue_.get(),
+          Observer::completion_queue().get(),
           event_timeout_ptr);
         if (!is_success)
         {
@@ -214,7 +204,7 @@ public:
           this->weak_from_this());
         auto* event_timeout_ptr = event_timeout.release();
         const bool is_success = notifier_.Notify(
-          completion_queue_.get(),
+          Observer::completion_queue().get(),
           event_timeout_ptr);
         if (!is_success)
         {
@@ -372,21 +362,6 @@ private:
     }
   }
 
-  void on_data(
-    const ClientId& client_id,
-    const CompletionQueuePtr& completion_queue,
-    const ChannelPtr& channel) override
-  {
-    client_id_ = client_id;
-    completion_queue_ = completion_queue;
-    channel_ = channel;
-  }
-
-  void on_writer(WriterPtr&& writer) override
-  {
-    writer_ = std::move(writer);
-  }
-
   void on_initialize(const bool /*ok*/) override
   {
   }
@@ -435,14 +410,6 @@ private:
   friend class FactoryCoro;
 
   Logger_var logger_;
-
-  CompletionQueuePtr completion_queue_;
-
-  ChannelPtr channel_;
-
-  WriterPtr writer_;
-
-  ClientId client_id_ = 0;
 
   Requests requests_;
 

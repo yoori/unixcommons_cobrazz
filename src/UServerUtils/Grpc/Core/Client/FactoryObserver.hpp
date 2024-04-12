@@ -10,7 +10,10 @@
 namespace UServerUtils::Grpc::Core::Client
 {
 
-using FactoryObserver = std::function<void(const ClientId client_id)>;
+using FactoryObserver = std::function<void(
+  const ClientId client_id,
+  const std::shared_ptr<grpc::Channel>& channel,
+  const std::shared_ptr<grpc::CompletionQueue>& completion_queue)>;
 
 } // namespace UServerUtils::Grpc::Core::Client
 

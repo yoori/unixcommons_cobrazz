@@ -20,7 +20,7 @@
 namespace
 {
 
-const std::size_t kNumberRequest = 10;
+const std::size_t kNumberRequest = 1000;
 const std::string kMessageRequest = "message";
 
 std::atomic<int> kCounterHandlerStreamStream{0};
@@ -125,20 +125,18 @@ class GrpcFixtureStreamStream : public testing::Test
 public:
   void SetUp() override
   {
-    logger_ = Logging::Logger_var(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::ERROR)));
+    logger_ = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::ERROR));
 
     UServerUtils::Grpc::Core::Server::Config config;
     config.num_threads = 3;
     config.port = port_;
 
-    server_ = UServerUtils::Grpc::Core::Server::Server_var(
-      new UServerUtils::Grpc::Core::Server::Server(
-        config,
-        logger_.in()));
+    server_ = new UServerUtils::Grpc::Core::Server::Server(
+      config,
+      logger_.in());
     server_->register_handler<StreamStreamHandler>();
   }
 
@@ -146,7 +144,7 @@ public:
   {
   }
 
-  std::size_t port_ = 7778;
+  std::size_t port_ = 77778;
 
   Logging::Logger_var logger_;
 
@@ -159,10 +157,9 @@ TEST_F(GrpcFixtureStreamStream, TestStreamStream)
 {
   server_->activate_object();
 
-  auto channel =
-    grpc::CreateChannel(
-      "127.0.0.1:" + std::to_string(port_),
-      grpc::InsecureChannelCredentials());
+  auto channel = grpc::CreateChannel(
+    "127.0.0.1:" + std::to_string(port_),
+    grpc::InsecureChannelCredentials());
 
   StreamStreamClient stream_stream_client(channel);
   stream_stream_client.request(kMessageRequest);

@@ -17,8 +17,8 @@ ClientImpl<RpcServiceMethodConcept>::create(
   Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
+  const ObserverPtr& observer,
   Delegate& delegate,
-  Observer& observer,
   RequestPtr&& request)
 {
   auto client = std::shared_ptr<ClientImpl<RpcServiceMethodConcept>>(
@@ -26,51 +26,9 @@ ClientImpl<RpcServiceMethodConcept>::create(
       logger,
       channel,
       completion_queue,
-      delegate,
       observer,
+      delegate,
       std::move(request)));
-
-  auto writer = std::make_unique<Writer<Request, k_rpc_type>>(
-    completion_queue,
-    std::weak_ptr<ClientImpl<RpcServiceMethodConcept>>(client),
-    client->get_id());
-
-  try
-  {
-    if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING
-               || k_rpc_type == Internal::RpcType::CLIENT_STREAMING)
-    {
-      observer.on_writer(std::move(writer));
-    }
-  }
-  catch (const eh::Exception& exc)
-  {
-    try
-    {
-      Stream::Error stream;
-      stream << FNS
-             << ": "
-             << exc.what();
-      logger->error(stream.str(), Aspect::CLIENT_IMPL);
-    }
-    catch (...)
-    {
-    }
-  }
-  catch (...)
-  {
-    try
-    {
-      Stream::Error stream;
-      stream << FNS
-             << ": Unknow error";
-      logger->error(stream.str(), Aspect::CLIENT_IMPL);
-    }
-    catch (...)
-    {
-    }
-  }
-
   return client;
 }
 
@@ -79,15 +37,15 @@ inline ClientImpl<RpcServiceMethodConcept>::ClientImpl(
   Logger* logger,
   const ChannelPtr& channel,
   const CompletionQueuePtr& completion_queue,
+  const ObserverPtr& observer,
   Delegate& delegate,
-  Observer& observer,
   RequestPtr&& request)
   : client_id_(create_id()),
     logger_(ReferenceCounting::add_ref(logger)),
     channel_(channel),
     completion_queue_(completion_queue),
-    delegate_(delegate),
     observer_(observer),
+    delegate_(delegate),
     request_(std::move(request)),
     responce_(std::make_unique<Response>()),
     rpc_method_(Traits::method_name(), Traits::rpc_type, channel_),
@@ -107,42 +65,11 @@ inline ClientImpl<RpcServiceMethodConcept>::ClientImpl(
       throw Exception(stream);
     }
   }
-  else if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING)
+  else if constexpr (
+    k_rpc_type == Internal::RpcType::BIDI_STREAMING ||
+    k_rpc_type == Internal::RpcType::CLIENT_STREAMING)
   {
-    try
-    {
-      observer_.on_data(
-        client_id_,
-        completion_queue_,
-        channel_);
-    }
-    catch (const eh::Exception& exc)
-    {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_IMPL);
-      }
-      catch (...)
-      {
-      }
-    }
-    catch (...)
-    {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_IMPL);
-      }
-      catch (...)
-      {
-      }
-    }
+    observer_->set_client_id(client_id_);
   }
 }
 
@@ -498,7 +425,7 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
   {
     if constexpr (k_rpc_type != Internal::RpcType::NORMAL_RPC)
     {
-      observer_.on_initialize(ok);
+      observer_->on_initialize(ok);
     }
   }
   catch (const eh::Exception& exc)
@@ -619,7 +546,7 @@ ClientImpl<RpcServiceMethodConcept>::on_read(
 
     try
     {
-      observer_.on_read(static_cast<Response&&>(*responce_));
+      observer_->on_read(static_cast<Response&&>(*responce_));
     }
     catch (const eh::Exception &exc)
     {
@@ -722,11 +649,11 @@ ClientImpl<RpcServiceMethodConcept>::on_finish(
     if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING
                || k_rpc_type == Internal::RpcType::SERVER_STREAMING)
     {
-      observer_.on_finish(std::move(status_));
+      observer_->on_finish(std::move(status_));
     }
     else
     {
-      observer_.on_finish(
+      observer_->on_finish(
         std::move(status_),
         static_cast<Response&&>(*responce_));
     }

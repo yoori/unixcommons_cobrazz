@@ -74,8 +74,7 @@ private:
     EXPECT_EQ(status.error_code(), grpc::StatusCode::OK);
     EXPECT_EQ(response.message(), kRequestOk);
 
-    const auto count =
-      counter_.fetch_add(1, std::memory_order_acq_rel);
+    const auto count = counter_.fetch_add(1, std::memory_order_acq_rel);
     if (count == kNumberRequest - 1)
     {
       shutdown_manager_->shutdown();
@@ -99,10 +98,10 @@ private:
 
 public:
   UnaryUnaryClient(
+    const Common::ShutdownManagerPtr& shutdown_manager,
     const Config& config,
-    Logger* logger,
-    const Common::ShutdownManagerPtr& shutdown_manager)
-    : impl_(std::make_unique<Impl>(shutdown_manager)),
+    Logger* logger)
+    : shutdown_manager_(shutdown_manager),
       factory_(std::make_unique<Factory>(config, logger))
   {
   }
@@ -114,18 +113,21 @@ public:
 
   void start()
   {
+    auto impl = std::make_shared<Impl>(shutdown_manager_);
     for (std::size_t i = 1; i <= kNumberRequest; ++i)
     {
       auto request = std::make_unique<test::Request>();
       request->set_message(kRequestOk);
-      factory_->create(*impl_, std::move(request));
+      factory_->create(
+        impl,
+        std::move(request));
     }
   }
 
 private:
-  std::unique_ptr<Impl> impl_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
-  std::unique_ptr<Factory> factory_;
+  const std::unique_ptr<Factory> factory_;
 };
 
 class GrpcFixtureUnaryUnary_Client
@@ -134,21 +136,18 @@ class GrpcFixtureUnaryUnary_Client
 public:
   void SetUp() override
   {
-    logger_ = Logging::Logger_var(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::ERROR)));
+    logger_ = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::ERROR));
 
     UServerUtils::Grpc::Core::Server::Config config;
     config.num_threads = 3;
     config.port = port_;
 
-    server_ =
-      UServerUtils::Grpc::Core::Server::Server_var(
-        new UServerUtils::Grpc::Core::Server::Server(
-          config,
-          logger_.in()));
+    server_ = new UServerUtils::Grpc::Core::Server::Server(
+      config,
+      logger_.in());
     server_->register_handler<UnaryUnaryHandler>();
   }
 
@@ -175,9 +174,9 @@ TEST_F(GrpcFixtureUnaryUnary_Client, UnaryUnary_Client)
   client_config.endpoint =
     "127.0.0.1:" + std::to_string(port_);
   UnaryUnaryClient client(
+    shutdown_manager,
     client_config,
-    logger_.in(),
-    shutdown_manager);
+    logger_.in());
   client.start();
   shutdown_manager->wait();
 
@@ -213,7 +212,7 @@ private:
   }
 
 private:
-  Common::ShutdownManagerPtr shutdown_manager_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 };
 
 class UnaryUnaryClient_ServerNotExist final
@@ -226,10 +225,10 @@ private:
 
 public:
   UnaryUnaryClient_ServerNotExist(
+    const Common::ShutdownManagerPtr& shutdown_manager,
     const Config& config,
-    const Logger_var& logger,
-    const Common::ShutdownManagerPtr& shutdown_manager)
-    : impl_(std::make_unique<Impl>(shutdown_manager)),
+    const Logger_var& logger)
+    : shutdown_manager_(shutdown_manager),
       factory_(std::make_unique<Factory>(config, logger))
   {
   }
@@ -240,13 +239,15 @@ public:
   {
     auto request = std::make_unique<test::Request>();
     request->set_message(kRequestOk);
-    factory_->create(*impl_, std::move(request));
+    factory_->create(
+      std::make_shared<Impl>(shutdown_manager_),
+      std::move(request));
   }
 
 private:
-  std::unique_ptr<Impl> impl_;
+  const Common::ShutdownManagerPtr shutdown_manager_;
 
-  std::unique_ptr<Factory> factory_;
+  const std::unique_ptr<Factory> factory_;
 };
 
 } // namespace
@@ -261,9 +262,9 @@ TEST_F(GrpcFixtureUnaryUnary_Client, UnaryUnary_Client_ServerNotExist)
     client_config.endpoint =
       "127.0.0.1:" + std::to_string(port_);
     UnaryUnaryClient_ServerNotExist client(
+      shutdown_manager,
       client_config,
-      logger_,
-      shutdown_manager);
+      logger_);
     client.start();
     shutdown_manager->wait();
   }
@@ -279,9 +280,9 @@ TEST_F(GrpcFixtureUnaryUnary_Client, UnaryUnary_Client_NoAction)
     client_config.endpoint =
       "127.0.0.1:" + std::to_string(port_);
     UnaryUnaryClient_ServerNotExist client(
+      shutdown_manager,
       client_config,
-      logger_,
-      shutdown_manager);
+      logger_);
   }
   EXPECT_TRUE(true);
 }

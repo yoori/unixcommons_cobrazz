@@ -28,11 +28,10 @@ class Application final
 public:
   Application()
   {
-    logger_ = Logging::Logger_var(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::ERROR)));
+    logger_ = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::ERROR));
 
     CoroPoolConfig coro_pool_config;
     EventThreadPoolConfig event_thread_pool_config;
