@@ -274,12 +274,12 @@ private:
         {
         case CommonType::UInt:
           writer.ValueWithLabels(
-            counter.uint_value.exchange(0, std::memory_order_relaxed),
+            counter.uint_value.load(std::memory_order_relaxed),
             {LabelView(name, value)});
           break;
         case CommonType::Int:
           writer.ValueWithLabels(
-            counter.int_value.exchange(0, std::memory_order_relaxed),
+            counter.int_value.load(std::memory_order_relaxed),
             {LabelView(name, value)});
           break;
         case CommonType::Bool:
@@ -290,7 +290,7 @@ private:
           break;
         case CommonType::Double:
           writer.ValueWithLabels(
-            counter.double_value.exchange(0, std::memory_order_relaxed),
+            counter.double_value.load(std::memory_order_relaxed),
             {LabelView(name, value)});
           break;
         }

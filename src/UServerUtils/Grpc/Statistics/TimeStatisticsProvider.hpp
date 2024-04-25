@@ -178,7 +178,7 @@ private:
       for (std::size_t k = 0; k < array_size; ++k)
       {
         writer.ValueWithLabels(
-          statistics[i][k].exchange(0, std::memory_order_relaxed),
+          statistics[i][k].load(std::memory_order_relaxed),
           {
             LabelView(enum_labels_[i]),
             LabelView(time_labels_[k])

@@ -13,7 +13,6 @@
 #include <UServerUtils/Grpc/Http/Client/Client.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 #include <UServerUtils/Grpc/Manager.hpp>
-#include <UServerUtils/Grpc/Manager.hpp>
 #include <UServerUtils/Grpc/Statistics/CommonStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/Statistics/CompositeStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/Statistics/CounterStatisticsProvider.hpp>
@@ -291,7 +290,8 @@ public:
   void run(
     const std::optional<std::string> unix_socket_path,
     const bool response_body_stream,
-    const Method method)
+    const Method method,
+    const bool enable_statistics_test)
   {
     kIsCallStreamHandler = false;
     kCountGet = 0;
@@ -442,7 +442,10 @@ public:
       EXPECT_EQ(kCountPost, number_iterations);
     }
 
-    do_statistic_test(client, test_statistics_provider);
+    if (enable_statistics_test)
+    {
+      do_statistic_test(client, test_statistics_provider);
+    }
 
     manager->deactivate_object();
     manager->wait_object();
@@ -706,40 +709,45 @@ public:
 
 TEST_F(HttpFixture, TCP_GET)
 {
-  run({}, false, Method::GET);
+  run({}, false, Method::GET, false);
 }
 
 TEST_F(HttpFixture, TCP_POST)
 {
-  run({}, false, Method::POST);
+  run({}, false, Method::POST, false);
 }
 
 TEST_F(HttpFixture, TCP_STREAM_BODY_GET)
 {
-  run({}, true, Method::GET);
+  run({}, true, Method::GET, false);
 }
 
 TEST_F(HttpFixture, TCP_STREAM_BODY_POST)
 {
-  run({}, true, Method::POST);
+  run({}, true, Method::POST, false);
 }
 
 TEST_F(HttpFixture, UNIX_SOCKET_GET)
 {
-  run("/tmp/service.socket", false, Method::GET);
+  run("/tmp/service.socket", false, Method::GET, false);
 }
 
 TEST_F(HttpFixture, UNIX_SOCKET_POST)
 {
-  run("/tmp/service.socket", false, Method::POST);
+  run("/tmp/service.socket", false, Method::POST, false);
 }
 
 TEST_F(HttpFixture, UNIX_SOCKET_STREAM_BODY_GET)
 {
-  run("/tmp/service.socket", true, Method::GET);
+  run("/tmp/service.socket", true, Method::GET, false);
 }
 
 TEST_F(HttpFixture, UNIX_SOCKET_STREAM_BODY_POST)
 {
-  run("/tmp/service.socket", true, Method::POST);
+  run("/tmp/service.socket", true, Method::POST, false);
+}
+
+TEST_F(HttpFixture, STATISTICS)
+{
+  run({}, false, Method::GET, true);
 }

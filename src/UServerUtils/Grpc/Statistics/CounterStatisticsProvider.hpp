@@ -3,6 +3,7 @@
 
 // STD
 #include <map>
+#include <sstream>
 #include <string>
 #include <variant>
 #include <vector>
@@ -164,17 +165,17 @@ private:
       {
       case CounterType::UInt:
         writer.ValueWithLabels(
-          statistic.uint_value.exchange(0, std::memory_order_relaxed),
+          statistic.uint_value.load(std::memory_order_relaxed),
           {LabelView(statistic.label)});
         break;
       case CounterType::Int:
         writer.ValueWithLabels(
-          statistic.int_value.exchange(0, std::memory_order_relaxed),
+          statistic.int_value.load(std::memory_order_relaxed),
           {LabelView(statistic.label)});
         break;
       case CounterType::Double:
         writer.ValueWithLabels(
-          statistic.double_value.exchange(0, std::memory_order_relaxed),
+          statistic.double_value.load(std::memory_order_relaxed),
           {LabelView(statistic.label)});
         break;
       case CounterType::Bool:
