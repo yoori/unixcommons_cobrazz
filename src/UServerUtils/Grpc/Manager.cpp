@@ -60,8 +60,8 @@ Manager::Manager(
       coro_data_container->logger_scope =
         std::make_unique<LoggerScope>(logger.in());
       auto componets_info = components_builder->build();
-      coro_data_container->statistics_holder =
-        std::move(componets_info.statistics_holder);
+      coro_data_container->statistics_holders =
+        std::move(componets_info.statistics_holders);
       coro_data_container->components =
         std::move(componets_info.components);
       coro_data_container->queue_holders =

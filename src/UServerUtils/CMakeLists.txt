@@ -46,6 +46,7 @@ set (SOURCES_FILES
   Grpc/Http/Server/HttpHandler.cpp
   Grpc/Http/Server/HttpServer.cpp
   Grpc/Http/Server/HttpServerBuilder.cpp
+  Grpc/Statistics/MemoryStatisticsProvider.cpp
   Grpc/RocksDB/DataBase.cpp
   Grpc/RocksDB/DataBaseManager.cpp
   Grpc/RocksDB/DataBaseManagerPool.cpp

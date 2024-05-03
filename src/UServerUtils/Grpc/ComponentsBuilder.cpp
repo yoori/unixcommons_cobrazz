@@ -4,6 +4,7 @@
 #include <sstream>
 
 // THIS
+#include <UServerUtils/Grpc/Statistics/MemoryStatisticsProvider.hpp>
 #include <UServerUtils/Grpc/ComponentsBuilder.hpp>
 
 namespace UServerUtils::Grpc
@@ -226,7 +227,7 @@ ComponentsBuilder::build()
     std::end(http_servers_),
     std::back_inserter(components_));
 
-  StatisticsHolderPtr statistics_holder;
+  StatisticsHolders statistics_holders;
   if (statistics_provider_)
   {
     auto entry = statistics_storage_->RegisterWriter(
@@ -242,13 +243,31 @@ ComponentsBuilder::build()
       },
     {});
 
-    statistics_holder = std::make_unique<userver::utils::statistics::Entry>(
+    StatisticsHolderPtr statistics_holder = std::make_unique<userver::utils::statistics::Entry>(
       std::move(entry));
+    statistics_holders.emplace_back(std::move(statistics_holder));
   }
+
+  auto memory_statistics_provider = std::make_shared<UServerUtils::Statistics::MemoryStatisticsProvider>();
+  auto entry = statistics_storage_->RegisterWriter(
+    memory_statistics_provider->name(),
+    [memory_statistics_provider = std::move(memory_statistics_provider)] (userver::utils::statistics::Writer& writer) {
+      try
+      {
+        memory_statistics_provider->write(writer);
+      }
+      catch (...)
+      {
+      }
+    },
+  {});
+  statistics_holders.emplace_back(
+    std::make_unique<userver::utils::statistics::Entry>(
+      std::move(entry)));
 
   ComponentsInfo components_info;
   components_info.statistics_storage = std::move(statistics_storage_);
-  components_info.statistics_holder = std::move(statistics_holder);
+  components_info.statistics_holders = std::move(statistics_holders);
   components_info.queue_holders = std::move(queue_holders_);
   components_info.components = std::move(components_);
   components_info.name_to_user_component = std::move(name_to_user_component_);

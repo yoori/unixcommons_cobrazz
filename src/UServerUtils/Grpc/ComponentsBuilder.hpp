@@ -69,6 +69,7 @@ private:
   using HttpServerBuilder = Http::Server::HttpServerBuilder;
   using StatisticsHolder = userver::utils::statistics::Entry;
   using StatisticsHolderPtr = std::unique_ptr<StatisticsHolder>;
+  using StatisticsHolders = std::list<StatisticsHolderPtr>;
 
   struct ComponentsInfo
   {
@@ -85,7 +86,7 @@ private:
     StatisticsStoragePtr statistics_storage;
     Components components;
     NameToUserComponent name_to_user_component;
-    StatisticsHolderPtr statistics_holder;
+    StatisticsHolders statistics_holders;
   };
 
 public:

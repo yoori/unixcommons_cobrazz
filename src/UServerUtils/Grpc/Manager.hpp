@@ -49,6 +49,7 @@ private:
   using MiddlewaresList = std::list<MiddlewaresPtr>;
   using StatisticsHolder = userver::utils::statistics::Entry;
   using StatisticsHolderPtr = std::unique_ptr<StatisticsHolder>;
+  using StatisticsHolders = std::list<StatisticsHolderPtr>;
 
   struct CoroDataContainer final : private Generics::Uncopyable
   {
@@ -61,7 +62,7 @@ private:
     StatisticsStoragePtr statistics_storage;
     Components components;
     NameToUserComponent name_to_user_component;
-    StatisticsHolderPtr statistics_holder;
+    StatisticsHolders statistics_holders;
   };
   using CoroDataContainerPtr = std::unique_ptr<CoroDataContainer>;
 
