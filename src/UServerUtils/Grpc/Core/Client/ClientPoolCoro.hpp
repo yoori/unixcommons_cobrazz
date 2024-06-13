@@ -207,7 +207,7 @@ public:
       {
         return {};
       }
-      auto clinet = it_remove->second.first;
+      auto client = it_remove->second.first;
 
       const auto size = client_ids_.size();
       const auto position = it_remove->second.second;
@@ -220,7 +220,7 @@ public:
                << " is larger then "
                << size;
         logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-        return clinet;
+        return client;
       }
 
       clients_.erase(it_remove);
@@ -237,12 +237,12 @@ public:
                  << "Logic error. Not existing client_id="
                  << client_ids_[position];
           logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-          return clinet;
+          return client;
         }
         it_change->second.second = position;
       }
 
-      return clinet;
+      return client;
     }
     catch (const eh::Exception &exc)
     {
@@ -270,9 +270,9 @@ public:
       catch (...)
       {
       }
-
-      return {};
     }
+
+    return {};
   }
 
 private:
