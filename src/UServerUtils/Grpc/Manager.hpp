@@ -20,7 +20,7 @@ namespace UServerUtils::Grpc
 {
 
 class Manager final :
-  public Generics::ActiveObject,
+  public Generics::CompositeActiveObject,
   public ReferenceCounting::AtomicImpl
 {
 public:
@@ -60,7 +60,6 @@ private:
     MiddlewaresList middlewares_list;
     QueueHolders queue_holders;
     StatisticsStoragePtr statistics_storage;
-    Components components;
     NameToUserComponent name_to_user_component;
     StatisticsHolders statistics_holders;
   };
@@ -77,8 +76,6 @@ public:
   void deactivate_object() override;
 
   void wait_object() override;
-
-  bool active() override;
 
   TaskProcessor& get_main_task_processor();
 
@@ -122,12 +119,6 @@ private:
   TaskProcessorContainerPtr task_processor_container_;
 
   CoroDataContainerPtr coro_data_container_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  std::mutex state_mutex_;
-
-  std::condition_variable condition_variable_;
 };
 
 using Manager_var = ReferenceCounting::SmartPtr<Manager>;

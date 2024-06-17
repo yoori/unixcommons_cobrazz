@@ -44,8 +44,7 @@ Manager::Manager(
     throw Exception(stream);
   }
 
-  auto& main_task_processor =
-    task_processor_container_->get_main_task_processor();
+  auto& main_task_processor = task_processor_container_->get_main_task_processor();
   auto& task_processor_container = *task_processor_container_;
 
   coro_data_container_ = Utils::run_in_coro(
@@ -54,7 +53,8 @@ Manager::Manager(
     {},
     [func = std::move(components_initialize_func),
      &task_processor_container,
-     logger = logger_] () mutable {
+     logger = logger_,
+     this] () mutable {
       ComponentsBuilderPtr components_builder = func(task_processor_container);
       auto coro_data_container = std::make_unique<CoroDataContainer>();
       coro_data_container->logger_scope =
@@ -62,8 +62,6 @@ Manager::Manager(
       auto componets_info = components_builder->build();
       coro_data_container->statistics_holders =
         std::move(componets_info.statistics_holders);
-      coro_data_container->components =
-        std::move(componets_info.components);
       coro_data_container->queue_holders =
         std::move(componets_info.queue_holders);
       coro_data_container->statistics_storage =
@@ -72,6 +70,12 @@ Manager::Manager(
         std::move(componets_info.name_to_user_component);
       coro_data_container->middlewares_list =
         std::move(componets_info.middlewares_list);
+
+      for (auto& component : componets_info.components)
+      {
+        add_child_object(component.in());
+      }
+
       return coro_data_container;
     });
 }
@@ -80,68 +84,21 @@ Manager::~Manager()
 {
   try
   {
-    Stream::Error stream;
-    bool error = false;
-
-    auto& main_task_processor =
-      task_processor_container_->get_main_task_processor();
-
-    if (state_ == AS_ACTIVE)
-    {
-      stream << FNS << "wasn't deactivated.";
-      error = true;
-
-      Utils::run_in_coro(
-        main_task_processor,
-        Utils::Importance::kCritical,
-        {},
-        [this] () {
-          auto& components = coro_data_container_->components;
-          for (auto& component : components)
-          {
-            try
-            {
-              if (component->active())
-              {
-                component->deactivate_object();
-              }
-            }
-            catch (...)
-            {
-            }
-          }
-      });
-    }
-
+    auto& main_task_processor = task_processor_container_->get_main_task_processor();
     Utils::run_in_coro(
       main_task_processor,
       Utils::Importance::kCritical,
       {},
       [this] () {
-        auto& components = coro_data_container_->components;
-        auto it = std::rbegin(components);
-        auto it_end = std::rend(components);
-        for (; it != it_end; ++it)
+        try
         {
-          it->reset();
+          Generics::CompositeActiveObject::clear_children();
+        }
+        catch (...)
+        {
         }
         coro_data_container_.reset();
     });
-
-    if (state_ != AS_NOT_ACTIVE)
-    {
-      if (error)
-      {
-        stream << std::endl;
-      }
-      stream << FNS << "didn't wait for deactivation, still active.";
-      error = true;
-    }
-
-    if (error)
-    {
-      logger_->error(stream.str(), Aspect::MANAGER);
-    }
   }
   catch (const eh::Exception& exc)
   {
@@ -159,57 +116,22 @@ Manager::~Manager()
 
 void Manager::activate_object()
 {
-  std::lock_guard lock(state_mutex_);
-  if (state_ != AS_NOT_ACTIVE)
-  {
-    Stream::Error stream;
-    stream << FNS << "still active";
-    throw ActiveObject::AlreadyActive(stream);
-  }
-
   try
   {
-    auto& main_task_processor =
-      task_processor_container_->get_main_task_processor();
-
+    auto& main_task_processor = task_processor_container_->get_main_task_processor();
     Utils::run_in_coro(
       main_task_processor,
       Utils::Importance::kCritical,
       {},
       [this] () {
-        auto& components = coro_data_container_->components;
-        try
-        {
-          for (auto& component : components)
-          {
-            component->activate_object();
-          }
-          state_ = AS_ACTIVE;
-        }
-        catch (...)
-        {
-          for (auto& component : components)
-          {
-            try
-            {
-              if (component->active())
-              {
-                component->deactivate_object();
-              }
-            }
-            catch (...)
-            {
-            }
-          }
-          throw;
-        }
+        Generics::CompositeActiveObject::activate_object();
     });
   }
   catch (const eh::Exception& exc)
   {
     Stream::Error stream;
     stream << FNS
-           << "start failure: "
+           << "activate failure: "
            << exc.what();
     throw Exception(stream);
   }
@@ -217,100 +139,48 @@ void Manager::activate_object()
 
 void Manager::deactivate_object()
 {
-  std::unique_lock lock(state_mutex_);
-  if (state_ == AS_ACTIVE)
+  try
   {
-    auto& main_task_processor =
-      task_processor_container_->get_main_task_processor();
-
-    auto exc_ptr = Utils::run_in_coro(
+    auto& main_task_processor = task_processor_container_->get_main_task_processor();
+    Utils::run_in_coro(
       main_task_processor,
       Utils::Importance::kCritical,
-      {},
-      [this, &main_task_processor] () {
-        std::exception_ptr exc_ptr;
-        auto& components = coro_data_container_->components;
-        for (auto& component : components)
-        {
-          try
-          {
-            if (component->active())
-            {
-              component->deactivate_object();
-            }
-          }
-          catch (...)
-          {
-            if (!exc_ptr)
-            {
-              exc_ptr = std::current_exception();
-            }
-          }
-        }
-
-        return exc_ptr;
-    });
-
-    state_ = AS_DEACTIVATING;
-    lock.unlock();
-
-    condition_variable_.notify_all();
-
-    if (exc_ptr)
-    {
-      try
-      {
-        std::rethrow_exception(exc_ptr);
-      }
-      catch (const eh::Exception& exc)
-      {
-        Stream::Error stream;
-        stream << FNS
-               << "start failure: "
-               << exc.what();
-        throw Exception(stream);
-      }
-    }
+        {},
+        [this] () {
+          Generics::CompositeActiveObject::deactivate_object();
+      });
+  }
+  catch (const eh::Exception& exc)
+  {
+    Stream::Error stream;
+    stream << FNS
+           << "deactivate failure: "
+           << exc.what();
+    throw Exception(stream);
   }
 }
 
 void Manager::wait_object()
 {
-  std::unique_lock lock(state_mutex_);
-  condition_variable_.wait(lock, [this]() {
-    return state_ != AS_ACTIVE;
-  });
-
-  auto& main_task_processor =
-    task_processor_container_->get_main_task_processor();
-  Utils::run_in_coro(
-    main_task_processor,
-    Utils::Importance::kCritical,
-    {},
-    [this, &main_task_processor] () {
-      auto& components = coro_data_container_->components;
-      for (auto& component : components)
-      {
-        try
-        {
-          component->wait_object();
-        }
-        catch (...)
-        {
-        }
-      }
-    });
-
-  if (state_ == AS_DEACTIVATING)
+  try
   {
-    state_ = AS_NOT_ACTIVE;
+    auto& main_task_processor = task_processor_container_->get_main_task_processor();
+    Utils::run_in_coro(
+      main_task_processor,
+      Utils::Importance::kCritical,
+      {},
+      [this] () {
+        Generics::CompositeActiveObject::wait_object();
+      });
   }
-}
-
-bool Manager::active()
-{
-  std::lock_guard lock(state_mutex_);
-  return state_ == AS_ACTIVE;
+  catch (const eh::Exception& exc)
+  {
+    Stream::Error stream;
+    stream << FNS
+           << "wait_object failure: "
+           << exc.what();
+    throw Exception(stream);
+  }
 }
 
 Manager::TaskProcessor& Manager::get_main_task_processor()
@@ -318,8 +188,7 @@ Manager::TaskProcessor& Manager::get_main_task_processor()
   return task_processor_container_->get_main_task_processor();
 }
 
-Manager::TaskProcessor& Manager::get_task_processor(
-  const std::string& name)
+Manager::TaskProcessor& Manager::get_task_processor(const std::string& name)
 {
   return task_processor_container_->get_task_processor(name);
 }
