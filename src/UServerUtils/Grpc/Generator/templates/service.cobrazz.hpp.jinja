@@ -13,10 +13,10 @@
 // THIS
 #include <ReferenceCounting/AtomicImpl.hpp>
 #include <ReferenceCounting/SmartPtr.hpp>
-#include <UServerUtils/Grpc/Core/Common/TypeTraits.hpp>
-#include <UServerUtils/Grpc/Core/Server/CommonContextCoro.hpp>
-#include <UServerUtils/Grpc/Core/Server/RpcHandlerImpl.hpp>
-#include <UServerUtils/Grpc/Core/Server/ServiceCoro.hpp>
+#include <UServerUtils/Grpc/Common/TypeTraits.hpp>
+#include <UServerUtils/Grpc/Server/CommonContextCoro.hpp>
+#include <UServerUtils/Grpc/Server/RpcHandlerImpl.hpp>
+#include <UServerUtils/Grpc/Server/ServiceCoro.hpp>
 
 {% call utils.optional_namespace(proto.namespace) %}
 {% for service in proto.services %}
@@ -33,14 +33,14 @@ struct {{service.name}}_{{method.name}}_Method final
   }
 
   {% if method.client_streaming and method.server_streaming %}
-  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
-  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  using IncomingType = UServerUtils::Grpc::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using OutgoingType = UServerUtils::Grpc::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
   {% elif method.client_streaming %}
-  using IncomingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
+  using IncomingType = UServerUtils::Grpc::Common::Stream<{{ method.input_type | grpc_to_cpp_name }}>;
   using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
   {% elif method.server_streaming %}
   using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
-  using OutgoingType = UServerUtils::Grpc::Core::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
+  using OutgoingType = UServerUtils::Grpc::Common::Stream<{{ method.output_type | grpc_to_cpp_name }}>;
   {% else %}
   using IncomingType = {{ method.input_type | grpc_to_cpp_name }};
   using OutgoingType = {{ method.output_type | grpc_to_cpp_name }};
@@ -50,7 +50,7 @@ struct {{service.name}}_{{method.name}}_Method final
 } // namespace Internal::Server
 
 using {{service.name}}_{{method.name}}_Handler =
-  UServerUtils::Grpc::Core::Server::RpcHandlerImpl<Internal::Server::{{service.name}}_{{method.name}}_Method>;
+  UServerUtils::Grpc::Server::RpcHandlerImpl<Internal::Server::{{service.name}}_{{method.name}}_Method>;
 
 namespace Internal
 {
@@ -63,7 +63,7 @@ public:
   using Traits = typename {{service.name}}_{{method.name}}_Handler::Traits;
   using Request = typename Traits::Request;
   using Response = typename Traits::Response;
-  using Queue = UServerUtils::Grpc::Core::Server::Internal::QueueCoro<Request, Response>;
+  using Queue = UServerUtils::Grpc::Server::Internal::QueueCoro<Request, Response>;
   using QueueData = typename Queue::ValueType;
   using Producer = typename Queue::Producer;
   using ProducerPtr = std::unique_ptr<Producer>;
@@ -144,7 +144,7 @@ public:
     try
     {
       auto& context = common_context<
-        UServerUtils::Grpc::Core::Server::CommonContextCoro>();
+        UServerUtils::Grpc::Server::CommonContextCoro>();
       logger_ = context.get_logger();
       const std::string_view method_name = Traits::method_name();
       producer_ = context.get_producer<Request, Response>(method_name);
@@ -278,14 +278,14 @@ private:
 } // namespace Internal
 
 class {{service.name}}_{{method.name}}_Service :
-  public UServerUtils::Grpc::Core::Server::ServiceCoro<{{ method.input_type | grpc_to_cpp_name }}, {{ method.output_type | grpc_to_cpp_name }}>
+  public UServerUtils::Grpc::Server::ServiceCoro<{{ method.input_type | grpc_to_cpp_name }}, {{ method.output_type | grpc_to_cpp_name }}>
 {
 public:
   using Handler = Internal::{{service.name}}_{{method.name}}_Coro_Handler;
   using Request = typename Handler::Request;
   using Response = typename Handler::Response;
-  using ReadStatus = UServerUtils::Grpc::Core::Server::ReadStatus;
-  using WriterStatus = UServerUtils::Grpc::Core::Server::WriterStatus;
+  using ReadStatus = UServerUtils::Grpc::Server::ReadStatus;
+  using WriterStatus = UServerUtils::Grpc::Server::WriterStatus;
 
 public:
   ~{{service.name}}_{{method.name}}_Service() override = default;

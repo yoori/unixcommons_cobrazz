@@ -5,7 +5,7 @@
 
 {# All constant includes must go inside this header #}
 #include <userver/ugrpc/server/impl/codegen_declarations.hpp>
-#include <UServerUtils/Grpc/ServiceBase.hpp>
+#include <UServerUtils/Grpc/Server/ServiceBase.hpp>
 
 #include "{{ proto.source_file_without_ext }}.pb.h"
 
@@ -14,7 +14,7 @@
 
 // Service interface for {{service.name}}
 class {{service.name}}Base
-    : public UServerUtils::Grpc::GrpcServiceBase {
+    : public UServerUtils::Grpc::Server::GrpcServiceBase {
  public:
   using Component = USERVER_NAMESPACE::ugrpc::server::impl::ServiceComponentBase<
       {{service.name}}Base>;
