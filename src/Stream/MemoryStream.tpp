@@ -399,6 +399,10 @@ namespace Stream
       // TODO
     }
 
+
+    /**
+     * Generalized template
+     */
     template<typename Elem, typename Traits, typename Allocator, 
       typename AllocatorInitializer, const size_t SIZE, typename ArgT>
     Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
@@ -409,6 +413,19 @@ namespace Stream
       oss << arg;
       ostr << oss.str();
       return ostr;
+    }
+
+    /**
+     * std::endl
+     */
+    template<typename Elem, typename Traits,
+      typename Allocator, typename AllocatorInitializer, const size_t SIZE>
+    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& stream,
+      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) /*throw eh::Exception*/
+    {
+      stream.append('\n');
+      return stream;
     }
 
     namespace Allocator

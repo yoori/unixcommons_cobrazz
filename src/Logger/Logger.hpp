@@ -271,11 +271,11 @@ namespace Logging
     public:
       ~Wrapper() throw ();
 
-      std::ostream&
+      Stream&
       operator ()() throw ();
 
       template <typename Object>
-      std::ostream&
+      Stream&
       operator <<(const Object& object) /*throw (eh::Exception)*/;
 
     private:
@@ -997,7 +997,7 @@ namespace Logging
   }
 
   template <typename Stream, typename Initializer>
-  std::ostream&
+  Stream&
   StreamLogger::Wrapper<Stream, Initializer>::operator ()() throw ()
   {
     return ostr_;
@@ -1005,11 +1005,12 @@ namespace Logging
 
   template <typename Stream, typename Initializer>
   template <typename Object>
-  std::ostream&
+  Stream&
   StreamLogger::Wrapper<Stream, Initializer>::operator <<(
     const Object& object) /*throw (eh::Exception)*/
   {
-    return ostr_ << object;
+    ostr_ << object;
+    return ostr_;
   }
 
 

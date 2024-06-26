@@ -450,10 +450,12 @@ namespace CORBACommons
     return properties.size();
   }
 
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
   void
-  PropertiesHandling::print_properties(const ORBProperties& properties,
-    std::ostream& ostr)
-    /*throw (eh::Exception)*/
+  PropertiesHandling::print_properties(const ORBProperties& properties, 
+    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, 
+    AllocatorInitializer, SIZE>& ostr) /*throw (eh::Exception)*/
   {
     for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
       itor != properties.end(); ++itor)
