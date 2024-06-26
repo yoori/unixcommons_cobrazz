@@ -5,6 +5,7 @@
 #include <streambuf>
 #include <istream>
 #include <ostream>
+#include <sstream>
 
 #include <sys/param.h>
 
@@ -79,9 +80,12 @@ namespace Stream
      */
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer = Allocator>
-    class OutputMemoryBuffer : public std::basic_streambuf<Elem, Traits>
+    class OutputMemoryBuffer
     {
     public:
+      // for InputMemoryBuffer and MemoryBufferHolder compatibility
+      typedef typename Traits::char_type char_type;
+
       typedef typename Traits::int_type Int;
       typedef typename Traits::pos_type Position;
       typedef typename Traits::off_type Offset;
@@ -119,31 +123,43 @@ namespace Stream
       Size
       size() const throw ();
 
-    protected:
-      virtual
-      Position
-      seekoff(Offset off, std::ios_base::seekdir way,
-        std::ios_base::openmode which) /*throw (eh::Exception)*/;
-
-      virtual
-      Position
-      seekpos(Position pos, std::ios_base::openmode which)
-        /*throw (eh::Exception)*/;
-
-      virtual
-      Int
-      overflow(Int c = Traits::eof()) /*throw (eh::Exception)*/;
-
-    private:
+    public:
       /**
-       * Extends allocated memory region
+       * @return The pointer to first elem of data region
+       */
+      Pointer
+      begin() throw();
+
+      /**
+       * @return The pointer to one past last elem of data region
+       */
+      Pointer
+      end() throw();
+
+      /**
+       * @return The pointer to one past last filled elem of data
+       */
+      Pointer
+      ptr() throw();
+
+      /**
+       * Extends allocated data region
        * @return whether or not extension was successful
        */
       bool
       extend() /*throw (eh::Exception)*/;
 
+      /**
+       * advance ptr() 1 step forward
+       */
+      void
+      incptr() throw();
+
+    private:
       Allocator allocator_;
-      Offset max_offset_;
+      Pointer begin_;
+      Pointer ptr_;
+      Pointer end_;
     };
 
     /**
@@ -280,14 +296,12 @@ namespace Stream
       typename AllocatorInitializer = Allocator, const size_t SIZE = 0>
     class OutputMemoryStream :
       public MemoryBufferHolder<
-        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
-      public std::basic_ostream<Elem, Traits>
+        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
     {
     private:
       typedef MemoryBufferHolder<
         OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
           Holder;
-      typedef std::basic_ostream<Elem, Traits> Stream;
 
     public:
       /**
@@ -300,7 +314,24 @@ namespace Stream
       OutputMemoryStream(typename Allocator::size_type initial_size = SIZE,
         const AllocatorInitializer& allocator_initializer =
           AllocatorInitializer()) /*throw (eh::Exception)*/;
+
+      void append(Elem ch) /*throw (eh::Exception)*/;
+      void append(const Elem* str) /*throw (eh::Exception)*/;
+      bool bad() throw();
+
+      void write(const Elem*, int) /*throw (eh::Exception)*/;
+      void fill(Elem) /*throw (eh::Exception)*/;
+      void width(int) /*throw (eh::Exception)*/;
+
+    private:
+      bool bad_;
     };
+
+    template<typename Elem, typename Traits, typename Allocator, 
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/;
 
     namespace Allocator
     {
