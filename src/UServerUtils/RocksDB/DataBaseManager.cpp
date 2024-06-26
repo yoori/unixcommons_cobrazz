@@ -50,13 +50,11 @@ DataBaseManager::~DataBaseManager()
 {
   try
   {
-    EventPtr close_event =
-      std::make_unique<Event>(
-        std::make_unique<CloseEventData>());
+    EventPtr close_event = std::make_unique<Event>(
+      std::make_unique<CloseEventData>());
     while (!event_queue_->emplace(std::move(close_event)))
     {
-      std::this_thread::sleep_for(
-        std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     assert(semaphore_->add());
@@ -913,8 +911,7 @@ DataBaseManager::Status DataBaseManager::erase(
   return Status::Corruption();
 }
 
-void DataBaseManager::add_event_to_queue(
-  EventPtr&& event) noexcept
+void DataBaseManager::add_event_to_queue(EventPtr&& event) noexcept
 {
   try
   {
@@ -987,8 +984,7 @@ void DataBaseManager::set_error(
         try
         {
           const auto size = data.keys.size();
-          const Status status = rocksdb::Status::Aborted(
-            "Size of column_families and keys should be same");
+          const Status status = rocksdb::Status::Aborted(error_message);
           statuses = Statuses(size, status);
           values = Values(size, std::string{});
         }
