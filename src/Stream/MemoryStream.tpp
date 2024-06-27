@@ -115,7 +115,7 @@ namespace Stream
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      ~OutputMemoryBuffer() throw ()
+      ~OutputMemoryBuffer() noexcept
     {
       allocator_.deallocate(begin_, end_ - begin_);
       begin_ = 0;
@@ -128,17 +128,17 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::ConstPointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      data() const throw ()
-    {    
+      data() const noexcept
+    {
       return begin_;
-    }    
+    }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Size
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      size() const throw ()
+      size() const noexcept
     {
       return ptr_ - begin_;
     }
@@ -148,7 +148,7 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Pointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      begin() throw ()
+      begin() noexcept
     {
       return begin_;
     }
@@ -158,7 +158,7 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Pointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      ptr() throw ()
+      ptr() noexcept
     {
       return ptr_;
     }
@@ -168,7 +168,7 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Pointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      end() throw ()
+      end() noexcept
     {
       return end_;
     }
@@ -215,9 +215,16 @@ namespace Stream
       typename AllocatorInitializer>
     void
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      incptr() throw()
+      pbump(Offset off) noexcept
     {
-      ++ptr_;
+      if (off > 0)
+      {
+        if (off > end_ - ptr_) {
+          ptr_ = end_;
+        } else {
+          ptr_ += off;
+        }
+      }
     }
 
     //
@@ -266,14 +273,14 @@ namespace Stream
 
     template <typename Buffer>
     Buffer*
-    MemoryBufferHolder<Buffer>::buffer() throw ()
+    MemoryBufferHolder<Buffer>::buffer() noexcept
     {
       return &buffer_;
     }
 
     template <typename Buffer>
     const Buffer*
-    MemoryBufferHolder<Buffer>::buffer() const throw ()
+    MemoryBufferHolder<Buffer>::buffer() const noexcept
     {
       return &buffer_;
     }
@@ -340,18 +347,18 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       append(Elem ch) /*throw (eh::Exception)*/
     {
-      if (bad()) 
+      if (bad())
       {
         return;
       }
       auto* buffer = this->buffer();
-      if (buffer->ptr() == buffer->end() && !buffer->extend()) 
+      if (buffer->ptr() == buffer->end() && !buffer->extend())
       {
         bad_ = true;
         return;
       }
       *buffer->ptr() = ch;
-      buffer->incptr();
+      buffer->pbump(1);
     }
 
     template <typename Elem, typename Traits, typename Allocator,
@@ -360,9 +367,26 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       append(const Elem* str) /*throw (eh::Exception)*/
     {
-      while (*str) 
+      if (bad())
       {
-        append(*str++);
+        return;
+      }
+      auto* buffer = this->buffer();
+
+      size_t required = std::strlen(str);
+      size_t available = buffer->end() - buffer->ptr();
+      while (required > available && buffer->extend()) {
+        available = buffer->end() - buffer->ptr();
+      }
+
+      if (available > 0) {
+        size_t append_count = std::min(available, required);
+        std::memcpy(buffer->ptr(), str, append_count);
+        buffer->pbump(append_count);
+      }
+
+      if (required > available) {
+        bad_ = true;
       }
     }
 
@@ -370,14 +394,14 @@ namespace Stream
       typename AllocatorInitializer, const size_t SIZE>
     bool
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
-      bad() throw ()
+      bad() noexcept
     {
       return bad_;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer, const size_t SIZE>
-    void 
+    void
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       write(const Elem*, int) /*throw (eh::Exception)*/
     {
@@ -386,7 +410,7 @@ namespace Stream
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer, const size_t SIZE>
-    void 
+    void
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       fill(Elem) /*throw (eh::Exception)*/
     {
@@ -395,7 +419,7 @@ namespace Stream
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer, const size_t SIZE>
-    void 
+    void
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       width(int) /*throw (eh::Exception)*/
     {
@@ -406,12 +430,12 @@ namespace Stream
     /**
      * Generalized template
      */
-    template<typename Elem, typename Traits, typename Allocator, 
+    template<typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer, const size_t SIZE, typename ArgT>
     Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       const ArgT& arg) /*throw eh::Exception*/
-    { 
+    {
       std::ostringstream oss;
       oss << arg;
       ostr.append(oss.str().c_str());
@@ -440,7 +464,7 @@ namespace Stream
     operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& stream,
       std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
     {
-      // TODO 
+      // TODO
       return stream;
     }
 

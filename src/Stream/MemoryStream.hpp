@@ -6,6 +6,7 @@
 #include <istream>
 #include <ostream>
 #include <sstream>
+#include <cstring>
 
 #include <sys/param.h>
 
@@ -109,38 +110,38 @@ namespace Stream
        * Frees allocated memory region
        */
       virtual
-      ~OutputMemoryBuffer() throw ();
+      ~OutputMemoryBuffer() noexcept;
 
       /**
        * @return The pointer to filled data
        */
       ConstPointer
-      data() const throw ();
+      data() const noexcept;
 
       /**
        * @return The size of filled data
        */
       Size
-      size() const throw ();
+      size() const noexcept;
 
     public:
       /**
        * @return The pointer to first elem of data region
        */
       Pointer
-      begin() throw();
+      begin() noexcept;
 
       /**
        * @return The pointer to one past last elem of data region
        */
       Pointer
-      end() throw();
+      end() noexcept;
 
       /**
        * @return The pointer to one past last filled elem of data
        */
       Pointer
-      ptr() throw();
+      ptr() noexcept;
 
       /**
        * Extends allocated data region
@@ -150,10 +151,10 @@ namespace Stream
       extend() /*throw (eh::Exception)*/;
 
       /**
-       * advance ptr() 1 step forward
+       * advance ptr() off steps forward but not more than end()
        */
       void
-      incptr() throw();
+      pbump(Offset off) noexcept;
 
     private:
       Allocator allocator_;
@@ -221,13 +222,13 @@ namespace Stream
        * @return pointer to holding buffer
        */
       Buffer*
-      buffer() throw ();
+      buffer() noexcept;
 
       /**
        * @return pointer to holding buffer
        */
       const Buffer*
-      buffer() const throw ();
+      buffer() const noexcept;
 
     private:
       Buffer buffer_;
@@ -317,12 +318,15 @@ namespace Stream
 
       /**
        * append one character to filled part of memory region
+       * set bad flag if char can not be appended
        * @param ch elemen to be appended
        */
       void append(Elem ch) /*throw (eh::Exception)*/;
 
       /**
-       * append null terminated charater sequence to filled part of memory region
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
        * @param str null terminated character sequence
        */
       void append(const Elem* str) /*throw (eh::Exception)*/;
@@ -330,7 +334,7 @@ namespace Stream
       /**
        * @return true if last append failed because memory region capacity reached
        */
-      bool bad() throw();
+      bool bad() noexcept;
 
       /**
        * append size elements of str to filled part of memory region
