@@ -315,17 +315,53 @@ namespace Stream
         const AllocatorInitializer& allocator_initializer =
           AllocatorInitializer()) /*throw (eh::Exception)*/;
 
+      /**
+       * append one character to filled part of memory region
+       * @param ch elemen to be appended
+       */
       void append(Elem ch) /*throw (eh::Exception)*/;
+
+      /**
+       * append null terminated charater sequence to filled part of memory region
+       * @param str null terminated character sequence
+       */
       void append(const Elem* str) /*throw (eh::Exception)*/;
+
+      /**
+       * @return true if last append failed because memory region capacity reached
+       */
       bool bad() throw();
 
+      /**
+       * append size elements of str to filled part of memory region
+       * copy block of data without checking null characters
+       * @param str character sequence to be appended
+       * @param size amount of characters to be appended
+       */
       void write(const Elem*, int) /*throw (eh::Exception)*/;
+
+      /**
+       * std::ios::fill copy
+       * @param fillch fill character
+       */
       void fill(Elem) /*throw (eh::Exception)*/;
+
+      /**
+       * std::ios_base::width copy
+       * @param wide field width
+       */
       void width(int) /*throw (eh::Exception)*/;
 
     private:
       bool bad_;
     };
+
+    /**
+     * Functions for printing data into MemoryStream::OutputMemoryStream
+     *
+     * template<OutputElem, Args...>
+     * MemoryStream::OutputMemoryStream<Args>& operator<<(MemoryStream::OutputMemoryStream<Args>& stream, OutputElem elem);
+     */
 
     /**
      * Generalized template
@@ -344,6 +380,15 @@ namespace Stream
     Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) /*throw eh::Exception*/;
+
+    /**
+     * std::hex, std::dec, std::oct
+     */
+    template<typename Elem, typename Traits,
+      typename Allocator, typename AllocatorInitializer, const size_t SIZE>
+    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& stream,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
 
     namespace Allocator
     {

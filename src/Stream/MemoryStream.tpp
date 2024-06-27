@@ -340,11 +340,13 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       append(Elem ch) /*throw (eh::Exception)*/
     {
-      if (bad()) {
+      if (bad()) 
+      {
         return;
       }
       auto* buffer = this->buffer();
-      if (buffer->ptr() == buffer->end() && !buffer->extend()) {
+      if (buffer->ptr() == buffer->end() && !buffer->extend()) 
+      {
         bad_ = true;
         return;
       }
@@ -358,7 +360,8 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       append(const Elem* str) /*throw (eh::Exception)*/
     {
-      while (*str) {
+      while (*str) 
+      {
         append(*str++);
       }
     }
@@ -411,7 +414,7 @@ namespace Stream
     { 
       std::ostringstream oss;
       oss << arg;
-      ostr << oss.str();
+      ostr.append(oss.str().c_str());
       return ostr;
     }
 
@@ -425,6 +428,19 @@ namespace Stream
       std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) /*throw eh::Exception*/
     {
       stream.append('\n');
+      return stream;
+    }
+
+    /**
+     * std::hex, std::dec, std::oct
+     */
+    template<typename Elem, typename Traits,
+      typename Allocator, typename AllocatorInitializer, const size_t SIZE>
+    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& stream,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
+    {
+      // TODO 
       return stream;
     }
 
@@ -535,7 +551,7 @@ namespace Stream
   template <const size_t SIZE>
   Buffer<SIZE>::~Buffer() throw ()
   {
-    *this << '\0';
+    this->append('\0');
   }
 }
 
