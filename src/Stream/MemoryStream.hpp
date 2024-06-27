@@ -290,6 +290,70 @@ namespace Stream
     };
 
     /**
+     * Base abstract class for output streams
+     */
+    template <typename Elem>
+    class BaseOStream {
+    public:
+      /**
+       * append one character to filled part of memory region
+       * set bad flag if char can not be appended
+       * @param ch elemen to be appended
+       */
+      virtual void append(Elem ch) /*throw (eh::Exception)*/ = 0;
+
+      /**
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
+       * @param str null terminated character sequence
+       */
+      virtual void append(const Elem* str) /*throw (eh::Exception)*/ = 0;
+
+      /**
+       * append size elements of str to filled part of memory region
+       * copy block of data without checking null characters
+       * @param str character sequence to be appended
+       * @param size amount of characters to be appended
+       */
+      virtual void write(const Elem* str, int len) /*throw (eh::Exception)*/ = 0;
+
+      /**
+       * @return true if last append failed because memory region capacity reached
+       */
+      virtual bool bad() noexcept = 0;
+
+      /**
+       * Holy destructor
+       */
+      virtual ~BaseOStream() noexcept;
+    };
+
+    /**
+     * Generalized template
+     */
+    template<typename Elem, typename ArgT>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr, const ArgT& arg) /*throw eh::Exception*/;
+
+    /**
+     * std::endl
+     */
+    template<typename Elem, typename Traits = std::char_traits<Elem>>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) 
+      /*throw eh::Exception*/;
+
+    /**
+     * std::hex, std::dec, std::oct
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
+
+    /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
      */
     template <typename Elem, typename Traits = std::char_traits<Elem>,
@@ -297,7 +361,8 @@ namespace Stream
       typename AllocatorInitializer = Allocator, const size_t SIZE = 0>
     class OutputMemoryStream :
       public MemoryBufferHolder<
-        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
+        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
+      public BaseOStream<Elem>
     {
     private:
       typedef MemoryBufferHolder<
@@ -317,82 +382,28 @@ namespace Stream
           AllocatorInitializer()) /*throw (eh::Exception)*/;
 
       /**
-       * append one character to filled part of memory region
-       * set bad flag if char can not be appended
-       * @param ch elemen to be appended
+       * description in BaseOStream
        */
-      void append(Elem ch) /*throw (eh::Exception)*/;
+      void append(Elem ch) override /*throw (eh::Exception)*/;
 
       /**
-       * append null terminated charater sequence after filled part of memory region
-       * append as much of str as possible (try extend() if end() is reached)
-       * if str is appended partially, then set bad flag
-       * @param str null terminated character sequence
+       * description in BaseOStream
        */
-      void append(const Elem* str) /*throw (eh::Exception)*/;
+      void append(const Elem* str) override /*throw (eh::Exception)*/;
 
       /**
-       * @return true if last append failed because memory region capacity reached
+       * description in BaseOStream
        */
-      bool bad() noexcept;
+      void write(const Elem* str, int len) override /*throw (eh::Exception)*/;
 
       /**
-       * append size elements of str to filled part of memory region
-       * copy block of data without checking null characters
-       * @param str character sequence to be appended
-       * @param size amount of characters to be appended
+       * description in BaseOStream
        */
-      void write(const Elem*, int) /*throw (eh::Exception)*/;
-
-      /**
-       * std::ios::fill copy
-       * @param fillch fill character
-       */
-      void fill(Elem) /*throw (eh::Exception)*/;
-
-      /**
-       * std::ios_base::width copy
-       * @param wide field width
-       */
-      void width(int) /*throw (eh::Exception)*/;
+      bool bad() noexcept override;
 
     private:
       bool bad_;
     };
-
-    /**
-     * Functions for printing data into MemoryStream::OutputMemoryStream
-     *
-     * template<OutputElem, Args...>
-     * MemoryStream::OutputMemoryStream<Args>& operator<<(MemoryStream::OutputMemoryStream<Args>& stream, OutputElem elem);
-     */
-
-    /**
-     * Generalized template
-     */
-    template<typename Elem, typename Traits, typename Allocator, 
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const ArgT& arg) /*throw eh::Exception*/;
-
-    /**
-     * std::endl
-     */
-    template<typename Elem, typename Traits, typename Allocator, 
-      typename AllocatorInitializer, const size_t SIZE>
-    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) /*throw eh::Exception*/;
-
-    /**
-     * std::hex, std::dec, std::oct
-     */
-    template<typename Elem, typename Traits,
-      typename Allocator, typename AllocatorInitializer, const size_t SIZE>
-    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& stream,
-      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
 
     namespace Allocator
     {

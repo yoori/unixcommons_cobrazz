@@ -40,12 +40,10 @@ namespace CORBACommons
     create_simple_properties(const ORBProperties& properties,
       SimpleORBProperties& simple_properties) /*throw (eh::Exception)*/;
 
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
+    template<typename Elem>
     void
-    print_properties(const ORBProperties& argv, 
-      Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator, 
-      AllocatorInitializer, SIZE>& ostr) /*throw (eh::Exception)*/;
+    print_properties(const ORBProperties& properties, 
+      Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/;
   };
 
   class OrbCreator

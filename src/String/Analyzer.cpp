@@ -1,4 +1,5 @@
 // @file String/Analyzer.cpp
+#include <iomanip>
 #include <limits>
 
 #include <String/SubString.hpp>
@@ -1014,8 +1015,8 @@ namespace String
 
         if (use_padding)
         {
-          intstr.fill(init_params_.padding_symb);
-          intstr.width(range_part2_length_with_padding);
+          intstr << std::setfill(init_params_.padding_symb);
+          intstr << std::setw(range_part2_length_with_padding);
         }
         intstr << i;
 

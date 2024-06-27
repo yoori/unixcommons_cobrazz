@@ -450,17 +450,17 @@ namespace CORBACommons
     return properties.size();
   }
 
-  template<typename Elem, typename Traits, typename Allocator,
-    typename AllocatorInitializer, const size_t SIZE>
+  template<typename Elem>
   void
   PropertiesHandling::print_properties(const ORBProperties& properties,
-    Stream::MemoryStream::OutputMemoryStream<Elem, Traits, Allocator,
-    AllocatorInitializer, SIZE>& ostr) /*throw (eh::Exception)*/
+    Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/
   {
     for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
       itor != properties.end(); ++itor)
     {
-      ostr << " '" << itor->c_str() << "'";
+      ostr.append(" '");
+      ostr.append(itor->c_str());
+      ostr.append("'");
     }
   }
 
