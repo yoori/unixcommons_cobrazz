@@ -475,4 +475,25 @@ namespace Generics
   }
 } // namespace Generics
 
+namespace Stream {
+  namespace MemoryStream {
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator <<(BaseOStream<Elem>& ostr, const Generics::Uuid& uuid) noexcept
+    {
+      if (!ostr.bad()) {
+        try
+        {
+          ostr.append(uuid.to_string(true).c_str());
+        }
+        catch (const eh::Exception&)
+        {
+          ostr.bad(true);
+        }
+      }
+      return ostr;
+    }
+  }
+} // namespace Stream
+
 #endif

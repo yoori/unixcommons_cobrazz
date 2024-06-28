@@ -323,7 +323,14 @@ namespace Stream
       /**
        * @return true if last append failed because memory region capacity reached
        */
-      virtual bool bad() noexcept = 0;
+      virtual bool bad() const noexcept = 0;
+      
+      /**
+       * if stream bad state is true, all stream write operations will do nothing
+       * if stream bad state is true, calling bad(false) has no effect
+       * @param value - set stream state to value
+       */
+      virtual void bad(bool value) noexcept = 0;
 
       /**
        * Holy destructor
@@ -401,7 +408,12 @@ namespace Stream
       /**
        * description in BaseOStream
        */
-      bool bad() noexcept override;
+      bool bad() const noexcept override;
+
+      /**
+       * description in BaseOStream
+       */
+      void bad(bool value) noexcept override;
 
     private:
       bool bad_;

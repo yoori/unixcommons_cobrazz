@@ -496,9 +496,20 @@ namespace Stream
       typename AllocatorInitializer, const size_t SIZE>
     bool
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
-      bad() noexcept
+      bad() const  noexcept
     {
       return bad_;
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    void 
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      bad(bool value) noexcept
+    {
+      if (!bad_ && value) {
+        bad_ = true;
+      }
     }
 
     namespace Allocator
