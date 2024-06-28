@@ -326,6 +326,43 @@ namespace Stream
     }
 
     //
+    // BaseOStream Helper class to enable partial specialization
+    //
+
+    /**
+     * Helper for operator<<(BaseOStream&, const ArgT&), generalized version
+     */
+    template<typename Elem, typename ArgT, typename Enable = void>
+    struct BaseOStreamImpl 
+    {
+      BaseOStream<Elem>& operator()(BaseOStream<Elem>& ostr, const ArgT& arg)
+        /*throw eh::Exception*/
+      {
+        std::ostringstream ss;
+        ss << arg;
+        ostr.append(ss.str().c_str());
+        return ostr;
+      }
+    };
+
+    /**
+     * Helper for operator<<(BaseOStream&, const ArgT&)
+     * specialization for to_chars applicable types
+     */
+    template <typename Elem, typename ArgT>
+    struct BaseOStreamImpl<Elem, ArgT, 
+      decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())> 
+    {
+      BaseOStream<Elem>& operator()(BaseOStream<Elem>& ostr, const ArgT& arg)
+        /*throw eh::Exception*/
+      {
+        // TODO
+        ostr << std::to_string(arg);
+        return ostr;
+      }
+    };
+
+    //
     // BaseOStream class
     //
     
@@ -341,9 +378,18 @@ namespace Stream
     BaseOStream<Elem>&
     operator<<(BaseOStream<Elem>& ostr, const ArgT& arg) /*throw eh::Exception*/
     {
-      std::ostringstream oss;
-      oss << arg;
-      ostr.append(oss.str().c_str());
+      return BaseOStreamImpl<Elem, ArgT>()(ostr, arg);
+    }
+
+    /**
+     * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
+     * but we want char to be treated like char, do not apply to_chars
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr, char arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg);
       return ostr;
     }
 

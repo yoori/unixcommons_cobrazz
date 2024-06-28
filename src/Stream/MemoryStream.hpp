@@ -7,6 +7,8 @@
 #include <ostream>
 #include <sstream>
 #include <cstring>
+#include <string>
+#include <charconv>
 
 #include <sys/param.h>
 
@@ -342,7 +344,7 @@ namespace Stream
     template<typename Elem, typename Traits = std::char_traits<Elem>>
     BaseOStream<Elem>&
     operator<<(BaseOStream<Elem>& ostr,
-      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) 
+      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&))
       /*throw eh::Exception*/;
 
     /**
