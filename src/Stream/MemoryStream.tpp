@@ -407,12 +407,48 @@ namespace Stream
     }
 
     /**
-     * std::hex, std::dec, std::oct
+     * std::hex (std::dec, std::oct) + std::fixed
      */
     template<typename Elem>
     BaseOStream<Elem>&
     operator<<(BaseOStream<Elem>& ostr,
       std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setprecision
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setprecision) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setw
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setw) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setfill
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setfill<char>) /*throw eh::Exception*/
     {
       // TODO
       return ostr;

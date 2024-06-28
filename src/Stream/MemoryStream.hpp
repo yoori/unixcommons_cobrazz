@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <charconv>
+#include <iomanip>
 
 #include <sys/param.h>
 
@@ -355,12 +356,39 @@ namespace Stream
       /*throw eh::Exception*/;
 
     /**
-     * std::hex, std::dec, std::oct
+     * std::hex (std::dec, std::oct) + std::fixed
      */
     template<typename Elem>
     BaseOStream<Elem>&
     operator<<(BaseOStream<Elem>& ostr,
       std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
+
+    /**
+     * std::setprecision
+     * @param precision - for decimal numbers
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setprecision) /*throw eh::Exception*/;
+
+    /**
+     * std::setw
+     * @param width - of single number, pad with space or _Setfill 
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setw) /*throw eh::Exception*/;
+
+    /**
+     * std::setfill
+     * @param fillchar - is pad char if _Setw overload was called
+     */
+    template<typename Elem>
+    BaseOStream<Elem>&
+    operator<<(BaseOStream<Elem>& ostr,
+      std::_Setfill<char>) /*throw eh::Exception*/;
 
     /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
