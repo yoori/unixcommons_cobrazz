@@ -326,16 +326,29 @@ namespace Stream
     }
 
     //
-    // BaseOStream Helper class to enable partial specialization
+    // BaseOStream class
+    //
+
+    template<typename Elem>
+    BaseOStream<Elem>::~BaseOStream() noexcept
+    {
+    }
+
+    //
+    // Helper class to enable partial specialization
     //
 
     /**
-     * Helper for operator<<(BaseOStream&, const ArgT&), generalized version
+     * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
      */
-    template<typename Elem, typename ArgT, typename Enable = void>
-    struct BaseOStreamImpl 
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT,
+      typename Enable = void>
+    struct OutputMemoryStreamHelper
     {
-      BaseOStream<Elem>& operator()(BaseOStream<Elem>& ostr, const ArgT& arg)
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+      operator()(OutputMemoryStream<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
         /*throw eh::Exception*/
       {
         std::ostringstream ss;
@@ -346,48 +359,65 @@ namespace Stream
     };
 
     /**
-     * Helper for operator<<(BaseOStream&, const ArgT&)
+     * Helper for operator<<(OutputMemoryStream&, const ArgT&)
      * specialization for to_chars applicable types
      */
-    template <typename Elem, typename ArgT>
-    struct BaseOStreamImpl<Elem, ArgT, 
-      decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())> 
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE, ArgT,
+      decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())>
     {
-      BaseOStream<Elem>& operator()(BaseOStream<Elem>& ostr, const ArgT& arg)
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+      operator()(OutputMemoryStream<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
         /*throw eh::Exception*/
       {
-        // TODO
-        ostr << std::to_string(arg);
+        if (ostr.bad()) 
+        {
+          return ostr;
+        }
+        auto* buffer = ostr.buffer();
+        if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+        {
+          buffer->pbump(nptr - buffer->ptr());
+        } 
+        else
+        {
+          while (buffer->extend()) 
+          {
+            if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc()) 
+            {
+              buffer->pbump(nptr - buffer->ptr());
+              return ostr;
+            }
+          }
+          ostr.append(std::to_string(arg).c_str());
+        }
         return ostr;
       }
     };
 
-    //
-    // BaseOStream class
-    //
-    
-    template<typename Elem>
-    BaseOStream<Elem>::~BaseOStream() noexcept
-    {
-    }
-
     /**
      * Generalized template
      */
-    template<typename Elem, typename ArgT>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr, const ArgT& arg) /*throw eh::Exception*/
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/
     {
-      return BaseOStreamImpl<Elem, ArgT>()(ostr, arg);
+      return OutputMemoryStreamHelper<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
     }
 
     /**
-     * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
-     * but we want char to be treated like char, do not apply to_chars
+     * char overload
      */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr, char arg) /*throw eh::Exception*/
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      char arg) /*throw eh::Exception*/
     {
       ostr.append(arg);
       return ostr;
@@ -396,10 +426,11 @@ namespace Stream
     /**
      * std::endl
      */
-    template<typename Elem, typename Traits>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&)) 
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
       /*throw eh::Exception*/
     {
       ostr.append('\n');
@@ -409,9 +440,10 @@ namespace Stream
     /**
      * std::hex (std::dec, std::oct) + std::fixed
      */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
     {
       // TODO
@@ -421,9 +453,10 @@ namespace Stream
     /**
      * std::setprecision
      */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       std::_Setprecision) /*throw eh::Exception*/
     {
       // TODO
@@ -433,9 +466,10 @@ namespace Stream
     /**
      * std::setw
      */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       std::_Setw) /*throw eh::Exception*/
     {
       // TODO
@@ -445,9 +479,10 @@ namespace Stream
     /**
      * std::setfill
      */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       std::_Setfill<char>) /*throw eh::Exception*/
     {
       // TODO
@@ -539,7 +574,7 @@ namespace Stream
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer, const size_t SIZE>
-    void 
+    void
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
       bad(bool value) noexcept
     {

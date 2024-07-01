@@ -10,6 +10,8 @@
 #include <string>
 #include <charconv>
 #include <iomanip>
+#include <charconv>
+#include <system_error>
 
 #include <sys/param.h>
 
@@ -299,13 +301,6 @@ namespace Stream
     class BaseOStream {
     public:
       /**
-       * append one character to filled part of memory region
-       * set bad flag if char can not be appended
-       * @param ch elemen to be appended
-       */
-      virtual void append(Elem ch) /*throw (eh::Exception)*/ = 0;
-
-      /**
        * append null terminated charater sequence after filled part of memory region
        * append as much of str as possible (try extend() if end() is reached)
        * if str is appended partially, then set bad flag
@@ -314,81 +309,10 @@ namespace Stream
       virtual void append(const Elem* str) /*throw (eh::Exception)*/ = 0;
 
       /**
-       * append size elements of str to filled part of memory region
-       * copy block of data without checking null characters
-       * @param str character sequence to be appended
-       * @param size amount of characters to be appended
-       */
-      virtual void write(const Elem* str, int len) /*throw (eh::Exception)*/ = 0;
-
-      /**
-       * @return true if last append failed because memory region capacity reached
-       */
-      virtual bool bad() const noexcept = 0;
-      
-      /**
-       * if stream bad state is true, all stream write operations will do nothing
-       * if stream bad state is true, calling bad(false) has no effect
-       * @param value - set stream state to value
-       */
-      virtual void bad(bool value) noexcept = 0;
-
-      /**
        * Holy destructor
        */
       virtual ~BaseOStream() noexcept;
     };
-
-    /**
-     * Generalized template
-     */
-    template<typename Elem, typename ArgT>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr, const ArgT& arg) /*throw eh::Exception*/;
-
-    /**
-     * std::endl
-     */
-    template<typename Elem, typename Traits = std::char_traits<Elem>>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::basic_ostream<Elem, Traits>& (*)(std::basic_ostream<Elem, Traits>&))
-      /*throw eh::Exception*/;
-
-    /**
-     * std::hex (std::dec, std::oct) + std::fixed
-     */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
-
-    /**
-     * std::setprecision
-     * @param precision - for decimal numbers
-     */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::_Setprecision) /*throw eh::Exception*/;
-
-    /**
-     * std::setw
-     * @param width - of single number, pad with space or _Setfill 
-     */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::_Setw) /*throw eh::Exception*/;
-
-    /**
-     * std::setfill
-     * @param fillchar - is pad char if _Setw overload was called
-     */
-    template<typename Elem>
-    BaseOStream<Elem>&
-    operator<<(BaseOStream<Elem>& ostr,
-      std::_Setfill<char>) /*throw eh::Exception*/;
 
     /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
@@ -419,33 +343,116 @@ namespace Stream
           AllocatorInitializer()) /*throw (eh::Exception)*/;
 
       /**
-       * description in BaseOStream
+       * append one character to filled part of memory region
+       * set bad flag if char can not be appended
+       * @param ch elemen to be appended
        */
-      void append(Elem ch) override /*throw (eh::Exception)*/;
+      void append(Elem ch) /*throw (eh::Exception)*/;
 
       /**
-       * description in BaseOStream
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
+       * @param str null terminated character sequence
        */
       void append(const Elem* str) override /*throw (eh::Exception)*/;
 
       /**
-       * description in BaseOStream
+       * append size elements of str to filled part of memory region
+       * copy block of data without checking null characters
+       * @param str character sequence to be appended
+       * @param size amount of characters to be appended
        */
-      void write(const Elem* str, int len) override /*throw (eh::Exception)*/;
+      void write(const Elem* str, int len) /*throw (eh::Exception)*/;
 
       /**
-       * description in BaseOStream
+       * @return true if last append failed because memory region capacity reached
        */
-      bool bad() const noexcept override;
+      bool bad() const noexcept;
 
       /**
-       * description in BaseOStream
+       * if stream bad state is true, all stream write operations will do nothing
+       * if stream bad state is true, calling bad(false) has no effect
+       * @param value - set stream state to value
        */
-      void bad(bool value) noexcept override;
+      void bad(bool value) noexcept;
 
     private:
       bool bad_;
+
+      template<typename HelperElem, typename HelperTraits, typename HelperAllocator,
+        typename HelperAllocatorInitializer, const size_t HelperSIZE, typename HelperArgT,
+        typename HelperEnable>
+      friend class OutputMemoryStreamHelper;
     };
+
+    /**
+     * Generalized template for operator<<(Stream::MemoryStream::OutputMemoryStream&, ...)
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/;
+
+    /**
+     * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
+     * but we want char to be treated like char, do not apply to_chars
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      char arg) /*throw eh::Exception*/;
+
+    /**
+     * std::endl
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+      /*throw eh::Exception*/;
+
+    /**
+     * std::hex (std::dec, std::oct) + std::fixed
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
+
+    /**
+     * std::setprecision
+     * @param precision - for decimal numbers
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setprecision) /*throw eh::Exception*/;
+
+    /**
+     * std::setw
+     * @param width - of single number, pad with space or _Setfill
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setw) /*throw eh::Exception*/;
+
+    /**
+     * std::setfill
+     * @param fillchar - is pad char if _Setw overload was called
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setfill<char>) /*throw eh::Exception*/;
 
     namespace Allocator
     {
