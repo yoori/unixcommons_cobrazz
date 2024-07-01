@@ -450,15 +450,17 @@ namespace CORBACommons
     return properties.size();
   }
 
+  template<typename Elem>
   void
   PropertiesHandling::print_properties(const ORBProperties& properties,
-    std::ostream& ostr)
-    /*throw (eh::Exception)*/
+    Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/
   {
     for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
       itor != properties.end(); ++itor)
     {
-      ostr << " '" << itor->c_str() << "'";
+      ostr.append(" '");
+      ostr.append(itor->c_str());
+      ostr.append("'");
     }
   }
 
@@ -488,7 +490,7 @@ namespace CORBACommons
     }
 
     BIO* in = BIO_new(bio_enhancer.intercept_bio_meth());
-    
+
     if (!in || BIO_read_filename(in, file) <= 0)
     {
       if (in)
@@ -541,7 +543,7 @@ namespace CORBACommons
     {
       SSL_CTX* ctx = ACE_SSL_Context::instance()->context();
       load_trusted_ca_(
-        SSL_CTX_get_cert_store(ctx), 
+        SSL_CTX_get_cert_store(ctx),
         secure_connection_config->peer_certificate_authority);
       password_ = secure_connection_config->pass_phrase;
       SSL_CTX_set_default_passwd_cb(ctx, pem_password_callback_);

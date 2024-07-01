@@ -97,23 +97,30 @@ namespace Stream
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
       OutputMemoryBuffer(Size initial_size,
       const AllocatorInitializer& allocator_initializer) /*throw (eh::Exception)*/
-      : allocator_(allocator_initializer), max_offset_(0)
+      : allocator_(allocator_initializer)
+      , begin_(0)
+      , ptr_(0)
+      , end_(0)
     {
       Pointer ptr = 0;
       if (initial_size > 0)
       {
         ptr = allocator_.allocate(initial_size);
       }
-      this->setp(ptr, ptr + initial_size);
+      begin_ = ptr;
+      ptr_ = begin_;
+      end_ = begin_ + initial_size;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      ~OutputMemoryBuffer() throw ()
+      ~OutputMemoryBuffer() noexcept
     {
-      allocator_.deallocate(this->pbase(), this->epptr() - this->pbase());
-      this->setp(0, 0);
+      allocator_.deallocate(begin_, end_ - begin_);
+      begin_ = 0;
+      ptr_ = 0;
+      end_ = 0;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
@@ -121,9 +128,9 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::ConstPointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      data() const throw ()
+      data() const noexcept
     {
-      return this->pbase();
+      return begin_;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
@@ -131,80 +138,39 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Size
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      size() const throw ()
+      size() const noexcept
     {
-      return this->pptr() - this->pbase();
+      return ptr_ - begin_;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Position
+      AllocatorInitializer>::Pointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      seekoff(Offset off, std::ios_base::seekdir way,
-      std::ios_base::openmode which) /*throw (eh::Exception)*/
+      begin() noexcept
     {
-      if (which != std::ios_base::out)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      Offset current = this->pptr() - this->pbase();
-      if (current > max_offset_)
-      {
-        max_offset_ = current;
-      }
-
-      Position pos(off);
-
-      switch (way)
-      {
-      case std::ios_base::beg:
-        break;
-
-      case std::ios_base::cur:
-        pos += current;
-        break;
-
-      case std::ios_base::end:
-        pos = max_offset_ + pos;
-        break;
-
-      default:
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      return seekpos(pos, which);
+      return begin_;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Position
+      AllocatorInitializer>::Pointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      seekpos(Position pos, std::ios_base::openmode which)
-      /*throw (eh::Exception)*/
+      ptr() noexcept
     {
-      if (which != std::ios_base::out)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
+      return ptr_;
+    }
 
-      Offset current = this->pptr() - this->pbase();
-      if (current > max_offset_)
-      {
-        max_offset_ = current;
-      }
-
-      Offset offset(pos);
-      if (offset < 0 || offset > max_offset_)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-      this->setp(this->pbase(), this->epptr());
-      this->pbump(offset);
-
-      return pos;
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer>
+    typename OutputMemoryBuffer<Elem, Traits, Allocator,
+      AllocatorInitializer>::Pointer
+    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+      end() noexcept
+    {
+      return end_;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
@@ -213,8 +179,8 @@ namespace Stream
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
       extend() /*throw (eh::Exception)*/
     {
-      Size old_size = this->epptr() - this->pbase();
-      Offset offset = this->pptr() - this->pbase();
+      Size old_size = end_ - begin_;
+      Offset offset = ptr_ - begin_;
 
       Size new_size = 4096;
       while (new_size <= old_size)
@@ -234,32 +200,32 @@ namespace Stream
 
       if (old_size > 0)
       {
-        Traits::copy(ptr, this->pbase(), old_size);
-        allocator_.deallocate(this->pbase(), old_size);
+        Traits::copy(ptr, begin_, old_size);
+        allocator_.deallocate(begin_, old_size);
       }
 
-      this->setp(ptr, ptr + new_size);
-      this->pbump(offset);
+      begin_ = ptr;
+      ptr_ = begin_ + offset;
+      end_ = begin_ + new_size;
+
       return true;
     }
 
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Int
+    void
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      overflow(Int c) /*throw (eh::Exception)*/
+      pbump(Offset off) noexcept
     {
-      if (!extend() || Traits::eq_int_type(c, Traits::eof()))
+      if (off > 0)
       {
-        return Traits::eof();
+        if (off > end_ - ptr_) {
+          ptr_ = end_;
+        } else {
+          ptr_ += off;
+        }
       }
-
-      *this->pptr() = c;
-      this->pbump(1);
-      return c;
     }
-
 
     //
     // MemoryBufferHolder class
@@ -307,14 +273,14 @@ namespace Stream
 
     template <typename Buffer>
     Buffer*
-    MemoryBufferHolder<Buffer>::buffer() throw ()
+    MemoryBufferHolder<Buffer>::buffer() noexcept
     {
       return &buffer_;
     }
 
     template <typename Buffer>
     const Buffer*
-    MemoryBufferHolder<Buffer>::buffer() const throw ()
+    MemoryBufferHolder<Buffer>::buffer() const noexcept
     {
       return &buffer_;
     }
@@ -359,6 +325,169 @@ namespace Stream
     {
     }
 
+    //
+    // BaseOStream class
+    //
+
+    template<typename Elem>
+    BaseOStream<Elem>::~BaseOStream() noexcept
+    {
+    }
+
+    //
+    // Helper class to enable partial specialization
+    //
+
+    /**
+     * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT,
+      typename Enable = void>
+    struct OutputMemoryStreamHelper
+    {
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+      operator()(OutputMemoryStream<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
+        /*throw eh::Exception*/
+      {
+        std::ostringstream ss;
+        ss << arg;
+        ostr.append(ss.str().c_str());
+        return ostr;
+      }
+    };
+
+    /**
+     * Helper for operator<<(OutputMemoryStream&, const ArgT&)
+     * specialization for to_chars applicable types
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE, ArgT,
+      decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())>
+    {
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+      operator()(OutputMemoryStream<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
+        /*throw eh::Exception*/
+      {
+        if (ostr.bad()) 
+        {
+          return ostr;
+        }
+        auto* buffer = ostr.buffer();
+        if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+        {
+          buffer->pbump(nptr - buffer->ptr());
+        } 
+        else
+        {
+          while (buffer->extend()) 
+          {
+            if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc()) 
+            {
+              buffer->pbump(nptr - buffer->ptr());
+              return ostr;
+            }
+          }
+          ostr.append(std::to_string(arg).c_str());
+        }
+        return ostr;
+      }
+    };
+
+    /**
+     * Generalized template
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/
+    {
+      return OutputMemoryStreamHelper<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
+    }
+
+    /**
+     * char overload
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      char arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg);
+      return ostr;
+    }
+
+    /**
+     * std::endl
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+      /*throw eh::Exception*/
+    {
+      ostr.append('\n');
+      return ostr;
+    }
+
+    /**
+     * std::hex (std::dec, std::oct) + std::fixed
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setprecision
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setprecision) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setw
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setw) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
+
+    /**
+     * std::setfill
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setfill<char>) /*throw eh::Exception*/
+    {
+      // TODO
+      return ostr;
+    }
 
     //
     // OutputMemoryStream class
@@ -370,8 +499,88 @@ namespace Stream
       OutputMemoryStream(typename Allocator::size_type initial_size,
         const AllocatorInitializer& allocator_initializer)
       /*throw (eh::Exception)*/
-      : Holder(initial_size, allocator_initializer), Stream(this->buffer())
+      : Holder(initial_size, allocator_initializer)
+      , bad_(false)
     {
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    void
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      append(Elem ch) /*throw (eh::Exception)*/
+    {
+      if (bad())
+      {
+        return;
+      }
+      auto* buffer = this->buffer();
+      if (buffer->ptr() == buffer->end() && !buffer->extend())
+      {
+        bad_ = true;
+        return;
+      }
+      *buffer->ptr() = ch;
+      buffer->pbump(1);
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    void
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      append(const Elem* str) /*throw (eh::Exception)*/
+    {
+      int len = std::strlen(str);
+      write(str, len);
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    void
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      write(const Elem* str, int len) /*throw (eh::Exception)*/
+    {
+      if (bad())
+      {
+        return;
+      }
+      auto* buffer = this->buffer();
+
+      size_t required = len;
+      size_t available = buffer->end() - buffer->ptr();
+      while (required > available && buffer->extend()) {
+        available = buffer->end() - buffer->ptr();
+      }
+
+      if (available > 0) {
+        size_t append_count = std::min(available, required);
+        std::memcpy(buffer->ptr(), str, append_count);
+        buffer->pbump(append_count);
+      }
+
+      if (required > available) {
+        bad_ = true;
+      }
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    bool
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      bad() const  noexcept
+    {
+      return bad_;
+    }
+
+    template <typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    void
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+      bad(bool value) noexcept
+    {
+      if (!bad_ && value) {
+        bad_ = true;
+      }
     }
 
     namespace Allocator
@@ -481,7 +690,7 @@ namespace Stream
   template <const size_t SIZE>
   Buffer<SIZE>::~Buffer() throw ()
   {
-    *this << '\0';
+    this->append('\0');
   }
 }
 

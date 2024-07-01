@@ -5,6 +5,13 @@
 #include <streambuf>
 #include <istream>
 #include <ostream>
+#include <sstream>
+#include <cstring>
+#include <string>
+#include <charconv>
+#include <iomanip>
+#include <charconv>
+#include <system_error>
 
 #include <sys/param.h>
 
@@ -79,9 +86,12 @@ namespace Stream
      */
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer = Allocator>
-    class OutputMemoryBuffer : public std::basic_streambuf<Elem, Traits>
+    class OutputMemoryBuffer
     {
     public:
+      // for InputMemoryBuffer and MemoryBufferHolder compatibility
+      typedef typename Traits::char_type char_type;
+
       typedef typename Traits::int_type Int;
       typedef typename Traits::pos_type Position;
       typedef typename Traits::off_type Offset;
@@ -105,45 +115,57 @@ namespace Stream
        * Frees allocated memory region
        */
       virtual
-      ~OutputMemoryBuffer() throw ();
+      ~OutputMemoryBuffer() noexcept;
 
       /**
        * @return The pointer to filled data
        */
       ConstPointer
-      data() const throw ();
+      data() const noexcept;
 
       /**
        * @return The size of filled data
        */
       Size
-      size() const throw ();
+      size() const noexcept;
 
-    protected:
-      virtual
-      Position
-      seekoff(Offset off, std::ios_base::seekdir way,
-        std::ios_base::openmode which) /*throw (eh::Exception)*/;
-
-      virtual
-      Position
-      seekpos(Position pos, std::ios_base::openmode which)
-        /*throw (eh::Exception)*/;
-
-      virtual
-      Int
-      overflow(Int c = Traits::eof()) /*throw (eh::Exception)*/;
-
-    private:
+    public:
       /**
-       * Extends allocated memory region
+       * @return The pointer to first elem of data region
+       */
+      Pointer
+      begin() noexcept;
+
+      /**
+       * @return The pointer to one past last elem of data region
+       */
+      Pointer
+      end() noexcept;
+
+      /**
+       * @return The pointer to one past last filled elem of data
+       */
+      Pointer
+      ptr() noexcept;
+
+      /**
+       * Extends allocated data region
        * @return whether or not extension was successful
        */
       bool
       extend() /*throw (eh::Exception)*/;
 
+      /**
+       * advance ptr() off steps forward but not more than end()
+       */
+      void
+      pbump(Offset off) noexcept;
+
+    private:
       Allocator allocator_;
-      Offset max_offset_;
+      Pointer begin_;
+      Pointer ptr_;
+      Pointer end_;
     };
 
     /**
@@ -205,13 +227,13 @@ namespace Stream
        * @return pointer to holding buffer
        */
       Buffer*
-      buffer() throw ();
+      buffer() noexcept;
 
       /**
        * @return pointer to holding buffer
        */
       const Buffer*
-      buffer() const throw ();
+      buffer() const noexcept;
 
     private:
       Buffer buffer_;
@@ -273,6 +295,26 @@ namespace Stream
     };
 
     /**
+     * Base abstract class for output streams
+     */
+    template <typename Elem>
+    class BaseOStream {
+    public:
+      /**
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
+       * @param str null terminated character sequence
+       */
+      virtual void append(const Elem* str) /*throw (eh::Exception)*/ = 0;
+
+      /**
+       * Holy destructor
+       */
+      virtual ~BaseOStream() noexcept;
+    };
+
+    /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
      */
     template <typename Elem, typename Traits = std::char_traits<Elem>,
@@ -281,13 +323,12 @@ namespace Stream
     class OutputMemoryStream :
       public MemoryBufferHolder<
         OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
-      public std::basic_ostream<Elem, Traits>
+      public BaseOStream<Elem>
     {
     private:
       typedef MemoryBufferHolder<
         OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
           Holder;
-      typedef std::basic_ostream<Elem, Traits> Stream;
 
     public:
       /**
@@ -300,7 +341,118 @@ namespace Stream
       OutputMemoryStream(typename Allocator::size_type initial_size = SIZE,
         const AllocatorInitializer& allocator_initializer =
           AllocatorInitializer()) /*throw (eh::Exception)*/;
+
+      /**
+       * append one character to filled part of memory region
+       * set bad flag if char can not be appended
+       * @param ch elemen to be appended
+       */
+      void append(Elem ch) /*throw (eh::Exception)*/;
+
+      /**
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
+       * @param str null terminated character sequence
+       */
+      void append(const Elem* str) override /*throw (eh::Exception)*/;
+
+      /**
+       * append size elements of str to filled part of memory region
+       * copy block of data without checking null characters
+       * @param str character sequence to be appended
+       * @param size amount of characters to be appended
+       */
+      void write(const Elem* str, int len) /*throw (eh::Exception)*/;
+
+      /**
+       * @return true if last append failed because memory region capacity reached
+       */
+      bool bad() const noexcept;
+
+      /**
+       * if stream bad state is true, all stream write operations will do nothing
+       * if stream bad state is true, calling bad(false) has no effect
+       * @param value - set stream state to value
+       */
+      void bad(bool value) noexcept;
+
+    private:
+      bool bad_;
+
+      template<typename HelperElem, typename HelperTraits, typename HelperAllocator,
+        typename HelperAllocatorInitializer, const size_t HelperSIZE, typename HelperArgT,
+        typename HelperEnable>
+      friend class OutputMemoryStreamHelper;
     };
+
+    /**
+     * Generalized template for operator<<(Stream::MemoryStream::OutputMemoryStream&, ...)
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/;
+
+    /**
+     * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
+     * but we want char to be treated like char, do not apply to_chars
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      char arg) /*throw eh::Exception*/;
+
+    /**
+     * std::endl
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+      /*throw eh::Exception*/;
+
+    /**
+     * std::hex (std::dec, std::oct) + std::fixed
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
+
+    /**
+     * std::setprecision
+     * @param precision - for decimal numbers
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setprecision) /*throw eh::Exception*/;
+
+    /**
+     * std::setw
+     * @param width - of single number, pad with space or _Setfill
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setw) /*throw eh::Exception*/;
+
+    /**
+     * std::setfill
+     * @param fillchar - is pad char if _Setw overload was called
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      std::_Setfill<char>) /*throw eh::Exception*/;
 
     namespace Allocator
     {

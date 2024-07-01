@@ -39,9 +39,11 @@ namespace CORBACommons
     int
     create_simple_properties(const ORBProperties& properties,
       SimpleORBProperties& simple_properties) /*throw (eh::Exception)*/;
+
+    template<typename Elem>
     void
-    print_properties(const ORBProperties& argv, std::ostream& ostr)
-      /*throw (eh::Exception)*/;
+    print_properties(const ORBProperties& properties, 
+      Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/;
   };
 
   class OrbCreator
