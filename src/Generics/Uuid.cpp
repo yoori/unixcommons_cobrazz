@@ -4,6 +4,10 @@
 * Uuid creator
 */
 
+#include <charconv>
+#include <cstring>
+#include <system_error>
+
 #include <Generics/ISAAC.hpp>
 #include <Generics/Time.hpp>
 #include <Generics/Uuid.hpp>
@@ -292,3 +296,24 @@ namespace Generics
     return probe_;
   }
 } // namespace Generics
+
+namespace std
+{
+  std::to_chars_result
+  to_chars(char* first, char* last, const Generics::Uuid& uuid)
+    /*throw (eh::Exception)*/
+  {
+    auto str = uuid.to_string(true);
+    if (first + str.size() > last) {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  std::string to_string(const Generics::Uuid& uuid)
+    /*throw (eh::Exception)*/
+  {
+    return uuid.to_string(true);
+  }
+}

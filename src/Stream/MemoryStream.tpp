@@ -348,12 +348,22 @@ namespace Stream
     {
       OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
       operator()(OutputMemoryStream<Elem, Traits, Allocator,
-        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
-        /*throw eh::Exception*/
+        AllocatorInitializer, SIZE>& ostr, const ArgT& arg) noexcept
       {
-        std::ostringstream ss;
-        ss << arg;
-        ostr.append(ss.str().c_str());
+        if (ostr.bad())
+        {
+          return ostr;
+        }
+        try
+        {
+          std::ostringstream ss;
+          ss << arg;
+          ostr.append(ss.str().c_str());
+        }
+        catch (const eh::Exception&)
+        {
+          ostr.bad(true);
+        }
         return ostr;
       }
     };
@@ -370,28 +380,34 @@ namespace Stream
       OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
       operator()(OutputMemoryStream<Elem, Traits, Allocator,
         AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
-        /*throw eh::Exception*/
       {
-        if (ostr.bad()) 
+        if (ostr.bad())
         {
           return ostr;
         }
-        auto* buffer = ostr.buffer();
-        if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+        try
         {
-          buffer->pbump(nptr - buffer->ptr());
-        } 
-        else
-        {
-          while (buffer->extend()) 
+          auto* buffer = ostr.buffer();
+          if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
           {
-            if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc()) 
-            {
-              buffer->pbump(nptr - buffer->ptr());
-              return ostr;
-            }
+            buffer->pbump(nptr - buffer->ptr());
           }
-          ostr.append(std::to_string(arg).c_str());
+          else
+          {
+            while (buffer->extend())
+            {
+              if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+              {
+                buffer->pbump(nptr - buffer->ptr());
+                return ostr;
+              }
+            }
+            ostr.append(std::to_string(arg).c_str());
+          }
+        }
+        catch (const eh::Exception&)
+        {
+          ostr.bad(true);
         }
         return ostr;
       }
@@ -411,6 +427,75 @@ namespace Stream
     }
 
     /**
+     * String::BasicSubString
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, 
+      typename SElem, typename STraits, typename SChecker>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/
+    {
+      ostr.write(arg.data(), arg.size());
+      return ostr;
+    }
+
+    /**
+     * std::string
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const std::string& arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg.c_str());
+      return ostr;
+    }
+
+    /**
+     * ArgT*, ArgT != char
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    std::enable_if<
+      !std::is_same<Elem, ArgT>::value,
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+    >::type&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      ArgT* arg) /*throw eh::Exception*/
+    {
+      ostr << reinterpret_cast<uint64_t>(arg);
+      return ostr;
+    }
+
+    /**
+     * const char* OR char[n]
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const Elem* arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg);
+      return ostr;
+    }
+
+    /**
+     * const char* OR char[n]
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      Elem* arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg);
+      return ostr;
+    }
+
+    /**
      * char overload
      */
     template<typename Elem, typename Traits, typename Allocator,
@@ -420,6 +505,19 @@ namespace Stream
       char arg) /*throw eh::Exception*/
     {
       ostr.append(arg);
+      return ostr;
+    }
+
+    /**
+     * bool overload
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      bool arg) /*throw eh::Exception*/
+    {
+      ostr.append(arg ? '1' : '0');
       return ostr;
     }
 

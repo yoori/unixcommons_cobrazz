@@ -174,7 +174,7 @@ namespace Generics
     : text_(std::move(init.text_)),
       hash_(init.hash_)
   {}
-  
+
   inline
   StringHashAdapter::StringHashAdapter(const String::SubString& text)
     /*throw (eh::Exception)*/

@@ -344,6 +344,13 @@ namespace Generics
     set_ft(const String::SubString& value, bool strict = false)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
+    /**
+     * String representation of this Time 
+     * @return string representation of this Time
+     */
+    std::string
+    str() const /*throw (eh::Exception)*/;
+
   public:
     static const std::size_t TIME_PACK_LEN = 8;
 
@@ -457,6 +464,13 @@ namespace Generics
      */
     void
     set_date(const ExtendedTime& time) throw ();
+
+    /**
+     * String representation of this ExtendedTime 
+     * @return string representation of this ExtendedTime
+     */
+    std::string
+    str() const /*throw (eh::Exception)*/;
 
   protected:
     static const String::AsciiStringManip::Caseless DAYS_[];
@@ -1300,7 +1314,6 @@ namespace Generics
       static_cast<uint64_t>(key.tv_usec) };
     hash.add(&v.value, sizeof(v.value));
   }
-
 
   //
   // ClockTimeOfDay class

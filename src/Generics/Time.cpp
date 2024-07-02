@@ -671,6 +671,34 @@ namespace Generics
 
     return std::string(str, length);
   }
+
+  std::string
+  Time::str() const /*throw (eh::Exception)*/ 
+  {
+    char buf[256];
+    const Generics::Time::Print& time_print = print();
+    snprintf(buf, sizeof(buf), "%s%lu:%.6ld (sec:usec)",
+      time_print.sign < 0 ? "-" : "",
+      static_cast<unsigned long int>(time_print.integer_part),
+      static_cast<long int>(time_print.fractional_part));
+    return std::string(buf);
+  }
+
+  std::string
+  ExtendedTime::str() const /*throw (eh::Exception)*/ 
+  {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
+      static_cast<unsigned>(tm_year + 1900),
+      static_cast<unsigned>(tm_mon + 1),
+      static_cast<unsigned>(tm_mday),
+      static_cast<unsigned>(tm_hour),
+      static_cast<unsigned>(tm_min),
+      static_cast<unsigned>(tm_sec),
+      static_cast<unsigned>(tm_usec));
+
+    return std::string(buf, buf + 26);
+  }
 }
 
 //
@@ -681,32 +709,14 @@ std::ostream&
 operator <<(std::ostream& ostr, const Generics::Time& time)
   /*throw (eh::Exception)*/
 {
-  char buf[256];
-  const Generics::Time::Print& print = time.print();
-  snprintf(buf, sizeof(buf), "%s%lu:%.6ld (sec:usec)",
-    print.sign < 0 ? "-" : "",
-    static_cast<unsigned long int>(print.integer_part),
-    static_cast<long int>(print.fractional_part));
-  return ostr << buf;
+  return ostr << time.str();
 }
 
 std::ostream&
 operator <<(std::ostream& ostr, const Generics::ExtendedTime& time)
   /*throw (eh::Exception)*/
 {
-  char buf[64];
-  snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
-    static_cast<unsigned>(time.tm_year + 1900),
-    static_cast<unsigned>(time.tm_mon + 1),
-    static_cast<unsigned>(time.tm_mday),
-    static_cast<unsigned>(time.tm_hour),
-    static_cast<unsigned>(time.tm_min),
-    static_cast<unsigned>(time.tm_sec),
-    static_cast<unsigned>(time.tm_usec));
-
-  ostr.write(buf, 26);
-
-  return ostr;
+  return ostr << time.str();
 }
 
 std::istream&
@@ -770,4 +780,39 @@ operator >>(std::istream& istr, Generics::ExtendedTime& time)
   time = Generics::ExtendedTime(year, month, day, hour, min, sec, usec);
 
   return istr;
+}
+
+namespace std {
+  std::to_chars_result
+  to_chars(char* first, char* last, const Generics::Time& time) /*throw (eh::Exception)*/
+  {
+    auto str = time.str();
+    if (first + str.size() > last) {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  std::string to_string(const Generics::Time& time) /*throw (eh::Exception) */
+  {
+    return time.str(); 
+  }
+
+  std::to_chars_result
+  to_chars(char* first, char* last, const Generics::ExtendedTime& time) /*throw (eh::Exception)*/
+  {
+    auto str = time.str();
+    if (first + str.size() > last) {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  
+  }
+
+  std::string to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
+  {
+    return time.str();
+  }
 }

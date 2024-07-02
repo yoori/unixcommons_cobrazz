@@ -843,3 +843,25 @@ namespace Generics
     hash.add(&key.data_, sizeof(key.data_));
   }
 }
+
+namespace std {
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  std::to_chars_result
+  to_chars(char* first, char* last, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
+    /*throw (eh::Exception)*/
+  {
+    auto str = number.str();
+    if (first + str.size() > last) {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
+    /*throw (eh::Exception) */
+  {
+    return number.str(); 
+  }
+}

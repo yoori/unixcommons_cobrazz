@@ -3,7 +3,10 @@
  * @author Karen Aroutiounov <karen@ipmce.ru>
  */
 
+#include <charconv>
+#include <cstring>
 #include <string>
+#include <system_error>
 
 #include <xercesc/util/XMLString.hpp>
 
@@ -121,5 +124,25 @@ namespace XMLUtility
 
       return *this;
     }
+  }
+}
+
+namespace std {
+  std::to_chars_result
+  to_chars(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+    /*throw (eh::Exception)*/
+  {
+    std::string str{xml_adapter.operator const char*()};
+    if (first + str.size() > last) {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+    /*throw (eh::Exception)*/
+  {
+    return std::string(xml_adapter.operator const char*());
   }
 }

@@ -18,6 +18,61 @@
 #include <String/SubString.hpp>
 
 
+namespace Generics
+{
+  class Uuid;
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  class SimpleDecimal;
+
+  class Time;
+
+  class ExtendedTime;
+
+  class StringHashAdapter;
+}
+
+namespace XMLUtility::StringManip {
+  class XMLMbcAdapter;
+}
+
+namespace std
+{
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::Uuid&) /*throw (eh::Exception)*/;
+
+  std::string to_string(const Generics::Uuid&) /*throw (eh::Exception) */;
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
+    /*throw (eh::Exception)*/;
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
+    /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::Time&) /*throw (eh::Exception)*/;
+
+  std::string to_string(const Generics::Time&) /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
+
+  std::string to_string(const Generics::ExtendedTime&) /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
+
+  std::string to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception)*/;
+
+  std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception) */;
+}
+
 namespace Stream
 {
   /**
@@ -396,6 +451,56 @@ namespace Stream
       const ArgT& arg) /*throw eh::Exception*/;
 
     /**
+     * String::BasicSubString
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE,
+      typename SElem, typename STraits, typename SChecker>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
+
+    /**
+     * std::string
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const std::string& arg) /*throw eh::Exception*/;
+
+    /**
+     * ArgT*, ArgT != char
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    std::enable_if<
+      !std::is_same<Elem, ArgT>::value,
+      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+    >::type&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      ArgT* arg) /*throw eh::Exception*/;
+
+    /**
+     * const char* + const char[n]
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const Elem* arg) /*throw eh::Exception*/;
+
+    /**
+     * char* + char[n]
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      Elem* arg) /*throw eh::Exception*/;
+
+    /**
+     * char overload
      * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
      * but we want char to be treated like char, do not apply to_chars
      */
@@ -404,6 +509,16 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       char arg) /*throw eh::Exception*/;
+
+    /**
+     * bool overload
+     * do not use general overload for bool
+     */
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      bool arg) /*throw eh::Exception*/;
 
     /**
      * std::endl
