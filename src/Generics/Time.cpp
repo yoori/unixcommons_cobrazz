@@ -673,7 +673,7 @@ namespace Generics
   }
 
   std::string
-  Time::str() const /*throw (eh::Exception)*/ 
+  Time::str() const /*throw (eh::Exception)*/
   {
     char buf[256];
     const Generics::Time::Print& time_print = print();
@@ -685,7 +685,7 @@ namespace Generics
   }
 
   std::string
-  ExtendedTime::str() const /*throw (eh::Exception)*/ 
+  ExtendedTime::str() const /*throw (eh::Exception)*/
   {
     char buf[64];
     snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
@@ -796,7 +796,7 @@ namespace std {
 
   std::string to_string(const Generics::Time& time) /*throw (eh::Exception) */
   {
-    return time.str(); 
+    return time.str();
   }
 
   std::to_chars_result
@@ -808,11 +808,47 @@ namespace std {
     }
     memcpy(first, str.c_str(), str.size());
     return {first + str.size(), std::errc()};
-  
+
   }
 
   std::string to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
   {
     return time.str();
+  }
+
+  template<>
+  std::to_chars_result
+  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
+  to_chars<Generics::Time>(char* first, char* last, const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+    /*throw (eh::Exception)*/
+  {
+    auto str = widthout.Value().str();
+    if (first + std::max(str.size(), widthout.Width()) > last)
+    {
+      return {last, std::errc::value_too_large};
+    }
+    if (widthout.Width() > str.size())
+    {
+      auto fill_size = widthout.Width() - str.size();
+      std::fill(first, first + fill_size, widthout.Fill());
+      first += fill_size;
+    }
+    memcpy(first, str.c_str(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  template<>
+  std::string to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+    /*throw (eh::Exception) */
+  {
+    auto str = widthout.Value().str();
+    if (widthout.Width() > str.size())
+    {
+      return std::string(widthout.Width() - str.size(), widthout.Fill()) + str;
+    }
+    else
+    {
+      return str;
+    }
   }
 }

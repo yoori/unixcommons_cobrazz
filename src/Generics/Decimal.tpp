@@ -43,8 +43,7 @@ namespace Generics
     ostr << SIZE << ':' << TOTAL_RANK << '.' << FRACTION_RANK;
     for (unsigned i = 0; i != SIZE; i++)
     {
-      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-        tmp_array_[i];
+      ostr << ' ' << Stream::MemoryStream::width_out(tmp_array_[i], DIGITS_PER_ELEMENT, '0');
     }
     return std::string(ostr->available_data(), ostr->available_size());
   }
@@ -293,8 +292,8 @@ namespace Generics
         " " << size_ << " " << initial_size_;
       for (int i = TMP_DIV_SIZE - 1; i >= 0; i--)
       {
-        strm << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-          static_cast<unsigned long long>(tmp_array_[i]);
+        strm << ' ' << Stream::MemoryStream::width_out(
+          static_cast<unsigned long long>(tmp_array_[i]), DIGITS_PER_ELEMENT, '0');
       }
     }
     return out;

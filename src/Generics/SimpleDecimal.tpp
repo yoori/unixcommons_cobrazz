@@ -398,8 +398,8 @@ namespace Generics
     ostr << TOTAL_RANK << '.' << FRACTION_RANK << "(" <<
       static_cast<typename Parent::CalcType>(MAX_INTEGER_) << "," <<
       static_cast<typename Parent::CalcType>(MAX_FRACTION_) << ") " <<
-      std::setfill('0') << std::setw(TOTAL_RANK) <<
-      static_cast<unsigned long long>(data_);
+      Stream::MemoryStream::width_out(
+        static_cast<unsigned long long>(data_), TOTAL_RANK, '0');
     return ostr.str().str();
   }
 
@@ -862,6 +862,6 @@ namespace std {
   std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
     /*throw (eh::Exception) */
   {
-    return number.str(); 
+    return number.str();
   }
 }

@@ -334,6 +334,46 @@ namespace Stream
     {
     }
 
+
+    //
+    // Helpers for manipulators
+    //
+
+    template<typename IntType>
+    WidthOut<IntType>::WidthOut(const IntType& value, size_t width, char fill)
+      noexcept
+      : value_(value)
+      , width_(width)
+      , fill_(fill)
+    {
+    }
+
+    template<typename IntType>
+    IntType WidthOut<IntType>::Value() const noexcept
+    {
+      return value_;
+    }
+
+    template<typename IntType>
+    size_t WidthOut<IntType>::Width() const noexcept
+    {
+      return width_;
+    }
+
+    template<typename IntType>
+    char WidthOut<IntType>::Fill() const noexcept
+    {
+      return fill_;
+    }
+
+    template<typename IntType>
+    WidthOut<IntType>
+    width_out(const IntType& value, size_t width, char fill)
+      noexcept
+    {
+      return WidthOut<IntType>(value, width, fill);
+    }
+
     //
     // Helper class to enable partial specialization
     //
@@ -430,7 +470,7 @@ namespace Stream
      * String::BasicSubString
      */
     template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, 
+      typename AllocatorInitializer, const size_t SIZE,
       typename SElem, typename STraits, typename SChecker>
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
@@ -800,5 +840,64 @@ namespace eh
   {
     const String::SubString& substr = stream.str();
     Base::init_(substr.data(), substr.size(), code);
+  }
+}
+
+namespace std
+{
+  template<typename IntType>
+  std::to_chars_result
+  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
+  to_chars(char* first, char* last, const Stream::MemoryStream::WidthOut<IntType>& widthout)
+    /*throw (eh::Exception)*/
+  {
+    size_t capacity = last - first;
+    auto value = widthout.Value();
+    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1;
+
+    auto width = widthout.Width();
+    if (value_size > capacity || (width && width > capacity))
+    {
+      return {last, std::errc::value_too_large};
+    }
+
+    if (width > value_size)
+    {
+      size_t fill_size = width - value_size;
+      std::fill_n(first, fill_size, widthout.Fill());
+      first += fill_size;
+    }
+
+    if (value == 0)
+    {
+      *first++ = '0';
+    }
+    else
+    {
+      for (char* ptr = first + (value_size - 1); value > 0; --ptr)
+      {
+        *ptr = value % 10;
+        value /= 10;
+        ++first;
+      }
+    }
+
+    return {first, std::errc()};
+  }
+
+  template<typename IntType>
+  std::string to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
+    /*throw (eh::Exception) */
+  {
+    auto str = std::to_string(widthout.Value());         
+    auto width = widthout.Width();
+    if (width > str.size())
+    {
+      return std::string(width - str.size(), widthout.Fill()) + str;
+    }
+    else
+    {
+      return str;
+    }
   }
 }

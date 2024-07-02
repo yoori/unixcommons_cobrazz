@@ -12,11 +12,16 @@
 #include <iomanip>
 #include <charconv>
 #include <system_error>
+#include <cmath>
+#include <algorithm>
 
 #include <sys/param.h>
 
 #include <String/SubString.hpp>
 
+//
+// std::to_chars forward declarations for non-builtin types
+//
 
 namespace Generics
 {
@@ -32,7 +37,8 @@ namespace Generics
   class StringHashAdapter;
 }
 
-namespace XMLUtility::StringManip {
+namespace XMLUtility::StringManip
+{
   class XMLMbcAdapter;
 }
 
@@ -71,6 +77,78 @@ namespace std
   to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception)*/;
 
   std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception) */;
+}
+
+//
+// std::to_chars forward declarations for iomanip-like helpers for:
+// - std::hex + std::uppercase
+// - std::setw + std::setfill
+// - std::setprecision + std::fixed
+//
+
+namespace Stream
+{
+  namespace MemoryStream
+  {
+    template<typename IntType>
+    class WidthOut
+    {
+    public:
+      /**
+       * class to store state of std::setw + std::setfill
+       * @param value - value to be stored
+       * @param width - width value, width == 0 means width is not set
+       * @param fill - setfill value, works only if width > 0
+       *
+       * NOTE: need default constructor for decltype(to_chars...(T())) to work
+       */
+      WidthOut(const IntType& value = IntType(), size_t width = 0, char fill = ' ') noexcept;
+
+      IntType Value() const noexcept;
+
+      size_t Width() const noexcept;
+
+      char Fill() const noexcept;
+
+    private:
+      IntType value_;
+      size_t width_;
+      char fill_;
+    };
+
+    /**
+     * iomanip-like helper fpr std::setw + std::setfill
+     * @param value - value to be printed
+     * @param width - width value
+     * @param fill - setfill value
+     */
+    template<typename IntType>
+    WidthOut<IntType>
+    width_out(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
+  }
+}
+
+namespace std
+{
+  template<typename IntType>
+  std::to_chars_result
+  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
+    /*throw (eh::Exception)*/;
+
+  template<typename IntType>
+  std::string to_string(const Stream::MemoryStream::WidthOut<IntType>&)
+    /*throw (eh::Exception) */;
+
+  template<>
+  std::to_chars_result
+  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
+  to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
+    /*throw (eh::Exception)*/;
+
+  template<>
+  std::string to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
+    /*throw (eh::Exception) */;
 }
 
 namespace Stream
