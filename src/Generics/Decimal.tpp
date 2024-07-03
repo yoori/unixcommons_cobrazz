@@ -879,7 +879,7 @@ namespace Generics
     /*throw (Overflow, NotNumber)*/
   {
     Stream::Stack<SIZE * DIGITS_PER_ELEMENT + 4> ostr;
-    ostr << std::setprecision(FRACTION_RANK) << std::fixed << num;
+    ostr << Stream::MemoryStream::double_out(num, FRACTION_RANK);
     construct_(ostr.str());
   }
 

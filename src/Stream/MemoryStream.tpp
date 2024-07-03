@@ -76,6 +76,38 @@ namespace Stream::MemoryStream
   {
     return HexOut<Type>(value, upcase);
   }
+
+  //
+  // DoubleOut
+  //
+
+  template<typename Type>
+  DoubleOut<Type>::DoubleOut(Type value, size_t precision) noexcept
+    : value_(value)
+    , precision_(precision)
+  {
+  }
+
+  template<typename Type>
+  Type
+  DoubleOut<Type>::Value() const noexcept
+  {
+    return value_;
+  }
+
+  template<typename Type>
+  size_t
+  DoubleOut<Type>::Precision() const noexcept
+  {
+    return precision_;
+  }
+
+  template<typename Type>
+  DoubleOut<Type>
+  double_out(const Type& value, size_t precision) noexcept
+  {
+    return DoubleOut<Type>(value, precision);
+  }
 }
 
 //
@@ -1047,5 +1079,123 @@ namespace std
       }
     }
     return str;
+  }
+
+  //
+  // DoubleOut
+  //
+
+  template<typename Type>
+  std::to_chars_result
+  to_chars(char* , char* last, const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */
+  {
+    // TODO
+    return {last, std::errc::value_too_large};
+  }
+
+  template<typename Type>
+  std::string
+  to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    /*throw (eh::Exception) */
+  {
+    Type value = doubleout.Value();
+    size_t precision = doubleout.Precision();
+    bool neg = value < 0;
+    if (neg)
+    {
+      value = -value;
+    }
+
+    // TODO long double maybe bigger than long long, rewrite using while and *10
+    // maybe investigate modf
+    // anyway precision is lost when arithmetic operations are performed
+
+    auto GetIntPart = [](Type arg) -> std::string
+    {
+      std::string result;
+      Type value = trunc(arg);
+      while (value >= 1.0)
+      {
+        Type new_value = trunc(value / 10.0);
+        result.push_back('0' + static_cast<int>(value - new_value * 10));
+        value = new_value;
+      }
+      if (result.empty())
+      {
+        result.push_back('0');
+      }
+      return result;
+    };
+
+    auto GetFracPart = [](Type arg, size_t precision) -> std::pair<std::string, int>
+    {
+      std::string result;
+      Type value = arg - trunc(arg);
+      while (precision)
+      {
+        value *= 10.0;
+        Type digit = trunc(value);
+        result.push_back('0' + static_cast<int>(digit));
+        value -= digit;
+        --precision;
+      }
+      return {result, static_cast<int>(trunc(value * 10.0))};
+    };
+
+    auto int_part = GetIntPart(value); // int_part is reversed
+    auto frac_part = GetFracPart(value, precision);
+
+    if (frac_part.second >= 5)
+    {
+      bool carry = true;
+      for (auto it = frac_part.first.rbegin(); it != frac_part.first.rend(); ++it)
+      {
+        if (*it < '9')
+        {
+          ++(*it);
+          carry = false;
+          break;
+        }
+        else
+        {
+          *it = '0';
+        }
+      }
+      if (carry)
+      {
+        for (auto it = int_part.begin(); it != int_part.end(); ++it)
+        {
+          if (*it < '9')
+          {
+            ++(*it);
+            carry = false;
+            break;
+          }
+          else
+          {
+            *it = '0';
+          }
+        }
+      }
+      if (carry)
+      {
+        int_part.push_back('1');
+      }
+    }
+
+    if (neg)
+    {
+      int_part.push_back('-');
+    }
+
+    std::reverse(int_part.begin(), int_part.end());
+
+    if (precision == 0)
+    {
+      return int_part;
+    }
+
+    return int_part + "." + frac_part.first;
   }
 }

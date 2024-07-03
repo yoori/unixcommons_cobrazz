@@ -187,7 +187,7 @@ namespace Generics
     General num) /*throw (Overflow, NotNumber)*/
   {
     Stream::Stack<TOTAL_RANK + 3 + !INTEGER_RANK> ostr;
-    ostr << std::setprecision(FRACTION_RANK) << std::fixed << num;
+    ostr << Stream::MemoryStream::double_out(num, FRACTION_RANK);
     construct_(ostr.str());
   }
 
@@ -863,5 +863,23 @@ namespace std {
     /*throw (eh::Exception) */
   {
     return number.str();
+  }
+
+  template<>
+  std::to_chars_result
+  to_chars<const char*>(char*, char* last, const Stream::MemoryStream::DoubleOut<const char*>&)
+    /*throw (eh::Exception) */
+  {
+    // TODO
+    return {last, std::errc::value_too_large};
+  }
+
+  template<>
+  std::string
+  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
+    /*throw (eh::Exception) */
+  {
+    // TODO
+    return std::string{};
   }
 }

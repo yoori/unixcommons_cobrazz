@@ -192,6 +192,44 @@ namespace Stream::MemoryStream
   //
   // Helper for std::setprecision and std::fixed
   //
+
+  template<typename Type>
+  class DoubleOut
+  {
+  public:
+    /**
+     * class to store state of std::setprecision (with obligatory std::fixed)
+     * @param value - value to be stored
+     * @param precision - fixed precision of value
+     *
+     * NOTE: need default constructor for decltype(to_chars...(T())) to work
+     */
+    DoubleOut(Type value = Type(), size_t precision = 0) noexcept;
+
+    /**
+     * @return value to be printed
+     */
+    Type Value() const noexcept;
+
+    /**
+     * @return fixed precision
+     */
+    size_t Precision() const noexcept;
+
+  private:
+    Type value_;
+    size_t precision_;
+  };
+
+  /**
+   * iomanip-like helper for std::setprecision (+ obligatory std::fixed)
+   * @param value - value to be printed
+   * @param precision - fixed precision of value
+   * @return DoubleOut object
+   */
+  template<typename Type>
+  DoubleOut<Type>
+  double_out(const Type& value, size_t precision) noexcept;
 }
 
 namespace std
@@ -238,6 +276,26 @@ namespace std
   //
   // Helper for std::setprecision and std::fixed
   //
+
+  template<typename Type>
+  std::to_chars_result
+  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<>
+  std::to_chars_result
+  to_chars<const char*>(char*, char*, const Stream::MemoryStream::DoubleOut<const char*>&)
+    /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::string
+  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<>
+  std::string
+  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
+    /*throw (eh::Exception) */;
 }
 
 namespace Stream
