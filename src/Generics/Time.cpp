@@ -794,13 +794,15 @@ namespace std {
     return {first + str.size(), std::errc()};
   }
 
-  std::string to_string(const Generics::Time& time) /*throw (eh::Exception) */
+  std::string
+  to_string(const Generics::Time& time) /*throw (eh::Exception) */
   {
     return time.str();
   }
 
   std::to_chars_result
-  to_chars(char* first, char* last, const Generics::ExtendedTime& time) /*throw (eh::Exception)*/
+  to_chars(char* first, char* last, const Generics::ExtendedTime& time)
+    /*throw (eh::Exception)*/
   {
     auto str = time.str();
     if (first + str.size() > last) {
@@ -811,15 +813,16 @@ namespace std {
 
   }
 
-  std::string to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
+  std::string
+  to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
   {
     return time.str();
   }
 
   template<>
   std::to_chars_result
-  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
-  to_chars<Generics::Time>(char* first, char* last, const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+  to_chars<Generics::Time>(char* first, char* last,
+    const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
     /*throw (eh::Exception)*/
   {
     auto str = widthout.Value().str();
@@ -838,7 +841,8 @@ namespace std {
   }
 
   template<>
-  std::string to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+  std::string
+  to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
     /*throw (eh::Exception) */
   {
     auto str = widthout.Value().str();

@@ -1,3 +1,335 @@
+//
+// Helpers for manipulators
+//
+
+namespace Stream::MemoryStream
+{
+  //
+  // WidthOut
+  //
+
+  template<typename IntType>
+  WidthOut<IntType>::WidthOut(const IntType& value, size_t width, char fill)
+    noexcept
+    : value_(value)
+    , width_(width)
+    , fill_(fill)
+  {
+  }
+
+  template<typename IntType>
+  IntType
+  WidthOut<IntType>::Value() const noexcept
+  {
+    return value_;
+  }
+
+  template<typename IntType>
+  size_t
+  WidthOut<IntType>::Width() const noexcept
+  {
+    return width_;
+  }
+
+  template<typename IntType>
+  char
+  WidthOut<IntType>::Fill() const noexcept
+  {
+    return fill_;
+  }
+
+  template<typename IntType>
+  WidthOut<IntType>
+  width_out(const IntType& value, size_t width, char fill) noexcept
+  {
+    return WidthOut<IntType>(value, width, fill);
+  }
+
+  //
+  // HexOut
+  //
+
+  template<typename Type>
+  HexOut<Type>::HexOut(Type value, bool upcase) noexcept
+    : value_(value)
+    , upcase_(upcase)
+  {
+  }
+
+  template<typename Type>
+  Type
+  HexOut<Type>::Value() const noexcept
+  {
+    return value_;
+  }
+
+  template<typename Type>
+  bool
+  HexOut<Type>::Upcase() const noexcept
+  {
+    return upcase_;
+  }
+
+  template<typename Type>
+  HexOut<Type>
+  hex_out(const Type& value, bool upcase) noexcept
+  {
+    return HexOut<Type>(value, upcase);
+  }
+}
+
+//
+// Helpers for OutputMemoryStream& operator<<(OutputMemoryStream&,...)
+//
+
+namespace Stream::MemoryStream
+{
+  //
+  // Helper class for
+  //  template<typename...>
+  //  OutputMemoryStream<...>& operator<<(OutputMemoryStream<...>&, const ArgT&)
+  // to enable partial specialization
+  //
+
+  /**
+   * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT,
+    typename Enable = void>
+  struct OutputMemoryStreamHelper
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const ArgT& arg) noexcept
+    {
+      if (ostr.bad())
+      {
+        return ostr;
+      }
+      try
+      {
+        std::ostringstream ss;
+        ss << arg;
+        ostr.append(ss.str().c_str());
+      }
+      catch (const eh::Exception&)
+      {
+        ostr.bad(true);
+      }
+      return ostr;
+    }
+  };
+
+  /**
+   * Helper for operator<<(OutputMemoryStream&, const ArgT&)
+   * specialization for to_chars applicable types
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE, ArgT,
+    decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
+    {
+      if (ostr.bad())
+      {
+        return ostr;
+      }
+      try
+      {
+        auto* buffer = ostr.buffer();
+        if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+        {
+          buffer->pbump(nptr - buffer->ptr());
+        }
+        else
+        {
+          while (buffer->extend())
+          {
+            if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+            {
+              buffer->pbump(nptr - buffer->ptr());
+              return ostr;
+            }
+          }
+          ostr.append(std::to_string(arg).c_str());
+        }
+      }
+      catch (const eh::Exception&)
+      {
+        ostr.bad(true);
+      }
+      return ostr;
+    }
+  };
+
+  // TODO: move these for helper and to the beginning of file after helpers
+
+  /**
+   * String::BasicSubString
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE,
+    typename SElem, typename STraits, typename SChecker>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/
+  {
+    ostr.write(arg.data(), arg.size());
+    return ostr;
+  }
+
+  /**
+   * std::string
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string& arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg.c_str());
+    return ostr;
+  }
+
+  /**
+   * ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    ArgT* arg) /*throw eh::Exception*/
+  {
+    ostr << reinterpret_cast<uint64_t>(arg);
+    return ostr;
+  }
+
+  /**
+   * const char* OR char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const Elem* arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg);
+    return ostr;
+  }
+
+  /**
+   * const char* OR char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    Elem* arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg);
+    return ostr;
+  }
+
+  /**
+   * char overload
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    char arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg);
+    return ostr;
+  }
+
+  /**
+   * bool overload
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    bool arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg ? '1' : '0');
+    return ostr;
+  }
+
+  /**
+   * std::endl
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+    /*throw eh::Exception*/
+  {
+    ostr.append('\n');
+    return ostr;
+  }
+
+  /**
+   * std::hex (std::dec, std::oct) + std::fixed
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
+  {
+    // TODO
+    return ostr;
+  }
+
+  /**
+   * std::setprecision
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::_Setprecision) /*throw eh::Exception*/
+  {
+    // TODO
+    return ostr;
+  }
+
+  /**
+   * std::setw
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::_Setw) /*throw eh::Exception*/
+  {
+    // TODO
+    return ostr;
+  }
+
+  /**
+   * std::setfill
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::_Setfill<char>) /*throw eh::Exception*/
+  {
+    // TODO
+    return ostr;
+  }
+}
+
 namespace Stream
 {
   namespace MemoryStream
@@ -334,299 +666,6 @@ namespace Stream
     {
     }
 
-
-    //
-    // Helpers for manipulators
-    //
-
-    template<typename IntType>
-    WidthOut<IntType>::WidthOut(const IntType& value, size_t width, char fill)
-      noexcept
-      : value_(value)
-      , width_(width)
-      , fill_(fill)
-    {
-    }
-
-    template<typename IntType>
-    IntType WidthOut<IntType>::Value() const noexcept
-    {
-      return value_;
-    }
-
-    template<typename IntType>
-    size_t WidthOut<IntType>::Width() const noexcept
-    {
-      return width_;
-    }
-
-    template<typename IntType>
-    char WidthOut<IntType>::Fill() const noexcept
-    {
-      return fill_;
-    }
-
-    template<typename IntType>
-    WidthOut<IntType>
-    width_out(const IntType& value, size_t width, char fill)
-      noexcept
-    {
-      return WidthOut<IntType>(value, width, fill);
-    }
-
-    //
-    // Helper class to enable partial specialization
-    //
-
-    /**
-     * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT,
-      typename Enable = void>
-    struct OutputMemoryStreamHelper
-    {
-      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-      operator()(OutputMemoryStream<Elem, Traits, Allocator,
-        AllocatorInitializer, SIZE>& ostr, const ArgT& arg) noexcept
-      {
-        if (ostr.bad())
-        {
-          return ostr;
-        }
-        try
-        {
-          std::ostringstream ss;
-          ss << arg;
-          ostr.append(ss.str().c_str());
-        }
-        catch (const eh::Exception&)
-        {
-          ostr.bad(true);
-        }
-        return ostr;
-      }
-    };
-
-    /**
-     * Helper for operator<<(OutputMemoryStream&, const ArgT&)
-     * specialization for to_chars applicable types
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE, ArgT,
-      decltype(std::to_chars(std::string().data(), std::string().data(), ArgT()), void())>
-    {
-      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-      operator()(OutputMemoryStream<Elem, Traits, Allocator,
-        AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
-      {
-        if (ostr.bad())
-        {
-          return ostr;
-        }
-        try
-        {
-          auto* buffer = ostr.buffer();
-          if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
-          {
-            buffer->pbump(nptr - buffer->ptr());
-          }
-          else
-          {
-            while (buffer->extend())
-            {
-              if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
-              {
-                buffer->pbump(nptr - buffer->ptr());
-                return ostr;
-              }
-            }
-            ostr.append(std::to_string(arg).c_str());
-          }
-        }
-        catch (const eh::Exception&)
-        {
-          ostr.bad(true);
-        }
-        return ostr;
-      }
-    };
-
-    /**
-     * Generalized template
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const ArgT& arg) /*throw eh::Exception*/
-    {
-      return OutputMemoryStreamHelper<Elem, Traits, Allocator,
-        AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
-    }
-
-    /**
-     * String::BasicSubString
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE,
-      typename SElem, typename STraits, typename SChecker>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/
-    {
-      ostr.write(arg.data(), arg.size());
-      return ostr;
-    }
-
-    /**
-     * std::string
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const std::string& arg) /*throw eh::Exception*/
-    {
-      ostr.append(arg.c_str());
-      return ostr;
-    }
-
-    /**
-     * ArgT*, ArgT != char
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    std::enable_if<
-      !std::is_same<Elem, ArgT>::value,
-      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
-    >::type&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      ArgT* arg) /*throw eh::Exception*/
-    {
-      ostr << reinterpret_cast<uint64_t>(arg);
-      return ostr;
-    }
-
-    /**
-     * const char* OR char[n]
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const Elem* arg) /*throw eh::Exception*/
-    {
-      ostr.append(arg);
-      return ostr;
-    }
-
-    /**
-     * const char* OR char[n]
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      Elem* arg) /*throw eh::Exception*/
-    {
-      ostr.append(arg);
-      return ostr;
-    }
-
-    /**
-     * char overload
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      char arg) /*throw eh::Exception*/
-    {
-      ostr.append(arg);
-      return ostr;
-    }
-
-    /**
-     * bool overload
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      bool arg) /*throw eh::Exception*/
-    {
-      ostr.append(arg ? '1' : '0');
-      return ostr;
-    }
-
-    /**
-     * std::endl
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
-      /*throw eh::Exception*/
-    {
-      ostr.append('\n');
-      return ostr;
-    }
-
-    /**
-     * std::hex (std::dec, std::oct) + std::fixed
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
-    {
-      // TODO
-      return ostr;
-    }
-
-    /**
-     * std::setprecision
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setprecision) /*throw eh::Exception*/
-    {
-      // TODO
-      return ostr;
-    }
-
-    /**
-     * std::setw
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setw) /*throw eh::Exception*/
-    {
-      // TODO
-      return ostr;
-    }
-
-    /**
-     * std::setfill
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setfill<char>) /*throw eh::Exception*/
-    {
-      // TODO
-      return ostr;
-    }
-
     //
     // OutputMemoryStream class
     //
@@ -720,6 +759,17 @@ namespace Stream
         bad_ = true;
       }
     }
+
+    template<typename Elem, typename Traits, typename Allocator,
+      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+      const ArgT& arg) /*throw eh::Exception*/
+    {
+      return OutputMemoryStreamHelper<Elem, Traits, Allocator,
+        AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
+    }
+
 
     namespace Allocator
     {
@@ -845,18 +895,28 @@ namespace eh
 
 namespace std
 {
+  //
+  // WidthOut
+  //
+
   template<typename IntType>
   std::to_chars_result
-  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, const Stream::MemoryStream::WidthOut<IntType>& widthout)
     /*throw (eh::Exception)*/
   {
-    size_t capacity = last - first;
-    auto value = widthout.Value();
-    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1;
+    static_assert(std::is_integral<IntType>::value,
+      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
 
-    auto width = widthout.Width();
-    if (value_size > capacity || (width && width > capacity))
+    IntType value = widthout.Value();
+    bool is_neg = value < 0;
+    if (is_neg) {
+      value = -value;
+    }
+    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
+    size_t capacity = last - first;
+    size_t width = widthout.Width();
+
+    if (std::max(value_size, width) > capacity)
     {
       return {last, std::errc::value_too_large};
     }
@@ -874,9 +934,13 @@ namespace std
     }
     else
     {
-      for (char* ptr = first + (value_size - 1); value > 0; --ptr)
+      if (is_neg)
       {
-        *ptr = value % 10;
+        *first++ = '-';
+      }
+      for (char* ptr = first + (value_size - 1 - is_neg); value > 0; --ptr)
+      {
+        *ptr = static_cast<char>('0' + value % 10);
         value /= 10;
         ++first;
       }
@@ -886,10 +950,11 @@ namespace std
   }
 
   template<typename IntType>
-  std::string to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
+  std::string
+  to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     /*throw (eh::Exception) */
   {
-    auto str = std::to_string(widthout.Value());         
+    auto str = std::to_string(widthout.Value());
     auto width = widthout.Width();
     if (width > str.size())
     {
@@ -899,5 +964,88 @@ namespace std
     {
       return str;
     }
+  }
+
+  //
+  // HexOut
+  //
+
+  template<typename Type>
+  std::to_chars_result
+  to_chars(char* first, char* last, const Stream::MemoryStream::HexOut<Type>& hexout)
+    /*throw (eh::Exception) */
+  {
+    static_assert(std::is_integral<Type>::value,
+      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
+
+    Type value = hexout.Value();
+    size_t typewidth = sizeof(value) * 2;
+    const Type hexwidth = 4;
+    const Type hexmask = (1 << hexwidth) - 1;
+    size_t capacity = last - first;
+
+    size_t width = 0;
+    for (size_t shift = 0; shift < typewidth; ++shift)
+    {
+      if (value & (hexmask << (shift * hexwidth)))
+      {
+        width = shift + 1;
+      }
+    }
+    if (width == 0)
+    {
+      width = 1;
+    }
+
+    if (width > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+
+    if (value == 0)
+    {
+      *first++ = '0';
+    }
+    else
+    {
+      const char first_alphabet_char = hexout.Upcase() ? 'A' : 'a';
+      const Type safe_signed_shift_mask = ~(hexmask << ((typewidth - 1) * hexwidth));
+
+      char* ptr = first + (width - 1);
+      for (size_t shift = 0; shift < width; ++shift)
+      {
+        Type ch = value & hexmask;
+        if (ch < 10)
+        {
+          *ptr = static_cast<char>('0' + ch);
+        }
+        else
+        {
+          *ptr = static_cast<char>(first_alphabet_char + (ch - 10));
+        }
+
+        value = (value >> hexwidth) & safe_signed_shift_mask;
+        --ptr;
+      }
+      first += width;
+    }
+
+    return {first, std::errc()};
+  }
+
+  template<typename Type>
+  std::string
+  to_string(const Stream::MemoryStream::HexOut<Type>& hexout)
+    /*throw (eh::Exception) */
+  {
+    auto str = std::to_string(hexout.Value());
+    if (hexout.Upcase())
+    {
+      for (char& ch: str)
+      {
+        ch = std::toupper(ch);
+      }
+    }
+    return str;
   }
 }

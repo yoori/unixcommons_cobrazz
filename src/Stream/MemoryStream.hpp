@@ -20,21 +20,21 @@
 #include <String/SubString.hpp>
 
 //
-// std::to_chars forward declarations for non-builtin types
+// forward declarations for non-builtin types.
 //
 
 namespace Generics
 {
-  class Uuid;
+  class ExtendedTime;
 
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  template<typename, const unsigned, const unsigned>
   class SimpleDecimal;
+
+  class StringHashAdapter;
 
   class Time;
 
-  class ExtendedTime;
-
-  class StringHashAdapter;
+  class Uuid;
 }
 
 namespace XMLUtility::StringManip
@@ -42,12 +42,17 @@ namespace XMLUtility::StringManip
   class XMLMbcAdapter;
 }
 
+//
+// std::to_chars overloads for non-builtin types.
+//
+
 namespace std
 {
   std::to_chars_result
-  to_chars(char*, char*, const Generics::Uuid&) /*throw (eh::Exception)*/;
+  to_chars(char*, char*, const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
 
-  std::string to_string(const Generics::Uuid&) /*throw (eh::Exception) */;
+  std::string
+  to_string(const Generics::ExtendedTime&) /*throw (eh::Exception) */;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::to_chars_result
@@ -55,100 +60,184 @@ namespace std
     /*throw (eh::Exception)*/;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
+  std::string
+  to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
     /*throw (eh::Exception) */;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::Time&) /*throw (eh::Exception)*/;
-
-  std::string to_string(const Generics::Time&) /*throw (eh::Exception) */;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
-
-  std::string to_string(const Generics::ExtendedTime&) /*throw (eh::Exception) */;
 
   std::to_chars_result
   to_chars(char*, char*, const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
 
-  std::string to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */;
+  std::string
+  to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */;
 
   std::to_chars_result
-  to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception)*/;
+  to_chars(char*, char*, const Generics::Time&) /*throw (eh::Exception)*/;
 
-  std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter&) /*throw (eh::Exception) */;
+  std::string
+  to_string(const Generics::Time&) /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const Generics::Uuid&) /*throw (eh::Exception)*/;
+
+  std::string
+  to_string(const Generics::Uuid&) /*throw (eh::Exception) */;
+
+  std::to_chars_result
+  to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&)
+    /*throw (eh::Exception)*/;
+
+  std::string
+  to_string(const XMLUtility::StringManip::XMLMbcAdapter&)
+    /*throw (eh::Exception) */;
 }
 
 //
-// std::to_chars forward declarations for iomanip-like helpers for:
-// - std::hex + std::uppercase
-// - std::setw + std::setfill
-// - std::setprecision + std::fixed
+// iomanip-like helpers
 //
 
-namespace Stream
+namespace Stream::MemoryStream
 {
-  namespace MemoryStream
+  //
+  // Helper for std::setw and std::setfill
+  //
+
+  template<typename IntType>
+  class WidthOut
   {
-    template<typename IntType>
-    class WidthOut
-    {
-    public:
-      /**
-       * class to store state of std::setw + std::setfill
-       * @param value - value to be stored
-       * @param width - width value, width == 0 means width is not set
-       * @param fill - setfill value, works only if width > 0
-       *
-       * NOTE: need default constructor for decltype(to_chars...(T())) to work
-       */
-      WidthOut(const IntType& value = IntType(), size_t width = 0, char fill = ' ') noexcept;
-
-      IntType Value() const noexcept;
-
-      size_t Width() const noexcept;
-
-      char Fill() const noexcept;
-
-    private:
-      IntType value_;
-      size_t width_;
-      char fill_;
-    };
+  public:
+    /**
+     * class to store state of std::setw + std::setfill
+     * @param value - value to be stored
+     * @param width - width value, width == 0 means width is not set
+     * @param fill - setfill value, works only if width > 0
+     *
+     * NOTE: need default constructor for decltype(to_chars...(T())) to work
+     */
+    WidthOut(const IntType& value = IntType(), size_t width = 0, char fill = ' ') noexcept;
 
     /**
-     * iomanip-like helper fpr std::setw + std::setfill
-     * @param value - value to be printed
-     * @param width - width value
-     * @param fill - setfill value
+     * @return value to be printed
      */
-    template<typename IntType>
-    WidthOut<IntType>
-    width_out(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
-  }
+    IntType Value() const noexcept;
+
+    /**
+     * @return output width value
+     */
+    size_t Width() const noexcept;
+
+    /**
+     * @return fill character value
+     */
+    char Fill() const noexcept;
+
+  private:
+    IntType value_;
+    size_t width_;
+    char fill_;
+  };
+
+  /**
+   * iomanip-like helper for std::setw + std::setfill
+   * @param value - value to be printed
+   * @param width - width value
+   * @param fill - setfill value
+   * @return Widthout object
+   */
+  template<typename IntType>
+  WidthOut<IntType>
+  width_out(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
+
+  //
+  // Helper for std::hex and std::uppercase
+  //
+
+  template<typename Type>
+  class HexOut
+  {
+  public:
+    /**
+     * class to store state of std::hex + std::uppercase
+     * @param value - value to be stored
+     * @param upcase - uppercase value
+     *
+     * NOTE: need default constructor for decltype(to_chars...(T())) to work
+     */
+    HexOut(Type value = Type(), bool upcase = false) noexcept;
+
+    /**
+     * @return value to be printed
+     */
+    Type Value() const noexcept;
+
+    /**
+     * @return whether uppercase letters must be used for value
+     */
+    bool Upcase() const noexcept;
+
+  private:
+    Type value_;
+    bool upcase_;
+  };
+
+  /**
+   * iomanip-like helper for std::hex + std::uppercase
+   * @param value - value to be printed
+   * @param upcase - uppercase flag
+   * @return HexOut object
+   */
+  template<typename Type>
+  HexOut<Type>
+  hex_out(const Type& value, bool upcase = false) noexcept;
+
+  //
+  // Helper for std::setprecision and std::fixed
+  //
 }
 
 namespace std
 {
+
+  //
+  // Helper for std::setw and std::setfill
+  //
+
   template<typename IntType>
   std::to_chars_result
-  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
   to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
     /*throw (eh::Exception)*/;
 
-  template<typename IntType>
-  std::string to_string(const Stream::MemoryStream::WidthOut<IntType>&)
-    /*throw (eh::Exception) */;
-
   template<>
   std::to_chars_result
-  // std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
   to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
     /*throw (eh::Exception)*/;
 
-  template<>
-  std::string to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
+  template<typename IntType>
+  std::string
+  to_string(const Stream::MemoryStream::WidthOut<IntType>&)
     /*throw (eh::Exception) */;
+
+  template<>
+  std::string
+  to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
+    /*throw (eh::Exception) */;
+
+  //
+  // Helper for std::hex and std::uppercase
+  //
+
+  template<typename Type>
+  std::to_chars_result
+  to_chars(char*, char*, const Stream::MemoryStream::HexOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::string
+  to_string(const Stream::MemoryStream::HexOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  //
+  // Helper for std::setprecision and std::fixed
+  //
 }
 
 namespace Stream
@@ -527,6 +616,10 @@ namespace Stream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
       const ArgT& arg) /*throw eh::Exception*/;
+
+    // TODO: now move all overloads to helper class
+    // remove iomanip helpers - first make helpers and remove them from code where it is used
+    // make overloads for bool, char, pointer, some other classes + const versions
 
     /**
      * String::BasicSubString

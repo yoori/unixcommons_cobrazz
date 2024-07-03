@@ -66,7 +66,7 @@ namespace
       fclose(handle_);
       Stream::Error ostr;
       ostr << FNS << "BZ2_bzOpen failed. Error code: " << bz_error <<
-        ". Returned handle=0x" << std::hex << bzlib2_handle_;
+        ". Returned handle=0x" << bzlib2_handle_;
       throw InvalidArgument(ostr);
     }
   }

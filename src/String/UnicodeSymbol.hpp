@@ -257,8 +257,9 @@ namespace String
     if (!check_validity_(code_unit))
     {
       Stream::Error ost;
-      ost << FNS << std::hex << std::uppercase <<
-        static_cast<unsigned long>(code_unit_) << "): out of range";
+      ost << FNS
+        << Stream::MemoryStream::hex_out(static_cast<unsigned long>(code_unit_), true)
+        << "): out of range";
       throw RangeException(ost);
     }
   }
@@ -381,7 +382,7 @@ namespace String
   }
 
   inline
-  UnicodeSymbol& 
+  UnicodeSymbol&
   UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
   {
      code_unit_ = symbol.code_unit_;
