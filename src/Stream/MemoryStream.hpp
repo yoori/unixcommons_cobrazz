@@ -666,138 +666,6 @@ namespace Stream
       friend class OutputMemoryStreamHelper;
     };
 
-    /**
-     * Generalized template for operator<<(Stream::MemoryStream::OutputMemoryStream&, ...)
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const ArgT& arg) /*throw eh::Exception*/;
-
-    // TODO: now move all overloads to helper class
-    // remove iomanip helpers - first make helpers and remove them from code where it is used
-    // make overloads for bool, char, pointer, some other classes + const versions
-
-    /**
-     * String::BasicSubString
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE,
-      typename SElem, typename STraits, typename SChecker>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
-
-    /**
-     * std::string
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const std::string& arg) /*throw eh::Exception*/;
-
-    /**
-     * ArgT*, ArgT != char
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    std::enable_if<
-      !std::is_same<Elem, ArgT>::value,
-      OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
-    >::type&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      ArgT* arg) /*throw eh::Exception*/;
-
-    /**
-     * const char* + const char[n]
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const Elem* arg) /*throw eh::Exception*/;
-
-    /**
-     * char* + char[n]
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      Elem* arg) /*throw eh::Exception*/;
-
-    /**
-     * char overload
-     * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
-     * but we want char to be treated like char, do not apply to_chars
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      char arg) /*throw eh::Exception*/;
-
-    /**
-     * bool overload
-     * do not use general overload for bool
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      bool arg) /*throw eh::Exception*/;
-
-    /**
-     * std::endl
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
-      /*throw eh::Exception*/;
-
-    /**
-     * std::hex (std::dec, std::oct) + std::fixed
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/;
-
-    /**
-     * std::setprecision
-     * @param precision - for decimal numbers
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setprecision) /*throw eh::Exception*/;
-
-    /**
-     * std::setw
-     * @param width - of single number, pad with space or _Setfill
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setw) /*throw eh::Exception*/;
-
-    /**
-     * std::setfill
-     * @param fillchar - is pad char if _Setw overload was called
-     */
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      std::_Setfill<char>) /*throw eh::Exception*/;
-
     namespace Allocator
     {
       template <typename Elem, const size_t SIZE, typename Buffer,
@@ -962,6 +830,110 @@ namespace Stream
    * enough size
    */
   typedef Buffer<MAXPATHLEN> FileName;
+}
+
+namespace Stream::MemoryStream
+{
+  /**
+   * Generalized template for operator<<(Stream::MemoryStream::OutputMemoryStream&, ...)
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT& arg) /*throw eh::Exception*/;
+
+  /**
+   * String::BasicSubString
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE,
+    typename SElem, typename STraits, typename SChecker>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
+
+  /**
+   * std::string
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string& arg) /*throw eh::Exception*/;
+
+  /**
+   * const ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT* arg) /*throw eh::Exception*/;
+
+  /**
+   * ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    ArgT* arg) /*throw eh::Exception*/;
+
+  /**
+   * const char* + const char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const Elem* arg) /*throw eh::Exception*/;
+
+  /**
+   * char* + char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    Elem* arg) /*throw eh::Exception*/;
+
+  /**
+   * char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
+   * but we want char to be treated like char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    char arg) /*throw eh::Exception*/;
+
+  /**
+   * bool overload
+   * do not use general overload for bool
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    bool arg) /*throw eh::Exception*/;
+
+  /**
+   * std::endl
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+    /*throw eh::Exception*/;
 }
 
 #include <Stream/MemoryStream.tpp>

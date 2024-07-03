@@ -198,7 +198,19 @@ namespace Stream::MemoryStream
     }
   };
 
-  // TODO: move these for helper and to the beginning of file after helpers
+  /**
+   * Generalized template
+   * Calls helper class operator(...)
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT& arg) /*throw eh::Exception*/
+  {
+    return OutputMemoryStreamHelper<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
+  }
 
   /**
    * String::BasicSubString
@@ -228,6 +240,23 @@ namespace Stream::MemoryStream
   }
 
   /**
+   * const ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT* arg) /*throw eh::Exception*/
+  {
+    // TODO
+    ostr << reinterpret_cast<uint64_t>(arg);
+    return ostr;
+  }
+
+  /**
    * ArgT*, ArgT != char
    */
   template<typename Elem, typename Traits, typename Allocator,
@@ -239,12 +268,13 @@ namespace Stream::MemoryStream
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     ArgT* arg) /*throw eh::Exception*/
   {
+    // TODO
     ostr << reinterpret_cast<uint64_t>(arg);
     return ostr;
   }
 
   /**
-   * const char* OR char[n]
+   * const char* OR const char[n]
    */
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
@@ -257,7 +287,7 @@ namespace Stream::MemoryStream
   }
 
   /**
-   * const char* OR char[n]
+   * char* OR char[n]
    */
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
@@ -309,57 +339,6 @@ namespace Stream::MemoryStream
     return ostr;
   }
 
-  /**
-   * std::hex (std::dec, std::oct) + std::fixed
-   */
-  template<typename Elem, typename Traits, typename Allocator,
-    typename AllocatorInitializer, const size_t SIZE>
-  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-    std::ios_base& (*)(std::ios_base&)) /*throw eh::Exception*/
-  {
-    // TODO
-    return ostr;
-  }
-
-  /**
-   * std::setprecision
-   */
-  template<typename Elem, typename Traits, typename Allocator,
-    typename AllocatorInitializer, const size_t SIZE>
-  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-    std::_Setprecision) /*throw eh::Exception*/
-  {
-    // TODO
-    return ostr;
-  }
-
-  /**
-   * std::setw
-   */
-  template<typename Elem, typename Traits, typename Allocator,
-    typename AllocatorInitializer, const size_t SIZE>
-  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-    std::_Setw) /*throw eh::Exception*/
-  {
-    // TODO
-    return ostr;
-  }
-
-  /**
-   * std::setfill
-   */
-  template<typename Elem, typename Traits, typename Allocator,
-    typename AllocatorInitializer, const size_t SIZE>
-  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-    std::_Setfill<char>) /*throw eh::Exception*/
-  {
-    // TODO
-    return ostr;
-  }
 }
 
 namespace Stream
@@ -791,17 +770,6 @@ namespace Stream
         bad_ = true;
       }
     }
-
-    template<typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE, typename ArgT>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-    operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
-      const ArgT& arg) /*throw eh::Exception*/
-    {
-      return OutputMemoryStreamHelper<Elem, Traits, Allocator,
-        AllocatorInitializer, SIZE, ArgT>()(ostr, arg);
-    }
-
 
     namespace Allocator
     {
