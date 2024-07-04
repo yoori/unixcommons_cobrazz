@@ -14,6 +14,7 @@
 #include <system_error>
 #include <cmath>
 #include <algorithm>
+#include <type_traits>
 
 #include <sys/param.h>
 
@@ -204,7 +205,7 @@ namespace Stream::MemoryStream
      *
      * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
-    DoubleOut(Type value = Type(), size_t precision = 0) noexcept;
+    DoubleOut(Type value = Type(), int precision = 0) noexcept;
 
     /**
      * @return value to be printed
@@ -214,11 +215,11 @@ namespace Stream::MemoryStream
     /**
      * @return fixed precision
      */
-    size_t Precision() const noexcept;
+    int Precision() const noexcept;
 
   private:
     Type value_;
-    size_t precision_;
+    int precision_;
   };
 
   /**
@@ -229,7 +230,7 @@ namespace Stream::MemoryStream
    */
   template<typename Type>
   DoubleOut<Type>
-  double_out(const Type& value, size_t precision) noexcept;
+  double_out(const Type& value, int precision) noexcept;
 }
 
 namespace std

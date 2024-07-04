@@ -82,7 +82,7 @@ namespace Stream::MemoryStream
   //
 
   template<typename Type>
-  DoubleOut<Type>::DoubleOut(Type value, size_t precision) noexcept
+  DoubleOut<Type>::DoubleOut(Type value, int precision) noexcept
     : value_(value)
     , precision_(precision)
   {
@@ -96,7 +96,7 @@ namespace Stream::MemoryStream
   }
 
   template<typename Type>
-  size_t
+  int
   DoubleOut<Type>::Precision() const noexcept
   {
     return precision_;
@@ -104,7 +104,7 @@ namespace Stream::MemoryStream
 
   template<typename Type>
   DoubleOut<Type>
-  double_out(const Type& value, size_t precision) noexcept
+  double_out(const Type& value, int precision) noexcept
   {
     return DoubleOut<Type>(value, precision);
   }
@@ -978,59 +978,28 @@ namespace std
     static_assert(std::is_integral<Type>::value,
       "Only integral Type is implemented for: template<Type> class HexOut<Type>");
 
-    Type value = hexout.Value();
-    size_t typewidth = sizeof(value) * 2;
-    const Type hexwidth = 4;
-    const Type hexmask = (1 << hexwidth) - 1;
-    size_t capacity = last - first;
+    // Problem:
+    // int value = -10;
+    // std::cout << std::hex << value; --> gives 'fffffff6'
+    // std::to_chars(first, last, value, 16); --> gives '-a'
+    //
+    // Solution:
+    // cast to unsigned :)
 
-    size_t width = 0;
-    for (size_t shift = 0; shift < typewidth; ++shift)
-    {
-      if (value & (hexmask << (shift * hexwidth)))
-      {
-        width = shift + 1;
-      }
-    }
-    if (width == 0)
-    {
-      width = 1;
-    }
+    static constexpr int BASE = 16;
+    typename std::make_unsigned<Type>::type value = hexout.Value();
 
-    if (width > capacity)
-    {
-      return {last, std::errc::value_too_large};
-    }
+    auto result = std::to_chars(first, last, value, BASE);
 
-    if (value == 0)
+    if (result.ec == std::errc() && hexout.Upcase())
     {
-      *first++ = '0';
-    }
-    else
-    {
-      const char first_alphabet_char = hexout.Upcase() ? 'A' : 'a';
-      const Type safe_signed_shift_mask = ~(hexmask << ((typewidth - 1) * hexwidth));
-
-      char* ptr = first + (width - 1);
-      for (size_t shift = 0; shift < width; ++shift)
-      {
-        Type ch = value & hexmask;
-        if (ch < 10)
+      std::for_each(first, result.ptr, [](char& c)
         {
-          *ptr = static_cast<char>('0' + ch);
-        }
-        else
-        {
-          *ptr = static_cast<char>(first_alphabet_char + (ch - 10));
-        }
-
-        value = (value >> hexwidth) & safe_signed_shift_mask;
-        --ptr;
-      }
-      first += width;
+          c = std::toupper(c);
+        });
     }
 
-    return {first, std::errc()};
+    return result;
   }
 
   template<typename Type>
@@ -1038,15 +1007,45 @@ namespace std
   to_string(const Stream::MemoryStream::HexOut<Type>& hexout)
     /*throw (eh::Exception) */
   {
-    auto str = std::to_string(hexout.Value());
-    if (hexout.Upcase())
+    typedef typename std::make_unsigned<Type>::type UType;
+
+    static constexpr size_t MAX_UTYPE_HEX_WIDTH = 2 * sizeof(UType);
+    std::string result;
+    result.reserve(MAX_UTYPE_HEX_WIDTH);
+
+    static constexpr UType HEX_MASK_WIDTH = 4;
+    static constexpr UType HEX_MASK = (1 << HEX_MASK_WIDTH) - 1;
+    static constexpr char DIGITS[] =
     {
-      for (char& ch: str)
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
+    // convert to UType
+    UType value = hexout.Value();
+    if (!value)
+    {
+      result.push_back('0');
+    }
+    else
+    {
+      while(value)
       {
-        ch = std::toupper(ch);
+        result.push_back(DIGITS[value & HEX_MASK]);
+        value >>= HEX_MASK_WIDTH;
       }
     }
-    return str;
+
+    if (hexout.Upcase())
+    {
+      std::for_each(result.begin(), result.end(), [](char& c)
+        {
+          c = std::toupper(c);
+        });
+    }
+
+    std::reverse(result.begin(), result.end());
+    result.shrink_to_fit();
+    return result;
   }
 
   //
@@ -1055,115 +1054,27 @@ namespace std
 
   template<typename Type>
   std::to_chars_result
-  to_chars(char* , char* last, const Stream::MemoryStream::DoubleOut<Type>&)
+  to_chars(char*, char* last, const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */
   {
+    static_assert(std::is_floating_point<Type>::value,
+      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
+
     // TODO
+    // return std::to_chars(first, last,
+    //   doubleout.Value(), std::chars_format::fixed, doubleout.Precision());
+    //
+    // /usr/include/c++/8/charconv - has not float type overloads
+    // but /usr/include/absl/strings/charconv.h has
     return {last, std::errc::value_too_large};
   }
 
   template<typename Type>
   std::string
-  to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */
   {
-    Type value = doubleout.Value();
-    size_t precision = doubleout.Precision();
-    bool neg = value < 0;
-    if (neg)
-    {
-      value = -value;
-    }
-
-    // TODO long double maybe bigger than long long, rewrite using while and *10
-    // maybe investigate modf
-    // anyway precision is lost when arithmetic operations are performed
-
-    auto GetIntPart = [](Type arg) -> std::string
-    {
-      std::string result;
-      Type value = trunc(arg);
-      while (value >= 1.0)
-      {
-        Type new_value = trunc(value / 10.0);
-        result.push_back('0' + static_cast<int>(value - new_value * 10));
-        value = new_value;
-      }
-      if (result.empty())
-      {
-        result.push_back('0');
-      }
-      return result;
-    };
-
-    auto GetFracPart = [](Type arg, size_t precision) -> std::pair<std::string, int>
-    {
-      std::string result;
-      Type value = arg - trunc(arg);
-      while (precision)
-      {
-        value *= 10.0;
-        Type digit = trunc(value);
-        result.push_back('0' + static_cast<int>(digit));
-        value -= digit;
-        --precision;
-      }
-      return {result, static_cast<int>(trunc(value * 10.0))};
-    };
-
-    auto int_part = GetIntPart(value); // int_part is reversed
-    auto frac_part = GetFracPart(value, precision);
-
-    if (frac_part.second >= 5)
-    {
-      bool carry = true;
-      for (auto it = frac_part.first.rbegin(); it != frac_part.first.rend(); ++it)
-      {
-        if (*it < '9')
-        {
-          ++(*it);
-          carry = false;
-          break;
-        }
-        else
-        {
-          *it = '0';
-        }
-      }
-      if (carry)
-      {
-        for (auto it = int_part.begin(); it != int_part.end(); ++it)
-        {
-          if (*it < '9')
-          {
-            ++(*it);
-            carry = false;
-            break;
-          }
-          else
-          {
-            *it = '0';
-          }
-        }
-      }
-      if (carry)
-      {
-        int_part.push_back('1');
-      }
-    }
-
-    if (neg)
-    {
-      int_part.push_back('-');
-    }
-
-    std::reverse(int_part.begin(), int_part.end());
-
-    if (precision == 0)
-    {
-      return int_part;
-    }
-
-    return int_part + "." + frac_part.first;
+    // TODO
+    return "";
   }
 }
