@@ -104,6 +104,7 @@ namespace String
         }
         negative = true;
         /* fall through */
+        [[fallthrough]];
       case '+':
         if (++src == END)
         {

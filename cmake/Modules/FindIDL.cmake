@@ -47,7 +47,7 @@ function(add_idl _target _idlfile target_dir)
 #       COMMAND ${CMAKE_COMMAND} -E echo "OUTPUTC ${OUTPUTC};"
        COMMAND sed -i "'s/if (0 == &_tao_elem)/if (true)/g'" ${OUTPUTC}
 #       COMMAND ${CMAKE_COMMAND} -E echo "done sed"
-       COMMENT "Add IDL. TAO IDL and sed apply."
+       COMMENT "Add IDL. ${_target}"
 #####################
 #       add_custom_command(OUTPUT "${SRC}" COMMAND ${CMAKE_COMMAND} -E touch "${SRC}") #More reliable touch, use cmake itself to touch the file
 #add_custom_target(generate_version_h DEPENDS "${SRC}")
