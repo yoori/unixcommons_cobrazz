@@ -248,7 +248,6 @@ namespace Generics
       case static_cast<unsigned>('-' - '0'):
         negative = true;
         /* fall through */
-        [[fallthrough]];
       case static_cast<unsigned>('+' - '0'):
         eof = ++cur == end;
         if (eof)
