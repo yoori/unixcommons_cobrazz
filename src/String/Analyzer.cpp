@@ -201,7 +201,7 @@ namespace String
           init_params_.default_char_range_start))
         {
           Stream::Error ostr;
-          ostr << FNS << 
+          ostr << FNS <<
             "default_char_range_start is not a char within one of "
             "char_range_bounds ranges.";
           throw Exception(ostr);
@@ -1015,10 +1015,13 @@ namespace String
 
         if (use_padding)
         {
-          intstr << std::setfill(init_params_.padding_symb);
-          intstr << std::setw(range_part2_length_with_padding);
+          intstr << Stream::MemoryStream::width_out(i,
+            range_part2_length_with_padding, init_params_.padding_symb);
         }
-        intstr << i;
+        else
+        {
+          intstr << i;
+        }
 
         String::SubString tmpstr = intstr.str();
         current_node_->node_val.insert(current_node_->node_val.end(),

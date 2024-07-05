@@ -1095,8 +1095,8 @@ namespace Generics
       static_cast<unsigned long long>(FRACTION_OVER) << ")";
     for (int i = SIZE - 1; i >= 0; i--)
     {
-      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-        static_cast<unsigned long long>(array_[i]);
+      ostr << ' ' << Stream::MemoryStream::width_out(
+        static_cast<unsigned long long>(array_[i]), DIGITS_PER_ELEMENT, '0');
     }
     return ostr.str().str();
   }

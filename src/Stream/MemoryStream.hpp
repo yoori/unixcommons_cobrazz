@@ -15,6 +15,7 @@
 #include <cmath>
 #include <algorithm>
 #include <type_traits>
+#include <string_view>
 
 #include <sys/param.h>
 
@@ -865,6 +866,15 @@ namespace Stream::MemoryStream
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
+
+  /**
+   * String::string_view
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string_view& arg) /*throw eh::Exception*/;
 
   /**
    * std::string

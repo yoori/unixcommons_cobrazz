@@ -222,7 +222,7 @@ check_output() /*throw (eh::Exception)*/
     "......................1302012000:000000 (sec:usec)TEXT";
 
   Stream::Error ostr;
-  ostr << std::setw(50) << std::setfill('.') << TEST_TIME << "TEXT";
+  ostr << Stream::MemoryStream::width_out(TEST_TIME, 50, '.') << "TEXT";
   if (ostr.str() != VALID_RESULT)
   {
     std::cerr << "FAIL: Generics::Time incorrectly formatted\n"

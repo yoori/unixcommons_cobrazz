@@ -228,6 +228,19 @@ namespace Stream::MemoryStream
   }
 
   /**
+   * String::string_view
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string_view& arg) /*throw eh::Exception*/
+  {
+    ostr.write(arg.data(), arg.size());
+    return ostr;
+  }
+
+  /**
    * std::string
    */
   template<typename Elem, typename Traits, typename Allocator,
