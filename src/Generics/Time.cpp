@@ -229,6 +229,11 @@ namespace Generics
   // ExtendedTime class
   //
 
+  ExtendedTime::ExtendedTime() /*throw (eh::Exception)*/
+  {
+    throw eh::Exception();
+  }
+
   ExtendedTime::ExtendedTime(time_t sec, suseconds_t usec, Time::TimeZone tz)
     /*throw (Exception, eh::Exception)*/
   {

@@ -867,19 +867,24 @@ namespace std {
 
   template<>
   std::to_chars_result
-  to_chars<const char*>(char*, char* last, const Stream::MemoryStream::DoubleOut<const char*>&)
+  to_chars<const char*>(char* first, char* last, const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO
-    return {last, std::errc::value_too_large};
+    size_t len = strlen(doubleout.Value());
+    size_t capacity = last - first;
+    if (len > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, doubleout.Value(), len);
+    return {first + len, std::errc()};
   }
 
   template<>
   std::string
-  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
+  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO
-    return std::string{};
+    return std::string(doubleout.Value());
   }
 }

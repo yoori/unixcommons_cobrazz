@@ -1,20 +1,25 @@
 #include <charconv>
+#include <cstring>
 
 #include <Generics/HashTableAdapters.hpp>
 
-namespace std 
+namespace std
 {
   std::to_chars_result
-  to_chars(char*, char* last, const Generics::StringHashAdapter&) /*throw (eh::Exception)*/
+  to_chars(char* first, char* last, const Generics::StringHashAdapter& sha) /*throw (eh::Exception)*/
   {
-    return {last, std::errc()}; 
+    size_t capacity = last - first;
+    if (sha.text().size() > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, sha.text().data(), sha.text().size());
+    return {first + sha.text().size(), std::errc()};
   }
 
   std::string
-  to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */
+  to_string(const Generics::StringHashAdapter& sha) /*throw (eh::Exception) */
   {
-    return "";
+    return sha.text();
   }
 }
-
-

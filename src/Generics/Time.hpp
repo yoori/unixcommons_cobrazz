@@ -345,7 +345,7 @@ namespace Generics
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
     /**
-     * String representation of this Time 
+     * String representation of this Time
      * @return string representation of this Time
      */
     std::string
@@ -380,6 +380,13 @@ namespace Generics
   public:
     typedef Time::Exception Exception;
     DECLARE_EXCEPTION(InvalidArgument, Exception);
+
+    /**
+     * Constructor
+     * Default constructor is added to enable std::to_chars overload in OutputMemoryStream.hpp
+     * Used only for template instantiation, therefore throws exception
+     */
+    ExtendedTime() /*throw (eh::Exception)*/;
 
     /**
      * Constructor
@@ -466,7 +473,7 @@ namespace Generics
     set_date(const ExtendedTime& time) throw ();
 
     /**
-     * String representation of this ExtendedTime 
+     * String representation of this ExtendedTime
      * @return string representation of this ExtendedTime
      */
     std::string

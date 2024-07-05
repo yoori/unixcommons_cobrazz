@@ -297,6 +297,18 @@ namespace std
   std::string
   to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
     /*throw (eh::Exception) */;
+
+  //
+  // Floating point to_chars overload is not implemented before gcc 11.1
+  //
+
+  template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
+  to_chars(char*, char*, FloatType) /*throw (eh::Exception)*/;
+
+  template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, std::string>::type
+  to_string(FloatType) /*throw (eh::Exception)*/;
 }
 
 namespace Stream

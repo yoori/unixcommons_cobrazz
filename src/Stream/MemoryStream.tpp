@@ -166,6 +166,7 @@ namespace Stream::MemoryStream
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
       AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
     {
+      // TODO optimize
       if (ostr.bad())
       {
         return ostr;
@@ -251,8 +252,10 @@ namespace Stream::MemoryStream
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT* arg) /*throw eh::Exception*/
   {
-    // TODO
-    ostr << reinterpret_cast<uint64_t>(arg);
+    // TODO optimize
+    std::ostringstream stream;
+    stream << arg;
+    ostr << stream.str();
     return ostr;
   }
 
@@ -268,8 +271,10 @@ namespace Stream::MemoryStream
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     ArgT* arg) /*throw eh::Exception*/
   {
-    // TODO
-    ostr << reinterpret_cast<uint64_t>(arg);
+    // TODO optimize
+    std::ostringstream stream;
+    stream << arg;
+    ostr << stream.str();
     return ostr;
   }
 
@@ -1054,27 +1059,64 @@ namespace std
 
   template<typename Type>
   std::to_chars_result
-  to_chars(char*, char* last, const Stream::MemoryStream::DoubleOut<Type>&)
+  to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
     static_assert(std::is_floating_point<Type>::value,
       "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
 
-    // TODO
-    // return std::to_chars(first, last,
-    //   doubleout.Value(), std::chars_format::fixed, doubleout.Precision());
-    //
-    // /usr/include/c++/8/charconv - has not float type overloads
-    // but /usr/include/absl/strings/charconv.h has
-    return {last, std::errc::value_too_large};
+    // TODO : optimize
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
+    std::string str = stream.str();
+    size_t capacity = last - first;
+    if (str.size() > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.data(), str.size());
+    return {first + str.size(), std::errc()};
   }
 
   template<typename Type>
   std::string
-  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+  to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO
-    return "";
+    // TODO optimize
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
+    return stream.str();
+  }
+
+  //
+  // to_chars floating_point overload
+  //
+
+  template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
+  to_chars(char* first, char* last, FloatType value) /*throw (eh::Exception)*/
+  {
+    // TODO optimize
+    std::ostringstream stream;
+    stream << value;
+    std::string str = stream.str();
+    size_t capacity = last - first;
+    if (str.size() > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+    memcpy(first, str.data(), str.size());
+    return {first + str.size(), std::errc()};
+  }
+
+  template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, std::string>::type
+  to_string(FloatType value) /*throw (eh::Exception)*/
+  {
+    // TODO optimize
+    std::ostringstream stream;
+    stream << value;
+    return stream.str();
   }
 }
