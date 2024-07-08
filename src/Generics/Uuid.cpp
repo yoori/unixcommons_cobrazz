@@ -299,6 +299,13 @@ namespace Generics
 
 namespace std
 {
+  size_t
+  to_chars_len(const Generics::Uuid& uuid)
+    /*throw (eh::Exception)*/
+  {
+    return uuid.to_string(true).size();
+  }
+
   std::to_chars_result
   to_chars(char* first, char* last, const Generics::Uuid& uuid)
     /*throw (eh::Exception)*/

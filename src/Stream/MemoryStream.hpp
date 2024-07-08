@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <type_traits>
 #include <string_view>
+#include <atomic>
 
 #include <sys/param.h>
 
@@ -50,11 +51,19 @@ namespace XMLUtility::StringManip
 
 namespace std
 {
+  size_t
+  to_chars_len(const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
+
   std::to_chars_result
   to_chars(char*, char*, const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
 
   std::string
   to_string(const Generics::ExtendedTime&) /*throw (eh::Exception) */;
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  size_t
+  to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
+    /*throw (eh::Exception)*/;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::to_chars_result
@@ -66,11 +75,17 @@ namespace std
   to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
     /*throw (eh::Exception) */;
 
+  size_t
+  to_chars_len(const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
+
   std::to_chars_result
   to_chars(char*, char*, const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
 
   std::string
   to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */;
+
+  size_t
+  to_chars_len(const Generics::Time&) /*throw (eh::Exception)*/;
 
   std::to_chars_result
   to_chars(char*, char*, const Generics::Time&) /*throw (eh::Exception)*/;
@@ -78,11 +93,18 @@ namespace std
   std::string
   to_string(const Generics::Time&) /*throw (eh::Exception) */;
 
+  size_t
+  to_chars_len(const Generics::Uuid&) /*throw (eh::Exception) */;
+
   std::to_chars_result
   to_chars(char*, char*, const Generics::Uuid&) /*throw (eh::Exception)*/;
 
   std::string
   to_string(const Generics::Uuid&) /*throw (eh::Exception) */;
+
+  size_t
+  to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter&)
+    /*throw (eh::Exception)*/;
 
   std::to_chars_result
   to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&)
@@ -242,19 +264,29 @@ namespace std
   //
 
   template<typename IntType>
-  std::to_chars_result
-  to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
+  size_t
+  to_chars_len(const Stream::MemoryStream::WidthOut<IntType>&)
     /*throw (eh::Exception)*/;
 
-  template<>
+  template<typename IntType>
   std::to_chars_result
-  to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
+  to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
     /*throw (eh::Exception)*/;
 
   template<typename IntType>
   std::string
   to_string(const Stream::MemoryStream::WidthOut<IntType>&)
     /*throw (eh::Exception) */;
+
+  template<>
+  size_t
+  to_chars_len<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
+    /*throw (eh::Exception)*/;
+
+  template<>
+  std::to_chars_result
+  to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
+    /*throw (eh::Exception)*/;
 
   template<>
   std::string
@@ -264,6 +296,11 @@ namespace std
   //
   // Helper for std::hex and std::uppercase
   //
+
+  template<typename Type>
+  size_t
+  to_chars_len(const Stream::MemoryStream::HexOut<Type>&)
+    /*throw (eh::Exception) */;
 
   template<typename Type>
   std::to_chars_result
@@ -280,18 +317,28 @@ namespace std
   //
 
   template<typename Type>
-  std::to_chars_result
-  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
+  size_t
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
 
-  template<>
+  template<typename Type>
   std::to_chars_result
-  to_chars<const char*>(char*, char*, const Stream::MemoryStream::DoubleOut<const char*>&)
+  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
 
   template<typename Type>
   std::string
   to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<>
+  size_t
+  to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
+    /*throw (eh::Exception) */;
+
+  template<>
+  std::to_chars_result
+  to_chars<const char*>(char*, char*, const Stream::MemoryStream::DoubleOut<const char*>&)
     /*throw (eh::Exception) */;
 
   template<>
@@ -304,12 +351,32 @@ namespace std
   //
 
   template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, size_t>::type
+  to_chars_len(FloatType) /*throw (eh::Exception)*/;
+
+  template<typename FloatType>
   std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
   to_chars(char*, char*, FloatType) /*throw (eh::Exception)*/;
 
   template<typename FloatType>
   std::enable_if<std::is_floating_point<FloatType>::value, std::string>::type
   to_string(FloatType) /*throw (eh::Exception)*/;
+
+  //
+  // integral and enum types to_chars_len
+  //
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(IntType) /*throw (eh::Exception)*/;
+
+  template<typename IntType>
+  std::enable_if<std::is_enum<IntType>::value, size_t>::type
+  to_chars_len(IntType) /*throw (eh::Exception)*/;
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(const volatile std::atomic<IntType>&) /*throw (eh::Exception)*/;
 }
 
 namespace Stream

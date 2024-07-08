@@ -5,8 +5,16 @@
 
 namespace std
 {
+  size_t
+  to_chars_len(const Generics::StringHashAdapter& sha)
+    /*throw (eh::Exception)*/
+  {
+    return sha.text().size();
+  }
+
   std::to_chars_result
-  to_chars(char* first, char* last, const Generics::StringHashAdapter& sha) /*throw (eh::Exception)*/
+  to_chars(char* first, char* last, const Generics::StringHashAdapter& sha)
+    /*throw (eh::Exception)*/
   {
     size_t capacity = last - first;
     if (sha.text().size() > capacity)

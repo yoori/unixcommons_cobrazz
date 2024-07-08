@@ -128,6 +128,13 @@ namespace XMLUtility
 }
 
 namespace std {
+  size_t
+  to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+    /*throw (eh::Exception)*/
+  {
+    return strlen(xml_adapter.operator const char*());
+  }
+
   std::to_chars_result
   to_chars(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
     /*throw (eh::Exception)*/

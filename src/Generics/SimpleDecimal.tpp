@@ -846,6 +846,14 @@ namespace Generics
 
 namespace std {
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  size_t
+  to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
+    /*throw (eh::Exception)*/
+  {
+    return number.str().size();
+  }
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::to_chars_result
   to_chars(char* first, char* last, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
     /*throw (eh::Exception)*/
@@ -863,6 +871,14 @@ namespace std {
     /*throw (eh::Exception) */
   {
     return number.str();
+  }
+
+  template<>
+  size_t
+  to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
+    /*throw (eh::Exception) */
+  {
+    return strlen(doubleout.Value());
   }
 
   template<>

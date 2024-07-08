@@ -124,6 +124,51 @@ namespace Stream::MemoryStream
   //
 
   /**
+   * Helper function for helper struct
+   * @param arg - argument to be shrunk
+   * @param remove_count - size of part to be removed
+   */
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
+  to_chars_integral(char* first, char* last, const Type& arg)
+  {
+    // TODO optimize
+    auto arg_str = std::to_string(arg);
+    memcpy(first, arg_str.c_str(), last - first);
+    return {last, std::errc()};
+  }
+
+  template<typename Type>
+  std::enable_if<std::is_enum<Type>::value, std::to_chars_result>::type
+  to_chars_integral(char* first, char* last, const Type& arg)
+  {
+    // TODO optimize
+    auto arg_str = std::to_string(arg);
+    memcpy(first, arg_str.c_str(), last - first);
+    return {last, std::errc()};
+  }
+
+  template<typename T> auto constexpr is_integral_atomic = false;
+  template<typename T> auto constexpr is_integral_atomic<std::atomic<T>> = std::is_integral<T>::value;
+  template<typename T> auto constexpr is_integral_atomic<volatile std::atomic<T>> = std::is_integral<T>::value;
+
+  template<typename Type>
+  std::enable_if<is_integral_atomic<Type>, std::to_chars_result>::type
+  to_chars_integral(char* first, char* last, const Type& value) /*throw (eh::Exception)*/
+  {
+//    static_assert(std::is_same<Type, typename std::remove_volatile<Type>::type>::value);
+    return to_chars_integral(first, last, value.load());
+  }
+
+  template<typename Type>
+  std::enable_if<!std::is_integral<Type>::value && !std::is_enum<Type>::value
+    && !is_integral_atomic<Type>, std::to_chars_result>::type
+  to_chars_integral(char*, char*, const Type&)
+  {
+    return std::to_chars_result{};
+  }
+
+  /**
    * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
    */
   template<typename Elem, typename Traits, typename Allocator,
@@ -166,29 +211,56 @@ namespace Stream::MemoryStream
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
       AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
     {
-      // TODO optimize
       if (ostr.bad())
       {
         return ostr;
       }
       try
       {
-        auto* buffer = ostr.buffer();
-        if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
+        size_t required = std::to_chars_len(arg);
+        if (required == 0)
         {
-          buffer->pbump(nptr - buffer->ptr());
+          return ostr;
         }
-        else
-        {
-          while (buffer->extend())
+
+        auto* buffer = ostr.buffer();
+        size_t available = buffer->end() - buffer->ptr();
+
+        while (required > available && buffer->extend()) {
+          available = buffer->end() - buffer->ptr();
+        }
+
+        if (available > 0) {
+          std::to_chars_result result;
+
+          // workaround for integral types only
+          // (for which std implements to_chars itself)
+          if (required > available && (std::is_integral<ArgT>::value
+             || std::is_enum<ArgT>::value || is_integral_atomic<ArgT>))
           {
-            if (auto [nptr, ec] = std::to_chars(buffer->ptr(), buffer->end(), arg); ec == std::errc())
-            {
-              buffer->pbump(nptr - buffer->ptr());
-              return ostr;
-            }
+            result = to_chars_integral(buffer->ptr(), buffer->end(), arg);
           }
-          ostr.append(std::to_string(arg).c_str());
+          else
+          {
+            // original std::to_chars writes nothing if required > available.
+            // therefore, for integral types (for which std implements to_chars itself)
+            // we shrink arg to available memory and for all other custom types
+            // we just implement to chars to partially fill memory region if required > available
+            result = std::to_chars(buffer->ptr(), buffer->end(), arg);
+          }
+
+          if (result.ec == std::errc())
+          {
+            buffer->pbump(result.ptr - buffer->ptr());
+          }
+          else
+          {
+            ostr.bad(true);
+          }
+        }
+
+        if (required > available) {
+          ostr.bad(true);
         }
       }
       catch (const eh::Exception&)
@@ -918,6 +990,22 @@ namespace std
   //
 
   template<typename IntType>
+  size_t
+  to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
+    /*throw (eh::Exception)*/
+  {
+    IntType value = widthout.Value();
+    bool is_neg = value < 0;
+    if (is_neg) {
+      value = -value;
+    }
+    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
+    size_t width = widthout.Width();
+
+    return std::max(value_size, width);
+  }
+
+  template<typename IntType>
   std::to_chars_result
   to_chars(char* first, char* last, const Stream::MemoryStream::WidthOut<IntType>& widthout)
     /*throw (eh::Exception)*/
@@ -987,6 +1075,35 @@ namespace std
   //
   // HexOut
   //
+
+  template<typename Type>
+  size_t
+  to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
+    /*throw (eh::Exception) */
+  {
+    typedef typename std::make_unsigned<Type>::type UType;
+
+    static constexpr UType HEX_MASK_WIDTH = 4;
+
+    size_t len = 0;
+
+    // convert to UType
+    UType value = hexout.Value();
+    if (!value)
+    {
+      len = 1;
+    }
+    else
+    {
+      while(value)
+      {
+        ++len;
+        value >>= HEX_MASK_WIDTH;
+      }
+    }
+
+    return len;
+  }
 
   template<typename Type>
   std::to_chars_result
@@ -1071,6 +1188,17 @@ namespace std
   //
 
   template<typename Type>
+  size_t
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    /*throw (eh::Exception) */
+  {
+    // TODO : optimize
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
+    return stream.str().size();
+  }
+
+  template<typename Type>
   std::to_chars_result
   to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
@@ -1107,6 +1235,16 @@ namespace std
   //
 
   template<typename FloatType>
+  std::enable_if<std::is_floating_point<FloatType>::value, size_t>::type
+  to_chars_len(FloatType value) /*throw (eh::Exception)*/
+  {
+    // TODO optimize
+    std::ostringstream stream;
+    stream << value;
+    return stream.str().size();
+  }
+
+  template<typename FloatType>
   std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, FloatType value) /*throw (eh::Exception)*/
   {
@@ -1131,5 +1269,35 @@ namespace std
     std::ostringstream stream;
     stream << value;
     return stream.str();
+  }
+
+  //
+  // integral types to_chars_len
+  //
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(IntType value) /*throw (eh::Exception)*/
+  {
+    bool is_neg = value < 0;
+    if (is_neg) {
+      value = -value;
+    }
+    return value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
+  }
+
+  template<typename IntType>
+  std::enable_if<std::is_enum<IntType>::value, size_t>::type
+  to_chars_len(IntType value) /*throw (eh::Exception)*/
+  {
+    // TODO optimize
+    return std::to_string(value).size();
+  }
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(const volatile std::atomic<IntType>& value) /*throw (eh::Exception)*/
+  {
+    return to_chars_len(value.load());
   }
 }

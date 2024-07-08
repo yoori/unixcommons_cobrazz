@@ -788,6 +788,16 @@ operator >>(std::istream& istr, Generics::ExtendedTime& time)
 }
 
 namespace std {
+  //
+  // Time
+  //
+
+  size_t
+  to_chars_len(const Generics::Time& time) /*throw (eh::Exception) */
+  {
+    return time.str().size();
+  }
+
   std::to_chars_result
   to_chars(char* first, char* last, const Generics::Time& time) /*throw (eh::Exception)*/
   {
@@ -803,6 +813,16 @@ namespace std {
   to_string(const Generics::Time& time) /*throw (eh::Exception) */
   {
     return time.str();
+  }
+
+  //
+  // ExtendedTime
+  //
+
+  size_t
+  to_chars_len(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
+  {
+    return time.str().size();
   }
 
   std::to_chars_result
@@ -822,6 +842,19 @@ namespace std {
   to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
   {
     return time.str();
+  }
+
+  //
+  // Widthout<Time>
+  //
+
+  template<>
+  size_t
+  to_chars_len<Generics::Time>(
+    const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+    /*throw (eh::Exception)*/
+  {
+    return std::max(widthout.Value().str().size(), widthout.Width());
   }
 
   template<>
