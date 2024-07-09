@@ -140,10 +140,11 @@ namespace std {
     /*throw (eh::Exception)*/
   {
     std::string str{xml_adapter.operator const char*()};
-    if (first + str.size() > last) {
+    if (first + str.size() > last)
+    {
       return {last, std::errc::value_too_large};
     }
-    memcpy(first, str.c_str(), str.size());
+    memcpy(first, str.data(), str.size());
     return {first + str.size(), std::errc()};
   }
 

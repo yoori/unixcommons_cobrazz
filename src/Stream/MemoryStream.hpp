@@ -2,21 +2,20 @@
 #ifndef STREAM_MEMORYSTREAM_HPP
 #define STREAM_MEMORYSTREAM_HPP
 
-#include <streambuf>
+#include <algorithm>
+#include <atomic>
+#include <charconv>
+#include <cmath>
+#include <cstring>
+#include <iomanip>
 #include <istream>
 #include <ostream>
 #include <sstream>
-#include <cstring>
+#include <streambuf>
 #include <string>
-#include <charconv>
-#include <iomanip>
-#include <charconv>
-#include <system_error>
-#include <cmath>
-#include <algorithm>
-#include <type_traits>
 #include <string_view>
-#include <atomic>
+#include <system_error>
+#include <type_traits>
 
 #include <sys/param.h>
 
@@ -142,17 +141,17 @@ namespace Stream::MemoryStream
     /**
      * @return value to be printed
      */
-    IntType Value() const noexcept;
+    IntType value() const noexcept;
 
     /**
      * @return output width value
      */
-    size_t Width() const noexcept;
+    size_t width() const noexcept;
 
     /**
      * @return fill character value
      */
-    char Fill() const noexcept;
+    char fill() const noexcept;
 
   private:
     IntType value_;
@@ -191,12 +190,12 @@ namespace Stream::MemoryStream
     /**
      * @return value to be printed
      */
-    Type Value() const noexcept;
+    Type value() const noexcept;
 
     /**
      * @return whether uppercase letters must be used for value
      */
-    bool Upcase() const noexcept;
+    bool upcase() const noexcept;
 
   private:
     Type value_;
@@ -233,12 +232,12 @@ namespace Stream::MemoryStream
     /**
      * @return value to be printed
      */
-    Type Value() const noexcept;
+    Type value() const noexcept;
 
     /**
      * @return fixed precision
      */
-    size_t Precision() const noexcept;
+    size_t precision() const noexcept;
 
   private:
     Type value_;

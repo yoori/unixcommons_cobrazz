@@ -311,10 +311,11 @@ namespace std
     /*throw (eh::Exception)*/
   {
     auto str = uuid.to_string(true);
-    if (first + str.size() > last) {
+    if (first + str.size() > last)
+    {
       return {last, std::errc::value_too_large};
     }
-    memcpy(first, str.c_str(), str.size());
+    memcpy(first, str.data(), str.size());
     return {first + str.size(), std::errc()};
   }
 

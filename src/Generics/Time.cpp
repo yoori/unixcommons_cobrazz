@@ -231,7 +231,6 @@ namespace Generics
 
   ExtendedTime::ExtendedTime() /*throw (eh::Exception)*/
   {
-    throw eh::Exception();
   }
 
   ExtendedTime::ExtendedTime(time_t sec, suseconds_t usec, Time::TimeZone tz)
@@ -787,7 +786,8 @@ operator >>(std::istream& istr, Generics::ExtendedTime& time)
   return istr;
 }
 
-namespace std {
+namespace std
+{
   //
   // Time
   //
@@ -802,7 +802,8 @@ namespace std {
   to_chars(char* first, char* last, const Generics::Time& time) /*throw (eh::Exception)*/
   {
     auto str = time.str();
-    if (first + str.size() > last) {
+    if (first + str.size() > last)
+    {
       return {last, std::errc::value_too_large};
     }
     memcpy(first, str.c_str(), str.size());
@@ -830,7 +831,8 @@ namespace std {
     /*throw (eh::Exception)*/
   {
     auto str = time.str();
-    if (first + str.size() > last) {
+    if (first + str.size() > last)
+    {
       return {last, std::errc::value_too_large};
     }
     memcpy(first, str.c_str(), str.size());
@@ -854,7 +856,7 @@ namespace std {
     const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
     /*throw (eh::Exception)*/
   {
-    return std::max(widthout.Value().str().size(), widthout.Width());
+    return std::max(widthout.value().str().size(), widthout.width());
   }
 
   template<>
@@ -863,18 +865,18 @@ namespace std {
     const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
     /*throw (eh::Exception)*/
   {
-    auto str = widthout.Value().str();
-    if (first + std::max(str.size(), widthout.Width()) > last)
+    auto str = widthout.value().str();
+    if (first + std::max(str.size(), widthout.width()) > last)
     {
       return {last, std::errc::value_too_large};
     }
-    if (widthout.Width() > str.size())
+    if (widthout.width() > str.size())
     {
-      auto fill_size = widthout.Width() - str.size();
-      std::fill(first, first + fill_size, widthout.Fill());
+      auto fill_size = widthout.width() - str.size();
+      std::fill(first, first + fill_size, widthout.fill());
       first += fill_size;
     }
-    memcpy(first, str.c_str(), str.size());
+    memcpy(first, str.data(), str.size());
     return {first + str.size(), std::errc()};
   }
 
@@ -883,10 +885,10 @@ namespace std {
   to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
     /*throw (eh::Exception) */
   {
-    auto str = widthout.Value().str();
-    if (widthout.Width() > str.size())
+    auto str = widthout.value().str();
+    if (widthout.width() > str.size())
     {
-      return std::string(widthout.Width() - str.size(), widthout.Fill()) + str;
+      return std::string(widthout.width() - str.size(), widthout.fill()) + str;
     }
     else
     {

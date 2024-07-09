@@ -844,7 +844,8 @@ namespace Generics
   }
 }
 
-namespace std {
+namespace std
+{
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   size_t
   to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
@@ -859,10 +860,11 @@ namespace std {
     /*throw (eh::Exception)*/
   {
     auto str = number.str();
-    if (first + str.size() > last) {
+    if (first + str.size() > last)
+    {
       return {last, std::errc::value_too_large};
     }
-    memcpy(first, str.c_str(), str.size());
+    memcpy(first, str.data(), str.size());
     return {first + str.size(), std::errc()};
   }
 
@@ -878,7 +880,7 @@ namespace std {
   to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     /*throw (eh::Exception) */
   {
-    return strlen(doubleout.Value());
+    return strlen(doubleout.value());
   }
 
   template<>
@@ -886,13 +888,13 @@ namespace std {
   to_chars<const char*>(char* first, char* last, const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     /*throw (eh::Exception) */
   {
-    size_t len = strlen(doubleout.Value());
+    size_t len = strlen(doubleout.value());
     size_t capacity = last - first;
     if (len > capacity)
     {
       return {last, std::errc::value_too_large};
     }
-    memcpy(first, doubleout.Value(), len);
+    memcpy(first, doubleout.value(), len);
     return {first + len, std::errc()};
   }
 
@@ -901,6 +903,6 @@ namespace std {
   to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     /*throw (eh::Exception) */
   {
-    return std::string(doubleout.Value());
+    return std::string(doubleout.value());
   }
 }

@@ -468,7 +468,6 @@ RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
     }
     else
     {
-//      ostr << std::setfill('0') << std::setw(FRACTION) << r;
       ostr << Stream::MemoryStream::width_out(r, FRACTION, '0');
     }
   }

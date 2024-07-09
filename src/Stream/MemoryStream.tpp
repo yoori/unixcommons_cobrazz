@@ -19,21 +19,21 @@ namespace Stream::MemoryStream
 
   template<typename IntType>
   IntType
-  WidthOut<IntType>::Value() const noexcept
+  WidthOut<IntType>::value() const noexcept
   {
     return value_;
   }
 
   template<typename IntType>
   size_t
-  WidthOut<IntType>::Width() const noexcept
+  WidthOut<IntType>::width() const noexcept
   {
     return width_;
   }
 
   template<typename IntType>
   char
-  WidthOut<IntType>::Fill() const noexcept
+  WidthOut<IntType>::fill() const noexcept
   {
     return fill_;
   }
@@ -58,14 +58,14 @@ namespace Stream::MemoryStream
 
   template<typename Type>
   Type
-  HexOut<Type>::Value() const noexcept
+  HexOut<Type>::value() const noexcept
   {
     return value_;
   }
 
   template<typename Type>
   bool
-  HexOut<Type>::Upcase() const noexcept
+  HexOut<Type>::upcase() const noexcept
   {
     return upcase_;
   }
@@ -90,14 +90,14 @@ namespace Stream::MemoryStream
 
   template<typename Type>
   Type
-  DoubleOut<Type>::Value() const noexcept
+  DoubleOut<Type>::value() const noexcept
   {
     return value_;
   }
 
   template<typename Type>
   size_t
-  DoubleOut<Type>::Precision() const noexcept
+  DoubleOut<Type>::precision() const noexcept
   {
     return precision_;
   }
@@ -192,7 +192,7 @@ namespace Stream::MemoryStream
           if (required > available)
           {
             const auto& to_str = std::to_string(arg);
-            memcpy(buffer->ptr(), to_str.c_str(), available);
+            memcpy(buffer->ptr(), to_str.data(), available);
             result = {buffer->end(), std::errc()};
           }
           else
@@ -947,13 +947,13 @@ namespace std
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     /*throw (eh::Exception)*/
   {
-    IntType value = widthout.Value();
+    IntType value = widthout.value();
     bool is_neg = value < 0;
     if (is_neg) {
       value = -value;
     }
     size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
-    size_t width = widthout.Width();
+    size_t width = widthout.width();
 
     return std::max(value_size, width);
   }
@@ -966,14 +966,14 @@ namespace std
     static_assert(std::is_integral<IntType>::value,
       "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
 
-    IntType value = widthout.Value();
+    IntType value = widthout.value();
     bool is_neg = value < 0;
     if (is_neg) {
       value = -value;
     }
     size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
     size_t capacity = last - first;
-    size_t width = widthout.Width();
+    size_t width = widthout.width();
 
     if (std::max(value_size, width) > capacity)
     {
@@ -983,7 +983,7 @@ namespace std
     if (width > value_size)
     {
       size_t fill_size = width - value_size;
-      std::fill_n(first, fill_size, widthout.Fill());
+      std::fill_n(first, fill_size, widthout.fill());
       first += fill_size;
     }
 
@@ -1013,11 +1013,11 @@ namespace std
   to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     /*throw (eh::Exception) */
   {
-    auto str = std::to_string(widthout.Value());
-    auto width = widthout.Width();
+    auto str = std::to_string(widthout.value());
+    auto width = widthout.width();
     if (width > str.size())
     {
-      return std::string(width - str.size(), widthout.Fill()) + str;
+      return std::string(width - str.size(), widthout.fill()) + str;
     }
     else
     {
@@ -1041,7 +1041,7 @@ namespace std
     size_t len = 0;
 
     // convert to UType
-    UType value = hexout.Value();
+    UType value = hexout.value();
     if (!value)
     {
       len = 1;
@@ -1075,11 +1075,11 @@ namespace std
     // cast to unsigned :)
 
     static constexpr int BASE = 16;
-    typename std::make_unsigned<Type>::type value = hexout.Value();
+    typename std::make_unsigned<Type>::type value = hexout.value();
 
     auto result = std::to_chars(first, last, value, BASE);
 
-    if (result.ec == std::errc() && hexout.Upcase())
+    if (result.ec == std::errc() && hexout.upcase())
     {
       std::for_each(first, result.ptr, [](char& c)
         {
@@ -1109,7 +1109,7 @@ namespace std
     };
 
     // convert to UType
-    UType value = hexout.Value();
+    UType value = hexout.value();
     if (!value)
     {
       result.push_back('0');
@@ -1123,7 +1123,7 @@ namespace std
       }
     }
 
-    if (hexout.Upcase())
+    if (hexout.upcase())
     {
       std::for_each(result.begin(), result.end(), [](char& c)
         {
@@ -1154,7 +1154,7 @@ namespace std
       char* current_char = format_str;
       *current_char++ = '%';
       *current_char++ = '.';
-      auto result = std::to_chars(current_char, format_str + format_str_size, doubleout.Precision());
+      auto result = std::to_chars(current_char, format_str + format_str_size, doubleout.precision());
       if (result.ec != std::errc())
       {
         throw std::exception();
@@ -1163,14 +1163,14 @@ namespace std
       {
         current_char = result.ptr;
       }
-      *current_char++ = (sizeof(doubleout.Value()) > 8 ? 'L' : 'l');
+      *current_char++ = (sizeof(doubleout.value()) > 8 ? 'L' : 'l');
       *current_char++ = 'f';
       *current_char++ = '\0';
       return std::string(format_str);
     }
 
-    return "%." + std::to_string(doubleout.Precision()) +
-      (sizeof(doubleout.Value()) > 8 ? "L" : "l") + "f";
+    return "%." + std::to_string(doubleout.precision()) +
+      (sizeof(doubleout.value()) > 8 ? "L" : "l") + "f";
   }
 
   template<typename Type>
@@ -1180,7 +1180,7 @@ namespace std
   {
     // TODO test andor optimize
     auto format_str = build_format_str(doubleout);
-    int len = snprintf(nullptr, 0, format_str.c_str(), doubleout.Value());
+    int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
     {
       throw std::exception();
@@ -1213,7 +1213,7 @@ namespace std
     /*throw (eh::Exception) */
   {
     auto format_str = build_format_str(doubleout);
-    int len = snprintf(nullptr, 0, format_str.c_str(), doubleout.Value());
+    int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
     {
       throw std::exception();
@@ -1221,7 +1221,7 @@ namespace std
 
     std::string result(len + 1, '\0');
 
-    int ec = snprintf(result.data(), len + 1, format_str.c_str(), doubleout.Value());
+    int ec = snprintf(result.data(), len + 1, format_str.data(), doubleout.value());
     if (ec < 0)
     {
       throw std::exception();
