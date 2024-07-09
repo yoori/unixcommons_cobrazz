@@ -82,7 +82,7 @@ namespace Stream::MemoryStream
   //
 
   template<typename Type>
-  DoubleOut<Type>::DoubleOut(Type value, int precision) noexcept
+  DoubleOut<Type>::DoubleOut(Type value, size_t precision) noexcept
     : value_(value)
     , precision_(precision)
   {
@@ -96,7 +96,7 @@ namespace Stream::MemoryStream
   }
 
   template<typename Type>
-  int
+  size_t
   DoubleOut<Type>::Precision() const noexcept
   {
     return precision_;
@@ -104,7 +104,7 @@ namespace Stream::MemoryStream
 
   template<typename Type>
   DoubleOut<Type>
-  double_out(const Type& value, int precision) noexcept
+  double_out(const Type& value, size_t precision) noexcept
   {
     return DoubleOut<Type>(value, precision);
   }
@@ -122,51 +122,6 @@ namespace Stream::MemoryStream
   //  OutputMemoryStream<...>& operator<<(OutputMemoryStream<...>&, const ArgT&)
   // to enable partial specialization
   //
-
-  /**
-   * Helper function for helper struct
-   * @param arg - argument to be shrunk
-   * @param remove_count - size of part to be removed
-   */
-  template<typename Type>
-  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
-  to_chars_integral(char* first, char* last, const Type& arg)
-  {
-    // TODO optimize
-    auto arg_str = std::to_string(arg);
-    memcpy(first, arg_str.c_str(), last - first);
-    return {last, std::errc()};
-  }
-
-  template<typename Type>
-  std::enable_if<std::is_enum<Type>::value, std::to_chars_result>::type
-  to_chars_integral(char* first, char* last, const Type& arg)
-  {
-    // TODO optimize
-    auto arg_str = std::to_string(arg);
-    memcpy(first, arg_str.c_str(), last - first);
-    return {last, std::errc()};
-  }
-
-  template<typename T> auto constexpr is_integral_atomic = false;
-  template<typename T> auto constexpr is_integral_atomic<std::atomic<T>> = std::is_integral<T>::value;
-  template<typename T> auto constexpr is_integral_atomic<volatile std::atomic<T>> = std::is_integral<T>::value;
-
-  template<typename Type>
-  std::enable_if<is_integral_atomic<Type>, std::to_chars_result>::type
-  to_chars_integral(char* first, char* last, const Type& value) /*throw (eh::Exception)*/
-  {
-//    static_assert(std::is_same<Type, typename std::remove_volatile<Type>::type>::value);
-    return to_chars_integral(first, last, value.load());
-  }
-
-  template<typename Type>
-  std::enable_if<!std::is_integral<Type>::value && !std::is_enum<Type>::value
-    && !is_integral_atomic<Type>, std::to_chars_result>::type
-  to_chars_integral(char*, char*, const Type&)
-  {
-    return std::to_chars_result{};
-  }
 
   /**
    * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
@@ -233,19 +188,15 @@ namespace Stream::MemoryStream
         if (available > 0) {
           std::to_chars_result result;
 
-          // workaround for integral types only
-          // (for which std implements to_chars itself)
-          if (required > available && (std::is_integral<ArgT>::value
-             || std::is_enum<ArgT>::value || is_integral_atomic<ArgT>))
+          // std::to_chars writes nothing if required > available.
+          if (required > available)
           {
-            result = to_chars_integral(buffer->ptr(), buffer->end(), arg);
+            const auto& to_str = std::to_string(arg);
+            memcpy(buffer->ptr(), to_str.c_str(), available);
+            result = {buffer->end(), std::errc()};
           }
           else
           {
-            // original std::to_chars writes nothing if required > available.
-            // therefore, for integral types (for which std implements to_chars itself)
-            // we shrink arg to available memory and for all other custom types
-            // we just implement to chars to partially fill memory region if required > available
             result = std::to_chars(buffer->ptr(), buffer->end(), arg);
           }
 
@@ -337,11 +288,7 @@ namespace Stream::MemoryStream
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT* arg) /*throw eh::Exception*/
   {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << arg;
-    ostr << stream.str();
-    return ostr;
+    return ostr << const_cast<ArgT*>(arg);
   }
 
   /**
@@ -356,10 +303,16 @@ namespace Stream::MemoryStream
   operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     ArgT* arg) /*throw eh::Exception*/
   {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << arg;
-    ostr << stream.str();
+    // TODO test
+    void* ptr = reinterpret_cast<void*>(arg);
+    if constexpr (sizeof(void*) <= 4)
+    {
+      ostr << "0x" << hex_out(reinterpret_cast<unsigned long int>(ptr));
+    }
+    else
+    {
+      ostr << "0x" << hex_out(reinterpret_cast<unsigned long long int>(ptr));
+    }
     return ostr;
   }
 
@@ -1188,14 +1141,51 @@ namespace std
   //
 
   template<typename Type>
+  std::string
+  build_format_str(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+  {
+    // TODO test
+    if constexpr (false)
+    {
+      // % + . + l + f + precision + \0
+      // precision is size_t, to_string(precision).size() <= 10
+      constexpr size_t format_str_size = 15;
+      char format_str[format_str_size];
+      char* current_char = format_str;
+      *current_char++ = '%';
+      *current_char++ = '.';
+      auto result = std::to_chars(current_char, format_str + format_str_size, doubleout.Precision());
+      if (result.ec != std::errc())
+      {
+        throw std::exception();
+      }
+      else
+      {
+        current_char = result.ptr;
+      }
+      *current_char++ = (sizeof(doubleout.Value()) > 8 ? 'L' : 'l');
+      *current_char++ = 'f';
+      *current_char++ = '\0';
+      return std::string(format_str);
+    }
+
+    return "%." + std::to_string(doubleout.Precision()) +
+      (sizeof(doubleout.Value()) > 8 ? "L" : "l") + "f";
+  }
+
+  template<typename Type>
   size_t
   to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO : optimize
-    std::ostringstream stream;
-    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
-    return stream.str().size();
+    // TODO test andor optimize
+    auto format_str = build_format_str(doubleout);
+    int len = snprintf(nullptr, 0, format_str.c_str(), doubleout.Value());
+    if (len < 0)
+    {
+      throw std::exception();
+    }
+    return len;
   }
 
   template<typename Type>
@@ -1203,14 +1193,12 @@ namespace std
   to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
+    // TODO test andor optimize
     static_assert(std::is_floating_point<Type>::value,
       "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
 
-    // TODO : optimize
-    std::ostringstream stream;
-    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
-    std::string str = stream.str();
     size_t capacity = last - first;
+    std::string str = std::to_string(doubleout);
     if (str.size() > capacity)
     {
       return {last, std::errc::value_too_large};
@@ -1224,51 +1212,23 @@ namespace std
   to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << std::fixed << std::setprecision(doubleout.Precision()) << doubleout.Value();
-    return stream.str();
-  }
-
-  //
-  // to_chars floating_point overload
-  //
-
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, size_t>::type
-  to_chars_len(FloatType value) /*throw (eh::Exception)*/
-  {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << value;
-    return stream.str().size();
-  }
-
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
-  to_chars(char* first, char* last, FloatType value) /*throw (eh::Exception)*/
-  {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << value;
-    std::string str = stream.str();
-    size_t capacity = last - first;
-    if (str.size() > capacity)
+    auto format_str = build_format_str(doubleout);
+    int len = snprintf(nullptr, 0, format_str.c_str(), doubleout.Value());
+    if (len < 0)
     {
-      return {last, std::errc::value_too_large};
+      throw std::exception();
     }
-    memcpy(first, str.data(), str.size());
-    return {first + str.size(), std::errc()};
-  }
 
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, std::string>::type
-  to_string(FloatType value) /*throw (eh::Exception)*/
-  {
-    // TODO optimize
-    std::ostringstream stream;
-    stream << value;
-    return stream.str();
+    std::string result(len + 1, '\0');
+
+    int ec = snprintf(result.data(), len + 1, format_str.c_str(), doubleout.Value());
+    if (ec < 0)
+    {
+      throw std::exception();
+    }
+
+    result.pop_back();
+    return result;
   }
 
   //
@@ -1279,8 +1239,10 @@ namespace std
   std::enable_if<std::is_integral<IntType>::value, size_t>::type
   to_chars_len(IntType value) /*throw (eh::Exception)*/
   {
+    // TODO test
     bool is_neg = value < 0;
-    if (is_neg) {
+    if (is_neg)
+    {
       value = -value;
     }
     return value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
@@ -1290,8 +1252,30 @@ namespace std
   std::enable_if<std::is_enum<IntType>::value, size_t>::type
   to_chars_len(IntType value) /*throw (eh::Exception)*/
   {
-    // TODO optimize
-    return std::to_string(value).size();
+    // TODO test
+    size_t size = 0;
+
+    if (value == 0)
+    {
+      size = 1;
+    }
+    else
+    {
+      bool is_neg = value < 0;
+      if constexpr (sizeof(IntType) <= 4)
+      {
+        unsigned long int nvalue = is_neg ? -value : value;
+        size = trunc(log10(nvalue)) + 1;
+      }
+      else
+      {
+        unsigned long long int nvalue = is_neg ? -value : value;
+        size = trunc(log10(nvalue)) + 1;
+      }
+      size += is_neg;
+    }
+
+    return size;
   }
 
   template<typename IntType>

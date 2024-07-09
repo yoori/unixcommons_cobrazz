@@ -228,7 +228,7 @@ namespace Stream::MemoryStream
      *
      * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
-    DoubleOut(Type value = Type(), int precision = 0) noexcept;
+    DoubleOut(Type value = Type(), size_t precision = 0) noexcept;
 
     /**
      * @return value to be printed
@@ -238,11 +238,11 @@ namespace Stream::MemoryStream
     /**
      * @return fixed precision
      */
-    int Precision() const noexcept;
+    size_t Precision() const noexcept;
 
   private:
     Type value_;
-    int precision_;
+    size_t precision_;
   };
 
   /**
@@ -253,7 +253,7 @@ namespace Stream::MemoryStream
    */
   template<typename Type>
   DoubleOut<Type>
-  double_out(const Type& value, int precision) noexcept;
+  double_out(const Type& value, size_t precision) noexcept;
 }
 
 namespace std
@@ -345,22 +345,6 @@ namespace std
   std::string
   to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
     /*throw (eh::Exception) */;
-
-  //
-  // Floating point to_chars overload is not implemented before gcc 11.1
-  //
-
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, size_t>::type
-  to_chars_len(FloatType) /*throw (eh::Exception)*/;
-
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, std::to_chars_result>::type
-  to_chars(char*, char*, FloatType) /*throw (eh::Exception)*/;
-
-  template<typename FloatType>
-  std::enable_if<std::is_floating_point<FloatType>::value, std::string>::type
-  to_string(FloatType) /*throw (eh::Exception)*/;
 
   //
   // integral and enum types to_chars_len
