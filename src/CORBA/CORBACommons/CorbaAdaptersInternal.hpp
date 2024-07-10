@@ -42,7 +42,7 @@ namespace CORBACommons
 
     template<typename Elem>
     void
-    print_properties(const ORBProperties& properties, 
+    print_properties(const ORBProperties& properties,
       Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/;
   };
 
@@ -64,7 +64,7 @@ namespace CORBACommons
     static
     int
     pem_password_callback_(char* buf, int size, int rwflag, void* userdata)
-      throw ();
+      noexcept;
 
     static
     void
@@ -80,7 +80,7 @@ namespace CORBACommons
     void
     add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/;
     void
-    remove_logger(Logging::Logger* logger) throw ();
+    remove_logger(Logging::Logger* logger) noexcept;
   }
 
   static const unsigned DESCRIPTORS = 65536;

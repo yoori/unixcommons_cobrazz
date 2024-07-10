@@ -7,10 +7,10 @@
 
 
 uint16_t
-nine() throw ();
+nine() noexcept;
 
 void
-test_int() throw ()
+test_int() noexcept
 {
   SimpleDecimal<uint64_t, 18, 9> dec1(false, nine(), 0);
   SimpleDecimal<uint64_t, 18, 9> dec2(false, 0, nine());
@@ -27,7 +27,7 @@ test_cons() /*throw (eh::Exception)*/
 }
 
 uint16_t
-nine() throw ()
+nine() noexcept
 {
   return 9;
 }
@@ -1584,7 +1584,7 @@ main()
     std::cout << "r: " << r << std::endl;
   }
   */
-      
+
   int result = 0;
   std::cout << "Decimal test started" << std::endl;
   try

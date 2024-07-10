@@ -38,7 +38,7 @@ namespace Generics
 
     StringHashAdapter(const StringHashAdapter&) noexcept;
 
-    StringHashAdapter(StringHashAdapter&&) throw ();
+    StringHashAdapter(StringHashAdapter&&) noexcept;
 
     StringHashAdapter&
     assign(size_t hash, const char* text)
@@ -58,14 +58,14 @@ namespace Generics
     operator >(const StringHashAdapter& src) const /*throw (eh::Exception)*/;
 
     size_t
-    hash() const throw ();
+    hash() const noexcept;
 
     /**
      * @return The string on which was calculated hash
      */
     const std::string&
-    text() const throw ();
-    operator const std::string&() const throw ();
+    text() const noexcept;
+    operator const std::string&() const noexcept;
 
   protected:
     void
@@ -84,37 +84,37 @@ namespace Generics
   public:
     SubStringHashAdapter(const String::SubString& text =
       String::SubString())
-      throw ();
+      noexcept;
 
     template <typename Traits, typename Alloc>
     SubStringHashAdapter(const std::basic_string<char, Traits, Alloc>& text)
-      throw ();
+      noexcept;
 
     SubStringHashAdapter(size_t hash, const String::SubString& text)
-      throw ();
+      noexcept;
 
     bool
     operator ==(const SubStringHashAdapter& src) const
-      throw ();
+      noexcept;
 
     bool
     operator <(const SubStringHashAdapter& src) const
-      throw ();
+      noexcept;
 
     size_t
     hash() const
-      throw ();
+      noexcept;
 
     operator String::SubString() const
-      throw ();
+      noexcept;
 
     const String::SubString&
-    text() const throw ();
+    text() const noexcept;
 
   protected:
     void
     calc_hash_()
-      throw ();
+      noexcept;
 
   protected:
     String::SubString text_;
@@ -136,7 +136,7 @@ namespace Generics
     operator >(const NumericHashAdapter& src) const /*throw (eh::Exception)*/;
 
     size_t
-    hash() const throw ();
+    hash() const noexcept;
 
     const T&
     value() const /*throw (eh::Exception)*/;
@@ -170,7 +170,7 @@ namespace Generics
   {}
 
   inline
-  StringHashAdapter::StringHashAdapter(StringHashAdapter&& init) throw ()
+  StringHashAdapter::StringHashAdapter(StringHashAdapter&& init) noexcept
     : text_(std::move(init.text_)),
       hash_(init.hash_)
   {}
@@ -261,7 +261,7 @@ namespace Generics
 
   inline
   size_t
-  StringHashAdapter::hash() const throw ()
+  StringHashAdapter::hash() const noexcept
   {
     return hash_;
   }
@@ -276,14 +276,14 @@ namespace Generics
 
   inline
   const std::string&
-  StringHashAdapter::text() const throw ()
+  StringHashAdapter::text() const noexcept
   {
     return text_;
   }
 
   inline
   StringHashAdapter::operator const std::string&() const
-    throw ()
+    noexcept
   {
     return text_;
   }
@@ -293,7 +293,7 @@ namespace Generics
 //
   inline
   SubStringHashAdapter::SubStringHashAdapter(const String::SubString& text)
-    throw ()
+    noexcept
     : text_(text)
   {
     calc_hash_();
@@ -301,7 +301,7 @@ namespace Generics
 
   template <typename Traits, typename Alloc>
   SubStringHashAdapter::SubStringHashAdapter(
-    const std::basic_string<char, Traits, Alloc>& text) throw ()
+    const std::basic_string<char, Traits, Alloc>& text) noexcept
     : text_(text)
   {
     calc_hash_();
@@ -310,7 +310,7 @@ namespace Generics
   inline
   SubStringHashAdapter::SubStringHashAdapter(size_t hash,
     const String::SubString& text)
-    throw ()
+    noexcept
     : text_(text), hash_(hash)
   {
   }
@@ -318,7 +318,7 @@ namespace Generics
   inline
   bool
   SubStringHashAdapter::operator ==(const SubStringHashAdapter& src) const
-    throw ()
+    noexcept
   {
     return text_ == src.text_;
   }
@@ -326,34 +326,34 @@ namespace Generics
   inline
   bool
   SubStringHashAdapter::operator <(const SubStringHashAdapter& src) const
-    throw ()
+    noexcept
   {
     return text_ < src.text_;
   }
 
   inline
   size_t
-  SubStringHashAdapter::hash() const throw ()
+  SubStringHashAdapter::hash() const noexcept
   {
     return hash_;
   }
 
   inline
-  SubStringHashAdapter::operator String::SubString() const throw ()
+  SubStringHashAdapter::operator String::SubString() const noexcept
   {
     return text_;
   }
 
   inline
   const String::SubString&
-  SubStringHashAdapter::text() const throw ()
+  SubStringHashAdapter::text() const noexcept
   {
     return text_;
   }
 
   inline
   void
-  SubStringHashAdapter::calc_hash_() throw ()
+  SubStringHashAdapter::calc_hash_() noexcept
   {
     Murmur64Hash hash(hash_);
     hash_add(hash, text_);
@@ -401,7 +401,7 @@ namespace Generics
 
   template <class T>
   size_t
-  NumericHashAdapter<T>::hash() const throw ()
+  NumericHashAdapter<T>::hash() const noexcept
   {
     return static_cast<size_t>(value_);
   }

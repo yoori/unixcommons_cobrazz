@@ -236,7 +236,7 @@ static const tm ZTM = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static const Generics::ExtendedTime ZET(ZTM, 0, Generics::Time::TZ_GMT);
 
 void
-rand_time(Generics::ExtendedTime& et) throw ()
+rand_time(Generics::ExtendedTime& et) noexcept
 {
   et.tm_year = Generics::safe_rand(70, 199);
   et.tm_mon = Generics::safe_rand(12);

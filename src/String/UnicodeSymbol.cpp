@@ -22,7 +22,7 @@ namespace String
   int UnicodeSymbol::output_format_index_ = std::ios_base::xalloc();
 
   UnicodeSymbol
-  UnicodeSymbol::random() throw ()
+  UnicodeSymbol::random() noexcept
   {
     wchar_t value;
     do
@@ -56,7 +56,7 @@ namespace String
    *  Put UTF-8 byte sequence into stream
    */
   std::ostream&
-  operator <<(std::ostream &os, const UnicodeSymbol& u) throw ()
+  operator <<(std::ostream &os, const UnicodeSymbol& u) noexcept
   {
     std::ostream::sentry ok(os);
     if (ok)
@@ -104,7 +104,7 @@ namespace String
    *  representation Unicode code unit.
    */
   std::istream&
-  operator >>(std::istream &is, UnicodeSymbol &u) throw ()
+  operator >>(std::istream &is, UnicodeSymbol &u) noexcept
   {
     std::istream::sentry ok(is);
     if (ok)

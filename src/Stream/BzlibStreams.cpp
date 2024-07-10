@@ -22,7 +22,7 @@ namespace
     FileHandleAdapter(const char* file_name)
       /*throw (InvalidArgument, eh::Exception)*/;
 
-    ~FileHandleAdapter() throw ();
+    ~FileHandleAdapter() noexcept;
 
     size_t
     read(void* buf, size_t size) /*throw (eh::Exception)*/;
@@ -73,7 +73,7 @@ namespace
 
   template <typename InvalidArgument, typename IOError, const bool READ>
   FileHandleAdapter<InvalidArgument, IOError, READ>::~FileHandleAdapter()
-    throw ()
+    noexcept
   {
     int bz_error = BZ_OK;
     if (READ)

@@ -400,13 +400,13 @@ namespace Stream
        * @return The pointer to data not read yet
        */
       ConstPointer
-      data() const throw ();
+      data() const noexcept;
 
       /**
        * @return The size of data not read yet
        */
       Size
-      size() const throw ();
+      size() const noexcept;
 
     protected:
       virtual
@@ -421,7 +421,7 @@ namespace Stream
 
       virtual
       Int
-      underflow() throw ();
+      underflow() noexcept;
     };
 
     /**
@@ -745,13 +745,13 @@ namespace Stream
         /**
          * Constructor without parameters
          */
-        Simple() throw ();
+        Simple() noexcept;
 
         /**
          * Constructor with buffer_ init value
          * @param buffer_initializer initializer for buffer_
          */
-        Simple(BufferInitializer buffer_initializer) throw ();
+        Simple(BufferInitializer buffer_initializer) noexcept;
 
         /**
          * Allocation function
@@ -761,7 +761,7 @@ namespace Stream
          */
         Pointer
         allocate(Size size, const void* = 0)
-          throw ();
+          noexcept;
 
         /**
          * Deallocation function
@@ -770,7 +770,7 @@ namespace Stream
          * @param size should be equal to SIZE
          */
         void
-        deallocate(Pointer ptr, Size size) throw ();
+        deallocate(Pointer ptr, Size size) noexcept;
 
       private:
         Buffer buffer_;
@@ -790,7 +790,7 @@ namespace Stream
          * @param buffer preallocated buffer of size not less than SIZE
          */
         explicit
-        SimpleBuffer(Elem* buffer) throw ();
+        SimpleBuffer(Elem* buffer) noexcept;
       };
 
       template <typename Elem, const size_t SIZE, typename Initializer>
@@ -798,9 +798,9 @@ namespace Stream
       {
       public:
         explicit
-        ArrayBuffer(Initializer initializer = Initializer()) throw ();
+        ArrayBuffer(Initializer initializer = Initializer()) noexcept;
 
-        operator Elem*() throw ();
+        operator Elem*() noexcept;
 
       private:
         Elem buffer_[SIZE];
@@ -819,7 +819,7 @@ namespace Stream
          * Constructor
          */
         explicit
-        SimpleStack(size_t allocator_initializer) throw ();
+        SimpleStack(size_t allocator_initializer) noexcept;
       };
     }
   }
@@ -863,13 +863,13 @@ namespace Stream
      * @param buffer buffer to make output to of size not less than SIZE
      */
     explicit
-    Buffer(char* buffer) throw ();
+    Buffer(char* buffer) noexcept;
 
     /**
      * Destructor
      * Appends nul-terminating character to the buffer
      */
-    ~Buffer() throw ();
+    ~Buffer() noexcept;
   };
 
   /**

@@ -37,13 +37,13 @@ namespace String
      * Construct UnicodeSymbol that doesn't contain any valid
      * Unicode code unit. (Null state)
      */
-    UnicodeSymbol() throw ();
+    UnicodeSymbol() noexcept;
 
     /**
      * Copy constructor
      * @param symbol source object for construction
      */
-    UnicodeSymbol(const UnicodeSymbol& symbol) throw ();
+    UnicodeSymbol(const UnicodeSymbol& symbol) noexcept;
 
     /**
      * Constructor
@@ -80,7 +80,7 @@ namespace String
      * This type conversion operator allow comparison of
      * UnicodeSymbol objects.
      */
-    operator wchar_t() const throw ();
+    operator wchar_t() const noexcept;
 
     /**
      * Assignment operator.
@@ -103,14 +103,14 @@ namespace String
      * @return true if isn't stored any valid code unit.
      */
     bool
-    is_null() const throw ();
+    is_null() const noexcept;
 
     /**
      * After call UnicodeSymbol doesn't contain any legal
      * Unicode code unit.
      */
     void
-    set_null() throw ();
+    set_null() noexcept;
 
     /**
      * Convert UnicodeSymbol into UTF-8 byte sequence and
@@ -139,7 +139,7 @@ namespace String
      */
     static
     std::ios_base&
-    binary(std::ios_base& iosbase) throw ();
+    binary(std::ios_base& iosbase) noexcept;
 
     /**
      * Manipulator for std streams input/output
@@ -152,7 +152,7 @@ namespace String
      */
     static
     std::ios_base&
-    nobinary(std::ios_base& iosbase) throw ();
+    nobinary(std::ios_base& iosbase) noexcept;
 
     /**
      * @return true if set binary output mode for UnicodeSymbol's
@@ -160,7 +160,7 @@ namespace String
      */
     static
     bool
-    get_out(std::ios_base& iosbase) throw ();
+    get_out(std::ios_base& iosbase) noexcept;
 
     /**
      * @param iosbase stream to set UnicodeSymbols in/out mode.
@@ -168,7 +168,7 @@ namespace String
      */
     static
     void
-    set_out(std::ios_base& iosbase, bool binary_output_mode) throw ();
+    set_out(std::ios_base& iosbase, bool binary_output_mode) noexcept;
 
     /**
      * Random well-formed UnicodeSymbol generator.
@@ -176,7 +176,7 @@ namespace String
      */
     static
     UnicodeSymbol
-    random() throw ();
+    random() noexcept;
 
   private:
     /**
@@ -186,7 +186,7 @@ namespace String
      */
     static
     bool
-    check_validity_(wchar_t value) throw ();
+    check_validity_(wchar_t value) noexcept;
 
   public:
     /// Maximum legal Unicode code unit value
@@ -208,7 +208,7 @@ namespace String
    */
   std::ostream&
   operator <<(std::ostream &os, const UnicodeSymbol& u)
-    throw ();
+    noexcept;
 
   /**
    * Get UTF-8 byte sequence from stream, and put it into internal
@@ -216,7 +216,7 @@ namespace String
    */
   std::istream&
   operator >>(std::istream &is, UnicodeSymbol &u)
-    throw ();
+    noexcept;
 } // namespace String
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ namespace String
 
   inline
   bool
-  UnicodeSymbol::check_validity_(wchar_t value) throw ()
+  UnicodeSymbol::check_validity_(wchar_t value) noexcept
   {
     // Surrogates are not symbols
     return (value >= 0 && value <= 0xD7FF) ||
@@ -239,13 +239,13 @@ namespace String
   }
 
   inline
-  UnicodeSymbol::UnicodeSymbol() throw ()
+  UnicodeSymbol::UnicodeSymbol() noexcept
     : code_unit_(NULL_CODE_UNIT_)
   {
   }
 
   inline
-  UnicodeSymbol::UnicodeSymbol(const UnicodeSymbol& symbol) throw ()
+  UnicodeSymbol::UnicodeSymbol(const UnicodeSymbol& symbol) noexcept
     : code_unit_(symbol.code_unit_)
   {
   }
@@ -285,7 +285,7 @@ namespace String
 
   inline
   bool
-  UnicodeSymbol::get_out(std::ios_base& iosbase) throw ()
+  UnicodeSymbol::get_out(std::ios_base& iosbase) noexcept
   {
     return iosbase.iword(output_format_index_) != 0;
   }
@@ -293,14 +293,14 @@ namespace String
   inline
   void
   UnicodeSymbol::set_out(std::ios_base& iosbase, bool binary_output_mode)
-    throw ()
+    noexcept
   {
     iosbase.iword(output_format_index_) = binary_output_mode;
   }
 
   inline
   std::ios_base&
-  UnicodeSymbol::binary(std::ios_base& iosbase) throw ()
+  UnicodeSymbol::binary(std::ios_base& iosbase) noexcept
   {
     set_out(iosbase, true);
     return iosbase;
@@ -308,7 +308,7 @@ namespace String
 
   inline
   std::ios_base&
-  UnicodeSymbol::nobinary(std::ios_base& iosbase) throw ()
+  UnicodeSymbol::nobinary(std::ios_base& iosbase) noexcept
   {
     set_out(iosbase, false);
     return iosbase;
@@ -342,14 +342,14 @@ namespace String
 
   inline
   bool
-  UnicodeSymbol::is_null() const throw ()
+  UnicodeSymbol::is_null() const noexcept
   {
     return code_unit_ == NULL_CODE_UNIT_;
   }
 
   inline
   void
-  UnicodeSymbol::set_null() throw ()
+  UnicodeSymbol::set_null() noexcept
   {
     code_unit_ = NULL_CODE_UNIT_;
   }
@@ -435,7 +435,7 @@ namespace String
   }
 
   inline
-  UnicodeSymbol::operator wchar_t() const throw ()
+  UnicodeSymbol::operator wchar_t() const noexcept
   {
     return code_unit_;
   }

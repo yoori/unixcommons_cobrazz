@@ -34,61 +34,61 @@ namespace XMLUtility
 
     static
     void
-    assign(char_type& c1, const char_type& c2) throw ();
+    assign(char_type& c1, const char_type& c2) noexcept;
 
     static
     bool
-    eq(const char_type& c1, const char_type& c2) throw ();
+    eq(const char_type& c1, const char_type& c2) noexcept;
 
     static
     bool
-    lt(const char_type& c1, const char_type& c2) throw ();
+    lt(const char_type& c1, const char_type& c2) noexcept;
 
     static
     int
-    compare(const char_type* s1, const char_type* s2, size_t n) throw ();
+    compare(const char_type* s1, const char_type* s2, size_t n) noexcept;
 
     static
     size_t
-    length(const char_type* s) throw ();
+    length(const char_type* s) noexcept;
 
     static
     const char_type*
-    find(const char_type* s, size_t n, const char_type& a) throw ();
+    find(const char_type* s, size_t n, const char_type& a) noexcept;
 
     static
     char_type*
-    move(char_type* s1, const char_type* s2, size_t n) throw ();
+    move(char_type* s1, const char_type* s2, size_t n) noexcept;
 
     static
     char_type*
-    copy(char_type* s1, const char_type* s2, size_t n) throw ();
+    copy(char_type* s1, const char_type* s2, size_t n) noexcept;
 
     static
     char_type*
-    assign(char_type* s, size_t n, char_type a) throw ();
+    assign(char_type* s, size_t n, char_type a) noexcept;
 
     static
     char_type
-    to_char_type(const int_type& c) throw ();
+    to_char_type(const int_type& c) noexcept;
 
     // To keep both the byte 0xff and the eof symbol 0xffffffff
     // from ending up as 0xffffffff.
     static
     int_type
-    to_int_type(const char_type& c) throw ();
+    to_int_type(const char_type& c) noexcept;
 
     static
     bool
-    eq_int_type(const int_type&_c1, const int_type& c2) throw ();
+    eq_int_type(const int_type&_c1, const int_type& c2) noexcept;
 
     static
     int_type
-    eof() throw ();
+    eof() noexcept;
 
     static
     int_type
-    not_eof(const int_type& c) throw ();
+    not_eof(const int_type& c) noexcept;
   };
 
   typedef std::basic_string<XMLCh, XMLChTraits> XMLChString;
@@ -116,13 +116,13 @@ namespace XMLUtility
       /**
        * Destructor.
        */
-      ~XMLChAdapter() throw ();
+      ~XMLChAdapter() noexcept;
 
       /**
        * Operator ().
        * @return the string contained by the adapter as Xerces string.
        */
-      operator const XMLCh*() const throw ();
+      operator const XMLCh*() const noexcept;
 
       /**
        * Assignment operator.
@@ -203,21 +203,21 @@ namespace XMLUtility
   //
   inline
   void
-  XMLChTraits::assign(char_type& c1, const char_type& c2) throw ()
+  XMLChTraits::assign(char_type& c1, const char_type& c2) noexcept
   {
     c1 = c2;
   }
 
   inline
   bool
-  XMLChTraits::eq(const char_type& c1, const char_type& c2) throw ()
+  XMLChTraits::eq(const char_type& c1, const char_type& c2) noexcept
   {
     return c1 == c2;
   }
 
   inline
   bool
-  XMLChTraits::lt(const char_type& c1, const char_type& c2) throw ()
+  XMLChTraits::lt(const char_type& c1, const char_type& c2) noexcept
   {
     return c1 < c2;
   }
@@ -225,21 +225,21 @@ namespace XMLUtility
   inline
   int
   XMLChTraits::compare(const char_type* s1, const char_type* s2, size_t n)
-    throw ()
+    noexcept
   {
     return XMLString::compareNString(s1, s2, n);
   }
 
   inline
   size_t
-  XMLChTraits::length(const char_type* s) throw ()
+  XMLChTraits::length(const char_type* s) noexcept
   {
     return XMLString::stringLen(s);
   }
 
   inline
   const XMLChTraits::char_type*
-  XMLChTraits::find(const char_type* s, size_t n, const char_type& a) throw ()
+  XMLChTraits::find(const char_type* s, size_t n, const char_type& a) noexcept
   {
     for (size_t i = 0; i < n; i++)
     {
@@ -254,7 +254,7 @@ namespace XMLUtility
 
   inline
   XMLChTraits::char_type*
-  XMLChTraits::move(char_type* s1, const char_type* s2, size_t n) throw ()
+  XMLChTraits::move(char_type* s1, const char_type* s2, size_t n) noexcept
   {
     XMLString::moveChars(s1, s2, n);
     return s1;
@@ -262,7 +262,7 @@ namespace XMLUtility
 
   inline
   XMLChTraits::char_type*
-  XMLChTraits::copy(char_type* s1, const char_type* s2, size_t n) throw ()
+  XMLChTraits::copy(char_type* s1, const char_type* s2, size_t n) noexcept
   {
     XMLString::moveChars(s1, s2, n);
     return s1;
@@ -270,7 +270,7 @@ namespace XMLUtility
 
   inline
   XMLChTraits::char_type*
-  XMLChTraits::assign(char_type* s, size_t n, char_type a) throw ()
+  XMLChTraits::assign(char_type* s, size_t n, char_type a) noexcept
   {
     for (size_t i = 0; i < n; i++)
     {
@@ -281,35 +281,35 @@ namespace XMLUtility
 
   inline
   XMLChTraits::char_type
-  XMLChTraits::to_char_type(const int_type& c) throw ()
+  XMLChTraits::to_char_type(const int_type& c) noexcept
   {
     return static_cast<char_type>(c);
   }
 
   inline
   XMLChTraits::int_type
-  XMLChTraits::to_int_type(const char_type& c) throw ()
+  XMLChTraits::to_int_type(const char_type& c) noexcept
   {
     return static_cast<int_type>(static_cast<unsigned int>(c));
   }
 
   inline
   bool
-  XMLChTraits::eq_int_type(const int_type& c1, const int_type& c2) throw ()
+  XMLChTraits::eq_int_type(const int_type& c1, const int_type& c2) noexcept
   {
     return c1 == c2;
   }
 
   inline
   XMLChTraits::int_type
-  XMLChTraits::eof() throw ()
+  XMLChTraits::eof() noexcept
   {
     return static_cast<int_type>(EOF);
   }
 
   inline
   XMLChTraits::int_type
-  XMLChTraits::not_eof(const int_type& c) throw ()
+  XMLChTraits::not_eof(const int_type& c) noexcept
   {
     return c == eof() ? 0 : c;
   }
@@ -321,7 +321,7 @@ namespace XMLUtility
     // XMLChAdapter class
     //
     inline
-    XMLChAdapter::~XMLChAdapter() throw ()
+    XMLChAdapter::~XMLChAdapter() noexcept
     {
       try
       {
@@ -333,7 +333,7 @@ namespace XMLUtility
     }
 
     inline
-    XMLChAdapter::operator const XMLCh*() const throw ()
+    XMLChAdapter::operator const XMLCh*() const noexcept
     {
       return string_;
     }

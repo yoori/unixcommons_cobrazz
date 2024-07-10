@@ -79,35 +79,35 @@ namespace
   private:
     static
     int
-    write(BIO*, const char*, int) throw ();
+    write(BIO*, const char*, int) noexcept;
 
     static
     int
-    read(BIO*, char*, int) throw ();
+    read(BIO*, char*, int) noexcept;
 
     static
     int
-    puts(BIO*, const char*) throw ();
+    puts(BIO*, const char*) noexcept;
 
     static
     int
-    gets(BIO*, char*, int) throw ();
+    gets(BIO*, char*, int) noexcept;
 
     static
     long
-    ctrl(BIO*, int, long, void*) throw ();
+    ctrl(BIO*, int, long, void*) noexcept;
 
     static
     int
-    create(BIO*) throw ();
+    create(BIO*) noexcept;
 
     static
     int
-    destroy(BIO*) throw ();
+    destroy(BIO*) noexcept;
 
     static
     long
-    callback_ctrl(BIO*, int, bio_info_cb*) throw ();
+    callback_ctrl(BIO*, int, bio_info_cb*) noexcept;
 
     class DataFile : private Generics::Uncopyable
     {
@@ -116,19 +116,19 @@ namespace
       DataFile(void* original_ptr) /*throw (eh::Exception)*/;
 
       bool
-      is_initialized() const throw ();
+      is_initialized() const noexcept;
 
       void
-      original_pointer(void* original_ptr) throw ();
+      original_pointer(void* original_ptr) noexcept;
 
       void*
-      original_pointer() const throw ();
+      original_pointer() const noexcept;
 
       void
       assign(const char* data) /*throw (eh::Exception)*/;
 
       int
-      gets(char* buf, int size) throw ();
+      gets(char* buf, int size) noexcept;
 
     private:
       void* original_ptr_;
@@ -140,12 +140,12 @@ namespace
     {
     public:
       explicit
-      StorageGuard(BIO* bio) throw ();
+      StorageGuard(BIO* bio) noexcept;
 
-      ~StorageGuard() throw ();
+      ~StorageGuard() noexcept;
 
       DataFile*
-      operator ->() throw ();
+      operator ->() noexcept;
 
     private:
       BIO* bio_;
@@ -164,19 +164,19 @@ namespace
   }
 
   bool
-  BIOEnhancer::DataFile::is_initialized() const throw ()
+  BIOEnhancer::DataFile::is_initialized() const noexcept
   {
     return !data_.empty();
   }
 
   void
-  BIOEnhancer::DataFile::original_pointer(void* original_ptr) throw ()
+  BIOEnhancer::DataFile::original_pointer(void* original_ptr) noexcept
   {
     original_ptr_ = original_ptr;
   }
 
   void*
-  BIOEnhancer::DataFile::original_pointer() const throw ()
+  BIOEnhancer::DataFile::original_pointer() const noexcept
   {
     return original_ptr_;
   }
@@ -188,7 +188,7 @@ namespace
   }
 
   int
-  BIOEnhancer::DataFile::gets(char* buf, int size) throw ()
+  BIOEnhancer::DataFile::gets(char* buf, int size) noexcept
   {
     if (size <= 0)
     {
@@ -201,21 +201,21 @@ namespace
     return ptr - buf;
   }
 
-  BIOEnhancer::StorageGuard::StorageGuard(BIO* bio) throw ()
+  BIOEnhancer::StorageGuard::StorageGuard(BIO* bio) noexcept
     : bio_(bio),
       data_file_(static_cast<DataFile*>(BIO_get_data(bio_)))
   {
     BIO_set_data(bio_, data_file_->original_pointer());
   }
 
-  BIOEnhancer::StorageGuard::~StorageGuard() throw ()
+  BIOEnhancer::StorageGuard::~StorageGuard() noexcept
   {
     data_file_->original_pointer(BIO_get_data(bio_));
     BIO_set_data(bio_, data_file_);
   }
 
   BIOEnhancer::DataFile*
-  BIOEnhancer::StorageGuard::operator ->() throw ()
+  BIOEnhancer::StorageGuard::operator ->() noexcept
   {
     return data_file_;
   }
@@ -246,28 +246,28 @@ namespace
   }
 
   int
-  BIOEnhancer::write(BIO* bio, const char* buf, int size) throw ()
+  BIOEnhancer::write(BIO* bio, const char* buf, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_write(original_)(bio, buf, size);
   }
 
   int
-  BIOEnhancer::read(BIO* bio, char* buf, int size) throw ()
+  BIOEnhancer::read(BIO* bio, char* buf, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_read(original_)(bio, buf, size);
   }
 
   int
-  BIOEnhancer::puts(BIO* bio, const char* str) throw ()
+  BIOEnhancer::puts(BIO* bio, const char* str) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_puts(original_)(bio, str);
   }
 
   int
-  BIOEnhancer::gets(BIO* bio, char* str, int size) throw ()
+  BIOEnhancer::gets(BIO* bio, char* str, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? guard->gets(str, size) :
@@ -275,7 +275,7 @@ namespace
   }
 
   long
-  BIOEnhancer::ctrl(BIO* bio, int command, long arg1, void* arg2) throw ()
+  BIOEnhancer::ctrl(BIO* bio, int command, long arg1, void* arg2) noexcept
   {
     StorageGuard guard(bio);
     if (guard->is_initialized())
@@ -300,7 +300,7 @@ namespace
   }
 
   int
-  BIOEnhancer::create(BIO* bio) throw ()
+  BIOEnhancer::create(BIO* bio) noexcept
   {
     if (!BIO_meth_get_create(original_)(bio))
     {
@@ -319,7 +319,7 @@ namespace
   }
 
   int
-  BIOEnhancer::destroy(BIO* bio) throw ()
+  BIOEnhancer::destroy(BIO* bio) noexcept
   {
     int res;
     {
@@ -595,7 +595,7 @@ namespace CORBACommons
 
   int
   OrbCreator::pem_password_callback_(char* buf, int size, int, void*)
-    throw ()
+    noexcept
   {
     return String::StringManip::strlcpy(buf, password_.c_str(), size);
   }
