@@ -349,7 +349,7 @@ namespace Generics
      * @return string representation of this Time
      */
     std::string
-    str() const /*throw (eh::Exception)*/;
+    str() const noexcept;
 
   public:
     static const std::size_t TIME_PACK_LEN = 8;
@@ -470,7 +470,7 @@ namespace Generics
      * @return string representation of this ExtendedTime
      */
     std::string
-    str() const /*throw (eh::Exception)*/;
+    str() const noexcept;
 
   protected:
     static const String::AsciiStringManip::Caseless DAYS_[];

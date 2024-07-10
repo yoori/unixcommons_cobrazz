@@ -673,7 +673,7 @@ namespace Generics
   }
 
   std::string
-  Time::str() const /*throw (eh::Exception)*/
+  Time::str() const noexcept
   {
     char buf[256];
     const Generics::Time::Print& time_print = print();
@@ -685,7 +685,7 @@ namespace Generics
   }
 
   std::string
-  ExtendedTime::str() const /*throw (eh::Exception)*/
+  ExtendedTime::str() const noexcept
   {
     char buf[64];
     snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
@@ -789,13 +789,13 @@ namespace std
   //
 
   size_t
-  to_chars_len(const Generics::Time& time) /*throw (eh::Exception) */
+  to_chars_len(const Generics::Time& time) noexcept
   {
     return time.str().size();
   }
 
   std::to_chars_result
-  to_chars(char* first, char* last, const Generics::Time& time) /*throw (eh::Exception)*/
+  to_chars(char* first, char* last, const Generics::Time& time) noexcept
   {
     auto str = time.str();
     if (first + str.size() > last)
@@ -807,7 +807,7 @@ namespace std
   }
 
   std::string
-  to_string(const Generics::Time& time) /*throw (eh::Exception) */
+  to_string(const Generics::Time& time) noexcept
   {
     return time.str();
   }
@@ -817,14 +817,14 @@ namespace std
   //
 
   size_t
-  to_chars_len(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
+  to_chars_len(const Generics::ExtendedTime& time) noexcept
   {
     return time.str().size();
   }
 
   std::to_chars_result
   to_chars(char* first, char* last, const Generics::ExtendedTime& time)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     auto str = time.str();
     if (first + str.size() > last)
@@ -837,7 +837,7 @@ namespace std
   }
 
   std::string
-  to_string(const Generics::ExtendedTime& time) /*throw (eh::Exception) */
+  to_string(const Generics::ExtendedTime& time) noexcept
   {
     return time.str();
   }
@@ -850,7 +850,7 @@ namespace std
   size_t
   to_chars_len<Generics::Time>(
     const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     return std::max(widthout.value().str().size(), widthout.width());
   }
@@ -859,7 +859,7 @@ namespace std
   std::to_chars_result
   to_chars<Generics::Time>(char* first, char* last,
     const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     auto str = widthout.value().str();
     if (first + std::max(str.size(), widthout.width()) > last)
@@ -879,7 +879,7 @@ namespace std
   template<>
   std::string
   to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
-    /*throw (eh::Exception) */
+    noexcept
   {
     auto str = widthout.value().str();
     if (widthout.width() > str.size())

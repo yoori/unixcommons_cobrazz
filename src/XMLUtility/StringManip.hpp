@@ -156,7 +156,7 @@ namespace XMLUtility
        * Operator ().
        * @return the string contained by the adapter as C string.
        */
-      operator const char*() const /*throw (eh::Exception)*/;
+      operator const char*() const noexcept;
 
       /**
        * Assignment operator.
@@ -349,7 +349,7 @@ namespace XMLUtility
     }
 
     inline
-    XMLMbcAdapter::operator const char*() const /*throw (eh::Exception)*/
+    XMLMbcAdapter::operator const char*() const noexcept
     {
       return string_.c_str();
     }

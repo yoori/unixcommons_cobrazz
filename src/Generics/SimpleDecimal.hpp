@@ -153,7 +153,7 @@ namespace Generics
      * @return string representation of this number in format [-]abcd[.efg]
      */
     std::string
-    str() const /*throw (eh::Exception)*/;
+    str() const noexcept;
 
     /**
      * Internal dump of this number

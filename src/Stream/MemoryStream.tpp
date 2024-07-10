@@ -945,7 +945,7 @@ namespace std
   template<typename IntType>
   size_t
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     IntType value = widthout.value();
     bool is_neg = value < 0;
@@ -961,7 +961,7 @@ namespace std
   template<typename IntType>
   std::to_chars_result
   to_chars(char* first, char* last, const Stream::MemoryStream::WidthOut<IntType>& widthout)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     static_assert(std::is_integral<IntType>::value,
       "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
@@ -1011,7 +1011,7 @@ namespace std
   template<typename IntType>
   std::string
   to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
-    /*throw (eh::Exception) */
+    noexcept
   {
     auto str = std::to_string(widthout.value());
     auto width = widthout.width();
@@ -1032,7 +1032,7 @@ namespace std
   template<typename Type>
   size_t
   to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
-    /*throw (eh::Exception) */
+    noexcept
   {
     typedef typename std::make_unsigned<Type>::type UType;
 
@@ -1061,7 +1061,7 @@ namespace std
   template<typename Type>
   std::to_chars_result
   to_chars(char* first, char* last, const Stream::MemoryStream::HexOut<Type>& hexout)
-    /*throw (eh::Exception) */
+    noexcept
   {
     static_assert(std::is_integral<Type>::value,
       "Only integral Type is implemented for: template<Type> class HexOut<Type>");
@@ -1093,7 +1093,7 @@ namespace std
   template<typename Type>
   std::string
   to_string(const Stream::MemoryStream::HexOut<Type>& hexout)
-    /*throw (eh::Exception) */
+    noexcept
   {
     typedef typename std::make_unsigned<Type>::type UType;
 
@@ -1143,6 +1143,7 @@ namespace std
   template<typename Type>
   std::string
   build_format_str(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    /*throw (eh::Exception) */
   {
     // TODO test
     if constexpr (false)
@@ -1237,7 +1238,7 @@ namespace std
 
   template<typename IntType>
   std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(IntType value) /*throw (eh::Exception)*/
+  to_chars_len(IntType value) noexcept
   {
     // TODO test
     bool is_neg = value < 0;
@@ -1250,7 +1251,7 @@ namespace std
 
   template<typename IntType>
   std::enable_if<std::is_enum<IntType>::value, size_t>::type
-  to_chars_len(IntType value) /*throw (eh::Exception)*/
+  to_chars_len(IntType value) noexcept
   {
     // TODO test
     size_t size = 0;
@@ -1280,7 +1281,7 @@ namespace std
 
   template<typename IntType>
   std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(const volatile std::atomic<IntType>& value) /*throw (eh::Exception)*/
+  to_chars_len(const volatile std::atomic<IntType>& value) noexcept
   {
     return to_chars_len(value.load());
   }

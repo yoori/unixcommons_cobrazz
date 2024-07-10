@@ -51,46 +51,46 @@ namespace XMLUtility::StringManip
 namespace std
 {
   size_t
-  to_chars_len(const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
+  to_chars_len(const Generics::ExtendedTime&) noexcept;
 
   std::to_chars_result
-  to_chars(char*, char*, const Generics::ExtendedTime&) /*throw (eh::Exception)*/;
+  to_chars(char*, char*, const Generics::ExtendedTime&) noexcept;
 
   std::string
-  to_string(const Generics::ExtendedTime&) /*throw (eh::Exception) */;
+  to_string(const Generics::ExtendedTime&) noexcept;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   size_t
   to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::to_chars_result
   to_chars(char*, char*, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::string
   to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   size_t
-  to_chars_len(const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
+  to_chars_len(const Generics::StringHashAdapter&) noexcept;
 
   std::to_chars_result
-  to_chars(char*, char*, const Generics::StringHashAdapter&) /*throw (eh::Exception)*/;
+  to_chars(char*, char*, const Generics::StringHashAdapter&) noexcept;
 
   std::string
-  to_string(const Generics::StringHashAdapter&) /*throw (eh::Exception) */;
+  to_string(const Generics::StringHashAdapter&) noexcept;
 
   size_t
-  to_chars_len(const Generics::Time&) /*throw (eh::Exception)*/;
+  to_chars_len(const Generics::Time&) noexcept;
 
   std::to_chars_result
-  to_chars(char*, char*, const Generics::Time&) /*throw (eh::Exception)*/;
+  to_chars(char*, char*, const Generics::Time&) noexcept;
 
   std::string
-  to_string(const Generics::Time&) /*throw (eh::Exception) */;
+  to_string(const Generics::Time&) noexcept;
 
   size_t
   to_chars_len(const Generics::Uuid&) /*throw (eh::Exception) */;
@@ -103,15 +103,15 @@ namespace std
 
   size_t
   to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   std::to_chars_result
   to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   std::string
   to_string(const XMLUtility::StringManip::XMLMbcAdapter&)
-    /*throw (eh::Exception) */;
+    noexcept;
 }
 
 //
@@ -265,32 +265,32 @@ namespace std
   template<typename IntType>
   size_t
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<typename IntType>
   std::to_chars_result
   to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<typename IntType>
   std::string
   to_string(const Stream::MemoryStream::WidthOut<IntType>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   template<>
   size_t
   to_chars_len<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<>
   std::to_chars_result
   to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
-    /*throw (eh::Exception)*/;
+    noexcept;
 
   template<>
   std::string
   to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   //
   // Helper for std::hex and std::uppercase
@@ -299,17 +299,17 @@ namespace std
   template<typename Type>
   size_t
   to_chars_len(const Stream::MemoryStream::HexOut<Type>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   template<typename Type>
   std::to_chars_result
   to_chars(char*, char*, const Stream::MemoryStream::HexOut<Type>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   template<typename Type>
   std::string
   to_string(const Stream::MemoryStream::HexOut<Type>&)
-    /*throw (eh::Exception) */;
+    noexcept;
 
   //
   // Helper for std::setprecision and std::fixed
@@ -351,15 +351,15 @@ namespace std
 
   template<typename IntType>
   std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(IntType) /*throw (eh::Exception)*/;
+  to_chars_len(IntType) noexcept;
 
   template<typename IntType>
   std::enable_if<std::is_enum<IntType>::value, size_t>::type
-  to_chars_len(IntType) /*throw (eh::Exception)*/;
+  to_chars_len(IntType) noexcept;
 
   template<typename IntType>
   std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(const volatile std::atomic<IntType>&) /*throw (eh::Exception)*/;
+  to_chars_len(const volatile std::atomic<IntType>&) noexcept;
 }
 
 namespace Stream

@@ -344,7 +344,7 @@ namespace Generics
     const unsigned FRACTION>
   std::string
   SimpleDecimal<Base, TOTAL, FRACTION>::str() const
-    /*throw (eh::Exception)*/
+    noexcept
   {
     char buffer[TOTAL + 2];
     char* const BUF_END = buffer + sizeof(buffer);
@@ -849,7 +849,7 @@ namespace std
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   size_t
   to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     return number.str().size();
   }
@@ -857,7 +857,7 @@ namespace std
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::to_chars_result
   to_chars(char* first, char* last, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     auto str = number.str();
     if (first + str.size() > last)
@@ -870,7 +870,7 @@ namespace std
 
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    /*throw (eh::Exception) */
+    noexcept
   {
     return number.str();
   }

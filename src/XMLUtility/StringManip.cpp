@@ -130,14 +130,14 @@ namespace XMLUtility
 namespace std {
   size_t
   to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     return strlen(xml_adapter.operator const char*());
   }
 
   std::to_chars_result
   to_chars(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     std::string str{xml_adapter.operator const char*()};
     if (first + str.size() > last)
@@ -149,7 +149,7 @@ namespace std {
   }
 
   std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    /*throw (eh::Exception)*/
+    noexcept
   {
     return std::string(xml_adapter.operator const char*());
   }
