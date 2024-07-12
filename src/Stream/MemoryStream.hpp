@@ -22,99 +22,6 @@
 #include <String/SubString.hpp>
 
 //
-// forward declarations for non-builtin types.
-//
-
-namespace Generics
-{
-  class ExtendedTime;
-
-  template<typename, const unsigned, const unsigned>
-  class SimpleDecimal;
-
-  class StringHashAdapter;
-
-  class Time;
-
-  class Uuid;
-}
-
-namespace XMLUtility::StringManip
-{
-  class XMLMbcAdapter;
-}
-
-//
-// std::to_chars overloads for non-builtin types.
-//
-
-namespace std
-{
-  size_t
-  to_chars_len(const Generics::ExtendedTime&) noexcept;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::ExtendedTime&) noexcept;
-
-  std::string
-  to_string(const Generics::ExtendedTime&) noexcept;
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  size_t
-  to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    noexcept;
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    noexcept;
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::string
-  to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>&)
-    noexcept;
-
-  size_t
-  to_chars_len(const Generics::StringHashAdapter&) noexcept;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::StringHashAdapter&) noexcept;
-
-  std::string
-  to_string(const Generics::StringHashAdapter&) noexcept;
-
-  size_t
-  to_chars_len(const Generics::Time&) noexcept;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::Time&) noexcept;
-
-  std::string
-  to_string(const Generics::Time&) noexcept;
-
-  size_t
-  to_chars_len(const Generics::Uuid&) /*throw (eh::Exception) */;
-
-  std::to_chars_result
-  to_chars(char*, char*, const Generics::Uuid&) /*throw (eh::Exception)*/;
-
-  std::string
-  to_string(const Generics::Uuid&) /*throw (eh::Exception) */;
-
-  size_t
-  to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter&)
-    noexcept;
-
-  std::to_chars_result
-  to_chars(char*, char*, const XMLUtility::StringManip::XMLMbcAdapter&)
-    noexcept;
-
-  std::string
-  to_string(const XMLUtility::StringManip::XMLMbcAdapter&)
-    noexcept;
-}
-
-//
 // iomanip-like helpers
 //
 
@@ -275,21 +182,6 @@ namespace std
   template<typename IntType>
   std::string
   to_string(const Stream::MemoryStream::WidthOut<IntType>&)
-    noexcept;
-
-  template<>
-  size_t
-  to_chars_len<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
-    noexcept;
-
-  template<>
-  std::to_chars_result
-  to_chars<Generics::Time>(char*, char*, const Stream::MemoryStream::WidthOut<Generics::Time>&)
-    noexcept;
-
-  template<>
-  std::string
-  to_string<Generics::Time>(const Stream::MemoryStream::WidthOut<Generics::Time>&)
     noexcept;
 
   //
@@ -724,10 +616,15 @@ namespace Stream
     private:
       bool bad_;
 
-      template<typename HelperElem, typename HelperTraits, typename HelperAllocator,
-        typename HelperAllocatorInitializer, const size_t HelperSIZE, typename HelperArgT,
-        typename HelperEnable>
-      friend class OutputMemoryStreamHelper;
+      template<typename HelperImplElem, typename HelperImplTraits, typename HelperImplAllocator,
+        typename HelperImplAllocatorInitializer, const size_t HelperImplSIZE, typename HelperImplArgT,
+        typename HelperImplToCharsLen, typename HelperImplToChars, typename HelperImplToString>
+      friend
+      OutputMemoryStream<HelperImplElem, HelperImplTraits, HelperImplAllocator,
+        HelperImplAllocatorInitializer, HelperImplSIZE>&
+      OutputMemoryStreamHelperImpl(OutputMemoryStream<HelperImplElem, HelperImplTraits, HelperImplAllocator,
+        HelperImplAllocatorInitializer, HelperImplSIZE>& ostr, const HelperImplArgT& arg,
+        HelperImplToCharsLen to_chars_len, HelperImplToChars to_chars, HelperImplToString to_string);
     };
 
     namespace Allocator

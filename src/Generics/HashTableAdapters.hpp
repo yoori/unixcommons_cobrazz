@@ -10,6 +10,7 @@
 
 #include <Generics/Hash.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 /*
  * XXX!
@@ -432,6 +433,59 @@ namespace Generics
     str.assign(str_.c_str());
     return istr;
   }
+}
+
+namespace Stream::MemoryStream
+{
+  template<>
+  struct ToCharsLenHelper<Generics::StringHashAdapter>
+  {
+    size_t operator()(const Generics::StringHashAdapter& sha) noexcept
+    {
+      return sha.text().size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Generics::StringHashAdapter>
+  {
+    std::to_chars_result operator()(char* first, char* last, const Generics::StringHashAdapter& sha)
+      noexcept
+    {
+      size_t capacity = last - first;
+      if (sha.text().size() > capacity)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, sha.text().data(), sha.text().size());
+      return {first + sha.text().size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Generics::StringHashAdapter>
+  {
+    std::string operator()(const Generics::StringHashAdapter& sha)
+      noexcept
+    {
+      return sha.text();
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::StringHashAdapter>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Generics::StringHashAdapter& arg)
+    {
+      typedef typename Generics::StringHashAdapter ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
 }
 
 #endif

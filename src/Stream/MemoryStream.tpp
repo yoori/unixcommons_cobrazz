@@ -117,6 +117,109 @@ namespace Stream::MemoryStream
 namespace Stream::MemoryStream
 {
   //
+  // Generalized versions of
+  //  to_string
+  //  to_chars
+  //  to_chars_len - get length of to_chars before using to_chars
+  //
+
+  template<typename Type>
+  struct ToCharsLenHelper
+  {
+    size_t
+    operator()(const Type& arg) noexcept
+    {
+      return std::to_chars_len(arg);
+    }
+  };
+
+  template<typename Type>
+  struct ToCharsHelper
+  {
+    std::to_chars_result
+    operator()(char* first, char* last, const Type& arg) noexcept
+    {
+      return std::to_chars(first, last, arg);
+    }
+  };
+
+  template<typename Type>
+  struct ToStringHelper
+  {
+    std::string
+    operator()(const Type& arg) noexcept
+    {
+      return std::to_string(arg);
+
+    }
+  };
+
+  //
+  // Generalized algorithm to be used in OutputMemoryStreamHelper
+  //
+
+  template<typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer,
+    const size_t SIZE, typename ArgT, typename ToCharsLen, typename ToChars, typename ToString>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  OutputMemoryStreamHelperImpl(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT& arg, ToCharsLen to_chars_len, ToChars to_chars, ToString to_string)
+  {
+    if (ostr.bad())
+    {
+      return ostr;
+    }
+    try
+    {
+      size_t required = to_chars_len(arg);
+      if (required == 0)
+      {
+        return ostr;
+      }
+
+      auto* buffer = ostr.buffer();
+      size_t available = buffer->end() - buffer->ptr();
+
+      while (required > available && buffer->extend()) {
+        available = buffer->end() - buffer->ptr();
+      }
+
+      if (available > 0) {
+        std::to_chars_result result;
+
+        // std::to_chars writes nothing if required > available.
+        if (required > available)
+        {
+          const auto& to_str = to_string(arg);
+          memcpy(buffer->ptr(), to_str.data(), available);
+          result = {buffer->end(), std::errc()};
+        }
+        else
+        {
+          result = to_chars(buffer->ptr(), buffer->end(), arg);
+        }
+
+        if (result.ec == std::errc())
+        {
+          buffer->pbump(result.ptr - buffer->ptr());
+        }
+        else
+        {
+          ostr.bad(true);
+        }
+      }
+
+      if (required > available) {
+        ostr.bad(true);
+      }
+    }
+    catch (const eh::Exception&)
+    {
+      ostr.bad(true);
+    }
+    return ostr;
+  }
+
+  //
   // Helper class for
   //  template<typename...>
   //  OutputMemoryStream<...>& operator<<(OutputMemoryStream<...>&, const ArgT&)
@@ -160,65 +263,13 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE, typename ArgT>
   struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE, ArgT,
-    decltype(std::to_chars(std::string().data(), std::string().data(), *static_cast<ArgT*>(nullptr)), void())>
+    decltype(std::to_chars(std::declval<char*>(), std::declval<char*>(), std::declval<ArgT>()), void())>
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
       AllocatorInitializer, SIZE>& ostr, const ArgT& arg)
     {
-      if (ostr.bad())
-      {
-        return ostr;
-      }
-      try
-      {
-        size_t required = std::to_chars_len(arg);
-        if (required == 0)
-        {
-          return ostr;
-        }
-
-        auto* buffer = ostr.buffer();
-        size_t available = buffer->end() - buffer->ptr();
-
-        while (required > available && buffer->extend()) {
-          available = buffer->end() - buffer->ptr();
-        }
-
-        if (available > 0) {
-          std::to_chars_result result;
-
-          // std::to_chars writes nothing if required > available.
-          if (required > available)
-          {
-            const auto& to_str = std::to_string(arg);
-            memcpy(buffer->ptr(), to_str.data(), available);
-            result = {buffer->end(), std::errc()};
-          }
-          else
-          {
-            result = std::to_chars(buffer->ptr(), buffer->end(), arg);
-          }
-
-          if (result.ec == std::errc())
-          {
-            buffer->pbump(result.ptr - buffer->ptr());
-          }
-          else
-          {
-            ostr.bad(true);
-          }
-        }
-
-        if (required > available) {
-          ostr.bad(true);
-        }
-      }
-      catch (const eh::Exception&)
-      {
-        ostr.bad(true);
-      }
-      return ostr;
+      return OutputMemoryStreamHelperImpl(ostr, arg, ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
     }
   };
 

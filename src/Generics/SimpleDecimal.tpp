@@ -846,35 +846,6 @@ namespace Generics
 
 namespace std
 {
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  size_t
-  to_chars_len(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    noexcept
-  {
-    return number.str().size();
-  }
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::to_chars_result
-  to_chars(char* first, char* last, const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    noexcept
-  {
-    auto str = number.str();
-    if (first + str.size() > last)
-    {
-      return {last, std::errc::value_too_large};
-    }
-    memcpy(first, str.data(), str.size());
-    return {first + str.size(), std::errc()};
-  }
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::string to_string(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-    noexcept
-  {
-    return number.str();
-  }
-
   template<>
   size_t
   to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)

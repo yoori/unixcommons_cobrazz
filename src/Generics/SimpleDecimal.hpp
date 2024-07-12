@@ -510,6 +510,65 @@ namespace Generics
     noexcept;
 }
 
+namespace Stream::MemoryStream
+{
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  struct ToCharsLenHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
+  {
+    size_t
+    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
+      noexcept
+    {
+      return number.str().size();
+    }
+  };
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  struct ToCharsHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last,
+      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
+    {
+      auto str = number.str();
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  struct ToStringHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
+  {
+    std::string
+    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
+      noexcept
+    {
+      return number.str();
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE,
+    typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr,
+      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& arg)
+    {
+      typedef typename Generics::SimpleDecimal<Base, TOTAL, FRACTION> ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+}
+
 #include <Generics/SimpleDecimal.tpp>
 
 #endif

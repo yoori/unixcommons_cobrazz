@@ -127,30 +127,57 @@ namespace XMLUtility
   }
 }
 
-namespace std {
-  size_t
-  to_chars_len(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    noexcept
-  {
-    return strlen(xml_adapter.operator const char*());
-  }
 
-  std::to_chars_result
-  to_chars(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    noexcept
+namespace Stream::MemoryStream
+{
+  template<>
+  struct ToCharsLenHelper<XMLUtility::StringManip::XMLMbcAdapter>
   {
-    std::string str{xml_adapter.operator const char*()};
-    if (first + str.size() > last)
+    size_t
+    operator()(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter) noexcept
     {
-      return {last, std::errc::value_too_large};
+      return strlen(xml_adapter.operator const char*());
     }
-    memcpy(first, str.data(), str.size());
-    return {first + str.size(), std::errc()};
-  }
+  };
 
-  std::string to_string(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
-    noexcept
+  template<>
+  struct ToCharsHelper<XMLUtility::StringManip::XMLMbcAdapter>
   {
-    return std::string(xml_adapter.operator const char*());
+    std::to_chars_result
+    operator()(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+      noexcept
+    {
+      std::string str{xml_adapter.operator const char*()};
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<XMLUtility::StringManip::XMLMbcAdapter>
+  {
+    std::string
+    operator()(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+      noexcept
+    {
+      return std::string(xml_adapter.operator const char*());
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer,
+    const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer, SIZE,
+    XMLUtility::StringManip::XMLMbcAdapter>::
+  operator()(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const XMLUtility::StringManip::XMLMbcAdapter& arg)
+  {
+    typedef typename XMLUtility::StringManip::XMLMbcAdapter ArgT;
+    return OutputMemoryStreamHelperImpl(ostr, arg,
+      ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
   }
 }

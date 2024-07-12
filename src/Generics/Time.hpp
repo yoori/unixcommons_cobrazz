@@ -1487,4 +1487,183 @@ operator >=(const timeval& tv1, const timeval& tv2) noexcept
   return !(tv1 < tv2);
 }
 
+namespace Stream::MemoryStream
+{
+  //
+  // Time
+  //
+
+  template<>
+  struct ToCharsLenHelper<Generics::Time>
+  {
+    size_t operator()(const Generics::Time& time) noexcept
+    {
+      return time.str().size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Generics::Time>
+  {
+    std::to_chars_result operator()(char* first, char* last, const Generics::Time& time)
+      noexcept
+    {
+      auto str = time.str();
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.c_str(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Generics::Time>
+  {
+    std::string operator()(const Generics::Time& time)
+      noexcept
+    {
+      return time.str();
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::Time>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Generics::Time& arg)
+    {
+      typedef typename Generics::Time ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+
+  //
+  // ExtendedTime
+  //
+
+  template<>
+  struct ToCharsLenHelper<Generics::ExtendedTime>
+  {
+    size_t operator()(const Generics::ExtendedTime& time) noexcept
+    {
+      return time.str().size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Generics::ExtendedTime>
+  {
+    std::to_chars_result operator()(char* first, char* last, const Generics::ExtendedTime& time)
+      noexcept
+    {
+      auto str = time.str();
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.c_str(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Generics::ExtendedTime>
+  {
+    std::string operator()(const Generics::ExtendedTime& time)
+      noexcept
+    {
+      return time.str();
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::ExtendedTime>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Generics::ExtendedTime& arg)
+    {
+      typedef typename Generics::ExtendedTime ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+
+  //
+  // Stream::MemoryStream::Widthout<Time>
+  //
+
+  template<>
+  struct ToCharsLenHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
+  {
+    size_t operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
+    {
+      return std::max(widthout.value().str().size(), widthout.width());
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
+  {
+    std::to_chars_result operator()(char* first, char* last,
+      const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
+    {
+      auto str = widthout.value().str();
+      if (first + std::max(str.size(), widthout.width()) > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      if (widthout.width() > str.size())
+      {
+        auto fill_size = widthout.width() - str.size();
+        std::fill(first, first + fill_size, widthout.fill());
+        first += fill_size;
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
+  {
+    std::string operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
+      noexcept
+    {
+      auto str = widthout.value().str();
+      if (widthout.width() > str.size())
+      {
+        return std::string(widthout.width() - str.size(), widthout.fill()) + str;
+      }
+      else
+      {
+        return str;
+      }
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Stream::MemoryStream::WidthOut<Generics::Time>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::WidthOut<Generics::Time>& arg)
+    {
+      typedef typename Stream::MemoryStream::WidthOut<Generics::Time> ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+}
+
 #endif

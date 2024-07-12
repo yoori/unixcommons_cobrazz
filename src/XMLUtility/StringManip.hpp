@@ -19,6 +19,8 @@
 #include <Generics/Uncopyable.hpp>
 #include <String/StringManip.hpp>
 
+#include <Stream/MemoryStream.hpp>
+
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -372,6 +374,19 @@ operator <<(std::ostream& ostr,
 {
   ostr << val.operator const char*();
   return ostr;
+}
+
+namespace Stream::MemoryStream
+{
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, XMLUtility::StringManip::XMLMbcAdapter>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const XMLUtility::StringManip::XMLMbcAdapter& arg);
+  };
 }
 
 #endif

@@ -15,6 +15,7 @@
 
 #include <Generics/RSA.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 namespace Generics
 {
@@ -475,5 +476,58 @@ namespace Generics
   }
 } // namespace Generics
 
+namespace Stream::MemoryStream
+{
+  template<>
+  struct ToCharsLenHelper<Generics::Uuid>
+  {
+    size_t operator()(const Generics::Uuid& uuid) noexcept
+    {
+      return uuid.to_string(true).size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Generics::Uuid>
+  {
+    std::to_chars_result operator()(char* first, char* last, const Generics::Uuid& uuid)
+      noexcept
+    {
+      auto str = uuid.to_string(true);
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Generics::Uuid>
+  {
+    std::string operator()(const Generics::Uuid& uuid)
+      noexcept
+    {
+      return uuid.to_string(true);
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::Uuid>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Generics::Uuid& arg)
+    {
+      typedef typename Generics::Uuid ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+
+    }
+  };
+}
 
 #endif

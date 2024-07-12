@@ -297,31 +297,3 @@ namespace Generics
   }
 } // namespace Generics
 
-namespace std
-{
-  size_t
-  to_chars_len(const Generics::Uuid& uuid)
-    /*throw (eh::Exception)*/
-  {
-    return uuid.to_string(true).size();
-  }
-
-  std::to_chars_result
-  to_chars(char* first, char* last, const Generics::Uuid& uuid)
-    /*throw (eh::Exception)*/
-  {
-    auto str = uuid.to_string(true);
-    if (first + str.size() > last)
-    {
-      return {last, std::errc::value_too_large};
-    }
-    memcpy(first, str.data(), str.size());
-    return {first + str.size(), std::errc()};
-  }
-
-  std::string to_string(const Generics::Uuid& uuid)
-    /*throw (eh::Exception)*/
-  {
-    return uuid.to_string(true);
-  }
-}
