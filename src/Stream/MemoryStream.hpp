@@ -222,21 +222,6 @@ namespace std
   to_string(const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
 
-  template<>
-  size_t
-  to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
-    /*throw (eh::Exception) */;
-
-  template<>
-  std::to_chars_result
-  to_chars<const char*>(char*, char*, const Stream::MemoryStream::DoubleOut<const char*>&)
-    /*throw (eh::Exception) */;
-
-  template<>
-  std::string
-  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>&)
-    /*throw (eh::Exception) */;
-
   //
   // integral and enum types to_chars_len
   //

@@ -844,36 +844,5 @@ namespace Generics
   }
 }
 
-namespace std
-{
-  template<>
-  size_t
-  to_chars_len<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
-    /*throw (eh::Exception) */
-  {
-    return strlen(doubleout.value());
-  }
-
-  template<>
-  std::to_chars_result
-  to_chars<const char*>(char* first, char* last, const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
-    /*throw (eh::Exception) */
-  {
-    size_t len = strlen(doubleout.value());
-    size_t capacity = last - first;
-    if (len > capacity)
-    {
-      return {last, std::errc::value_too_large};
-    }
-    memcpy(first, doubleout.value(), len);
-    return {first + len, std::errc()};
-  }
-
-  template<>
-  std::string
-  to_string<const char*>(const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
-    /*throw (eh::Exception) */
-  {
-    return std::string(doubleout.value());
-  }
+namespace Stream::MemoryStream {
 }

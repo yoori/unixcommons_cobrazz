@@ -481,7 +481,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsLenHelper<Generics::Uuid>
   {
-    size_t operator()(const Generics::Uuid& uuid) noexcept
+    size_t
+    operator()(const Generics::Uuid& uuid) noexcept
     {
       return uuid.to_string(true).size();
     }
@@ -490,8 +491,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsHelper<Generics::Uuid>
   {
-    std::to_chars_result operator()(char* first, char* last, const Generics::Uuid& uuid)
-      noexcept
+    std::to_chars_result
+    operator()(char* first, char* last, const Generics::Uuid& uuid) noexcept
     {
       auto str = uuid.to_string(true);
       if (first + str.size() > last)
@@ -506,8 +507,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToStringHelper<Generics::Uuid>
   {
-    std::string operator()(const Generics::Uuid& uuid)
-      noexcept
+    std::string
+    operator()(const Generics::Uuid& uuid) noexcept
     {
       return uuid.to_string(true);
     }

@@ -1496,7 +1496,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsLenHelper<Generics::Time>
   {
-    size_t operator()(const Generics::Time& time) noexcept
+    size_t
+    operator()(const Generics::Time& time) noexcept
     {
       return time.str().size();
     }
@@ -1505,8 +1506,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsHelper<Generics::Time>
   {
-    std::to_chars_result operator()(char* first, char* last, const Generics::Time& time)
-      noexcept
+    std::to_chars_result
+    operator()(char* first, char* last, const Generics::Time& time) noexcept
     {
       auto str = time.str();
       if (first + str.size() > last)
@@ -1521,8 +1522,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToStringHelper<Generics::Time>
   {
-    std::string operator()(const Generics::Time& time)
-      noexcept
+    std::string
+    operator()(const Generics::Time& time) noexcept
     {
       return time.str();
     }
@@ -1550,7 +1551,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsLenHelper<Generics::ExtendedTime>
   {
-    size_t operator()(const Generics::ExtendedTime& time) noexcept
+    size_t
+    operator()(const Generics::ExtendedTime& time) noexcept
     {
       return time.str().size();
     }
@@ -1559,8 +1561,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsHelper<Generics::ExtendedTime>
   {
-    std::to_chars_result operator()(char* first, char* last, const Generics::ExtendedTime& time)
-      noexcept
+    std::to_chars_result
+    operator()(char* first, char* last, const Generics::ExtendedTime& time) noexcept
     {
       auto str = time.str();
       if (first + str.size() > last)
@@ -1575,8 +1577,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToStringHelper<Generics::ExtendedTime>
   {
-    std::string operator()(const Generics::ExtendedTime& time)
-      noexcept
+    std::string
+    operator()(const Generics::ExtendedTime& time) noexcept
     {
       return time.str();
     }
@@ -1604,7 +1606,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsLenHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
   {
-    size_t operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
+    size_t
+    operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
     {
       return std::max(widthout.value().str().size(), widthout.width());
     }
@@ -1613,7 +1616,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
   {
-    std::to_chars_result operator()(char* first, char* last,
+    std::to_chars_result
+    operator()(char* first, char* last,
       const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
     {
       auto str = widthout.value().str();
@@ -1635,8 +1639,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToStringHelper<Stream::MemoryStream::WidthOut<Generics::Time>>
   {
-    std::string operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout)
-      noexcept
+    std::string
+    operator()(const Stream::MemoryStream::WidthOut<Generics::Time>& widthout) noexcept
     {
       auto str = widthout.value().str();
       if (widthout.width() > str.size())

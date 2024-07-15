@@ -440,7 +440,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsLenHelper<Generics::StringHashAdapter>
   {
-    size_t operator()(const Generics::StringHashAdapter& sha) noexcept
+    size_t
+    operator()(const Generics::StringHashAdapter& sha) noexcept
     {
       return sha.text().size();
     }
@@ -449,8 +450,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToCharsHelper<Generics::StringHashAdapter>
   {
-    std::to_chars_result operator()(char* first, char* last, const Generics::StringHashAdapter& sha)
-      noexcept
+    std::to_chars_result
+    operator()(char* first, char* last, const Generics::StringHashAdapter& sha) noexcept
     {
       size_t capacity = last - first;
       if (sha.text().size() > capacity)
@@ -465,8 +466,8 @@ namespace Stream::MemoryStream
   template<>
   struct ToStringHelper<Generics::StringHashAdapter>
   {
-    std::string operator()(const Generics::StringHashAdapter& sha)
-      noexcept
+    std::string
+    operator()(const Generics::StringHashAdapter& sha) noexcept
     {
       return sha.text();
     }

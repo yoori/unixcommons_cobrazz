@@ -13,6 +13,7 @@
 
 #include <Generics/CommonDecimal.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 namespace Generics
 {
@@ -512,12 +513,15 @@ namespace Generics
 
 namespace Stream::MemoryStream
 {
+  //
+  // OutputMemoryStreamHelper for Generics::SimpleDecimal
+  //
+
   template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
   struct ToCharsLenHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
   {
     size_t
-    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-      noexcept
+    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
     {
       return number.str().size();
     }
@@ -544,8 +548,7 @@ namespace Stream::MemoryStream
   struct ToStringHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
   {
     std::string
-    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number)
-      noexcept
+    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
     {
       return number.str();
     }
@@ -563,6 +566,63 @@ namespace Stream::MemoryStream
       const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& arg)
     {
       typedef typename Generics::SimpleDecimal<Base, TOTAL, FRACTION> ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+
+  //
+  // OutputMemoryStreamHelper overload used in Generics::SimpleDecimal constructor
+  //
+
+  template<>
+  struct ToCharsLenHelper<Stream::MemoryStream::DoubleOut<const char*>>
+  {
+    size_t
+    operator()(const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
+    {
+      return strlen(doubleout.value());
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Stream::MemoryStream::DoubleOut<const char*>>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last,
+      const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
+    {
+      size_t len = strlen(doubleout.value());
+      size_t capacity = last - first;
+      if (len > capacity)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, doubleout.value(), len);
+      return {first + len, std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Stream::MemoryStream::DoubleOut<const char*>>
+  {
+    std::string
+    operator()(const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
+    {
+      return std::string(doubleout.value());
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Stream::MemoryStream::DoubleOut<const char*>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<const char*>& arg)
+    {
+      typedef typename Stream::MemoryStream::DoubleOut<const char*> ArgT;
       return OutputMemoryStreamHelperImpl(ostr, arg,
         ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
     }
