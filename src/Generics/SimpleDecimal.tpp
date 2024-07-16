@@ -843,6 +843,3 @@ namespace Generics
     hash.add(&key.data_, sizeof(key.data_));
   }
 }
-
-namespace Stream::MemoryStream {
-}

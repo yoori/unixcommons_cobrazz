@@ -21,6 +21,8 @@
 
 #include <String/SubString.hpp>
 
+#include <iostream>
+
 //
 // iomanip-like helpers
 //
@@ -781,12 +783,12 @@ namespace Stream
 namespace Stream::MemoryStream
 {
   /**
-   * Generalized template for operator<<(Stream::MemoryStream::OutputMemoryStream&, ...)
+   * Generalized template for operator <<(Stream::MemoryStream::OutputMemoryStream&, ...)
    */
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE, typename ArgT>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT& arg) /*throw eh::Exception*/;
 
   /**
@@ -796,7 +798,7 @@ namespace Stream::MemoryStream
     typename AllocatorInitializer, const size_t SIZE,
     typename SElem, typename STraits, typename SChecker>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
 
   /**
@@ -805,7 +807,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const std::string_view& arg) /*throw eh::Exception*/;
 
   /**
@@ -814,7 +816,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const std::string& arg) /*throw eh::Exception*/;
 
   /**
@@ -826,7 +828,7 @@ namespace Stream::MemoryStream
     !std::is_same<Elem, ArgT>::value,
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
   >::type&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT* arg) /*throw eh::Exception*/;
 
   /**
@@ -838,7 +840,7 @@ namespace Stream::MemoryStream
     !std::is_same<Elem, ArgT>::value,
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
   >::type&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     ArgT* arg) /*throw eh::Exception*/;
 
   /**
@@ -847,7 +849,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const Elem* arg) /*throw eh::Exception*/;
 
   /**
@@ -856,7 +858,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     Elem* arg) /*throw eh::Exception*/;
 
   /**
@@ -867,8 +869,30 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     char arg) /*throw eh::Exception*/;
+
+  /**
+   * unsigned char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes unsigned char too
+   * but we want unsigned char to be treated like unsigned char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    unsigned char arg) /*throw eh::Exception*/;
+
+  /**
+   * signed char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes unsigned char too
+   * but we want signed char to be treated like signed char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    signed char arg) /*throw eh::Exception*/;
 
   /**
    * bool overload
@@ -877,7 +901,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     bool arg) /*throw eh::Exception*/;
 
   /**
@@ -886,7 +910,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
     /*throw eh::Exception*/;
 }

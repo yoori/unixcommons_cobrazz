@@ -111,7 +111,7 @@ namespace Stream::MemoryStream
 }
 
 //
-// Helpers for OutputMemoryStream& operator<<(OutputMemoryStream&,...)
+// Helpers for OutputMemoryStream& operator <<(OutputMemoryStream&,...)
 //
 
 namespace Stream::MemoryStream
@@ -222,12 +222,12 @@ namespace Stream::MemoryStream
   //
   // Helper class for
   //  template<typename...>
-  //  OutputMemoryStream<...>& operator<<(OutputMemoryStream<...>&, const ArgT&)
+  //  OutputMemoryStream<...>& operator <<(OutputMemoryStream<...>&, const ArgT&)
   // to enable partial specialization
   //
 
   /**
-   * Helper for operator<<(OutputMemoryStream&, const ArgT&), generalized version
+   * Helper for operator <<(OutputMemoryStream&, const ArgT&), generalized version
    */
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE, typename ArgT,
@@ -257,7 +257,7 @@ namespace Stream::MemoryStream
   };
 
   /**
-   * Helper for operator<<(OutputMemoryStream&, const ArgT&)
+   * Helper for operator <<(OutputMemoryStream&, const ArgT&)
    * specialization for to_chars applicable types
    */
   template<typename Elem, typename Traits, typename Allocator,
@@ -280,7 +280,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE, typename ArgT>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT& arg) /*throw eh::Exception*/
   {
     return OutputMemoryStreamHelper<Elem, Traits, Allocator,
@@ -294,7 +294,7 @@ namespace Stream::MemoryStream
     typename AllocatorInitializer, const size_t SIZE,
     typename SElem, typename STraits, typename SChecker>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/
   {
     ostr.write(arg.data(), arg.size());
@@ -307,7 +307,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const std::string_view& arg) /*throw eh::Exception*/
   {
     ostr.write(arg.data(), arg.size());
@@ -320,7 +320,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const std::string& arg) /*throw eh::Exception*/
   {
     ostr.append(arg.c_str());
@@ -336,7 +336,7 @@ namespace Stream::MemoryStream
     !std::is_same<Elem, ArgT>::value,
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
   >::type&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const ArgT* arg) /*throw eh::Exception*/
   {
     return ostr << const_cast<ArgT*>(arg);
@@ -351,10 +351,15 @@ namespace Stream::MemoryStream
     !std::is_same<Elem, ArgT>::value,
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
   >::type&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     ArgT* arg) /*throw eh::Exception*/
   {
-    // TODO test
+    if (arg == nullptr)
+    {
+      ostr << "0";
+      return ostr;
+    }
+
     void* ptr = reinterpret_cast<void*>(arg);
     if constexpr (sizeof(void*) <= 4)
     {
@@ -373,7 +378,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     const Elem* arg) /*throw eh::Exception*/
   {
     ostr.append(arg);
@@ -386,7 +391,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     Elem* arg) /*throw eh::Exception*/
   {
     ostr.append(arg);
@@ -399,8 +404,34 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     char arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg);
+    return ostr;
+  }
+
+  /**
+   * unsigned char overload
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    unsigned char arg) /*throw eh::Exception*/
+  {
+    ostr.append(arg);
+    return ostr;
+  }
+
+  /**
+   * signed char overload
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    signed char arg) /*throw eh::Exception*/
   {
     ostr.append(arg);
     return ostr;
@@ -412,7 +443,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     bool arg) /*throw eh::Exception*/
   {
     ostr.append(arg ? '1' : '0');
@@ -425,7 +456,7 @@ namespace Stream::MemoryStream
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
-  operator<<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
     std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
     /*throw eh::Exception*/
   {
@@ -990,6 +1021,70 @@ namespace eh
 namespace std
 {
   //
+  // integral types to_chars_len
+  //
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(IntType value) noexcept
+  {
+    if (value == 0)
+    {
+      return 1;
+    }
+    size_t size = value < 0 ? 1 : 0;
+    while (value != 0)
+    {
+      ++size;
+      value /= 10;
+    }
+    return size;
+  }
+
+  template<typename IntType>
+  std::enable_if<std::is_enum<IntType>::value, size_t>::type
+  to_chars_len(IntType value) noexcept
+  {
+    if (value == 0)
+    {
+      return 1;
+    }
+
+    size_t size;
+    if constexpr (sizeof(IntType) <= 4)
+    {
+      if (value < 0)
+      {
+        size = to_chars_len(static_cast<long int>(value));
+      }
+      else
+      {
+        size = to_chars_len(static_cast<unsigned long int>(value));
+      }
+    }
+    else
+    {
+      if (value < 0)
+      {
+        size = to_chars_len(static_cast<long long int>(value));
+      }
+      else
+      {
+        size = to_chars_len(static_cast<unsigned long long int>(value));
+      }
+    }
+
+    return size;
+  }
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(const volatile std::atomic<IntType>& value) noexcept
+  {
+    return to_chars_len(value.load());
+  }
+
+  //
   // WidthOut
   //
 
@@ -998,15 +1093,8 @@ namespace std
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
-    IntType value = widthout.value();
-    bool is_neg = value < 0;
-    if (is_neg) {
-      value = -value;
-    }
-    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
-    size_t width = widthout.width();
-
-    return std::max(value_size, width);
+    size_t value_size = to_chars_len(static_cast<IntType>(widthout.value()));
+    return std::max(value_size, widthout.width());
   }
 
   template<typename IntType>
@@ -1018,11 +1106,7 @@ namespace std
       "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
 
     IntType value = widthout.value();
-    bool is_neg = value < 0;
-    if (is_neg) {
-      value = -value;
-    }
-    size_t value_size = value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
+    size_t value_size = to_chars_len(static_cast<IntType>(value));
     size_t capacity = last - first;
     size_t width = widthout.width();
 
@@ -1038,25 +1122,7 @@ namespace std
       first += fill_size;
     }
 
-    if (value == 0)
-    {
-      *first++ = '0';
-    }
-    else
-    {
-      if (is_neg)
-      {
-        *first++ = '-';
-      }
-      for (char* ptr = first + (value_size - 1 - is_neg); value > 0; --ptr)
-      {
-        *ptr = static_cast<char>('0' + value % 10);
-        value /= 10;
-        ++first;
-      }
-    }
-
-    return {first, std::errc()};
+    return std::to_chars(first, last, value);
   }
 
   template<typename IntType>
@@ -1196,33 +1262,29 @@ namespace std
   build_format_str(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO test
-    if constexpr (false)
+    // % + . + l + f + precision + \0
+    // precision is size_t <= 2^32, to_string(precision, base=10).size() <= 10
+    static constexpr size_t format_str_size = 16;
+    char format_str[format_str_size];
+    char* current_char = format_str;
+    *current_char++ = '%';
+    *current_char++ = '.';
+    auto result = std::to_chars(current_char, format_str + format_str_size, doubleout.precision());
+    if (result.ec != std::errc())
     {
-      // % + . + l + f + precision + \0
-      // precision is size_t, to_string(precision).size() <= 10
-      constexpr size_t format_str_size = 15;
-      char format_str[format_str_size];
-      char* current_char = format_str;
-      *current_char++ = '%';
-      *current_char++ = '.';
-      auto result = std::to_chars(current_char, format_str + format_str_size, doubleout.precision());
-      if (result.ec != std::errc())
-      {
-        throw std::exception();
-      }
-      else
-      {
-        current_char = result.ptr;
-      }
-      *current_char++ = (sizeof(doubleout.value()) > 8 ? 'L' : 'l');
-      *current_char++ = 'f';
-      *current_char++ = '\0';
-      return std::string(format_str);
+      throw std::exception();
     }
+    else
+    {
+      current_char = result.ptr;
+    }
+    *current_char++ = (sizeof(doubleout.value()) > 8 ? 'L' : 'l');
+    *current_char++ = 'f';
+    *current_char++ = '\0';
+    return std::string(format_str);
 
-    return "%." + std::to_string(doubleout.precision()) +
-      (sizeof(doubleout.value()) > 8 ? "L" : "l") + "f";
+    // return "%." + std::to_string(doubleout.precision()) +
+    //  (sizeof(doubleout.value()) > 8 ? "L" : "l") + "f";
   }
 
   template<typename Type>
@@ -1230,7 +1292,6 @@ namespace std
   to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO test andor optimize
     auto format_str = build_format_str(doubleout);
     int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
@@ -1245,7 +1306,6 @@ namespace std
   to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    // TODO test andor optimize
     static_assert(std::is_floating_point<Type>::value,
       "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
 
@@ -1281,59 +1341,5 @@ namespace std
 
     result.pop_back();
     return result;
-  }
-
-  //
-  // integral types to_chars_len
-  //
-
-  template<typename IntType>
-  std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(IntType value) noexcept
-  {
-    // TODO test
-    bool is_neg = value < 0;
-    if (is_neg)
-    {
-      value = -value;
-    }
-    return value == 0 ? 1 : trunc(log10(value)) + 1 + is_neg;
-  }
-
-  template<typename IntType>
-  std::enable_if<std::is_enum<IntType>::value, size_t>::type
-  to_chars_len(IntType value) noexcept
-  {
-    // TODO test
-    size_t size = 0;
-
-    if (value == 0)
-    {
-      size = 1;
-    }
-    else
-    {
-      bool is_neg = value < 0;
-      if constexpr (sizeof(IntType) <= 4)
-      {
-        unsigned long int nvalue = is_neg ? -value : value;
-        size = trunc(log10(nvalue)) + 1;
-      }
-      else
-      {
-        unsigned long long int nvalue = is_neg ? -value : value;
-        size = trunc(log10(nvalue)) + 1;
-      }
-      size += is_neg;
-    }
-
-    return size;
-  }
-
-  template<typename IntType>
-  std::enable_if<std::is_integral<IntType>::value, size_t>::type
-  to_chars_len(const volatile std::atomic<IntType>& value) noexcept
-  {
-    return to_chars_len(value.load());
   }
 }

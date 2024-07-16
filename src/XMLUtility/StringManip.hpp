@@ -378,6 +378,45 @@ operator <<(std::ostream& ostr,
 
 namespace Stream::MemoryStream
 {
+
+  template<>
+  struct ToCharsLenHelper<XMLUtility::StringManip::XMLMbcAdapter>
+  {
+    size_t
+    operator()(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter) noexcept
+    {
+      return strlen(xml_adapter.operator const char*());
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<XMLUtility::StringManip::XMLMbcAdapter>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last, const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+      noexcept
+    {
+      std::string str{xml_adapter.operator const char*()};
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<XMLUtility::StringManip::XMLMbcAdapter>
+  {
+    std::string
+    operator()(const XMLUtility::StringManip::XMLMbcAdapter& xml_adapter)
+      noexcept
+    {
+      return std::string(xml_adapter.operator const char*());
+    }
+  };
+
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
@@ -385,7 +424,12 @@ namespace Stream::MemoryStream
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
-      AllocatorInitializer, SIZE>& ostr, const XMLUtility::StringManip::XMLMbcAdapter& arg);
+      AllocatorInitializer, SIZE>& ostr, const XMLUtility::StringManip::XMLMbcAdapter& arg)
+    {
+      typedef typename XMLUtility::StringManip::XMLMbcAdapter ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
   };
 }
 
