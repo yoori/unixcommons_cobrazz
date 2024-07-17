@@ -392,6 +392,7 @@ run_tests(size_t cmp_len = 0)
   // doubleout
   if constexpr (is_on)
   {
+    // double_out for is_floating_point
     compare_double_out<OStream>(0.0, cmp_len);
     compare_double_out<OStream>(0.0, cmp_len, 5);
     compare_double_out<OStream>(-0.0, cmp_len);
@@ -424,6 +425,11 @@ run_tests(size_t cmp_len = 0)
     compare_double_out<OStream>(std::numeric_limits<long double>::max(), cmp_len, 10);
     compare_double_out<OStream>(std::numeric_limits<long double>::min(), cmp_len, 10);
     compare_double_out<OStream>(123.123, cmp_len, 5);
+    // double_out for is_integral
+    compare_double_out<OStream>(0, cmp_len);
+    compare_double_out<OStream>(123, cmp_len);
+    compare_double_out<OStream>(123, cmp_len, 3);
+    compare_double_out<OStream>(123, cmp_len, 6);
   }
   // XMLUtility::StringManip::XMLMbcAdapter
   if constexpr (is_on)
@@ -464,6 +470,8 @@ run_tests(size_t cmp_len = 0)
 
     // double_out<const char*>
     compare_double_out<OStream>(std::string("123.123456").c_str(), cmp_len, 2);
+    // double_out<std::string>
+    compare_double_out<OStream>(std::string("123.123456"), cmp_len, 2);
   }
 }
 

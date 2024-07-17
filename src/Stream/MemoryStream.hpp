@@ -164,17 +164,17 @@ namespace std
   //
 
   template<typename IntType>
-  size_t
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>&)
     noexcept;
 
   template<typename IntType>
-  std::to_chars_result
+  std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
   to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
     noexcept;
 
   template<typename IntType>
-  std::string
+  std::enable_if<std::is_integral<IntType>::value, std::string>::type
   to_string(const Stream::MemoryStream::WidthOut<IntType>&)
     noexcept;
 
@@ -183,17 +183,17 @@ namespace std
   //
 
   template<typename Type>
-  size_t
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::HexOut<Type>&)
     noexcept;
 
   template<typename Type>
-  std::to_chars_result
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
   to_chars(char*, char*, const Stream::MemoryStream::HexOut<Type>&)
     noexcept;
 
   template<typename Type>
-  std::string
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
   to_string(const Stream::MemoryStream::HexOut<Type>&)
     noexcept;
 
@@ -202,19 +202,34 @@ namespace std
   //
 
   template<typename Type>
-  size_t
+  std::enable_if<std::is_floating_point<Type>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
 
   template<typename Type>
-  std::to_chars_result
+  std::enable_if<std::is_floating_point<Type>::value, std::to_chars_result>::type
   to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
 
   template<typename Type>
-  std::string
+  std::enable_if<std::is_floating_point<Type>::value, std::string>::type
   to_string(const Stream::MemoryStream::DoubleOut<Type>&)
     /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
+  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
 
   //
   // integral and enum types to_chars_len

@@ -1089,25 +1089,19 @@ namespace std
   //
 
   template<typename IntType>
-  size_t
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
-    static_assert(std::is_integral<IntType>::value,
-      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
-
     size_t value_size = to_chars_len(static_cast<IntType>(widthout.value()));
     return std::max(value_size, widthout.width());
   }
 
   template<typename IntType>
-  std::to_chars_result
+  std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
-    static_assert(std::is_integral<IntType>::value,
-      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
-
     IntType value = widthout.value();
     size_t value_size = to_chars_len(static_cast<IntType>(value));
     size_t capacity = last - first;
@@ -1129,13 +1123,10 @@ namespace std
   }
 
   template<typename IntType>
-  std::string
+  std::enable_if<std::is_integral<IntType>::value, std::string>::type
   to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
-    static_assert(std::is_integral<IntType>::value,
-      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
-
     auto str = std::to_string(widthout.value());
     auto width = widthout.width();
     if (width > str.size())
@@ -1153,13 +1144,10 @@ namespace std
   //
 
   template<typename Type>
-  size_t
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
-    static_assert(std::is_integral<Type>::value,
-      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
-
     typedef typename std::make_unsigned<Type>::type UType;
 
     static constexpr UType HEX_MASK_WIDTH = 4;
@@ -1185,13 +1173,10 @@ namespace std
   }
 
   template<typename Type>
-  std::to_chars_result
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
-    static_assert(std::is_integral<Type>::value,
-      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
-
     // Problem:
     // int value = -10;
     // std::cout << std::hex << value; --> gives 'fffffff6'
@@ -1217,13 +1202,10 @@ namespace std
   }
 
   template<typename Type>
-  std::string
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
   to_string(const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
-    static_assert(std::is_integral<Type>::value,
-      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
-
     typedef typename std::make_unsigned<Type>::type UType;
 
     static constexpr size_t MAX_UTYPE_HEX_WIDTH = 2 * sizeof(UType);
@@ -1270,13 +1252,10 @@ namespace std
   //
 
   template<typename Type>
-  std::string
+  std::enable_if<std::is_floating_point<Type>::value, std::string>::type
   build_format_str(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    static_assert(std::is_floating_point<Type>::value,
-      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
-
     // % + . + l + f + precision + \0
     // precision is size_t <= 2^32, to_string(precision, base=10).size() <= 10
     static constexpr size_t format_str_size = 16;
@@ -1303,13 +1282,10 @@ namespace std
   }
 
   template<typename Type>
-  size_t
+  std::enable_if<std::is_floating_point<Type>::value, size_t>::type
   to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    static_assert(std::is_floating_point<Type>::value,
-      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
-
     auto format_str = build_format_str(doubleout);
     int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
@@ -1320,13 +1296,10 @@ namespace std
   }
 
   template<typename Type>
-  std::to_chars_result
+  std::enable_if<std::is_floating_point<Type>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    static_assert(std::is_floating_point<Type>::value,
-      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
-
     size_t capacity = last - first;
     std::string str = std::to_string(doubleout);
     if (str.size() > capacity)
@@ -1338,13 +1311,10 @@ namespace std
   }
 
   template<typename Type>
-  std::string
+  std::enable_if<std::is_floating_point<Type>::value, std::string>::type
   to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
-    static_assert(std::is_floating_point<Type>::value,
-      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
-
     auto format_str = build_format_str(doubleout);
     int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
@@ -1362,5 +1332,29 @@ namespace std
 
     result.pop_back();
     return result;
+  }
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    noexcept
+  {
+    return std::to_chars_len(doubleout.value());
+  }
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
+  to_chars(char* first, char* last, const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    noexcept
+  {
+    return std::to_chars(first, last, doubleout.value());
+  }
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
+  to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
+    noexcept
+  {
+    return std::to_string(doubleout.value());
   }
 }

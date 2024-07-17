@@ -572,7 +572,7 @@ namespace Stream::MemoryStream
   };
 
   //
-  // OutputMemoryStreamHelper overload used in Generics::SimpleDecimal constructor
+  // OutputMemoryStreamHelper const char* overload used in Generics::SimpleDecimal constructor
   //
 
   template<>
@@ -623,6 +623,63 @@ namespace Stream::MemoryStream
       AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<const char*>& arg)
     {
       typedef typename Stream::MemoryStream::DoubleOut<const char*> ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
+
+  //
+  // OutputMemoryStreamHelper std::string overload used in Generics::SimpleDecimal constructor
+  //
+
+  template<>
+  struct ToCharsLenHelper<Stream::MemoryStream::DoubleOut<std::string>>
+  {
+    size_t
+    operator()(const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
+    {
+      return doubleout.value().size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Stream::MemoryStream::DoubleOut<std::string>>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last,
+      const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
+    {
+      size_t len = doubleout.value().size();
+      size_t capacity = last - first;
+      if (len > capacity)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, doubleout.value().data(), len);
+      return {first + len, std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Stream::MemoryStream::DoubleOut<std::string>>
+  {
+    std::string
+    operator()(const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
+    {
+      return doubleout.value();
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Stream::MemoryStream::DoubleOut<std::string>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<std::string>& arg)
+    {
+      typedef typename Stream::MemoryStream::DoubleOut<std::string> ArgT;
       return OutputMemoryStreamHelperImpl(ostr, arg,
         ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
     }
