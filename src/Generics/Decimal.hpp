@@ -38,7 +38,7 @@ namespace Generics
     void
     hash_add(Hash& hash,
       const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& key)
-      throw ();
+      noexcept;
 
     /**
      * decimal digits per element
@@ -108,7 +108,7 @@ namespace Generics
      * Constructor
      * Initializes the number with INVALID_FLAG_
      */
-    Decimal() throw ();
+    Decimal() noexcept;
 
     /**
      * Construct from parts
@@ -205,7 +205,7 @@ namespace Generics
      */
     template <typename ToFloating>
     ToFloating
-    floating() const throw ();
+    floating() const noexcept;
 
     /**
      * Floating representation of this number
@@ -214,7 +214,7 @@ namespace Generics
      */
     template <typename ToFloating>
     void
-    to_floating(ToFloating& val) const throw ();
+    to_floating(ToFloating& val) const noexcept;
 
     /**
      * String representation of this number
@@ -235,21 +235,21 @@ namespace Generics
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
     void
-    pack(void* buffer) const throw ();
+    pack(void* buffer) const noexcept;
 
     /**
      * Unpacks current value from PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
     void
-    unpack(const void* buffer) throw ();
+    unpack(const void* buffer) noexcept;
 
     /**
      * Revert sign of this number
      * @return this
      */
     Decimal&
-    negate() throw ();
+    negate() noexcept;
 
     /**
      * Makes floor of absolute value of this
@@ -257,7 +257,7 @@ namespace Generics
      * @return this
      */
     Decimal&
-    floor(unsigned fraction) throw ();
+    floor(unsigned fraction) noexcept;
 
     /**
      * Makes ceil of absolute value of this
@@ -273,21 +273,21 @@ namespace Generics
      * @return true if number is zero
      */
     bool
-    is_zero() const throw ();
+    is_zero() const noexcept;
 
     /**
      * Test on greater than or equal to zero
      * @return true if number greater than or equal to zero
      */
     bool
-    is_nonnegative() const throw ();
+    is_nonnegative() const noexcept;
 
     /**
      * Test on less than or equal to zero
      * @return true if number less than or equal to zero
      */
     bool
-    is_nonpositive() const throw ();
+    is_nonpositive() const noexcept;
 
     /**
      * Test on equality
@@ -295,7 +295,7 @@ namespace Generics
      * @return true if equal or false otherwise
      */
     bool
-    operator ==(const Decimal& test) const throw ();
+    operator ==(const Decimal& test) const noexcept;
 
     /**
      * Test on not equality
@@ -303,7 +303,7 @@ namespace Generics
      * @return true if not equal or false otherwise
      */
     bool
-    operator !=(const Decimal& test) const throw ();
+    operator !=(const Decimal& test) const noexcept;
 
     /**
      * Test on minority
@@ -311,7 +311,7 @@ namespace Generics
      * @return true if less than or false otherwise
      */
     bool
-    operator <(const Decimal& test) const throw ();
+    operator <(const Decimal& test) const noexcept;
 
     /**
      * Test on minority or equality
@@ -319,7 +319,7 @@ namespace Generics
      * @return true if less than or equal to or false otherwise
      */
     bool
-    operator <=(const Decimal& test) const throw ();
+    operator <=(const Decimal& test) const noexcept;
 
     /**
      * Test on majority
@@ -327,7 +327,7 @@ namespace Generics
      * @return true if greater than or false otherwise
      */
     bool
-    operator >(const Decimal& test) const throw ();
+    operator >(const Decimal& test) const noexcept;
 
     /**
      * Test on majority or equality
@@ -335,7 +335,7 @@ namespace Generics
      * @return true if greater than or equal to or false otherwise
      */
     bool
-    operator >=(const Decimal& test) const throw ();
+    operator >=(const Decimal& test) const noexcept;
 
     /**
      * Add summand to this
@@ -448,7 +448,7 @@ namespace Generics
      */
     static
     Decimal
-    maximum_() throw ();
+    maximum_() noexcept;
 
   private:
     /**
@@ -497,7 +497,7 @@ namespace Generics
     static
     bool
     internal_add_(const Decimal& summand1, const Decimal& summand2,
-      Decimal& target) throw ();
+      Decimal& target) noexcept;
 
     /**
      * Substruct array parts of decimals
@@ -511,7 +511,7 @@ namespace Generics
     static
     void
     internal_sub_(const Decimal& left, const Decimal& right,
-      Decimal& target, unsigned diff_index) throw ();
+      Decimal& target, unsigned diff_index) noexcept;
 
     /**
      * Check array parts if this < test
@@ -522,7 +522,7 @@ namespace Generics
      */
     bool
     is_less_than_(const Decimal& test, unsigned& diff_index) const
-      throw ();
+      noexcept;
 
     /**
      * Multiply elements in base of BASE
@@ -534,7 +534,7 @@ namespace Generics
     static
     void
     mul_elements_(Element multiplier, Element factor,
-      Element& minor, Element& major) throw ();
+      Element& minor, Element& major) noexcept;
 
     /**
      * Divide elements in base of BASE
@@ -547,7 +547,7 @@ namespace Generics
     static
     void
     div_elements_(Element major, Element minor, Element divisor,
-      Element& quotient, Element& remainder) throw ();
+      Element& quotient, Element& remainder) noexcept;
 
     /**
      * Do division of decimals
@@ -566,15 +566,15 @@ namespace Generics
     class MulTmpArray
     {
     public:
-      MulTmpArray() throw ();
+      MulTmpArray() noexcept;
       bool
-      add(Element value, unsigned index) throw ();
+      add(Element value, unsigned index) noexcept;
       bool
-      round() throw ();
+      round() noexcept;
       bool
-      ceil() throw ();
+      ceil() noexcept;
       void
-      export_to(Decimal& result) const throw ();
+      export_to(Decimal& result) const noexcept;
       std::string
       dump() const /*throw (eh::Exception)*/;
 
@@ -601,21 +601,21 @@ namespace Generics
     class DivTmpArrayBase
     {
     public:
-      DivTmpArrayBase() throw ();
+      DivTmpArrayBase() noexcept;
 
       void
-      shrink() throw ();
+      shrink() noexcept;
 
       unsigned
-      size() throw ();
+      size() noexcept;
 
       unsigned
-      initial_size() throw ();
+      initial_size() noexcept;
 
       void
-      mul(Element multiplicator) throw ();
+      mul(Element multiplicator) noexcept;
       void
-      div(Element multiplicator, Element& remainder) throw ();
+      div(Element multiplicator, Element& remainder) noexcept;
 
       std::string
       dump() const /*throw (eh::Exception)*/;
@@ -641,34 +641,34 @@ namespace Generics
     class DivTmpDividend : public DivTmpArrayBase<DIV_TMP_SIZE>
     {
     public:
-      DivTmpDividend(const Decimal& dividend) throw ();
+      DivTmpDividend(const Decimal& dividend) noexcept;
 
       Element
       guess_next_quotient(unsigned index, Element max_div,
-        Element pre_max_div) throw ();
+        Element pre_max_div) noexcept;
 
       bool
       apply_next_quotient(unsigned index, Element guess,
-        const DivTmpDivisor& divisor) throw ();
+        const DivTmpDivisor& divisor) noexcept;
 
       void
       fix_next_quotient(unsigned index, const DivTmpDivisor& divisor)
-        throw ();
+        noexcept;
 
       bool
-      export_to(Decimal& result) throw ();
+      export_to(Decimal& result) noexcept;
     };
     friend class DivTmpDividend;
 
     class DivTmpDivisor : public DivTmpArrayBase<SIZE + 1>
     {
     public:
-      DivTmpDivisor(const Decimal& divider) throw ();
+      DivTmpDivisor(const Decimal& divider) noexcept;
 
       Element
-      max_element() throw ();
+      max_element() noexcept;
       Element
-      pre_max_element() throw ();
+      pre_max_element() noexcept;
 
       friend class
       DivTmpDividend;

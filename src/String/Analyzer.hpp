@@ -52,7 +52,7 @@ namespace String
        * Simple (empty) virtual destructor
        */
       virtual
-      ~Analyzer() throw ();
+      ~Analyzer() noexcept;
 
       /**
        * Do translation
@@ -85,7 +85,7 @@ namespace String
 
       protected:
         virtual
-        ~TreeNode() throw ();
+        ~TreeNode() noexcept;
       };
 
 
@@ -134,7 +134,7 @@ namespace String
       static
       bool
       not_digit(char ch)
-        throw ();
+        noexcept;
 
       bool
       not_allowed_char_range(char ch) const
@@ -275,7 +275,7 @@ namespace String
 
     inline
     bool
-    Analyzer::not_digit(char ch) throw ()
+    Analyzer::not_digit(char ch) noexcept
     {
       return !String::AsciiStringManip::NUMBER(ch);
     }
@@ -519,7 +519,7 @@ namespace String
             catch (const NoncriticalException& e)
             {
               Stream::Error ostr;
-              ostr << FNS << 
+              ostr << FNS <<
                 "Got NoncriticalException while trying to process "
                 "symbol. Description: " << e.what() << "\n"
                 "Proceeding from the nearest separator";

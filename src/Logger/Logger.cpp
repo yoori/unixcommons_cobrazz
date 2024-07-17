@@ -11,30 +11,30 @@ namespace Logging
   // SimpleLoggerHolder class
   //
 
-  SimpleLoggerHolder::SimpleLoggerHolder(Logger* logger) throw ()
+  SimpleLoggerHolder::SimpleLoggerHolder(Logger* logger) noexcept
     : logger_(ReferenceCounting::add_ref(logger))
   {
   }
 
-  SimpleLoggerHolder::~SimpleLoggerHolder() throw ()
+  SimpleLoggerHolder::~SimpleLoggerHolder() noexcept
   {
   }
 
   unsigned long
-  SimpleLoggerHolder::log_level() throw ()
+  SimpleLoggerHolder::log_level() noexcept
   {
     return logger_->log_level();
   }
 
   void
-  SimpleLoggerHolder::log_level(unsigned long value) throw ()
+  SimpleLoggerHolder::log_level(unsigned long value) noexcept
   {
     logger_->log_level(value);
   }
 
   bool
   SimpleLoggerHolder::log(const String::SubString& text,
-    unsigned long severity, const char* aspect, const char* code) throw ()
+    unsigned long severity, const char* aspect, const char* code) noexcept
   {
     return logger_->log(text, severity, aspect, code);
   }
@@ -44,18 +44,18 @@ namespace Logging
   // LoggerHolder class
   //
 
-  LoggerHolder::LoggerHolder(Logger* logger) throw ()
+  LoggerHolder::LoggerHolder(Logger* logger) noexcept
     : SimpleLoggerHolder(logger),
       log_level_(logger ? logger->log_level() : 0)
   {
   }
 
-  LoggerHolder::~LoggerHolder() throw ()
+  LoggerHolder::~LoggerHolder() noexcept
   {
   }
 
   void
-  LoggerHolder::logger(Logger* new_logger) throw ()
+  LoggerHolder::logger(Logger* new_logger) noexcept
   {
     QLogger_var nl(ReferenceCounting::add_ref(new_logger));
     {
@@ -66,13 +66,13 @@ namespace Logging
   }
 
   unsigned long
-  LoggerHolder::log_level() throw ()
+  LoggerHolder::log_level() noexcept
   {
     return log_level_;
   }
 
   void
-  LoggerHolder::log_level(unsigned long value) throw ()
+  LoggerHolder::log_level(unsigned long value) noexcept
   {
     Sync::PosixSpinGuard guard(mutex_);
     if (has_logger_())
@@ -84,7 +84,7 @@ namespace Logging
 
   bool
   LoggerHolder::log(const String::SubString& text, unsigned long severity,
-    const char* aspect, const char* code) throw ()
+    const char* aspect, const char* code) noexcept
   {
     if (severity > static_cast<unsigned long>(log_level_))
     {
@@ -113,7 +113,7 @@ namespace Logging
 
   bool
   LoggerDefaultHolder::log(const String::SubString& text,
-    unsigned long severity, const char* aspect, const char* code) throw ()
+    unsigned long severity, const char* aspect, const char* code) noexcept
   {
     return LoggerHolder::log(text, severity,
       aspect ? aspect : aspect_.c_str(), code ? code : code_.c_str());

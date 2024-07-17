@@ -27,7 +27,7 @@ namespace CORBACommons
      * Constructor
      * Creates "insecure" information
      */
-    SecureConnectionConfig() throw ();
+    SecureConnectionConfig() noexcept;
 
     /**
      * Constructor
@@ -65,14 +65,14 @@ namespace CORBACommons
      * @return if contents are binary equal or not
      */
     bool
-    operator ==(const SecureConnectionConfig& right) const throw ();
+    operator ==(const SecureConnectionConfig& right) const noexcept;
 
     /**
      * Gives "secure" status
      * @return if it was initialized with security information or not
      */
     bool
-    is_secure() const throw ();
+    is_secure() const noexcept;
 
     std::string pass_phrase;
     PrivateKey_var private_key;
@@ -99,21 +99,21 @@ namespace CORBACommons
      * @return reference to stored configuration
      */
     const SecureConnectionConfig&
-    operator *() const throw ();
+    operator *() const noexcept;
 
     /**
      * Pointer to stored configuration
      * @return pointer to stored configuration
      */
     const SecureConnectionConfig*
-    operator ->() const throw ();
+    operator ->() const noexcept;
 
     /**
      * Calculated hash value for configuration
      * @return calculated hash value
      */
     size_t
-    hash() const throw ();
+    hash() const noexcept;
 
     /**
      * Compares with another adapter on equality
@@ -121,7 +121,7 @@ namespace CORBACommons
      * @return if two adapters hold equal information or not
      */
     bool
-    operator ==(const SecureConnectionConfigAdaptor& other) const throw ();
+    operator ==(const SecureConnectionConfigAdaptor& other) const noexcept;
 
   private:
     SecureConnectionConfig config_;
@@ -175,13 +175,13 @@ namespace CORBACommons
   //
 
   inline
-  SecureConnectionConfig::SecureConnectionConfig() throw ()
+  SecureConnectionConfig::SecureConnectionConfig() noexcept
   {
   }
 
   inline
   bool
-  SecureConnectionConfig::is_secure() const throw ()
+  SecureConnectionConfig::is_secure() const noexcept
   {
     const char* key = private_key;
     return key && *key;
@@ -190,7 +190,7 @@ namespace CORBACommons
   inline
   bool
   SecureConnectionConfig::operator ==(const SecureConnectionConfig& right)
-    const throw ()
+    const noexcept
   {
     return !is_secure() ? !right.is_secure() :
       right.is_secure() &&
@@ -220,21 +220,21 @@ namespace CORBACommons
 
   inline
   const SecureConnectionConfig&
-  SecureConnectionConfigAdaptor::operator *() const throw ()
+  SecureConnectionConfigAdaptor::operator *() const noexcept
   {
     return config_;
   }
 
   inline
   const SecureConnectionConfig*
-  SecureConnectionConfigAdaptor::operator ->() const throw ()
+  SecureConnectionConfigAdaptor::operator ->() const noexcept
   {
     return &config_;
   }
 
   inline
   size_t
-  SecureConnectionConfigAdaptor::hash() const throw ()
+  SecureConnectionConfigAdaptor::hash() const noexcept
   {
     return hash_;
   }
@@ -242,7 +242,7 @@ namespace CORBACommons
   inline
   bool
   SecureConnectionConfigAdaptor::operator ==(
-    const SecureConnectionConfigAdaptor& other) const throw ()
+    const SecureConnectionConfigAdaptor& other) const noexcept
   {
     return config_ == other.config_;
   }

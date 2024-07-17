@@ -15,6 +15,7 @@
 
 #include <Generics/RSA.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 namespace Generics
 {
@@ -36,9 +37,9 @@ namespace Generics
     // random number based
     static
     Uuid
-    create_random_based() throw ();
+    create_random_based() noexcept;
 
-    Uuid() throw ();
+    Uuid() noexcept;
 
     explicit
     Uuid(const char* str, bool padding = true)
@@ -57,25 +58,25 @@ namespace Generics
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
     bool
-    operator ==(const Uuid& rhs) const throw ();
+    operator ==(const Uuid& rhs) const noexcept;
 
     bool
-    operator !=(const Uuid& rhs) const throw ();
+    operator !=(const Uuid& rhs) const noexcept;
 
     bool
-    operator <(const Uuid& rhs) const throw ();
+    operator <(const Uuid& rhs) const noexcept;
 
     bool
-    operator >(const Uuid& rhs) const throw ();
+    operator >(const Uuid& rhs) const noexcept;
 
     bool
-    operator <=(const Uuid& rhs) const throw ();
+    operator <=(const Uuid& rhs) const noexcept;
 
     bool
-    operator >=(const Uuid& rhs) const throw ();
+    operator >=(const Uuid& rhs) const noexcept;
 
     bool
-    is_null() const throw ();
+    is_null() const noexcept;
 
     std::string
     to_string(bool padding = true) const
@@ -83,29 +84,29 @@ namespace Generics
 
     static
     size_type
-    size() throw ();
+    size() noexcept;
 
     static
     size_type
-    encoded_size(bool padding = true) throw ();
+    encoded_size(bool padding = true) noexcept;
 
     iterator
-    begin() throw ();
+    begin() noexcept;
 
     const_iterator
-    begin() const throw ();
+    begin() const noexcept;
 
     iterator
-    end() throw ();
+    end() noexcept;
 
     const_iterator
-    end() const throw ();
+    end() const noexcept;
 
     void
-    swap(Uuid& rhs) throw ();
+    swap(Uuid& rhs) noexcept;
 
     unsigned long
-    hash() const throw ();
+    hash() const noexcept;
 
   private:
     static const size_type DATA_SIZE = 16;
@@ -132,13 +133,13 @@ namespace Generics
   ;
 
   std::ostream&
-  operator <<(std::ostream& ostr, const Uuid& uuid) throw ();
+  operator <<(std::ostream& ostr, const Uuid& uuid) noexcept;
   std::istream&
-  operator >>(std::istream& istr, Uuid& uuid) throw ();
+  operator >>(std::istream& istr, Uuid& uuid) noexcept;
 
   template <typename Hash>
   void
-  hash_add(Hash& hash, const Uuid& value) throw ();
+  hash_add(Hash& hash, const Uuid& value) noexcept;
 
 
   class SignedUuidGenerator;
@@ -156,14 +157,14 @@ namespace Generics
      * @return contained uuid
      */
     const Uuid&
-    uuid() const throw ();
+    uuid() const noexcept;
 
     /**
      * Returns contained data bits
      * @return contained data bits
      */
     uint8_t
-    data() const throw ();
+    data() const noexcept;
 
     /**
      * String representation of Uuid and its signature. It can be parsed
@@ -171,7 +172,7 @@ namespace Generics
      * @return string representation of the signed uuid
      */
     const std::string&
-    str() const throw ();
+    str() const noexcept;
 
 
   private:
@@ -273,7 +274,7 @@ namespace Generics
   {
   public:
     explicit
-    SignedUuidProbe(const Uuid& probe) throw ();
+    SignedUuidProbe(const Uuid& probe) noexcept;
 
     SignedUuid
     construct() const /*throw (eh::Exception)*/;
@@ -308,7 +309,7 @@ namespace Generics
 
   inline
   bool
-  Uuid::operator ==(const Uuid& rhs) const throw ()
+  Uuid::operator ==(const Uuid& rhs) const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -322,14 +323,14 @@ namespace Generics
 
   inline
   bool
-  Uuid::operator !=(const Uuid& rhs) const throw ()
+  Uuid::operator !=(const Uuid& rhs) const noexcept
   {
     return !operator ==(rhs);
   }
 
   inline
   bool
-  Uuid::operator <(const Uuid& rhs) const throw ()
+  Uuid::operator <(const Uuid& rhs) const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -347,28 +348,28 @@ namespace Generics
 
   inline
   bool
-  Uuid::operator >(const Uuid& rhs) const throw ()
+  Uuid::operator >(const Uuid& rhs) const noexcept
   {
     return rhs < *this;
   }
 
   inline
   bool
-  Uuid::operator <=(const Uuid& rhs) const throw ()
+  Uuid::operator <=(const Uuid& rhs) const noexcept
   {
     return !operator >(rhs);
   }
 
   inline
   bool
-  Uuid::operator >=(const Uuid& rhs) const throw ()
+  Uuid::operator >=(const Uuid& rhs) const noexcept
   {
     return !operator <(rhs);
   }
 
   inline
   bool
-  Uuid::is_null() const throw ()
+  Uuid::is_null() const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -383,49 +384,49 @@ namespace Generics
 
   inline
   Uuid::size_type
-  Uuid::size() throw ()
+  Uuid::size() noexcept
   {
     return DATA_SIZE;
   }
 
   inline
   Uuid::size_type
-  Uuid::encoded_size(bool padding) throw ()
+  Uuid::encoded_size(bool padding) noexcept
   {
     return String::StringManip::base64mod_encoded_size(DATA_SIZE, padding);
   }
 
   inline
   Uuid::iterator
-  Uuid::begin() throw ()
+  Uuid::begin() noexcept
   {
     return data_;
   }
 
   inline
   Uuid::const_iterator
-  Uuid::begin() const throw ()
+  Uuid::begin() const noexcept
   {
     return data_;
   }
 
   inline
   Uuid::iterator
-  Uuid::end() throw ()
+  Uuid::end() noexcept
   {
     return data_ + DATA_SIZE;
   }
 
   inline
   Uuid::const_iterator
-  Uuid::end() const throw ()
+  Uuid::end() const noexcept
   {
     return data_ + DATA_SIZE;
   }
 
   inline
   void
-  Uuid::swap(Uuid& rhs) throw ()
+  Uuid::swap(Uuid& rhs) noexcept
   {
     DataType data;
     std::copy(begin(), end(), data);
@@ -435,7 +436,7 @@ namespace Generics
 
   inline
   unsigned long
-  Uuid::hash() const throw ()
+  Uuid::hash() const noexcept
   {
     return hash_[1];
   }
@@ -443,7 +444,7 @@ namespace Generics
 
   template <typename Hash>
   void
-  hash_add(Hash& hash, const Uuid& value) throw ()
+  hash_add(Hash& hash, const Uuid& value) noexcept
   {
     hash.add(value.begin(), value.size());
   }
@@ -455,24 +456,79 @@ namespace Generics
 
   inline
   const Uuid&
-  SignedUuid::uuid() const throw ()
+  SignedUuid::uuid() const noexcept
   {
     return uuid_;
   }
 
   inline
   uint8_t
-  SignedUuid::data() const throw ()
+  SignedUuid::data() const noexcept
   {
     return data_;
   }
 
   inline
   const std::string&
-  SignedUuid::str() const throw ()
+  SignedUuid::str() const noexcept
   {
     return str_;
   }
 } // namespace Generics
+
+namespace Stream::MemoryStream
+{
+  template<>
+  struct ToCharsLenHelper<Generics::Uuid>
+  {
+    size_t
+    operator()(const Generics::Uuid& uuid) noexcept
+    {
+      return uuid.to_string(true).size();
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<Generics::Uuid>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last, const Generics::Uuid& uuid) noexcept
+    {
+      auto str = uuid.to_string(true);
+      if (first + str.size() > last)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      memcpy(first, str.data(), str.size());
+      return {first + str.size(), std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<Generics::Uuid>
+  {
+    std::string
+    operator()(const Generics::Uuid& uuid) noexcept
+    {
+      return uuid.to_string(true);
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::Uuid>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Generics::Uuid& arg)
+    {
+      typedef typename Generics::Uuid ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+
+    }
+  };
+}
 
 #endif

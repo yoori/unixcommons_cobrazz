@@ -10,6 +10,7 @@ add_library(${proj} SHARED
   CRC.cpp
   Crypto.cpp
   Hash.cpp
+  HashTableAdapters.cpp
   Listener.cpp
   MMap.cpp
   MemBuf.cpp
