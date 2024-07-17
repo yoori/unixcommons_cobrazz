@@ -40,8 +40,6 @@ namespace Stream::MemoryStream
      * @param value - value to be stored
      * @param width - width value, width == 0 means width is not set
      * @param fill - setfill value, works only if width > 0
-     *
-     * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
     WidthOut(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
 
@@ -89,8 +87,6 @@ namespace Stream::MemoryStream
      * class to store state of std::hex + std::uppercase
      * @param value - value to be stored
      * @param upcase - uppercase value
-     *
-     * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
     HexOut(const Type& value, bool upcase = false) noexcept;
 
@@ -131,8 +127,6 @@ namespace Stream::MemoryStream
      * class to store state of std::setprecision (with obligatory std::fixed)
      * @param value - value to be stored
      * @param precision - fixed precision of value
-     *
-     * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
     DoubleOut(const Type& value, size_t precision = 0) noexcept;
 
