@@ -75,9 +75,18 @@ test_input(const char* result) /*throw (eh::Exception)*/
 // test Stream::OutputMemoryStream::operator<< for all types
 // helpers section
 
+
+void cut_ostr(std::ostringstream& ostr, size_t cut_len = 0)
+{
+  char buf[cut_len + 1] = {0};
+  snprintf(buf, cut_len + 1, "%s", ostr.str().data());
+  ostr = std::ostringstream();
+  ostr << buf;
+}
+
 template<typename OStream, typename Type>
 void
-compare(const Type& value, bool remove_const = false)
+compare(const Type& value, size_t cmp_len = 0, bool remove_const = false)
 {
   std::ostringstream ostr;
   ostr << (remove_const ? const_cast<Type&>(value) : value);
@@ -85,12 +94,17 @@ compare(const Type& value, bool remove_const = false)
   OStream omem;
   omem << (remove_const ? const_cast<Type&>(value) : value);
 
+  if (cmp_len)
+  {
+    cut_ostr(ostr, cmp_len);
+  }
+
   assert(ostr.str() == omem.str());
 }
 
 template<typename OStream, typename Type>
 void
-compare_width_out(const Type& value, size_t width = 0, char fill = ' ')
+compare_width_out(const Type& value, size_t cmp_len = 0, size_t width = 0, char fill = ' ')
 {
   std::ostringstream ostr;
   ostr << std::setw(width) << std::setfill(fill) << value;
@@ -98,12 +112,17 @@ compare_width_out(const Type& value, size_t width = 0, char fill = ' ')
   OStream omem;
   omem << Stream::MemoryStream::width_out(value, width, fill);
 
+  if (cmp_len)
+  {
+    cut_ostr(ostr, cmp_len);
+  }
+
   assert(ostr.str() == omem.str());
 }
 
 template<typename OStream, typename Type>
 void
-compare_hex_out(const Type& value, bool upcase = false)
+compare_hex_out(const Type& value, size_t cmp_len = 0, bool upcase = false)
 {
   std::ostringstream ostr;
   ostr << std::hex;
@@ -116,18 +135,28 @@ compare_hex_out(const Type& value, bool upcase = false)
   OStream omem;
   omem << Stream::MemoryStream::hex_out(value, upcase);
 
+  if (cmp_len)
+  {
+    cut_ostr(ostr, cmp_len);
+  }
+
   assert(ostr.str() == omem.str());
 }
 
 template<typename OStream, typename Type>
 void
-compare_double_out(const Type& value, size_t precision = 0)
+compare_double_out(const Type& value, size_t cmp_len = 0, size_t precision = 0)
 {
   std::ostringstream ostr;
   ostr << std::setprecision(precision) << std::fixed << value;
 
   OStream omem;
   omem << Stream::MemoryStream::double_out(value, precision);
+
+  if (cmp_len)
+  {
+    cut_ostr(ostr, cmp_len);
+  }
 
   assert(ostr.str() == omem.str());
 }
@@ -137,127 +166,127 @@ compare_double_out(const Type& value, size_t precision = 0)
 
 template<typename OStream = Stream::Dynamic>
 void
-run_tests()
+run_tests(size_t cmp_len = 0)
 {
   static constexpr bool is_on = true;
 
   // bool
   if constexpr (is_on)
   {
-    compare<OStream>(true);
-    compare<OStream>(false);
+    compare<OStream>(true, cmp_len);
+    compare<OStream>(false, cmp_len);
   }
   // char
   if constexpr (is_on)
   {
     char ch = 'a';
-    compare<OStream>(ch);
+    compare<OStream>(ch, cmp_len);
     const char cch = 'a';
-    compare<OStream>(cch);
+    compare<OStream>(cch, cmp_len);
 
     unsigned char uch = 'a';
-    compare<OStream>(uch);
+    compare<OStream>(uch, cmp_len);
 
     signed char sch = 'a';
-    compare<OStream>(sch);
+    compare<OStream>(sch, cmp_len);
   }
   // char* | char[n] | const char* | const char[n]
   if constexpr (is_on)
   {
     // char* | char[n]
     char ch[5] = {'a', 'b', 'c', 'd', '\0'};
-    compare<OStream>(ch, true);
+    compare<OStream>(ch, cmp_len, true);
     char* pch = ch;
-    compare<OStream>(pch, true);
+    compare<OStream>(pch, cmp_len, true);
 
     // const char* | const char[n]
     const char cch[5] = "abcd";
-    compare<OStream>(cch);
+    compare<OStream>(cch, cmp_len);
     const char* pcch = cch;
-    compare<OStream>(pcch);
+    compare<OStream>(pcch, cmp_len);
   }
   // ArgT* or const ArgT* (ArgT != Elem)
   if constexpr (is_on)
   {
     int* pinteger = nullptr;
-    compare<OStream>(pinteger);
+    compare<OStream>(pinteger, cmp_len);
 
     int integer = 123;
     pinteger = &integer;
-    compare<OStream>(pinteger);
+    compare<OStream>(pinteger, cmp_len);
 
     const int* cpinteger = &integer;
-    compare<OStream>(cpinteger);
+    compare<OStream>(cpinteger, cmp_len);
 
     // TODO
     // https://stackoverflow.com/questions/2064692/how-to-print-function-pointers-with-cout
     //auto* fptr = test_simple_dynamic;
-    //compare<OStream>(fptr);
+    //compare<OStream>(fptr, cmp_len);
 
     struct Cls {int xyz = 0;} cls;
     Cls* ptr = &cls;
-    compare<OStream>(ptr);
+    compare<OStream>(ptr, cmp_len);
 
     const Cls* cptr = &cls;
-    compare<OStream>(cptr);
+    compare<OStream>(cptr, cmp_len);
   }
   // std::string + std::string_view + BasicSubString
   if constexpr (is_on)
   {
     std::string str = "this is string";
-    compare<OStream>(str);
+    compare<OStream>(str, cmp_len);
 
     std::string_view strv(str.begin(), str.end());
-    compare<OStream>(strv);
+    compare<OStream>(strv, cmp_len);
 
     String::BasicSubString<const char> bsubstr(str);
-    compare<OStream>(bsubstr);
+    compare<OStream>(bsubstr, cmp_len);
   }
   // integral
   if constexpr (is_on)
   {
     // int
     int x = 0;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
     x = -1;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
     x = 1;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
     x = std::numeric_limits<int>::max();
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
     x = std::numeric_limits<int>::min();
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     unsigned int ux = 0;
-    compare<OStream>(ux);
+    compare<OStream>(ux, cmp_len);
     ux = std::numeric_limits<unsigned int>::max();
-    compare<OStream>(ux);
+    compare<OStream>(ux, cmp_len);
 
     // short
     short int sx = 0;
-    compare<OStream>(sx);
+    compare<OStream>(sx, cmp_len);
     sx = std::numeric_limits<short int>::max();
-    compare<OStream>(sx);
+    compare<OStream>(sx, cmp_len);
     sx = std::numeric_limits<short int>::min();
-    compare<OStream>(sx);
+    compare<OStream>(sx, cmp_len);
 
     unsigned short int sux = 0;
-    compare<OStream>(sux);
+    compare<OStream>(sux, cmp_len);
     sux = std::numeric_limits<short unsigned int>::max();
-    compare<OStream>(sux);
+    compare<OStream>(sux, cmp_len);
 
     // long long
     long long int lx = 0;
-    compare<OStream>(lx);
+    compare<OStream>(lx, cmp_len);
     lx = std::numeric_limits<long long int>::max();
-    compare<OStream>(lx);
+    compare<OStream>(lx, cmp_len);
     lx = std::numeric_limits<long long int>::min();
-    compare<OStream>(lx);
+    compare<OStream>(lx, cmp_len);
 
     unsigned long long int lux = 0;
-    compare<OStream>(lux);
+    compare<OStream>(lux, cmp_len);
     lux = std::numeric_limits<unsigned long long int>::max();
-    compare<OStream>(lux);
+    compare<OStream>(lux, cmp_len);
 
     // enum
     enum TEnum1
@@ -275,126 +304,126 @@ run_tests()
       EValue5 = std::numeric_limits<long long int>::min()
     };
 
-    compare<OStream>(TEnum1::EValue1);
-    compare<OStream>(TEnum1::EValue2);
-    compare<OStream>(TEnum1::EValue3);
-    compare<OStream>(TEnum2::EValue4);
-    compare<OStream>(TEnum3::EValue5);
+    compare<OStream>(TEnum1::EValue1, cmp_len);
+    compare<OStream>(TEnum1::EValue2, cmp_len);
+    compare<OStream>(TEnum1::EValue3, cmp_len);
+    compare<OStream>(TEnum2::EValue4, cmp_len);
+    compare<OStream>(TEnum3::EValue5, cmp_len);
 
     // atomic
     std::atomic<int> ax = 123;
-    compare<OStream>(ax);
+    compare<OStream>(ax, cmp_len);
   }
   // floating point
   if constexpr (is_on)
   {
     double x = 0.0;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     x = -1;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     x = 1;
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     x = std::numeric_limits<double>::min();
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     x = std::numeric_limits<double>::max();
-    compare<OStream>(x);
+    compare<OStream>(x, cmp_len);
 
     long double lx = std::numeric_limits<long double>::min();
-    compare<OStream>(lx);
+    compare<OStream>(lx, cmp_len);
 
     lx = std::numeric_limits<long double>::max();
-    compare<OStream>(lx);
+    compare<OStream>(lx, cmp_len);
 
     float fx = -123.123;
-    compare<OStream>(fx);
+    compare<OStream>(fx, cmp_len);
   }
   // widthout
   if constexpr (is_on)
   {
-    compare_width_out<OStream>(0);
-    compare_width_out<OStream>(1);
-    compare_width_out<OStream>(-1);
-    compare_width_out<OStream>(std::numeric_limits<int>::max());
-    compare_width_out<OStream>(std::numeric_limits<int>::min());
-    compare_width_out<OStream>(std::numeric_limits<unsigned int>::max());
-    compare_width_out<OStream>(std::numeric_limits<long long>::max());
-    compare_width_out<OStream>(std::numeric_limits<long long>::min());
-    compare_width_out<OStream>(std::numeric_limits<unsigned long long>::max());
-    compare_width_out<OStream>(123, 5);
-    compare_width_out<OStream>(123, 5, '*');
-    compare_width_out<OStream>(-123, 2);
-    compare_width_out<OStream>(-123, 2, '*');
-    compare_width_out<OStream>(-123, 4);
-    compare_width_out<OStream>(-123, 5, '*');
-    compare_width_out<OStream>(-123, 6, '#');
-    compare_width_out<OStream>(0, 5, '!');
-    compare_width_out<OStream>(0, 10);
+    compare_width_out<OStream>(0, cmp_len);
+    compare_width_out<OStream>(1, cmp_len);
+    compare_width_out<OStream>(-1, cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<int>::max(), cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<int>::min(), cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<unsigned int>::max(), cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<long long>::max(), cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<long long>::min(), cmp_len);
+    compare_width_out<OStream>(std::numeric_limits<unsigned long long>::max(), cmp_len);
+    compare_width_out<OStream>(123, cmp_len, 5);
+    compare_width_out<OStream>(123, cmp_len, 5, '*');
+    compare_width_out<OStream>(-123, cmp_len, 2);
+    compare_width_out<OStream>(-123, cmp_len, 2, '*');
+    compare_width_out<OStream>(-123, cmp_len, 4);
+    compare_width_out<OStream>(-123, cmp_len, 5, '*');
+    compare_width_out<OStream>(-123, cmp_len, 6, '#');
+    compare_width_out<OStream>(0, cmp_len, 5, '!');
+    compare_width_out<OStream>(0, cmp_len, 10);
   }
   // hexout
   if constexpr (is_on)
   {
-    compare_hex_out<OStream>(0);
-    compare_hex_out<OStream>(1);
-    compare_hex_out<OStream>(123123);
-    compare_hex_out<OStream>(-1);
-    compare_hex_out<OStream>(-123123);
-    compare_hex_out<OStream>(std::numeric_limits<int>::max());
-    compare_hex_out<OStream>(std::numeric_limits<int>::min());
-    compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max());
-    compare_hex_out<OStream>(std::numeric_limits<long long>::max());
-    compare_hex_out<OStream>(std::numeric_limits<long long>::min());
-    compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max());
-    compare_hex_out<OStream>(0, true);
-    compare_hex_out<OStream>(1, true);
-    compare_hex_out<OStream>(123123, true);
-    compare_hex_out<OStream>(-1, true);
-    compare_hex_out<OStream>(-123123, true);
-    compare_hex_out<OStream>(std::numeric_limits<int>::max(), true);
-    compare_hex_out<OStream>(std::numeric_limits<int>::min(), true);
-    compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max(), true);
-    compare_hex_out<OStream>(std::numeric_limits<long long>::max(), true);
-    compare_hex_out<OStream>(std::numeric_limits<long long>::min(), true);
-    compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max(), true);
+    compare_hex_out<OStream>(0, cmp_len);
+    compare_hex_out<OStream>(1, cmp_len);
+    compare_hex_out<OStream>(123123, cmp_len);
+    compare_hex_out<OStream>(-1, cmp_len);
+    compare_hex_out<OStream>(-123123, cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<int>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<int>::min(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::min(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max(), cmp_len);
+    compare_hex_out<OStream>(0, cmp_len, true);
+    compare_hex_out<OStream>(1, cmp_len, true);
+    compare_hex_out<OStream>(123123, cmp_len, true);
+    compare_hex_out<OStream>(-1, cmp_len, true);
+    compare_hex_out<OStream>(-123123, cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<int>::max(), cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<int>::min(), cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max(), cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::max(), cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::min(), cmp_len, true);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max(), cmp_len, true);
   }
   // doubleout
   if constexpr (is_on)
   {
-    compare_double_out<OStream>(0.0);
-    compare_double_out<OStream>(0.0, 5);
-    compare_double_out<OStream>(-0.0);
-    compare_double_out<OStream>(-0.0, 5);
-    compare_double_out<OStream>(0.123);
-    compare_double_out<OStream>(0.123, 3);
-    compare_double_out<OStream>(0.123, 4);
-    compare_double_out<OStream>(0.123, 5);
-    compare_double_out<OStream>(-0.123);
-    compare_double_out<OStream>(-0.123, 2);
-    compare_double_out<OStream>(-0.123, 3);
-    compare_double_out<OStream>(-0.123, 4);
-    compare_double_out<OStream>(-0.123, 5);
-    compare_double_out<OStream>(123.0);
-    compare_double_out<OStream>(-123.0);
-    compare_double_out<OStream>(0.59, 1);
-    compare_double_out<OStream>(0.59, 2);
-    compare_double_out<OStream>(0.55, 1);
-    compare_double_out<OStream>(0.55, 2);
-    compare_double_out<OStream>(0.9);
-    compare_double_out<OStream>(0.9, 1);
-    compare_double_out<OStream>(1.5, 1);
-    compare_double_out<OStream>(1.500001, 1);
-    compare_double_out<OStream>(1.4999999, 1);
-    compare_double_out<OStream>(1.4999999, 2);
-    compare_double_out<OStream>(2.5, 0);
-    compare_double_out<OStream>(2.5, 1);
-    compare_double_out<OStream>(std::numeric_limits<double>::max(), 10);
-    compare_double_out<OStream>(std::numeric_limits<double>::min(), 10);
-    compare_double_out<OStream>(std::numeric_limits<long double>::max(), 10);
-    compare_double_out<OStream>(std::numeric_limits<long double>::min(), 10);
-    compare_double_out<OStream>(123.123, 5);
+    compare_double_out<OStream>(0.0, cmp_len);
+    compare_double_out<OStream>(0.0, cmp_len, 5);
+    compare_double_out<OStream>(-0.0, cmp_len);
+    compare_double_out<OStream>(-0.0, cmp_len, 5);
+    compare_double_out<OStream>(0.123, cmp_len);
+    compare_double_out<OStream>(0.123, cmp_len, 3);
+    compare_double_out<OStream>(0.123, cmp_len, 4);
+    compare_double_out<OStream>(0.123, cmp_len, 5);
+    compare_double_out<OStream>(-0.123, cmp_len);
+    compare_double_out<OStream>(-0.123, cmp_len, 2);
+    compare_double_out<OStream>(-0.123, cmp_len, 3);
+    compare_double_out<OStream>(-0.123, cmp_len, 4);
+    compare_double_out<OStream>(-0.123, cmp_len, 5);
+    compare_double_out<OStream>(123.0, cmp_len);
+    compare_double_out<OStream>(-123.0, cmp_len);
+    compare_double_out<OStream>(0.59, cmp_len, 1);
+    compare_double_out<OStream>(0.59, cmp_len, 2);
+    compare_double_out<OStream>(0.55, cmp_len, 1);
+    compare_double_out<OStream>(0.55, cmp_len, 2);
+    compare_double_out<OStream>(0.9, cmp_len);
+    compare_double_out<OStream>(0.9, cmp_len, 1);
+    compare_double_out<OStream>(1.5, cmp_len, 1);
+    compare_double_out<OStream>(1.500001, cmp_len, 1);
+    compare_double_out<OStream>(1.4999999, cmp_len, 1);
+    compare_double_out<OStream>(1.4999999, cmp_len, 2);
+    compare_double_out<OStream>(2.5, cmp_len, 0);
+    compare_double_out<OStream>(2.5, cmp_len, 1);
+    compare_double_out<OStream>(std::numeric_limits<double>::max(), cmp_len, 10);
+    compare_double_out<OStream>(std::numeric_limits<double>::min(), cmp_len, 10);
+    compare_double_out<OStream>(std::numeric_limits<long double>::max(), cmp_len, 10);
+    compare_double_out<OStream>(std::numeric_limits<long double>::min(), cmp_len, 10);
+    compare_double_out<OStream>(123.123, cmp_len, 5);
   }
   // XMLUtility::StringManip::XMLMbcAdapter
   if constexpr (is_on)
@@ -407,34 +436,44 @@ run_tests()
   if constexpr (is_on)
   {
     Generics::StringHashAdapter sha("abc 123");
-    compare<OStream>(sha);
+    compare<OStream>(sha, cmp_len);
   }
   // Generics::Uuid
   if constexpr (is_on)
   {
     Generics::Uuid uuid;
-    compare<OStream>(uuid);
+    compare<OStream>(uuid, cmp_len);
   }
   // Generics::[Extended]Time
   if constexpr (is_on)
   {
     Generics::ExtendedTime etime(2000, 1, 1, 1, 1, 1, 0);
-    compare<OStream>(etime);
+    compare<OStream>(etime, cmp_len);
     Generics::Time time(etime);
-    compare<OStream>(time);
+    compare<OStream>(time, cmp_len);
 
     // width_out<Generics::Time>
-    compare_width_out<OStream>(time, 50, '*');
+    compare_width_out<OStream>(time, cmp_len, 50, '*');
   }
   // Generics::SimpleDecimal
   if constexpr (is_on)
   {
     const String::SubString num("-1234567890.87654321");
     Generics::SimpleDecimal<uint64_t, 18, 8> sd(num);
-    compare<OStream>(sd);
+    compare<OStream>(sd, cmp_len);
 
     // double_out<const char*>
-    compare_double_out<OStream>(std::string("123.123456").c_str(), 2);
+    compare_double_out<OStream>(std::string("123.123456").c_str(), cmp_len, 2);
+  }
+}
+
+template<const size_t Start, const size_t End, const size_t Inc = 1>
+constexpr void run_iter_tests()
+{
+  if constexpr (Start < End)
+  {
+    run_tests<Stream::Stack<Start>>(Start);
+    run_iter_tests<Start + Inc, End, Inc>();
   }
 }
 
@@ -447,6 +486,7 @@ main()
 
   run_tests();
   run_tests<Stream::Error>();
+  run_iter_tests<1, 20>();
 
   return 0;
 }

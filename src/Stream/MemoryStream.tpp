@@ -50,7 +50,7 @@ namespace Stream::MemoryStream
   //
 
   template<typename Type>
-  HexOut<Type>::HexOut(Type value, bool upcase) noexcept
+  HexOut<Type>::HexOut(const Type& value, bool upcase) noexcept
     : value_(value)
     , upcase_(upcase)
   {
@@ -82,7 +82,7 @@ namespace Stream::MemoryStream
   //
 
   template<typename Type>
-  DoubleOut<Type>::DoubleOut(Type value, size_t precision) noexcept
+  DoubleOut<Type>::DoubleOut(const Type& value, size_t precision) noexcept
     : value_(value)
     , precision_(precision)
   {
@@ -1093,6 +1093,9 @@ namespace std
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
+    static_assert(std::is_integral<IntType>::value,
+      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
+
     size_t value_size = to_chars_len(static_cast<IntType>(widthout.value()));
     return std::max(value_size, widthout.width());
   }
@@ -1130,6 +1133,9 @@ namespace std
   to_string(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
+    static_assert(std::is_integral<IntType>::value,
+      "Only integral IntType is implemented for: template<IntType> class WidthOut<IntType>");
+
     auto str = std::to_string(widthout.value());
     auto width = widthout.width();
     if (width > str.size())
@@ -1151,6 +1157,9 @@ namespace std
   to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
+    static_assert(std::is_integral<Type>::value,
+      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
+
     typedef typename std::make_unsigned<Type>::type UType;
 
     static constexpr UType HEX_MASK_WIDTH = 4;
@@ -1212,6 +1221,9 @@ namespace std
   to_string(const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
+    static_assert(std::is_integral<Type>::value,
+      "Only integral Type is implemented for: template<Type> class HexOut<Type>");
+
     typedef typename std::make_unsigned<Type>::type UType;
 
     static constexpr size_t MAX_UTYPE_HEX_WIDTH = 2 * sizeof(UType);
@@ -1262,6 +1274,9 @@ namespace std
   build_format_str(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
+    static_assert(std::is_floating_point<Type>::value,
+      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
+
     // % + . + l + f + precision + \0
     // precision is size_t <= 2^32, to_string(precision, base=10).size() <= 10
     static constexpr size_t format_str_size = 16;
@@ -1292,6 +1307,9 @@ namespace std
   to_chars_len(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
+    static_assert(std::is_floating_point<Type>::value,
+      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
+
     auto format_str = build_format_str(doubleout);
     int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
@@ -1324,6 +1342,9 @@ namespace std
   to_string(const Stream::MemoryStream::DoubleOut<Type>& doubleout)
     /*throw (eh::Exception) */
   {
+    static_assert(std::is_floating_point<Type>::value,
+      "Only floating point Type is implemented for: template<Type> class DoubleOut<Type>");
+
     auto format_str = build_format_str(doubleout);
     int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)

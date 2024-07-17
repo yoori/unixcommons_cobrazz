@@ -21,8 +21,6 @@
 
 #include <String/SubString.hpp>
 
-#include <iostream>
-
 //
 // iomanip-like helpers
 //
@@ -45,7 +43,7 @@ namespace Stream::MemoryStream
      *
      * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
-    WidthOut(const IntType& value = IntType(), size_t width = 0, char fill = ' ') noexcept;
+    WidthOut(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
 
     /**
      * @return value to be printed
@@ -94,7 +92,7 @@ namespace Stream::MemoryStream
      *
      * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
-    HexOut(Type value = Type(), bool upcase = false) noexcept;
+    HexOut(const Type& value, bool upcase = false) noexcept;
 
     /**
      * @return value to be printed
@@ -136,7 +134,7 @@ namespace Stream::MemoryStream
      *
      * NOTE: need default constructor for decltype(to_chars...(T())) to work
      */
-    DoubleOut(Type value = Type(), size_t precision = 0) noexcept;
+    DoubleOut(const Type& value, size_t precision = 0) noexcept;
 
     /**
      * @return value to be printed
