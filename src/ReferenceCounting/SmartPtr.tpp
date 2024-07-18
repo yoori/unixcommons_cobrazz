@@ -450,4 +450,15 @@ namespace ReferenceCounting
     Base::operator =(sptr);
     return *this;
   }
+
+  //
+  // make_ref
+  //
+
+  template<typename T, typename Policy, typename... Args>
+  SmartPtr<T, Policy>
+  make_ref(Args&&... args)
+  {
+    return SmartPtr<T, Policy>(new T(std::forward<Args>(args)...));
+  }
 }

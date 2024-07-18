@@ -393,6 +393,14 @@ namespace ReferenceCounting
     typedef FixedPtr<T, PolicyNotNull> FPtr;
     typedef QualPtr<T, PolicyNotNull> QPtr;
   };
+
+  //
+  // make_ref (like make_unique or make_shared)
+  //
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  SmartPtr<T, Policy>
+  make_ref(Args&&... args);
 }
 
 #include <ReferenceCounting/SmartPtr.ipp>
