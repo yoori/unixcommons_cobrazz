@@ -57,19 +57,19 @@ namespace ReferenceCounting
     using Base::reverse;
     using Base::sort;
 
-    List() throw ();
+    List() noexcept;
     List(size_type n) /*throw (eh::Exception)*/;
     List(size_type n, value_type& x) /*throw (eh::Exception)*/;
     List(List& l) /*throw (eh::Exception)*/;
     List(const List&) = delete;
-    List(List&& l) throw ();
+    List(List&& l) noexcept;
     template <typename InputIterator>
     List(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
     List&
     operator =(List& l) /*throw (eh::Exception)*/;
     List&
-    operator =(List&& l) throw ();
+    operator =(List&& l) noexcept;
 
     void
     assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
@@ -99,19 +99,19 @@ namespace ReferenceCounting
       /*throw (eh::Exception)*/;
 
     void
-    splice(iterator position, List&& l) throw ();
+    splice(iterator position, List&& l) noexcept;
     void
-    splice(iterator position, List&& l, iterator i) throw ();
+    splice(iterator position, List&& l, iterator i) noexcept;
     void
     splice(iterator position, List&& l, iterator first, iterator last)
-      throw ();
+      noexcept;
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
     void
-    swap(List&& l) throw ();
+    swap(List&& l) noexcept;
 #else
     void
-    swap(List& l) throw ();
+    swap(List& l) noexcept;
 #endif
   };
 }
@@ -119,7 +119,7 @@ namespace ReferenceCounting
 namespace ReferenceCounting
 {
   template <typename T, typename Allocator>
-  List<T, Allocator>::List() throw ()
+  List<T, Allocator>::List() noexcept
   {
   }
 
@@ -146,7 +146,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  List<T, Allocator>::List(List&& l) throw ()
+  List<T, Allocator>::List(List&& l) noexcept
     : Base(std::move(l))
   {
   }
@@ -169,7 +169,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   List<T, Allocator>&
-  List<T, Allocator>::operator =(List&& l) throw ()
+  List<T, Allocator>::operator =(List&& l) noexcept
   {
     Base::operator =(std::move(l));
     return *this;
@@ -287,7 +287,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   void
-  List<T, Allocator>::splice(iterator position, List&& l) throw ()
+  List<T, Allocator>::splice(iterator position, List&& l) noexcept
   {
     Base::splice(position, std::move(l));
   }
@@ -295,7 +295,7 @@ namespace ReferenceCounting
   template <typename T, typename Allocator>
   void
   List<T, Allocator>::splice(iterator position, List&& l, iterator i)
-    throw ()
+    noexcept
   {
     Base::splice(position, std::move(l), i);
   }
@@ -303,7 +303,7 @@ namespace ReferenceCounting
   template <typename T, typename Allocator>
   void
   List<T, Allocator>::splice(iterator position, List&& l, iterator first,
-    iterator last) throw ()
+    iterator last) noexcept
   {
     Base::splice(position, std::move(l), first, last);
   }
@@ -311,14 +311,14 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  List<T, Allocator>::swap(List&& l) throw ()
+  List<T, Allocator>::swap(List&& l) noexcept
   {
     Base::swap(std::move(l));
   }
 #else
   template <typename T, typename Allocator>
   void
-  List<T, Allocator>::swap(List& l) throw ()
+  List<T, Allocator>::swap(List& l) noexcept
   {
     Base::swap(l);
   }
@@ -327,7 +327,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   void
-  swap(List<T, Allocator>& x, List<T, Allocator>& y) throw ()
+  swap(List<T, Allocator>& x, List<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -335,14 +335,14 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  swap(List<T, Allocator>&& x, List<T, Allocator>& y) throw ()
+  swap(List<T, Allocator>&& x, List<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
   void
-  swap(List<T, Allocator>& x, List<T, Allocator>&& y) throw ()
+  swap(List<T, Allocator>& x, List<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

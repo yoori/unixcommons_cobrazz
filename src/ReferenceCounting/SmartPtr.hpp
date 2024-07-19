@@ -38,16 +38,16 @@ namespace ReferenceCounting
 
     static
     void
-    default_constructor() throw ()
+    default_constructor() noexcept
       __attribute__((always_inline));
 
     static
     void
-    retn() throw ()
+    retn() noexcept
       __attribute__((always_inline));
 
   private:
-    ~PolicyThrow() throw ()
+    ~PolicyThrow() noexcept
       __attribute__((always_inline));
   };
 
@@ -73,16 +73,16 @@ namespace ReferenceCounting
 
     static
     void
-    default_constructor() throw ()
+    default_constructor() noexcept
       __attribute__((always_inline));
 
     static
     void
-    retn() throw ()
+    retn() noexcept
       __attribute__((always_inline));
 
   private:
-    ~PolicyAssert() throw ()
+    ~PolicyAssert() noexcept
       __attribute__((always_inline));
   };
 
@@ -107,20 +107,20 @@ namespace ReferenceCounting
       __attribute__((always_inline));
 
   private:
-    ~PolicyNotNull() throw ()
+    ~PolicyNotNull() noexcept
       __attribute__((always_inline));
   };
 
   struct PolicyChecker
   {
     void
-    check_policy_(const PolicyThrow* policy) throw ()
+    check_policy_(const PolicyThrow* policy) noexcept
       __attribute__((always_inline));
     void
-    check_policy_(const PolicyAssert* policy) throw ()
+    check_policy_(const PolicyAssert* policy) noexcept
       __attribute__((always_inline));
     void
-    check_policy_(const PolicyNotNull* policy) throw ()
+    check_policy_(const PolicyNotNull* policy) noexcept
       __attribute__((always_inline));
   };
 
@@ -135,27 +135,27 @@ namespace ReferenceCounting
 
 
   std::nullptr_t
-  add_ref(std::nullptr_t ptr) throw ();
+  add_ref(std::nullptr_t ptr) noexcept;
 
   template <typename T, typename Policy>
   T*
-  add_ref(const SmartPtr<T, Policy>& ptr) throw ();
+  add_ref(const SmartPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
   T*
-  add_ref(SmartPtr<T, Policy>&& ptr) throw ();
+  add_ref(SmartPtr<T, Policy>&& ptr) noexcept;
 
   template <typename T, typename Policy>
   const T*
-  add_ref(const FixedPtr<T, Policy>& ptr) throw ();
+  add_ref(const FixedPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
   T*
-  add_ref(FixedPtr<T, Policy>& ptr) throw ();
+  add_ref(FixedPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
   T*
-  add_ref(FixedPtr<T, Policy>&& ptr) throw ();
+  add_ref(FixedPtr<T, Policy>&& ptr) noexcept;
 
 
   template <typename T, typename Policy = PolicyThrow>
@@ -169,7 +169,7 @@ namespace ReferenceCounting
 
   public:
     // c-tors
-    SmartPtr(std::nullptr_t ptr = nullptr) throw ();
+    SmartPtr(std::nullptr_t ptr = nullptr) noexcept;
 
     SmartPtr(const SmartPtr& sptr) /*throw (NullPointer)*/;
 
@@ -179,7 +179,7 @@ namespace ReferenceCounting
     SmartPtr(Other&& sptr) /*throw (NullPointer)*/;
 
     // d-tor
-    ~SmartPtr() throw ();
+    ~SmartPtr() noexcept;
 
     // assignment & copy-assignment operators
     SmartPtr&
@@ -198,7 +198,7 @@ namespace ReferenceCounting
     reset() /*throw (NullPointer)*/;
 
     // conversions
-    operator Type*() const throw ()
+    operator Type*() const noexcept
       __attribute__((always_inline));
 
     // accessors
@@ -211,11 +211,11 @@ namespace ReferenceCounting
       __attribute__((always_inline));
 
     Type*
-    in() const throw ()
+    in() const noexcept
       __attribute__((always_inline));
 
     Type*
-    retn() throw ();
+    retn() noexcept;
 
   private:
     Type* ptr_;
@@ -246,13 +246,13 @@ namespace ReferenceCounting
     FixedPtr(Other&& sptr) /*throw (NullPointer)*/;
 
     // d-tor
-    ~FixedPtr() throw ();
+    ~FixedPtr() noexcept;
 
     // conversions
-    operator Type*() throw ()
+    operator Type*() noexcept
       __attribute__((always_inline));
 
-    operator const Type*() const throw ()
+    operator const Type*() const noexcept
       __attribute__((always_inline));
 
     // accessors
@@ -273,24 +273,24 @@ namespace ReferenceCounting
       __attribute__((always_inline));
 
     Type*
-    in() throw ()
+    in() noexcept
       __attribute__((always_inline));
 
     const Type*
-    in() const throw ()
+    in() const noexcept
       __attribute__((always_inline));
 
   protected:
-    FixedPtr() throw ();
+    FixedPtr() noexcept;
 
     Type*
-    retn() throw ();
+    retn() noexcept;
 
     Type* ptr_;
 
     friend
     Type*
-    add_ref<T, Policy>(FixedPtr&& ptr) throw ();
+    add_ref<T, Policy>(FixedPtr&& ptr) noexcept;
   };
 
   template <typename T, typename Policy = PolicyThrow>
@@ -393,6 +393,26 @@ namespace ReferenceCounting
     typedef FixedPtr<T, PolicyNotNull> FPtr;
     typedef QualPtr<T, PolicyNotNull> QPtr;
   };
+
+  //
+  // make_ref (like make_unique or make_shared)
+  //
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  SmartPtr<T, Policy>
+  make_ref(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  FixedPtr<T, Policy>
+  make_ref_fixed(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  QualPtr<T, Policy>
+  make_ref_qual(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  ConstPtr<T, Policy>
+  make_ref_const(Args&&... args) /*throw (eh::Exception)*/;
 }
 
 #include <ReferenceCounting/SmartPtr.ipp>

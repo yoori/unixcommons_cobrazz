@@ -8,22 +8,22 @@ namespace ReferenceCounting
   struct NullPtr
   {
     template <typename T>
-    operator T*() const throw ();
+    operator T*() const noexcept;
     template <typename T, typename D>
-    operator D T::*() const throw ();
-    operator bool() const throw ();
+    operator D T::*() const noexcept;
+    operator bool() const noexcept;
     bool
-    operator ==(const NullPtr&) const throw ();
+    operator ==(const NullPtr&) const noexcept;
     bool
-    operator !=(const NullPtr&) const throw ();
+    operator !=(const NullPtr&) const noexcept;
 
-    NullPtr() throw () = delete;
+    NullPtr() noexcept = delete;
     void
-    operator &() throw () = delete;
+    operator &() noexcept = delete;
     void
-    operator =(NullPtr&) throw () = delete;
+    operator =(NullPtr&) noexcept = delete;
     void
-    operator =(NullPtr&&) throw () = delete;
+    operator =(NullPtr&&) noexcept = delete;
   };
 }
 
@@ -35,40 +35,40 @@ namespace std
 
   template <typename T>
   typename add_rvalue_reference<T>::type
-  declval() throw ();
+  declval() noexcept;
 }
 
 
 namespace ReferenceCounting
 {
   template <typename T>
-  NullPtr::operator T*() const throw ()
+  NullPtr::operator T*() const noexcept
   {
     return 0;
   }
 
   template <typename T, typename D>
-  NullPtr::operator D T::*() const throw ()
+  NullPtr::operator D T::*() const noexcept
   {
     return 0;
   }
 
   inline
-  NullPtr::operator bool() const throw ()
+  NullPtr::operator bool() const noexcept
   {
     return false;
   }
 
   inline
   bool
-  NullPtr::operator ==(const NullPtr&) const throw ()
+  NullPtr::operator ==(const NullPtr&) const noexcept
   {
     return true;
   }
 
   inline
   bool
-  NullPtr::operator !=(const NullPtr&) const throw ()
+  NullPtr::operator !=(const NullPtr&) const noexcept
   {
     return false;
   }

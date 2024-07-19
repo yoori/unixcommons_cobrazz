@@ -16,9 +16,9 @@ namespace ReferenceCounting
       {
         typedef Allocator<D, Alloc> other;
       };
-      Allocator() throw () = default;
+      Allocator() noexcept = default;
       template <typename D>
-      Allocator(const Allocator<D, Alloc>&) throw ();
+      Allocator(const Allocator<D, Alloc>&) noexcept;
       template <typename... Args>
       void
       construct(T* p, Args&&... args) /*throw (eh::Exception)*/;
@@ -43,7 +43,7 @@ namespace ReferenceCounting
 
     template <typename T, typename Alloc>
     template <typename D>
-    Allocator<T, Alloc>::Allocator(const Allocator<D, Alloc>&) throw ()
+    Allocator<T, Alloc>::Allocator(const Allocator<D, Alloc>&) noexcept
       : std::allocator_traits<Alloc>::template rebind_alloc<T>()
     {
     }

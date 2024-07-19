@@ -70,7 +70,7 @@ namespace ReferenceCounting
 
     Map(const Map&) = delete;
 
-    Map(Map&& m) throw ();
+    Map(Map&& m) noexcept;
 
     template <typename InputIterator>
     Map(InputIterator first, InputIterator last,
@@ -80,7 +80,7 @@ namespace ReferenceCounting
     operator =(Map& m) /*throw (eh::Exception)*/;
 
     Map&
-    operator =(Map&& m) throw ();
+    operator =(Map&& m) noexcept;
 
     std::pair<iterator, bool>
     insert(value_type& x) /*throw (eh::Exception)*/;
@@ -103,7 +103,7 @@ namespace ReferenceCounting
     insert(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
     void
-    swap(Map& m) throw ();
+    swap(Map& m) noexcept;
 
   private:
     value_type
@@ -139,7 +139,7 @@ namespace ReferenceCounting
   }
 
   template <typename Key, typename T, typename Compare, typename Allocator>
-  Map<Key, T, Compare, Allocator>::Map(Map&& m) throw ()
+  Map<Key, T, Compare, Allocator>::Map(Map&& m) noexcept
     : Base(std::move(m))
   {
   }
@@ -166,7 +166,7 @@ namespace ReferenceCounting
 
   template <typename Key, typename T, typename Compare, typename Allocator>
   Map<Key, T, Compare, Allocator>&
-  Map<Key, T, Compare, Allocator>::operator =(Map&& m) throw ()
+  Map<Key, T, Compare, Allocator>::operator =(Map&& m) noexcept
   {
     Base::operator =(std::move(m));
     return *this;
@@ -226,7 +226,7 @@ namespace ReferenceCounting
 
   template <typename Key, typename T, typename Compare, typename Allocator>
   void
-  Map<Key, T, Compare, Allocator>::swap(Map& m) throw ()
+  Map<Key, T, Compare, Allocator>::swap(Map& m) noexcept
   {
     Base::swap(m);
   }
@@ -243,7 +243,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename Compare, typename Allocator>
   void
   swap(Map<Key, T, Compare, Allocator>& x,
-    Map<Key, T, Compare, Allocator>& y) throw ()
+    Map<Key, T, Compare, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -251,7 +251,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename Compare, typename Allocator>
   void
   swap(Map<Key, T, Compare, Allocator>&& x,
-    Map<Key, T, Compare, Allocator>& y) throw ()
+    Map<Key, T, Compare, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -259,7 +259,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename Compare, typename Allocator>
   void
   swap(Map<Key, T, Compare, Allocator>& x,
-    Map<Key, T, Compare, Allocator>&& y) throw ()
+    Map<Key, T, Compare, Allocator>&& y) noexcept
   {
     x.swap(y);
   }
