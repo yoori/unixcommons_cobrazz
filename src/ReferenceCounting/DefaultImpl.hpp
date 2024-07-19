@@ -29,16 +29,16 @@ namespace ReferenceCounting
   public:
     virtual
     void
-    add_ref() const throw ();
+    add_ref() const noexcept;
 
     virtual
     void
-    remove_ref() const throw ();
+    remove_ref() const noexcept;
 
   protected:
-    DefaultImpl() throw ();
+    DefaultImpl() noexcept;
     virtual
-    ~DefaultImpl() throw ();
+    ~DefaultImpl() noexcept;
 
 
   private:
@@ -53,13 +53,13 @@ namespace ReferenceCounting
 namespace ReferenceCounting
 {
   template <typename SynchPolicy>
-  DefaultImpl<SynchPolicy>::DefaultImpl() throw ()
+  DefaultImpl<SynchPolicy>::DefaultImpl() noexcept
     : ReferenceCounting::Interface(), lock_(), ref_count_(1)
   {
   }
 
   template <typename SynchPolicy>
-  DefaultImpl<SynchPolicy>::~DefaultImpl() throw ()
+  DefaultImpl<SynchPolicy>::~DefaultImpl() noexcept
   {
 #ifndef NVALGRIND
     RunningOnValgrind<>::check_ref_count(ref_count_);
@@ -68,7 +68,7 @@ namespace ReferenceCounting
 
   template <typename SynchPolicy>
   void
-  DefaultImpl<SynchPolicy>::add_ref() const throw ()
+  DefaultImpl<SynchPolicy>::add_ref() const noexcept
   {
     Guard guard(lock_);
     ref_count_++;
@@ -76,7 +76,7 @@ namespace ReferenceCounting
 
   template <typename SynchPolicy>
   void
-  DefaultImpl<SynchPolicy>::remove_ref() const throw ()
+  DefaultImpl<SynchPolicy>::remove_ref() const noexcept
   {
     bool delete_this;
 

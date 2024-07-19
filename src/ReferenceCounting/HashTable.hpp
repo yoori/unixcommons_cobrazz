@@ -63,7 +63,7 @@ namespace ReferenceCounting
     HashTable(size_type n = 10) /*throw (eh::Exception)*/;
     HashTable(HashTable& h) /*throw (eh::Exception)*/;
     HashTable(const HashTable&) = delete;
-    HashTable(HashTable&& h) throw ();
+    HashTable(HashTable&& h) noexcept;
     template <typename InputIterator>
     HashTable(InputIterator first, InputIterator last, size_type n = 10)
       /*throw (eh::Exception)*/;
@@ -71,7 +71,7 @@ namespace ReferenceCounting
     HashTable&
     operator =(HashTable& h) /*throw (eh::Exception)*/;
     HashTable&
-    operator =(HashTable&& h) throw ();
+    operator =(HashTable&& h) noexcept;
 
     std::pair<iterator, bool>
     insert(value_type& x) /*throw (eh::Exception)*/;
@@ -87,10 +87,10 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
     void
-    swap(HashTable&& h) throw ();
+    swap(HashTable&& h) noexcept;
 #else
     void
-    swap(HashTable& h) throw ();
+    swap(HashTable& h) noexcept;
 #endif
 
   private:
@@ -129,7 +129,7 @@ namespace ReferenceCounting
 
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   HashTable<Key, T, EqualKey, Allocator>::HashTable(HashTable&& h)
-    throw ()
+    noexcept
     : Base(std::move(h))
   {
   }
@@ -158,7 +158,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   HashTable<Key, T, EqualKey, Allocator>&
   HashTable<Key, T, EqualKey, Allocator>::operator =(HashTable&& h)
-    throw ()
+    noexcept
   {
     Base::operator =(std::move(h));
     return *this;
@@ -211,14 +211,14 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   void
-  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable&& h) throw ()
+  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable&& h) noexcept
   {
     Base::swap(std::move(h));
   }
 #else
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   void
-  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable& h) throw ()
+  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable& h) noexcept
   {
     Base::swap(h);
   }
@@ -236,7 +236,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   void
   swap(HashTable<Key, T, EqualKey, Allocator>& x,
-    HashTable<Key, T, EqualKey, Allocator>& y) throw ()
+    HashTable<Key, T, EqualKey, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -245,7 +245,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   void
   swap(HashTable<Key, T, EqualKey, Allocator>&& x,
-    HashTable<Key, T, EqualKey, Allocator>& y) throw ()
+    HashTable<Key, T, EqualKey, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -253,7 +253,7 @@ namespace ReferenceCounting
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   void
   swap(HashTable<Key, T, EqualKey, Allocator>& x,
-    HashTable<Key, T, EqualKey, Allocator>&& y) throw ()
+    HashTable<Key, T, EqualKey, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

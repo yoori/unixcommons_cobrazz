@@ -27,7 +27,7 @@ namespace ReferenceCounting
     explicit
     PtrHolder(Other&& sptr) /*throw (eh::Exception)*/;
 
-    ~PtrHolder() throw ();
+    ~PtrHolder() noexcept;
 
     template <typename Other>
     PtrHolder&
@@ -61,7 +61,7 @@ namespace ReferenceCounting
   }
 
   template <typename SmartPtr>
-  PtrHolder<SmartPtr>::~PtrHolder() throw ()
+  PtrHolder<SmartPtr>::~PtrHolder() noexcept
   {
     if (ptr_)
     {
