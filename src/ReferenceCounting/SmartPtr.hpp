@@ -400,7 +400,19 @@ namespace ReferenceCounting
 
   template<typename T, typename Policy = PolicyThrow, typename... Args>
   SmartPtr<T, Policy>
-  make_ref(Args&&... args);
+  make_ref(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  FixedPtr<T, Policy>
+  make_ref_fixed(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  QualPtr<T, Policy>
+  make_ref_qual(Args&&... args) /*throw (eh::Exception)*/;
+
+  template<typename T, typename Policy = PolicyThrow, typename... Args>
+  ConstPtr<T, Policy>
+  make_ref_const(Args&&... args) /*throw (eh::Exception)*/;
 }
 
 #include <ReferenceCounting/SmartPtr.ipp>
