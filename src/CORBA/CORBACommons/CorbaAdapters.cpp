@@ -450,20 +450,6 @@ namespace CORBACommons
     return properties.size();
   }
 
-  template<typename Elem>
-  void
-  PropertiesHandling::print_properties(const ORBProperties& properties,
-    Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/
-  {
-    for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
-      itor != properties.end(); ++itor)
-    {
-      ostr.append(" '");
-      ostr.append(itor->c_str());
-      ostr.append("'");
-    }
-  }
-
 
   //
   // OrbCreator

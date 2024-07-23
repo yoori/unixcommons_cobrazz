@@ -40,10 +40,10 @@ namespace CORBACommons
     create_simple_properties(const ORBProperties& properties,
       SimpleORBProperties& simple_properties) /*throw (eh::Exception)*/;
 
-    template<typename Elem>
+    template<typename OStream>
     void
     print_properties(const ORBProperties& properties,
-      Stream::MemoryStream::BaseOStream<Elem>& ostr) /*throw (eh::Exception)*/;
+      OStream& ostr) /*throw (eh::Exception)*/;
   };
 
   class OrbCreator
@@ -89,6 +89,22 @@ namespace CORBACommons
   static_assert(!(CORBACommons::PARTS & (PARTS - 1)),
     "PARTS is not a power of 2");
 }
+
+namespace CORBACommons::PropertiesHandling
+{
+  template<typename OStream>
+  void
+  print_properties(const ORBProperties& properties,
+    OStream& ostr) /*throw (eh::Exception)*/
+  {
+    for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
+      itor != properties.end(); ++itor)
+    {
+      ostr << " '" << itor->c_str() << "'";
+    }
+  }
+}
+
 
 #define TAO_LIB(x) ACE_DLL_PREFIX x ACE_DLL_SUFFIX "." TAO_VERSION
 
