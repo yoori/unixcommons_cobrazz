@@ -11,6 +11,7 @@
 
 #include <CORBACommons/CorbaAdapters.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 namespace CORBACommons
 {
@@ -69,7 +70,7 @@ namespace CORBACommons
   };
 
   typedef std::list<CorbaObjectRef> CorbaObjectRefList;
-  
+
   /**X
    * CorbaClientAdapter
    */
@@ -320,6 +321,63 @@ operator <<(std::ostream& ostr, const CORBACommons::CorbaObjectRef& ref)
 {
   ostr << "'" << ref.object_ref << "'";
   return ostr;
+}
+
+namespace Stream::MemoryStream
+{
+  template<>
+  struct ToCharsLenHelper<CORBACommons::CorbaObjectRef>
+  {
+    size_t
+    operator()(const CORBACommons::CorbaObjectRef& ref) noexcept
+    {
+      return ref.object_ref.size() + 2;
+    }
+  };
+
+  template<>
+  struct ToCharsHelper<CORBACommons::CorbaObjectRef>
+  {
+    std::to_chars_result
+    operator()(char* first, char* last, const CORBACommons::CorbaObjectRef& ref) noexcept
+    {
+      size_t capacity = last - first;
+      if (ref.object_ref.size() + 2 > capacity)
+      {
+        return {last, std::errc::value_too_large};
+      }
+      *first++ = '\'';
+      memcpy(first, ref.object_ref.data(), ref.object_ref.size());
+      first += ref.object_ref.size();
+      *first++ = '\'';
+      return {first, std::errc()};
+    }
+  };
+
+  template<>
+  struct ToStringHelper<CORBACommons::CorbaObjectRef>
+  {
+    std::string
+    operator()(const CORBACommons::CorbaObjectRef& ref) noexcept
+    {
+      return "'" + ref.object_ref + "'";
+    }
+  };
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, CORBACommons::CorbaObjectRef>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const CORBACommons::CorbaObjectRef& arg)
+    {
+      typedef typename CORBACommons::CorbaObjectRef ArgT;
+      return OutputMemoryStreamHelperImpl(ostr, arg,
+        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+    }
+  };
 }
 
 #endif
