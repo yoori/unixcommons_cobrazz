@@ -53,9 +53,6 @@ private:
 
   struct CoroDataContainer final : private Generics::Uncopyable
   {
-    CoroDataContainer() = default;
-    ~CoroDataContainer() = default;
-
     LoggerScopePtr logger_scope;
     MiddlewaresList middlewares_list;
     QueueHolders queue_holders;

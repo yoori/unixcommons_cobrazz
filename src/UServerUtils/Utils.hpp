@@ -36,14 +36,14 @@ inline auto run_in_coro(
   if (is_task_processor_thread)
   {
     auto& current_task_processor =
-      engine::current_task::GetTaskProcessor();
+      userver::engine::current_task::GetTaskProcessor();
     if (&current_task_processor == &task_processor)
     {
       return std::forward<Func>(func)(std::forward<Args>(args)...);
     }
     else
     {
-      return engine::impl::MakeTaskWithResult<engine::TaskWithResult>(
+      return userver::engine::impl::MakeTaskWithResult<userver::engine::TaskWithResult>(
         task_processor,
         importance,
         deadline,
@@ -53,7 +53,7 @@ inline auto run_in_coro(
   }
 
   auto task =
-    engine::impl::MakeTaskWithResult<engine::TaskWithResult>(
+    userver::engine::impl::MakeTaskWithResult<userver::engine::TaskWithResult>(
       task_processor,
       importance,
       deadline,

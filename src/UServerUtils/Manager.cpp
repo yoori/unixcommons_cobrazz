@@ -104,7 +104,9 @@ Manager::~Manager()
   {
     try
     {
-      std::cerr << FNS << "eh::Exception: " << exc.what() << std::endl;
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
     }
     catch (...)
     {
