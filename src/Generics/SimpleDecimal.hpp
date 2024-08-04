@@ -517,43 +517,6 @@ namespace Stream::MemoryStream
   // OutputMemoryStreamHelper for Generics::SimpleDecimal
   //
 
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  struct ToCharsLenHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
-  {
-    size_t
-    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
-    {
-      return number.str().size();
-    }
-  };
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  struct ToCharsHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
-  {
-    std::to_chars_result
-    operator()(char* first, char* last,
-      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
-    {
-      auto str = number.str();
-      if (first + str.size() > last)
-      {
-        return {last, std::errc::value_too_large};
-      }
-      memcpy(first, str.data(), str.size());
-      return {first + str.size(), std::errc()};
-    }
-  };
-
-  template<typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  struct ToStringHelper<Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
-  {
-    std::string
-    operator()(const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& number) noexcept
-    {
-      return number.str();
-    }
-  };
-
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE,
     typename Base, const unsigned TOTAL, const unsigned FRACTION>
@@ -563,55 +526,15 @@ namespace Stream::MemoryStream
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
       AllocatorInitializer, SIZE>& ostr,
-      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& arg)
+      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& simple_decimal)
     {
-      typedef typename Generics::SimpleDecimal<Base, TOTAL, FRACTION> ArgT;
-      return OutputMemoryStreamHelperImpl(ostr, arg,
-        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+      return ostr << simple_decimal.str();
     }
   };
 
   //
   // OutputMemoryStreamHelper const char* overload used in Generics::SimpleDecimal constructor
   //
-
-  template<>
-  struct ToCharsLenHelper<Stream::MemoryStream::DoubleOut<const char*>>
-  {
-    size_t
-    operator()(const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
-    {
-      return strlen(doubleout.value());
-    }
-  };
-
-  template<>
-  struct ToCharsHelper<Stream::MemoryStream::DoubleOut<const char*>>
-  {
-    std::to_chars_result
-    operator()(char* first, char* last,
-      const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
-    {
-      size_t len = strlen(doubleout.value());
-      size_t capacity = last - first;
-      if (len > capacity)
-      {
-        return {last, std::errc::value_too_large};
-      }
-      memcpy(first, doubleout.value(), len);
-      return {first + len, std::errc()};
-    }
-  };
-
-  template<>
-  struct ToStringHelper<Stream::MemoryStream::DoubleOut<const char*>>
-  {
-    std::string
-    operator()(const Stream::MemoryStream::DoubleOut<const char*>& doubleout) noexcept
-    {
-      return std::string(doubleout.value());
-    }
-  };
 
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
@@ -620,55 +543,15 @@ namespace Stream::MemoryStream
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
-      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<const char*>& arg)
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
     {
-      typedef typename Stream::MemoryStream::DoubleOut<const char*> ArgT;
-      return OutputMemoryStreamHelperImpl(ostr, arg,
-        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+      return ostr << doubleout.value();
     }
   };
 
   //
   // OutputMemoryStreamHelper std::string overload used in Generics::SimpleDecimal constructor
   //
-
-  template<>
-  struct ToCharsLenHelper<Stream::MemoryStream::DoubleOut<std::string>>
-  {
-    size_t
-    operator()(const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
-    {
-      return doubleout.value().size();
-    }
-  };
-
-  template<>
-  struct ToCharsHelper<Stream::MemoryStream::DoubleOut<std::string>>
-  {
-    std::to_chars_result
-    operator()(char* first, char* last,
-      const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
-    {
-      size_t len = doubleout.value().size();
-      size_t capacity = last - first;
-      if (len > capacity)
-      {
-        return {last, std::errc::value_too_large};
-      }
-      memcpy(first, doubleout.value().data(), len);
-      return {first + len, std::errc()};
-    }
-  };
-
-  template<>
-  struct ToStringHelper<Stream::MemoryStream::DoubleOut<std::string>>
-  {
-    std::string
-    operator()(const Stream::MemoryStream::DoubleOut<std::string>& doubleout) noexcept
-    {
-      return doubleout.value();
-    }
-  };
 
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
@@ -677,11 +560,9 @@ namespace Stream::MemoryStream
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
-      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<std::string>& arg)
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<std::string>& doubleout)
     {
-      typedef typename Stream::MemoryStream::DoubleOut<std::string> ArgT;
-      return OutputMemoryStreamHelperImpl(ostr, arg,
-        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+      return ostr << doubleout.value();
     }
   };
 }
