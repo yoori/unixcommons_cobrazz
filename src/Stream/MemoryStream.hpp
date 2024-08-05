@@ -88,7 +88,7 @@ namespace Stream::MemoryStream
      * @param value - value to be stored
      * @param upcase - uppercase value
      */
-    HexOut(const Type& value, bool upcase = false) noexcept;
+    HexOut(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
 
     /**
      * @return value to be printed
@@ -100,9 +100,21 @@ namespace Stream::MemoryStream
      */
     bool upcase() const noexcept;
 
+    /**
+     * @return output width value
+     */
+    size_t width() const noexcept;
+
+    /**
+     * @return fill character value
+     */
+    char fill() const noexcept;
+
   private:
     Type value_;
     bool upcase_;
+    size_t width_;
+    char fill_;
   };
 
   /**
@@ -113,7 +125,7 @@ namespace Stream::MemoryStream
    */
   template<typename Type>
   HexOut<Type>
-  hex_out(const Type& value, bool upcase = false) noexcept;
+  hex_out(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
 
   //
   // Helper for std::setprecision and std::fixed

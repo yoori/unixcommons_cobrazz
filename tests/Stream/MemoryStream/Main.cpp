@@ -122,10 +122,10 @@ compare_width_out(const Type& value, size_t cmp_len = 0, size_t width = 0, char 
 
 template<typename OStream, typename Type>
 void
-compare_hex_out(const Type& value, size_t cmp_len = 0, bool upcase = false)
+compare_hex_out(const Type& value, size_t cmp_len = 0, bool upcase = false, size_t width = 0, char fill = ' ')
 {
   std::ostringstream ostr;
-  ostr << std::hex;
+  ostr << std::hex << std::setw(width) << std::setfill(fill);
   if (upcase)
   {
     ostr << std::uppercase;
@@ -133,7 +133,7 @@ compare_hex_out(const Type& value, size_t cmp_len = 0, bool upcase = false)
   ostr << value;
 
   OStream omem;
-  omem << Stream::MemoryStream::hex_out(value, upcase);
+  omem << Stream::MemoryStream::hex_out(value, upcase, width, fill);
 
   if (cmp_len)
   {
@@ -366,18 +366,37 @@ run_tests(size_t cmp_len = 0)
   // hexout
   if constexpr (is_on)
   {
+    // upcase = false
     compare_hex_out<OStream>(0, cmp_len);
+    compare_hex_out<OStream>(0, cmp_len, false, 3, '0');
+    compare_hex_out<OStream>(0, cmp_len, false, 4, '0');
+    compare_hex_out<OStream>(0, cmp_len, false, 5, '0');
     compare_hex_out<OStream>(1, cmp_len);
     compare_hex_out<OStream>(123123, cmp_len);
+    compare_hex_out<OStream>(123123, cmp_len, false, 4, '0');
+    compare_hex_out<OStream>(123123, cmp_len, false, 5, '0');
     compare_hex_out<OStream>(-1, cmp_len);
+    compare_hex_out<OStream>(-1, cmp_len, false, 4, '0');
+    compare_hex_out<OStream>(-1, cmp_len, false, 5, '0');
     compare_hex_out<OStream>(-123123, cmp_len);
+    compare_hex_out<OStream>(-123123, cmp_len, false, 4, '0');
+    compare_hex_out<OStream>(-123123, cmp_len, false, 5, '0');
     compare_hex_out<OStream>(std::numeric_limits<int>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<int>::max(), cmp_len, false, 10, '0');
     compare_hex_out<OStream>(std::numeric_limits<int>::min(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<int>::min(), cmp_len, false, 12, ' ');
     compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned int>::max(), cmp_len, false, 15, '0');
     compare_hex_out<OStream>(std::numeric_limits<long long>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::max(), cmp_len, false, 10, '0');
     compare_hex_out<OStream>(std::numeric_limits<long long>::min(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<long long>::min(), cmp_len, false, 10, '0');
     compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max(), cmp_len);
+    compare_hex_out<OStream>(std::numeric_limits<unsigned long long>::max(), cmp_len, false, 18, '0');
+    // upcase = true
     compare_hex_out<OStream>(0, cmp_len, true);
+    compare_hex_out<OStream>(0, cmp_len, true, 5, '0');
+    compare_hex_out<OStream>(0, cmp_len, true, 5, 'a');
     compare_hex_out<OStream>(1, cmp_len, true);
     compare_hex_out<OStream>(123123, cmp_len, true);
     compare_hex_out<OStream>(-1, cmp_len, true);
@@ -495,6 +514,8 @@ main()
   run_tests();
   run_tests<Stream::Error>();
   run_iter_tests<1, 20>();
+
+  std::cout << "Finished Successfully" << std::endl;
 
   return 0;
 }
