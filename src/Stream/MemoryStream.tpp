@@ -50,9 +50,11 @@ namespace Stream::MemoryStream
   //
 
   template<typename Type>
-  HexOut<Type>::HexOut(const Type& value, bool upcase) noexcept
+  HexOut<Type>::HexOut(const Type& value, bool upcase, size_t width, char fill) noexcept
     : value_(value)
     , upcase_(upcase)
+    , width_(width)
+    , fill_(fill)
   {
   }
 
@@ -71,10 +73,24 @@ namespace Stream::MemoryStream
   }
 
   template<typename Type>
-  HexOut<Type>
-  hex_out(const Type& value, bool upcase) noexcept
+  size_t
+  HexOut<Type>::width() const noexcept
   {
-    return HexOut<Type>(value, upcase);
+    return width_;
+  }
+
+  template<typename Type>
+  char
+  HexOut<Type>::fill() const noexcept
+  {
+    return fill_;
+  }
+
+  template<typename Type>
+  HexOut<Type>
+  hex_out(const Type& value, bool upcase, size_t width, char fill) noexcept
+  {
+    return HexOut<Type>(value, upcase, width, fill);
   }
 
   //
@@ -794,15 +810,6 @@ namespace Stream
     }
 
     //
-    // BaseOStream class
-    //
-
-    template<typename Elem>
-    BaseOStream<Elem>::~BaseOStream() noexcept
-    {
-    }
-
-    //
     // OutputMemoryStream class
     //
 
@@ -1093,7 +1100,7 @@ namespace std
   to_chars_len(const Stream::MemoryStream::WidthOut<IntType>& widthout)
     noexcept
   {
-    size_t value_size = to_chars_len(static_cast<IntType>(widthout.value()));
+    size_t value_size = to_chars_len(widthout.value());
     return std::max(value_size, widthout.width());
   }
 
@@ -1103,7 +1110,7 @@ namespace std
     noexcept
   {
     IntType value = widthout.value();
-    size_t value_size = to_chars_len(static_cast<IntType>(value));
+    size_t value_size = to_chars_len(value);
     size_t capacity = last - first;
     size_t width = widthout.width();
 
@@ -1145,7 +1152,7 @@ namespace std
 
   template<typename Type>
   std::enable_if<std::is_integral<Type>::value, size_t>::type
-  to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
+  to_chars_len_impl(const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
     typedef typename std::make_unsigned<Type>::type UType;
@@ -1173,10 +1180,35 @@ namespace std
   }
 
   template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::HexOut<Type>& hexout)
+    noexcept
+  {
+    size_t len = to_chars_len_impl(hexout);
+    return std::max(len, hexout.width());
+  }
+
+  template<typename Type>
   std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
   to_chars(char* first, char* last, const Stream::MemoryStream::HexOut<Type>& hexout)
     noexcept
   {
+    size_t value_size = to_chars_len_impl(hexout);
+    size_t capacity = last - first;
+    size_t width = hexout.width();
+
+    if (std::max(value_size, width) > capacity)
+    {
+      return {last, std::errc::value_too_large};
+    }
+
+    if (width > value_size)
+    {
+      size_t fill_size = width - value_size;
+      std::fill_n(first, fill_size, hexout.fill());
+      first += fill_size;
+    }
+
     // Problem:
     // int value = -10;
     // std::cout << std::hex << value; --> gives 'fffffff6'
@@ -1208,9 +1240,19 @@ namespace std
   {
     typedef typename std::make_unsigned<Type>::type UType;
 
-    static constexpr size_t MAX_UTYPE_HEX_WIDTH = 2 * sizeof(UType);
+    size_t value_size = to_chars_len_impl(hexout);
+    size_t width = hexout.width();
+    bool is_fill = width > value_size;
+    size_t fill_size = is_fill ? width - value_size : 0;
+
     std::string result;
-    result.reserve(MAX_UTYPE_HEX_WIDTH);
+    result.reserve(std::max(value_size, width));
+
+    if (is_fill)
+    {
+      result.resize(fill_size);
+      std::fill_n(result.begin(), fill_size, hexout.fill());
+    }
 
     static constexpr UType HEX_MASK_WIDTH = 4;
     static constexpr UType HEX_MASK = (1 << HEX_MASK_WIDTH) - 1;
@@ -1236,14 +1278,13 @@ namespace std
 
     if (hexout.upcase())
     {
-      std::for_each(result.begin(), result.end(), [](char& c)
+      std::for_each(result.begin() + fill_size, result.end(), [](char& c)
         {
           c = std::toupper(c);
         });
     }
 
-    std::reverse(result.begin(), result.end());
-    result.shrink_to_fit();
+    std::reverse(result.begin() + fill_size, result.end());
     return result;
   }
 

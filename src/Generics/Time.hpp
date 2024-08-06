@@ -1493,42 +1493,6 @@ namespace Stream::MemoryStream
   // Time
   //
 
-  template<>
-  struct ToCharsLenHelper<Generics::Time>
-  {
-    size_t
-    operator()(const Generics::Time& time) noexcept
-    {
-      return time.str().size();
-    }
-  };
-
-  template<>
-  struct ToCharsHelper<Generics::Time>
-  {
-    std::to_chars_result
-    operator()(char* first, char* last, const Generics::Time& time) noexcept
-    {
-      auto str = time.str();
-      if (first + str.size() > last)
-      {
-        return {last, std::errc::value_too_large};
-      }
-      memcpy(first, str.c_str(), str.size());
-      return {first + str.size(), std::errc()};
-    }
-  };
-
-  template<>
-  struct ToStringHelper<Generics::Time>
-  {
-    std::string
-    operator()(const Generics::Time& time) noexcept
-    {
-      return time.str();
-    }
-  };
-
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
   struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
@@ -1536,53 +1500,15 @@ namespace Stream::MemoryStream
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
-      AllocatorInitializer, SIZE>& ostr, const Generics::Time& arg)
+      AllocatorInitializer, SIZE>& ostr, const Generics::Time& time)
     {
-      typedef typename Generics::Time ArgT;
-      return OutputMemoryStreamHelperImpl(ostr, arg,
-        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+      return ostr << time.str();
     }
   };
 
   //
   // ExtendedTime
   //
-
-  template<>
-  struct ToCharsLenHelper<Generics::ExtendedTime>
-  {
-    size_t
-    operator()(const Generics::ExtendedTime& time) noexcept
-    {
-      return time.str().size();
-    }
-  };
-
-  template<>
-  struct ToCharsHelper<Generics::ExtendedTime>
-  {
-    std::to_chars_result
-    operator()(char* first, char* last, const Generics::ExtendedTime& time) noexcept
-    {
-      auto str = time.str();
-      if (first + str.size() > last)
-      {
-        return {last, std::errc::value_too_large};
-      }
-      memcpy(first, str.c_str(), str.size());
-      return {first + str.size(), std::errc()};
-    }
-  };
-
-  template<>
-  struct ToStringHelper<Generics::ExtendedTime>
-  {
-    std::string
-    operator()(const Generics::ExtendedTime& time) noexcept
-    {
-      return time.str();
-    }
-  };
 
   template<typename Elem, typename Traits, typename Allocator,
     typename AllocatorInitializer, const size_t SIZE>
@@ -1591,11 +1517,9 @@ namespace Stream::MemoryStream
   {
     OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
     operator()(OutputMemoryStream<Elem, Traits, Allocator,
-      AllocatorInitializer, SIZE>& ostr, const Generics::ExtendedTime& arg)
+      AllocatorInitializer, SIZE>& ostr, const Generics::ExtendedTime& time)
     {
-      typedef typename Generics::ExtendedTime ArgT;
-      return OutputMemoryStreamHelperImpl(ostr, arg,
-        ToCharsLenHelper<ArgT>(), ToCharsHelper<ArgT>(), ToStringHelper<ArgT>());
+      return ostr << time.str();
     }
   };
 

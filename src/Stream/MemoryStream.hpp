@@ -88,7 +88,7 @@ namespace Stream::MemoryStream
      * @param value - value to be stored
      * @param upcase - uppercase value
      */
-    HexOut(const Type& value, bool upcase = false) noexcept;
+    HexOut(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
 
     /**
      * @return value to be printed
@@ -100,9 +100,21 @@ namespace Stream::MemoryStream
      */
     bool upcase() const noexcept;
 
+    /**
+     * @return output width value
+     */
+    size_t width() const noexcept;
+
+    /**
+     * @return fill character value
+     */
+    char fill() const noexcept;
+
   private:
     Type value_;
     bool upcase_;
+    size_t width_;
+    char fill_;
   };
 
   /**
@@ -113,7 +125,7 @@ namespace Stream::MemoryStream
    */
   template<typename Type>
   HexOut<Type>
-  hex_out(const Type& value, bool upcase = false) noexcept;
+  hex_out(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
 
   //
   // Helper for std::setprecision and std::fixed
@@ -525,26 +537,6 @@ namespace Stream
     };
 
     /**
-     * Base abstract class for output streams
-     */
-    template <typename Elem>
-    class BaseOStream {
-    public:
-      /**
-       * append null terminated charater sequence after filled part of memory region
-       * append as much of str as possible (try extend() if end() is reached)
-       * if str is appended partially, then set bad flag
-       * @param str null terminated character sequence
-       */
-      virtual void append(const Elem* str) /*throw (eh::Exception)*/ = 0;
-
-      /**
-       * Holy destructor
-       */
-      virtual ~BaseOStream() noexcept;
-    };
-
-    /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
      */
     template <typename Elem, typename Traits = std::char_traits<Elem>,
@@ -552,8 +544,7 @@ namespace Stream
       typename AllocatorInitializer = Allocator, const size_t SIZE = 0>
     class OutputMemoryStream :
       public MemoryBufferHolder<
-        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
-      public BaseOStream<Elem>
+        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
     {
     private:
       typedef MemoryBufferHolder<
@@ -585,7 +576,7 @@ namespace Stream
        * if str is appended partially, then set bad flag
        * @param str null terminated character sequence
        */
-      void append(const Elem* str) override /*throw (eh::Exception)*/;
+      void append(const Elem* str) /*throw (eh::Exception)*/;
 
       /**
        * append size elements of str to filled part of memory region

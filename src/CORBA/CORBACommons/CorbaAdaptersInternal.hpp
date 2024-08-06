@@ -97,10 +97,9 @@ namespace CORBACommons::PropertiesHandling
   print_properties(const ORBProperties& properties,
     OStream& ostr) /*throw (eh::Exception)*/
   {
-    for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
-      itor != properties.end(); ++itor)
+    for (const auto& property: properties)
     {
-      ostr << " '" << itor->c_str() << "'";
+      ostr << " '" << property.c_str() << "'";
     }
   }
 }
