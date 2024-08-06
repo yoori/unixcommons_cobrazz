@@ -537,26 +537,6 @@ namespace Stream
     };
 
     /**
-     * Base abstract class for output streams
-     */
-    template <typename Elem>
-    class BaseOStream {
-    public:
-      /**
-       * append null terminated charater sequence after filled part of memory region
-       * append as much of str as possible (try extend() if end() is reached)
-       * if str is appended partially, then set bad flag
-       * @param str null terminated character sequence
-       */
-      virtual void append(const Elem* str) /*throw (eh::Exception)*/ = 0;
-
-      /**
-       * Holy destructor
-       */
-      virtual ~BaseOStream() noexcept;
-    };
-
-    /**
      * Output memory stream. Uses OutputMemoryBuffer for data access.
      */
     template <typename Elem, typename Traits = std::char_traits<Elem>,
@@ -564,8 +544,7 @@ namespace Stream
       typename AllocatorInitializer = Allocator, const size_t SIZE = 0>
     class OutputMemoryStream :
       public MemoryBufferHolder<
-        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
-      public BaseOStream<Elem>
+        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
     {
     private:
       typedef MemoryBufferHolder<
@@ -597,7 +576,7 @@ namespace Stream
        * if str is appended partially, then set bad flag
        * @param str null terminated character sequence
        */
-      void append(const Elem* str) override /*throw (eh::Exception)*/;
+      void append(const Elem* str) /*throw (eh::Exception)*/;
 
       /**
        * append size elements of str to filled part of memory region

@@ -810,15 +810,6 @@ namespace Stream
     }
 
     //
-    // BaseOStream class
-    //
-
-    template<typename Elem>
-    BaseOStream<Elem>::~BaseOStream() noexcept
-    {
-    }
-
-    //
     // OutputMemoryStream class
     //
 
