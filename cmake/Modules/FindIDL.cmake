@@ -39,32 +39,39 @@ function(add_idl _target _idlfile target_dir)
 # SOURCES ${_idlfile}
     add_custom_command(
        OUTPUT ${MIDL_OUTPUT} ${OUTPUTC} ${OUTPUTS}
+#       COMMAND ${CMAKE_COMMAND} -E echo "tao_idl gen outfiles to ${MIDL_OUTPUT_PATH} from ${SRC}"
        COMMAND tao_idl ARGS  -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp -I ${PROJECT_SOURCE_DIR}/src/CORBA  ${SRC} -o ${MIDL_OUTPUT_PATH}
-       #${MIDL_FLAGS} 
+       #${MIDL_FLAGS}
 
+#       COMMAND ${CMAKE_COMMAND} -E echo "done generating ${MIDL_OUTPUT_PATH}"
+#       COMMAND ${CMAKE_COMMAND} -E echo "OUTPUTC ${OUTPUTC};"
+       COMMAND sed -i "'s/if (0 == &_tao_elem)/if (true)/g'" ${OUTPUTC}
+#       COMMAND ${CMAKE_COMMAND} -E echo "done sed"
+       COMMENT "Add IDL. ${_target}"
 #####################
 #       add_custom_command(OUTPUT "${SRC}" COMMAND ${CMAKE_COMMAND} -E touch "${SRC}") #More reliable touch, use cmake itself to touch the file
 #add_custom_target(generate_version_h DEPENDS "${SRC}")
 #add_executable(myprog ${test_SOURCES})
 #add_dependencies(myprog generate_version_h)
-##################       
-       
-       
-       
-#/usr/bin/tao_idl -o . -I../../../../src/CORBA -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp ../../../../src/CORBA/CORBACommons/CorbaObjectRef.idl       
+##################
+
+
+
+#/usr/bin/tao_idl -o . -I../../../../src/CORBA -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp ../../../../src/CORBA/CORBACommons/CorbaObjectRef.idl
        #/h ${MIDL_OUTPUT}
-#       DEPENDS ${_target}_z1 
+#       DEPENDS ${_target}_z1
 #       DEPENDS ${OUTPUTC} ${OUTPUTS}
     DEPENDS ${_target}_ggg
 #    DEPENDS ${SRC}
     #${FINDIDL_TARGET}
 #       DEPENDS    ${SRC}
-       #${TGT} 
+       #${TGT}
        #  ${FINDIDL_TARGET}
        #${_target}_z1
 #       DEPENDS  ${_target}
 #       VERBATIM
        )
+
 #        add_dependencies(${FINDIDL_TARGET} ${SRC})
 #    add_custom_target( ${_target}_z1  DEPENDS ${OUTPUTC} ${OUTPUTS} SOURCES ${SRC} )
 
@@ -107,6 +114,7 @@ function(add_idl _target _idlfile target_dir)
             OUTPUT  ${TLBIMP_OUTPUT}
             COMMAND ${TLBIMP_FILE} "${MIDL_OUTPUT_PATH}/${IDL_FILE_NAME_WE}.tlb" "/out:${TLBIMP_OUTPUT}" ${TLBIMP_FLAGS}
             DEPENDS ${MIDL_OUTPUT_PATH}/${IDL_FILE_NAME_WE}.tlb
+            COMMENT "Using ${TLBIMP_FILE}"
             VERBATIM
             )
 

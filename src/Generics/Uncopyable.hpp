@@ -28,6 +28,27 @@ namespace Generics
     void
     operator =(const Uncopyable&&) = delete;
   };
+
+  template<typename A>
+  class UncopyableTag {
+  protected:
+    constexpr
+    UncopyableTag() = default;
+    ~UncopyableTag() = default;
+
+    UncopyableTag(UncopyableTag&) = delete;
+    UncopyableTag(const UncopyableTag&) = delete;
+    UncopyableTag(UncopyableTag&&) = delete;
+    UncopyableTag(const UncopyableTag&&) = delete;
+    void
+    operator =(UncopyableTag&) = delete;
+    void
+    operator =(const UncopyableTag&) = delete;
+    void
+    operator =(UncopyableTag&&) = delete;
+    void
+    operator =(const UncopyableTag&&) = delete;
+  };
 }
 
 #endif
