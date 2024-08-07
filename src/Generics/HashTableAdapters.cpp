@@ -1,0 +1,1 @@
+#include <Generics/HashTableAdapters.hpp>

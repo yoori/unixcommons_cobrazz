@@ -39,9 +39,11 @@ namespace CORBACommons
     int
     create_simple_properties(const ORBProperties& properties,
       SimpleORBProperties& simple_properties) /*throw (eh::Exception)*/;
+
+    template<typename OStream>
     void
-    print_properties(const ORBProperties& argv, std::ostream& ostr)
-      /*throw (eh::Exception)*/;
+    print_properties(const ORBProperties& properties,
+      OStream& ostr) /*throw (eh::Exception)*/;
   };
 
   class OrbCreator
@@ -62,7 +64,7 @@ namespace CORBACommons
     static
     int
     pem_password_callback_(char* buf, int size, int rwflag, void* userdata)
-      throw ();
+      noexcept;
 
     static
     void
@@ -78,7 +80,7 @@ namespace CORBACommons
     void
     add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/;
     void
-    remove_logger(Logging::Logger* logger) throw ();
+    remove_logger(Logging::Logger* logger) noexcept;
   }
 
   static const unsigned DESCRIPTORS = 65536;
@@ -87,6 +89,21 @@ namespace CORBACommons
   static_assert(!(CORBACommons::PARTS & (PARTS - 1)),
     "PARTS is not a power of 2");
 }
+
+namespace CORBACommons::PropertiesHandling
+{
+  template<typename OStream>
+  void
+  print_properties(const ORBProperties& properties,
+    OStream& ostr) /*throw (eh::Exception)*/
+  {
+    for (const auto& property: properties)
+    {
+      ostr << " '" << property.c_str() << "'";
+    }
+  }
+}
+
 
 #define TAO_LIB(x) ACE_DLL_PREFIX x ACE_DLL_SUFFIX "." TAO_VERSION
 

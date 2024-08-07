@@ -22,7 +22,7 @@ namespace
     FileHandleAdapter(const char* file_name)
       /*throw (InvalidArgument, eh::Exception)*/;
 
-    ~FileHandleAdapter() throw ();
+    ~FileHandleAdapter() noexcept;
 
     size_t
     read(void* buf, size_t size) /*throw (eh::Exception)*/;
@@ -66,14 +66,14 @@ namespace
       fclose(handle_);
       Stream::Error ostr;
       ostr << FNS << "BZ2_bzOpen failed. Error code: " << bz_error <<
-        ". Returned handle=0x" << std::hex << bzlib2_handle_;
+        ". Returned handle=0x" << bzlib2_handle_;
       throw InvalidArgument(ostr);
     }
   }
 
   template <typename InvalidArgument, typename IOError, const bool READ>
   FileHandleAdapter<InvalidArgument, IOError, READ>::~FileHandleAdapter()
-    throw ()
+    noexcept
   {
     int bz_error = BZ_OK;
     if (READ)

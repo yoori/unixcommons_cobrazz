@@ -51,34 +51,34 @@ public:
     bool sign;
     uint64_t i, r;
 
-    DecimalState() throw ();
+    DecimalState() noexcept;
 
-    DecimalState(bool sign_in, uint64_t i_in, uint64_t r_in) throw ();
+    DecimalState(bool sign_in, uint64_t i_in, uint64_t r_in) noexcept;
 
     void
     add(const DecimalState& right, DecimalState& target,
-      bool& overflow) const throw ();
+      bool& overflow) const noexcept;
 
     void
     sub(const DecimalState& right, DecimalState& target,
-      bool& overflow) const throw ();
+      bool& overflow) const noexcept;
 
     void
     mul(const DecimalState& right, DecimalState& target,
-     bool trunc, bool& overflow) const throw ();
+     bool trunc, bool& overflow) const noexcept;
 
     void
     div(const DecimalState& right, DecimalState& quotient,
-      DecimalState& remainder, bool& overflow) const throw ();
+      DecimalState& remainder, bool& overflow) const noexcept;
 
     bool
-    less_than(const DecimalState& right) const throw ();
+    less_than(const DecimalState& right) const noexcept;
 
     const char*
-    str() const throw ();
+    str() const noexcept;
 
     const char*
-    debug_str() const throw ();
+    debug_str() const noexcept;
 
   private:
     char as_str_[TOTAL + 3 + (TOTAL == FRACTION)];
@@ -86,27 +86,27 @@ public:
 
     //generate values
     void
-    generate_() throw ();
+    generate_() noexcept;
 
     //make string representation
     void
-    make_str_() throw ();
+    make_str_() noexcept;
 
     //add helper
     void
     add_(bool sign, const DecimalState& right, DecimalState& target,
-      bool& overflow) const throw ();
+      bool& overflow) const noexcept;
 
     //sub helper
     void
     sub_(bool sign, const DecimalState& right, DecimalState& target,
-      bool& overflow) const throw ();
+      bool& overflow) const noexcept;
   };
 
-  RandomTestDecimal() throw ();
+  RandomTestDecimal() noexcept;
 
   RandomTestDecimal(const DecimalState& state_in, const SelfDecimal& n2_in)
-    throw ();
+    noexcept;
 
 
   RandomTestDecimal
@@ -150,28 +150,28 @@ public:
     /*throw (typename SelfDecimal::Overflow)*/;
 
   bool
-  equal_to(const RandomTestDecimal& right, bool& expected) const throw ();
+  equal_to(const RandomTestDecimal& right, bool& expected) const noexcept;
 
   bool
-  not_equal_to(const RandomTestDecimal& right, bool& expected) const throw ();
+  not_equal_to(const RandomTestDecimal& right, bool& expected) const noexcept;
 
   bool
-  less_than(const RandomTestDecimal& right, bool& expected) const throw ();
+  less_than(const RandomTestDecimal& right, bool& expected) const noexcept;
 
   bool
   less_than_or_equal_to(const RandomTestDecimal& right, bool& expected) const
-    throw ();
+    noexcept;
 
   bool
-  greater_than(const RandomTestDecimal& right, bool& expected) const throw ();
+  greater_than(const RandomTestDecimal& right, bool& expected) const noexcept;
 
   bool
   greater_than_or_equal_to(const RandomTestDecimal& right, bool& expected)
-    const throw ();
+    const noexcept;
 
   //state str
   const char*
-  str() const throw ();
+  str() const noexcept;
 
   //test equality conversion to int
   template <typename IntType>
@@ -182,20 +182,20 @@ public:
   //test equality conversion to int with test overflow
   template <typename IntType>
   bool
-  test_to_int_with_overflow(const char* what) const throw ();
+  test_to_int_with_overflow(const char* what) const noexcept;
 
   //test equality conversion to int with test Sign
   template <typename IntType>
   bool
-  test_to_int_with_sign(const char* what) const throw ();
+  test_to_int_with_sign(const char* what) const noexcept;
 
   //test conversion to int
   bool
-  test_to_int(const char* what = "") const throw ();
+  test_to_int(const char* what = "") const noexcept;
 
   //test equality of results (n1, n2)
   bool
-  equal() const throw ();
+  equal() const noexcept;
 
   //test equality of strings of results (n1, n2)
   bool
@@ -207,7 +207,7 @@ public:
 
   //test full equality of results (n1,n2)
   bool
-  test_equal(const char* what = "") const throw ();
+  test_equal(const char* what = "") const noexcept;
 
   //test operation method
   typedef RandomTestDecimal (RandomTestDecimal::*TestUnaryOperation)(
@@ -219,19 +219,19 @@ public:
 
   //test
   void
-  test_unary_op(TestUnaryOperation op, const char* name) throw ();
+  test_unary_op(TestUnaryOperation op, const char* name) noexcept;
 
   void
   test_op(const RandomTestDecimal& right, TestOperation op, const char* name)
-    throw ();
+    noexcept;
 
   void
   test_logic_op(const RandomTestDecimal& right, TestLogicOperation op,
-    const char* name) throw ();
+    const char* name) noexcept;
 
   //do all tests
   void
-  test_ops(const RandomTestDecimal& right) throw ();
+  test_ops(const RandomTestDecimal& right) noexcept;
 
 private:
   DecimalState state;
@@ -248,7 +248,7 @@ template <typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  DecimalState() throw ()
+  DecimalState() noexcept
 {
   generate_();
   make_str_();
@@ -260,7 +260,7 @@ template <typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  DecimalState(bool sign_in, uint64_t i_in, uint64_t r_in) throw ()
+  DecimalState(bool sign_in, uint64_t i_in, uint64_t r_in) noexcept
   : sign(sign_in), i(i_in), r(r_in)
 {
   make_str_();
@@ -273,7 +273,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::add(
   const DecimalState& right, DecimalState& target, bool& overflow) const
-  throw ()
+  noexcept
 {
   if (sign == right.sign)
   {
@@ -294,7 +294,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::sub(
   const DecimalState& right, DecimalState& target, bool& overflow) const
-  throw ()
+  noexcept
 {
   if (sign == right.sign)
   {
@@ -314,7 +314,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::mul(
   const DecimalState& right, DecimalState& target, bool trunc,
-  bool& overflow) const throw ()
+  bool& overflow) const noexcept
 {
   overflow = true;
 
@@ -371,7 +371,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::div(
   const DecimalState& right, DecimalState& quotient, DecimalState& remainder,
-  bool& overflow) const throw ()
+  bool& overflow) const noexcept
 {
   uint64_t a = i * MAX_FRACTION + r;
   uint64_t b = right.i * MAX_FRACTION + right.r;
@@ -400,7 +400,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  less_than(const DecimalState& right) const throw ()
+  less_than(const DecimalState& right) const noexcept
 {
   return sign ? right.sign ? i > right.i || (i == right.i && r > right.r) :
     i || right.i || r || right.r : !right.sign &&
@@ -413,7 +413,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 const char*
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  str() const throw ()
+  str() const noexcept
 {
   return as_str_;
 }
@@ -424,7 +424,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 const char*
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  debug_str() const throw ()
+  debug_str() const noexcept
 {
   return debug_str_;
 }
@@ -435,7 +435,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  generate_() throw ()
+  generate_() noexcept
 {
   sign = !(random() % 2);
   i = static_cast<long long>(random() / (RAND_MAX + 1.0) * MAX_INTEGER);
@@ -448,7 +448,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
-  make_str_() throw ()
+  make_str_() noexcept
 {
   Stream::Stack<TOTAL + 3 + (TOTAL == FRACTION)> ostr;
   if (sign)
@@ -468,7 +468,7 @@ RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::
     }
     else
     {
-      ostr << std::setfill('0') << std::setw(FRACTION) << r;
+      ostr << Stream::MemoryStream::width_out(r, FRACTION, '0');
     }
   }
   const String::SubString& str = ostr.str();
@@ -485,7 +485,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::add_(
   bool sign, const DecimalState& right, DecimalState& target,
-  bool& overflow) const throw ()
+  bool& overflow) const noexcept
 {
   uint64_t add_i, add_r;
   if (add64<MAX_INTEGER>(i, right.i, add_i) ||
@@ -507,7 +507,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::DecimalState::sub_(
   bool sign, const DecimalState& right, DecimalState& target,
-  bool& /*overflow*/) const throw ()
+  bool& /*overflow*/) const noexcept
 {
   assert(i > right.i || (i == right.i && r >= right.r));
   uint64_t sub_i = i;
@@ -529,7 +529,7 @@ template <typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::RandomTestDecimal()
-  throw ()
+  noexcept
 {
   n1 = SelfDecimal(state.sign, state.i, state.r);
   n2 = SelfDecimal(String::SubString(state.str()));
@@ -540,7 +540,7 @@ template <typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::RandomTestDecimal(
-  const DecimalState& state_in, const SelfDecimal& n2_in) throw ()
+  const DecimalState& state_in, const SelfDecimal& n2_in) noexcept
   : state(state_in)
 {
   n1 = SelfDecimal(state_in.sign, state_in.i, state_in.r);
@@ -744,7 +744,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::equal_to(
-  const RandomTestDecimal& right, bool& expected) const throw ()
+  const RandomTestDecimal& right, bool& expected) const noexcept
 {
   expected = !state.less_than(right.state) && !right.state.less_than(state);
   return n2 == right.n2;
@@ -756,7 +756,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::not_equal_to(
-  const RandomTestDecimal& right, bool& expected) const throw ()
+  const RandomTestDecimal& right, bool& expected) const noexcept
 {
   expected = state.less_than(right.state) || right.state.less_than(state);
   return n2 != right.n2;
@@ -768,7 +768,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::less_than(
-  const RandomTestDecimal& right, bool& expected) const throw ()
+  const RandomTestDecimal& right, bool& expected) const noexcept
 {
   expected = state.less_than(right.state);
   return n2 < right.n2;
@@ -781,7 +781,7 @@ template <typename Element,
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::
   less_than_or_equal_to(const RandomTestDecimal& right, bool& expected) const
-  throw ()
+  noexcept
 {
   expected = !right.state.less_than(state);
   return n2 <= right.n2;
@@ -793,7 +793,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::greater_than(
-  const RandomTestDecimal& right, bool& expected) const throw ()
+  const RandomTestDecimal& right, bool& expected) const noexcept
 {
   expected = right.state.less_than(state);
   return n2 > right.n2;
@@ -806,7 +806,7 @@ template <typename Element,
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::
   greater_than_or_equal_to(const RandomTestDecimal& right, bool& expected)
-  const throw ()
+  const noexcept
 {
   expected = !state.less_than(right.state);
   return n2 >= right.n2;
@@ -817,7 +817,7 @@ template <typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 const char*
-RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::str() const throw ()
+RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::str() const noexcept
 {
   return state.str();
 }
@@ -828,7 +828,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::equal() const
-  throw ()
+  noexcept
 {
   return n1 == n2;
 }
@@ -880,7 +880,7 @@ template <typename Element,
 template <typename IntType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::
-  test_to_int_with_sign(const char* what) const throw ()
+  test_to_int_with_sign(const char* what) const noexcept
 {
   bool expected_sign_err = state.i && !std::numeric_limits<IntType>::is_signed
     && state.sign;
@@ -917,7 +917,7 @@ template <typename Element,
 template <typename IntType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::
-  test_to_int_with_overflow(const char* what) const throw ()
+  test_to_int_with_overflow(const char* what) const noexcept
 {
   bool expected_overflow = static_cast<unsigned long long>(state.i) >
     static_cast<unsigned long long>(std::numeric_limits<IntType>::max());
@@ -964,7 +964,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_to_int(
-  const char*) const throw ()
+  const char*) const noexcept
 {
   test_to_int_with_overflow<signed char>("signed char");
   test_to_int_with_overflow<signed short>("signed short");
@@ -980,7 +980,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 bool
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_equal(
-  const char* what) const throw ()
+  const char* what) const noexcept
 {
   if (!equal())
   {
@@ -1021,7 +1021,7 @@ template <typename Element, const unsigned int TOTAL,
   template <typename, const unsigned, const unsigned> class DecimalType>
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_unary_op(
-  RandomTestDecimal::TestUnaryOperation op, const char* name) throw ()
+  RandomTestDecimal::TestUnaryOperation op, const char* name) noexcept
 {
   bool overflow = false;
   try
@@ -1058,7 +1058,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_op(
   const RandomTestDecimal& right, RandomTestDecimal::TestOperation op,
-  const char* name) throw ()
+  const char* name) noexcept
 {
   bool overflow = false;
   try
@@ -1097,7 +1097,7 @@ template <typename Element,
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_logic_op(
   const RandomTestDecimal& right, RandomTestDecimal::TestLogicOperation op,
-  const char* name) throw ()
+  const char* name) noexcept
 {
   bool expected;
   try
@@ -1124,7 +1124,7 @@ template <typename Element,
   template <typename, const unsigned, const unsigned> class DecimalType>
 void
 RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_ops(
-  const RandomTestDecimal& right) throw ()
+  const RandomTestDecimal& right) noexcept
 {
   test_unary_op(&RandomTestDecimal::maximum, "maximum");
 
@@ -1153,7 +1153,7 @@ RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>::test_ops(
 
 template <typename FloatType>
 bool
-check_convert (FloatType fvalue) throw ()
+check_convert (FloatType fvalue) noexcept
 {
 #if 0
   if (std::numeric_limits<FloatType>::infinity() == fvalue ||
@@ -1176,7 +1176,7 @@ check_convert (FloatType fvalue) throw ()
 }
 
 inline bool
-strtofloat(const char* str, float& val) throw ()
+strtofloat(const char* str, float& val) noexcept
 {
   val = strtof(str, 0);
   if (!check_convert(fabsf(val)))
@@ -1188,7 +1188,7 @@ strtofloat(const char* str, float& val) throw ()
 }
 
 inline bool
-strtofloat(const char* str, double& val) throw ()
+strtofloat(const char* str, double& val) noexcept
 {
   val = strtod(str, 0);
   if (!check_convert(fabs(val)))
@@ -1200,7 +1200,7 @@ strtofloat(const char* str, double& val) throw ()
 }
 
 inline bool
-strtofloat(const char* str, long double& val) throw ()
+strtofloat(const char* str, long double& val) noexcept
 {
   val = strtold(str, 0);
   if (!check_convert(fabsl(val)))
@@ -1212,20 +1212,20 @@ strtofloat(const char* str, long double& val) throw ()
 }
 
 inline uint64_t
-roundx(float val) throw ()
+roundx(float val) noexcept
 {
   return static_cast<uint64_t>(roundf(fabsf(val)));
 }
 
 
 inline uint64_t
-roundx(double val) throw ()
+roundx(double val) noexcept
 {
   return static_cast<uint64_t>(round(fabs(val)));
 }
 
 inline uint64_t
-roundx(long double val) throw ()
+roundx(long double val) noexcept
 {
   return static_cast<uint64_t>(roundl(fabsl(val)));
 }
@@ -1235,7 +1235,7 @@ template <typename FloatType, typename Element,
   const unsigned int FRACTION,
   template <typename, const unsigned, const unsigned> class DecimalType>
 void
-do_from_string_test() throw ()
+do_from_string_test() noexcept
 {
   typedef DecimalType<Element, TOTAL, FRACTION> SelfDecimal;
   static const uint64_t MAX_INTEGER =
@@ -1324,7 +1324,7 @@ template <
   const unsigned int TOTAL,
   const unsigned int FRACTION>
 void
-do_random(const char* name) throw ()
+do_random(const char* name) noexcept
 {
   typedef RandomTestDecimal<Element, TOTAL, FRACTION, DecimalType>
     SelfTestDecimal;
@@ -1379,14 +1379,14 @@ template <
   typename Element, const unsigned Total>
 struct RandomTester<DecimalType, Element, Total, 0>
 {
-  RandomTester(const char*) throw ();
+  RandomTester(const char*) noexcept;
 };
 
 template <
   template <typename, const unsigned, const unsigned> class DecimalType,
   typename Element, const unsigned Total>
 RandomTester<DecimalType, Element, Total, 0>::RandomTester(const char*)
-  throw ()
+  noexcept
 {
 }
 
@@ -1415,12 +1415,12 @@ template <
   typename Element>
 struct Random<DecimalType, Element, 0>
 {
-  Random(const char*) throw ();
+  Random(const char*) noexcept;
 };
 
 template <
   template <typename, const unsigned, const unsigned> class DecimalType,
   typename Element>
-Random<DecimalType, Element, 0>::Random(const char*) throw ()
+Random<DecimalType, Element, 0>::Random(const char*) noexcept
 {
 }

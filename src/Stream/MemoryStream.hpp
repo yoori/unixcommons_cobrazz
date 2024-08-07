@@ -2,14 +2,263 @@
 #ifndef STREAM_MEMORYSTREAM_HPP
 #define STREAM_MEMORYSTREAM_HPP
 
-#include <streambuf>
+#include <algorithm>
+#include <atomic>
+#include <charconv>
+#include <cmath>
+#include <cstring>
+#include <iomanip>
 #include <istream>
 #include <ostream>
+#include <sstream>
+#include <streambuf>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <type_traits>
 
 #include <sys/param.h>
 
 #include <String/SubString.hpp>
 
+//
+// iomanip-like helpers
+//
+
+namespace Stream::MemoryStream
+{
+  //
+  // Helper for std::setw and std::setfill
+  //
+
+  template<typename IntType>
+  class WidthOut
+  {
+  public:
+    /**
+     * class to store state of std::setw + std::setfill
+     * @param value - value to be stored
+     * @param width - width value, width == 0 means width is not set
+     * @param fill - setfill value, works only if width > 0
+     */
+    WidthOut(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
+
+    /**
+     * @return value to be printed
+     */
+    IntType value() const noexcept;
+
+    /**
+     * @return output width value
+     */
+    size_t width() const noexcept;
+
+    /**
+     * @return fill character value
+     */
+    char fill() const noexcept;
+
+  private:
+    IntType value_;
+    size_t width_;
+    char fill_;
+  };
+
+  /**
+   * iomanip-like helper for std::setw + std::setfill
+   * @param value - value to be printed
+   * @param width - width value
+   * @param fill - setfill value
+   * @return Widthout object
+   */
+  template<typename IntType>
+  WidthOut<IntType>
+  width_out(const IntType& value, size_t width = 0, char fill = ' ') noexcept;
+
+  //
+  // Helper for std::hex and std::uppercase
+  //
+
+  template<typename Type>
+  class HexOut
+  {
+  public:
+    /**
+     * class to store state of std::hex + std::uppercase
+     * @param value - value to be stored
+     * @param upcase - uppercase value
+     */
+    HexOut(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
+
+    /**
+     * @return value to be printed
+     */
+    Type value() const noexcept;
+
+    /**
+     * @return whether uppercase letters must be used for value
+     */
+    bool upcase() const noexcept;
+
+    /**
+     * @return output width value
+     */
+    size_t width() const noexcept;
+
+    /**
+     * @return fill character value
+     */
+    char fill() const noexcept;
+
+  private:
+    Type value_;
+    bool upcase_;
+    size_t width_;
+    char fill_;
+  };
+
+  /**
+   * iomanip-like helper for std::hex + std::uppercase
+   * @param value - value to be printed
+   * @param upcase - uppercase flag
+   * @return HexOut object
+   */
+  template<typename Type>
+  HexOut<Type>
+  hex_out(const Type& value, bool upcase = false, size_t width = 0, char fill = ' ') noexcept;
+
+  //
+  // Helper for std::setprecision and std::fixed
+  //
+
+  template<typename Type>
+  class DoubleOut
+  {
+  public:
+    /**
+     * class to store state of std::setprecision (with obligatory std::fixed)
+     * @param value - value to be stored
+     * @param precision - fixed precision of value
+     */
+    DoubleOut(const Type& value, size_t precision = 0) noexcept;
+
+    /**
+     * @return value to be printed
+     */
+    Type value() const noexcept;
+
+    /**
+     * @return fixed precision
+     */
+    size_t precision() const noexcept;
+
+  private:
+    Type value_;
+    size_t precision_;
+  };
+
+  /**
+   * iomanip-like helper for std::setprecision (+ obligatory std::fixed)
+   * @param value - value to be printed
+   * @param precision - fixed precision of value
+   * @return DoubleOut object
+   */
+  template<typename Type>
+  DoubleOut<Type>
+  double_out(const Type& value, size_t precision) noexcept;
+}
+
+namespace std
+{
+
+  //
+  // Helper for std::setw and std::setfill
+  //
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::WidthOut<IntType>&)
+    noexcept;
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::WidthOut<IntType>&)
+    noexcept;
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, std::string>::type
+  to_string(const Stream::MemoryStream::WidthOut<IntType>&)
+    noexcept;
+
+  //
+  // Helper for std::hex and std::uppercase
+  //
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::HexOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::HexOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
+  to_string(const Stream::MemoryStream::HexOut<Type>&)
+    noexcept;
+
+  //
+  // Helper for std::setprecision and std::fixed
+  //
+
+  template<typename Type>
+  std::enable_if<std::is_floating_point<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::enable_if<std::is_floating_point<Type>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::enable_if<std::is_floating_point<Type>::value, std::string>::type
+  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+    /*throw (eh::Exception) */;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, size_t>::type
+  to_chars_len(const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::to_chars_result>::type
+  to_chars(char*, char*, const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
+
+  template<typename Type>
+  std::enable_if<std::is_integral<Type>::value, std::string>::type
+  to_string(const Stream::MemoryStream::DoubleOut<Type>&)
+    noexcept;
+
+  //
+  // integral and enum types to_chars_len
+  //
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(IntType) noexcept;
+
+  template<typename IntType>
+  std::enable_if<std::is_enum<IntType>::value, size_t>::type
+  to_chars_len(IntType) noexcept;
+
+  template<typename IntType>
+  std::enable_if<std::is_integral<IntType>::value, size_t>::type
+  to_chars_len(const volatile std::atomic<IntType>&) noexcept;
+}
 
 namespace Stream
 {
@@ -49,13 +298,13 @@ namespace Stream
        * @return The pointer to data not read yet
        */
       ConstPointer
-      data() const throw ();
+      data() const noexcept;
 
       /**
        * @return The size of data not read yet
        */
       Size
-      size() const throw ();
+      size() const noexcept;
 
     protected:
       virtual
@@ -70,7 +319,7 @@ namespace Stream
 
       virtual
       Int
-      underflow() throw ();
+      underflow() noexcept;
     };
 
     /**
@@ -79,9 +328,12 @@ namespace Stream
      */
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer = Allocator>
-    class OutputMemoryBuffer : public std::basic_streambuf<Elem, Traits>
+    class OutputMemoryBuffer
     {
     public:
+      // for InputMemoryBuffer and MemoryBufferHolder compatibility
+      typedef typename Traits::char_type char_type;
+
       typedef typename Traits::int_type Int;
       typedef typename Traits::pos_type Position;
       typedef typename Traits::off_type Offset;
@@ -105,45 +357,57 @@ namespace Stream
        * Frees allocated memory region
        */
       virtual
-      ~OutputMemoryBuffer() throw ();
+      ~OutputMemoryBuffer() noexcept;
 
       /**
        * @return The pointer to filled data
        */
       ConstPointer
-      data() const throw ();
+      data() const noexcept;
 
       /**
        * @return The size of filled data
        */
       Size
-      size() const throw ();
+      size() const noexcept;
 
-    protected:
-      virtual
-      Position
-      seekoff(Offset off, std::ios_base::seekdir way,
-        std::ios_base::openmode which) /*throw (eh::Exception)*/;
-
-      virtual
-      Position
-      seekpos(Position pos, std::ios_base::openmode which)
-        /*throw (eh::Exception)*/;
-
-      virtual
-      Int
-      overflow(Int c = Traits::eof()) /*throw (eh::Exception)*/;
-
-    private:
+    public:
       /**
-       * Extends allocated memory region
+       * @return The pointer to first elem of data region
+       */
+      Pointer
+      begin() noexcept;
+
+      /**
+       * @return The pointer to one past last elem of data region
+       */
+      Pointer
+      end() noexcept;
+
+      /**
+       * @return The pointer to one past last filled elem of data
+       */
+      Pointer
+      ptr() noexcept;
+
+      /**
+       * Extends allocated data region
        * @return whether or not extension was successful
        */
       bool
       extend() /*throw (eh::Exception)*/;
 
+      /**
+       * advance ptr() off steps forward but not more than end()
+       */
+      void
+      pbump(Offset off) noexcept;
+
+    private:
       Allocator allocator_;
-      Offset max_offset_;
+      Pointer begin_;
+      Pointer ptr_;
+      Pointer end_;
     };
 
     /**
@@ -205,13 +469,13 @@ namespace Stream
        * @return pointer to holding buffer
        */
       Buffer*
-      buffer() throw ();
+      buffer() noexcept;
 
       /**
        * @return pointer to holding buffer
        */
       const Buffer*
-      buffer() const throw ();
+      buffer() const noexcept;
 
     private:
       Buffer buffer_;
@@ -280,14 +544,12 @@ namespace Stream
       typename AllocatorInitializer = Allocator, const size_t SIZE = 0>
     class OutputMemoryStream :
       public MemoryBufferHolder<
-        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >,
-      public std::basic_ostream<Elem, Traits>
+        OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
     {
     private:
       typedef MemoryBufferHolder<
         OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer> >
           Holder;
-      typedef std::basic_ostream<Elem, Traits> Stream;
 
     public:
       /**
@@ -300,6 +562,54 @@ namespace Stream
       OutputMemoryStream(typename Allocator::size_type initial_size = SIZE,
         const AllocatorInitializer& allocator_initializer =
           AllocatorInitializer()) /*throw (eh::Exception)*/;
+
+      /**
+       * append one character to filled part of memory region
+       * set bad flag if char can not be appended
+       * @param ch elemen to be appended
+       */
+      void append(Elem ch) /*throw (eh::Exception)*/;
+
+      /**
+       * append null terminated charater sequence after filled part of memory region
+       * append as much of str as possible (try extend() if end() is reached)
+       * if str is appended partially, then set bad flag
+       * @param str null terminated character sequence
+       */
+      void append(const Elem* str) /*throw (eh::Exception)*/;
+
+      /**
+       * append size elements of str to filled part of memory region
+       * copy block of data without checking null characters
+       * @param str character sequence to be appended
+       * @param size amount of characters to be appended
+       */
+      void write(const Elem* str, int len) /*throw (eh::Exception)*/;
+
+      /**
+       * @return true if last append failed because memory region capacity reached
+       */
+      bool bad() const noexcept;
+
+      /**
+       * if stream bad state is true, all stream write operations will do nothing
+       * if stream bad state is true, calling bad(false) has no effect
+       * @param value - set stream state to value
+       */
+      void bad(bool value) noexcept;
+
+    private:
+      bool bad_;
+
+      template<typename HelperImplElem, typename HelperImplTraits, typename HelperImplAllocator,
+        typename HelperImplAllocatorInitializer, const size_t HelperImplSIZE, typename HelperImplArgT,
+        typename HelperImplToCharsLen, typename HelperImplToChars, typename HelperImplToString>
+      friend
+      OutputMemoryStream<HelperImplElem, HelperImplTraits, HelperImplAllocator,
+        HelperImplAllocatorInitializer, HelperImplSIZE>&
+      OutputMemoryStreamHelperImpl(OutputMemoryStream<HelperImplElem, HelperImplTraits, HelperImplAllocator,
+        HelperImplAllocatorInitializer, HelperImplSIZE>& ostr, const HelperImplArgT& arg,
+        HelperImplToCharsLen to_chars_len, HelperImplToChars to_chars, HelperImplToString to_string);
     };
 
     namespace Allocator
@@ -317,13 +627,13 @@ namespace Stream
         /**
          * Constructor without parameters
          */
-        Simple() throw ();
+        Simple() noexcept;
 
         /**
          * Constructor with buffer_ init value
          * @param buffer_initializer initializer for buffer_
          */
-        Simple(BufferInitializer buffer_initializer) throw ();
+        Simple(BufferInitializer buffer_initializer) noexcept;
 
         /**
          * Allocation function
@@ -333,7 +643,7 @@ namespace Stream
          */
         Pointer
         allocate(Size size, const void* = 0)
-          throw ();
+          noexcept;
 
         /**
          * Deallocation function
@@ -342,7 +652,7 @@ namespace Stream
          * @param size should be equal to SIZE
          */
         void
-        deallocate(Pointer ptr, Size size) throw ();
+        deallocate(Pointer ptr, Size size) noexcept;
 
       private:
         Buffer buffer_;
@@ -362,7 +672,7 @@ namespace Stream
          * @param buffer preallocated buffer of size not less than SIZE
          */
         explicit
-        SimpleBuffer(Elem* buffer) throw ();
+        SimpleBuffer(Elem* buffer) noexcept;
       };
 
       template <typename Elem, const size_t SIZE, typename Initializer>
@@ -370,9 +680,9 @@ namespace Stream
       {
       public:
         explicit
-        ArrayBuffer(Initializer initializer = Initializer()) throw ();
+        ArrayBuffer(Initializer initializer = Initializer()) noexcept;
 
-        operator Elem*() throw ();
+        operator Elem*() noexcept;
 
       private:
         Elem buffer_[SIZE];
@@ -391,7 +701,7 @@ namespace Stream
          * Constructor
          */
         explicit
-        SimpleStack(size_t allocator_initializer) throw ();
+        SimpleStack(size_t allocator_initializer) noexcept;
       };
     }
   }
@@ -435,13 +745,13 @@ namespace Stream
      * @param buffer buffer to make output to of size not less than SIZE
      */
     explicit
-    Buffer(char* buffer) throw ();
+    Buffer(char* buffer) noexcept;
 
     /**
      * Destructor
      * Appends nul-terminating character to the buffer
      */
-    ~Buffer() throw ();
+    ~Buffer() noexcept;
   };
 
   /**
@@ -466,6 +776,141 @@ namespace Stream
    * enough size
    */
   typedef Buffer<MAXPATHLEN> FileName;
+}
+
+namespace Stream::MemoryStream
+{
+  /**
+   * Generalized template for operator <<(Stream::MemoryStream::OutputMemoryStream&, ...)
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT& arg) /*throw eh::Exception*/;
+
+  /**
+   * String::BasicSubString
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE,
+    typename SElem, typename STraits, typename SChecker>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const String::BasicSubString<SElem, STraits, SChecker>& arg) /*throw eh::Exception*/;
+
+  /**
+   * String::string_view
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string_view& arg) /*throw eh::Exception*/;
+
+  /**
+   * std::string
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const std::string& arg) /*throw eh::Exception*/;
+
+  /**
+   * const ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const ArgT* arg) /*throw eh::Exception*/;
+
+  /**
+   * ArgT*, ArgT != char
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE, typename ArgT>
+  std::enable_if<
+    !std::is_same<Elem, ArgT>::value,
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>
+  >::type&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    ArgT* arg) /*throw eh::Exception*/;
+
+  /**
+   * const char* + const char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    const Elem* arg) /*throw eh::Exception*/;
+
+  /**
+   * char* + char[n]
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    Elem* arg) /*throw eh::Exception*/;
+
+  /**
+   * char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes char too
+   * but we want char to be treated like char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    char arg) /*throw eh::Exception*/;
+
+  /**
+   * unsigned char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes unsigned char too
+   * but we want unsigned char to be treated like unsigned char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    unsigned char arg) /*throw eh::Exception*/;
+
+  /**
+   * signed char overload
+   * decltype(std::to_chars(..., ArgT()), ...) actually takes unsigned char too
+   * but we want signed char to be treated like signed char, do not apply to_chars
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    signed char arg) /*throw eh::Exception*/;
+
+  /**
+   * bool overload
+   * do not use general overload for bool
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    bool arg) /*throw eh::Exception*/;
+
+  /**
+   * std::endl
+   */
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+  operator <<(OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>& ostr,
+    std::basic_ostream<Elem, std::char_traits<Elem>>& (*)(std::basic_ostream<Elem, std::char_traits<Elem>>&))
+    /*throw eh::Exception*/;
 }
 
 #include <Stream/MemoryStream.tpp>

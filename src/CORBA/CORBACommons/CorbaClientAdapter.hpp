@@ -4,13 +4,11 @@
 #include <iostream>
 #include <list>
 
+#include <CORBACommons/CorbaAdapters.hpp>
 #include <Generics/GnuHashTable.hpp>
 #include <Generics/Singleton.hpp>
-
 #include <Logger/Logger.hpp>
-
-#include <CORBACommons/CorbaAdapters.hpp>
-
+#include <Stream/MemoryStream.hpp>
 
 namespace CORBACommons
 {
@@ -69,7 +67,7 @@ namespace CORBACommons
   };
 
   typedef std::list<CorbaObjectRef> CorbaObjectRefList;
-  
+
   /**X
    * CorbaClientAdapter
    */
@@ -320,6 +318,22 @@ operator <<(std::ostream& ostr, const CORBACommons::CorbaObjectRef& ref)
 {
   ostr << "'" << ref.object_ref << "'";
   return ostr;
+}
+
+namespace Stream::MemoryStream
+{
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, CORBACommons::CorbaObjectRef>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const CORBACommons::CorbaObjectRef& ref)
+    {
+      return ostr << "'" << ref.object_ref << "'";
+    }
+  };
 }
 
 #endif

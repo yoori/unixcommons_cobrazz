@@ -13,6 +13,7 @@
 
 #include <Generics/CommonDecimal.hpp>
 
+#include <Stream/MemoryStream.hpp>
 
 namespace Generics
 {
@@ -50,7 +51,7 @@ namespace Generics
      * Constructor
      * Initializes the number with INVALID_FLAG_
      */
-    SimpleDecimal() throw ();
+    SimpleDecimal() noexcept;
 
     /**
      * Construct from parts
@@ -137,7 +138,7 @@ namespace Generics
      */
     template <typename ToFloating>
     ToFloating
-    floating() const throw ();
+    floating() const noexcept;
 
     /**
      * Floating representation of this number
@@ -146,14 +147,14 @@ namespace Generics
      */
     template <typename ToFloating>
     void
-    to_floating(ToFloating& val) const throw ();
+    to_floating(ToFloating& val) const noexcept;
 
     /**
      * String representation of this number
      * @return string representation of this number in format [-]abcd[.efg]
      */
     std::string
-    str() const /*throw (eh::Exception)*/;
+    str() const noexcept;
 
     /**
      * Internal dump of this number
@@ -167,21 +168,21 @@ namespace Generics
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
     void
-    pack(void* buffer) const throw ();
+    pack(void* buffer) const noexcept;
 
     /**
      * Unpacks current value from PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
     void
-    unpack(const void* buffer) throw ();
+    unpack(const void* buffer) noexcept;
 
     /**
      * Revert sign of this number
      * @return this
      */
     SimpleDecimal&
-    negate() throw ();
+    negate() noexcept;
 
     /**
      * Makes floor of absolute value of this
@@ -189,7 +190,7 @@ namespace Generics
      * @return this
      */
     SimpleDecimal&
-    floor(unsigned fraction) throw ();
+    floor(unsigned fraction) noexcept;
 
     /**
      * Makes ceil of absolute value of this
@@ -205,21 +206,21 @@ namespace Generics
      * @return true if number is zero
      */
     bool
-    is_zero() const throw ();
+    is_zero() const noexcept;
 
     /**
      * Test on greater than or equal to zero
      * @return true if number greater than or equal to zero
      */
     bool
-    is_nonnegative() const throw ();
+    is_nonnegative() const noexcept;
 
     /**
      * Test on less than or equal to zero
      * @return true if number less than or equal to zero
      */
     bool
-    is_nonpositive() const throw ();
+    is_nonpositive() const noexcept;
 
     /**
      * Test on equality
@@ -227,7 +228,7 @@ namespace Generics
      * @return true if equal or false otherwise
      */
     bool
-    operator ==(const SimpleDecimal& test) const throw ();
+    operator ==(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on not equality
@@ -235,7 +236,7 @@ namespace Generics
      * @return true if not equal or false otherwise
      */
     bool
-    operator !=(const SimpleDecimal& test) const throw ();
+    operator !=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on minority
@@ -243,7 +244,7 @@ namespace Generics
      * @return true if less than or false otherwise
      */
     bool
-    operator <(const SimpleDecimal& test) const throw ();
+    operator <(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on minority or equality
@@ -251,7 +252,7 @@ namespace Generics
      * @return true if less than or equal to or false otherwise
      */
     bool
-    operator <=(const SimpleDecimal& test) const throw ();
+    operator <=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on majority
@@ -259,7 +260,7 @@ namespace Generics
      * @return true if greater than or false otherwise
      */
     bool
-    operator >(const SimpleDecimal& test) const throw ();
+    operator >(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on majority or equality
@@ -267,7 +268,7 @@ namespace Generics
      * @return true if greater than or equal to or false otherwise
      */
     bool
-    operator >=(const SimpleDecimal& test) const throw ();
+    operator >=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Add summand to this
@@ -446,7 +447,7 @@ namespace Generics
      * of SimpleDecimal
      */
     char*
-    decimal_to_char_(char* buf_end) const throw ();
+    decimal_to_char_(char* buf_end) const noexcept;
 
     static
     void
@@ -484,7 +485,7 @@ namespace Generics
     void
     hash_add(Hash& hash,
       const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& key)
-      throw ();
+      noexcept;
 
     template <typename DiffBase, const unsigned DIFF_TOTAL,
       const unsigned DIFF_FRACTION>
@@ -507,7 +508,63 @@ namespace Generics
     const unsigned FRACTION>
   void
   hash_add(Hash& hash, const SimpleDecimal<Base, TOTAL, FRACTION>& key)
-    throw ();
+    noexcept;
+}
+
+namespace Stream::MemoryStream
+{
+  //
+  // OutputMemoryStreamHelper for Generics::SimpleDecimal
+  //
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE,
+    typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Generics::SimpleDecimal<Base, TOTAL, FRACTION>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr,
+      const Generics::SimpleDecimal<Base, TOTAL, FRACTION>& simple_decimal)
+    {
+      return ostr << simple_decimal.str();
+    }
+  };
+
+  //
+  // OutputMemoryStreamHelper const char* overload used in Generics::SimpleDecimal constructor
+  //
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Stream::MemoryStream::DoubleOut<const char*>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<const char*>& doubleout)
+    {
+      return ostr << doubleout.value();
+    }
+  };
+
+  //
+  // OutputMemoryStreamHelper std::string overload used in Generics::SimpleDecimal constructor
+  //
+
+  template<typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  struct OutputMemoryStreamHelper<Elem, Traits, Allocator, AllocatorInitializer,
+    SIZE, Stream::MemoryStream::DoubleOut<std::string>>
+  {
+    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>&
+    operator()(OutputMemoryStream<Elem, Traits, Allocator,
+      AllocatorInitializer, SIZE>& ostr, const Stream::MemoryStream::DoubleOut<std::string>& doubleout)
+    {
+      return ostr << doubleout.value();
+    }
+  };
 }
 
 #include <Generics/SimpleDecimal.tpp>

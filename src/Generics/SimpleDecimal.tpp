@@ -149,7 +149,7 @@ namespace Generics
 
   template <typename Base, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal() throw ()
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal() noexcept
     : negative_(false), data_(INVALID_FLAG_)
   {
   }
@@ -187,7 +187,7 @@ namespace Generics
     General num) /*throw (Overflow, NotNumber)*/
   {
     Stream::Stack<TOTAL_RANK + 3 + !INTEGER_RANK> ostr;
-    ostr << std::setprecision(FRACTION_RANK) << std::fixed << num;
+    ostr << Stream::MemoryStream::double_out(num, FRACTION_RANK);
     construct_(ostr.str());
   }
 
@@ -250,7 +250,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   template <typename ToFloating>
   ToFloating
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floating() const throw ()
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
   {
     static_assert(!std::numeric_limits<ToFloating>::is_integer,
       "Floating type is integer");
@@ -269,7 +269,7 @@ namespace Generics
   template <typename ToFloating>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::to_floating(
-    ToFloating& val) const throw ()
+    ToFloating& val) const noexcept
   {
     val = floating<ToFloating>();
   }
@@ -277,7 +277,7 @@ namespace Generics
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
   char*
   SimpleDecimal<Base, TOTAL, FRACTION>::decimal_to_char_(
-    char* buf_end) const throw ()
+    char* buf_end) const noexcept
   {
     assert(data_ != INVALID_FLAG_);
 
@@ -344,7 +344,7 @@ namespace Generics
     const unsigned FRACTION>
   std::string
   SimpleDecimal<Base, TOTAL, FRACTION>::str() const
-    /*throw (eh::Exception)*/
+    noexcept
   {
     char buffer[TOTAL + 2];
     char* const BUF_END = buffer + sizeof(buffer);
@@ -398,8 +398,8 @@ namespace Generics
     ostr << TOTAL_RANK << '.' << FRACTION_RANK << "(" <<
       static_cast<typename Parent::CalcType>(MAX_INTEGER_) << "," <<
       static_cast<typename Parent::CalcType>(MAX_FRACTION_) << ") " <<
-      std::setfill('0') << std::setw(TOTAL_RANK) <<
-      static_cast<unsigned long long>(data_);
+      Stream::MemoryStream::width_out(
+        static_cast<unsigned long long>(data_), TOTAL_RANK, '0');
     return ostr.str().str();
   }
 
@@ -407,7 +407,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const
-    throw ()
+    noexcept
   {
     assert(data_ != INVALID_FLAG_);
 
@@ -419,7 +419,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer)
-    throw ()
+    noexcept
   {
     memcpy(&data_, buffer, sizeof(data_));
     negative_ =
@@ -429,7 +429,7 @@ namespace Generics
   template <typename Base, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::negate() throw ()
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::negate() noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -441,7 +441,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction)
-    throw ()
+    noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -492,7 +492,7 @@ namespace Generics
   template <typename Base, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   bool
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_zero() const throw ()
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -503,7 +503,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const
-    throw ()
+    noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -514,7 +514,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const
-    throw ()
+    noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -525,7 +525,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator ==(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
     DEV_ASSERT(test.data_ != INVALID_FLAG_);
@@ -538,7 +538,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator <(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
     DEV_ASSERT(test.data_ != INVALID_FLAG_);
@@ -551,7 +551,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator !=(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     return !operator ==(test);
   }
@@ -560,7 +560,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator >(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     return test < *this;
   }
@@ -569,7 +569,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator >=(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     return !(*this < test);
   }
@@ -578,7 +578,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator <=(
-    const SimpleDecimal& test) const throw ()
+    const SimpleDecimal& test) const noexcept
   {
     return !(test < *this);
   }
@@ -835,7 +835,7 @@ namespace Generics
   void
   hash_add(Hash& hash,
     const SimpleDecimal<Base, TOTAL, FRACTION>& key)
-    throw ()
+    noexcept
   {
     DEV_ASSERT(key.data_ !=
       (SimpleDecimal<Base, TOTAL, FRACTION>::INVALID_FLAG_));

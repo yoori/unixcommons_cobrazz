@@ -25,39 +25,39 @@ include_directories (
 )
 
 set (SOURCES_FILES
-  Grpc/ClientFactory.cpp
-  Grpc/CobrazzServerBuilder.cpp
-  Grpc/ComponentsBuilder.cpp
-  Grpc/Core/Common/Logging.cpp
-  Grpc/Core/Common/Scheduler.cpp
-  Grpc/Core/Server/CommonContextCoro.cpp
-  Grpc/Core/Server/RpcPoolImpl.cpp
-  Grpc/Core/Server/Server.cpp
-  Grpc/Core/Server/ServerCoro.cpp
-  Grpc/Core/Server/Service.cpp
-  Grpc/FileManager/File.cpp
-  Grpc/FileManager/FileManager.cpp
-  Grpc/FileManager/FileManagerPool.cpp
-  Grpc/FileManager/IoUring.cpp
-  Grpc/FileManager/Semaphore.cpp
-  Grpc/Http/Client/Client.cpp
-  Grpc/Http/Client/Request.cpp
-  Grpc/Http/Server/MonitorHandler.cpp
-  Grpc/Http/Server/HttpHandler.cpp
-  Grpc/Http/Server/HttpServer.cpp
-  Grpc/Http/Server/HttpServerBuilder.cpp
-  Grpc/Statistics/MemoryStatisticsProvider.cpp
-  Grpc/RocksDB/DataBase.cpp
-  Grpc/RocksDB/DataBaseManager.cpp
-  Grpc/RocksDB/DataBaseManagerPool.cpp
-  Grpc/RocksDB/Logger.cpp
-  Grpc/Logger.cpp
-  Grpc/Manager.cpp
-  Grpc/RegistratorDynamicSettings.cpp
-  Grpc/Server.cpp
-  Grpc/ServerBuilder.cpp
-  Grpc/TaskProcessorContainer.cpp
-  Grpc/TaskProcessorContainerBuilder.cpp
+  FileManager/File.cpp
+  FileManager/FileManager.cpp
+  FileManager/FileManagerPool.cpp
+  FileManager/IoUring.cpp
+  FileManager/Semaphore.cpp
+  Grpc/Common/Logging.cpp
+  Grpc/Common/Scheduler.cpp
+  Grpc/Server/CommonContextCoro.cpp
+  Grpc/Server/RpcPoolImpl.cpp
+  Grpc/Server/Server.cpp
+  Grpc/Server/ServerBuilder.cpp
+  Grpc/Server/ServerCoro.cpp
+  Grpc/Server/Service.cpp
+  Http/Client/Client.cpp
+  Http/Client/Request.cpp
+  Http/Server/HttpHandler.cpp
+  Http/Server/HttpServer.cpp
+  Http/Server/HttpServerBuilder.cpp
+  Http/Server/MonitorHandler.cpp
+  UServerGrpc/ClientFactory.cpp
+  UServerGrpc/Server.cpp
+  UServerGrpc/ServerBuilder.cpp
+  RocksDB/DataBase.cpp
+  RocksDB/DataBaseManager.cpp
+  RocksDB/DataBaseManagerPool.cpp
+  RocksDB/Logger.cpp
+  Statistics/MemoryStatisticsProvider.cpp
+  ComponentsBuilder.cpp
+  Logger.cpp
+  Manager.cpp
+  RegistratorDynamicSettings.cpp
+  TaskProcessorContainer.cpp
+  TaskProcessorContainerBuilder.cpp
 )
 
 add_library(UServerUtils STATIC
@@ -88,26 +88,26 @@ add_grpc_library(UServerUtils_proto
     test2.proto
     test_coro_client.proto
   SOURCE_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Test/Proto
+    ${CMAKE_CURRENT_SOURCE_DIR}/Test/Proto
 )
 
 add_executable(TestUserver
-  Grpc/Test/file_manager_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_client_async_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
-  Grpc/Test/grpc_cobrazz_stream_unary_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_stream_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_client_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_async_test.cpp
-  Grpc/Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
-  Grpc/Test/grpc_notify_test.cpp
-  Grpc/Test/main.cpp
-  Grpc/Test/grpc_userver_test1.cpp
-  Grpc/Test/grpc_userver_test2.cpp
-  Grpc/Test/http_test.cpp
-  Grpc/Test/rocsdb_test.cpp
+  Test/file_manager_test.cpp
+  Test/grpc_cobrazz_stream_stream_client_async_test.cpp
+  Test/grpc_cobrazz_stream_stream_client_coro_test.cpp
+  Test/grpc_cobrazz_stream_stream_server_async_test.cpp
+  Test/grpc_cobrazz_stream_stream_server_coro_test.cpp
+  Test/grpc_cobrazz_stream_unary_server_async_test.cpp
+  Test/grpc_cobrazz_unary_stream_server_async_test.cpp
+  Test/grpc_cobrazz_unary_unary_client_async_test.cpp
+  Test/grpc_cobrazz_unary_unary_server_async_test.cpp
+  Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
+  Test/grpc_notify_test.cpp
+  Test/main.cpp
+  Test/grpc_userver_test1.cpp
+  Test/grpc_userver_test2.cpp
+  Test/http_test.cpp
+  Test/rocsdb_test.cpp
 )
 
 target_link_libraries(TestUserver
@@ -132,7 +132,7 @@ foreach(Target
   Grpc_Server_Remote_Test)
   string(TOLOWER ${Target} FileName)
   add_executable(${Target}
-    Grpc/Test/${FileName}.cpp
+    Test/${FileName}.cpp
   )
   target_link_libraries(${Target}
     ${Boost_LIBRARIES}

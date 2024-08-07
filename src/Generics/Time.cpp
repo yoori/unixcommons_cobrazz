@@ -83,7 +83,7 @@ namespace Generics
   };
 
   time_t
-  gm_to_time(const tm& et) throw ()
+  gm_to_time(const tm& et) noexcept
   {
     const long YEARS = et.tm_year - 70;
     return ((YEARS * 365) + (YEARS + 1) / 4 +
@@ -92,7 +92,7 @@ namespace Generics
   }
 
   void
-  time_to_gm(time_t time, tm& et) throw ()
+  time_to_gm(time_t time, tm& et) noexcept
   {
     memset(&et, 0, sizeof(et));
     et.tm_sec = time % 60;
@@ -140,7 +140,7 @@ namespace Generics
   {
     bool
     check_name(const char*& src, size_t& size,
-      const String::AsciiStringManip::Caseless& cl) throw ()
+      const String::AsciiStringManip::Caseless& cl) noexcept
     {
       if (cl.start(String::SubString(src, size)))
       {
@@ -154,7 +154,7 @@ namespace Generics
     bool
     check_names(const char*& src, size_t& size,
       const String::AsciiStringManip::Caseless& cl1,
-      const String::AsciiStringManip::Caseless& cl2) throw ()
+      const String::AsciiStringManip::Caseless& cl2) noexcept
     {
       return check_name(src, size, cl1) || check_name(src, size, cl2);
     }
@@ -162,7 +162,7 @@ namespace Generics
     template <const size_t SIZE, typename T>
     bool
     read_number(const char*& src, size_t& size, T& number, bool strict)
-      throw ()
+      noexcept
     {
       if (!size || !String::AsciiStringManip::NUMBER(*src) ||
         (strict && size < SIZE))
@@ -184,7 +184,7 @@ namespace Generics
 
     bool
     add_str(char*& str, size_t& size, size_t length,
-      const String::SubString& src) throw ()
+      const String::SubString& src) noexcept
     {
       if (size + src.size() > length)
       {
@@ -198,7 +198,7 @@ namespace Generics
 
     template <typename T>
     bool
-    add_num(char*& str, size_t& size, size_t length, T number) throw ()
+    add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[64];
       size_t ns = String::StringManip::int_to_str(number, buf, sizeof(buf));
@@ -207,7 +207,7 @@ namespace Generics
 
     template <const size_t SIZE, typename T>
     bool
-    add_num(char*& str, size_t& size, size_t length, T number) throw ()
+    add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[SIZE];
       size_t i = SIZE;
@@ -259,7 +259,7 @@ namespace Generics
 
   const char*
   ExtendedTime::from_str_(const String::SubString& value,
-    const char* format, bool strict) throw ()
+    const char* format, bool strict) noexcept
   {
     const char* v_str = value.data();
     size_t v_size = value.size();
@@ -423,7 +423,7 @@ namespace Generics
 
   size_t
   ExtendedTime::to_str_(char* str, size_t length, const char* format) const
-    throw ()
+    noexcept
   {
     size_t size = 0;
     for (; *format; format++)
@@ -671,6 +671,34 @@ namespace Generics
 
     return std::string(str, length);
   }
+
+  std::string
+  Time::str() const noexcept
+  {
+    char buf[256];
+    const Generics::Time::Print& time_print = print();
+    snprintf(buf, sizeof(buf), "%s%lu:%.6ld (sec:usec)",
+      time_print.sign < 0 ? "-" : "",
+      static_cast<unsigned long int>(time_print.integer_part),
+      static_cast<long int>(time_print.fractional_part));
+    return std::string(buf);
+  }
+
+  std::string
+  ExtendedTime::str() const noexcept
+  {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
+      static_cast<unsigned>(tm_year + 1900),
+      static_cast<unsigned>(tm_mon + 1),
+      static_cast<unsigned>(tm_mday),
+      static_cast<unsigned>(tm_hour),
+      static_cast<unsigned>(tm_min),
+      static_cast<unsigned>(tm_sec),
+      static_cast<unsigned>(tm_usec));
+
+    return std::string(buf, buf + 26);
+  }
 }
 
 //
@@ -681,32 +709,14 @@ std::ostream&
 operator <<(std::ostream& ostr, const Generics::Time& time)
   /*throw (eh::Exception)*/
 {
-  char buf[256];
-  const Generics::Time::Print& print = time.print();
-  snprintf(buf, sizeof(buf), "%s%lu:%.6ld (sec:usec)",
-    print.sign < 0 ? "-" : "",
-    static_cast<unsigned long int>(print.integer_part),
-    static_cast<long int>(print.fractional_part));
-  return ostr << buf;
+  return ostr << time.str();
 }
 
 std::ostream&
 operator <<(std::ostream& ostr, const Generics::ExtendedTime& time)
   /*throw (eh::Exception)*/
 {
-  char buf[64];
-  snprintf(buf, sizeof(buf), "%04u-%02u-%02u.%02u:%02u:%02u.%06u",
-    static_cast<unsigned>(time.tm_year + 1900),
-    static_cast<unsigned>(time.tm_mon + 1),
-    static_cast<unsigned>(time.tm_mday),
-    static_cast<unsigned>(time.tm_hour),
-    static_cast<unsigned>(time.tm_min),
-    static_cast<unsigned>(time.tm_sec),
-    static_cast<unsigned>(time.tm_usec));
-
-  ostr.write(buf, 26);
-
-  return ostr;
+  return ostr << time.str();
 }
 
 std::istream&

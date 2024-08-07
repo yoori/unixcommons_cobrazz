@@ -43,8 +43,7 @@ namespace Generics
     ostr << SIZE << ':' << TOTAL_RANK << '.' << FRACTION_RANK;
     for (unsigned i = 0; i != SIZE; i++)
     {
-      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-        tmp_array_[i];
+      ostr << ' ' << Stream::MemoryStream::width_out(tmp_array_[i], DIGITS_PER_ELEMENT, '0');
     }
     return std::string(ostr->available_data(), ostr->available_size());
   }
@@ -52,7 +51,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::MulTmpArray()
-    throw ()
+    noexcept
   {
     std::fill(tmp_array_, tmp_array_ + TMP_SIZE, 0);
   }
@@ -61,7 +60,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::add(
-    Element value, unsigned index) throw ()
+    Element value, unsigned index) noexcept
   {
     if (index >= TMP_SIZE)
     {
@@ -118,7 +117,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::round() throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::round() noexcept
   {
     if (FRACTION_REMAINDER == 1 ?
       tmp_array_[FRACTION_END - 1] >= BASE / 2 :
@@ -136,7 +135,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::ceil() throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::ceil() noexcept
   {
     if (FRACTION_REMAINDER == 1 ? tmp_array_[FRACTION_END - 1] :
       tmp_array_[FRACTION_END] % FRACTION_REMAINDER)
@@ -153,7 +152,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::export_to(
-    Decimal& result) const throw ()
+    Decimal& result) const noexcept
   {
     if (FRACTION_REMAINDER == 1)
     {
@@ -187,7 +186,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::DivTmpArrayBase() throw ()
+    DivTmpArrayBase<TMP_DIV_SIZE>::DivTmpArrayBase() noexcept
     : size_(TMP_DIV_SIZE), initial_size_(0)
   {
   }
@@ -197,7 +196,7 @@ namespace Generics
   template <const unsigned TMP_DIV_SIZE>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::shrink() throw ()
+    DivTmpArrayBase<TMP_DIV_SIZE>::shrink() noexcept
   {
     for (; size_ > 1 && !tmp_array_[size_ - 1]; size_--)
     {
@@ -213,7 +212,7 @@ namespace Generics
   template <const unsigned TMP_DIV_SIZE>
   unsigned
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::size() throw ()
+    DivTmpArrayBase<TMP_DIV_SIZE>::size() noexcept
   {
     return size_;
   }
@@ -223,7 +222,7 @@ namespace Generics
   template <const unsigned TMP_DIV_SIZE>
   unsigned
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::initial_size() throw ()
+    DivTmpArrayBase<TMP_DIV_SIZE>::initial_size() noexcept
   {
     return initial_size_;
   }
@@ -233,7 +232,7 @@ namespace Generics
   template <const unsigned TMP_DIV_SIZE>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::mul(Element multiplicator) throw ()
+    DivTmpArrayBase<TMP_DIV_SIZE>::mul(Element multiplicator) noexcept
   {
 #ifdef DEBUG_DECIMAL
     std::cerr << "BM: " << dump() << "\n";
@@ -268,7 +267,7 @@ namespace Generics
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     DivTmpArrayBase<TMP_DIV_SIZE>::div(Element divisor, Element& remainder)
-    throw ()
+    noexcept
   {
     Element r = 0;
     for (int i = size_ - 1; i >= 0; i--)
@@ -293,8 +292,8 @@ namespace Generics
         " " << size_ << " " << initial_size_;
       for (int i = TMP_DIV_SIZE - 1; i >= 0; i--)
       {
-        strm << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-          static_cast<unsigned long long>(tmp_array_[i]);
+        strm << ' ' << Stream::MemoryStream::width_out(
+          static_cast<unsigned long long>(tmp_array_[i]), DIGITS_PER_ELEMENT, '0');
       }
     }
     return out;
@@ -308,7 +307,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
-    DivTmpDividend(const Decimal& dividend) throw ()
+    DivTmpDividend(const Decimal& dividend) noexcept
   {
     if (FRACTION_REMAINDER == 1)
     {
@@ -339,7 +338,7 @@ namespace Generics
   Element
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
     guess_next_quotient(unsigned index, Element max_div,
-      Element pre_max_div) throw ()
+      Element pre_max_div) noexcept
   {
 #ifdef DEBUG_DECIMAL
     std::cerr << "guess_next_quotient " << index << "\n";
@@ -392,7 +391,7 @@ namespace Generics
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
     apply_next_quotient(unsigned index, Element guess,
-    const DivTmpDivisor& divisor) throw ()
+    const DivTmpDivisor& divisor) noexcept
   {
 #ifdef DEBUG_DECIMAL
     std::cerr << "apply_next_quotient " << index << " " <<
@@ -467,7 +466,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
-    fix_next_quotient(unsigned index, const DivTmpDivisor& divisor) throw ()
+    fix_next_quotient(unsigned index, const DivTmpDivisor& divisor) noexcept
   {
     Element* target = this->tmp_array_ + index;
     unsigned size = divisor.initial_size_;
@@ -494,7 +493,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
-    export_to(Decimal& result) throw ()
+    export_to(Decimal& result) noexcept
   {
     if (this->tmp_array_[SIZE - 1] >= INTEGER_MAX_OVER)
     {
@@ -519,7 +518,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::DivTmpDivisor(
-    const Decimal& divider) throw ()
+    const Decimal& divider) noexcept
   {
     std::copy(divider.array_, divider.array_ + SIZE, this->tmp_array_);
     this->tmp_array_[SIZE] = 0;
@@ -530,7 +529,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   Element
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::max_element()
-    throw ()
+    noexcept
   {
     return this->tmp_array_[this->size_ - 1];
   }
@@ -539,7 +538,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   Element
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::
-    pre_max_element() throw ()
+    pre_max_element() noexcept
   {
     return this->tmp_array_[this->size_ - 2];
   }
@@ -826,7 +825,7 @@ namespace Generics
 
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal() throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal() noexcept
     : negative_(false)
   {
     array_[0] = INVALID_FLAG_;
@@ -880,7 +879,7 @@ namespace Generics
     /*throw (Overflow, NotNumber)*/
   {
     Stream::Stack<SIZE * DIGITS_PER_ELEMENT + 4> ostr;
-    ostr << std::setprecision(FRACTION_RANK) << std::fixed << num;
+    ostr << Stream::MemoryStream::double_out(num, FRACTION_RANK);
     construct_(ostr.str());
   }
 
@@ -900,7 +899,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::maximum_() throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::maximum_() noexcept
   {
     Decimal decimal;
     decimal.negative_ = false;
@@ -979,7 +978,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   template <typename ToFloating>
   ToFloating
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floating() const throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
   {
     static_assert(!std::numeric_limits<ToFloating>::is_integer,
       "Floating type is integer");
@@ -1007,7 +1006,7 @@ namespace Generics
   template <typename ToFloating>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::to_floating(
-    ToFloating& val) const throw ()
+    ToFloating& val) const noexcept
   {
     val = floating<ToFloating>();
   }
@@ -1096,8 +1095,8 @@ namespace Generics
       static_cast<unsigned long long>(FRACTION_OVER) << ")";
     for (int i = SIZE - 1; i >= 0; i--)
     {
-      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-        static_cast<unsigned long long>(array_[i]);
+      ostr << ' ' << Stream::MemoryStream::width_out(
+        static_cast<unsigned long long>(array_[i]), DIGITS_PER_ELEMENT, '0');
     }
     return ostr.str().str();
   }
@@ -1106,7 +1105,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const
-    throw ()
+    noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1119,7 +1118,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer)
-    throw ()
+    noexcept
   {
     memcpy(array_, buffer, SIZE * sizeof(Element));
     negative_ = static_cast<const unsigned char*>(buffer)[
@@ -1129,7 +1128,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::negate() throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::negate() noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1141,7 +1140,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction)
-    throw ()
+    noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1240,7 +1239,7 @@ namespace Generics
   template <typename Element, const unsigned TOTAL_RANK,
     const unsigned FRACTION_RANK>
   bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_zero() const throw ()
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1258,7 +1257,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const
-    throw ()
+    noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1269,7 +1268,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const
-    throw ()
+    noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1280,7 +1279,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator ==(
-    const Decimal& right) const throw ()
+    const Decimal& right) const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
     DEV_ASSERT(right.array_[0] != INVALID_FLAG_);
@@ -1312,7 +1311,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <(
-    const Decimal& test) const throw ()
+    const Decimal& test) const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
     DEV_ASSERT(test.array_[0] != INVALID_FLAG_);
@@ -1334,7 +1333,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator !=(
-    const Decimal& right) const throw ()
+    const Decimal& right) const noexcept
   {
     return !operator ==(right);
   }
@@ -1343,7 +1342,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >(
-    const Decimal& test) const throw ()
+    const Decimal& test) const noexcept
   {
     return test < *this;
   }
@@ -1352,7 +1351,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >=(
-    const Decimal& test) const throw ()
+    const Decimal& test) const noexcept
   {
     return !(*this < test);
   }
@@ -1361,7 +1360,7 @@ namespace Generics
     const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <=(
-    const Decimal& test) const throw ()
+    const Decimal& test) const noexcept
   {
     return !(test < *this);
   }
@@ -1489,7 +1488,7 @@ namespace Generics
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::mul_elements_(
     Element multiplier, Element factor,
-    Element& minor, Element& major) throw ()
+    Element& minor, Element& major) noexcept
   {
     uint64_t h, l;
     DecimalHelper::mul<std::numeric_limits<Element>::digits10 <=
@@ -1512,7 +1511,7 @@ namespace Generics
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::div_elements_(
     Element major, Element minor, Element divisor,
-    Element& quotient, Element& remainder) throw ()
+    Element& quotient, Element& remainder) noexcept
   {
     uint64_t q, r;
     DecimalHelper::div<std::numeric_limits<Element>::digits10 <=
@@ -1839,7 +1838,7 @@ namespace Generics
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::internal_add_(
     const Decimal& summand1, const Decimal& summand2, Decimal& target)
-    throw ()
+    noexcept
   {
     Element overflow = 0;
     for (unsigned i = 0; i < Decimal::SIZE; i++)
@@ -1864,7 +1863,7 @@ namespace Generics
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::internal_sub_(
     const Decimal& minuend, const Decimal& subtrahend, Decimal& target,
-    unsigned diff_index) throw ()
+    unsigned diff_index) noexcept
   {
     //The Austrian method // minuend > subtrahend
     Element underflow = 0;
@@ -1893,7 +1892,7 @@ namespace Generics
    const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_less_than_(
-    const Decimal& test, unsigned& diff_index) const throw ()
+    const Decimal& test, unsigned& diff_index) const noexcept
   {
     unsigned i = SIZE - 1;
     do
@@ -1935,7 +1934,7 @@ namespace Generics
   void
   hash_add(Hash& hash,
     const Decimal<Element, TOTAL, FRACTION>& key)
-    throw ()
+    noexcept
   {
     DEV_ASSERT(key.array_[0] !=
       (Decimal<Element, TOTAL, FRACTION>::INVALID_FLAG_));

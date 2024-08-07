@@ -3,7 +3,10 @@
  * @author Karen Aroutiounov <karen@ipmce.ru>
  */
 
+#include <charconv>
+#include <cstring>
 #include <string>
+#include <system_error>
 
 #include <xercesc/util/XMLString.hpp>
 
