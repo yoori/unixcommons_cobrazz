@@ -25,7 +25,6 @@ include_directories (
 )
 
 set (SOURCES_FILES
-  FileManager/File.cpp
   FileManager/FileManager.cpp
   FileManager/FileManagerPool.cpp
   FileManager/IoUring.cpp
@@ -80,6 +79,8 @@ target_link_libraries(UServerUtils
   userver-grpc
 )
 
+target_compile_definitions(UServerUtils PUBLIC ENABLE_READ_IFSTREAM)
+
 add_grpc_library(UServerUtils_proto
   PROTOS
     echo.proto
@@ -123,6 +124,7 @@ add_test(TestUserver TestUserver)
 # Benchmarks
 foreach(Target
   File_Manager_Benchmark
+  File_Reader_Benchmark
   Grpc_Benchmark1
   Grpc_Benchmark2
   Grpc_Benchmark_Sleep

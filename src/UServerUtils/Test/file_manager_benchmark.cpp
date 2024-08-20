@@ -209,7 +209,7 @@ private:
       file_manager_pool_.write(file, write_buffer_view, 0);
     }
 
-    const auto length = file.get_length();
+    const auto length = file.length();
     if (!length)
     {
       std::ostringstream stream;
