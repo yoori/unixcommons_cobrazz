@@ -164,7 +164,7 @@ int FileManager::call(
   try
   {
     const bool is_coroutine_thread =
-      userver::engine::current_task::IsTaskProcessorThread();
+        userver::engine::current_task::IsTaskProcessorThread();
     if (is_coroutine_thread)
     {
       userver::engine::Promise<int> promise;
@@ -232,8 +232,7 @@ int FileManager::call(
   return -ECANCELED;
 }
 
-void FileManager::add_event_to_queue(
-  Event&& event) noexcept
+void FileManager::add_event_to_queue(Event&& event) noexcept
 {
   try
   {
@@ -382,7 +381,9 @@ void FileManager::on_semaphore_ready(
     auto data = event_queue_->pop();
     // Documentation does not say that semaphore performs memory order(acquire/release).
     if (!data)
+    {
       continue;
+    }
 
     count -= 1;
     switch (data->type)

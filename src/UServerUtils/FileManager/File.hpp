@@ -6,6 +6,7 @@
 
 // STD
 #include <chrono>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -18,13 +19,12 @@ namespace UServerUtils::FileManager
 class File final
 {
 public:
+  using Path = std::string;
+  using PathPtr = std::shared_ptr<Path>;
   using Time = std::chrono::time_point<std::chrono::system_clock>;
 
   struct Info final
   {
-    Info() = default;
-    ~Info() = default;
-
     std::uint64_t size = 0;
     Time last_modified;
     Time last_accessed;
@@ -32,7 +32,7 @@ public:
   };
 
 public:
-  File() noexcept = default;
+  explicit File() noexcept = default;
 
   explicit File(
     const std::string& path,
@@ -46,9 +46,13 @@ public:
 
   File& operator=(File&& file) noexcept;
 
-  ~File() noexcept;
+  ~File();
 
   bool is_valid() const noexcept;
+
+  operator bool() const noexcept;
+
+  bool operator!() const noexcept;
 
   bool open(
     const std::string& path,
@@ -66,15 +70,17 @@ public:
 
   void close() noexcept;
 
-  std::optional<std::uint64_t> get_length() const noexcept;
+  std::optional<std::uint64_t> length() const noexcept;
 
-  bool set_length(const std::int64_t length) const noexcept;
+  bool length(const std::int64_t length) const noexcept;
 
   bool set_times(
     const Time& last_access_time,
     const Time& last_modified_time) noexcept;
 
   std::optional<Info> get_info() const noexcept;
+
+  const std::string& path() const noexcept;
 
 private:
   timeval to_timeval(
@@ -87,8 +93,12 @@ private:
   int fd_ = -1;
 
   int error_ = 0;
+
+  PathPtr path_;
 };
 
 } // namespace UServerUtils::FileManager
+
+#include <UServerUtils/FileManager/File.ipp>
 
 #endif // USERVER_FILEMANAGER_FILE_HPP

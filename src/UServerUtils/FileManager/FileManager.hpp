@@ -51,6 +51,7 @@ private:
   {
     Event() = default;
     ~Event() = default;
+
     Event(Event&&) = default;
     Event& operator=(Event&&) = default;
     Event(const Event&) = delete;

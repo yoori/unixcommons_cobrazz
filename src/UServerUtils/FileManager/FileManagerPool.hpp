@@ -86,6 +86,8 @@ private:
   FileManagers file_managers_;
 };
 
+using FileManagerPoolPtr = std::shared_ptr<FileManagerPool>;
+
 } // namespace UServerUtils::FileManager
 
 #endif // USERVER_FILEMANAGER_FILEMANAGERPOOL_HPP

@@ -15,7 +15,7 @@ namespace UServerUtils::Grpc::RocksDB
 namespace Aspect
 {
 
-const char DATA_BASE_MANAGER[] = "DATA_BASE_MANAGER";
+inline constexpr char DATA_BASE_MANAGER[] = "DATA_BASE_MANAGER";
 
 } // namespace Aspect
 
@@ -70,8 +70,7 @@ std::uint32_t DataBaseManager::uring_fd() const noexcept
   return uring_fd_;
 }
 
-void DataBaseManager::initialize(
-  IoUringPtr&& uring)
+void DataBaseManager::initialize(IoUringPtr&& uring)
 {
   if (!create_semaphore_event(semaphore_->fd(), uring->get()))
   {
