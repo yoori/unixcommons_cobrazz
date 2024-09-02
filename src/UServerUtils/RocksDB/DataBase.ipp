@@ -14,11 +14,11 @@ namespace UServerUtils::Grpc::RocksDB
 namespace Aspect
 {
 
-const char DATA_BASE[] = "DATA_BASE";
+inline constexpr char DATA_BASE[] = "DATA_BASE";
 
 } // namespace Aspect
 
-DataBase::DataBase(
+inline DataBase::DataBase(
   Logging::Logger* const logger,
   const std::string& db_path,
   const DBOptions& db_options,
@@ -118,7 +118,7 @@ DataBase::DataBase(
   if (!status.ok())
   {
     if (status.subcode() == rocksdb::Status::SubCode::kPathNotFound
-    && !db_options.create_if_missing)
+      && !db_options.create_if_missing)
     {
       std::ostringstream stream;
       stream << FNS
@@ -358,13 +358,14 @@ DataBase::DataBase(
   }
 }
 
-DataBase::~DataBase()
+inline DataBase::~DataBase()
 {
   try
   {
     if (!db_)
+    {
       return;
-
+    }
     column_family_handles_.clear();
 
     const auto status = db_->Close();
@@ -385,14 +386,13 @@ DataBase::~DataBase()
   }
 }
 
-rocksdb::DB& DataBase::get() const noexcept
+inline rocksdb::DB& DataBase::get() const noexcept
 {
   return *db_.get();
 }
 
-DataBase::ColumnFamilyHandle&
-DataBase::column_family(
-  const std::string& name) const
+inline DataBase::ColumnFamilyHandle&
+DataBase::column_family(const std::string& name) const
 {
   if (name == rocksdb::kDefaultColumnFamilyName)
   {
@@ -414,7 +414,7 @@ DataBase::column_family(
   }
 }
 
-DataBase::ColumnFamilyHandle&
+inline DataBase::ColumnFamilyHandle&
 DataBase::default_column_family() const
 {
   return *db_->DefaultColumnFamily();

@@ -5,7 +5,7 @@
 namespace UServerUtils::Grpc::RocksDB
 {
 
-DataBaseManagerPool::DataBaseManagerPool(
+inline DataBaseManagerPool::DataBaseManagerPool(
   const Config& config,
   Logging::Logger* logger)
 {
@@ -34,7 +34,7 @@ DataBaseManagerPool::DataBaseManagerPool(
   }
 }
 
-DataBaseManagerPool::DataBaseManagerPool(
+inline DataBaseManagerPool::DataBaseManagerPool(
   const Config& config,
   const std::uint32_t uring_fd,
   Logging::Logger* logger)
@@ -46,20 +46,21 @@ DataBaseManagerPool::DataBaseManagerPool(
   }
 }
 
-std::size_t DataBaseManagerPool::size() const noexcept
+inline std::size_t DataBaseManagerPool::size() const noexcept
 {
   return db_managers_.size();
 }
 
-void DataBaseManagerPool::get(
+inline void DataBaseManagerPool::get(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
   const std::string_view key,
   GetCallback&& callback) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   db_manager->get(
     db,
@@ -69,15 +70,16 @@ void DataBaseManagerPool::get(
     std::move(callback));
 }
 
-DataBaseManagerPool::Status DataBaseManagerPool::get(
+inline DataBaseManagerPool::Status DataBaseManagerPool::get(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
   const std::string_view key,
   std::string& value) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   return db_manager->get(
     db,
@@ -87,15 +89,16 @@ DataBaseManagerPool::Status DataBaseManagerPool::get(
     value);
 }
 
-void DataBaseManagerPool::multi_get(
+inline void DataBaseManagerPool::multi_get(
   const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
   Keys&& keys,
   MultiGetCallback&& callback) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   db_manager->multi_get(
     db,
@@ -105,15 +108,16 @@ void DataBaseManagerPool::multi_get(
     std::move(callback));
 }
 
-DataBaseManagerPool::Statuses DataBaseManagerPool::multi_get(
+inline DataBaseManagerPool::Statuses DataBaseManagerPool::multi_get(
   const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
   Keys&& keys,
   Values& values) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   return db_manager->multi_get(
     db,
@@ -123,7 +127,7 @@ DataBaseManagerPool::Statuses DataBaseManagerPool::multi_get(
     values);
 }
 
-void DataBaseManagerPool::put(
+inline void DataBaseManagerPool::put(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
@@ -131,8 +135,9 @@ void DataBaseManagerPool::put(
   const std::string_view value,
   PutCallback&& callback) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   db_manager->put(
     db,
@@ -143,15 +148,16 @@ void DataBaseManagerPool::put(
     std::move(callback));
 }
 
-DataBaseManagerPool::Status DataBaseManagerPool::put(
+inline DataBaseManagerPool::Status DataBaseManagerPool::put(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key,
   const std::string_view value) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   return db_manager->put(
     db,
@@ -161,15 +167,16 @@ DataBaseManagerPool::Status DataBaseManagerPool::put(
     value);
 }
 
-void DataBaseManagerPool::erase(
+inline void DataBaseManagerPool::erase(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key,
   EraseCallback&& callback) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   db_manager->erase(
     db,
@@ -179,14 +186,15 @@ void DataBaseManagerPool::erase(
     std::move(callback));
 }
 
-DataBaseManagerPool::Status DataBaseManagerPool::erase(
+inline DataBaseManagerPool::Status DataBaseManagerPool::erase(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key) noexcept
 {
-  const auto index =
-    counter_.fetch_add(1, std::memory_order_relaxed) % db_managers_.size();
+  const auto index = counter_.fetch_add(
+    1,
+    std::memory_order_relaxed) % db_managers_.size();
   auto& db_manager = db_managers_[index];
   return db_manager->erase(
     db,

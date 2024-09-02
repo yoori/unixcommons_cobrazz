@@ -169,7 +169,7 @@ private:
 
   void on_semaphore_ready(
     io_uring* const uring,
-    std::size_t& number_added_operation,
+    std::size_t& number_remain_operaions,
     bool& is_cansel) noexcept;
 
   void on_write_ready(
@@ -198,9 +198,13 @@ private:
 
   std::uint32_t uring_fd_ = 0;
 
+  std::size_t max_size_cq_queue_ = 0;
+
   ThreadPtr thread_;
 };
 
 } // namespace UServerUtils::FileManager
+
+#include <UServerUtils/FileManager/FileManager.ipp>
 
 #endif // USERVER_FILEMANAGER_FILEMANAGER_HPP

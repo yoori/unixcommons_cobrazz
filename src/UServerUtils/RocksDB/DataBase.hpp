@@ -53,8 +53,7 @@ public:
   DB& get() const noexcept;
 
   // If column family does not exist throw Exception.
-  ColumnFamilyHandle& column_family(
-    const std::string& name) const;
+  ColumnFamilyHandle& column_family(const std::string& name) const;
 
   ColumnFamilyHandle& default_column_family() const;
 
@@ -103,5 +102,7 @@ private:
 using DataBasePtr = std::shared_ptr<DataBase>;
 
 } // namespace UServerUtils::Grpc::RocksDB
+
+#include <UServerUtils/RocksDB/DataBase.ipp>
 
 #endif // USERVER_ROCKSDB_DATABASE_HPP

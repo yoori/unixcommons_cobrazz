@@ -10,13 +10,12 @@
 
 // THIS
 #include <Generics/Function.hpp>
-#include <UServerUtils/FileManager/IoUring.hpp>
 #include <UServerUtils/FileManager/Utils.hpp>
 
 namespace UServerUtils::FileManager
 {
 
-IoUring::IoUring(
+inline IoUring::IoUring(
   const Config& config,
   const std::optional<UringFd> uring_fd)
 {
@@ -40,7 +39,7 @@ IoUring::IoUring(
     config.io_uring_size,
     &ring_,
     &params_);
- if (result)
+  if (result)
   {
     const auto error = -result;
     std::ostringstream stream;
@@ -67,7 +66,7 @@ IoUring::IoUring(
   }
 }
 
-IoUring::Version IoUring::linux_kernel_version() const
+inline IoUring::Version IoUring::linux_kernel_version() const
 {
   Version version;
   version.reserve(16);
@@ -103,19 +102,29 @@ IoUring::Version IoUring::linux_kernel_version() const
   return version;
 }
 
-IoUring::~IoUring()
+inline IoUring::~IoUring()
 {
   io_uring_queue_exit(&ring_);
 }
 
-const io_uring_params& IoUring::params() const noexcept
+inline const io_uring_params& IoUring::params() const noexcept
 {
   return params_;
 }
 
-io_uring* IoUring::get() noexcept
+inline io_uring* IoUring::get() noexcept
 {
   return &ring_;
+}
+
+inline std::size_t IoUring::sq_size() const noexcept
+{
+  return params_.sq_entries;
+}
+
+inline std::size_t IoUring::cq_size() const noexcept
+{
+  return params_.cq_entries;
 }
 
 } // namespace UServerUtils::FileManager

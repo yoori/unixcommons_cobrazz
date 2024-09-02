@@ -1,5 +1,3 @@
-include(FetchContent)
-
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
   message(SEND_ERROR "Failed to find protoc")
@@ -25,10 +23,6 @@ include_directories (
 )
 
 set (SOURCES_FILES
-  FileManager/FileManager.cpp
-  FileManager/FileManagerPool.cpp
-  FileManager/IoUring.cpp
-  FileManager/Semaphore.cpp
   Grpc/Common/Logging.cpp
   Grpc/Common/Scheduler.cpp
   Grpc/Server/CommonContextCoro.cpp
@@ -46,10 +40,6 @@ set (SOURCES_FILES
   UServerGrpc/ClientFactory.cpp
   UServerGrpc/Server.cpp
   UServerGrpc/ServerBuilder.cpp
-  RocksDB/DataBase.cpp
-  RocksDB/DataBaseManager.cpp
-  RocksDB/DataBaseManagerPool.cpp
-  RocksDB/Logger.cpp
   Statistics/MemoryStatisticsProvider.cpp
   ComponentsBuilder.cpp
   Logger.cpp

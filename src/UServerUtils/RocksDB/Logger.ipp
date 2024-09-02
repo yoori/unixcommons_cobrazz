@@ -13,11 +13,11 @@ namespace UServerUtils::Grpc::RocksDB
 namespace Aspect
 {
 
-const char LOGGER[] = "LOGGER";
+inline constexpr char LOGGER[] = "LOGGER";
 
 } // namespace Aspect
 
-Logger::Logger(Logging::Logger* logger)
+inline Logger::Logger(Logging::Logger* logger)
   : rocksdb::Logger(convert_to_rocksdb_level(
       static_cast<Logging::BaseLogger::Severity>(
         logger->log_level()))),
@@ -25,12 +25,12 @@ Logger::Logger(Logging::Logger* logger)
 {
 }
 
-Logger::~Logger()
+inline Logger::~Logger()
 {
   Close();
 }
 
-rocksdb::InfoLogLevel Logger::convert_to_rocksdb_level(
+inline rocksdb::InfoLogLevel Logger::convert_to_rocksdb_level(
   const Logging::BaseLogger::Severity cobrazz_level) const noexcept
 {
   switch (cobrazz_level)
@@ -58,7 +58,7 @@ rocksdb::InfoLogLevel Logger::convert_to_rocksdb_level(
   }
 }
 
-Logging::BaseLogger::Severity Logger::convert_to_cobrazz_level(
+inline Logging::BaseLogger::Severity Logger::convert_to_cobrazz_level(
   const rocksdb::InfoLogLevel rocksdb_level) const noexcept
 {
   switch (rocksdb_level)
@@ -78,14 +78,14 @@ Logging::BaseLogger::Severity Logger::convert_to_cobrazz_level(
   }
 }
 
-void Logger::Logv(
+inline void Logger::Logv(
   const char* format,
   va_list ap)
 {
   print(rocksdb::InfoLogLevel::INFO_LEVEL, format, ap);
 }
 
-void Logger::Logv(
+inline void Logger::Logv(
   const rocksdb::InfoLogLevel log_level,
   const char* format,
   va_list ap)
@@ -93,7 +93,7 @@ void Logger::Logv(
   print(log_level, format, ap);
 }
 
-void Logger::print(
+inline void Logger::print(
   const rocksdb::InfoLogLevel log_level,
   const char* format,
   va_list ap)

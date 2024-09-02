@@ -52,4 +52,6 @@ private:
 
 } // namespace UServerUtils::Grpc::RocksDB
 
+#include <UServerUtils/RocksDB/Logger.ipp>
+
 #endif // USERVER_ROCKSDB_LOGGER_HPP

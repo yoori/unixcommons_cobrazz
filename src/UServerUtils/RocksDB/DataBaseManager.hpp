@@ -73,6 +73,8 @@ private:
 
   struct CloseEventData final
   {
+    CloseEventData() = default;
+    ~CloseEventData() = default;
   };
 
   struct PutEventData final
@@ -178,55 +180,95 @@ private:
     MultiGetCallback callback;
   };
 
-  using CloseEventDataPtr = std::unique_ptr<CloseEventData>;
-  using GetEventDataPtr = std::unique_ptr<GetEventData>;
-  using MultiGetEventDataPtr = std::unique_ptr<MultiGetEventData>;
-  using PutEventDataPtr = std::unique_ptr<PutEventData>;
-  using EraseEventDataPtr = std::unique_ptr<EraseEventData>;
-
   struct Event final
   {
     using Data = std::variant<
-      CloseEventDataPtr,
-      GetEventDataPtr,
-      MultiGetEventDataPtr,
-      PutEventDataPtr,
-      EraseEventDataPtr>;
+      CloseEventData,
+      GetEventData,
+      MultiGetEventData,
+      PutEventData,
+      EraseEventData>;
 
-    explicit Event(GetEventDataPtr&& data)
+    explicit Event(
+      const DataBasePtr& db,
+      ColumnFamilyHandle* column_family,
+      const std::string_view key,
+      const ReadOptions& read_options,
+      GetCallback&& callback)
       : type(EventType::Get),
-        data(std::move(data))
+        data(
+          std::in_place_type<GetEventData>,
+          db,
+          column_family,
+          key,
+          read_options,
+          std::move(callback))
     {
     }
 
-    explicit Event(MultiGetEventDataPtr&& data)
+    explicit Event(
+      const DataBasePtr& db,
+      ColumnFamilies&& column_families,
+      Keys&& keys,
+      const ReadOptions& read_options,
+      MultiGetCallback&& callback)
       : type(EventType::MultiGet),
-        data(std::move(data))
+        data(
+          std::in_place_type<MultiGetEventData>,
+          db,
+          std::move(column_families),
+          std::move(keys),
+          read_options,
+          std::move(callback))
     {
     }
 
-    Event(PutEventDataPtr&& data)
+    explicit Event(
+      const DataBasePtr& db,
+      ColumnFamilyHandle* column_family,
+      const std::string_view key,
+      const std::string_view value,
+      const WriteOptions& write_options,
+      PutCallback&& callback)
       : type(EventType::Put),
-        data(std::move(data))
+        data(
+          std::in_place_type<PutEventData>,
+          db,
+          column_family,
+          key,
+          value,
+          write_options,
+          std::move(callback))
     {
     }
 
-    Event(EraseEventDataPtr&& data)
+    explicit Event(
+      const DataBasePtr& db,
+      ColumnFamilyHandle* column_family,
+      const std::string_view key,
+      const WriteOptions& write_options,
+      EraseCallback&& callback)
       : type(EventType::Erase),
-        data(std::move(data))
+        data(
+          std::in_place_type<EraseEventData>,
+          db,
+          column_family,
+          key,
+          write_options,
+          std::move(callback))
     {
     }
 
-    Event(CloseEventDataPtr&& data)
+    explicit Event()
       : type(EventType::Close),
-        data(std::move(data))
+        data(std::in_place_type<CloseEventData>)
     {
     }
 
     ~Event() = default;
 
-    Event(Event&&) = default;
-    Event& operator=(Event&&) = default;
+    Event(Event&&) = delete;
+    Event& operator=(Event&&) = delete;
     Event(const Event&) = delete;
     Event& operator=(const Event&) = delete;
 
@@ -243,7 +285,7 @@ private:
   };
 
   using EventPtr = std::unique_ptr<Event>;
-  using EventQueue = UServerUtils::Grpc::Common::QueueAtomic<EventPtr>;
+  using EventQueue = UServerUtils::Grpc::Common::QueueAtomic<Event>;
   using EventQueuePtr = std::shared_ptr<EventQueue>;
   using SemaphorePtr = std::shared_ptr<Semaphore>;
 
@@ -262,7 +304,7 @@ public:
   std::uint32_t uring_fd() const noexcept;
 
   /**
-   * You must ensure key survives callback.
+   * You must ensure key and column_family survives callback.
    **/
   void get(
     const DataBasePtr& db,
@@ -305,7 +347,7 @@ public:
 
   /**
    * You must ensure that key and value survives callback.
-   * WriteOptions::disableWAL must be true (error in realisation).
+   * WriteOptions::disableWAL must be true (not implemented).
    **/
   void put(
     const DataBasePtr& db,
@@ -348,8 +390,7 @@ public:
     const std::string_view key) noexcept;
 
 private:
-  void initialize(
-    IoUringPtr&& uring);
+  void initialize(IoUringPtr&& uring);
 
   void run(
     const SemaphorePtr& semaphore,
@@ -364,11 +405,11 @@ private:
     std::size_t& number_remain_operaions,
     bool& is_cansel) noexcept;
 
-  void add_event_to_queue(
-    EventPtr&& event) noexcept;
+  template<class ...Args>
+  void add_event_to_queue(Args&& ...args) noexcept;
 
   void set_error(
-    EventPtr&& event,
+    Event&& event,
     const std::string& error_message) noexcept;
 
   rocksdb::async_result do_async_work(
@@ -385,9 +426,13 @@ private:
 
   std::uint32_t uring_fd_ = 0;
 
+  std::uint32_t max_size_cq_queue_;
+
   ThreadPtr thread_;
 };
 
 } // namespace UServerUtils::Grpc::RocksDB
+
+#include <UServerUtils/RocksDB/DataBaseManager.ipp>
 
 #endif // USERVER_ROCKSDB_DATABASEMANAGER_HPP

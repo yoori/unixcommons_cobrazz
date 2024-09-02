@@ -115,4 +115,6 @@ private:
 
 } // namespace UServerUtils::Grpc::RocksDB
 
+#include <UServerUtils/RocksDB/DataBaseManagerPool.ipp>
+
 #endif // USERVER_ROCKSDB_DATABASEMANAGERPOOL_HPP

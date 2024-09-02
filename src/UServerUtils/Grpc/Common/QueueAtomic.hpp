@@ -135,6 +135,11 @@ private:
     {
     }
 
+    Node()
+      : data(std::make_unique<T>())
+    {
+    }
+
     std::unique_ptr<T> data;
   };
 

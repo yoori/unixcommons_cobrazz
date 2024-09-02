@@ -19,7 +19,7 @@ inline constexpr char DATA_BASE_MANAGER[] = "DATA_BASE_MANAGER";
 
 } // namespace Aspect
 
-DataBaseManager::DataBaseManager(
+inline DataBaseManager::DataBaseManager(
   const Config& config,
   Logger* logger)
   : logger_(ReferenceCounting::add_ref(logger)),
@@ -32,7 +32,7 @@ DataBaseManager::DataBaseManager(
   initialize(std::move(uring));
 }
 
-DataBaseManager::DataBaseManager(
+inline DataBaseManager::DataBaseManager(
   const Config& config,
   const std::uint32_t uring_fd,
   Logger* logger)
@@ -46,13 +46,11 @@ DataBaseManager::DataBaseManager(
   initialize(std::move(uring));
 }
 
-DataBaseManager::~DataBaseManager()
+inline DataBaseManager::~DataBaseManager()
 {
   try
   {
-    EventPtr close_event = std::make_unique<Event>(
-      std::make_unique<CloseEventData>());
-    while (!event_queue_->emplace(std::move(close_event)))
+    while (!event_queue_->emplace())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -60,18 +58,30 @@ DataBaseManager::~DataBaseManager()
     assert(semaphore_->add());
     thread_.reset();
   }
+  catch (const eh::Exception& exc)
+  {
+    std::ostringstream stream;
+    stream << FNS
+           << exc.what();
+    logger_->critical(stream.str(), Aspect::DATA_BASE_MANAGER);
+  }
   catch (...)
   {
+    std::ostringstream stream;
+    stream << FNS
+           << "Unknown error";
+    logger_->critical(stream.str(), Aspect::DATA_BASE_MANAGER);
   }
 }
 
-std::uint32_t DataBaseManager::uring_fd() const noexcept
+inline std::uint32_t DataBaseManager::uring_fd() const noexcept
 {
   return uring_fd_;
 }
 
-void DataBaseManager::initialize(IoUringPtr&& uring)
+inline void DataBaseManager::initialize(IoUringPtr&& uring)
 {
+  max_size_cq_queue_ = uring->cq_size();
   if (!create_semaphore_event(semaphore_->fd(), uring->get()))
   {
     std::ostringstream stream;
@@ -87,7 +97,7 @@ void DataBaseManager::initialize(IoUringPtr&& uring)
     std::move(uring));
 }
 
-void DataBaseManager::run(
+inline void DataBaseManager::run(
   const SemaphorePtr& semaphore,
   IoUringPtr&& uring) noexcept
 {
@@ -126,11 +136,11 @@ void DataBaseManager::run(
       continue;
     }
 
-    rocksdb::FilePage* const file_page =
-      static_cast<rocksdb::FilePage*>(io_uring_cqe_get_data(cqe));
-    io_uring_cqe_seen(uring->get(), cqe);
+    rocksdb::FilePage* const file_page = static_cast<rocksdb::FilePage*>(
+      io_uring_cqe_get_data(cqe));
     if (!file_page)
     {
+      io_uring_cqe_seen(uring->get(), cqe);
       try
       {
         std::ostringstream stream;
@@ -160,10 +170,12 @@ void DataBaseManager::run(
         *file_page->promise);
       handle.resume();
     }
+
+    io_uring_cqe_seen(uring->get(), cqe);
   }
 }
 
-bool DataBaseManager::create_semaphore_event(
+inline bool DataBaseManager::create_semaphore_event(
   const int semaphore_fd,
   io_uring* const uring) noexcept
 {
@@ -180,7 +192,6 @@ bool DataBaseManager::create_semaphore_event(
     }
 
     auto semaphore_data = std::make_unique<SemaphoreData>();
-
     io_uring_prep_read(
       sqe,
       semaphore_fd,
@@ -215,22 +226,25 @@ bool DataBaseManager::create_semaphore_event(
   return false;
 }
 
-void DataBaseManager::on_semaphore_ready(
+inline void DataBaseManager::on_semaphore_ready(
   IOUringOptions* const io_uring_options,
   std::size_t& number_remain_operaions,
   bool& is_stopped) noexcept
 {
-  const std::uint32_t max_queue_elements = io_uring_sq_space_left(io_uring_options->ioring) - 1;
+  const std::uint32_t sq_limit = io_uring_sq_space_left(io_uring_options->ioring) - 1;
+  const std::uint32_t cq_limit = max_size_cq_queue_ - number_remain_operaions - 1;
+  const std::uint32_t max_queue_elements = std::min(sq_limit, cq_limit);
   std::uint32_t count = 1 + semaphore_->try_consume(max_queue_elements);
   while (count > 0)
   {
     auto data = event_queue_->pop();
-    // Documentation does not say that semaphore performs memory order(acquire/release).
     if (!data)
+    {
       continue;
+    }
 
     count -= 1;
-    switch ((*data)->type)
+    switch (data->type)
     {
       case EventType::Put:
       case EventType::Erase:
@@ -239,7 +253,7 @@ void DataBaseManager::on_semaphore_ready(
       {
         number_remain_operaions += 1;
         do_async_work(
-          std::move(*data),
+          std::move(data),
           io_uring_options,
           &number_remain_operaions);
         break;
@@ -253,19 +267,16 @@ void DataBaseManager::on_semaphore_ready(
   }
 }
 
-rocksdb::async_result DataBaseManager::do_async_work(
+inline rocksdb::async_result DataBaseManager::do_async_work(
   EventPtr event,
   rocksdb::IOUringOptions* const io_uring_options,
   std::size_t* const number_remain_operaions)
 {
-  assert(event);
   switch (event->type)
   {
     case EventType::Get:
     {
-      auto& event_data = *std::get<GetEventDataPtr>(event->data);
-      assert(event_data.callback);
-
+      auto& event_data = std::get<GetEventData>(event->data);
       const auto& key = event_data.key;
       auto& db = event_data.db;
       auto* column_family = event_data.column_family;
@@ -298,9 +309,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
     case EventType::MultiGet:
     {
-      auto& event_data = *std::get<MultiGetEventDataPtr>(event->data);
-      assert(event_data.callback);
-
+      auto& event_data = std::get<MultiGetEventData>(event->data);
       const auto& keys = event_data.keys;
       auto& db = event_data.db;
       auto& column_families = event_data.column_families;
@@ -338,9 +347,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
     case EventType::Put:
     {
-      auto& event_data = *std::get<PutEventDataPtr>(event->data);
-      assert(event_data.callback);
-
+      auto& event_data = std::get<PutEventData>(event->data);
       const auto& key = event_data.key;
       const auto& value = event_data.value;
       auto& db = event_data.db;
@@ -370,9 +377,7 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
     case EventType::Erase:
     {
-      auto& event_data = *std::get<EraseEventDataPtr>(event->data);
-      assert(event_data.callback);
-
+      auto& event_data = std::get<EraseEventData>(event->data);
       const auto& key = event_data.key;
       auto& db = event_data.db;
       auto* column_family = event_data.column_family;
@@ -403,27 +408,25 @@ rocksdb::async_result DataBaseManager::do_async_work(
     }
   }
 
-  co_return Status::OK();
+  co_return nullptr;
 }
 
-void DataBaseManager::get(
+inline void DataBaseManager::get(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
   const std::string_view key,
   GetCallback&& callback) noexcept
 {
-  auto data = std::make_unique<GetEventData>(
+  add_event_to_queue(
     db,
     &column_family,
     key,
     read_options,
     std::move(callback));
-  EventPtr event = std::make_unique<Event>(std::move(data));
-  add_event_to_queue(std::move(event));
 }
 
-DataBaseManager::Status DataBaseManager::get(
+inline DataBaseManager::Status DataBaseManager::get(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const ReadOptions& read_options,
@@ -537,7 +540,7 @@ DataBaseManager::Status DataBaseManager::get(
   return Status::Corruption();
 }
 
-void DataBaseManager::multi_get(
+inline void DataBaseManager::multi_get(
   const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
@@ -569,17 +572,15 @@ void DataBaseManager::multi_get(
     }
   }
 
-  auto data = std::make_unique<MultiGetEventData>(
+  add_event_to_queue(
     db,
     std::move(column_families),
     std::move(keys),
     read_options,
     std::move(callback));
-  EventPtr event = std::make_unique<Event>(std::move(data));
-  add_event_to_queue(std::move(event));
 }
 
-DataBaseManager::Statuses DataBaseManager::multi_get(
+inline DataBaseManager::Statuses DataBaseManager::multi_get(
   const DataBasePtr& db,
   ColumnFamilies&& column_families,
   const ReadOptions& read_options,
@@ -693,7 +694,7 @@ DataBaseManager::Statuses DataBaseManager::multi_get(
   return Statuses(keys.size(), Status::Corruption());
 }
 
-void DataBaseManager::put(
+inline void DataBaseManager::put(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
@@ -701,18 +702,16 @@ void DataBaseManager::put(
   const std::string_view value,
   PutCallback&& callback) noexcept
 {
-  auto data = std::make_unique<PutEventData>(
+  add_event_to_queue(
     db,
     &column_family,
     key,
     value,
     write_options,
     std::move(callback));
-  EventPtr event = std::make_unique<Event>(std::move(data));
-  add_event_to_queue(std::move(event));
 }
 
-DataBaseManager::Status DataBaseManager::put(
+inline DataBaseManager::Status DataBaseManager::put(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
@@ -804,24 +803,22 @@ DataBaseManager::Status DataBaseManager::put(
   return Status::Corruption();
 }
 
-void DataBaseManager::erase(
+inline void DataBaseManager::erase(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
   const std::string_view key,
   EraseCallback&& callback) noexcept
 {
-  auto data = std::make_unique<EraseEventData>(
+  add_event_to_queue(
     db,
     &column_family,
     key,
     write_options,
     std::move(callback));
-  EventPtr event = std::make_unique<Event>(std::move(data));
-  add_event_to_queue(std::move(event));
 }
 
-DataBaseManager::Status DataBaseManager::erase(
+inline DataBaseManager::Status DataBaseManager::erase(
   const DataBasePtr& db,
   ColumnFamilyHandle& column_family,
   const WriteOptions& write_options,
@@ -910,18 +907,20 @@ DataBaseManager::Status DataBaseManager::erase(
   return Status::Corruption();
 }
 
-void DataBaseManager::add_event_to_queue(EventPtr&& event) noexcept
+template<class ...Args>
+inline void DataBaseManager::add_event_to_queue(Args&& ...args) noexcept
 {
   try
   {
-    if (!event_queue_->emplace(std::move(event))) {
+    if (!event_queue_->emplace(std::forward<Args>(args)...))
+    {
       std::stringstream stream;
       stream << FNS
              << "event_queue size limit is reached";
       logger_->error(stream.str(), Aspect::DATA_BASE_MANAGER);
 
       set_error(
-        std::move(event),
+        Event(std::forward<Args>(args)...),
         "Event_queue size limit is reached");
 
       return;
@@ -933,7 +932,9 @@ void DataBaseManager::add_event_to_queue(EventPtr&& event) noexcept
   {
     try
     {
-      set_error(std::move(event), exc.what());
+      set_error(
+        Event(std::forward<Args>(args)...),
+        exc.what());
 
       std::ostringstream stream;
       stream << FNS
@@ -948,7 +949,9 @@ void DataBaseManager::add_event_to_queue(EventPtr&& event) noexcept
   {
     try
     {
-      set_error(std::move(event), "Unknown error");
+      set_error(
+        Event(std::forward<Args>(args)...),
+        "Unknown error");
 
       std::ostringstream stream;
       stream << FNS
@@ -961,23 +964,23 @@ void DataBaseManager::add_event_to_queue(EventPtr&& event) noexcept
   }
 }
 
-void DataBaseManager::set_error(
-  EventPtr&& event,
+inline void DataBaseManager::set_error(
+  Event&& event,
   const std::string& error_message) noexcept
 {
   try
   {
-    switch (event->type)
+    switch (event.type)
     {
-      case EventType::Get:
+      [[likely]] case EventType::Get:
       {
-        auto& data = *std::get<GetEventDataPtr>(event->data);
+        auto& data = std::get<GetEventData>(event.data);
         data.callback(rocksdb::Status::Aborted(error_message), {});
         break;
       }
       case EventType::MultiGet:
       {
-        auto& data = *std::get<MultiGetEventDataPtr>(event->data);
+        auto& data = std::get<MultiGetEventData>(event.data);
         Statuses statuses;
         Values values;
         try
@@ -996,13 +999,13 @@ void DataBaseManager::set_error(
       }
       case EventType::Put:
       {
-        auto& data = *std::get<PutEventDataPtr>(event->data);
+        auto& data = std::get<PutEventData>(event.data);
         data.callback(rocksdb::Status::Aborted(error_message));
         break;
       }
       case EventType::Erase:
       {
-        auto& data = *std::get<EraseEventDataPtr>(event->data);
+        auto& data = std::get<EraseEventData>(event.data);
         data.callback(rocksdb::Status::Aborted(error_message));
         break;
       }

@@ -248,7 +248,8 @@ void test_Get(std::optional<std::int32_t> ttl)
 
   Config config;
   config.io_uring_flags = 0;
-  config.io_uring_size = 10;
+  config.io_uring_size = 4096 * 4;
+  config.event_queue_max_size = 1000000;
   std::unique_ptr<DataBaseManager> data_base_manager =
     std::make_unique<DataBaseManager>(config, logger.in());
 
@@ -334,11 +335,10 @@ void test_Get(std::optional<std::int32_t> ttl)
   }
 
   std::this_thread::sleep_for(std::chrono::milliseconds(700));
-
-  const std::size_t number = 3000;
+  const std::size_t number = 100000;
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
-    auto &column_family_handle = data_base->column_family(column_family_name);
+    auto& column_family_handle = data_base->column_family(column_family_name);
     rocksdb::WriteOptions write_options;
     write_options.disableWAL = true;
     for (std::size_t i = 1; i <= number; ++i)
@@ -383,11 +383,11 @@ void test_Get(std::optional<std::int32_t> ttl)
         EXPECT_TRUE(status.ok());
       }
 
-    const auto status  = data_base->get().Flush({});
+    const auto status  = data_base->get().Flush(rocksdb::FlushOptions{}, &column_family_handle);
     EXPECT_TRUE(status.ok());
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(700));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   {
     auto data_base = create_rocksdb(column_family_name, logger.in(), false, ttl);
@@ -396,8 +396,8 @@ void test_Get(std::optional<std::int32_t> ttl)
     {
       for (std::size_t i = 1; i <= 3 * number; ++i)
       {
-        auto key_result =
-          std::make_unique<std::string>(key + std::to_string(i));
+        auto key_result = std::make_unique<std::string>(
+          key + std::to_string(i));
         std::string_view key_result_view(*key_result);
         data_base_manager->get(
           data_base,
@@ -485,7 +485,7 @@ void test_Get(std::optional<std::int32_t> ttl)
 TEST(DataBaseManagerTest, Get)
 {
   test_Get({});
-  test_Get(5);
+  test_Get(10000);
 }
 
 void test_MultiGet(std::optional<std::int32_t> ttl)

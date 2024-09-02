@@ -17,11 +17,11 @@ namespace UServerUtils::FileManager
 namespace Aspect
 {
 
-const char FILE_MANAGER[] = "FILE_MANAGER";
+inline constexpr char FILE_MANAGER[] = "FILE_MANAGER";
 
 } // namespace Aspect
 
-FileManager::FileManager(
+inline FileManager::FileManager(
   const Config& config,
   Logger* logger)
   : logger_(ReferenceCounting::add_ref(logger)),
@@ -34,7 +34,7 @@ FileManager::FileManager(
   initialize(std::move(uring));
 }
 
-FileManager::FileManager(
+inline FileManager::FileManager(
   const Config& config,
   const std::uint32_t uring_fd,
   Logger* logger)
@@ -48,8 +48,9 @@ FileManager::FileManager(
   initialize(std::move(uring));
 }
 
-void FileManager::initialize(IoUringPtr&& uring)
+inline void FileManager::initialize(IoUringPtr&& uring)
 {
+  max_size_cq_queue_ = uring->cq_size();
   if (!create_semaphore_event(semaphore_->fd(), uring->get()))
   {
     std::ostringstream stream;
@@ -65,12 +66,12 @@ void FileManager::initialize(IoUringPtr&& uring)
     std::move(uring));
 }
 
-std::uint32_t FileManager::uring_fd() const noexcept
+inline std::uint32_t FileManager::uring_fd() const noexcept
 {
   return uring_fd_;
 }
 
-FileManager::~FileManager()
+inline FileManager::~FileManager()
 {
   try
   {
@@ -105,7 +106,7 @@ FileManager::~FileManager()
   }
 }
 
-void FileManager::write(
+inline void FileManager::write(
   const File& file,
   const std::string_view buffer,
   const std::int64_t offset,
@@ -122,7 +123,7 @@ void FileManager::write(
     std::move(write_event));
 }
 
-int FileManager::write(
+inline int FileManager::write(
   const File& file,
   const std::string_view buffer,
   const std::int64_t offset) noexcept
@@ -130,7 +131,7 @@ int FileManager::write(
   return call(&FileManager::write, file, buffer, offset);
 }
 
-void FileManager::read(
+inline void FileManager::read(
   const File& file,
   const std::string_view buffer,
   const std::int64_t offset,
@@ -147,7 +148,7 @@ void FileManager::read(
     std::move(read_event));
 }
 
-int FileManager::read(
+inline int FileManager::read(
   const File& file,
   const std::string_view buffer,
   const std::int64_t offset) noexcept
@@ -155,7 +156,7 @@ int FileManager::read(
   return call(&FileManager::read, file, buffer, offset);
 }
 
-int FileManager::call(
+inline int FileManager::call(
     PointerMember const pointer,
     const File& file,
     const std::string_view buffer,
@@ -232,7 +233,7 @@ int FileManager::call(
   return -ECANCELED;
 }
 
-void FileManager::add_event_to_queue(Event&& event) noexcept
+inline void FileManager::add_event_to_queue(Event&& event) noexcept
 {
   try
   {
@@ -286,7 +287,7 @@ void FileManager::add_event_to_queue(Event&& event) noexcept
   }
 }
 
-void FileManager::run(
+inline void FileManager::run(
   const SemaphorePtr& semaphore,
   IoUringPtr&& uring) noexcept
 {
@@ -326,9 +327,9 @@ void FileManager::run(
 
     std::unique_ptr<UserData> user_data;
     user_data.reset(static_cast<UserData*>(io_uring_cqe_get_data(cqe)));
-    io_uring_cqe_seen(uring->get(), cqe);
     if (!user_data)
     {
+      io_uring_cqe_seen(uring->get(), cqe);
       try
       {
         std::ostringstream stream;
@@ -347,9 +348,7 @@ void FileManager::run(
       case CompletionType::Semaphore:
       {
         is_semaphore_set = false;
-        std::size_t number_added_operations = 0;
-        on_semaphore_ready(uring->get(), number_added_operations, is_stopped);
-        number_remain_operaions += number_added_operations;
+        on_semaphore_ready(uring->get(), number_remain_operaions, is_stopped);
         break;
       }
       case CompletionType::Read:
@@ -365,21 +364,23 @@ void FileManager::run(
         break;
       }
     }
+
+    io_uring_cqe_seen(uring->get(), cqe);
   }
 }
 
-void FileManager::on_semaphore_ready(
+inline void FileManager::on_semaphore_ready(
   io_uring* const uring,
-  std::size_t& number_added_operation,
+  std::size_t& number_remain_operaions,
   bool& is_stopped) noexcept
 {
-  number_added_operation = 0;
-  const std::uint32_t max_queue_elements = io_uring_sq_space_left(uring) - 1;
+  const std::uint32_t sq_limit = io_uring_sq_space_left(uring) - 1;
+  const std::uint32_t cq_limit = max_size_cq_queue_ - number_remain_operaions - 1;
+  const std::uint32_t max_queue_elements = std::min(sq_limit, cq_limit);
   std::uint32_t count = 1 + semaphore_->try_consume(max_queue_elements);
   while (count > 0)
   {
     auto data = event_queue_->pop();
-    // Documentation does not say that semaphore performs memory order(acquire/release).
     if (!data)
     {
       continue;
@@ -399,7 +400,7 @@ void FileManager::on_semaphore_ready(
           uring);
         if (result)
         {
-          number_added_operation += 1;
+          number_remain_operaions += 1;
         }
         break;
       }
@@ -414,7 +415,7 @@ void FileManager::on_semaphore_ready(
           uring);
         if (result)
         {
-          number_added_operation += 1;
+          number_remain_operaions += 1;
         }
         break;
       }
@@ -427,7 +428,7 @@ void FileManager::on_semaphore_ready(
   }
 }
 
-void FileManager::on_write_ready(
+inline void FileManager::on_write_ready(
   const int result,
   Callback&& callback) const noexcept
 {
@@ -440,7 +441,7 @@ void FileManager::on_write_ready(
   }
 }
 
-void FileManager::on_read_ready(
+inline void FileManager::on_read_ready(
   const int result,
   Callback&& callback) const noexcept
 {
@@ -453,7 +454,7 @@ void FileManager::on_read_ready(
   }
 }
 
-bool FileManager::create_semaphore_event(
+inline bool FileManager::create_semaphore_event(
   const int semaphore_fd,
   io_uring* const uring) noexcept
 {
@@ -507,7 +508,7 @@ bool FileManager::create_semaphore_event(
   return false;
 }
 
-bool FileManager::create_read_or_write_event(
+inline bool FileManager::create_read_or_write_event(
   const bool is_read,
   const int fd,
   const std::string_view buffer,

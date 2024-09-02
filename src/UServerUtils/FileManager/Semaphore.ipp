@@ -8,13 +8,12 @@
 
 // THIS
 #include <Generics/Function.hpp>
-#include <UServerUtils/FileManager/Semaphore.hpp>
 #include <UServerUtils/FileManager/Utils.hpp>
 
 namespace UServerUtils::FileManager
 {
 
-Semaphore::Semaphore(
+inline Semaphore::Semaphore(
   const Type type,
   const std::uint32_t init_value)
   : type_(type)
@@ -40,31 +39,31 @@ Semaphore::Semaphore(
   }
 }
 
-Semaphore::~Semaphore()
+inline Semaphore::~Semaphore()
 {
   close(fd_);
 }
 
-int Semaphore::fd() const noexcept
+inline int Semaphore::fd() const noexcept
 {
   return fd_;
 }
 
-bool Semaphore::add() const noexcept
+inline bool Semaphore::add() const noexcept
 {
   const std::uint64_t value = 1;
   const auto result = eventfd_write(fd_, value);
   return result == 0;
 }
 
-bool Semaphore::consume() const noexcept
+inline bool Semaphore::consume() const noexcept
 {
   std::uint64_t value = 0;
   const auto result = eventfd_read(fd_, &value);
   return result == 0;
 }
 
-std::uint32_t Semaphore::try_consume(const std::uint32_t v) const noexcept
+inline std::uint32_t Semaphore::try_consume(const std::uint32_t v) const noexcept
 {
   std::uint32_t result = 0;
   if (type_ == Type::NonBlocking)
@@ -86,7 +85,7 @@ std::uint32_t Semaphore::try_consume(const std::uint32_t v) const noexcept
   return result;
 }
 
-Semaphore::NonBlockingScope::NonBlockingScope(const int fd) noexcept
+inline Semaphore::NonBlockingScope::NonBlockingScope(const int fd) noexcept
   : fd_(fd)
 {
   const int result = add_flags(fd_, O_NONBLOCK);
@@ -97,7 +96,7 @@ Semaphore::NonBlockingScope::NonBlockingScope(const int fd) noexcept
   }
 }
 
-Semaphore::NonBlockingScope::~NonBlockingScope()
+inline Semaphore::NonBlockingScope::~NonBlockingScope()
 {
   if (old_flags_ >= 0)
   {
@@ -106,7 +105,7 @@ Semaphore::NonBlockingScope::~NonBlockingScope()
   }
 }
 
-int Semaphore::NonBlockingScope::add_flags(
+inline int Semaphore::NonBlockingScope::add_flags(
   const int fd,
   const int flags) const noexcept
 {
@@ -125,7 +124,7 @@ int Semaphore::NonBlockingScope::add_flags(
   return old_flags;
 }
 
-int Semaphore::NonBlockingScope::set_flags(
+inline int Semaphore::NonBlockingScope::set_flags(
   const int fd,
   const int flags) const noexcept
 {

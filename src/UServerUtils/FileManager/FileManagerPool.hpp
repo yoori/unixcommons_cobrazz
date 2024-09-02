@@ -90,4 +90,6 @@ using FileManagerPoolPtr = std::shared_ptr<FileManagerPool>;
 
 } // namespace UServerUtils::FileManager
 
+#include <UServerUtils/FileManager/FileManagerPool.ipp>
+
 #endif // USERVER_FILEMANAGER_FILEMANAGERPOOL_HPP

@@ -36,6 +36,10 @@ public:
 
   io_uring* get() noexcept;
 
+  std::size_t sq_size() const noexcept;
+
+  std::size_t cq_size() const noexcept;
+
 private:
   Version linux_kernel_version() const;
 
@@ -46,5 +50,7 @@ private:
 };
 
 } // namespace UServerUtils::FileManager
+
+#include <UServerUtils/FileManager/IoUring.ipp>
 
 #endif // USERVER_FILEMANAGER_IOURING_HPP

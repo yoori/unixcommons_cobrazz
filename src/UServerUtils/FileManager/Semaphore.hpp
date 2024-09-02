@@ -71,4 +71,6 @@ private:
 
 } // namespace UServerUtils::FileManager
 
+#include <UServerUtils/FileManager/Semaphore.ipp>
+
 #endif // USERVER_FILEMANAGER_SEMAPHORE_HPP
