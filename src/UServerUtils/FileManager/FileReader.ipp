@@ -257,7 +257,7 @@ inline FileReader& FileReader::getline(std::string_view& str) noexcept
 
         if (start_position != end_position_)
         {
-          if (2 * (start_position - p_buffer_) >= buffer_size_)
+          if (2 * static_cast<std::size_t>(start_position - p_buffer_) >= buffer_size_)
           {
             const std::size_t size = buffer_size_ - (start_position - p_buffer_);
             std::memcpy(
