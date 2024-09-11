@@ -16,10 +16,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies (GCC, ACE, Boost, libev, GTest, GeoIP, NetSNMP, Nghttp2, Protobuf)
+      - name: Install dependencies
         run: |
-          sudo apt-get install -y gcc-10 g++-10 libace-dev libboost-thread-dev libev-dev libgtest-dev \
-          libgeoip-dev libsnmp-dev libnghttp2-dev libprotobuf-dev protobuf-compiler
+          sudo apt-get install -y \
+          gcc-10 g++-10 \
+          libace-dev \
+          libbz2-dev \
+          libboost-thread-dev \
+          libev-dev \
+          libevent-dev \
+          libgtest-dev \
+          libgeoip-dev \
+          libiconv-hook-dev \
+          libsnmp-dev \
+          libnghttp2-dev \
+          libssl-dev \
+          libpcre3-dev \
+          libprotobuf-dev protobuf-compiler \
+          libxerces-c-dev \
+          libgrpc-dev \
+          librocksdb-dev \
+          liburing-dev
 
 
       - name: Copy GCC binaries to /opt/rh/gcc-toolset-10
