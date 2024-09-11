@@ -36,7 +36,8 @@ jobs:
           libxerces-c-dev \
           libgrpc-dev \
           librocksdb-dev \
-          liburing-dev
+          liburing-dev \
+          libgrpc-dev
 
 
       - name: Copy GCC binaries to /opt/rh/gcc-toolset-10
