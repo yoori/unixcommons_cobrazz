@@ -55,7 +55,7 @@ jobs:
         run: mkdir build
 
       - name: Run CMake
-        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=../cmake/Modules/ ..
+        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=/usr/local/lib/cmake/grpc ..
         working-directory: ./build
 
       - name: Build project
