@@ -19,6 +19,14 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y cmake build-essential
 
+      - name: Set up GCC Toolset 10
+        run: |
+          sudo apt-get install -y centos-release-scl
+          sudo apt-get install -y gcc-toolset-10
+          source /opt/rh/gcc-toolset-10/enable
+          export CXX=/opt/rh/gcc-toolset-10/root/usr/bin/g++
+          export CC=/opt/rh/gcc-toolset-10/root/usr/bin/gcc
+
       - name: Create build directory
         run: mkdir build
 
