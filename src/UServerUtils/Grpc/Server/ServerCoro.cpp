@@ -15,7 +15,9 @@ ServerCoro::ServerCoro(
   const ConfigCoro& config,
   Logger* logger)
   : logger_(ReferenceCounting::add_ref(logger)),
-    common_context_coro_(new CommonContextCoro(logger, config.max_size_queue))
+    common_context_coro_(new CommonContextCoro(
+      logger,
+      config.max_size_queue))
 {
   Config config_server;
   config_server.ip = config.ip;
@@ -31,113 +33,45 @@ ServerCoro::ServerCoro(
       logger_));
 }
 
+const Common::SchedulerPtr& ServerCoro::scheduler() const noexcept
+{
+  return server_->scheduler();
+}
+
 ServerCoro::~ServerCoro()
 {
   try
   {
-    Stream::Error stream;
-    bool error = false;
-
-    if (state_ == AS_ACTIVE)
-    {
-      stream << FNS
-             << "wasn't deactivated.";
-      error = true;
-
-      server_->deactivate_object();
-      server_->wait_object();
-    }
-
-    if (state_ != AS_NOT_ACTIVE)
-    {
-      if (error)
-      {
-        stream << std::endl;
-      }
-      stream << FNS
-             << "didn't wait for deactivation, still active.";
-      error = true;
-    }
-
-    if (error)
-    {
-      logger_->error(stream.str(), Aspect::SERVER_CORO);
-    }
+    deactivate_object();
   }
   catch (const eh::Exception& exc)
   {
-    try
-    {
-      std::cerr << FNS
-                << "eh::Exception: "
-                << exc.what()
-                << std::endl;
-    }
-    catch (...)
-    {
-    }
+    std::cerr << FNS
+              << "Exception: "
+              << exc.what();
+  }
+  catch (...)
+  {
+    std::cerr << FNS
+              << "Exception: Unknown error";
   }
 }
 
-void ServerCoro::activate_object()
+void ServerCoro::activate_object_()
 {
   common_context_coro_.reset();
-
-  std::lock_guard lock(state_mutex_);
-  if (state_ != AS_NOT_ACTIVE)
-  {
-    Stream::Error stream;
-    stream << FNS << "already active";
-    throw ActiveObject::AlreadyActive(stream);
-  }
-
-  try
-  {
-    server_->activate_object();
-    state_ = AS_ACTIVE;
-  }
-  catch (const eh::Exception& exc)
-  {
-    Stream::Error stream;
-    stream << FNS
-           << "start failure: "
-           << exc.what();
-    throw Exception(stream);
-  }
+  server_->activate_object();
 }
 
-void ServerCoro::deactivate_object()
+void ServerCoro::deactivate_object_()
 {
-  {
-    std::lock_guard lock(state_mutex_);
-    if (state_ == AS_ACTIVE)
-    {
-      server_->deactivate_object();
-      server_->wait_object();
-      state_ = AS_DEACTIVATING;
-    }
-  }
-
-  condition_variable_.notify_all();
+  server_->deactivate_object();
+  server_->wait_object();
 }
 
-void ServerCoro::wait_object()
+void ServerCoro::wait_object_()
 {
-  std::unique_lock lock(state_mutex_);
-  condition_variable_.wait(lock, [this] () {
-    return state_ != AS_ACTIVE;
-  });
-
-  if (state_ == AS_DEACTIVATING)
-  {
-    state_ = AS_NOT_ACTIVE;
-  }
-}
-
-bool ServerCoro::active()
-{
-  std::lock_guard lock(state_mutex_);
-  return state_ == AS_ACTIVE;
+  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
 }
 
 } // namespace UServerUtils::Grpc::Server

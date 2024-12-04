@@ -43,6 +43,8 @@ public:
     const Config& config,
     Logger* logger);
 
+  const Common::SchedulerPtr& scheduler() const noexcept;
+
   template<class RpcHandlerType>
   void register_handler()
   {

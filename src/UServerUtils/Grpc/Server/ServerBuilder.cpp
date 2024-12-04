@@ -11,6 +11,12 @@ ServerBuilder::ServerBuilder(
 {
 }
 
+const Common::SchedulerPtr&
+ServerBuilder::scheduler() const noexcept
+{
+  return grpc_server_->scheduler();
+}
+
 ServerBuilder::ServerInfo ServerBuilder::build()
 {
   ServerInfo server_info;

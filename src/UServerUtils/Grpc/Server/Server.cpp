@@ -56,6 +56,11 @@ Server::Server(
       std::move(queues)));
 }
 
+const Common::SchedulerPtr& Server::scheduler() const noexcept
+{
+  return scheduler_;
+}
+
 Server::~Server()
 {
   try
@@ -64,11 +69,14 @@ Server::~Server()
   }
   catch (const eh::Exception& exc)
   {
-    std::cerr << FNS << "Exception: " << exc.what();
+    std::cerr << FNS
+              << "Exception: "
+              << exc.what();
   }
   catch (...)
   {
-    std::cerr << FNS << "Exception: Unknown error";
+    std::cerr << FNS
+              << "Exception: Unknown error";
   }
 }
 

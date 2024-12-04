@@ -78,13 +78,7 @@ public:
     const ConfigCoro& config,
     Logger* logger);
 
-  void activate_object() override;
-
-  void deactivate_object() override;
-
-  void wait_object() override;
-
-  bool active() override;
+  const Common::SchedulerPtr& scheduler() const noexcept;
 
   template<class Service>
   void add_service(
@@ -112,15 +106,12 @@ public:
       std::is_base_of_v<RpcHandler, typename Service::Handler>,
       "Handler must be derived from RpcHandler");
 
+    if (active())
     {
-      std::unique_lock<std::mutex> lock(state_mutex_);
-      if (state_ != AS_NOT_ACTIVE)
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": state not equal AS_NOT_ACTIVE";
-        throw Exception(stream);
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "already active state";
+      throw Exception(stream);
     }
 
     using Handler = typename Service::Handler;
@@ -150,17 +141,18 @@ protected:
   ~ServerCoro() override;
 
 private:
+  void activate_object_() override;
+
+  void deactivate_object_() override;
+
+  void wait_object_() override;
+
+private:
   Logger_var logger_;
 
   Server_var server_;
 
   CommonContextCoro_var common_context_coro_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  std::mutex state_mutex_;
-
-  std::condition_variable condition_variable_;
 };
 
 using ServerCoro_var = ReferenceCounting::SmartPtr<ServerCoro>;

@@ -58,6 +58,9 @@ public:
 
   ~ServerBuilder() = default;
 
+  const Common::SchedulerPtr&
+  scheduler() const noexcept;
+
   template<class Service>
   void add_service(
     Service* service,
