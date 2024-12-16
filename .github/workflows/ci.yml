@@ -72,10 +72,10 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-        python3 -m pip install --upgrade pip && \
-        python3 -m pip install \
-          protobuf \
-          jinja2
+            python3 -m pip install --upgrade pip && \
+            python3 -m pip install \
+              protobuf \
+              jinja2
         
       - name: Checkout repository
         uses: actions/checkout@v3
