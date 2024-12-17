@@ -171,7 +171,7 @@ void TaskProcessorContainer::add_task_processor_helper(
   auto& task_processor = *result.first->second;
 
   TaskProcessorSettings settings;
-  settings.sensor_wait_queue_time_limit = config.wait_queue_time_limit;
+  settings.sensor_wait_queue_time_limit = config.sensor_wait_queue_time_limit;
   settings.wait_queue_time_limit = config.wait_queue_time_limit;
   settings.wait_queue_length_limit = config.wait_queue_length_limit;
   settings.profiler_force_stacktrace = false;
@@ -183,7 +183,7 @@ void TaskProcessorContainer::add_task_processor_helper(
     settings.overload_action = TaskProcessorSettings::OverloadAction::kIgnore;
     break;
   case TaskProcessorConfig::OverloadAction::Cancel:
-    settings.overload_action = TaskProcessorSettings::OverloadAction::kIgnore;
+    settings.overload_action = TaskProcessorSettings::OverloadAction::kCancel;
     break;
   }
   task_processor.SetSettings(settings);
