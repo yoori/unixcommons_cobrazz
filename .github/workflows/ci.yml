@@ -43,5 +43,5 @@ jobs:
         working-directory: ci
           
       - name: Build
-        run: docker-compose up -d
+        run: docker-compose up
         working-directory: ci

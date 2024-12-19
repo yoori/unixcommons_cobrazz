@@ -16,8 +16,8 @@ services:
       - ./data/opt:/opt
       
     working_dir: /app/ci
-    command: >
-      bash -c "
+    command: |
+      sh -c "
       echo 'Build process completed successfully!';
       exit 0;
       "
