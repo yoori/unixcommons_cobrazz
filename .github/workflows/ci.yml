@@ -1,4 +1,4 @@
-name: CMake Build
+name: unixcommons_cobrazz build
 
 on:
   push:
@@ -10,86 +10,38 @@ on:
 
 jobs:
   build:
-    runs-on: oraclelinux:8.7
+    runs-on: ubuntu-latest
 
-    steps:    
-      - name: Init repository
-        run: |
-          echo -e "[OL8_genius]\nname=Genius repos \$releasever (\$basearch)\nbaseurl=http://ui.new-programmatic.com/rpm_repo/\$basearch/\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/genius.repo && \
-          yum makecache && \
-          yum module disable postgresql -y
-             
-      - name: Install Dependencies
-        run: |
-            yum install -y \
-            ace-tao-devel \
-            autoconf \
-            boost176-devel \
-            bzip2-devel \
-            gcc-c++ \
-            grpc-plugins \
-            http-parser-devel \
-            librdkafka-devel \
-            pcre-devel \
-            protobuf-compiler \
-            protobuf-devel \
-            selinux-policy \
-            xgboost-devel \
-            zeromq-devel \
-            rocksdb-devel-8.8.1-2.el8 \
-            vanga-devel \
-            cmake3 \
-            gcc-toolset-10 \
-            rsync \
-            xerces-c-devel \
-            libev-devel \
-            userver-devel \
-            userver-static \
-            yaml-cpp-devel \
-            jemalloc-devel \
-            libevent-devel \
-            cryptopp-devel \
-            gflags-devel \
-            snappy-devel \
-            python3 \
-            java-1.8.0-openjdk-devel-1:1.8.0.362.b09-2.el8_7 \
-            javapackages-tools \
-            foros-geoip \
-            GeoIP-devel \
-            net-snmp-devel-1:5.8-28.0.1.el8 \
-            libxml2-devel-2.9.7-15.el8_7.1 \
-            xsd \
-            flex \
-            bison \
-            libpq-devel-13.5-1.el8 \
-            rapidjson-devel \
-            liburing-devel \
-            xgboost \
-            postgresql94-devel \
-            libxslt-devel \
-            dos2unix
-
-
-      - name: Install Python Dependencies
-        run: |
-            python3 -m pip install --upgrade pip && \
-            python3 -m pip install \
-              protobuf \
-              jinja2
-        
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
-      - name: Use dos2unix
-        run: dos2unix src/UServerUtils/Grpc/Generator/protoc_usrv_plugin
-       
-      - name: Create build directory
-        run: mkdir build
+    
+      - name: Set up Docker Compose
+        run: |
+          apt-get update
+          apt-get install -y docker-compose
 
-      - name: Run CMake
-        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=/usr/local/lib/cmake/grpc ..
-        working-directory: ./build
+      - name: Making base cache
+        run: |
+          mkdir cache
+          if [ $? -eq 0 ]; then
+            docker run -it --name tmp_oracle oraclelinux:8.7
 
-      - name: Build project
-        run: make -j8
-        working-directory: ./build
+            docker cp tmp_oracle:/usr ./cache/usr
+            docker cp tmp_oracle:/etc ./cache/etc
+            docker cp tmp_oracle:/var ./cache/var
+            docker cp tmp_oracle:/bin ./cache/bin
+            docker cp tmp_oracle:/lib ./cache/lib
+            docker cp tmp_oracle:/lib64 ./cache/lib64
+            docker cp tmp_oracle:/sbin ./cache/sbin
+            docker cp tmp_oracle:/opt ./cache/opt
+            
+            docker rm tmp_oracle
+          else
+            echo "cache folder presents. Skipping Docker cache creation."
+          fi
+        working-directory: ./unixcommons_cobrazz/ci/
+          
+      - name: Build
+        run: docker-compose up -d
+        working-directory: ./unixcommons_cobrazz/ci/
