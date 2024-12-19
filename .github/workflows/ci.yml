@@ -25,7 +25,7 @@ jobs:
         run: |
           mkdir cache
           if [ $? -eq 0 ]; then
-            docker run -it --name tmp_oracle oraclelinux:8.7
+            docker run --name tmp_oracle oraclelinux:8.7
 
             sudo docker cp tmp_oracle:/usr ./cache/usr
             sudo docker cp tmp_oracle:/etc ./cache/etc
