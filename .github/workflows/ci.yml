@@ -1,4 +1,4 @@
-name: unixcommons_cobrazz build
+name: unixcommons_cobrazz_build
 
 on:
   push:
@@ -18,9 +18,9 @@ jobs:
     
       - name: Set up Docker Compose
         run: |
-          sudo apt update
           sudo apt install docker-compose
           docker-compose --version
+          
       - name: Making base cache
         run: |
           pwd
@@ -41,7 +41,6 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi
-        working-directory: ci
           
       - name: Build
         run: docker-compose up
