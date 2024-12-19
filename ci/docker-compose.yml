@@ -17,7 +17,7 @@ services:
       
     working_dir: /app/ci
     command: >
-      sh -c "
+      bash -c "
       echo 'Build process completed successfully!';
       exit 0;
       "
