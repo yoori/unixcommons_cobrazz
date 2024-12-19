@@ -23,6 +23,7 @@ jobs:
           docker-compose --version
       - name: Making base cache
         run: |
+          pwd
           mkdir cache
           if [ $? -eq 0 ]; then
             docker run --name tmp_oracle oraclelinux:8.7
