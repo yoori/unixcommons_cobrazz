@@ -40,8 +40,8 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi
-        working-directory: ./unixcommons_cobrazz/ci/
+        working-directory: ci
           
       - name: Build
         run: docker-compose up -d
-        working-directory: ./unixcommons_cobrazz/ci/
+        working-directory: ci
