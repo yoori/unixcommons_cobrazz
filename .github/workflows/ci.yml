@@ -18,8 +18,8 @@ jobs:
     
       - name: Set up Docker Compose
         run: |
-          apt-get update
-          apt-get install -y docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Making base cache
         run: |
@@ -27,14 +27,14 @@ jobs:
           if [ $? -eq 0 ]; then
             docker run -it --name tmp_oracle oraclelinux:8.7
 
-            docker cp tmp_oracle:/usr ./cache/usr
-            docker cp tmp_oracle:/etc ./cache/etc
-            docker cp tmp_oracle:/var ./cache/var
-            docker cp tmp_oracle:/bin ./cache/bin
-            docker cp tmp_oracle:/lib ./cache/lib
-            docker cp tmp_oracle:/lib64 ./cache/lib64
-            docker cp tmp_oracle:/sbin ./cache/sbin
-            docker cp tmp_oracle:/opt ./cache/opt
+            sudo docker cp tmp_oracle:/usr ./cache/usr
+            sudo docker cp tmp_oracle:/etc ./cache/etc
+            sudo docker cp tmp_oracle:/var ./cache/var
+            sudo docker cp tmp_oracle:/bin ./cache/bin
+            sudo docker cp tmp_oracle:/lib ./cache/lib
+            sudo docker cp tmp_oracle:/lib64 ./cache/lib64
+            sudo docker cp tmp_oracle:/sbin ./cache/sbin
+            sudo docker cp tmp_oracle:/opt ./cache/opt
             
             docker rm tmp_oracle
           else
