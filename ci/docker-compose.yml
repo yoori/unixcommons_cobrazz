@@ -17,6 +17,6 @@ services:
       
     working_dir: /app/ci
     command:
-      - /bin/bash
+      - $SHELL
       - -c
-      - echo "Running first command"
+      - echo $SHELL
