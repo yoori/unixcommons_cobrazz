@@ -80,7 +80,10 @@ jobs:
           
       - name: build
         run: |
-          docker-compose up build || exit $?
+          docker-compose up build
+        if [ $? -ne 0 ]; then
+          exit 1;
+        fi;
         working-directory: ci
         
       - name: Save build
