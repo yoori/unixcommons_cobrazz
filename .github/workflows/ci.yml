@@ -53,7 +53,7 @@ jobs:
         
       - name: Adjust permissions
         run: |
-          sudo chown -R $USER:$USER ./cache
+          sudo chown -R $USER:$USER ./ci/cache
                      
       - name: Save cache
         uses: actions/cache@v3
@@ -63,7 +63,7 @@ jobs:
           key: cache-${{ runner.os }}-${{ github.run_id }}  
           restore-keys: cache-${{ runner.os }}-          
       
-      - name: create env
+      - name: Сreate env
         run: | 
           docker-compose run oracle_env_creation 
           if [ $? -ne 0 ]; then
