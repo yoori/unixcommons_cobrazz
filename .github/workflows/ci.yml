@@ -12,19 +12,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get cache
+      - name: Restore cache
         uses: actions/cache@v3
         with:
           path: ./cache
           key: cache-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             cache-${{ runner.os }}-
-            
+
       - name: Create env
         run: | 
           mkdir -p ./cache
           echo "Cache initialized" > ./cache/file.txt
           echo "Cache initialized" > ./cache/file1.txt
-          
 
-        
+      - name: Save cache
+        uses: actions/cache@v3
+        with:
+          path: ./cache
+          key: cache-${{ runner.os }}-${{ github.ref }}
