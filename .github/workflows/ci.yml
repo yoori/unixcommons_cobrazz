@@ -54,7 +54,23 @@ jobs:
       - name: Adjust permissions
         run: |
           sudo chown -R $USER:$USER ./ci/cache
-          ls -l ./ci/cache
+          ls -l ./ci/cache- name: Change permissions for all files and directories
+        run: |
+          TARGET_DIR="/home/runner/work/unixcommons_cobrazz/unixcommons_cobrazz"
+
+          # Ensure the directory exists
+          if [ ! -d "$TARGET_DIR" ]; then
+            echo "Directory $TARGET_DIR does not exist. Check the path."
+            exit 1
+          fi;
+
+          # Change permissions for all files
+          find "$TARGET_DIR" -type f -exec chmod 644 {} \;
+
+          # Change permissions for all directories
+          find "$TARGET_DIR" -type d -exec chmod 755 {} \;
+
+          echo "Permissions successfully updated for all files and directories in $TARGET_DIR."
                      
       - name: Save cache
         uses: actions/cache/save@v3
