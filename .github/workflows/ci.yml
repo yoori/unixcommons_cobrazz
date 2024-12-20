@@ -26,7 +26,6 @@ jobs:
           pwd
           mkdir cache
           if [ $? -eq 0 ]; then
-            docker run --name tmp_oracle oraclelinux:8.7
             docker run -d --name tmp_oracle oraclelinux:8.7 /bin/sh
             
             sudo docker cp tmp_oracle:/usr ./cache/usr
@@ -37,6 +36,7 @@ jobs:
             sudo docker cp tmp_oracle:/lib64 ./cache/lib64
             sudo docker cp tmp_oracle:/sbin ./cache/sbin
             sudo docker cp tmp_oracle:/opt ./cache/opt
+            
             echo "copied"
             docker rm tmp_oracle
           else
