@@ -1,7 +1,7 @@
 services:
   oracle_env_creation:
     image: oraclelinux:8.7
-    container_name: unixcommons_cobrazz_build
+    container_name: oracle_env_build
     tty: true
     stdin_open: true
     volumes:
