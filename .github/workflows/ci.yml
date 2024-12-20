@@ -9,7 +9,7 @@ on:
       - CI
 
 jobs:
-  build:
+  Create env:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +20,12 @@ jobs:
         run: |
           sudo apt install docker-compose
           docker-compose --version
+          
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ci/cache
+          key: static-cache-key-unicomss-cache
           
       - name: Making base cache
         run: |
@@ -39,7 +45,7 @@ jobs:
             docker rm tmp_oracle
           else
             echo "cache folder presents. Skipping Docker cache creation."
-          fi
+          fi;
         working-directory: ci
              
       - name: create env
@@ -54,10 +60,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: ${{ runner.os }}-cache-${{ hashFiles('ci/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-cache-
+          key: static-cache-key-unicomss-cache
             
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ci/cache
+          key: static-cache-key-unicomss-cache
+          
+      - name: Restore build
+        uses: actions/cache@v3
+        with:
+          path: ci/cache
+          key: static-cache-key-unicomss-build
+          
       - name: build
         run: |
           docker-compose up build || exit $?
@@ -66,7 +85,5 @@ jobs:
       - name: Save build
         uses: actions/cache@v3
         with:
-          path: ci/build
-          key: ${{ runner.os }}-build-${{ hashFiles('ci/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
+          path: ci/cache
+          key: static-cache-key-unicomss-build
