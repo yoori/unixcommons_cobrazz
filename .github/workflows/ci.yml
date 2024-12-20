@@ -57,7 +57,7 @@ jobs:
           restore-keys: cache-${{ runner.os }}-          
       
       - name: create env
-        run: docker-compose up --exit-code-from oracle_env_creation oracle_env_creation
+        run: docker-compose up oracle_env_creation --exit-code-from oracle_env_creation
         working-directory: ci
         
       - name: Restore build
@@ -68,7 +68,7 @@ jobs:
           restore-keys: build-${{ runner.os }}-
           
       - name: build
-        run: docker-compose up --exit-code-from build build
+        run: docker-compose up build --exit-code-from build 
         working-directory: ci
 
       - name: Save build
