@@ -25,9 +25,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: cache-${{ runner.os }}-${{ github.run_id }}          
+          key: cache-${{ runner.os }}-${{ github.run_id }} 
+          restore-keys: cache-${{ runner.os }}-
   
-          
       - name: Making base cache
         run: |
           sudo mkdir cache
@@ -53,11 +53,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: cache-${{ runner.os }}-${{ github.run_id }}          
+          key: cache-${{ runner.os }}-${{ github.run_id }}  
+          restore-keys: cache-${{ runner.os }}-          
       
       - name: create env
         run: |
-          docker-compose up oracle_env_creation || exit $?
+          docker-compose up oracle_env_creation --exit-code-from oracle_env_creation || exit $?
         working-directory: ci
         
       - name: Restore build
@@ -65,11 +66,11 @@ jobs:
         with:
           path: ci/build
           key:  build-${{ runner.os }}-${{ github.run_id }}          
-
+          restore-keys: build-${{ runner.os }}-
           
       - name: build
         run: |
-          docker-compose up build || exit $?
+          docker-compose up build --exit-code-from build || exit $?
         working-directory: ci
         
       - name: Save build
@@ -77,4 +78,5 @@ jobs:
         with:
           path: ci/build
           key: build-${{ runner.os }}-${{ github.run_id }}          
- 
+         restore-keys: build-${{ runner.os }}-
+
