@@ -4,16 +4,7 @@ services:
     container_name: unixcommons_cobrazz_build
     tty: true
     stdin_open: true
-    volumes:
-      - ../:/app
-      - ./data/usr:/usr
-      - ./data/etc:/etc
-      - ./data/var:/var
-      - ./data/bin:/bin
-      - ./data/lib:/lib
-      - ./data/lib64:/lib64
-      - ./data/sbin:/sbin
-      - ./data/opt:/opt
+
       
     working_dir: /app/ci
     command:
