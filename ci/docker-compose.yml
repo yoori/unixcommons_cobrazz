@@ -4,7 +4,16 @@ services:
     container_name: unixcommons_cobrazz_build
     tty: true
     stdin_open: true
-
+    volumes:
+      - ../:/app
+      - ./cache/usr:/usr
+      - ./cache/etc:/etc
+      - ./cache/var:/var
+      - ./cache/bin:/bin
+      - ./cache/lib:/lib
+      - ./cache/lib64:/lib64
+      - ./cache/sbin:/sbin
+      - ./cache/opt:/opt
       
     working_dir: /app/ci
     command:
