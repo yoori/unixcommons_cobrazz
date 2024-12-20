@@ -1,5 +1,5 @@
 services:
-  oracle_build:
+  oracle_env_creation:
     image: oraclelinux:8.7
     container_name: unixcommons_cobrazz_build
     tty: true
@@ -55,7 +55,26 @@ services:
           echo 'Step 5 - pip install - failed!';
           exit 105;
       fi;
+      "
+  build:
+    image: oraclelinux:8.7
+    container_name: unixcommons_cobrazz_build
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../:/app
+      - ./cache/usr:/usr
+      - ./cache/etc:/etc
+      - ./cache/var:/var
+      - ./cache/bin:/bin
+      - ./cache/lib:/lib
+      - ./cache/lib64:/lib64
+      - ./cache/sbin:/sbin
+      - ./cache/opt:/opt
       
+    working_dir: /app/ci
+    command: |
+      sh -c " 
       echo 'Step 6: Preparing Unixcommons Cobrazz build...';
       dos2unix ../src/UServerUtils/Grpc/Generator/protoc_usrv_plugin 2>/dev/null;
       if [ $$? -ne 0 ]; then
