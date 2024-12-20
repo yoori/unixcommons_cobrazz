@@ -16,12 +16,11 @@ jobs:
         run: | 
             mkdir ./cache
             touch ./cache/file.txt
-        working-directory: ci
         
       - name: Save cache
         uses: actions/cache@v3
         with:
           path: |
-           ./ci/cache
+           ./cache
           key: cache-${{ runner.os }}-${{ github.run_id }}  
           restore-keys: cache-${{ runner.os }}-          
