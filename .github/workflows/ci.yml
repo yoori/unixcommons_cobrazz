@@ -46,6 +46,7 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
+          pwd
         working-directory: ci
                      
       - name: Save cache
