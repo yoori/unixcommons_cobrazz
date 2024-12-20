@@ -69,8 +69,8 @@ jobs:
           
       - name: build
         working-directory: ci
-        run: docker-compose up build --exit-code-from build
-
+        run: docker-compose up build
+        
       - name: Save build
         uses: actions/cache@v3
         with:
