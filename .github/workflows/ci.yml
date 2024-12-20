@@ -18,7 +18,6 @@ jobs:
       - name: Set up Docker Compose
         run: |
           sudo apt install docker-compose
-          docker-compose --version
           
       - name: Making base cache
         working-directory: ci
