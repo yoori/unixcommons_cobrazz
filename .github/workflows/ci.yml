@@ -66,11 +66,7 @@ jobs:
           path: ci/build
           key:  build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
-          
-      - name: build
-        working-directory: ci
-        run: docker-compose up build
-        
+                 
       - name: Save build
         uses: actions/cache@v3
         with:
