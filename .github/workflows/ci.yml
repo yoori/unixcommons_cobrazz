@@ -68,8 +68,8 @@ jobs:
           restore-keys: build-${{ runner.os }}-
           
       - name: build
-        run: docker-compose up build --exit-code-from build
         working-directory: ci
+        run: docker-compose up build --exit-code-from build
 
       - name: Save build
         uses: actions/cache@v3
