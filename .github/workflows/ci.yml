@@ -48,6 +48,6 @@ jobs:
         run: |
             pwd
             ls -l 
-            ls -l ./data
+            ls -l ./cache
             docker-compose up
         working-directory: ci
