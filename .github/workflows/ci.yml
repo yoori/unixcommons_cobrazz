@@ -26,7 +26,6 @@ jobs:
           pwd
           mkdir cache
           if [ $? -eq 0 ]; then
-            docker rm tmp_oracle
             docker run --name tmp_oracle oraclelinux:8.7
             docker run -d --name tmp_oracle oraclelinux:8.7 /bin/sh
             
