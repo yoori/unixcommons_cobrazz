@@ -41,7 +41,10 @@ jobs:
             echo "cache folder presents. Skipping Docker cache creation."
           fi
         working-directory: ci
-        
+    
+      - name: Change ownership of cache folder
+        run: sudo chown -R $USER:$USER ci/cache
+      
       - name: Save cache
         uses: actions/cache@v3
         with:
@@ -49,7 +52,16 @@ jobs:
           key: ${{ runner.os }}-cache-${{ hashFiles('ci/docker-compose.yml') }}
           restore-keys: |
             ${{ runner.os }}-cache-
+        
+      - name: Save build
+        uses: actions/cache@v3
+        with:
+          path: ci/build
+          key: ${{ runner.os }}-build-${{ hashFiles('ci/docker-compose.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
           
       - name: Build
-        run: docker-compose up
+        run: |
+          docker-compose up || exit $?
         working-directory: ci
