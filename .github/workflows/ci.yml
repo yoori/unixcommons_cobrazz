@@ -59,13 +59,6 @@ jobs:
       - name: create env
         run: docker-compose up oracle_env_creation --exit-code-from oracle_env_creation
         working-directory: ci
-        
-      - name: Restore build
-        uses: actions/cache@v3
-        with:
-          path: ci/build
-          key:  build-${{ runner.os }}-${{ github.run_id }}          
-          restore-keys: build-${{ runner.os }}-
                  
       - name: Save build
         uses: actions/cache@v3
