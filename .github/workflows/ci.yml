@@ -57,7 +57,12 @@ jobs:
           restore-keys: cache-${{ runner.os }}-          
       
       - name: create env
-        run: docker-compose up oracle_env_creation --exit-code-from oracle_env_creation
+        run: | 
+          docker-compose run oracle_env_creation 
+          if [ $? -ne 0 ]; then
+            echo 'failed!';
+            exit 1;
+          fi;
         working-directory: ci
         
       - name: Restore build
@@ -68,7 +73,12 @@ jobs:
           restore-keys: build-${{ runner.os }}-
           
       - name: build
-        run: docker-compose up build --exit-code-from build 
+        run: |
+          docker-compose run build 
+          if [ $? -ne 0 ]; then
+            echo 'failed!';
+            exit 1;
+          fi;
         working-directory: ci
 
       - name: Save build
