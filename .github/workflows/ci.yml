@@ -17,8 +17,9 @@ jobs:
           mkdir -p ./cache
           echo "Cache initialized" > ./cache/file.txt
 
-      - name: Save cache
-        uses: actions/cache@v3
+      - name: Save and restore cache
+        uses: actions/cache@v4
         with:
           path: ./cache
-          key: cache-${{ runner.os }}-${{ github.run_id }}
+          key: cache-${{ runner.os }}-${{ github.sha }}
+          save-always: true
