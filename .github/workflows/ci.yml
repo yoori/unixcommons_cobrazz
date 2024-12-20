@@ -25,9 +25,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: ${{ runner.OS }}-env-${{ hashFiles('**/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.OS }}-env-   
+          key: cache-${{ runner.os }}-${{ github.run_id }}          
+  
           
       - name: Making base cache
         run: |
@@ -49,47 +48,33 @@ jobs:
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
         working-directory: ci
-             
-      - name: create env
-        run: |
-          docker-compose up oracle_env_creation || exit $?
-        working-directory: ci
-        
-      - name: Change ownership of cache folder
-        run: | 
-          sudo chown -R $USER:$USER ci/cache
-          sudo chmod -R u+rwX,go+rwX ci/cache
-          sudo chown -R $(whoami):$(whoami) ci/cache
-          ls -la ci/cache
-
+                     
       - name: Save cache
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: ${{ runner.OS }}-env-${{ hashFiles('**/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.OS }}-env-            
-    
+          key: cache-${{ runner.os }}-${{ github.run_id }}          
+      
+      - name: create env
+        run: |
+          docker-compose up --abort-on-container-exit --exit-code-from oracle_env_creation
+        working-directory: ci
+        
       - name: Restore build
         uses: actions/cache@v3
         with:
           path: ci/build
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-  
+          key:  build-${{ runner.os }}-${{ github.run_id }}          
+
           
       - name: build
         run: |
-          docker-compose up build
-          if [ $? -ne 0 ]; then
-            exit 1;
-          fi;
+          docker-compose up --abort-on-container-exit --exit-code-from build
         working-directory: ci
         
       - name: Save build
         uses: actions/cache@v3
         with:
           path: ci/build
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/docker-compose.yml') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-  
+          key: build-${{ runner.os }}-${{ github.run_id }}          
+ 
