@@ -19,8 +19,11 @@ jobs:
         run: |
           sudo apt install docker-compose
           docker-compose --version
+          
+
   
       - name: Making base cache
+        working-directory: ci
         run: |
           if [ ! -d cache ]; then
             sudo mkdir cache
@@ -39,22 +42,11 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
-        working-directory: ci
         
       - name: Adjust permissions
         run: |
           sudo chmod -R o+rwx ./ci/cache
-          ls -l ./ci/cache
-           
-      - name: Save cache
-        uses: actions/cache/save@v3
-        if: always()
-        with:
-          path: |
-           ./ci/cache
-          key: cache-Linux-${{ runner.os }}-${{ github.job }}-${{ hashFiles('**/file-to-hash') }}
-          restore-keys: cache-${{ runner.os }}-          
-      
+                             
       - name: Сreate env
         run: | 
           docker-compose run oracle_env_creation 
@@ -64,27 +56,34 @@ jobs:
           fi;
         working-directory: ci
         
+      - name: Save cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+           ./ci/cache
+          key: cache-${{ runner.os }}-${{ github.run_id }}  
+          restore-keys: cache-${{ runner.os }}-  
+        
       - name: Restore build
         uses: actions/cache/restore@v3
         with:
           path: |
            ./ci/build
-          key: build-${{ runner.os }}-${{ hashFiles('**/lockfiles') }} 
+          key:  build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
           
       - name: build
+        working-directory: ci
         run: |
           docker-compose run build || STATUS=$?
           echo "STATUS=${STATUS:-0}" >> $GITHUB_ENV
-        working-directory: ci
 
       - name: Save build
         uses: actions/cache/save@v3
-        if: always()
         with:
           path: |
            ./ci/build
-          key: build-${{ runner.os }}-${{ hashFiles('**/lockfiles') }} 
+          key: build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
           
       - name: Check build status
