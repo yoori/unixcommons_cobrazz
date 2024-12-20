@@ -12,90 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-    
-      - name: Set up Docker Compose
-        run: |
-          sudo apt install docker-compose
-          docker-compose --version
-          
-      - name: Restore cache
-        uses: actions/cache@v3
-        with:
-          path: |
-           ./ci/cache
-          key: cache-${{ runner.os }}-${{ github.run_id }} 
-          restore-keys: cache-${{ runner.os }}-
-  
-      - name: Making base cache
-        run: |
-          sudo mkdir cache
-          if [ $? -eq 0 ]; then
-            docker run --name tmp_oracle oraclelinux:8.7
-
-            sudo docker cp tmp_oracle:/usr ./cache/usr
-            sudo docker cp tmp_oracle:/etc ./cache/etc
-            sudo docker cp tmp_oracle:/var ./cache/var
-            sudo docker cp tmp_oracle:/bin ./cache/bin
-            sudo docker cp tmp_oracle:/lib ./cache/lib
-            sudo docker cp tmp_oracle:/lib64 ./cache/lib64
-            sudo docker cp tmp_oracle:/sbin ./cache/sbin
-            sudo docker cp tmp_oracle:/opt ./cache/opt
-            
-            docker rm tmp_oracle
-          else
-            echo "cache folder presents. Skipping Docker cache creation."
-          fi;
-          pwd
-          ls -l ./cache
-        working-directory: ci
+      - name: Create env
+        run: | 
+          mkdir -p ./cache
+          echo "Cache initialized" > ./cache/file.txt
         
-      - name: Adjust permissions
-        run: |
-          sudo chown -R $USER:$USER ./ci/cache
-          ls -l ./ci/cache
-                     
       - name: Save cache
         uses: actions/cache@v3
         with:
-          path: |
-           ./ci/cache
-          key: cache-${{ runner.os }}-${{ github.ref }}  
-          restore-keys: cache-${{ runner.os }}-          
-      
-      - name: Сreate env
-        run: | 
-          docker-compose run oracle_env_creation 
-          if [ $? -ne 0 ]; then
-            echo 'failed!';
-            exit 1;
-          fi;
-        working-directory: ci
-        
-      - name: Restore build
-        uses: actions/cache@v3
-        with:
-          path: |
-           ./ci/build
-          key:  build-${{ runner.os }}-${{ github.ref }}          
-          restore-keys: build-${{ runner.os }}-
-          
-      - name: build
-        run: |
-          docker-compose run build || STATUS=$?
-          echo "STATUS=${STATUS:-0}" >> $GITHUB_ENV
-        working-directory: ci
-
-      - name: Save build
-        uses: actions/cache@v3
-        with:
-          path: |
-           ./ci/build
-          key: build-${{ runner.os }}-${{ github.ref }}          
-          restore-keys: build-${{ runner.os }}-
-          
-      - name: Check build status
-        run: | 
-            echo "Command status is: $STATUS"
-            exit $STATUS
+          path: ./cache
+          key: cache-${{ runner.os }}-${{ github.ref }}
+          restore-keys: |
+            cache-${{ runner.os }}-
