@@ -73,7 +73,7 @@ jobs:
           
       - name: build
         run: |
-          docker-compose run build 
+          docker-compose up build 
           echo "STATUS=$?" >> $GITHUB_ENV
         working-directory: ci
 
