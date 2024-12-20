@@ -1,7 +1,7 @@
 services:
-  oracle_env_creation:
+  build:
     image: oraclelinux:8.7
-    container_name: oracle_env_build
+    container_name: oracle_build
     tty: true
     stdin_open: true
     volumes:
@@ -55,47 +55,21 @@ services:
           echo 'Step 5 - pip install - failed!';
           exit 105;
       fi;
-      "
-  build:
-    image: oraclelinux:8.7
-    container_name: unixcommons_cobrazz_build
-    tty: true
-    stdin_open: true
-    volumes:
-      - ../:/app
-      - ./cache/usr:/usr
-      - ./cache/etc:/etc
-      - ./cache/var:/var
-      - ./cache/bin:/bin
-      - ./cache/lib:/lib
-      - ./cache/lib64:/lib64
-      - ./cache/sbin:/sbin
-      - ./cache/opt:/opt
       
-    working_dir: /app/ci
-    command: |
-      sh -c " 
-      echo 'Step 6: Preparing Unixcommons Cobrazz build...';
-      dos2unix ../src/UServerUtils/Grpc/Generator/protoc_usrv_plugin 2>/dev/null;
-      if [ $$? -ne 0 ]; then
-          echo 'Step 6 - prep - failed!';
-          exit 106;
-      fi;
-
-      echo 'Step 7: Running CMake configuration...';
+      echo 'Step 6: Running CMake configuration...';
       mkdir build 2> /dev/null;
       cd build;
       cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../../;
       if [ $$? -ne 0 ]; then
-          echo 'Step 7 - cmake - failed!';
-          exit 107;
+          echo 'Step 6 - cmake - failed!';
+          exit 106;
       fi;
 
-      echo 'Step 8: Building the project...';
+      echo 'Step 7: Building the project...';
       make -j4;
       if [ $$? -ne 0 ]; then
-          echo 'Step 8 - build - failed!';
-          exit 108;
+          echo 'Step 7 - build - failed!';
+          exit 107;
       fi;
 
       echo 'Build process completed successfully!';

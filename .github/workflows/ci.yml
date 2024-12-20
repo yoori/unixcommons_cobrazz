@@ -41,12 +41,6 @@ jobs:
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
                                     
-      - name: Сreate env
-        working-directory: ci
-        run: | 
-          docker-compose run oracle_env_creation;
-          exit $?;
-                   
       - name: build
         working-directory: ci
         run: |
