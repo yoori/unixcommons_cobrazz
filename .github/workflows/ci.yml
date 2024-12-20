@@ -24,11 +24,10 @@ jobs:
       - name: Making base cache
         run: |
           pwd
-          ls -la /bin/
           mkdir cache
           if [ $? -eq 0 ]; then
             docker run --name tmp_oracle oraclelinux:8.7
-
+            docker exec tmp_oracle yum install -y bash
             sudo docker cp tmp_oracle:/usr ./cache/usr
             sudo docker cp tmp_oracle:/etc ./cache/etc
             sudo docker cp tmp_oracle:/var ./cache/var
