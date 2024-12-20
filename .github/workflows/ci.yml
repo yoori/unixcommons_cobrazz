@@ -57,7 +57,7 @@ jobs:
       
       - name: create env
         run: |
-          docker-compose up --exit-code-from oracle_env_creation
+          docker-compose up oracle_env_creation || exit $?
         working-directory: ci
         
       - name: Restore build
@@ -69,7 +69,7 @@ jobs:
           
       - name: build
         run: |
-          docker-compose up --exit-code-from build
+          docker-compose up build || exit $?
         working-directory: ci
         
       - name: Save build
