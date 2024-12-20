@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -75,10 +74,7 @@ jobs:
       - name: build
         run: |
           docker-compose run build 
-          if [ $? -ne 0 ]; then
-            echo 'failed!';
-            exit 1;
-          fi;
+          echo "STATUS=$?" >> $GITHUB_ENV
         working-directory: ci
 
       - name: Save build
@@ -87,4 +83,8 @@ jobs:
           path: ci/build
           key: build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
-
+          
+      - name: Check build status
+        run: | 
+            echo "Command status is: $STATUS"
+            exit $STATUS
