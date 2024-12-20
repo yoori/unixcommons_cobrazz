@@ -23,7 +23,8 @@ jobs:
       - name: Restore cache
         uses: actions/cache@v3
         with:
-          path: ci/cache
+          path: |
+           ./ci/cache
           key: cache-${{ runner.os }}-${{ github.run_id }} 
           restore-keys: cache-${{ runner.os }}-
   
@@ -52,7 +53,8 @@ jobs:
       - name: Save cache
         uses: actions/cache@v3
         with:
-          path: ci/cache
+          path: |
+           ./ci/cache
           key: cache-${{ runner.os }}-${{ github.run_id }}  
           restore-keys: cache-${{ runner.os }}-          
       
@@ -68,7 +70,8 @@ jobs:
       - name: Restore build
         uses: actions/cache@v3
         with:
-          path: ci/build
+          path: |
+           ./ci/build
           key:  build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
           
@@ -81,7 +84,8 @@ jobs:
       - name: Save build
         uses: actions/cache@v3
         with:
-          path: ci/build
+          path: |
+           ./ci/build
           key: build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
           
