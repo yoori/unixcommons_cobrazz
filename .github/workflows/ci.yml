@@ -73,8 +73,9 @@ jobs:
           
       - name: build
         run: |
-          docker-compose up build 
+          docker-compose run build 
           echo "STATUS=$?" >> $GITHUB_ENV
+          exit 0
         working-directory: ci
 
       - name: Save build
