@@ -20,14 +20,6 @@ jobs:
           sudo apt install docker-compose
           docker-compose --version
           
-      - name: Restore cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-           ./ci/cache
-          key: cache-${{ runner.os }}-${{ github.run_id }} 
-          restore-keys: cache-${{ runner.os }}-
-  
       - name: Making base cache
         working-directory: ci
         run: |
@@ -50,42 +42,13 @@ jobs:
           fi;
                                     
       - name: Сreate env
+        working-directory: ci
         run: | 
           docker-compose run oracle_env_creation;
           exit $?;
-        working-directory: ci
-      
-      - name: Adjust permissions
-        run: |
-          sudo chmod -R o+rwx ./ci/cache
-      
-      - name: Save cache
-        uses: actions/cache/save@v3
-        with:
-          path: |
-           ./ci/cache
-          key: cache-${{ runner.os }}-${{ github.run_id }}  
-          restore-keys: cache-${{ runner.os }}-  
-        
-      - name: Restore build
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-           ./ci/build
-          key:  build-${{ runner.os }}-${{ github.run_id }}          
-          restore-keys: build-${{ runner.os }}-
-          
+                   
       - name: build
         working-directory: ci
         run: |
           docker-compose run build;
           exit $?;
-
-      - name: Save build
-        uses: actions/cache/save@v3
-        if: always()
-        with:
-          path: |
-           ./ci/build
-          key: build-${{ runner.os }}-${{ github.run_id }}          
-          restore-keys: build-${{ runner.os }}-
