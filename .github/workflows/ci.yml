@@ -9,7 +9,7 @@ on:
       - CI
 
 jobs:
-  Create_env:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -54,23 +54,19 @@ jobs:
         working-directory: ci
         
       - name: Change ownership of cache folder
-        run: sudo chown -R $USER:$USER ci/cache
-      
+        run: | 
+          sudo chown -R $USER:$USER ci/cache
+          sudo chmod -R u+rwX,go+rwX ci/cache
+          sudo chown -R $(whoami):$(whoami) ci/cache
+          ls -la ci/cache
+
       - name: Save cache
         uses: actions/cache@v3
         with:
           path: ci/cache
           key: static-cache-key-unicomss-cache
             
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore cache
-        uses: actions/cache@v3
-        with:
-          path: ci/cache
-          key: static-cache-key-unicomss-cache
-          
+            
       - name: Restore build
         uses: actions/cache@v3
         with:
