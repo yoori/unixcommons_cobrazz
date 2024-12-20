@@ -12,15 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Сreate env
+      - name: Create env
         run: | 
-            mkdir ./cache
-            touch ./cache/file.txt
+          mkdir -p ./cache
+          echo "Cache initialized" > ./cache/file.txt
         
       - name: Save cache
         uses: actions/cache@v3
         with:
-          path: |
-           ./cache
-          key: cache-${{ runner.os }}-${{ github.run_id }}  
-          restore-keys: cache-${{ runner.os }}-          
+          path: ./cache
+          key: cache-${{ runner.os }}-${{ github.ref }}
+          restore-keys: |
+            cache-${{ runner.os }}-
