@@ -16,10 +16,10 @@ services:
       - ./cache/opt:/opt
       
     working_dir: /app/ci
-    command: |
+    command: >
       sh -c "
       echo 'Step 1: Creating yum repository configuration...';
-      if [ \$? -ne 0 ]; then
+      if [ \$\? -ne 0 ]; then
           echo 'Step 1 - Creating yum repository configuration - failed!';
           exit 101;
       fi;
