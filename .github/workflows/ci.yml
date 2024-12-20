@@ -54,6 +54,7 @@ jobs:
       - name: Adjust permissions
         run: |
           sudo chown -R $USER:$USER ./ci/cache
+          ls -l ./ci/cache
                      
       - name: Save cache
         uses: actions/cache@v3
