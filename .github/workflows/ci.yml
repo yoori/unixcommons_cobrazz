@@ -42,20 +42,17 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
-        
+                                    
+      - name: Сreate env
+        run: | 
+          docker-compose run oracle_env_creation;
+          exit $?;
+        working-directory: ci
+      
       - name: Adjust permissions
         run: |
           sudo chmod -R o+rwx ./ci/cache
-                             
-      - name: Сreate env
-        run: | 
-          docker-compose run oracle_env_creation 
-          if [ $? -ne 0 ]; then
-            echo 'failed!';
-            exit 1;
-          fi;
-        working-directory: ci
-        
+      
       - name: Save cache
         uses: actions/cache/save@v3
         with:
@@ -75,18 +72,14 @@ jobs:
       - name: build
         working-directory: ci
         run: |
-          docker-compose run build || STATUS=$?
-          echo "STATUS=${STATUS:-0}" >> $GITHUB_ENV
+          docker-compose run build;
+          exit $?;
 
       - name: Save build
         uses: actions/cache/save@v3
+        if: always()
         with:
           path: |
            ./ci/build
           key: build-${{ runner.os }}-${{ github.run_id }}          
           restore-keys: build-${{ runner.os }}-
-          
-      - name: Check build status
-        run: | 
-            echo "Command status is: $STATUS"
-            exit $STATUS
