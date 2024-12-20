@@ -62,10 +62,10 @@ jobs:
           fi;
 
           # Change permissions for all files
-          find "$TARGET_DIR" -type f -exec chmod 644 {} \;
+          sudo find "$TARGET_DIR" -type f -exec chmod 644 {} \;
 
           # Change permissions for all directories
-          find "$TARGET_DIR" -type d -exec chmod 755 {} \;
+          sudo find "$TARGET_DIR" -type d -exec chmod 755 {} \;
 
           echo "Permissions successfully updated for all files and directories in $TARGET_DIR."
                      
