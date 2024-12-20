@@ -26,7 +26,6 @@ jobs:
         with:
           path: ci/cache
           key: cache-${{ runner.os }}-${{ github.run_id }} 
-          restore-keys: cache-${{ runner.os }}-
   
       - name: Making base cache
         run: |
