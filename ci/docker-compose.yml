@@ -66,8 +66,7 @@ services:
       fi;
 
       echo 'Step 7: Building the project...';
-      echo 'nproc is $(nproc)'
-      make -j'$(nproc)';
+      make -j$(nproc);
       if [ $$? -ne 0 ]; then
           echo 'Step 7 - build - failed!';
           exit 107;
