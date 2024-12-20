@@ -19,19 +19,11 @@ jobs:
         run: |
           sudo apt install docker-compose
           docker-compose --version
-          
-      - name: Restore cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-           ./ci/cache
-          key: cache-${{ runner.os }}-${{ hashFiles('**/lockfiles') }} 
-          restore-keys: cache-${{ runner.os }}-
   
       - name: Making base cache
         run: |
-          sudo mkdir cache
-          if [ $? -eq 0 ]; then
+          if [ ! -d cache ]; then
+            sudo mkdir cache
             docker run --name tmp_oracle oraclelinux:8.7
 
             sudo docker cp tmp_oracle:/usr ./cache/usr
@@ -47,8 +39,6 @@ jobs:
           else
             echo "cache folder presents. Skipping Docker cache creation."
           fi;
-          pwd
-          ls -l ./cache
         working-directory: ci
         
       - name: Adjust permissions
