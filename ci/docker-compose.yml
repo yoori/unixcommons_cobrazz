@@ -19,4 +19,6 @@ services:
     command: |
       sh -c "
       echo 'Step 1: Creating yum repository configuration...';
+      printf '[OL8_genius]\\nname=Genius repos \$$\releasever (\$$\basearch)\\nbaseurl=http://ui.new-programmatic.com/rpm_repo/\$$\basearch/\\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\\ngpgcheck=0\\nenabled=1\\n' > /etc/yum.repos.d/genius.repo;
+      
       "
