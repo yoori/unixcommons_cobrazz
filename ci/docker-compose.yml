@@ -19,5 +19,5 @@ services:
     command: |
       sh -c "
       echo 'Step 1: Creating yum repository configuration...';
-      echo '\$$\releasever' 
+      echo '$$releasever' 
       "
