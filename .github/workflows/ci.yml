@@ -9,7 +9,7 @@ on:
       - CI
 
 jobs:
-  Create env:
+  Create_env:
     runs-on: ubuntu-latest
 
     steps:
