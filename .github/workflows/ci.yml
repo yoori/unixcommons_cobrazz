@@ -20,7 +20,13 @@ jobs:
           sudo apt install docker-compose
           docker-compose --version
           
-
+      - name: Restore cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+           ./ci/cache
+          key: cache-${{ runner.os }}-${{ github.run_id }} 
+          restore-keys: cache-${{ runner.os }}-
   
       - name: Making base cache
         working-directory: ci
