@@ -25,7 +25,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: static-cache-key-unicomss-cache
+          key: ${{ runner.OS }}-env-${{ hashFiles('**/docker-compose.yml') }}
+          restore-keys: |
+            ${{ runner.OS }}-env-   
           
       - name: Making base cache
         run: |
@@ -64,14 +66,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ci/cache
-          key: static-cache-key-unicomss-cache
-            
+          key: ${{ runner.OS }}-env-${{ hashFiles('**/docker-compose.yml') }}
+          restore-keys: |
+            ${{ runner.OS }}-env-            
     
       - name: Restore build
         uses: actions/cache@v3
         with:
-          path: ci/cache
-          key: static-cache-key-unicomss-build
+          path: ci/build
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/docker-compose.yml') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-  
           
       - name: build
         run: |
@@ -81,5 +86,7 @@ jobs:
       - name: Save build
         uses: actions/cache@v3
         with:
-          path: ci/cache
-          key: static-cache-key-unicomss-build
+          path: ci/build
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/docker-compose.yml') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-  
