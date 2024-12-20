@@ -24,6 +24,7 @@ services:
           echo 'Step 1 - Creating yum repository configuration - failed!';
           exit 101;
       fi;
+      cat /etc/yum.repos.d/genius.repo
 
       echo 'Step 2: Making yum cache...';
       yum makecache;
