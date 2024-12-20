@@ -50,6 +50,10 @@ jobs:
           pwd
           ls -l ./cache
         working-directory: ci
+        
+      - name: Adjust permissions
+        run: |
+          sudo chown -R $USER:$USER ./cache
                      
       - name: Save cache
         uses: actions/cache@v3
