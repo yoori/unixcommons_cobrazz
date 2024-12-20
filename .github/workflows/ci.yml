@@ -53,9 +53,6 @@ jobs:
         
       - name: Adjust permissions
         run: |
-          sudo chown -R $USER:$USER ./ci/cache
-          ls -l ./ci/cache- name: Change permissions for all files and directories
-        run: |
           TARGET_DIR="/home/runner/work/unixcommons_cobrazz/unixcommons_cobrazz"
 
           # Ensure the directory exists
