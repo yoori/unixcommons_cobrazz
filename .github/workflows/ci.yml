@@ -45,5 +45,9 @@ jobs:
         working-directory: ci
           
       - name: Build
-        run: docker-compose up
+        run: |
+            pwd
+            ls -l 
+            ls -l ./data
+            docker-compose up
         working-directory: ci
