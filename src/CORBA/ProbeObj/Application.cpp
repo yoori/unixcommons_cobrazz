@@ -56,7 +56,6 @@ Application::run(int& argc, char** argv)
     CORBA::Exception)*/
 {
   int index = 1;
-asd
   if (index < argc && !strcmp(argv[index], "-tao-log"))
   {
     TAO_debug_level = 100;
