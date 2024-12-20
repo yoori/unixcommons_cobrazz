@@ -25,6 +25,8 @@ jobs:
           mkdir -p ./cache
           echo "Cache initialized" > ./cache/file.txt
           echo "Cache initialized" > ./cache/file1.txt
+          echo "Cache initialized" > ./cache/file2.txt
+
 
       - name: Save cache
         uses: actions/cache@v3
