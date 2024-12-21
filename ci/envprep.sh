@@ -1,4 +1,4 @@
-#/bin/bash
+#/bin/sh
 
 which docker > /dev/null 2>&1;
 if [ $? -ne 0 ]; then
@@ -8,6 +8,7 @@ fi;
 
 if [ ! -d cache ]; then
 	sudo mkdir cache
+
 	docker run --name tmp_oracle oraclelinux:8.7
 
 	sudo docker cp tmp_oracle:/usr ./cache/usr
