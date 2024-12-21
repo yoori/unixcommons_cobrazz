@@ -33,7 +33,7 @@ services:
       fi;
 
       echo 'Step 3: Disabling PostgreSQL module...';
-      yum list installed postgresql94-devel > /dev/null 2>&1;
+      which postgresql94-devel > /dev/null 2>&1;
       if [ $$? -ne 0 ]; then
         yum module disable postgresql -y;
         if [ $$? -ne 0 ]; then
