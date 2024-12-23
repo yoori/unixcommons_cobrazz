@@ -196,11 +196,6 @@ void Server::deactivate_object_()
     Aspect::SERVER);
 }
 
-void Server::wait_object_()
-{
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
-}
-
 void Server::add_channel_args()
 {
   namespace Utils = UServerUtils::Grpc::Common::Utils;

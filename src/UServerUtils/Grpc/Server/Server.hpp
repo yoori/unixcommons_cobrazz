@@ -109,8 +109,6 @@ private:
 
   void deactivate_object_() override;
 
-  void wait_object_() override;
-
   template <typename RpcHandlerType>
   void check_handler_compatibility(
     const std::string& service_full_name,

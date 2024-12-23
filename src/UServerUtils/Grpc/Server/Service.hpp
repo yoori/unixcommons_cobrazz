@@ -22,7 +22,7 @@ namespace UServerUtils::Grpc::Server
 class Service final :
   public RpcDelegate,
   public grpc::Service,
-  public Generics::ActiveObject,
+  public Generics::SimpleActiveObject,
   public ReferenceCounting::AtomicImpl
 {
 public:
@@ -43,14 +43,6 @@ public:
     const ServerCompletionQueues& server_completion_queues,
     CommonContext* common_context,
     Handlers&& handlers);
-
-  void activate_object() override;
-
-  void deactivate_object() override;
-
-  void wait_object() override;
-
-  bool active() override;
 
   void request_async_bidi_streaming(
     int index,
@@ -87,7 +79,9 @@ public:
     void* tag) override;
 
 protected:
-  ~Service() override;
+  ~Service() override = default;
+
+  void activate_object_() override;
 
 private:
   Logger_var logger_;
@@ -99,12 +93,6 @@ private:
   CommonContext_var common_context_;
 
   Handlers handlers_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  std::mutex state_mutex_;
-
-  std::condition_variable condition_variable_;
 };
 
 using Service_var = ReferenceCounting::SmartPtr<Service>;

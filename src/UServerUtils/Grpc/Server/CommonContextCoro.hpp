@@ -109,7 +109,7 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << ": not existing service for name="
+             << "not existing service for name="
              << method_name;
       throw Exception(stream);
     }
@@ -214,8 +214,6 @@ private:
 
   void deactivate_object_() override;
 
-  void wait_object_() override;
-
   template<class Request, class Response>
   auto add_coroutine(
     TaskProcessor& task_processor,
@@ -245,7 +243,6 @@ private:
             {
               Stream::Error stream;
               stream << FNS
-                     << ": "
                      << exc.what();
               logger->error(
                 stream.str(),
@@ -262,7 +259,7 @@ private:
             {
               Stream::Error stream;
               stream << FNS
-                     << ": Unknown error";
+                     << "Unknown error";
               logger->error(
                 stream.str(),
                 Aspect::COMMON_CONTEXT_CORO);

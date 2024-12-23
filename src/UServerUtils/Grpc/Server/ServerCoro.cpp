@@ -27,10 +27,7 @@ ServerCoro::ServerCoro(
   config_server.common_context = common_context_coro_;
   config_server.request_handler_type = RequestHandlerType::Move;
 
-  server_ = ReferenceCounting::SmartPtr<Server>(
-    new Server(
-      config_server,
-      logger_));
+  server_ = new Server(config_server, logger_);
 }
 
 const Common::SchedulerPtr& ServerCoro::scheduler() const noexcept
@@ -67,11 +64,6 @@ void ServerCoro::deactivate_object_()
 {
   server_->deactivate_object();
   server_->wait_object();
-}
-
-void ServerCoro::wait_object_()
-{
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
 }
 
 } // namespace UServerUtils::Grpc::Server

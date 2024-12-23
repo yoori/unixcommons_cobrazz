@@ -84,7 +84,7 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << ": producer is null";
+               << "producer is null";
         logger_->error(stream.str());
 
         return;
@@ -93,7 +93,7 @@ public:
       bool need_finish_on_idle = false;
       constexpr auto rpc_type = Traits::rpc_type;
       if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-                 || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+        || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
       {
         need_finish_on_idle = true;
       }
@@ -112,7 +112,7 @@ public:
 
           Stream::Error stream;
           stream << FNS
-                 << ": push is failed";
+                 << "push is failed";
           logger_->error(stream.str());
         }
         catch (...)
@@ -167,7 +167,7 @@ public:
 
             Stream::Error stream;
             stream << FNS
-                   << ": push is failed";
+                   << "push is failed";
             logger_->error(stream.str());
           }
           catch (...)
@@ -199,7 +199,7 @@ public:
   {
     constexpr auto rpc_type = Traits::rpc_type;
     if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-               || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+      || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
     {
       return;
     }
@@ -211,7 +211,7 @@ public:
 
       Stream::Error stream;
       stream << FNS
-             << ": prodicer is null";
+             << "prodicer is null";
       logger_->error(stream.str());
 
       return;
@@ -244,7 +244,7 @@ public:
   {
     constexpr auto rpc_type = Traits::rpc_type;
     if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-               || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+      || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
     {
       QueueData data(
         QueueData::Type::RpcFinish,
