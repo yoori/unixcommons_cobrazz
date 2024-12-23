@@ -250,6 +250,54 @@ main()
 {
   try
   {
+    {
+      const char SSP_UID[] = "UhzU9anbSj-rStwi9HI5EB";
+      std::cout << "To V1 with: " << SSP_UID << std::endl;
+      std::string ssp_id_buf;
+      uint8_t ssp_uid_marker;
+      std::string user_id_ss(SSP_UID);
+      String::StringManip::base64mod_decode(ssp_id_buf, user_id_ss, false, &ssp_uid_marker);
+
+      Generics::Uuid ssp_uid = Generics::Uuid(ssp_id_buf.begin(), ssp_id_buf.end());
+      std::cout << "From V1: " << ssp_uid.to_string() << std::endl;
+    }
+
+    {
+      const char NORM_UID[] = "UhzU9anbSj-rStwi9HI5EA";
+      std::cout << "To V2 with: " << NORM_UID << std::endl;
+      std::string ssp_id_buf;
+      uint8_t ssp_uid_marker;
+      std::string user_id_ss(NORM_UID);
+      String::StringManip::base64mod_decode(ssp_id_buf, user_id_ss, false, &ssp_uid_marker);
+
+      Generics::Uuid ssp_uid = Generics::Uuid(ssp_id_buf.begin(), ssp_id_buf.end());
+      std::cout << "From V2: " << ssp_uid.to_string() << std::endl;
+    }
+
+    {
+      const char NORM_UID2[] = "UhzU9anbSj-rStwi9HI5EA..";
+      std::cout << "To V3 with: " << NORM_UID2 << std::endl;
+      std::string ssp_id_buf;
+      uint8_t ssp_uid_marker;
+      std::string user_id_ss(NORM_UID2);
+      String::StringManip::base64mod_decode(ssp_id_buf, user_id_ss, false, &ssp_uid_marker);
+
+      Generics::Uuid ssp_uid = Generics::Uuid(ssp_id_buf.begin(), ssp_id_buf.end());
+      std::cout << "From V3: " << ssp_uid.to_string() << std::endl;
+    }
+
+    {
+      const char SSP_UID[] = "UhzU9anbSj-rStwi9HI5EB..";
+      std::cout << "To V4 with: " << SSP_UID << std::endl;
+      std::string ssp_id_buf;
+      uint8_t ssp_uid_marker;
+      std::string user_id_ss(SSP_UID);
+      String::StringManip::base64mod_decode(ssp_id_buf, user_id_ss, false, &ssp_uid_marker);
+
+      Generics::Uuid ssp_uid = Generics::Uuid(ssp_id_buf.begin(), ssp_id_buf.end());
+      std::cout << "From V4: " << ssp_uid.to_string() << std::endl;
+    }
+
     uuid_test();
     signed_uuid_test();
     return 0;
