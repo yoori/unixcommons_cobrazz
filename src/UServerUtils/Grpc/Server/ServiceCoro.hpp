@@ -72,8 +72,6 @@ struct DataQueueCoro final
   {
   }
 
-  ~DataQueueCoro() = default;
-
   DataQueueCoro(const DataQueueCoro&) = delete;
   DataQueueCoro(DataQueueCoro&&) = default;
   DataQueueCoro& operator=(const DataQueueCoro&) = delete;
@@ -86,10 +84,9 @@ struct DataQueueCoro final
 };
 
 template<class Request, class Response>
-using QueueCoro =
-  userver::concurrent::GenericQueue<
-    DataQueueCoro<Request, Response>,
-    userver::concurrent::impl::SimpleQueuePolicy<true, true>>;
+using QueueCoro = userver::concurrent::GenericQueue<
+  DataQueueCoro<Request, Response>,
+  userver::concurrent::impl::SimpleQueuePolicy<true, true>>;
 
 template<class Request, class Response>
 class Reader final
@@ -117,8 +114,6 @@ public:
         id_rpc(id_rpc)
     {
     }
-
-    ~Data() = default;
 
     ReadStatus status;
     WriterPtr writer;
@@ -160,7 +155,7 @@ public:
     {
       if (consumer_.Pop(data_queue, deadline))
       {
-        const typename DataQueue::Type type = data_queue.type;
+        const auto type = data_queue.type;
         switch (type)
         {
           case DataQueue::Type::Initialize:
@@ -194,9 +189,11 @@ public:
           default:
             Stream::Error stream;
             stream << FNS
-                   << ": Unknow type="
+                   << "Unknow type="
                    << static_cast<int>(type);
-            logger_->error(stream.str(), Aspect::SERVICE_CORO);
+            logger_->error(
+              stream.str(),
+              Aspect::SERVICE_CORO);
             return {
               ReadStatus::InternalError,
               std::move(data_queue.writer),
@@ -228,35 +225,24 @@ public:
     }
     catch (const std::exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::SERVICE_CORO);
-      }
-      catch (...)
-      {
-      }
-
-      return {ReadStatus::InternalError, {}, {}, Data::k_empty_id_rpc};
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(
+        stream.str(),
+        Aspect::SERVICE_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::SERVICE_CORO);
-      }
-      catch (...)
-      {
-      }
-
-      return {ReadStatus::InternalError, {}, {}, Data::k_empty_id_rpc};
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(
+        stream.str(),
+        Aspect::SERVICE_CORO);
     }
+
+    return {ReadStatus::InternalError, {}, {}, Data::k_empty_id_rpc};
   }
 
   bool is_finish() const noexcept
@@ -277,16 +263,20 @@ using ReaderPtr = std::unique_ptr<Reader<Request, Response>>;
 
 } // namespace Internal
 
-template <class Request,
-  class Response>
-class ServiceCoro :
-  public UServerUtils::Component
+template <class Request, class Response>
+class ServiceCoro :  public UServerUtils::Component
 {
 public:
   using Reader = Internal::Reader<Request, Response>;
 
 public:
   virtual void handle(const Reader& reader) = 0;
+
+  virtual DefaultErrorCreatorPtr<Response>
+  default_error_creator(const Request& /*request*/) noexcept
+  {
+    return {};
+  }
 
 protected:
   ServiceCoro() = default;
@@ -295,8 +285,8 @@ protected:
 };
 
 template<class Request, class Response>
-using ServiceCoro_var =
-  ReferenceCounting::SmartPtr<ServiceCoro<Request, Response>>;
+using ServiceCoro_var = ReferenceCounting::SmartPtr<
+  ServiceCoro<Request, Response>>;
 
 } // namespace UServerUtils::Grpc::Server
 

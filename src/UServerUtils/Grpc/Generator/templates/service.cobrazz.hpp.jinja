@@ -15,6 +15,7 @@
 #include <ReferenceCounting/SmartPtr.hpp>
 #include <UServerUtils/Grpc/Common/TypeTraits.hpp>
 #include <UServerUtils/Grpc/Server/CommonContextCoro.hpp>
+#include <UServerUtils/Grpc/Server/DefaultErrorCreator.hpp>
 #include <UServerUtils/Grpc/Server/RpcHandlerImpl.hpp>
 #include <UServerUtils/Grpc/Server/ServiceCoro.hpp>
 
@@ -67,6 +68,10 @@ public:
   using QueueData = typename Queue::ValueType;
   using Producer = typename Queue::Producer;
   using ProducerPtr = std::unique_ptr<Producer>;
+  using DefaultErrorCreatorPtr =
+    UServerUtils::Grpc::Server::DefaultErrorCreatorPtr<Response>;
+  using FactoryDefaultErrorCreatorPtr =
+    UServerUtils::Grpc::Server::FactoryDefaultErrorCreatorPtr<Request, Response>;
 
 public:
   {{service.name}}_{{method.name}}_Coro_Handler() = default;
@@ -84,24 +89,17 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << ": producer is null";
+               << "producer is null";
         logger_->error(stream.str());
 
         return;
       }
 
-      bool need_finish_on_idle = false;
-      constexpr auto rpc_type = Traits::rpc_type;
-      if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-                 || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
-      {
-        need_finish_on_idle = true;
-      }
-
+      auto writer = get_writer(*request);
       QueueData data(
         QueueData::Type::Read,
         std::move(request),
-        get_writer(need_finish_on_idle),
+        std::move(writer),
         reinterpret_cast<std::uintptr_t>(this));
       if (!producer_->PushNoblock(std::move(data)))
       {
@@ -112,7 +110,7 @@ public:
 
           Stream::Error stream;
           stream << FNS
-                 << ": push is failed";
+                 << "push is failed";
           logger_->error(stream.str());
         }
         catch (...)
@@ -147,6 +145,8 @@ public:
         UServerUtils::Grpc::Server::CommonContextCoro>();
       logger_ = context.get_logger();
       const std::string_view method_name = Traits::method_name();
+      factory_default_error_creator_ = context.factory_default_error_creator<
+        Request, Response>(method_name);
       producer_ = context.get_producer<Request, Response>(method_name);
 
       constexpr auto rpc_type = Traits::rpc_type;
@@ -167,7 +167,7 @@ public:
 
             Stream::Error stream;
             stream << FNS
-                   << ": push is failed";
+                   << "push is failed";
             logger_->error(stream.str());
           }
           catch (...)
@@ -185,7 +185,6 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << ": "
                << exc.what();
         logger_->error(stream.str());
       }
@@ -199,7 +198,7 @@ public:
   {
     constexpr auto rpc_type = Traits::rpc_type;
     if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-               || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+      || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
     {
       return;
     }
@@ -211,7 +210,7 @@ public:
 
       Stream::Error stream;
       stream << FNS
-             << ": prodicer is null";
+             << "prodicer is null";
       logger_->error(stream.str());
 
       return;
@@ -220,7 +219,7 @@ public:
     QueueData data(
       QueueData::Type::ReadsDone,
       {},
-      get_writer(),
+      get_writer(grpc::Status::CANCELLED),
       reinterpret_cast<std::uintptr_t>(this));
     if (!producer_->PushNoblock(std::move(data)))
     {
@@ -231,7 +230,7 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << ": push is failed";
+               << "push is failed";
         logger_->error(stream.str());
       }
       catch (...)
@@ -244,7 +243,7 @@ public:
   {
     constexpr auto rpc_type = Traits::rpc_type;
     if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-               || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+      || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
     {
       QueueData data(
         QueueData::Type::RpcFinish,
@@ -257,7 +256,7 @@ public:
         {
           Stream::Error stream;
           stream << FNS
-                 << ": push is failed";
+                 << "push is failed";
           logger_->error(stream.str());
         }
         catch (...)
@@ -269,8 +268,16 @@ public:
     producer_.reset();
   }
 
+  DefaultErrorCreatorPtr default_error_creator(
+    const Request& request) noexcept override
+  {
+    return factory_default_error_creator_->create(request);
+  }
+
 private:
   Logger_var logger_;
+
+  FactoryDefaultErrorCreatorPtr factory_default_error_creator_;
 
   std::unique_ptr<Producer> producer_;
 };
@@ -286,12 +293,12 @@ public:
   using Response = typename Handler::Response;
   using ReadStatus = UServerUtils::Grpc::Server::ReadStatus;
   using WriterStatus = UServerUtils::Grpc::Server::WriterStatus;
-
-public:
-  ~{{service.name}}_{{method.name}}_Service() override = default;
+  using DefaultErrorCreatorPtr = UServerUtils::Grpc::Server::DefaultErrorCreatorPtr<Response>;
 
 protected:
   {{service.name}}_{{method.name}}_Service() = default;
+
+  ~{{service.name}}_{{method.name}}_Service() override = default;
 };
 
 using {{service.name}}_{{method.name}}_Service_var =

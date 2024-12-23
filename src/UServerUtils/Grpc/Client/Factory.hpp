@@ -386,7 +386,9 @@ private:
       std::lock_guard lock(mutex_clients_);
       auto it = clients_.find(client_id);
       if (it == clients_.end())
+      {
         return;
+      }
 
       const auto& client_info = it->second;
       const auto index = client_info.index;

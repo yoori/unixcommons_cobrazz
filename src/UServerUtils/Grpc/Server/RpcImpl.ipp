@@ -88,7 +88,7 @@ inline void RpcImpl::initialize()
   {
     Stream::Error stream;
     stream << FNS
-           << ": messageFactory is null";
+           << "messageFactory is null";
     throw Exception(stream);
   }
 
@@ -98,7 +98,7 @@ inline void RpcImpl::initialize()
   {
     Stream::Error stream;
     stream << FNS
-           << ": request_descriptor not supported for request of method = "
+           << "request_descriptor not supported for request of method = "
            << rpc_handler_info_.method_full_name;
     throw Exception(stream);
   }
@@ -198,8 +198,11 @@ inline void RpcImpl::on_event_queue(
   const bool ok,
   PendingQueueData&& data) noexcept
 {
-  if (rpc_state_ == RpcState::Stopped)
+  if (rpc_state_ == RpcState::Stopped
+    || rpc_state_ == RpcState::Closed)
+  {
     return;
+  }
 
   try
   {
@@ -219,7 +222,9 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
     connection_event_.set_pending(false);
 
     if (rpc_state_ == RpcState::Stopped)
+    {
       return;
+    }
 
     // Server-side RPC request: ok indicates that the RPC has indeed
     // been started. If it is false, the server has been Shutdown
@@ -240,7 +245,7 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
       {
         Stream::Error stream;
         stream << FNS
-               << ": Logic error. Handler must be null";
+               << "Logic error. Handler must be null";
         logger_->emergency(stream.str(), Aspect::RPCIMPL);
       }
       catch (...)
@@ -262,7 +267,7 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
       {
         Stream::Error stream;
         stream << FNS
-               << ": initialize() failed, reason: "
+               << "initialize failed, reason: "
                << exc.what();
         logger_->error(stream.str(), Aspect::RPCIMPL);
       }
@@ -289,7 +294,7 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": creation new rpc is failed. Reason: "
+             << "Creation new rpc is failed. Reason: "
              << exc.what();
       throw Exception(stream);
     }
@@ -300,7 +305,7 @@ inline void RpcImpl::on_connection(const bool ok) noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": on_connection is failed. Reason: "
+             << "on_connection is failed. Reason: "
              << exc.what();
       logger_->emergency(stream.str(), Aspect::RPCIMPL);
     }
@@ -315,7 +320,9 @@ inline void RpcImpl::on_read(const bool ok) noexcept
   read_event_.set_pending(false);
 
   if (rpc_state_ == RpcState::Stopped)
+  {
     return;
+  }
 
   // ok indicates whether there is a valid message
   // that got read. If not, you know that there are certainly no more
@@ -339,7 +346,7 @@ inline void RpcImpl::on_read(const bool ok) noexcept
       {
         Stream::Error stream;
         stream << FNS
-               << ": on_request is failed. Reason: "
+               << "on_request is failed. Reason: "
                << exc.what();
         logger_->error(stream.str(), Aspect::RPCIMPL);
       }
@@ -349,7 +356,6 @@ inline void RpcImpl::on_read(const bool ok) noexcept
     }
 
     read_if_needed();
-    return;
   }
   else
   {
@@ -363,7 +369,7 @@ inline void RpcImpl::on_read(const bool ok) noexcept
       {
         Stream::Error stream;
         stream << FNS
-               << ": on_reads_done is failed. Reason: "
+               << "on_reads_done is failed. Reason: "
                << exc.what();
         logger_->error(stream.str(), Aspect::RPCIMPL);
       }
@@ -379,7 +385,9 @@ inline void RpcImpl::on_write(const bool ok) noexcept
   write_event_.set_pending(false);
 
   if (rpc_state_ == RpcState::Stopped)
+  {
     return;
+  }
 
   // ok means that the data/metadata/status/etc is going to go to the
   // wire. If it is false, it not going to the wire because the call
@@ -407,7 +415,9 @@ inline void RpcImpl::on_done(
 {
   done_event_.set_pending(false);
   if (rpc_state_ == RpcState::Stopped)
+  {
     return;
+  }
 
   rpc_state_ = RpcState::Closed;
 
@@ -421,7 +431,7 @@ inline void RpcImpl::on_done(
     {
       Stream::Error stream;
       stream << FNS
-             << ": on_finish is failed. Reason: "
+             << "on_finish is failed. Reason: "
              << exc.what();
       logger_->error(stream.str(), Aspect::RPCIMPL);
     }
@@ -435,7 +445,9 @@ inline void RpcImpl::read_if_needed() noexcept
 {
   if (rpc_state_ == RpcState::Closed
    || rpc_state_ == RpcState::Stopped)
+  {
     return;
+  }
 
   if (rpc_handler_info_.request_handler_type == RequestHandlerType::Move &&
     (rpc_handler_info_.rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING ||
@@ -479,7 +491,7 @@ inline void RpcImpl::read_if_needed() noexcept
         {
           Stream::Error stream;
           stream << FNS
-                 << ": read_if_needed :"
+                 << "read_if_needed :"
                  << exc.what();
           logger_->error(stream.str(), Aspect::RPCIMPL);
         }
@@ -501,7 +513,7 @@ inline void RpcImpl::read_if_needed() noexcept
         {
           Stream::Error stream;
           stream << FNS
-                 << ": read_if_needed :"
+                 << "read_if_needed :"
                  << exc.what();
           logger_->error(stream.str(), Aspect::RPCIMPL);
         }
@@ -517,7 +529,9 @@ inline void RpcImpl::read_if_needed() noexcept
 inline void RpcImpl::try_close() noexcept
 {
   if (rpc_state_ != RpcState::Closed)
+  {
     return;
+  }
 
   if (read_event_.is_pending()
    || write_event_.is_pending()
@@ -539,7 +553,7 @@ inline bool RpcImpl::write(MessagePtr&& message) noexcept
       pending_queue_.emplace(
         PendingQueueType::Write,
         std::move(message),
-        StatusOptional{});
+        std::nullopt);
       execute_queue();
     }
     else
@@ -549,7 +563,7 @@ inline bool RpcImpl::write(MessagePtr&& message) noexcept
         PendingQueueData(
           PendingQueueType::Write,
           std::move(message),
-          StatusOptional{}));
+          std::nullopt));
       auto* event_ptr = event.release();
       const bool is_success = notifier_.Notify(
         server_completion_queue_.get(),
@@ -569,7 +583,6 @@ inline bool RpcImpl::write(MessagePtr&& message) noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::RPCIMPL);
     }
@@ -589,7 +602,7 @@ inline bool RpcImpl::finish(grpc::Status&& status) noexcept
     {
       pending_queue_.emplace(
         PendingQueueType::Finish,
-        MessagePtr{},
+        nullptr,
         std::move(status));
       execute_queue();
     }
@@ -599,7 +612,7 @@ inline bool RpcImpl::finish(grpc::Status&& status) noexcept
         weak_from_this(),
         PendingQueueData(
           PendingQueueType::Finish,
-          MessagePtr{},
+          nullptr,
           std::move(status)));
       auto* event_ptr = event.release();
       const bool is_success = notifier_.Notify(
@@ -620,7 +633,6 @@ inline bool RpcImpl::finish(grpc::Status&& status) noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::RPCIMPL);
     }
@@ -676,7 +688,6 @@ inline bool RpcImpl::stop() noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::RPCIMPL);
     }
@@ -711,7 +722,9 @@ inline void RpcImpl::execute_queue() noexcept
     }
 
     if (pending_queue_.empty())
+    {
       return;
+    }
 
     auto data = std::move(pending_queue_.front());
     pending_queue_.pop();
@@ -728,7 +741,9 @@ inline void RpcImpl::execute_queue() noexcept
     }
 
     if (is_finished_)
+    {
       return;
+    }
 
     if (rpc_state_ == RpcState::Idle)
     {
@@ -752,7 +767,6 @@ inline void RpcImpl::execute_queue() noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::RPCIMPL);
     }
@@ -785,7 +799,7 @@ inline void RpcImpl::execute_queue_stream(
         default:
           Stream::Error stream;
           stream << FNS
-                 << ": not correct type in Queue::Type::Write";
+                 << "Not correct type in Queue::Type::Write";
           logger_->emergency(stream.str(), Aspect::RPCIMPL);
           return;
       }
@@ -797,7 +811,7 @@ inline void RpcImpl::execute_queue_stream(
       {
         Stream::Error stream;
         stream << FNS
-               << ": status is null. Logic error";
+               << "status is null. Logic error";
         logger_->emergency(stream.str(), Aspect::RPCIMPL);
         return;
       }
@@ -815,7 +829,7 @@ inline void RpcImpl::execute_queue_stream(
         default:
           Stream::Error stream;
           stream << FNS
-                 << ": not correct type in Queue::Type::Finish";
+                 << "Not correct type in Queue::Type::Finish";
           logger_->emergency(stream.str(), Aspect::RPCIMPL);
           return;
       }
@@ -825,7 +839,7 @@ inline void RpcImpl::execute_queue_stream(
     {
       Stream::Error stream;
       stream << FNS
-             << ": Not correct type";
+             << "Not correct type";
       logger_->emergency(stream.str(), Aspect::RPCIMPL);
     }
   }
@@ -855,7 +869,7 @@ inline void RpcImpl::execute_unique(
       default:
         Stream::Error stream;
         stream << FNS
-               << ": Not correct type";
+               << "Not correct type";
         logger_->emergency(stream.str(), Aspect::RPCIMPL);
         return;
     }
@@ -877,7 +891,7 @@ inline void RpcImpl::execute_unique(
       default:
         Stream::Error stream;
         stream << FNS
-               << ": Not correct type";
+               << "Not correct type";
         logger_->emergency(stream.str(), Aspect::RPCIMPL);
         return;
     }

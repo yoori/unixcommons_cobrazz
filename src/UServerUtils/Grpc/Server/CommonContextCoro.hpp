@@ -15,6 +15,7 @@
 // THIS
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Server/CommonContext.hpp>
+#include <UServerUtils/Grpc/Server/DefaultErrorCreator.hpp>
 #include <UServerUtils/Grpc/Server/ServiceCoro.hpp>
 
 namespace UServerUtils::Grpc::Server
@@ -26,6 +27,29 @@ namespace Aspect
 extern const char* COMMON_CONTEXT_CORO;
 
 } // namespace Aspect
+
+template<class Request, class Response>
+class CoroFactoryDefaultErrorCreator final
+  : public FactoryDefaultErrorCreator<Request, Response>
+{
+public:
+  CoroFactoryDefaultErrorCreator(
+    ServiceCoro<Request, Response>* service_coro)
+    : service_coro_(ReferenceCounting::add_ref(service_coro))
+  {
+  }
+
+  ~CoroFactoryDefaultErrorCreator() override = default;
+
+  DefaultErrorCreatorPtr<Response> create(
+    const Request& request) noexcept override
+  {
+    return service_coro_->default_error_creator(request);
+  }
+
+private:
+  ServiceCoro_var<Request, Response> service_coro_;
+};
 
 class CommonContextCoro final :
   public CommonContext,
@@ -51,13 +75,6 @@ private:
         task_processor(task_processor)
     {
     }
-
-    ~ServiceInfo() = default;
-
-    ServiceInfo(const ServiceInfo&) = default;
-    ServiceInfo(ServiceInfo&&) = default;
-    ServiceInfo& operator=(const ServiceInfo&) = default;
-    ServiceInfo& operator=(ServiceInfo&&) = default;
 
     std::any service;
     grpc::internal::RpcMethod::RpcType rpc_type;
@@ -86,6 +103,29 @@ public:
   }
 
   template<class Request, class Response>
+  FactoryDefaultErrorCreatorPtr<Request, Response> factory_default_error_creator(
+    const MethodName method_name)
+  {
+    auto it_service = services_.find(method_name);
+    if (it_service == services_.end())
+    {
+      Stream::Error stream;
+      stream << FNS
+             << "not existing service for name="
+             << method_name;
+      throw Exception(stream);
+    }
+
+    const auto& service_info = it_service->second;
+    const auto& service = std::any_cast<
+      ServiceCoro_var<Request, Response>>(
+        service_info.service);
+
+    return std::make_unique<
+      CoroFactoryDefaultErrorCreator<Request, Response>>(service.in());
+  }
+
+  template<class Request, class Response>
   auto get_producer(const MethodName method_name)
   {
     using Queue = Internal::QueueCoro<Request, Response>;
@@ -109,13 +149,13 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << ": not existing service for name="
+             << "not existing service for name="
              << method_name;
       throw Exception(stream);
     }
     const auto& service_info = it_service->second;
-    const auto service =
-      std::any_cast<ServiceCoro_var<Request, Response>>(
+    const auto& service = std::any_cast<
+      ServiceCoro_var<Request, Response>>(
         service_info.service);
     auto& task_processor = service_info.task_processor;
 
@@ -214,8 +254,6 @@ private:
 
   void deactivate_object_() override;
 
-  void wait_object_() override;
-
   template<class Request, class Response>
   auto add_coroutine(
     TaskProcessor& task_processor,
@@ -245,7 +283,6 @@ private:
             {
               Stream::Error stream;
               stream << FNS
-                     << ": "
                      << exc.what();
               logger->error(
                 stream.str(),
@@ -262,7 +299,7 @@ private:
             {
               Stream::Error stream;
               stream << FNS
-                     << ": Unknown error";
+                     << "Unknown error";
               logger->error(
                 stream.str(),
                 Aspect::COMMON_CONTEXT_CORO);

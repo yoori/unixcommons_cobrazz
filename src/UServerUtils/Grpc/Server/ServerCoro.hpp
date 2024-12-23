@@ -71,7 +71,6 @@ public:
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
-  using MethodName = std::string;
 
 public:
   ServerCoro(
@@ -123,7 +122,7 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << ": common_context_coro is null";
+             << "common_context_coro is null";
       throw Exception(stream);
     }
 
@@ -144,8 +143,6 @@ private:
   void activate_object_() override;
 
   void deactivate_object_() override;
-
-  void wait_object_() override;
 
 private:
   Logger_var logger_;
