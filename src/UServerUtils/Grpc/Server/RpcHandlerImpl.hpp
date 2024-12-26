@@ -9,6 +9,7 @@
 #include <eh/Exception.hpp>
 #include <Generics/Uncopyable.hpp>
 #include <UServerUtils/Grpc/Common/RpcServiceMethodTraits.hpp>
+#include <UServerUtils/Grpc/Server/DefaultErrorCreator.hpp>
 #include <UServerUtils/Grpc/Server/RpcHandler.hpp>
 #include <UServerUtils/Grpc/Server/Rpc.hpp>
 
@@ -70,22 +71,29 @@ private:
   public:
     explicit WriterImpl(
       RpcWeakPtr&& rpc,
-      const bool need_finish_on_idle = false)
+      DefaultErrorCreatorPtr<Response>&& default_error_creator,
+      const std::optional<grpc::Status>& finish_status = {})
       : rpc_(std::move(rpc)),
-        need_finish_on_idle_(need_finish_on_idle)
+        default_error_creator_(std::move(default_error_creator)),
+        finish_status_(std::move(finish_status))
     {
     }
 
     ~WriterImpl() override
     {
-      if (need_finish_on_idle_)
+      const int count = counter_.fetch_sub(
+        1,
+        std::memory_order_relaxed);
+      if (count == 0)
       {
-        const int count = counter_.fetch_sub(
-          1,
-          std::memory_order_relaxed);
-        if (count == 0)
+        if (default_error_creator_)
         {
-          grpc::Status status(grpc::Status::CANCELLED);
+          auto error = default_error_creator_->create();
+          write(std::move(error));
+        }
+        else if (finish_status_)
+        {
+          grpc::Status status(*finish_status_);
           finish(std::move(status));
         }
       }
@@ -97,11 +105,7 @@ private:
       {
         if (rpc->write(std::move(response)))
         {
-          if (need_finish_on_idle_)
-          {
-            counter_.fetch_add(1, std::memory_order_relaxed);
-          }
-
+          counter_.fetch_add(1, std::memory_order_relaxed);
           return WriterStatus::Ok;
         }
         else
@@ -121,11 +125,7 @@ private:
       {
         if (rpc->finish(grpc::Status(grpc::Status::OK)))
         {
-          if (need_finish_on_idle_)
-          {
-            counter_.fetch_add(1, std::memory_order_relaxed);
-          }
-
+          counter_.fetch_add(1, std::memory_order_relaxed);
           return WriterStatus::Ok;
         }
         else
@@ -145,11 +145,7 @@ private:
       {
         if (rpc->finish(std::move(status)))
         {
-          if (need_finish_on_idle_)
-          {
-            counter_.fetch_add(1, std::memory_order_relaxed);
-          }
-
+          counter_.fetch_add(1, std::memory_order_relaxed);
           return WriterStatus::Ok;
         }
         else
@@ -168,7 +164,9 @@ private:
 
     const RpcWeakPtr rpc_;
 
-    const bool need_finish_on_idle_ = false;
+    const DefaultErrorCreatorPtr<Response> default_error_creator_;
+
+    std::optional<grpc::Status> finish_status_;
 
     mutable Counter counter_{0};
   };
@@ -180,16 +178,9 @@ public:
 
   bool send(ResponsePtr&& response) noexcept
   {
-    try
-    {
-      using Message = google::protobuf::Message;
-      std::unique_ptr<Message> message(response.release());
-      return rpc_->write(std::move(message));
-    }
-    catch (...)
-    {
-      return false;
-    }
+    using Message = google::protobuf::Message;
+    std::unique_ptr<Message> message(response.release());
+    return rpc_->write(std::move(message));
   }
 
   bool finish(grpc::Status&& status) noexcept
@@ -197,17 +188,52 @@ public:
     return rpc_->finish(std::move(status));
   }
 
-  std::unique_ptr<Writer<Response>> get_writer(
-    const bool need_finish_on_idle = false)
+  /**
+   * If there was no recording, then we won’t give anything
+   */
+  std::unique_ptr<Writer<Response>> get_writer()
   {
     return std::make_unique<WriterImpl>(
       rpc_->get_weak_ptr(),
-      need_finish_on_idle);
+      DefaultErrorCreatorPtr<Response>{},
+      std::nullopt);
   }
 
-  virtual void on_request(const Request& /*request*/) {}
+  /**
+   * If there was no record, then we send an error by default
+   */
+  std::unique_ptr<Writer<Response>> get_writer(const Request& request)
+  {
+    return std::make_unique<WriterImpl>(
+      rpc_->get_weak_ptr(),
+      default_error_creator(request),
+      std::nullopt);
+  }
 
-  virtual void on_request(RequestPtr&& /*request*/) {}
+  /**
+   * If there was no recording, then we send finish with the status
+   */
+  std::unique_ptr<Writer<Response>> get_writer(const grpc::Status& status)
+  {
+    return std::make_unique<WriterImpl>(
+      rpc_->get_weak_ptr(),
+      DefaultErrorCreatorPtr<Response>{},
+      std::move(status));
+  }
+
+  virtual DefaultErrorCreatorPtr<Response>
+  default_error_creator(const Request& /*request*/) noexcept
+  {
+    return {};
+  }
+
+  virtual void on_request(const Request& /*request*/)
+  {
+  }
+
+  virtual void on_request(RequestPtr&& /*request*/)
+  {
+  }
 
   template<class T>
   T& common_context()

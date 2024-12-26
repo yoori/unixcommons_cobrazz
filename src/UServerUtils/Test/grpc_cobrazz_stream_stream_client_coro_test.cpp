@@ -543,3 +543,170 @@ TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NotExistingServer, NotExistingServ
   manager_->deactivate_object();
   manager_->wait_object();
 }
+
+namespace
+{
+
+const std::string kResponseNoWrite = "kResponseNoWrite";
+
+class DefaultErrorCreator : public Grpc::Server::DefaultErrorCreator<test_coro::Response>
+{
+public:
+  DefaultErrorCreator(const test_coro::Request& request)
+  {
+    id_request_grpc_ = request.id_request_grpc();
+  }
+
+  ~DefaultErrorCreator() override = default;
+
+  std::unique_ptr<test_coro::Response> create() noexcept override
+  {
+    auto reply = std::make_unique<test_coro::Response>();
+    reply->set_id_request_grpc(id_request_grpc_);
+    reply->set_message(kResponseNoWrite);
+    return reply;
+  }
+
+private:
+  std::uint32_t id_request_grpc_;
+};
+
+class TestCoroService_Handler_NoWrite final
+  : public test_coro::TestCoroService_Handler_Service,
+    public ReferenceCounting::AtomicImpl
+{
+public:
+  TestCoroService_Handler_NoWrite() = default;
+
+  ~TestCoroService_Handler_NoWrite() override = default;
+
+  void handle(const Reader& reader) override
+  {
+    while (true)
+    {
+      const auto data = reader.read();
+      const auto status = data.status;
+      if (status == ReadStatus::Finish)
+      {
+        break;
+      }
+    }
+  }
+
+  DefaultErrorCreatorPtr default_error_creator(const Request& request) noexcept override
+  {
+    return std::make_unique<DefaultErrorCreator>(request);
+  }
+};
+
+using TestCoroService_Handler_NoWrite_var =
+  ReferenceCounting::SmartPtr<TestCoroService_Handler_NoWrite>;
+
+class GrpcFixtureStreamStreamCoro_ClientTest_NoWrite
+  : public testing::Test
+{
+public:
+  void SetUp() override
+  {
+    logger_ = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::CRITICAL));
+
+    CoroPoolConfig coro_pool_config;
+    EventThreadPoolConfig event_thread_pool_config;
+    TaskProcessorConfig main_task_processor_config;
+    main_task_processor_config.name = "main_task_processor";
+    main_task_processor_config.worker_threads = 3;
+    main_task_processor_config.thread_name = "main_tskpr";
+
+    auto task_processor_container_builder =
+      std::make_unique<TaskProcessorContainerBuilder>(
+        logger_.in(),
+        coro_pool_config,
+        event_thread_pool_config,
+        main_task_processor_config);
+
+    auto init_func = [logger = logger_, port = port_] (
+      TaskProcessorContainer& task_processor_container) {
+      auto& main_task_processor = task_processor_container.get_main_task_processor();
+      auto components_builder = std::make_unique<ComponentsBuilder>();
+
+      Grpc::Server::ConfigCoro config;
+      config.num_threads = 3;
+      config.port = port;
+      config.max_size_queue = {};
+
+      auto grpc_builder = std::make_unique<Grpc::Server::ServerBuilder>(
+        config,
+        logger.in());
+      auto service = TestCoroService_Handler_NoWrite_var(
+        new TestCoroService_Handler_NoWrite);
+      grpc_builder->add_service(
+        service.in(),
+        main_task_processor);
+
+      components_builder->add_grpc_cobrazz_server(
+        std::move(grpc_builder));
+
+      return components_builder;
+    };
+
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
+  }
+
+  void TearDown() override
+  {
+  }
+
+  std::size_t port_ = 7779;
+
+  Logging::Logger_var logger_;
+
+  Manager_var manager_;
+};
+
+} // namespace
+
+TEST_F(GrpcFixtureStreamStreamCoro_ClientTest_NoWrite, NoWrite)
+{
+  using ConfigPoolCoro = UServerUtils::Grpc::Client::ConfigPoolCoro;
+  using PoolClientFactory = UServerUtils::Grpc::Client::PoolClientFactory;
+
+  manager_->activate_object();
+
+  auto& task_processor = manager_->get_main_task_processor();
+
+  ConfigPoolCoro config;
+  config.endpoint = "127.0.0.1:" + std::to_string(port_);
+  config.number_async_client = 17;
+  config.number_threads = 7;
+
+  PoolClientFactory pool_factory(
+    logger_.in(),
+    config);
+
+  auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
+    task_processor);
+
+  const std::size_t number_request = 100;
+  for (std::size_t i = 1; i <= number_request; ++i)
+  {
+    auto request = std::make_unique<test_coro::Request>();
+    const auto message = kMessageRequest + std::to_string(i);
+    request->set_message(message);
+    auto result = pool->write(std::move(request), 100);
+    EXPECT_EQ(result.status, UServerUtils::Grpc::Client::Status::Ok);
+    if (result.status == UServerUtils::Grpc::Client::Status::Ok)
+    {
+      EXPECT_EQ(result.response->message(), kResponseNoWrite);
+    }
+  }
+  pool.reset();
+
+  manager_->deactivate_object();
+  manager_->wait_object();
+}

@@ -27,17 +27,19 @@ CommonContextCoro::~CommonContextCoro()
   }
   catch (const eh::Exception& exc)
   {
-    std::cerr << FNS << "Exception: " << exc.what();
+    std::cerr << FNS
+              << "Exception: "
+              << exc.what();
   }
   catch (...)
   {
-    std::cerr << FNS << "Exception: Unknown error";
+    std::cerr << FNS
+              << "Exception: Unknown error";
   }
 }
 
 void CommonContextCoro::activate_object_()
 {
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
 }
 
 void CommonContextCoro::deactivate_object_()
@@ -53,11 +55,6 @@ void CommonContextCoro::deactivate_object_()
     }
     task.Get();
   }
-}
-
-void CommonContextCoro::wait_object_()
-{
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
 }
 
 } // namespace UServerUtils::Grpc::Server

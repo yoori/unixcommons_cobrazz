@@ -16,7 +16,7 @@ namespace UServerUtils::Grpc::Server
 
 class RpcPoolImpl final
   : public RpcPool,
-    public Generics::ActiveObject,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
 {
 public:
@@ -32,27 +32,19 @@ public:
 
   void remove(Rpc* rpc) noexcept override;
 
-  void activate_object() override;
-
-  void deactivate_object() override;
-
-  void wait_object() override;
-
-  bool active() override;
-
 protected:
   ~RpcPoolImpl() override;
+
+  void deactivate_object_() override;
+
+  void wait_object_() override;
 
 private:
   Logger_var logger_;
 
   Rpcs rpcs_;
 
-  std::mutex mutex_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  std::condition_variable condition_variable_;
+  mutable std::mutex mutex_;
 };
 
 using RpcPoolImpl_var = ReferenceCounting::SmartPtr<RpcPoolImpl>;

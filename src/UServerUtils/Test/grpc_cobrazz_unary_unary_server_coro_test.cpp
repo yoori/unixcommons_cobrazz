@@ -32,6 +32,29 @@ const std::string kStatusCodeFinishErrorDetails = "error_details";
 
 std::atomic<int> kCountCallObject{0};
 
+class DefaultErrorCreator final : public Grpc::Server::DefaultErrorCreator<test::Reply>
+{
+public:
+  DefaultErrorCreator() = default;
+
+  ~DefaultErrorCreator() override = default;
+
+  std::unique_ptr<test::Reply> create() noexcept override
+  {
+    try
+    {
+      auto reply = std::make_unique<test::Reply>();
+      reply->set_message(kRequestException);
+      return reply;
+    }
+    catch (...)
+    {
+    }
+
+    return {};
+  }
+};
+
 class UnaryUnaryCoroPerRpcService final
   : public test::TestService_HandlerUnaryUnary_Service,
     public ReferenceCounting::AtomicImpl
@@ -117,6 +140,11 @@ public:
       EXPECT_TRUE(false);
     }
   }
+
+  DefaultErrorCreatorPtr default_error_creator(const test::Request&) noexcept override
+  {
+    return std::make_unique<DefaultErrorCreator>();
+  }
 };
 
 using UnaryUnaryCoroPerRpcService_var = ReferenceCounting::SmartPtr<UnaryUnaryCoroPerRpcService>;
@@ -159,6 +187,14 @@ public:
         EXPECT_EQ(reply.message(), data);
       }
     }
+    else if (data == kRequestException)
+    {
+      EXPECT_TRUE(status.ok());
+      if (status.ok())
+      {
+        EXPECT_EQ(reply.message(), kRequestException);
+      }
+    }
     else if (data == kRequestFinish)
     {
       EXPECT_FALSE(status.ok());
@@ -166,10 +202,9 @@ public:
       EXPECT_EQ(status.error_message(), kStatusCodeFinishErrorMessage);
       EXPECT_EQ(status.error_details(), kStatusCodeFinishErrorDetails);
     }
-    else if (data == kRequestException)
+    else
     {
-      EXPECT_FALSE(status.ok());
-      EXPECT_EQ(status.error_code(), grpc::StatusCode::CANCELLED);
+      EXPECT_TRUE(false);
     }
   }
 
@@ -229,12 +264,10 @@ public:
       return components_builder;
     };
 
-    manager_ =
-      Manager_var(
-        new Manager(
-          std::move(task_processor_container_builder),
-          std::move(init_func),
-          logger_.in()));
+    manager_ = new Manager(
+      std::move(task_processor_container_builder),
+      std::move(init_func),
+      logger_.in());
   }
 
   void TearDown() override
@@ -254,10 +287,9 @@ TEST_F(GrpcFixtureUnaryUnaryCoroPerRpc, CoroPerRpc)
 {
   manager_->activate_object();
 
-  auto channel =
-    grpc::CreateChannel(
-      "127.0.0.1:" + std::to_string(port_),
-      grpc::InsecureChannelCredentials());
+  auto channel = grpc::CreateChannel(
+    "127.0.0.1:" + std::to_string(port_),
+    grpc::InsecureChannelCredentials());
 
   for (std::size_t i = 1; i <= 100; ++i)
   {
@@ -355,6 +387,11 @@ public:
       }
     }
   }
+
+  DefaultErrorCreatorPtr default_error_creator(const test::Request&) noexcept override
+  {
+    return std::make_unique<DefaultErrorCreator>();
+  }
 };
 
 using UnaryUnaryCoroSetService_var = ReferenceCounting::SmartPtr<UnaryUnaryCoroSetService>;
@@ -389,6 +426,14 @@ public:
         EXPECT_EQ(reply.message(), data);
       }
     }
+    else if (data == kRequestException)
+    {
+      EXPECT_TRUE(status.ok());
+      if (status.ok())
+      {
+        EXPECT_EQ(reply.message(), data);
+      }
+    }
     else if (data == kRequestFinish)
     {
       EXPECT_FALSE(status.ok());
@@ -396,10 +441,9 @@ public:
       EXPECT_EQ(status.error_message(), kStatusCodeFinishErrorMessage);
       EXPECT_EQ(status.error_details(), kStatusCodeFinishErrorDetails);
     }
-    else if (data == kRequestException)
+    else
     {
-      EXPECT_FALSE(status.ok());
-      EXPECT_EQ(status.error_code(), grpc::StatusCode::CANCELLED);
+      EXPECT_TRUE(false);
     }
   }
 

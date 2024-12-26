@@ -6,5 +6,3 @@ ci/cache
 configure
 autom4te.cache/
 .idea/
-
-
