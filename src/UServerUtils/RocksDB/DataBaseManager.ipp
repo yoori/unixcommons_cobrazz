@@ -408,7 +408,7 @@ inline rocksdb::async_result DataBaseManager::do_async_work(
     }
   }
 
-  co_return nullptr;
+  co_return false;
 }
 
 inline void DataBaseManager::get(
