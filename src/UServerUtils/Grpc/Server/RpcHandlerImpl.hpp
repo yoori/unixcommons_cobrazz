@@ -66,16 +66,19 @@ private:
     using RpcWeakPtr = std::weak_ptr<Rpc>;
 
   private:
+    using RpcType = grpc::internal::RpcMethod::RpcType;
     using Counter = std::atomic<int>;
 
   public:
     explicit WriterImpl(
       RpcWeakPtr&& rpc,
+      const RpcType rpc_type,
       DefaultErrorCreatorPtr<Response>&& default_error_creator,
-      const std::optional<grpc::Status>& finish_status = {})
+      const std::optional<grpc::StatusCode>& finish_status_code = {})
       : rpc_(std::move(rpc)),
+        rpc_type_(rpc_type),
         default_error_creator_(std::move(default_error_creator)),
-        finish_status_(std::move(finish_status))
+        finish_status_code_(std::move(finish_status_code))
     {
     }
 
@@ -91,9 +94,23 @@ private:
           auto error = default_error_creator_->create();
           write(std::move(error));
         }
-        else if (finish_status_)
+        else if (finish_status_code_)
         {
-          grpc::Status status(*finish_status_);
+          grpc::Status status(
+            *finish_status_code_,
+            std::string{});
+          finish(std::move(status));
+        }
+      }
+
+      if (rpc_type_ == RpcType::SERVER_STREAMING)
+      {
+        const int count = finish_counter_.fetch_sub(
+          1,
+          std::memory_order_relaxed);
+        if (count == 0)
+        {
+          grpc::Status status = grpc::Status::CANCELLED;
           finish(std::move(status));
         }
       }
@@ -126,6 +143,11 @@ private:
         if (rpc->finish(grpc::Status(grpc::Status::OK)))
         {
           counter_.fetch_add(1, std::memory_order_relaxed);
+          if (rpc_type_ == RpcType::SERVER_STREAMING)
+          {
+            finish_counter_.fetch_add(1, std::memory_order_relaxed);
+          }
+
           return WriterStatus::Ok;
         }
         else
@@ -146,6 +168,11 @@ private:
         if (rpc->finish(std::move(status)))
         {
           counter_.fetch_add(1, std::memory_order_relaxed);
+          if (rpc_type_ == RpcType::SERVER_STREAMING)
+          {
+            finish_counter_.fetch_add(1, std::memory_order_relaxed);
+          }
+
           return WriterStatus::Ok;
         }
         else
@@ -164,11 +191,15 @@ private:
 
     const RpcWeakPtr rpc_;
 
+    const RpcType rpc_type_;
+
     const DefaultErrorCreatorPtr<Response> default_error_creator_;
 
-    std::optional<grpc::Status> finish_status_;
+    const std::optional<grpc::StatusCode> finish_status_code_;
 
     mutable Counter counter_{0};
+
+    mutable Counter finish_counter_{0};
   };
 
 public:
@@ -195,6 +226,7 @@ public:
   {
     return std::make_unique<WriterImpl>(
       rpc_->get_weak_ptr(),
+      Traits::rpc_type,
       DefaultErrorCreatorPtr<Response>{},
       std::nullopt);
   }
@@ -206,6 +238,7 @@ public:
   {
     return std::make_unique<WriterImpl>(
       rpc_->get_weak_ptr(),
+      Traits::rpc_type,
       default_error_creator(request),
       std::nullopt);
   }
@@ -213,12 +246,13 @@ public:
   /**
    * If there was no recording, then we send finish with the status
    */
-  std::unique_ptr<Writer<Response>> get_writer(const grpc::Status& status)
+  std::unique_ptr<Writer<Response>> get_writer(const grpc::StatusCode& status_code)
   {
     return std::make_unique<WriterImpl>(
       rpc_->get_weak_ptr(),
+      Traits::rpc_type,
       DefaultErrorCreatorPtr<Response>{},
-      std::move(status));
+      status_code);
   }
 
   virtual DefaultErrorCreatorPtr<Response>

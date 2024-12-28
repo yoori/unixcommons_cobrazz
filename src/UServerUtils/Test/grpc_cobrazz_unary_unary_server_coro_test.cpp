@@ -55,14 +55,12 @@ public:
   }
 };
 
-class UnaryUnaryCoroPerRpcService final
+class UnaryUnaryCoroService final
   : public test::TestService_HandlerUnaryUnary_Service,
     public ReferenceCounting::AtomicImpl
 {
 public:
-  UnaryUnaryCoroPerRpcService() = default;
-
-  ~UnaryUnaryCoroPerRpcService() override = default;
+  UnaryUnaryCoroService() = default;
 
    void activate_object() override
    {
@@ -88,17 +86,23 @@ public:
 
     EXPECT_EQ(data.status, ReadStatus::Read);
     if (data.status != ReadStatus::Read)
+    {
       return;
+    }
 
     const auto& request = data.request;
     EXPECT_TRUE(request);
     if (!request)
+    {
       return;
+    }
 
     const auto& writer = data.writer;
     EXPECT_TRUE(writer);
     if (!writer)
+    {
       return;
+    }
 
     const auto& message = request->message();
     if (kRequestOk == message)
@@ -107,19 +111,6 @@ public:
       response->set_message(message);
       const auto status_write = writer->write(std::move(response));
       EXPECT_EQ(status_write, WriterStatus::Ok);
-    }
-    else if (kRequestOkCheckFinish == message)
-    {
-      auto response = std::make_unique<Response>();
-      response->set_message(message);
-      const auto status_write = writer->write(std::move(response));
-      EXPECT_EQ(status_write, WriterStatus::Ok);
-
-      for (std::size_t i = 1; i <= 100; ++i)
-      {
-        const auto data = reader.read();
-        EXPECT_EQ(data.status, ReadStatus::Finish);
-      }
     }
     else if (kRequestFinish == message)
     {
@@ -139,20 +130,25 @@ public:
     {
       EXPECT_TRUE(false);
     }
+
+    EXPECT_EQ(reader.read().status, ReadStatus::Finish);
   }
 
   DefaultErrorCreatorPtr default_error_creator(const test::Request&) noexcept override
   {
     return std::make_unique<DefaultErrorCreator>();
   }
+
+protected:
+  ~UnaryUnaryCoroService() override = default;
 };
 
-using UnaryUnaryCoroPerRpcService_var = ReferenceCounting::SmartPtr<UnaryUnaryCoroPerRpcService>;
+using UnaryUnaryCoroService_var = ReferenceCounting::SmartPtr<UnaryUnaryCoroService>;
 
-class UnaryUnaryCoroPerRpcClient final
+class UnaryUnaryCoroClient final
 {
 public:
-  explicit UnaryUnaryCoroPerRpcClient(
+  explicit UnaryUnaryCoroClient(
     const std::shared_ptr<::grpc::Channel>& channel)
     : stub_(test::TestService::NewStub(channel))
   {
@@ -165,21 +161,12 @@ public:
     request.set_message(data);
 
     test::Reply reply;
-    const grpc::Status status =
-      stub_->HandlerUnaryUnary(
-        &context,
-        request,
-        &reply);
+    const grpc::Status status = stub_->HandlerUnaryUnary(
+      &context,
+      request,
+      &reply);
 
     if (data == kRequestOk)
-    {
-      EXPECT_TRUE(status.ok());
-      if (status.ok())
-      {
-        EXPECT_EQ(reply.message(), data);
-      }
-    }
-    else if (data == kRequestOkCheckFinish)
     {
       EXPECT_TRUE(status.ok());
       if (status.ok())
@@ -212,10 +199,10 @@ private:
   std::unique_ptr<test::TestService::Stub> stub_;
 };
 
-class GrpcFixtureUnaryUnaryCoroPerRpc : public testing::Test
+class GrpcFixtureUnaryUnaryRpc : public testing::Test
 {
 public:
-  void SetUp() override
+  void SetUp(const UServerUtils::Grpc::Server::ServiceMode service_mode)
   {
     logger_ = new Logging::OStream::Logger(
       Logging::OStream::Config(
@@ -236,7 +223,7 @@ public:
         event_thread_pool_config,
         main_task_processor_config);
 
-    auto init_func = [logger = logger_, port = port_] (
+    auto init_func = [logger = logger_, port = port_, service_mode] (
       TaskProcessorContainer& task_processor_container) {
       auto& main_task_processor =
         task_processor_container.get_main_task_processor();
@@ -252,11 +239,12 @@ public:
       auto grpc_builder = std::make_unique<Grpc::Server::ServerBuilder>(
         config,
         logger.in());
-      auto service = UnaryUnaryCoroPerRpcService_var(
-        new UnaryUnaryCoroPerRpcService);
+      auto service = UnaryUnaryCoroService_var(
+        new UnaryUnaryCoroService);
       grpc_builder->add_service(
         service.in(),
-        main_task_processor);
+        main_task_processor,
+        service_mode);
 
       components_builder->add_grpc_cobrazz_server(
         std::move(grpc_builder));
@@ -283,8 +271,10 @@ public:
 
 } // namespace
 
-TEST_F(GrpcFixtureUnaryUnaryCoroPerRpc, CoroPerRpc)
+TEST_F(GrpcFixtureUnaryUnaryRpc, RpcToCoroutine)
 {
+  SetUp(UServerUtils::Grpc::Server::ServiceMode::RpcToCoroutine);
+
   manager_->activate_object();
 
   auto channel = grpc::CreateChannel(
@@ -293,18 +283,16 @@ TEST_F(GrpcFixtureUnaryUnaryCoroPerRpc, CoroPerRpc)
 
   for (std::size_t i = 1; i <= 100; ++i)
   {
-    UnaryUnaryCoroPerRpcClient unary_unary_client(channel);
+    UnaryUnaryCoroClient unary_unary_client(channel);
     unary_unary_client.request(kRequestOk);
-    unary_unary_client.request(kRequestOkCheckFinish);
     unary_unary_client.request(kRequestFinish);
     unary_unary_client.request(kRequestException);
   }
 
-  UnaryUnaryCoroPerRpcClient unary_unary_client(channel);
+  UnaryUnaryCoroClient unary_unary_client(channel);
   for (std::size_t i = 1; i <= 100; ++i)
   {
     unary_unary_client.request(kRequestOk);
-    unary_unary_client.request(kRequestOkCheckFinish);
     unary_unary_client.request(kRequestFinish);
     unary_unary_client.request(kRequestException);
   }
@@ -315,248 +303,34 @@ TEST_F(GrpcFixtureUnaryUnaryCoroPerRpc, CoroPerRpc)
   EXPECT_EQ(kCountCallObject.exchange(0), 3);
 }
 
-namespace
+TEST_F(GrpcFixtureUnaryUnaryRpc, EventToCoroutine)
 {
+  SetUp(UServerUtils::Grpc::Server::ServiceMode::EventToCoroutine);
 
-const int kNumberOkRequest = 100;
-std::atomic<int> kCounterServiceUnaryUnary{0};
-
-class UnaryUnaryCoroSetService final
-  : public test::TestService_HandlerUnaryUnary_Service,
-    public ReferenceCounting::AtomicImpl
-{
-public:
-  UnaryUnaryCoroSetService() = default;
-
-  ~UnaryUnaryCoroSetService() override = default;
-
-  void handle(const Reader& reader) override
-  {
-    while (true)
-    {
-      const auto data = reader.read();
-      const auto status = data.status;
-      if (status == ReadStatus::Finish)
-      {
-        break;
-      }
-      else if (status == ReadStatus::Read)
-      {
-        auto& request = data.request;
-        EXPECT_TRUE(request);
-        if (!request)
-          continue;
-
-        auto& writer = data.writer;
-        EXPECT_TRUE(writer);
-        if (!writer)
-          continue;
-
-        const auto& message = request->message();
-        if (message == kRequestOk)
-        {
-          auto response = std::make_unique<Response>();
-          response->set_message(message);
-          const auto writer_status = writer->write(std::move(response));
-          EXPECT_EQ(writer_status, WriterStatus::Ok);
-
-          kCounterServiceUnaryUnary.fetch_add(1, std::memory_order_relaxed);
-        }
-        else if (message == kRequestFinish)
-        {
-          grpc::Status status(
-            kStatusCodeFinish,
-            kStatusCodeFinishErrorMessage,
-            kStatusCodeFinishErrorDetails);
-
-          const auto status_write = writer->finish(std::move(status));
-          EXPECT_EQ(status_write, WriterStatus::Ok);
-        }
-        else if (message == kRequestException)
-        {
-          throw std::runtime_error("test exception");
-        }
-        else
-        {
-          EXPECT_TRUE(false);
-        }
-      }
-      else
-      {
-        EXPECT_TRUE(false);
-      }
-    }
-  }
-
-  DefaultErrorCreatorPtr default_error_creator(const test::Request&) noexcept override
-  {
-    return std::make_unique<DefaultErrorCreator>();
-  }
-};
-
-using UnaryUnaryCoroSetService_var = ReferenceCounting::SmartPtr<UnaryUnaryCoroSetService>;
-
-class UnaryUnaryCoroSetClient final
-{
-public:
-  explicit UnaryUnaryCoroSetClient(
-    const std::shared_ptr<::grpc::Channel>& channel)
-    : stub_(test::TestService::NewStub(channel))
-  {
-  }
-
-  void request(const std::string& data)
-  {
-    grpc::ClientContext context;
-    test::Request request;
-    request.set_message(data);
-
-    test::Reply reply;
-    const grpc::Status status =
-      stub_->HandlerUnaryUnary(
-        &context,
-        request,
-        &reply);
-
-    if (data == kRequestOk)
-    {
-      EXPECT_TRUE(status.ok());
-      if (status.ok())
-      {
-        EXPECT_EQ(reply.message(), data);
-      }
-    }
-    else if (data == kRequestException)
-    {
-      EXPECT_TRUE(status.ok());
-      if (status.ok())
-      {
-        EXPECT_EQ(reply.message(), data);
-      }
-    }
-    else if (data == kRequestFinish)
-    {
-      EXPECT_FALSE(status.ok());
-      EXPECT_EQ(status.error_code(), kStatusCodeFinish);
-      EXPECT_EQ(status.error_message(), kStatusCodeFinishErrorMessage);
-      EXPECT_EQ(status.error_details(), kStatusCodeFinishErrorDetails);
-    }
-    else
-    {
-      EXPECT_TRUE(false);
-    }
-  }
-
-private:
-  std::unique_ptr<test::TestService::Stub> stub_;
-};
-
-class GrpcFixtureUnaryUnaryCoroSet : public testing::Test
-{
-public:
-  void SetUp() override
-  {
-    logger_ = new Logging::OStream::Logger(
-      Logging::OStream::Config(
-        std::cerr,
-        Logging::Logger::CRITICAL));
-
-    CoroPoolConfig coro_pool_config;
-    EventThreadPoolConfig event_thread_pool_config;
-    TaskProcessorConfig main_task_processor_config;
-    main_task_processor_config.name = "main_task_processor";
-    main_task_processor_config.worker_threads = 3;
-    main_task_processor_config.thread_name = "main_tskpr";
-
-    auto task_processor_container_builder = std::make_unique<TaskProcessorContainerBuilder>(
-      logger_,
-      coro_pool_config,
-      event_thread_pool_config,
-      main_task_processor_config);
-
-    auto init_func = [logger = logger_, port = port_] (
-      TaskProcessorContainer& task_processor_container) {
-      auto& main_task_processor = task_processor_container.get_main_task_processor();
-      auto components_builder = std::make_unique<ComponentsBuilder>();
-
-      Grpc::Server::ConfigCoro config;
-      config.num_threads = 3;
-      config.port = port;
-      config.max_size_queue = {};
-
-      auto grpc_builder = std::make_unique<Grpc::Server::ServerBuilder>(
-        config,
-        logger);
-      auto service = UnaryUnaryCoroSetService_var(
-        new UnaryUnaryCoroSetService);
-      grpc_builder->add_service(
-        service.in(),
-        main_task_processor,
-        5);
-
-      components_builder->add_grpc_cobrazz_server(
-        std::move(grpc_builder));
-
-      return components_builder;
-    };
-
-    manager_ = new Manager(
-      std::move(task_processor_container_builder),
-      std::move(init_func),
-      logger_);
-  }
-
-  void TearDown() override
-  {
-  }
-
-  std::size_t port_ = 7778;
-
-  Logging::Logger_var logger_;
-
-  Manager_var manager_;
-};
-
-} // // namespace
-
-TEST_F(GrpcFixtureUnaryUnaryCoroSet, CoroSet)
-{
   manager_->activate_object();
 
   auto channel = grpc::CreateChannel(
     "127.0.0.1:" + std::to_string(port_),
     grpc::InsecureChannelCredentials());
 
-  for (std::size_t i = 1; i <= kNumberOkRequest; ++i)
-  {
-    UnaryUnaryCoroSetClient unary_unary_client(channel);
-    unary_unary_client.request(kRequestOk);
-  }
-
-  EXPECT_EQ(kCounterServiceUnaryUnary.exchange(0), kNumberOkRequest);
-
-  UnaryUnaryCoroSetClient unary_unary_client(channel);
-  for (std::size_t i = 1; i <= kNumberOkRequest; ++i)
-  {
-    unary_unary_client.request(kRequestOk);
-  }
-
-  EXPECT_EQ(kCounterServiceUnaryUnary.exchange(0), kNumberOkRequest);
-
   for (std::size_t i = 1; i <= 100; ++i)
   {
-    UnaryUnaryCoroSetClient unary_unary_client(channel);
-    unary_unary_client.request(kRequestException);
+    UnaryUnaryCoroClient unary_unary_client(channel);
+    unary_unary_client.request(kRequestOk);
     unary_unary_client.request(kRequestFinish);
+    unary_unary_client.request(kRequestException);
   }
 
-  UnaryUnaryCoroSetClient unary_unary_client2(channel);
+  UnaryUnaryCoroClient unary_unary_client(channel);
   for (std::size_t i = 1; i <= 100; ++i)
   {
-    unary_unary_client2.request(kRequestException);
-    unary_unary_client2.request(kRequestFinish);
+    unary_unary_client.request(kRequestOk);
+    unary_unary_client.request(kRequestFinish);
+    unary_unary_client.request(kRequestException);
   }
 
   manager_->deactivate_object();
   manager_->wait_object();
+
+  EXPECT_EQ(kCountCallObject.exchange(0), 3);
 }

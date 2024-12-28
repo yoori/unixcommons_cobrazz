@@ -83,7 +83,7 @@ public:
   void add_service(
     Service* service,
     TaskProcessor& task_processor,
-    const std::optional<std::size_t> number_coro = {})
+    const ServiceMode service_mode)
   {
     static_assert(
       Internal::exist_type_request_v<Service>,
@@ -132,8 +132,8 @@ public:
       method_name,
       service,
       rpc_type,
-      task_processor,
-      number_coro);
+      service_mode,
+      task_processor);
   }
 
 protected:

@@ -38,23 +38,4 @@ CommonContextCoro::~CommonContextCoro()
   }
 }
 
-void CommonContextCoro::activate_object_()
-{
-}
-
-void CommonContextCoro::deactivate_object_()
-{
-  producers_.clear();
-  const bool is_task_processor_thread =
-    userver::engine::current_task::IsTaskProcessorThread();
-  for (auto& task: worker_tasks_)
-  {
-    if (!is_task_processor_thread)
-    {
-      task.BlockingWait();
-    }
-    task.Get();
-  }
-}
-
 } // namespace UServerUtils::Grpc::Server

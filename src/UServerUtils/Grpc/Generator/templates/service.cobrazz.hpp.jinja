@@ -64,6 +64,10 @@ public:
   using Traits = typename {{service.name}}_{{method.name}}_Handler::Traits;
   using Request = typename Traits::Request;
   using Response = typename Traits::Response;
+  using ServiceCoro_var = typename UServerUtils::Grpc::Server::ServiceCoro_var<Request, Response>;
+  using ServiceMode = UServerUtils::Grpc::Server::ServiceMode;
+  using ReadStatus = UServerUtils::Grpc::Server::ReadStatus;
+  using TaskProcessor = userver::engine::TaskProcessor;
   using Queue = UServerUtils::Grpc::Server::Internal::QueueCoro<Request, Response>;
   using QueueData = typename Queue::ValueType;
   using Producer = typename Queue::Producer;
@@ -72,6 +76,8 @@ public:
     UServerUtils::Grpc::Server::DefaultErrorCreatorPtr<Response>;
   using FactoryDefaultErrorCreatorPtr =
     UServerUtils::Grpc::Server::FactoryDefaultErrorCreatorPtr<Request, Response>;
+
+  DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
   {{service.name}}_{{method.name}}_Coro_Handler() = default;
@@ -82,52 +88,42 @@ public:
   {
     try
     {
-      if (!producer_)
-      {
-        auto status = grpc::Status::CANCELLED;
-        finish(std::move(status));
-
-        Stream::Error stream;
-        stream << FNS
-               << "producer is null";
-        logger_->error(stream.str());
-
-        return;
-      }
-
       auto writer = get_writer(*request);
-      QueueData data(
-        QueueData::Type::Read,
-        std::move(request),
-        std::move(writer),
-        reinterpret_cast<std::uintptr_t>(this));
-      if (!producer_->PushNoblock(std::move(data)))
+      if (producer_)
       {
-        try
+        QueueData data(
+          QueueData::Type::Read,
+          std::move(request),
+          std::move(writer),
+          reinterpret_cast<std::uintptr_t>(this));
+        if (!producer_->PushNoblock(std::move(data)))
         {
-          auto status = grpc::Status::CANCELLED;
-          finish(std::move(status));
-
           Stream::Error stream;
           stream << FNS
-                 << "push is failed";
-          logger_->error(stream.str());
+                 << "PushNoblock is failed";
+          throw Exception(stream);
         }
-        catch (...)
-        {
-        }
+      }
+      else
+      {
+        auto& context = common_context<
+          UServerUtils::Grpc::Server::CommonContextCoro>();
+        context.add_coroutine(
+          *task_processor_,
+          service_.in(),
+          ReadStatus::Read,
+          std::move(writer),
+          std::move(request),
+          reinterpret_cast<std::uintptr_t>(this),
+          Traits::rpc_type);
       }
     }
     catch (const eh::Exception& exc)
     {
       try
       {
-        auto status = grpc::Status::CANCELLED;
-        finish(std::move(status));
-
         Stream::Error stream;
         stream << FNS
-               << ": "
                << exc.what();
         logger_->error(stream.str());
       }
@@ -145,34 +141,51 @@ public:
         UServerUtils::Grpc::Server::CommonContextCoro>();
       logger_ = context.get_logger();
       const std::string_view method_name = Traits::method_name();
+      const auto& service_info = context.service_info(method_name);
+      service_ = std::any_cast<ServiceCoro_var>(service_info.service);
+      service_mode_ = service_info.service_mode;
+      task_processor_ = service_info.task_processor;
       factory_default_error_creator_ = context.factory_default_error_creator<
-        Request, Response>(method_name);
-      producer_ = context.get_producer<Request, Response>(method_name);
+        Request, Response>(service_info);
 
       constexpr auto rpc_type = Traits::rpc_type;
-      if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-                 || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+      if (service_mode_ == ServiceMode::RpcToCoroutine
+        && rpc_type != grpc::internal::RpcMethod::NORMAL_RPC
+        && rpc_type != grpc::internal::RpcMethod::SERVER_STREAMING)
       {
-        QueueData data(
-          QueueData::Type::Initialize,
-          {},
-          {},
-          reinterpret_cast<std::uintptr_t>(this));
-        if (!producer_->PushNoblock(std::move(data)))
-        {
-          try
-          {
-            auto status = grpc::Status::CANCELLED;
-            finish(std::move(status));
+        producer_ = context.get_producer<Request, Response>(service_info);
+      }
 
+      if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
+        || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+      {
+        if (producer_)
+        {
+          QueueData data(
+            QueueData::Type::Initialize,
+            {},
+            {},
+            reinterpret_cast<std::uintptr_t>(this));
+          if (!producer_->PushNoblock(std::move(data)))
+          {
             Stream::Error stream;
             stream << FNS
-                   << "push is failed";
-            logger_->error(stream.str());
+                   << "PushNoblock is failed";
+            throw Exception(stream);
           }
-          catch (...)
-          {
-          }
+        }
+        else
+        {
+          auto& context = common_context<
+            UServerUtils::Grpc::Server::CommonContextCoro>();
+          context.add_coroutine(
+            *task_processor_,
+            service_.in(),
+            ReadStatus::Initialize,
+            {},
+            {},
+            reinterpret_cast<std::uintptr_t>(this),
+            Traits::rpc_type);
         }
       }
     }
@@ -203,25 +216,38 @@ public:
       return;
     }
 
-    if (!producer_)
+    try
     {
-      auto status = grpc::Status::CANCELLED;
-      finish(std::move(status));
-
-      Stream::Error stream;
-      stream << FNS
-             << "prodicer is null";
-      logger_->error(stream.str());
-
-      return;
+      auto writer = get_writer(grpc::StatusCode::CANCELLED);
+      if (producer_)
+      {
+        QueueData data(
+          QueueData::Type::ReadsDone,
+          {},
+          std::move(writer),
+          reinterpret_cast<std::uintptr_t>(this));
+        if (!producer_->PushNoblock(std::move(data)))
+        {
+          Stream::Error stream;
+          stream << FNS
+                 << "PushNoblock is failed";
+        }
+      }
+      else
+      {
+        auto& context = common_context<
+          UServerUtils::Grpc::Server::CommonContextCoro>();
+        context.add_coroutine(
+          *task_processor_,
+          service_.in(),
+          ReadStatus::ReadsDone,
+          std::move(writer),
+          {},
+          reinterpret_cast<std::uintptr_t>(this),
+          Traits::rpc_type);
+      }
     }
-
-    QueueData data(
-      QueueData::Type::ReadsDone,
-      {},
-      get_writer(grpc::Status::CANCELLED),
-      reinterpret_cast<std::uintptr_t>(this));
-    if (!producer_->PushNoblock(std::move(data)))
+    catch (const eh::Exception& exc)
     {
       try
       {
@@ -230,7 +256,7 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << "push is failed";
+               << exc.what();
         logger_->error(stream.str());
       }
       catch (...)
@@ -242,26 +268,54 @@ public:
   void on_finish() override
   {
     constexpr auto rpc_type = Traits::rpc_type;
-    if constexpr (rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-      || rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+    if constexpr (rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
+      || rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
     {
-      QueueData data(
-        QueueData::Type::RpcFinish,
-        {},
-        {},
-        reinterpret_cast<std::uintptr_t>(this));
-      if (!producer_->PushNoblock(std::move(data)))
+      return;
+    }
+
+    try
+    {
+      if (producer_)
       {
-        try
+        QueueData data(
+          QueueData::Type::RpcFinish,
+          {},
+          {},
+          reinterpret_cast<std::uintptr_t>(this));
+        if (!producer_->PushNoblock(std::move(data)))
         {
           Stream::Error stream;
           stream << FNS
-                 << "push is failed";
-          logger_->error(stream.str());
+                 << "PushNoblock is failed";
+          throw Exception(stream);
         }
-        catch (...)
-        {
-        }
+      }
+      else
+      {
+        auto& context = common_context<
+          UServerUtils::Grpc::Server::CommonContextCoro>();
+        context.add_coroutine(
+          *task_processor_,
+          service_.in(),
+          ReadStatus::RpcFinish,
+          {},
+          {},
+          reinterpret_cast<std::uintptr_t>(this),
+          Traits::rpc_type);
+      }
+    }
+    catch (const eh::Exception& exc)
+    {
+      try
+      {
+        Stream::Error stream;
+        stream << FNS
+               << exc.what();
+        logger_->error(stream.str());
+      }
+      catch (...)
+      {
       }
     }
 
@@ -279,7 +333,13 @@ private:
 
   FactoryDefaultErrorCreatorPtr factory_default_error_creator_;
 
+  ServiceCoro_var service_;
+
+  TaskProcessor* task_processor_ = nullptr;
+
   std::unique_ptr<Producer> producer_;
+
+  ServiceMode service_mode_ = ServiceMode::EventToCoroutine;
 };
 
 } // namespace Internal
