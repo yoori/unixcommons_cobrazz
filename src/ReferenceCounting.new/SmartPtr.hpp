@@ -41,11 +41,6 @@ namespace ReferenceCounting
     default_constructor() throw ()
       __attribute__((always_inline));
 
-    static
-    void
-    retn() throw ()
-      __attribute__((always_inline));
-
   private:
     ~PolicyThrow() throw ()
       __attribute__((always_inline));
@@ -74,11 +69,6 @@ namespace ReferenceCounting
     static
     void
     default_constructor() throw ()
-      __attribute__((always_inline));
-
-    static
-    void
-    retn() throw ()
       __attribute__((always_inline));
 
   private:
@@ -111,18 +101,11 @@ namespace ReferenceCounting
       __attribute__((always_inline));
   };
 
-  struct PolicyChecker
-  {
-    void
-    check_policy_(const PolicyThrow* policy) throw ()
-      __attribute__((always_inline));
-    void
-    check_policy_(const PolicyAssert* policy) throw ()
-      __attribute__((always_inline));
-    void
-    check_policy_(const PolicyNotNull* policy) throw ()
-      __attribute__((always_inline));
-  };
+  template<typename T, typename ... U>
+  concept is_any_of = (std::same_as<T, U> || ...);
+
+  template<typename T>
+  concept is_correct_policy = is_any_of<T, PolicyThrow, PolicyAssert, PolicyNotNull>;
 
   template <typename T, typename Policy>
   class SmartPtr;
@@ -159,7 +142,7 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Policy = PolicyThrow>
-  class SmartPtr : private PolicyChecker
+  class SmartPtr
   {
   public:
     typedef T Type;
@@ -222,9 +205,7 @@ namespace ReferenceCounting
   };
 
   template <typename T, typename Policy = PolicyThrow>
-  class FixedPtr :
-    private PolicyChecker,
-    private Generics::Uncopyable
+  class FixedPtr : private Generics::Uncopyable
   {
   public:
     typedef T Type;
