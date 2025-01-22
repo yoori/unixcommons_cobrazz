@@ -24,7 +24,9 @@ GrpcServerBuilder::GrpcServerBuilder(
   StorageMockPtr storage_mock(new StorageMock(
     docs_map,
     {
-      {userver::ugrpc::server::impl::kServerCancelTaskByDeadline, config.cancel_task_by_deadline}
+      {
+        userver::ugrpc::server::impl::kServerCancelTaskByDeadline,
+        config.cancel_task_by_deadline}
     }));
 
   grpc_server_ = new GrpcServer(
@@ -32,19 +34,6 @@ GrpcServerBuilder::GrpcServerBuilder(
     std::move(server_config),
     statistics_storage,
     std::move(storage_mock));
-}
-
-GrpcServerBuilder::CompletionQueue& GrpcServerBuilder::get_completion_queue()
-{
-  if (!grpc_server_)
-  {
-    Stream::Error stream;
-    stream << FNS
-           << ": grpc_server is null";
-    throw Exception(stream);
-  }
-
-  return grpc_server_->get_completion_queue();
 }
 
 void GrpcServerBuilder::add_grpc_service(
@@ -60,7 +49,8 @@ void GrpcServerBuilder::add_grpc_service(
     throw Exception(stream);
   }
 
-  middlewares_list_.emplace_back(std::make_unique<Middlewares>(middlewares));
+  middlewares_list_.emplace_back(
+    std::make_unique<Middlewares>(middlewares));
   services_.emplace_back(
     GrpcServiceBase_var(ReferenceCounting::add_ref(service)));
 

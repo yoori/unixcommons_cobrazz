@@ -26,8 +26,6 @@ Manager::Manager(
   : logger_(ReferenceCounting::add_ref(logger)),
     task_processor_container_(task_processor_builder->build())
 {
-  using LoggerScope = UServerUtils::Logger::LoggerScope;
-
   if (!logger)
   {
     Stream::Error stream;
@@ -62,8 +60,8 @@ Manager::Manager(
       auto componets_info = components_builder->build();
       coro_data_container->statistics_holders =
         std::move(componets_info.statistics_holders);
-      coro_data_container->queue_holders =
-        std::move(componets_info.queue_holders);
+      coro_data_container->completion_qeue_pool_list =
+        std::move(componets_info.completion_qeue_pool_list);
       coro_data_container->statistics_storage =
         std::move(componets_info.statistics_storage);
       coro_data_container->name_to_user_component =

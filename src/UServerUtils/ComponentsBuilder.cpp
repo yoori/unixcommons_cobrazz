@@ -13,12 +13,12 @@ namespace UServerUtils
 namespace Aspect
 {
 
-const char BUILDER[] = "BUILDER";
+const char Builder[] = "BUILDER";
 
 } // namespace Aspect
 
 ComponentsBuilder::ComponentsBuilder(
-  std::optional<StatisticsProviderInfo> statistics_provider_info)
+  const std::optional<StatisticsProviderInfo>& statistics_provider_info)
   : statistics_storage_(new StatisticsStorage())
 {
   if (statistics_provider_info.has_value())
@@ -35,23 +35,22 @@ ComponentsBuilder::get_statistics_storage()
   {
     Stream::Error stream;
     stream << FNS
-           << ": statistics storage is null";
+           << "statistics storage is null";
     throw Exception(stream);
   }
 
   return *statistics_storage_;
 }
 
-ComponentsBuilder::CompletionQueue&
-ComponentsBuilder::add_grpc_userver_server(
-  std::unique_ptr<GrpcUserverServerBuilder>&& builder)
+void ComponentsBuilder::add_grpc_userver_server(
+  GrpcUserverServerBuilderPtr&& builder)
 {
   auto grpc_builder = std::move(builder);
   if (!grpc_builder)
   {
     Stream::Error stream;
     stream << FNS
-           << ": builder is null";
+           << "builder is null";
     throw Exception(stream);
   }
 
@@ -59,8 +58,6 @@ ComponentsBuilder::add_grpc_userver_server(
   auto& server = server_info.server;
   auto& services = server_info.services;
   auto& middlewares_list = server_info.middlewares_list;
-
-  auto& completion_queue = server->get_completion_queue();
 
   add_component_cash(server);
   grpc_userver_servers_.emplace_back(std::move(server));
@@ -73,19 +70,17 @@ ComponentsBuilder::add_grpc_userver_server(
   {
     add_component(service);
   }
-
-  return completion_queue;
 }
 
 void ComponentsBuilder::add_grpc_cobrazz_server(
-  std::unique_ptr<GrpcCobrazzServerBuilder>&& builder)
+  GrpcCobrazzServerBuilderPtr&& builder)
 {
   auto grpc_builder = std::move(builder);
   if (!grpc_builder)
   {
     Stream::Error stream;
     stream << FNS
-           << ": builder is null";
+           << "builder is null";
     throw Exception(stream);
   }
 
@@ -94,7 +89,8 @@ void ComponentsBuilder::add_grpc_cobrazz_server(
   auto& services = server_info.services;
 
   add_component_cash(server);
-  grpc_cobrazz_servers_.emplace_back(std::move(server));
+  grpc_cobrazz_servers_.emplace_back(
+    std::move(server));
 
   for (auto& service : services)
   {
@@ -103,14 +99,14 @@ void ComponentsBuilder::add_grpc_cobrazz_server(
 }
 
 void ComponentsBuilder::add_http_server(
-  std::unique_ptr<HttpServerBuilder>&& builder)
+  HttpServerBuilderPtr&& builder)
 {
   auto http_builder = std::move(builder);
   if (!http_builder)
   {
     Stream::Error stream;
     stream << FNS
-           << ": builder is null";
+           << "builder is null";
     throw Exception(stream);
   }
 
@@ -131,20 +127,31 @@ ComponentsBuilder::GrpcUserverClientFactory_var
 ComponentsBuilder::add_grpc_userver_client_factory(
   GrpcUserverClientFactoryConfig&& config,
   TaskProcessor& channel_task_processor,
-  grpc::CompletionQueue* queue,
+  const CompletionQueuePoolBasePtr& completion_qeue_pool,
   const MiddlewareFactories& middleware_factories)
 {
-  if (!queue)
+  bool pool_exist = false;
+  for (auto& pool : completion_qeue_pool_list_)
   {
-    queue_holders_.emplace_back(std::make_unique<QueueHolder>());
+    if (pool == completion_qeue_pool)
+    {
+      pool_exist = true;
+      break;
+    }
+  }
+
+  if (!pool_exist)
+  {
+    completion_qeue_pool_list_.emplace_back(
+      completion_qeue_pool);
   }
 
   GrpcUserverClientFactory_var grpc_client_factory(
     new GrpcUserverClientFactory(
       std::move(config),
       channel_task_processor,
-      queue != nullptr ? *queue : queue_holders_.back()->GetQueue(),
       *statistics_storage_,
+      completion_qeue_pool,
       middleware_factories));
 
   add_component(grpc_client_factory.in());
@@ -158,7 +165,7 @@ void ComponentsBuilder::add_component(Component* component)
   {
     Stream::Error stream;
     stream << FNS
-           << ": component already exist";
+           << "component already exist";
     throw Exception(stream);
   }
 
@@ -175,7 +182,7 @@ void ComponentsBuilder::add_user_component(
   {
     Stream::Error stream;
     stream << FNS
-           << ": user component with name="
+           << "user component with name="
            << name
            << " already exist";
     throw Exception(stream);
@@ -212,6 +219,10 @@ void ComponentsBuilder::add_component_cash(
 ComponentsBuilder::ComponentsInfo
 ComponentsBuilder::build()
 {
+  using Entry = userver::utils::statistics::Entry;
+  using MemoryStatisticsProvider =
+    UServerUtils::Statistics::MemoryStatisticsProvider;
+
   std::move(
     std::begin(grpc_userver_servers_),
     std::end(grpc_userver_servers_),
@@ -232,7 +243,8 @@ ComponentsBuilder::build()
   {
     auto entry = statistics_storage_->RegisterWriter(
       statistics_prefix_,
-      [statistics_provider = std::move(statistics_provider_)] (userver::utils::statistics::Writer& writer) {
+      [statistics_provider = std::move(statistics_provider_)] (
+        userver::utils::statistics::Writer& writer) {
         try
         {
           statistics_provider->write(writer);
@@ -241,17 +253,18 @@ ComponentsBuilder::build()
         {
         }
       },
-    {});
+      {});
 
-    StatisticsHolderPtr statistics_holder = std::make_unique<userver::utils::statistics::Entry>(
+    StatisticsHolderPtr statistics_holder = std::make_unique<Entry>(
       std::move(entry));
     statistics_holders.emplace_back(std::move(statistics_holder));
   }
 
-  auto memory_statistics_provider = std::make_shared<UServerUtils::Statistics::MemoryStatisticsProvider>();
+  auto memory_statistics_provider = std::make_shared<MemoryStatisticsProvider>();
   auto entry = statistics_storage_->RegisterWriter(
     memory_statistics_provider->name(),
-    [memory_statistics_provider = std::move(memory_statistics_provider)] (userver::utils::statistics::Writer& writer) {
+    [memory_statistics_provider = std::move(memory_statistics_provider)] (
+      userver::utils::statistics::Writer& writer) {
       try
       {
         memory_statistics_provider->write(writer);
@@ -260,15 +273,15 @@ ComponentsBuilder::build()
       {
       }
     },
-  {});
+    {});
   statistics_holders.emplace_back(
-    std::make_unique<userver::utils::statistics::Entry>(
+    std::make_unique<Entry>(
       std::move(entry)));
 
   ComponentsInfo components_info;
   components_info.statistics_storage = std::move(statistics_storage_);
   components_info.statistics_holders = std::move(statistics_holders);
-  components_info.queue_holders = std::move(queue_holders_);
+  components_info.completion_qeue_pool_list = std::move(completion_qeue_pool_list_);
   components_info.components = std::move(components_);
   components_info.name_to_user_component = std::move(name_to_user_component_);
   components_info.middlewares_list = std::move(middlewares_list_);

@@ -234,8 +234,9 @@ public:
 
     response_body_stream.SetStatusCode(kServerStatusCode);
     response_body_stream.SetHeader(kNameHeader, kValueHeader);
-    const std::string data = kResponseData + request.GetArg(kKeyParam);
+    response_body_stream.SetEndOfHeaders();
 
+    const std::string data = kResponseData + request.GetArg(kKeyParam);
     for (const char ch : data)
     {
       response_body_stream.PushBodyChunk(
@@ -305,7 +306,7 @@ public:
     statistics_provider->add(counter_statistics_provider);
     statistics_provider->add(common_statistics_provider);
 
-    auto init_func = [logger = logger_, unix_socket_path, response_body_stream, statistics_provider] (
+    auto init_func = [unix_socket_path, response_body_stream, statistics_provider, this] (
       UServerUtils::TaskProcessorContainer& task_processor_container) {
 
       auto& main_task_processor = task_processor_container.get_main_task_processor();
@@ -321,17 +322,24 @@ public:
 
       auto& listener_config = server_config.listener_config;
       listener_config.max_connections = 300000;
+
+      UServerUtils::Http::Server::PortConfig port_config;
       if (unix_socket_path.has_value())
       {
-        listener_config.unix_socket_path = *unix_socket_path;
+        port_config.unix_socket_path = *unix_socket_path;
       }
       else
       {
-        listener_config.port = kPort;
+        port_config.port = kPort;
       }
+      listener_config.ports.emplace_back(std::move(port_config));
 
       UServerUtils::Http::Server::ListenerConfig monitor_listener_config;
-      monitor_listener_config.port = kMonitorPort;
+
+      UServerUtils::Http::Server::PortConfig monitor_port_config;
+      monitor_port_config.port = kMonitorPort;
+      monitor_listener_config.ports.emplace_back(std::move(monitor_port_config));
+
       server_config.monitor_listener_config = monitor_listener_config;
 
       auto& connection_config = listener_config.connection_config;
@@ -341,8 +349,9 @@ public:
       listener_config.handler_defaults = {};
 
       auto http_server_builder = std::make_unique<UServerUtils::Http::Server::HttpServerBuilder>(
-        logger.in(),
+        logger_.in(),
         server_config,
+        sec_dist_config_,
         main_task_processor,
         statistic_storage);
 
@@ -698,6 +707,7 @@ public:
   }
 
   UServerUtils::TaskProcessorContainerBuilderPtr task_processor_container_builder_;
+  userver::storages::secdist::SecdistConfig sec_dist_config_;
   Logging::Logger_var logger_;
 };
 

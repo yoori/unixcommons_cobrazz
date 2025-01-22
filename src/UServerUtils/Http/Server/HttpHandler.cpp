@@ -45,24 +45,24 @@ HttpHandler::log_level() const noexcept
   return log_level_;
 }
 
-namespace internal
+namespace details
 {
 
 HttpHandlerImpl::HttpHandlerImpl(
   HttpHandler* http_handler,
   const DynamicConfigSource& dynamic_config_source,
-  const TracingManagerBase& tracing_manager,
   StatisticsStorage& statistics_storage,
+  HttpMiddlewares&& http_middlewares,
   const bool is_monitor)
   : HttpHandlerBase(
       http_handler->handler_name(),
       http_handler->handler_config(),
       dynamic_config_source,
-      tracing_manager,
       statistics_storage,
       false,
       http_handler->log_level(),
-      is_monitor),
+      is_monitor,
+      std::move(http_middlewares)),
     http_handler_(ReferenceCounting::add_ref(http_handler))
 {
   add_child_object(http_handler_.in());
@@ -78,7 +78,7 @@ std::string HttpHandlerImpl::HandleRequestThrow(
 }
 
 void HttpHandlerImpl::HandleStreamRequest(
-  const HttpRequest& http_request,
+  HttpRequest& http_request,
   RequestContext& context,
   ResponseBodyStream& response_body_stream) const
 {

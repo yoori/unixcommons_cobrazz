@@ -2,15 +2,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 
-"""
-This script is a Protobuf protoc plugin that generates userver asynchronous
-wrappers for gRPC clients.
-
-For each `path/X.proto` file that contains gRPC services, we generate
-`path/X_{client,handler}.usrv.pb.{hpp,cpp}` using
-`{client,handler}.usrv.pb.{hpp,cpp}.jinja` templates.
-"""
-
 import enum
 import itertools
 import os
@@ -58,12 +49,12 @@ def _to_package_prefix(package):
 
 class _CodeGenerator:
     def __init__(
-            self,
-            proto_file,
-            response: plugin.CodeGeneratorResponse,
-            jinja_env: jinja2.Environment,
-            mode: Mode,
-            skip_files_wo_service: bool,
+        self,
+        proto_file,
+        response: plugin.CodeGeneratorResponse,
+        jinja_env: jinja2.Environment,
+        mode: Mode,
+        skip_files_wo_service: bool,
     ) -> None:
         self.proto_file = proto_file
         self.response = response
@@ -125,7 +116,9 @@ class _CodeGenerator:
 
 
 def generate(
-        loader: jinja2.BaseLoader, mode: Mode, skip_files_wo_service: bool,
+        loader: jinja2.BaseLoader,
+        mode: Mode,
+        skip_files_wo_service: bool,
 ) -> None:
     data = sys.stdin.buffer.read()
 
@@ -141,7 +134,10 @@ def generate(
         )
 
     jinja_env = jinja2.Environment(
-        loader=loader, trim_blocks=True, lstrip_blocks=True,
+        loader=loader,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        autoescape=True,
     )
     jinja_env.filters['grpc_to_cpp_name'] = _grpc_to_cpp_name
 
@@ -167,12 +163,15 @@ def main(
     if loader is None:
         loader = jinja2.FileSystemLoader(
             os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), 'templates',
+                os.path.dirname(os.path.abspath(__file__)),
+                'templates',
             ),
         )
 
     generate(
-        loader=loader, mode=mode, skip_files_wo_service=skip_files_wo_service,
+        loader=loader,
+        mode=mode,
+        skip_files_wo_service=skip_files_wo_service,
     )
 
 

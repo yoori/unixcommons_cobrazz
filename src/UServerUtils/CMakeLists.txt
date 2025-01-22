@@ -1,3 +1,5 @@
+include(FetchContent)
+
 find_program(PROTOBUF_PROTOC protoc)
 if(NOT PROTOBUF_PROTOC)
   message(SEND_ERROR "Failed to find protoc")
@@ -21,6 +23,29 @@ include_directories (
   ${GRPC_PROTOBUF_INCLUDE_DIRS}
   Grpc/Core
 )
+
+if (NOT ${USE_USERVER_PACKAGE})
+  get_property(compile_options DIRECTORY PROPERTY COMPILE_OPTIONS)
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wno-error)
+  set(GRPC_EXTERNAL_ENABLE TRUE CACHE INTERNAL "")
+
+  option(USERVER_FEATURE_GRPC "Build userver feature grpc" ON)
+  option(USERVER_FEATURE_STACKTRACE "Build userver feature stacktrace" OFF)
+  option(USERVER_FEATURE_POSTGRESQL "Provide asynchronous driver for PostgreSQL" OFF)
+  option(USERVER_FEATURE_MONGODB "Provide asynchronous driver for MongoDB" OFF)
+  option(USERVER_FEATURE_CLICKHOUSE "Provide asynchronous driver for ClickHouse" OFF)
+  option(USERVER_FEATURE_RABBITMQ "Provide asynchronous driver for RabbitMQ" OFF)
+
+  FetchContent_Declare(
+    userver
+    GIT_REPOSITORY https://github.com/arbogdanov/userver.git
+    GIT_TAG cobrazz
+  )
+  FetchContent_MakeAvailable(userver)
+
+  set_property(DIRECTORY PROPERTY COMPILE_OPTIONS ${compile_options})
+  unset(compile_options)
+endif()
 
 set (SOURCES_FILES
   Grpc/Common/Logging.cpp
@@ -95,8 +120,7 @@ add_executable(TestUserver
   Test/grpc_cobrazz_unary_unary_server_coro_test.cpp
   Test/grpc_notify_test.cpp
   Test/main.cpp
-  Test/grpc_userver_test1.cpp
-  Test/grpc_userver_test2.cpp
+  Test/grpc_userver_test.cpp
   Test/http_test.cpp
   Test/rocsdb_test.cpp
 )
@@ -106,6 +130,8 @@ target_link_libraries(TestUserver
   GTest::gtest_main
   UServerUtils
   UServerUtils_proto
+  userver-core
+  userver-grpc
   uring
 )
 
@@ -115,9 +141,7 @@ add_test(TestUserver TestUserver)
 foreach(Target
   File_Manager_Benchmark
   File_Reader_Benchmark
-  Grpc_Benchmark1
-  Grpc_Benchmark2
-  Grpc_Benchmark_Sleep
+  Grpc_Benchmark
   Grpc_Client_Remote_Test
   Grpc_Cobrazz_Async_Benchmark
   Grpc_Cobrazz_Coro_Benchmark

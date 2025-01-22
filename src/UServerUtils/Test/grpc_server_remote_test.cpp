@@ -13,7 +13,7 @@
 #include <UServerUtils/Grpc/Server/Config.hpp>
 #include <UServerUtils/Grpc/Server/Server.hpp>
 
-class StreamStreamHandler
+class StreamStreamHandler final
   : public test_coro::TestCoroService_Handler_Handler
 {
 public:
@@ -45,11 +45,10 @@ int main(int /*argc*/, char** /*argv*/)
 {
   try
   {
-    Logging::Logger_var logger(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::INFO)));
+    Logging::Logger_var logger = new Logging::OStream::Logger(
+      Logging::OStream::Config(
+        std::cerr,
+        Logging::Logger::INFO));
 
     UServerUtils::Grpc::Server::Config config;
     config.port = 7778;

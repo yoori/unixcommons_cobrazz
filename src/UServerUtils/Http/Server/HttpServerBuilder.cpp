@@ -11,6 +11,7 @@ namespace UServerUtils::Http::Server
 HttpServerBuilder::HttpServerBuilder(
   Logger* logger,
   const ServerConfig& config,
+  const SecdistConfig& secdist_config,
   TaskProcessor& listener_task_processor,
   StatisticsStorage& statistics_storage)
   : statistics_storage_(statistics_storage)
@@ -20,13 +21,13 @@ HttpServerBuilder::HttpServerBuilder(
     docs_map,
     {}));
 
-  http_server_ = HttpServer_var(
-    new HttpServer(
-      logger,
-      config,
-      listener_task_processor,
-      statistics_storage,
-      storage_mock_));
+  http_server_ = new HttpServer(
+    logger,
+    config,
+    listener_task_processor,
+    statistics_storage,
+    storage_mock_,
+    secdist_config);
 
   if (config.monitor_listener_config.has_value())
   {
@@ -40,23 +41,28 @@ HttpServerBuilder::HttpServerBuilder(
         "MonitorHandler",
         handler_config));
 
-    add_handler(monitor_handler.in(), listener_task_processor, true);
+    add_handler(
+      monitor_handler.in(),
+      listener_task_processor,
+      true);
   }
 }
 
 void HttpServerBuilder::add_handler(
   HttpHandler* http_handler,
   TaskProcessor& task_processor,
-  const bool is_monitor)
+  const bool is_monitor,
+  HttpMiddlewares&& http_middlewares)
 {
-  internal::HttpHandlerImpl_var handler(
-    new internal::HttpHandlerImpl(
-      http_handler,
-      storage_mock_->GetSource(),
-      userver::tracing::kDefaultTracingManager,
-      statistics_storage_,
-      is_monitor));
-  http_server_->add_handler(handler.in(), task_processor);
+  details::HttpHandlerImpl_var handler = new details::HttpHandlerImpl(
+    http_handler,
+    storage_mock_->GetSource(),
+    statistics_storage_,
+    std::move(http_middlewares),
+    is_monitor);
+  http_server_->add_handler(
+    handler.in(),
+    task_processor);
   http_handlers_.emplace_back(
     Component_var(
       ReferenceCounting::add_ref(handler.in())));

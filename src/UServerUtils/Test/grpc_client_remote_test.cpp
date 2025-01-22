@@ -1,6 +1,3 @@
-// GTEST
-#include <gtest/gtest.h>
-
 // PROTO
 #include "test_coro_client_client.cobrazz.pb.hpp"
 #include "test_coro_client_service.cobrazz.pb.hpp"
@@ -74,7 +71,7 @@ public:
     auto& task_processor = manager_->get_main_task_processor();
 
     ConfigPoolCoro config;
-    config.endpoint = "192.168.3.15:" + std::to_string(port_);
+    config.endpoint = "127.0.0.1:" + std::to_string(port_);
     config.number_async_client = 1;
     config.number_threads = 1;
 
@@ -82,12 +79,12 @@ public:
       logger_.in(),
       config);
 
+    auto pool = pool_factory.create<
+      test_coro::TestCoroService_Handler_ClientPool>(
+        task_processor);
     for (int i = 1; i <= 100; ++i)
     {
       std::cout << "number: " << i << std::endl;
-
-      auto pool = pool_factory.create<test_coro::TestCoroService_Handler_ClientPool>(
-        task_processor);
 
       auto request = std::make_unique<test_coro::Request>();
       request->set_message("hi");
@@ -96,6 +93,18 @@ public:
       if (result.status == Status::Ok)
       {
         std::cout << result.response->message() << std::endl;
+      }
+      else if (result.status == Status::Timeout)
+      {
+        std::cout << "timeout" << std::endl;
+      }
+      else if (result.status == Status::InternalError)
+      {
+        std::cout << "internal error" << std::endl;
+      }
+      else
+      {
+        std::cout << "unknown status" << std::endl;
       }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(3000));

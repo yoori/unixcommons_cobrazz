@@ -1,13 +1,13 @@
 // STD
 #include <chrono>
 #include <iostream>
-#include <deque>
 
 // GTEST
 #include <gtest/gtest.h>
 
 // USERVER
 #include <userver/engine/sleep.hpp>
+#include <userver/ugrpc/client/impl/completion_queue_pool.hpp>
 
 // PROTO
 #include "test1_service.usrv.pb.hpp"
@@ -68,15 +68,14 @@ public:
     kCheckService1Deactivate = true;
   }
 
-  void say_hello(
-    say_helloCall& call,
+  say_helloResult say_hello(
+    CallContext& context,
     ::UServerUtils::Grpc::Test1::Request&& request) override
   {
     EXPECT_EQ(request.request(), kRequestService1);
-
     UServerUtils::Grpc::Test1::Response response;
     response.set_response(kResponseService1);
-    call.Finish(response);
+    return response;
   }
 
 private:
@@ -96,20 +95,20 @@ public:
 
   ~Test2Service() override = default;
 
-  void chat(chatCall& call) override
+  chatResult chat(CallContext& context, chatReaderWriter& stream) override
   {
     UServerUtils::Grpc::Test2::Request request;
     UServerUtils::Grpc::Test2::Response response;
     std::size_t count = 0;
-    while (call.Read(request))
+    while (stream.Read(request))
     {
       count += 1;
       response.set_allocated_response(request.release_request());
-      call.Write(response);
-      userver::engine::Yield();
+      stream.Write(response);
     }
-    call.Finish();
+
     EXPECT_EQ(count, kCountRequestService2);
+    return grpc::Status::OK;
   }
 
 private:
@@ -138,9 +137,7 @@ public:
     auto context = std::make_unique<grpc::ClientContext>();
     context->set_deadline(
       userver::engine::Deadline::FromDuration(std::chrono::seconds{20}));
-
-    auto stream = client_->say_hello(request, std::move(context));
-    UServerUtils::Grpc::Test1::Response response = stream.Finish();
+    auto response = client_->say_hello(request, std::move(context));
 
     return std::move(*response.mutable_response());
   }
@@ -184,7 +181,6 @@ public:
       EXPECT_TRUE(call.Write(request));
       EXPECT_TRUE(call.Read(response));
       EXPECT_EQ(response.response(), data);
-      userver::engine::Yield();
     }
     EXPECT_TRUE(call.WritesDone());
   }
@@ -196,8 +192,11 @@ private:
   std::unique_ptr<UServerUtils::Grpc::Test2::TestStreamServiceClient> client_;
 };
 
-class GrpcFixture1 : public testing::Test
+class GrpcFixture : public testing::Test
 {
+public:
+  using CompletionQueuePool = userver::ugrpc::client::impl::CompletionQueuePool;
+
 public:
   void SetUp() override
   {
@@ -226,7 +225,8 @@ public:
     channel_task_processor_config.worker_threads = 3;
     channel_task_processor_config.thread_name = "channel_tskpr";
 
-    task_processor_container_builder_->add_task_processor(channel_task_processor_config);
+    task_processor_container_builder_->add_task_processor(
+      channel_task_processor_config);
   }
 
   void TearDown() override
@@ -239,9 +239,10 @@ public:
 
 } // namespace
 
-TEST_F(GrpcFixture1, Subtest_1)
+TEST_F(GrpcFixture, test)
 {
-  auto init_func = [logger = logger_] (UServerUtils::TaskProcessorContainer& task_processor_container) {
+  auto init_func = [logger = logger_] (
+    UServerUtils::TaskProcessorContainer& task_processor_container) {
     auto& main_task_processor =
       task_processor_container.get_main_task_processor();
 
@@ -283,9 +284,11 @@ TEST_F(GrpcFixture1, Subtest_1)
         kNameChannelTaskProcessor);
     UServerUtils::UServerGrpc::ClientFactoryConfig client_factory_config;
     client_factory_config.channel_count = 2;
+    auto queue_pool = std::make_shared<CompletionQueuePool>(5);
     auto client_factory = components_builder->add_grpc_userver_client_factory(
       std::move(client_factory_config),
-      channel_task_processor);
+      channel_task_processor,
+      queue_pool);
     ReferenceCounting::SmartPtr<Test1Client> test1_client(
       new Test1Client(
         client_factory.in(),

@@ -6,10 +6,10 @@
 #include <memory>
 
 // USERVER
-#include <eh/Exception.hpp>
-#include <userver/engine/task/task_processor.hpp>
+#include <engine/task/task_processor.hpp>
 
 // THIS
+#include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Server/ConfigCoro.hpp>
 #include <UServerUtils/Grpc/Server/ServerCoro.hpp>

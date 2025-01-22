@@ -120,18 +120,18 @@ Request Request::post(
 
 Request& Request::post(
   const std::string& url,
-  const Form& form) &
+  Form&& form) &
 {
-  impl_->post(url, form);
+  impl_->post(url, std::move(form));
   return *this;
 }
 
 Request Request::post(
   const std::string& url,
-  const Form& form) &&
+  Form&& form) &&
 {
   return Request{
-    std::move(*impl_).post(url, form),
+    std::move(*impl_).post(url, std::move(form)),
     task_processor_};
 }
 
@@ -277,15 +277,15 @@ Request Request::data(std::string&& data) &&
     task_processor_};
 }
 
-Request& Request::form(const Form& form) &
+Request& Request::form(Form&& form) &
 {
-  impl_->form(form);
+  impl_->form(std::move(form));
   return *this;
 }
-Request Request::form(const Form& form) &&
+Request Request::form(Form&& form) &&
 {
   return Request{
-    std::move(*impl_).form(form),
+    std::move(*impl_).form(std::move(form)),
     task_processor_};
 }
 
@@ -316,6 +316,35 @@ Request Request::headers(
 {
   return Request{
     std::move(*impl_).headers(headers),
+    task_processor_};
+}
+
+Request& Request::http_auth_type(
+  const HttpAuthType value,
+  const bool auth_only,
+  const std::string_view user,
+  const std::string_view password) &
+{
+  impl_->http_auth_type(
+    value,
+    auth_only,
+    user,
+    password);
+  return *this;
+}
+
+Request Request::http_auth_type(
+  const HttpAuthType value,
+  const bool auth_only,
+  const std::string_view user,
+  const std::string_view password) &&
+{
+  return Request{
+    std::move(*impl_).http_auth_type(
+      value,
+      auth_only,
+      user,
+      password),
     task_processor_};
 }
 
@@ -567,6 +596,32 @@ Request Request::unix_socket_path(const std::string& path) &&
     task_processor_};
 }
 
+Request& Request::use_ipv4() &
+{
+  impl_->use_ipv4();
+  return *this;
+}
+
+Request Request::use_ipv4() &&
+{
+  return Request{
+    std::move(*impl_).use_ipv4(),
+    task_processor_};
+}
+
+Request& Request::use_ipv6() &
+{
+  impl_->use_ipv6();
+  return *this;
+}
+
+Request Request::use_ipv6() &&
+{
+  return Request{
+    std::move(*impl_).use_ipv6(),
+    task_processor_};
+}
+
 Request& Request::connect_to(const ConnectTo& connect_to) &
 {
   impl_->connect_to(connect_to);
@@ -612,13 +667,6 @@ Request& Request::set_allowed_urls_extra(const std::vector<std::string>& urls) &
   return *this;
 }
 
-Request Request::set_allowed_urls_extra(const std::vector<std::string>& urls) &&
-{
-  return Request{
-    std::move(*impl_).SetAllowedUrlsExtra(urls),
-    task_processor_};
-}
-
 Request& Request::disable_reply_decoding() &
 {
   impl_->DisableReplyDecoding();
@@ -632,30 +680,9 @@ Request Request::disable_reply_decoding() &&
     task_processor_};
 }
 
-Request& Request::enable_add_client_timeout_header() &
+void Request::set_cancellation_policy(const CancellationPolicy cp)
 {
-  impl_->EnableAddClientTimeoutHeader();
-  return *this;
-}
-
-Request Request::enable_add_client_timeout_header() &&
-{
-  return Request{
-    std::move(*impl_).EnableAddClientTimeoutHeader(),
-    task_processor_};
-}
-
-Request& Request::disable_add_client_timeout_header() &
-{
-  impl_->DisableAddClientTimeoutHeader();
-  return *this;
-}
-
-Request Request::disable_add_client_timeout_header() &&
-{
-  return Request{
-    std::move(*impl_).DisableAddClientTimeoutHeader(),
-    task_processor_};
+  impl_->SetCancellationPolicy(cp);
 }
 
 std::shared_ptr<Response> Request::perform(
