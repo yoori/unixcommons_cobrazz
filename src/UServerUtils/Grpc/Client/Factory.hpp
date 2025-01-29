@@ -229,12 +229,14 @@ public:
       for (auto& client : clients_)
       {
         if (!client.second.client->stop())
+        {
           return;
+        }
       }
 
       const auto status = cv_.wait_for(
         lock,
-        std::chrono::milliseconds(3000),
+        std::chrono::milliseconds(5000),
         [this] () {
           return clients_.empty();
         });
@@ -248,17 +250,10 @@ public:
     }
     catch (const eh::Exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::FACTORY);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(stream.str(), Aspect::FACTORY);
     }
   }
 
@@ -270,7 +265,7 @@ public:
     const std::optional<ChannelPtr>& channel)
   {
     if constexpr (k_rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-               || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+      || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
     {
       if (!request)
       {
@@ -329,7 +324,7 @@ public:
       std::move(request));
 
     if constexpr (k_rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING
-               || k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING)
+      || k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING)
     {
       auto writer = std::make_shared<Writer<Request, k_rpc_type>>(client);
       observer->set_writer(writer);
@@ -361,15 +356,8 @@ public:
 
   std::size_t size() const noexcept
   {
-    try
-    {
-      std::lock_guard lock(mutex_clients_);
-      return clients_.size();
-    }
-    catch (...)
-    {
-      return 0;
-    }
+    std::lock_guard lock(mutex_clients_);
+    return clients_.size();
   }
 
   std::size_t number_thread() const noexcept
@@ -399,7 +387,10 @@ private:
 
     if (factory_observer_)
     {
-      factory_observer_(client_id, channel, completion_queue);
+      factory_observer_(
+        client_id,
+        channel,
+        completion_queue);
     }
 
     {
@@ -456,12 +447,10 @@ public:
   using Logger = Logging::Logger;
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
-  using Observer = typename Impl::Observer;
   using ObserverPtr = typename Impl::ObserverPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
   using Response = typename Impl::Response;
-  using ResponsePtr = typename Impl::ResponsePtr;
 
 public:
   explicit Factory(
@@ -490,7 +479,10 @@ public:
     const ObserverPtr& observer,
     RequestPtr&& request)
   {
-    impl_.create(observer, std::move(request), {});
+    impl_.create(
+      observer,
+      std::move(request),
+      {});
   }
 
   std::size_t size() const noexcept
@@ -587,12 +579,10 @@ public:
   using ChannelPtr = typename Impl::ChannelPtr;
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
-  using Observer = typename Impl::Observer;
   using ObserverPtr = typename Impl::ObserverPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
   using Response = typename Impl::Response;
-  using ResponsePtr = typename Impl::ResponsePtr;
 
 public:
   explicit Factory(
@@ -653,13 +643,11 @@ public:
   using ChannelPtr = typename Impl::ChannelPtr;
   using Channels = typename Impl::Channels;
   using SchedulerPtr = typename Impl::SchedulerPtr;
-  using Observer = typename Impl::Observer;
   using ObserverPtr = typename Impl::ObserverPtr;
   using WriterPtr = typename Impl::WriterPtr;
   using Request = typename Impl::Request;
   using RequestPtr = typename Impl::RequestPtr;
   using Response = typename Impl::Response;
-  using ResponsePtr = typename Impl::ResponsePtr;
 
 public:
   explicit Factory(

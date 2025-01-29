@@ -71,12 +71,9 @@ public:
     "Response must have member 'std::uint32_t id_request_grpc'");
 
   using Observer = ClientObserver<RpcServiceMethodConcept>;
-  using WriterPtr = typename Observer::WriterPtr;
   using CompletionQueue = typename Observer::CompletionQueue;
-  using CompletionQueuePtr = typename Observer::CompletionQueuePtr;
   using ClientCoroPtr = std::shared_ptr<ClientCoro>;
   using Channel = grpc::Channel;
-  using ChannelPtr = std::shared_ptr<Channel>;
 
   struct WriteResult final
   {
@@ -103,6 +100,7 @@ private:
   using Promise = userver::engine::Promise<ResponsePtr>;
   using Future = userver::engine::Future<ResponsePtr>;
   using Requests = std::unordered_map<IdRequest, Promise>;
+  using Counter = std::atomic<std::uint32_t>;
 
 public:
   ~ClientCoro() override = default;
@@ -134,7 +132,7 @@ public:
       Promise promise;
       auto future = promise.get_future();
 
-      const auto id = id_request_.fetch_add(
+      const auto id = counter_.fetch_add(
         1,
         std::memory_order_relaxed);
       request->set_id_request_grpc(id);
@@ -173,7 +171,7 @@ public:
 
         Stream::Error stream;
         stream << FNS
-               << ": WriterStatus="
+               << "WriterStatus="
                << (write_status == WriterStatus::InternalError ?
                   "InternalError" : "RpcClosed");
         logger_->error(stream.str(), Aspect::CLIENT_CORO);
@@ -225,7 +223,7 @@ public:
           {
             Stream::Error stream;
             stream << FNS
-                   << ": Logic error. Empty response";
+                   << "Logic error. Empty response";
             logger_->error(stream.str(), Aspect::CLIENT_CORO);
 
             return {Status::InternalError, {}};
@@ -243,30 +241,17 @@ public:
     }
     catch (const eh::Exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(stream.str(), Aspect::CLIENT_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(stream.str(), Aspect::CLIENT_CORO);
     }
 
     return {Status::InternalError, {}};
@@ -297,7 +282,7 @@ private:
       {
         Stream::Error stream;
         stream << FNS
-               << ": Client stopped";
+               << "Client stopped";
         throw Exception(stream);
       }
 
@@ -306,7 +291,7 @@ private:
       {
         Stream::Error stream;
         stream << FNS
-               << ": Logic error. Existing id_request="
+               << "Logic error. Existing id_request="
                << id_request;
         throw Exception(stream);
       }
@@ -317,17 +302,11 @@ private:
     }
     catch (const eh::Exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << ": "
+             << exc.what();
+      logger_->error(stream.str(), Aspect::CLIENT_CORO);
 
       auto eptr = std::current_exception();
       try
@@ -340,16 +319,10 @@ private:
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(stream.str(), Aspect::CLIENT_CORO);
 
       auto eptr = std::current_exception();
       try
@@ -413,7 +386,7 @@ private:
 
   Requests requests_;
 
-  std::atomic<std::uint32_t> id_request_{0};
+  Counter counter_{0};
 
   grpc::Notifier notifier_;
 

@@ -5,7 +5,7 @@
 #include <memory>
 
 // USERVER
-#include <userver/engine/task/task_processor.hpp>
+#include <engine/task/task_processor.hpp>
 #include <userver/clients/http/request.hpp>
 #include <userver/clients/http/response.hpp>
 
@@ -19,6 +19,8 @@ using Form = userver::clients::http::Form;
 using Headers = userver::clients::http::Headers;
 using HttpMethod = userver::clients::http::HttpMethod;
 using HttpVersion = userver::clients::http::HttpVersion;
+using HttpAuthType = userver::clients::http::HttpAuthType;
+using CancellationPolicy = userver::clients::http::CancellationPolicy;
 using PrivateKey = userver::crypto::PrivateKey;
 using ProxyAuthType = userver::clients::http::ProxyAuthType;
 using Response = userver::clients::http::Response;
@@ -60,10 +62,10 @@ public:
   /// POST request with url and multipart/form-data
   Request& post(
     const std::string& url,
-    const Form& form) &;
+    Form&& form) &;
   Request post(
     const std::string& url,
-    const Form& form) &&;
+    Form&& form) &&;
   /// PUT request
   Request& put() &;
   Request put() &&;
@@ -111,8 +113,8 @@ public:
   Request& data(std::string&& data) &;
   Request data(std::string&& data) &&;
   /// form for POST request
-  Request& form(const Form& form) &;
-  Request form(const Form& form) &&;
+  Request& form(Form&& form) &;
+  Request form(Form&& form) &&;
   /// Headers for request as map
   Request& headers(const Headers& headers) &;
   Request headers(const Headers& headers) &&;
@@ -123,6 +125,17 @@ public:
   Request headers(
     const std::initializer_list<
       std::pair<std::string_view, std::string_view>>& headers) &&;
+  /// Sets http auth type to use.
+  Request& http_auth_type(
+    const HttpAuthType value,
+    const bool auth_only,
+    const std::string_view user,
+    const std::string_view password) &;
+  Request http_auth_type(
+    const HttpAuthType value,
+    const bool auth_only,
+    const std::string_view user,
+    const std::string_view password) &&;
   /// Proxy headers for request as map
   Request& proxy_headers(const Headers& headers) &;
   Request proxy_headers(const Headers& headers) &&;
@@ -203,6 +216,13 @@ public:
   Request& unix_socket_path(const std::string& path) &;
   Request unix_socket_path(const std::string& path) &&;
 
+  /// Set CURL_IPRESOLVE_V4 for ipv4 resolving
+  Request& use_ipv4() &;
+  Request use_ipv4() &&;
+  /// Set CURL_IPRESOLVE_V6 for ipv6 resolving
+  Request& use_ipv6() &;
+  Request use_ipv6() &&;
+
   /// Set CURLOPT_CONNECT_TO option
   Request& connect_to(const ConnectTo& connect_to) &;
   Request connect_to(const ConnectTo& connect_to) &&;
@@ -220,20 +240,13 @@ public:
   Request set_destination_metric_name(const std::string& destination) &&;
 
   Request& set_allowed_urls_extra(const std::vector<std::string>& urls) &;
-  Request set_allowed_urls_extra(const std::vector<std::string>& urls) &&;
 
   /// Disable auto-decoding of received replies.
   /// Useful to proxy replies 'as is'.
   Request& disable_reply_decoding() &;
   Request disable_reply_decoding() &&;
 
-  /// Enable auto add header with client timeout.
-  Request& enable_add_client_timeout_header() &;
-  Request enable_add_client_timeout_header() &&;
-
-  /// Disable auto add header with client timeout.
-  Request& disable_add_client_timeout_header() &;
-  Request disable_add_client_timeout_header() &&;
+  void set_cancellation_policy(const CancellationPolicy cp);
 
   std::shared_ptr<Response> perform(
     const SourceLocation& location = SourceLocation::Current());

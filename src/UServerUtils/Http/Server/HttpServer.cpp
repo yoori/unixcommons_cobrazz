@@ -19,7 +19,8 @@ HttpServer::HttpServer(
   const ServerConfig& config,
   userver::engine::TaskProcessor& listener_task_processor,
   StatisticsStorage& statistics_storage,
-  const StorageMockPtr& storage_mock)
+  const StorageMockPtr& storage_mock,
+  const SecdistConfig& secdist)
   : storage_mock_(storage_mock),
     metrics_storage_(std::make_shared<MetricsStorage>()),
     metrics_storage_registration_(metrics_storage_->RegisterIn(statistics_storage)),
@@ -38,7 +39,8 @@ HttpServer::HttpServer(
     std::move(server_config),
     listener_task_processor,
     metrics_storage_,
-    storage_mock->GetSource());
+    storage_mock->GetSource(),
+    secdist);
 }
 
 HttpServer::~HttpServer()
@@ -72,13 +74,8 @@ void HttpServer::deactivate_object_()
   server_->Stop();
 }
 
-void HttpServer::wait_object_()
-{
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
-}
-
 void HttpServer::add_handler(
-  internal::HttpHandlerImpl* http_handler,
+  details::HttpHandlerImpl* http_handler,
   TaskProcessor& task_processor)
 {
   if (active())

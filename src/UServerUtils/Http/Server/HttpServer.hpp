@@ -42,7 +42,7 @@ public:
   using StatisticsEntries = std::vector<StatisticsEntry>;
   using TaskProcessor = userver::engine::TaskProcessor;
   using ServerConfig = UServerUtils::Http::Server::ServerConfig;
-  using DynamicConfigSource = userver::dynamic_config::Source;
+  using SecdistConfig = userver::storages::secdist::SecdistConfig;
 
 protected:
   ~HttpServer() override;
@@ -52,18 +52,17 @@ private:
 
   void deactivate_object_() override;
 
-  void wait_object_() override;
-
 private:
   explicit HttpServer(
     Logger* logger,
     const ServerConfig& config,
     TaskProcessor& listener_task_processor,
     StatisticsStorage& statistics_storage,
-    const StorageMockPtr& storage_mock);
+    const StorageMockPtr& storage_mock,
+    const SecdistConfig& secdist);
 
   void add_handler(
-    internal::HttpHandlerImpl* http_handler,
+    details::HttpHandlerImpl* http_handler,
     TaskProcessor& task_processor);
 
 private:

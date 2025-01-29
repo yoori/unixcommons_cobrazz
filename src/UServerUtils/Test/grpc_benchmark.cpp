@@ -1,5 +1,4 @@
 // STD
-#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <deque>
@@ -17,6 +16,7 @@
 #include <userver/engine/async.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/engine/task/task.hpp>
+#include <userver/ugrpc/client/impl/completion_queue_pool.hpp>
 #include <utils/signal_catcher.hpp>
 
 // THIS
@@ -28,10 +28,6 @@
 
 struct Statistics final
 {
-  explicit Statistics() = default;
-
-  ~Statistics() = default;
-
   std::atomic<std::size_t> success_write{0};
   std::atomic<std::size_t> error_write{0};
   std::atomic<std::size_t> success_read{0};
@@ -47,17 +43,18 @@ public:
 
   ~Service() override = default;
 
-  void chat(chatCall& call) override
+  chatResult chat(CallContext& context, chatReaderWriter& stream) override
   {
     UServerUtils::Grpc::Test2::Request request;
     UServerUtils::Grpc::Test2::Response response;
-    while (call.Read(request))
+    while (stream.Read(request))
     {
       response.set_allocated_response(request.release_request());
-      call.Write(response);
+      stream.Write(response);
       userver::engine::Yield();
     }
-    call.Finish();
+
+    return grpc::Status::OK;
   }
 };
 
@@ -78,7 +75,9 @@ public:
     Statistics& statistics)
     : message_(message),
       number_initial_message_(number_initial_message),
-      client_(factory->make_client<UServerUtils::Grpc::Test2::TestStreamServiceClient>("Client", endpoint)),
+      client_(factory->make_client<UServerUtils::Grpc::Test2::TestStreamServiceClient>(
+        "Client",
+        endpoint)),
       task_processor_(task_processor),
       statistics_(statistics)
   {
@@ -95,19 +94,20 @@ public:
 
   void activate_object() override
   {
-    const bool is_task_processor_thread = userver::engine::current_task::IsTaskProcessorThread();
+    const bool is_task_processor_thread =
+      userver::engine::current_task::IsTaskProcessorThread();
     if (!is_task_processor_thread)
     {
       Stream::Error stream;
       stream << FNS
-             << "not task processor thread";
+             << ": Not task processor thread";
       throw Exception(stream);
     }
 
     task_ = userver::engine::AsyncNoSpan(
       task_processor_,
       [this] () {
-        this->run();
+      this->run();
     });
   }
 
@@ -160,7 +160,7 @@ private:
           {
             Stream::Error stream;
             stream << FNS
-                   << " : Write is failed";
+                   << "Write is failed";
             throw Exception(stream);
           }
           statistics_.success_write.fetch_add(1, std::memory_order_relaxed);
@@ -193,7 +193,7 @@ private:
         {
           Stream::Error stream;
           stream << FNS
-                 << " : WritesDone is failed";
+                 << "WritesDone is failed";
           throw Exception(stream);
         }
       }
@@ -227,38 +227,23 @@ class Benchmark final
     public ReferenceCounting::AtomicImpl
 {
 public:
-  using Endpoint = std::string;
-  using Endpoints = std::vector<Endpoint>;
-  using Factories = std::vector<UServerUtils::UServerGrpc::GrpcClientFactory_var>;
-
-  DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
-
-public:
   Benchmark(
     const std::size_t number_client,
     const std::string& message,
     const std::size_t number_initial_message,
-    const std::vector<UServerUtils::UServerGrpc::GrpcClientFactory_var>& factories,
-    const Endpoints& endpoints,
+    const UServerUtils::UServerGrpc::GrpcClientFactory_var& factory,
+    const std::string& endpoint,
     UServerUtils::TaskProcessor& task_processor,
     Statistics& statistics)
   {
-    if (factories.size() != factories.size())
-    {
-      Stream::Error stream;
-      stream << "size factories and endpoints must be equal";
-      throw Exception(stream);
-    }
-
-    const auto size_endpoint = endpoints.size();
-    for (std::size_t i = 0; i < number_client; ++i)
+    for (std::size_t i = 1; i <= number_client; ++i)
     {
       ReferenceCounting::SmartPtr<Client> client(
         new Client(
           message,
           number_initial_message,
-          factories[i % size_endpoint],
-          endpoints[i % size_endpoint],
+          factory,
+          endpoint,
           task_processor,
           statistics));
       add_child_object(client.in());
@@ -271,12 +256,8 @@ public:
 class Application : Generics::Uncopyable
 {
 public:
-  using Port = std::size_t;
-  using Ports = std::vector<Port>;
-
-public:
   Application(
-    const Ports& ports,
+    const std::size_t port,
     const std::size_t number_client,
     const std::string& message,
     const std::size_t number_initial_message,
@@ -284,8 +265,9 @@ public:
     const std::size_t  number_server_thread,
     const std::size_t  number_client_thread,
     const std::size_t number_channel_thread,
-    const std::size_t number_channel)
-    : ports_(ports),
+    const std::size_t number_channel,
+    const std::size_t number_completion_queue)
+    : port_(port),
       number_client_(number_client),
       message_(message),
       number_initial_message_(number_initial_message),
@@ -293,7 +275,8 @@ public:
       number_server_thread_(number_server_thread),
       number_client_thread_(number_client_thread),
       number_channel_thread_(number_channel_thread),
-      number_channel_(number_channel)
+      number_channel_(number_channel),
+      number_completion_queue_(number_completion_queue)
   {
   }
 
@@ -325,6 +308,9 @@ public:
               << "number channels = "
               << number_channel_
               << "\n"
+              << "number completion queues = "
+              << number_completion_queue_
+              << "\n"
               << std::endl;
 
     Logging::Logger_var logger(
@@ -338,7 +324,7 @@ public:
     coro_pool_config.max_size = 10000;
 
     UServerUtils::EventThreadPoolConfig event_thread_pool_config;
-    event_thread_pool_config.threads = 2;
+    event_thread_pool_config.threads = 5;
 
     UServerUtils::TaskProcessorConfig main_task_processor_config;
     main_task_processor_config.name = "main_task_processor";
@@ -347,20 +333,12 @@ public:
     main_task_processor_config.should_guess_cpu_limit = false;
     main_task_processor_config.wait_queue_length_limit = 100000;
 
-    UServerUtils::TaskProcessorContainerBuilderPtr task_processor_container_builder1(
+    UServerUtils::TaskProcessorContainerBuilderPtr task_processor_container_builder(
         new UServerUtils::TaskProcessorContainerBuilder(
           logger.in(),
           coro_pool_config,
           event_thread_pool_config,
           main_task_processor_config));
-
-    main_task_processor_config.worker_threads = number_client_thread_;
-    UServerUtils::TaskProcessorContainerBuilderPtr task_processor_container_builder2(
-      new UServerUtils::TaskProcessorContainerBuilder(
-        logger.in(),
-        coro_pool_config,
-        event_thread_pool_config,
-        main_task_processor_config));
 
     const std::string name_channel_task_processor = "channel_task_processor";
     UServerUtils::TaskProcessorConfig channel_task_processor_config;
@@ -369,76 +347,70 @@ public:
     channel_task_processor_config.thread_name = "channel_tskpr";
     channel_task_processor_config.wait_queue_length_limit = 100000;
 
-    task_processor_container_builder2->add_task_processor(
+    task_processor_container_builder->add_task_processor(
       channel_task_processor_config);
+
+    const std::string name_client_task_processor = "client_task_processor";
+    UServerUtils::TaskProcessorConfig client_task_processor_config;
+    client_task_processor_config.name = name_client_task_processor;
+    client_task_processor_config.worker_threads = number_client_thread_;
+    client_task_processor_config.thread_name = "client_tskpr";
+    client_task_processor_config.wait_queue_length_limit = 100000;
+
+    task_processor_container_builder->add_task_processor(
+      client_task_processor_config);
 
     Statistics statistics;
 
-    auto inititialize_func1 =
-      [this, logger] (UServerUtils::TaskProcessorContainer& task_processor_container) {
-        auto& main_task_processor =
-          task_processor_container.get_main_task_processor();
-
-        UServerUtils::ComponentsBuilderPtr components_builder(new UServerUtils::ComponentsBuilder);
-        auto& statistic_storage = components_builder->get_statistics_storage();
-
-        for (const auto& port : ports_)
-        {
-          UServerUtils::UServerGrpc::ServerConfig config_server;
-          config_server.port = port;
-          UServerUtils::UServerGrpc::GrpcServerBuilderPtr server_builder =
-            std::make_unique<UServerUtils::UServerGrpc::GrpcServerBuilder>(
-              logger.in(),
-              std::move(config_server),
-              statistic_storage);
-          UServerUtils::Grpc::Server::GrpcServiceBase_var service(new Service);
-          server_builder->add_grpc_service(
-            main_task_processor,
-            service.in());
-          components_builder->add_grpc_userver_server(std::move(server_builder));
-       }
-
-       return components_builder;
-     };
-
-    auto inititialize_func2 = [
+    auto inititialize_func = [
       this,
       &name_channel_task_processor,
-      &statistics] (UServerUtils::TaskProcessorContainer& task_processor_container) {
-        auto& main_task_processor = task_processor_container.get_main_task_processor();
-        UServerUtils::ComponentsBuilderPtr components_builder(
-          new UServerUtils::ComponentsBuilder);
+      &name_client_task_processor,
+      &statistics,
+      logger] (UServerUtils::TaskProcessorContainer& task_processor_container) {
+      auto& main_task_processor =
+        task_processor_container.get_main_task_processor();
 
-        std::vector<UServerUtils::UServerGrpc::GrpcClientFactory_var> client_factories;
-        for (std::size_t i = 0; i < ports_.size(); ++i)
-        {
-          UServerUtils::UServerGrpc::ClientFactoryConfig client_factory_config;
-          client_factory_config.channel_count = number_channel_;
+      UServerUtils::ComponentsBuilderPtr components_builder(new UServerUtils::ComponentsBuilder);
+      auto& statistic_storage = components_builder->get_statistics_storage();
 
-          auto client_factory = components_builder->add_grpc_userver_client_factory(
-            std::move(client_factory_config),
-            main_task_processor,
-            nullptr);
-          client_factories.emplace_back(client_factory);
-        }
+      UServerUtils::UServerGrpc::ServerConfig config_server;
+      config_server.port = port_;
+      UServerUtils::UServerGrpc::GrpcServerBuilderPtr server_builder =
+        std::make_unique<UServerUtils::UServerGrpc::GrpcServerBuilder>(
+          logger.in(),
+          std::move(config_server),
+          statistic_storage);
+      UServerUtils::Grpc::Server::GrpcServiceBase_var service(new Service);
+      server_builder->add_grpc_service(
+        main_task_processor,
+        service.in());
+      components_builder->add_grpc_userver_server(std::move(server_builder));
 
-        std::vector<std::string> endpoints;
-        std::transform(
-          std::begin(ports_),
-          std::end(ports_),
-          std::back_inserter(endpoints),
-          [] (const auto& port) {
-            return "127.0.0.1:" + std::to_string(port);
-          });
+      UServerUtils::UServerGrpc::ClientFactoryConfig client_factory_config;
+      client_factory_config.channel_count = number_channel_;
 
+      auto& channel_task_processor =
+        task_processor_container.get_task_processor(
+          name_channel_task_processor);
+      auto queue_pool = std::make_shared<userver::ugrpc::client::impl::CompletionQueuePool>(
+        number_completion_queue_);
+      auto client_factory = components_builder->add_grpc_userver_client_factory(
+        std::move(client_factory_config),
+        channel_task_processor,
+        queue_pool);
+
+      auto& client_task_processor =
+        task_processor_container.get_task_processor(
+          name_client_task_processor);
       ReferenceCounting::SmartPtr<Benchmark> benchmark(
         new Benchmark(
           number_client_,
           message_,
           number_initial_message_,
-          client_factories,
-          endpoints,
-          main_task_processor,
+          client_factory,
+          "127.0.0.1:" + std::to_string(port_),
+          client_task_processor,
           statistics));
 
       components_builder->add_user_component("Benchmark", benchmark.in());
@@ -446,18 +418,12 @@ public:
       return components_builder;
     };
 
-    UServerUtils::Manager_var manager1 = new UServerUtils::Manager(
-      std::move(task_processor_container_builder1),
-      std::move(inititialize_func1),
+    UServerUtils::Manager_var manager = new UServerUtils::Manager(
+      std::move(task_processor_container_builder),
+      std::move(inititialize_func),
       logger.in());
 
-    UServerUtils::Manager_var manager2 = new UServerUtils::Manager(
-      std::move(task_processor_container_builder2),
-      std::move(inititialize_func2),
-      logger.in());
-
-    manager1->activate_object();
-    manager2->activate_object();
+    manager->activate_object();
 
     std::atomic<bool> is_cancel(false);
     boost::scoped_thread<> thread([
@@ -502,11 +468,8 @@ public:
     std::cout << "Stopping benchmark. Please wait..." << std::endl;
 
     is_cancel.store(true);
-    manager2->deactivate_object();
-    manager1->deactivate_object();
-
-    manager2->wait_object();
-    manager1->wait_object();
+    manager->deactivate_object();
+    manager->wait_object();
 
     return EXIT_SUCCESS;
   }
@@ -525,7 +488,7 @@ private:
   }
 
 private:
-  const Ports ports_;
+  const std::size_t port_;
 
   const std::size_t number_client_;
 
@@ -542,24 +505,27 @@ private:
   const std::size_t number_channel_thread_;
 
   const std::size_t number_channel_;
+
+  const std::size_t  number_completion_queue_;
 };
 
 int main(int /*argc*/, char** /*argv*/)
 {
   try
   {
-    const std::vector<std::size_t> ports{8888, 8887, 8886, 8885, 8884};
-    const std::size_t number_client = 300;
+    const std::size_t port = 8888;
+    const std::size_t number_client = 1000;
     const std::string message = "hello";
     const std::size_t number_initial_message = 10;
     const std::size_t time_interval = 5;
-    const std::size_t number_server_thread = 5;
-    const std::size_t number_client_thread = 5;
-    const std::size_t number_channel_thread = 5;
+    const std::size_t number_server_thread = std::thread::hardware_concurrency();
+    const std::size_t number_client_thread = std::thread::hardware_concurrency();
+    const std::size_t number_channel_thread = std::thread::hardware_concurrency();
     const std::size_t number_channel = 2;
+    const std::size_t number_completion_queue = 10;
 
     return Application(
-      ports,
+      port,
       number_client,
       message,
       number_initial_message,
@@ -567,7 +533,8 @@ int main(int /*argc*/, char** /*argv*/)
       number_server_thread,
       number_client_thread,
       number_channel_thread,
-      number_channel).run();
+      number_channel,
+      number_completion_queue).run();
   }
   catch (const eh::Exception& exc)
   {

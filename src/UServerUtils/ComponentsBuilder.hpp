@@ -8,8 +8,7 @@
 #include <unordered_set>
 
 // USERVER
-#include <userver/engine/task/task_processor.hpp>
-#include <userver/ugrpc/client/queue_holder.hpp>
+#include <engine/task/task_processor.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
@@ -39,8 +38,9 @@ public:
   using CompletionQueue = grpc::CompletionQueue;
   using Components = std::deque<Component_var>;
   using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
-  using StatisticsProvider = UServerUtils::Statistics::StatisticsProvider;
   using StatisticsProviderPtr = UServerUtils::Statistics::StatisticsProviderPtr;
+  using CompletionQueuePoolBase = userver::ugrpc::impl::CompletionQueuePoolBase;
+  using CompletionQueuePoolBasePtr = std::shared_ptr<CompletionQueuePoolBase>;
 
   struct StatisticsProviderInfo
   {
@@ -54,16 +54,14 @@ private:
   using GrpcCobrazzServer_var = Grpc::Server::ServerCoro_var;
   using GrpcCobrazzServers = std::deque<GrpcCobrazzServer_var>;
   using GrpcCobrazzServerBuilder = Grpc::Server::ServerBuilder;
-  using GrpcUserverServer = UServerUtils::UServerGrpc::GrpcServer;
   using GrpcUserverServer_var = UServerUtils::UServerGrpc::GrpcServer_var;
   using GrpcUserverServers = std::deque<GrpcUserverServer_var>;
   using GrpcUserverClientFactoryConfig = UServerGrpc::ClientFactoryConfig;
   using GrpcUserverServerBuilder = UServerGrpc::GrpcServerBuilder;
+  using GrpcUserverServerBuilderPtr = std::unique_ptr<GrpcUserverServerBuilder>;
   using GrpcUserverClientFactory = UServerGrpc::GrpcClientFactory;
   using GrpcUserverClientFactory_var = UServerGrpc::GrpcClientFactory_var;
-  using QueueHolder = userver::ugrpc::client::QueueHolder;
-  using QueueHolderPtr = std::unique_ptr<QueueHolder>;
-  using QueueHolders = std::deque<QueueHolderPtr>;
+  using CompletionQueuePoolBaseList = std::list<CompletionQueuePoolBasePtr>;
   using CashExistingComponent = std::unordered_set<std::uintptr_t>;
   using NameToUserComponent = std::unordered_map<std::string, Component_var>;
   using Middlewares = userver::ugrpc::server::Middlewares;
@@ -73,9 +71,11 @@ private:
   using HttpServer_var = UServerUtils::Http::Server::HttpServer_var;
   using HttpServers = std::deque<HttpServer_var>;
   using HttpServerBuilder = Http::Server::HttpServerBuilder;
+  using HttpServerBuilderPtr = std::unique_ptr<HttpServerBuilder>;
   using StatisticsHolder = userver::utils::statistics::Entry;
   using StatisticsHolderPtr = std::unique_ptr<StatisticsHolder>;
   using StatisticsHolders = std::list<StatisticsHolderPtr>;
+  using GrpcCobrazzServerBuilderPtr = std::unique_ptr<GrpcCobrazzServerBuilder>;
 
   struct ComponentsInfo
   {
@@ -88,7 +88,7 @@ private:
     ComponentsInfo& operator=(ComponentsInfo&&) = default;
 
     MiddlewaresList middlewares_list;
-    QueueHolders queue_holders;
+    CompletionQueuePoolBaseList completion_qeue_pool_list;
     StatisticsStoragePtr statistics_storage;
     Components components;
     NameToUserComponent name_to_user_component;
@@ -97,24 +97,26 @@ private:
 
 public:
   explicit ComponentsBuilder(
-    std::optional<StatisticsProviderInfo> statistics_provider_info = {});
+    const std::optional<StatisticsProviderInfo>& statistics_provider_info = {});
 
   ~ComponentsBuilder() = default;
 
   StatisticsStorage& get_statistics_storage();
 
-  CompletionQueue& add_grpc_userver_server(
-    std::unique_ptr<GrpcUserverServerBuilder>&& builder);
+  void add_grpc_userver_server(
+    GrpcUserverServerBuilderPtr&& builder);
 
   GrpcUserverClientFactory_var add_grpc_userver_client_factory(
     GrpcUserverClientFactoryConfig&& config,
     TaskProcessor& channel_task_processor,
-    grpc::CompletionQueue* queue = nullptr,
+    const CompletionQueuePoolBasePtr& completion_qeue_pool,
     const MiddlewareFactories& middleware_factories = {});
 
-  void add_grpc_cobrazz_server(std::unique_ptr<GrpcCobrazzServerBuilder>&& builder);
+  void add_grpc_cobrazz_server(
+    GrpcCobrazzServerBuilderPtr&& builder);
 
-  void add_http_server(std::unique_ptr<HttpServerBuilder>&& builder);
+  void add_http_server(
+    HttpServerBuilderPtr&& builder);
 
   void add_user_component(
     const std::string& name,
@@ -138,13 +140,13 @@ private:
 
   std::string statistics_prefix_;
 
-  QueueHolders queue_holders_;
-
   GrpcUserverServers grpc_userver_servers_;
 
   MiddlewaresList middlewares_list_;
 
   GrpcCobrazzServers grpc_cobrazz_servers_;
+
+  CompletionQueuePoolBaseList completion_qeue_pool_list_;
 
   HttpServers http_servers_;
 

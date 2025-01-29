@@ -10,7 +10,7 @@ namespace UServerUtils::Logger
 namespace Aspect
 {
 
-const char USERVER[] = "USERVER";
+const char LOGGER[] = "USERVER";
 
 } // namespace Aspect
 
@@ -56,7 +56,7 @@ Logger::Logger(Logging::Logger* logger)
 
 void Logger::Log(
   Level level,
-  std::string_view msg) const
+  std::string_view msg)
 {
   if (ShouldLog(level))
   {
@@ -89,17 +89,17 @@ void Logger::Log(
     logger_->log(
       String::SubString(msg.data(), msg.size()),
       severity,
-      Aspect::USERVER);
+      Aspect::LOGGER);
   }
 }
 
-void Logger::Flush() const
+void Logger::Flush()
 {
 }
 
 LoggerScope::LoggerScope(Logging::Logger* logger)
   : logger_new_(std::make_unique<Logger>(logger)),
-    logger_prev_(userver::logging::impl::DefaultLoggerRef())
+    logger_prev_(userver::logging::GetDefaultLogger())
 {
   userver::logging::impl::SetDefaultLoggerRef(*logger_new_);
 }

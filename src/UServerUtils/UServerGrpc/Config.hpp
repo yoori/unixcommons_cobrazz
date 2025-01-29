@@ -29,6 +29,10 @@ struct ClientFactoryConfig final {
   std::shared_ptr<grpc::ChannelCredentials> credentials{
     grpc::InsecureChannelCredentials()};
 
+  /// gRPC channel credentials by client_name. If not set, default `credentials`
+  /// is used instead.
+  std::unordered_map<std::string, std::shared_ptr<grpc::ChannelCredentials>> client_credentials;
+
   // Optional grpc-core channel args
   // @see https://grpc.github.io/grpc/core/group__grpc__arg__keys.html
   grpc::ChannelArguments channel_args;

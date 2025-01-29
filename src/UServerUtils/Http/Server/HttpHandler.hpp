@@ -20,7 +20,6 @@ class HttpHandler : public UServerUtils::Component
 {
 public:
   using Level = userver::logging::Level;
-  using RequestBase = userver::server::request::RequestBase;
   using HttpRequest = userver::server::http::HttpRequest;
   using RequestContext = userver::server::request::RequestContext;
   using ResponseBodyStream = userver::server::http::ResponseBodyStream;
@@ -59,7 +58,7 @@ private:
 
 using HttpHandler_var = ReferenceCounting::SmartPtr<HttpHandler>;
 
-namespace internal
+namespace details
 {
 
 class HttpHandlerImpl final :
@@ -70,11 +69,11 @@ class HttpHandlerImpl final :
 public:
   using HttpHandler_var = ReferenceCounting::SmartPtr<HttpHandler>;
   using DynamicConfigSource = userver::dynamic_config::Source;
-  using TracingManagerBase = userver::tracing::TracingManagerBase;
   using StatisticsStorage = userver::utils::statistics::Storage;
-  using HttpRequest = HttpHandler::HttpRequest;
-  using RequestContext = HttpHandler::RequestContext;
-  using ResponseBodyStream = HttpHandler::ResponseBodyStream;
+  using HttpRequest = userver::server::http::HttpRequest;
+  using RequestContext = userver::server::request::RequestContext;
+  using ResponseBodyStream = userver::server::http::ResponseBodyStream;
+  using HttpMiddlewares = userver::server::handlers::HttpHandlerBase::HttpMiddlewares;
 
 public:
   std::string HandleRequestThrow(
@@ -82,7 +81,7 @@ public:
     RequestContext& context) const override;
 
   void HandleStreamRequest(
-    const HttpRequest& http_request,
+    HttpRequest& http_request,
     RequestContext& context,
     ResponseBodyStream& response_body_stream) const override;
 
@@ -93,8 +92,8 @@ private:
   HttpHandlerImpl(
     HttpHandler* http_handler,
     const DynamicConfigSource& dynamic_config_source,
-    const TracingManagerBase& tracing_manager,
     StatisticsStorage& statistics_storage,
+    HttpMiddlewares&& http_middlewares,
     const bool is_monitor);
 
 private:

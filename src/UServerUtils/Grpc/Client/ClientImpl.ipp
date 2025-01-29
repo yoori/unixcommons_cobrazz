@@ -316,7 +316,7 @@ ClientImpl<RpcServiceMethodConcept>::on_start(
     {
       Stream::Error stream;
       stream << FNS
-             << ": Logic error. "
+             << "Logic error. "
              << "Rpc_state must be Idle and"
                 " initialize_event can't be pending";
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
@@ -386,7 +386,7 @@ ClientImpl<RpcServiceMethodConcept>::on_start(
     {
       Stream::Error stream;
       stream << FNS
-             << ": Unknown rpc type";
+             << "Unknown rpc type";
       throw Exception(stream);
     }
 
@@ -406,13 +406,15 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
   initialize_event_.set_pending(false);
 
   if (rpc_state_ == RpcState::Stop)
+  {
     return;
+  }
 
   if (rpc_state_ != RpcState::Idle)
   {
     Stream::Error stream;
     stream << FNS
-           << ": Logic error. Rpc state must be Idle";
+           << "Logic error. Rpc state must be Idle";
     logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     return;
   }
@@ -434,7 +436,6 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     }
@@ -448,7 +449,7 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
     {
       Stream::Error stream;
       stream << FNS
-             << ": Unknown error";
+             << "Unknown error";
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     }
     catch (...)
@@ -491,13 +492,13 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
       finish_event_.set_pending(true);
 
       if constexpr (k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-                 || k_rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
+        || k_rpc_type == grpc::internal::RpcMethod::CLIENT_STREAMING)
       {
         execute_queue();
       }
 
       if constexpr(k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING
-                || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+        || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
       {
         request_new_read();
       }
@@ -537,8 +538,7 @@ ClientImpl<RpcServiceMethodConcept>::on_read(
   if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING
              || k_rpc_type == Internal::RpcType::SERVER_STREAMING)
   {
-    if ((rpc_state_ != RpcState::Initialize
-     && rpc_state_ != RpcState::WritesDone)
+    if ((rpc_state_ != RpcState::Initialize && rpc_state_ != RpcState::WritesDone)
      || !ok)
     {
       return;
@@ -554,7 +554,6 @@ ClientImpl<RpcServiceMethodConcept>::on_read(
       {
         Stream::Error stream;
         stream << FNS
-               << ": "
                << exc.what();
         logger_->error(
           stream.str(),
@@ -570,7 +569,7 @@ ClientImpl<RpcServiceMethodConcept>::on_read(
       {
         Stream::Error stream;
         stream << FNS
-               << ": unknown error";
+               << "Unknown error";
         logger_->error(
           stream.str(),
           Aspect::CLIENT_IMPL);
@@ -594,8 +593,7 @@ ClientImpl<RpcServiceMethodConcept>::on_write(
   // ok means that the data/metadata/status/etc is going to go to the
   // wire. If it is false, it not going to the wire because the call
   // is already dead
-  if (rpc_state_ != RpcState::Initialize
-  || !ok)
+  if (rpc_state_ != RpcState::Initialize || !ok)
   {
     return;
   }
@@ -623,7 +621,6 @@ ClientImpl<RpcServiceMethodConcept>::on_error(
   {
     Stream::Error stream;
     stream << FNS
-           << ": "
            << info;
     logger_->error(stream.str(), Aspect::CLIENT_IMPL);
   }
@@ -640,14 +637,16 @@ ClientImpl<RpcServiceMethodConcept>::on_finish(
   finish_event_.set_pending(false);
 
   if (rpc_state_ == RpcState::Finish)
+  {
     return;
+  }
 
   // Client-side Finish: \a ok should always be true
   rpc_state_ = RpcState::Finish;
   try
   {
     if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING
-               || k_rpc_type == Internal::RpcType::SERVER_STREAMING)
+      || k_rpc_type == Internal::RpcType::SERVER_STREAMING)
     {
       observer_->on_finish(std::move(status_));
     }
@@ -664,7 +663,6 @@ ClientImpl<RpcServiceMethodConcept>::on_finish(
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     }
@@ -678,7 +676,7 @@ ClientImpl<RpcServiceMethodConcept>::on_finish(
     {
       Stream::Error stream;
       stream << FNS
-             << ": Unknown error";
+             << "Unknown error";
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     }
     catch (...)
@@ -745,7 +743,7 @@ inline void ClientImpl<RpcServiceMethodConcept>::on_event_queue(
   PendingQueueData&& data) noexcept
 {
   if (rpc_state_ == RpcState::Idle
-   || rpc_state_ == RpcState::Initialize)
+    || rpc_state_ == RpcState::Initialize)
   {
     try
     {
@@ -757,7 +755,9 @@ inline void ClientImpl<RpcServiceMethodConcept>::on_event_queue(
   }
 
   if (rpc_state_ != RpcState::Initialize)
+  {
     return;
+  }
 
   execute_queue();
 }
@@ -772,25 +772,29 @@ ClientImpl<RpcServiceMethodConcept>::request_new_read() noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": Logic error. Read_event is pending";
+             << "Logic error. Read_event is pending";
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
       return;
     }
 
     if (rpc_state_ != RpcState::Initialize
-     && rpc_state_ != RpcState::WritesDone)
+      && rpc_state_ != RpcState::WritesDone)
     {
       return;
     }
 
     if constexpr (k_rpc_type == grpc::internal::RpcMethod::BIDI_STREAMING)
     {
-      client_reader_writer_->Read(responce_.get(), &read_event_);
+      client_reader_writer_->Read(
+        responce_.get(),
+        &read_event_);
       read_event_.set_pending(true);
     }
     else if constexpr (k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
     {
-      client_reader_->Read(responce_.get(), &read_event_);
+      client_reader_->Read(
+        responce_.get(),
+        &read_event_);
       read_event_.set_pending(true);
     }
   }
@@ -811,11 +815,11 @@ ClientImpl<RpcServiceMethodConcept>::execute_queue() noexcept
   }
 
   if constexpr (k_rpc_type == grpc::internal::RpcMethod::NORMAL_RPC
-             || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
+    || k_rpc_type == grpc::internal::RpcMethod::SERVER_STREAMING)
   {
     Stream::Error stream;
     stream << FNS
-           << ": Logic error... execute_queue can be call"
+           << "Logic error... execute_queue can be call"
            << " only for CLIENT_STREAMING or BIDI_STREAMING";
     logger_->error(stream.str(), Aspect::CLIENT_IMPL);
     return;
@@ -824,7 +828,9 @@ ClientImpl<RpcServiceMethodConcept>::execute_queue() noexcept
   try
   {
     if (pending_queue_.empty())
+    {
       return;
+    }
 
     auto data = std::move(pending_queue_.front());
     pending_queue_.pop();
@@ -834,11 +840,15 @@ ClientImpl<RpcServiceMethodConcept>::execute_queue() noexcept
       request_ = std::move(data.second);
       if constexpr (k_rpc_type == Internal::RpcType::BIDI_STREAMING)
       {
-        client_reader_writer_->Write(*request_, &write_event_);
+        client_reader_writer_->Write(
+          *request_,
+          &write_event_);
       }
       else if constexpr (k_rpc_type == Internal::RpcType::CLIENT_STREAMING)
       {
-        client_writer_->Write(*request_, &write_event_);
+        client_writer_->Write(
+          *request_,
+          &write_event_);
       }
     }
     else if (data.first == PendingQueueType::WritesDone)
@@ -858,7 +868,7 @@ ClientImpl<RpcServiceMethodConcept>::execute_queue() noexcept
     {
       Stream::Error stream;
       stream << FNS
-             << ": Logic error. Not correct type message";
+             << "Logic error. Not correct type message";
       logger_->error(stream.str(), Aspect::CLIENT_IMPL);
       return;
     }
@@ -875,9 +885,10 @@ template<class RpcServiceMethodConcept>
 inline void
 ClientImpl<RpcServiceMethodConcept>::try_close() noexcept
 {
-  if (rpc_state_ != RpcState::Finish
-   && rpc_state_ != RpcState::Stop)
+  if (rpc_state_ != RpcState::Finish && rpc_state_ != RpcState::Stop)
+  {
     return;
+  }
 
   if (finish_event_.is_pending()
    || initialize_event_.is_pending()

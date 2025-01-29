@@ -9,7 +9,7 @@
 #include <grpcpp/completion_queue.h>
 
 // USERVER
-#include <userver/engine/task/task_processor.hpp>
+#include <engine/task/task_processor.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS
@@ -37,7 +37,6 @@ public:
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
   using StatisticsStorage = GrpcServer::StatisticsStorage;
-  using CompletionQueue = grpc::CompletionQueue;
   using GrpcServiceBase = UServerUtils::Grpc::Server::GrpcServiceBase;
   using GrpcServiceBase_var = UServerUtils::Grpc::Server::GrpcServiceBase_var;
   using GrpcServices = std::deque<GrpcServiceBase_var>;
@@ -47,7 +46,6 @@ public:
   using StorageMock = userver::dynamic_config::StorageMock;
   using StorageMockPtr = std::unique_ptr<StorageMock>;
   using RegistratorDynamicSettings = UServerUtils::RegistratorDynamicSettings;
-  using RegistratorDynamicSettingsPtr = std::unique_ptr<RegistratorDynamicSettings>;
 
   struct ServerInfo final
   {
@@ -65,8 +63,6 @@ public:
     StatisticsStorage& statistics_storage);
 
   ~GrpcServerBuilder() = default;
-
-  CompletionQueue& get_completion_queue();
 
   void add_grpc_service(
     TaskProcessor& task_processor,

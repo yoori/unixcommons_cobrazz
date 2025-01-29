@@ -56,6 +56,14 @@ void RegistratorDynamicSettings::registrate()
     userver::formats::json::ValueBuilder builder(false);
     auto value = builder.ExtractValue();
     docs_map_.Set(
+      "USERVER_DEADLINE_PROPAGATION_ENABLED",
+      std::move(value));
+  }
+
+  {
+    userver::formats::json::ValueBuilder builder(false);
+    auto value = builder.ExtractValue();
+    docs_map_.Set(
       "USERVER_LOG_REQUEST",
       std::move(value));
   }
@@ -65,6 +73,14 @@ void RegistratorDynamicSettings::registrate()
     auto value = builder.ExtractValue();
     docs_map_.Set(
       "USERVER_LOG_REQUEST_HEADERS",
+      std::move(value));
+  }
+
+  {
+    userver::formats::json::ValueBuilder builder(userver::formats::json::Type::kArray);
+    auto value = builder.ExtractValue();
+    docs_map_.Set(
+      "USERVER_LOG_REQUEST_HEADERS_WHITELIST",
       std::move(value));
   }
 

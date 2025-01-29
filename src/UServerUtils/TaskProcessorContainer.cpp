@@ -1,3 +1,6 @@
+// BOOST
+#include <boost/range/adaptors.hpp>
+
 // STD
 #include <sstream>
 
@@ -27,7 +30,8 @@ TaskProcessorContainer::TaskProcessorContainer(
   if (!logger_)
   {
     Stream::Error stream;
-    stream << FNS << ": logger is null";
+    stream << FNS
+           << ": logger is null";
     throw Exception(stream);
   }
 
@@ -43,19 +47,18 @@ TaskProcessorContainer::TaskProcessorContainer(
     event_thread_pool_config.thread_name;
   thread_pool_config.ev_default_loop_disabled =
     event_thread_pool_config.ev_default_loop_disabled;
-  thread_pool_config.defer_events =
-    event_thread_pool_config.defer_events;
 
-  task_processor_pools_ = TaskProcessorPoolsPtr(
-    new TaskProcessorPools(
-      pool_config,
-      thread_pool_config));
+  task_processor_pools_ = std::make_shared<TaskProcessorPools>(
+    pool_config,
+    thread_pool_config);
 
   add_task_processor_helper(main_task_processor_config, true);
 }
 
 TaskProcessorContainer::~TaskProcessorContainer()
 {
+  using TaskCounter = userver::engine::impl::TaskCounter;
+
   try
   {
     for (auto& [name, task_processor] : name_to_task_processor_)
@@ -63,7 +66,14 @@ TaskProcessorContainer::~TaskProcessorContainer()
       task_processor->InitiateShutdown();
     }
 
-    while (task_processor_pools_->GetCoroPool().GetStats().active_coroutines)
+    const auto indicators = name_to_task_processor_ | boost::adaptors::map_values |
+      boost::adaptors::transformed(
+        [](const auto& task_processor_ptr) -> const auto& {
+          const auto& task_processor = *task_processor_ptr;
+          return task_processor.GetTaskCounter();
+        });
+
+    while (TaskCounter::AnyMayHaveTasksAlive(indicators))
     {
       std::this_thread::sleep_for(std::chrono::milliseconds{10});
     }
@@ -211,7 +221,7 @@ TaskProcessorContainer::guess_cpu_limit(
       cpu = 3;
     }
 
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << FNS
            << "Using CPU limit from env CPU_LIMIT ("
            << cpu
@@ -223,7 +233,7 @@ TaskProcessorContainer::guess_cpu_limit(
     return cpu;
   }
 
-  std::stringstream stream;
+  std::ostringstream stream;
   stream << FNS
          << "CPU limit from env CPU_LIMIT ("
          << *cpu_limit
