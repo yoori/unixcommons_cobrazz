@@ -35,15 +35,12 @@ public:
   using Server = userver::ugrpc::server::Server;
   using ServerConfig = userver::ugrpc::server::ServerConfig;
   using TaskProcessor = userver::engine::TaskProcessor;
-  using CompletionQueue = grpc::CompletionQueue;
   using StatisticsStorage = userver::utils::statistics::Storage;
   using Service = userver::ugrpc::server::ServiceBase;
+  using ServiceConfig = userver::ugrpc::server::ServiceConfig;
   using Middlewares = userver::ugrpc::server::Middlewares;
   using StorageMock = userver::dynamic_config::StorageMock;
   using StorageMockPtr = std::unique_ptr<StorageMock>;
-
-public:
-  CompletionQueue& get_completion_queue() noexcept;
 
 protected:
   ~GrpcServer() override;
@@ -66,8 +63,6 @@ private:
   void activate_object_() override;
 
   void deactivate_object_() override;
-
-  void wait_object_() override;
 
 private:
   const Logger_var logger_;

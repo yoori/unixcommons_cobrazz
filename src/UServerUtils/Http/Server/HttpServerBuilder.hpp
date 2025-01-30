@@ -6,7 +6,7 @@
 #include <memory>
 
 // USERVER
-#include <userver/engine/task/task_processor.hpp>
+#include <engine/task/task_processor.hpp>
 #include <userver/utils/statistics/storage.hpp>
 #include <userver/dynamic_config/storage_mock.hpp>
 
@@ -43,6 +43,8 @@ public:
   using Component_var = UServerUtils::Component_var;
   using HttpHandlers = std::deque<UServerUtils::Component_var>;
   using RegistratorDynamicSettings = UServerUtils::RegistratorDynamicSettings;
+  using SecdistConfig = userver::storages::secdist::SecdistConfig;
+  using HttpMiddlewares = userver::server::handlers::HttpHandlerBase::HttpMiddlewares;
 
   struct ServerInfo final
   {
@@ -56,13 +58,15 @@ public:
   explicit HttpServerBuilder(
     Logger* logger,
     const ServerConfig& config,
+    const SecdistConfig& secdist_config,
     TaskProcessor& listener_task_processor,
     StatisticsStorage& statistics_storage);
 
   void add_handler(
     HttpHandler* http_handler,
     TaskProcessor& task_processor,
-    const bool is_monitor = false);
+    const bool is_monitor = false,
+    HttpMiddlewares&& http_middlewares = {});
 
 private:
   ServerInfo build();

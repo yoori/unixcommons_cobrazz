@@ -2,18 +2,18 @@
 #define USERVER_MANAGER_HPP
 
 // STD
+#include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <condition_variable>
 
 // THIS
 #include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Statistics/StatisticsProvider.hpp>
 #include <UServerUtils/ComponentsBuilder.hpp>
-#include <UServerUtils/Logger.hpp>
 #include <UServerUtils/Function.hpp>
+#include <UServerUtils/Logger.hpp>
 #include <UServerUtils/TaskProcessorContainerBuilder.hpp>
 
 namespace UServerUtils
@@ -24,10 +24,8 @@ class Manager final :
   public ReferenceCounting::AtomicImpl
 {
 public:
-  using ComponentsInitializeFunc =
-    Utils::Function<ComponentsBuilderPtr(
-      TaskProcessorContainer& task_processor_container)>;
-
+  using ComponentsInitializeFunc = Utils::Function<ComponentsBuilderPtr(
+    TaskProcessorContainer& task_processor_container)>;
   using TaskProcessor = userver::engine::TaskProcessor;
   using Components = std::deque<Component_var>;
   using StatisticsStorage = userver::utils::statistics::Storage;
@@ -40,9 +38,9 @@ public:
 private:
   using LoggerScope = UServerUtils::Logger::LoggerScope;
   using LoggerScopePtr = UServerUtils::Logger::LoggerScopePtr;
-  using QueueHolder = userver::ugrpc::client::QueueHolder;
-  using QueueHolderPtr = std::unique_ptr<QueueHolder>;
-  using QueueHolders = std::deque<QueueHolderPtr>;
+  using CompletionQueuePoolBase = userver::ugrpc::impl::CompletionQueuePoolBase;
+  using CompletionQueuePoolBasePtr = std::shared_ptr<CompletionQueuePoolBase>;
+  using CompletionQueuePoolBaseList = std::list<CompletionQueuePoolBasePtr>;
   using NameToUserComponent = std::unordered_map<std::string, Component_var>;
   using Middlewares = userver::ugrpc::server::Middlewares;
   using MiddlewaresPtr = std::unique_ptr<Middlewares>;
@@ -55,7 +53,7 @@ private:
   {
     LoggerScopePtr logger_scope;
     MiddlewaresList middlewares_list;
-    QueueHolders queue_holders;
+    CompletionQueuePoolBaseList completion_qeue_pool_list;
     StatisticsStoragePtr statistics_storage;
     NameToUserComponent name_to_user_component;
     StatisticsHolders statistics_holders;
@@ -88,7 +86,7 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << " : user component with name="
+             << "user component with name="
              << name
              << " not exist";
       throw Exception(stream);
@@ -100,7 +98,7 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << " : can't cast to type T";
+             << "can't cast to type T";
       throw Exception(stream);
     }
 

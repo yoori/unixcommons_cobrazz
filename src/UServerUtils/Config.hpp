@@ -25,7 +25,6 @@ struct EventThreadPoolConfig final
   std::string thread_name = "event-worker";
   /* the default loop is the only one that handles signals and child watchers */
   bool ev_default_loop_disabled = true;
-  bool defer_events = false;
 };
 
 // Parameters of worker pool thread

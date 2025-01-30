@@ -6,10 +6,10 @@
 #include <memory>
 
 // USERVER
-#include <eh/Exception.hpp>
-#include <userver/engine/task/task_processor.hpp>
+#include <engine/task/task_processor.hpp>
 
 // THIS
+#include <eh/Exception.hpp>
 #include <Logger/Logger.hpp>
 #include <UServerUtils/Grpc/Server/ConfigCoro.hpp>
 #include <UServerUtils/Grpc/Server/ServerCoro.hpp>
@@ -65,7 +65,7 @@ public:
   void add_service(
     Service* service,
     TaskProcessor& task_processor,
-    std::optional<std::size_t> number_coro = {})
+    const ServiceMode service_mode = ServiceMode::RpcToCoroutine)
   {
     static_assert(
       std::is_base_of_v<Component, Service>,
@@ -75,16 +75,17 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << ": grpc_server is null";
+             << "grpc_server is null";
       throw Exception(stream);
     }
 
     grpc_server_->add_service(
       service,
       task_processor,
-      number_coro);
+      service_mode);
     services_.emplace_back(
-      Component_var(ReferenceCounting::add_ref(service)));
+      Component_var(
+        ReferenceCounting::add_ref(service)));
   }
 
 private:
@@ -101,6 +102,5 @@ private:
 using ServerBuilderPtr = std::unique_ptr<ServerBuilder>;
 
 } // namespace UServerUtils::Grpc::Server
-
 
 #endif // GRPC_SERVER_SERVER_SERVERBUILDER_H_

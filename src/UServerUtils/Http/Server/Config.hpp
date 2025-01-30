@@ -13,6 +13,7 @@ namespace UServerUtils::Http::Server
 using HandlerConfig = userver::server::handlers::HandlerConfig;
 using HttpRequestConfig = userver::server::request::HttpRequestConfig;
 using ListenerConfig = userver::server::net::ListenerConfig;
+using PortConfig = userver::server::net::PortConfig;
 
 struct ServerConfig final
 {

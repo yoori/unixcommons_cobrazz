@@ -23,6 +23,12 @@ const char SERVICE_CORO[] = "SERVICE_CORO";
 
 } // namespace Aspect
 
+enum class ServiceMode
+{
+  RpcToCoroutine,
+  EventToCoroutine
+};
+
 // [Mode[client] - Mode[server]]
 enum class ReadStatus
 {
@@ -44,6 +50,50 @@ namespace Types
 using IdRpc = std::uintptr_t;
 
 } // namespace Types
+
+template<class Request, class Response>
+class Reader
+{
+public:
+  using RequestPtr = std::unique_ptr<Request>;
+  using WriterPtr = std::unique_ptr<Writer<Response>>;
+  using IdRpc = Types::IdRpc;
+
+  struct Data final
+  {
+    static constexpr IdRpc k_empty_id_rpc = 0;
+
+    Data(
+      const ReadStatus status,
+      WriterPtr&& writer,
+      RequestPtr&& request,
+      const IdRpc id_rpc)
+      : status(status),
+        writer(std::move(writer)),
+        request(std::move(request)),
+        id_rpc(id_rpc)
+    {
+    }
+
+    ReadStatus status;
+    WriterPtr writer;
+    RequestPtr request;
+    IdRpc id_rpc;
+  };
+
+public:
+  explicit Reader() = default;
+
+  virtual ~Reader() = default;
+
+  // Timeout in milliseconds (optional)
+  virtual Data read(std::optional<std::size_t> timeout = {}) const noexcept = 0;
+
+  virtual bool is_finish() const noexcept = 0;
+};
+
+template<class Request, class Response>
+using ReaderPtr = std::unique_ptr<Reader<Request, Response>>;
 
 template<class Request, class Response>
 struct DataQueueCoro final
@@ -84,48 +134,78 @@ struct DataQueueCoro final
 };
 
 template<class Request, class Response>
-using QueueCoro = userver::concurrent::GenericQueue<
-  DataQueueCoro<Request, Response>,
-  userver::concurrent::impl::SimpleQueuePolicy<true, true>>;
-
-template<class Request, class Response>
-class Reader final
+class SingleReader final : public Reader<Request, Response>
 {
 public:
-  using RequestPtr = std::unique_ptr<Request>;
-  using WriterPtr = std::unique_ptr<Writer<Response>>;
+  using Base = Reader<Request, Response>;
+  using RequestPtr = Base::RequestPtr;
+  using WriterPtr = Base::WriterPtr;
+  using IdRpc = Base::IdRpc;
+  using Data = Base::Data;
+
+public:
+  explicit SingleReader(
+    const ReadStatus status,
+    WriterPtr&& writer,
+    RequestPtr&& request,
+    const IdRpc id_rpc)
+    : data_(
+        status,
+        std::move(writer),
+        std::move(request),
+        id_rpc)
+  {
+  }
+
+  ~SingleReader() override = default;
+
+  Data read(std::optional<std::size_t> timeout = {}) const noexcept override
+  {
+    if (is_finish_)
+    {
+      return Data(
+        ReadStatus::Finish,
+        {},
+        {},
+        Data::k_empty_id_rpc);
+    }
+
+    is_finish_ = true;
+    return std::move(data_);
+  }
+
+  bool is_finish() const noexcept override
+  {
+    return is_finish_;
+  }
+
+private:
+  mutable Data data_;
+
+  mutable bool is_finish_ = false;
+};
+
+template<class Request, class Response>
+using QueueCoro = userver::concurrent::GenericQueue<
+  DataQueueCoro<Request, Response>,
+  userver::concurrent::impl::SimpleQueuePolicy<false, false>>;
+
+template<class Request, class Response>
+class QueueReader final : public Reader<Request, Response>
+{
+public:
+  using Base = Reader<Request, Response>;
+  using RequestPtr = Base::RequestPtr;
+  using Data = Base::Data;
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using Consumer = typename QueueCoro<Request, Response>::Consumer;
-  using IdRpc = Types::IdRpc;
-
-  struct Data final
-  {
-    static constexpr IdRpc k_empty_id_rpc = 0;
-
-    Data(
-      const ReadStatus status,
-      WriterPtr&& writer,
-      RequestPtr&& request,
-      const IdRpc id_rpc)
-      : status(status),
-        writer(std::move(writer)),
-        request(std::move(request)),
-        id_rpc(id_rpc)
-    {
-    }
-
-    ReadStatus status;
-    WriterPtr writer;
-    RequestPtr request;
-    IdRpc id_rpc;
-  };
 
 private:
   using DataQueue = DataQueueCoro<Request, Response>;
 
 public:
-  explicit Reader(
+  explicit QueueReader(
     Logger* logger,
     Consumer&& consumer) noexcept
     : logger_(ReferenceCounting::add_ref(logger)),
@@ -133,10 +213,9 @@ public:
   {
   }
 
-  ~Reader() = default;
+  ~QueueReader() override = default;
 
-  // Timeout in milliseconds (optional)
-  Data read(std::optional<std::size_t> timeout = {}) const noexcept
+  Data read(std::optional<std::size_t> timeout = {}) const noexcept override
   {
     userver::engine::Deadline deadline;
     if (timeout)
@@ -147,7 +226,11 @@ public:
 
     if (is_finish_)
     {
-      return {ReadStatus::Finish, {}, {}, Data::k_empty_id_rpc};
+      return {
+        ReadStatus::Finish,
+        {},
+        {},
+        Data::k_empty_id_rpc};
     }
 
     DataQueue data_queue;
@@ -208,18 +291,30 @@ public:
         {
           if (deadline.IsReached())
           {
-            return {ReadStatus::Deadline, {}, {}, Data::k_empty_id_rpc};
+            return {
+              ReadStatus::Deadline,
+              {},
+              {},
+              Data::k_empty_id_rpc};
           }
           else
           {
             is_finish_ = true;
-            return {ReadStatus::Finish, {}, {}, Data::k_empty_id_rpc};
+            return {
+              ReadStatus::Finish,
+              {},
+              {},
+              Data::k_empty_id_rpc};
           }
         }
         else
         {
           is_finish_ = true;
-          return {ReadStatus::Finish, {}, {}, Data::k_empty_id_rpc};
+          return {
+            ReadStatus::Finish,
+            {},
+            {},
+            Data::k_empty_id_rpc};
         }
       }
     }
@@ -242,10 +337,14 @@ public:
         Aspect::SERVICE_CORO);
     }
 
-    return {ReadStatus::InternalError, {}, {}, Data::k_empty_id_rpc};
+    return {
+      ReadStatus::InternalError,
+      {},
+      {},
+      Data::k_empty_id_rpc};
   }
 
-  bool is_finish() const noexcept
+  bool is_finish() const noexcept override
   {
     return is_finish_;
   }
@@ -257,9 +356,6 @@ private:
 
   mutable bool is_finish_ = false;
 };
-
-template<class Request, class Response>
-using ReaderPtr = std::unique_ptr<Reader<Request, Response>>;
 
 } // namespace Internal
 

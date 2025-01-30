@@ -11,10 +11,10 @@
 #include <grpcpp/grpcpp.h>
 
 // USERVER
+#include <engine/task/task_processor.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/shared_mutex.hpp>
 #include <userver/engine/sleep.hpp>
-#include <userver/engine/task/task_processor.hpp>
 
 // THIS
 #include <Generics/Uncopyable.hpp>
@@ -64,18 +64,17 @@ public:
 
 private:
   using ClientPtr = ClientCoroPtr<RpcServiceMethodConcept>;
-  using Position = std::size_t;
-  using ClientInfo = std::pair<ClientPtr, Position>;
-  using Clients = std::unordered_map<ClientId, ClientInfo>;
-  using ClientIds = std::vector<ClientId>;
-  using Counter = std::atomic<std::uint32_t>;
+  using Index = std::size_t;
+  using IdToIndex = std::unordered_map<ClientId, Index>;
+  using Clients = std::vector<ClientPtr>;
+  using Counter = std::atomic<ClientId>;
   using Mutex = userver::engine::SharedMutex;
 
 public:
   ClientPoolCoroImpl(Logger* logger)
     : logger_(ReferenceCounting::add_ref(logger))
   {
-    client_ids_.reserve(10000);
+    clients_.reserve(10000);
   }
 
   ~ClientPoolCoroImpl() = default;
@@ -88,10 +87,14 @@ public:
     {
       if (!request)
       {
-        Stream::Error stream;
+        std::ostringstream stream;
         stream << FNS
                << "request is null";
-        throw Exception(stream);
+        logger_->critical(
+          stream.str(),
+          Aspect::CLIENT_POOL_CORO);
+
+        return WriteResult(Status::InternalError, {});
       }
 
       const auto number = counter_.fetch_add(
@@ -100,48 +103,35 @@ public:
 
       ClientPtr client;
       {
-        std::shared_lock lock(mutex_client_);
-        const auto size = client_ids_.size();
+        std::shared_lock lock(mutex_);
+        const auto size = clients_.size();
         if (size == 0)
         {
           return WriteResult(Status::InternalError, {});
         }
 
-        const auto client_id = client_ids_[number % size];
-        const auto it = clients_.find(client_id);
-        if (it == std::end(clients_))
-          return WriteResult(Status::InternalError, {});
-
-        client = it->second.first;
+        client = clients_[number % size];
       }
 
       return client->write(std::move(request), timeout);
     }
     catch (const eh::Exception &exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << "Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
 
     return WriteResult(Status::InternalError, {});
@@ -153,11 +143,10 @@ public:
     {
       const auto client_id = client->client_id();
 
-      std::unique_lock lock(mutex_client_);
-      const auto size = client_ids_.size();
-      const auto result = clients_.try_emplace(
+      std::unique_lock lock(mutex_);
+      const auto size = clients_.size();
+      const auto result = id_to_index_.try_emplace(
         client_id,
-        std::move(client),
         size);
       if (!result.second)
       {
@@ -167,109 +156,100 @@ public:
                << client_id;
         throw Exception(stream.str());
       }
-      client_ids_.emplace_back(client_id);
+      clients_.emplace_back(std::move(client));
     }
     catch (const eh::Exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
   }
 
   ClientPtr remove(const ClientId client_id) noexcept
   {
+    ClientPtr client;
     try
     {
-      std::unique_lock lock(mutex_client_);
-      auto it_remove = clients_.find(client_id);
-      if (it_remove == std::end(clients_))
+      std::unique_lock lock(mutex_);
+      auto it_remove = id_to_index_.find(client_id);
+      if (it_remove == std::end(id_to_index_))
       {
-        return {};
+        return client;
       }
-      auto client = it_remove->second.first;
+      const auto index = it_remove->second;
+      id_to_index_.erase(it_remove);
 
-      const auto size = client_ids_.size();
-      const auto position = it_remove->second.second;
-      if (position >= size)
+      const auto size = clients_.size();
+      if (index >= size)
       {
         Stream::Error stream;
         stream << FNS
-               << ": Logic error. position="
-               << position
+               << "Logic error. position="
+               << index
                << " is larger then "
                << size;
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
+        logger_->error(
+          stream.str(),
+          Aspect::CLIENT_POOL_CORO);
         return client;
       }
+      client = std::move(clients_[index]);
 
-      clients_.erase(it_remove);
-      std::swap(client_ids_[position], client_ids_[size - 1]);
-      client_ids_.pop_back();
+      std::swap(
+        clients_[index],
+        clients_[size - 1]);
+      clients_.pop_back();
 
-      if (!client_ids_.empty() && position != size - 1)
+      if (!clients_.empty() && index != size - 1)
       {
-        auto it_change = clients_.find(client_ids_[position]);
-        if (it_change == std::end(clients_))
+        const auto id = clients_[index]->client_id();
+        auto it_change = id_to_index_.find(id);
+        if (it_change == std::end(id_to_index_))
         {
           Stream::Error stream;
           stream << FNS
                  << "Logic error. Not existing client_id="
-                 << client_ids_[position];
-          logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
+                 << id;
+          logger_->error(
+            stream.str(),
+            Aspect::CLIENT_POOL_CORO);
           return client;
         }
-        it_change->second.second = position;
+        it_change->second = index;
       }
 
       return client;
     }
     catch (const eh::Exception &exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
 
     return {};
@@ -278,11 +258,11 @@ public:
 private:
   const Logger_var logger_;
 
+  IdToIndex id_to_index_;
+
   Clients clients_;
 
-  ClientIds client_ids_;
-
-  mutable Mutex mutex_client_;
+  mutable Mutex mutex_;
 
   Counter counter_{0};
 };
@@ -323,12 +303,13 @@ public:
     const std::size_t number_async_client,
     TaskProcessor& task_processor)
   {
-    ClientPoolCoroPtr pool(new ClientPoolCoro(
-      logger,
-      scheduler,
-      channels,
-      number_async_client,
-      task_processor));
+    ClientPoolCoroPtr pool(
+      new ClientPoolCoro(
+        logger,
+        scheduler,
+        channels,
+        number_async_client,
+        task_processor));
     pool->initialize();
 
     return pool;
@@ -340,10 +321,11 @@ public:
     const Channels& channels,
     const std::size_t number_async_client)
   {
-    ClientPoolCoroPtr pool(new ClientPoolCoro(
-      logger,
-      scheduler,
-      channels,
+    ClientPoolCoroPtr pool(
+      new ClientPoolCoro(
+        logger,
+        scheduler,
+        channels,
       number_async_client));
     pool->initialize();
 
@@ -356,6 +338,18 @@ public:
   {
     try
     {
+      if (!request)
+      {
+        std::ostringstream stream;
+        stream << FNS
+               << "request is null";
+        logger_->critical(
+          stream.str(),
+          Aspect::CLIENT_POOL_CORO);
+
+        return WriteResult(Status::InternalError, {});
+      }
+
       auto result = UServerUtils::Utils::run_in_coro(
         task_processor_,
         UServerUtils::Utils::Importance::kNormal,
@@ -372,30 +366,21 @@ public:
     }
     catch (const eh::Exception& exc)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": "
-               << exc.what();
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
     catch (...)
     {
-      try
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Unknown error";
-        logger_->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-      }
-      catch (...)
-      {
-      }
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_POOL_CORO);
     }
 
     return WriteResult(Status::InternalError, {});
@@ -403,7 +388,7 @@ public:
 
   bool ok(const std::optional<std::size_t> max_number_check_channels = {}) const noexcept
   {
-    std::size_t count = channels_.size();
+    const std::size_t count = channels_.size();
     if (max_number_check_channels)
     {
       const std::size_t count = std::min(
@@ -501,8 +486,10 @@ private:
         const auto number_async_client = ptr->number_async_client_;
         auto& task_processor = userver::engine::current_task::GetTaskProcessor();
 
-        auto weak_ptr = std::weak_ptr<ClientPoolCoro>(ptr);
-        auto factory_observer = [weak_ptr, task_processor = &task_processor, logger] (
+        auto factory_observer = [
+          weak_ptr = std::weak_ptr<ClientPoolCoro>(ptr),
+          task_processor = &task_processor,
+          logger] (
           const ClientId client_id,
           const ChannelPtr& channel,
           const CompletionQueuePtr& completion_queue) mutable {
@@ -519,8 +506,8 @@ private:
 
                   if (auto ptr = weak_ptr.lock())
                   {
-                    auto& impl = ptr->impl_;
-                    auto client = impl->remove(client_id);
+                    const auto& impl = ptr->impl_;
+                    const auto client = impl->remove(client_id);
                     if (!client)
                     {
                       Stream::Error stream;
@@ -542,7 +529,9 @@ private:
                     auto ptr = weak_ptr.lock();
 
                     if (!ptr || !channel_ptr || !completion_queue_ptr)
+                    {
                       return;
+                    }
 
                     auto state = channel_ptr->GetState(false);
                     if (state == GRPC_CHANNEL_READY || state == GRPC_CHANNEL_IDLE)
@@ -569,7 +558,13 @@ private:
                       completion_queue_ptr.reset();
                       ptr.reset();
 
-                      future.get();
+                      try
+                      {
+                        future.get();
+                      }
+                      catch (...)
+                      {
+                      }
                     }
                   }
                 }
@@ -577,29 +572,17 @@ private:
             }
             catch (const eh::Exception& exc)
             {
-              try
-              {
-                Stream::Error stream;
-                stream << FNS
-                       << exc.what();
-                logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-              }
-              catch (...)
-              {
-              }
+              Stream::Error stream;
+              stream << FNS
+                     << exc.what();
+              logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
             }
             catch (...)
             {
-              try
-              {
-                Stream::Error stream;
-                stream << FNS
-                       << "Unknown error";
-                logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
-              }
-              catch (...)
-              {
-              }
+              Stream::Error stream;
+              stream << FNS
+                     << "Unknown error";
+              logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
             }
          };
 
@@ -615,8 +598,10 @@ private:
         {
           Stream::Error stream;
           stream << FNS
-                 << ": number thread of factory is null";
-          logger->error(stream.str(), Aspect::CLIENT_POOL_CORO);
+                 << "number thread of factory is null";
+          logger->error(
+            stream.str(),
+            Aspect::CLIENT_POOL_CORO);
           throw Exception(stream);
         }
 

@@ -23,7 +23,6 @@ GrpcServer::GrpcServer(
   server_ = std::make_unique<Server>(
     std::move(config),
     statistics_storage,
-    std::make_shared<UServerUtils::Logger::Logger>(logger),
     storage_mock_->GetSource());
 }
 
@@ -53,11 +52,6 @@ void GrpcServer::deactivate_object_()
   server_->Stop();
 }
 
-void GrpcServer::wait_object_()
-{
-  UServerUtils::Component::CompositeActiveObjectBase::SimpleActiveObject::wait_object_();
-}
-
 void GrpcServer::add_service(
   Service& service,
   TaskProcessor& task_processor,
@@ -71,12 +65,11 @@ void GrpcServer::add_service(
     throw Exception(stream.str());
   }
 
-  server_->AddService(service, task_processor, middlewares);
-}
-
-GrpcServer::CompletionQueue& GrpcServer::get_completion_queue() noexcept
-{
-  return server_->GetCompletionQueue();
+  server_->AddService(
+    service,
+    ServiceConfig{
+      task_processor,
+      middlewares});
 }
 
 } // namespace UServerUtils::UServerGrpc

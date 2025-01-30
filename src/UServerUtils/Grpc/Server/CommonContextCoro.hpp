@@ -6,9 +6,9 @@
 #include <deque>
 
 // USERVER
+#include <engine/task/task_processor.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/sleep.hpp>
-#include <userver/engine/task/task_processor.hpp>
 #include <userver/engine/task/task_with_result.hpp>
 #include <userver/concurrent/queue.hpp>
 
@@ -60,35 +60,32 @@ public:
   using Logger = Logging::Logger;
   using Logger_var = Logging::Logger_var;
   using TaskProcessor = userver::engine::TaskProcessor;
-  using TaskProcessorRef = std::reference_wrapper<TaskProcessor>;
   using MethodName = std::string_view;
+  using IdRpc = Internal::Types::IdRpc;
+  using RpcType = grpc::internal::RpcMethod::RpcType;
 
 private:
   struct ServiceInfo final
   {
-    ServiceInfo(
+    explicit ServiceInfo(
       const std::any& service,
-      const grpc::internal::RpcMethod::RpcType rpc_type,
+      const RpcType rpc_type,
+      const ServiceMode service_mode,
       TaskProcessor& task_processor)
       : service(service),
         rpc_type(rpc_type),
-        task_processor(task_processor)
+        service_mode(service_mode),
+        task_processor(&task_processor)
     {
     }
 
     std::any service;
-    grpc::internal::RpcMethod::RpcType rpc_type;
-    TaskProcessorRef task_processor;
+    const RpcType rpc_type;
+    const ServiceMode service_mode;
+    TaskProcessor* task_processor;
   };
 
   using Services = std::unordered_map<MethodName, ServiceInfo>;
-  using Queues = std::unordered_map<MethodName, std::any>;
-  using Producers = std::deque<std::any>;
-  using TaskWithResult = userver::engine::TaskWithResult<void>;
-  using WorkerTasks = std::deque<TaskWithResult>;
-
-  template<class Request, class Response>
-  using Reader = Internal::Reader<Request, Response>;
   template<class Request, class Response>
   using ReaderPtr = Internal::ReaderPtr<Request, Response>;
 
@@ -102,9 +99,7 @@ public:
     return logger_;
   }
 
-  template<class Request, class Response>
-  FactoryDefaultErrorCreatorPtr<Request, Response> factory_default_error_creator(
-    const MethodName method_name)
+  const ServiceInfo& service_info(const MethodName method_name) const
   {
     auto it_service = services_.find(method_name);
     if (it_service == services_.end())
@@ -116,62 +111,99 @@ public:
       throw Exception(stream);
     }
 
-    const auto& service_info = it_service->second;
+    return it_service->second;
+  }
+
+  template<class Request, class Response>
+  FactoryDefaultErrorCreatorPtr<Request, Response> factory_default_error_creator(
+    const ServiceInfo& service_info)
+  {
     const auto& service = std::any_cast<
       ServiceCoro_var<Request, Response>>(
         service_info.service);
 
     return std::make_unique<
-      CoroFactoryDefaultErrorCreator<Request, Response>>(service.in());
+      CoroFactoryDefaultErrorCreator<Request, Response>>(
+        service.in());
   }
 
   template<class Request, class Response>
-  auto get_producer(const MethodName method_name)
+  void add_coroutine(
+    TaskProcessor& task_processor,
+    ServiceCoro<Request, Response>* service,
+    const ReadStatus status,
+    std::unique_ptr<Writer<Response>>&& writer,
+    std::unique_ptr<Request>&& request,
+    const IdRpc id_rpc,
+    const RpcType rpc_type)
   {
-    using Queue = Internal::QueueCoro<Request, Response>;
-    using QueuePtr = std::shared_ptr<Queue>;
-    using Producer = typename Queue::Producer;
-    using Reader = Reader<Request, Response>;
     using ReaderPtr = ReaderPtr<Request, Response>;
 
-    auto it_queue = queues_.find(method_name);
-    if (it_queue != queues_.end())
+    try
     {
-      const auto queue = std::any_cast<QueuePtr>(it_queue->second);
-      return std::make_unique<Producer>(queue->GetProducer());
+      ReaderPtr reader = std::make_unique<
+        Internal::SingleReader<Request, Response>>(
+        status,
+        std::move(writer),
+        std::move(request),
+        id_rpc);
+
+      const bool is_critical =
+        status == ReadStatus::Initialize ||
+        status == ReadStatus::ReadsDone ||
+        status == ReadStatus::RpcFinish;
+      add_coroutine(
+        task_processor,
+        std::move(reader),
+        service,
+        rpc_type,
+        is_critical).Detach();
     }
+    catch (const eh::Exception& exc)
+    {
+      Stream::Error stream;
+      stream << FNS
+             << exc.what();
+      throw Exception(stream);
+    }
+    catch (...)
+    {
+      Stream::Error stream;
+      stream << FNS
+             << "Unknown error";
+      throw Exception(stream);
+    }
+  }
+
+  template<class Request, class Response>
+  auto get_producer(const ServiceInfo& service_info)
+  {
+    using Queue = Internal::QueueCoro<Request, Response>;
+    using Producer = typename Queue::Producer;
+    using ReaderPtr = ReaderPtr<Request, Response>;
 
     const auto queue = Queue::Create(
       max_size_queue_ ? *max_size_queue_ : Queue::kUnbounded);
 
-    auto it_service = services_.find(method_name);
-    if (it_service == services_.end())
-    {
-      Stream::Error stream;
-      stream << FNS
-             << "not existing service for name="
-             << method_name;
-      throw Exception(stream);
-    }
-    const auto& service_info = it_service->second;
     const auto& service = std::any_cast<
       ServiceCoro_var<Request, Response>>(
         service_info.service);
-    auto& task_processor = service_info.task_processor;
+    auto& task_processor = *service_info.task_processor;
 
     auto producer = std::make_unique<Producer>(
       queue->GetProducer());
 
-    ReaderPtr reader(new Reader(
-      logger_.in(),
-      queue->GetConsumer()));
+    ReaderPtr reader = std::make_unique<
+      Internal::QueueReader<Request, Response>>(
+        logger_.in(),
+        queue->GetConsumer());
 
     add_coroutine(
       task_processor,
       std::move(reader),
       service.in(),
-      true,
-      service_info.rpc_type).Detach();
+      service_info.rpc_type,
+      true).Detach();
 
     return producer;
   }
@@ -180,16 +212,10 @@ public:
   void add_service(
     const MethodName& method_name,
     ServiceCoro<Request, Response>* service,
-    const grpc::internal::RpcMethod::RpcType rpc_type,
-    TaskProcessor& task_processor,
-    const std::optional<std::size_t> number_coro)
+    const RpcType rpc_type,
+    const ServiceMode service_mode,
+    TaskProcessor& task_processor)
   {
-    using Queue = Internal::QueueCoro<Request, Response>;
-    using QueuePtr = std::shared_ptr<Queue>;
-    using Producer = typename Queue::Producer;
-    using Reader = Reader<Request, Response>;
-    using ReaderPtr = ReaderPtr<Request, Response>;
-
     if (active())
     {
       Stream::Error stream;
@@ -202,80 +228,43 @@ public:
     {
       Stream::Error stream;
       stream << FNS
-             << ": service whith method_name="
+             << "Service whith method_name="
              << method_name
              << " already exist";
       throw Exception(stream);
     }
 
     ServiceInfo service_info(
-      ServiceCoro_var<Request, Response>(ReferenceCounting::add_ref(service)),
+      ServiceCoro_var<Request, Response>(
+        ReferenceCounting::add_ref(service)),
       rpc_type,
+      service_mode,
       task_processor);
     services_.try_emplace(method_name, service_info);
-
-    if (number_coro)
-    {
-      QueuePtr queue = Queue::Create(
-        max_size_queue_ ? *max_size_queue_ : Queue::kUnbounded);
-      if (!queue)
-      {
-        Stream::Error stream;
-        stream << FNS
-               << ": Queue::Create return null ptr";
-        throw Exception(stream);
-      }
-
-      producers_.emplace_back(
-        std::make_shared<Producer>(
-          queue->GetProducer()));
-      queues_[method_name] = queue;
-
-      for (std::size_t i = 1; i <= *number_coro; ++i)
-      {
-        worker_tasks_.emplace_back(
-          add_coroutine(
-            task_processor,
-            ReaderPtr(new Reader(
-              logger_,
-              queue->GetConsumer())),
-            service,
-            false,
-            rpc_type));
-      }
-    }
   }
 
 protected:
   ~CommonContextCoro() override;
 
 private:
-  void activate_object_() override;
-
-  void deactivate_object_() override;
-
   template<class Request, class Response>
   auto add_coroutine(
     TaskProcessor& task_processor,
     ReaderPtr<Request, Response>&& reader,
     ServiceCoro<Request, Response>* service,
-    const bool is_coro_per_rpc,
-    const grpc::internal::RpcMethod::RpcType rpc_type)
+    const RpcType rpc_type,
+    const bool is_critical)
   {
-    return userver::engine::AsyncNoSpan(
-      task_processor,
-      [logger = logger_,
-       reader = std::move(reader),
-       service = ServiceCoro_var<Request, Response>(
-         ReferenceCounting::add_ref(service)),
-       is_coro_per_rpc,
-       rpc_type] () mutable {
+    auto function = [logger = logger_,
+      reader = std::move(reader),
+      service = ServiceCoro_var<Request, Response>(
+        ReferenceCounting::add_ref(service)),
+      rpc_type] () mutable {
         while (!reader->is_finish())
         {
           try
           {
             service->handle(*reader);
-            userver::engine::Yield();
           }
           catch (const eh::Exception& exc)
           {
@@ -287,7 +276,6 @@ private:
               logger->error(
                 stream.str(),
                 Aspect::COMMON_CONTEXT_CORO);
-              userver::engine::Yield();
             }
             catch (...)
             {
@@ -303,22 +291,37 @@ private:
               logger->error(
                 stream.str(),
                 Aspect::COMMON_CONTEXT_CORO);
-              userver::engine::Yield();
             }
             catch (...)
             {
             }
           }
 
-          if (is_coro_per_rpc
-          && (rpc_type == grpc::internal::RpcMethod::RpcType::NORMAL_RPC
-           || rpc_type == grpc::internal::RpcMethod::RpcType::SERVER_STREAMING))
+          if (rpc_type == RpcType::NORMAL_RPC
+            || rpc_type == RpcType::SERVER_STREAMING)
           {
             break;
           }
+
+          if (!reader->is_finish())
+          {
+            userver::engine::Yield();
+          }
         }
-      }
-    );
+      };
+
+    if (is_critical)
+    {
+      return userver::engine::CriticalAsyncNoSpan(
+        task_processor,
+        std::move(function));
+    }
+    else
+    {
+      return userver::engine::AsyncNoSpan(
+        task_processor,
+        std::move(function));
+    }
   }
   
 private:
@@ -327,12 +330,6 @@ private:
   const MaxSizeQueue max_size_queue_;
 
   Services services_;
-
-  Queues queues_;
-
-  Producers producers_;
-
-  WorkerTasks worker_tasks_;
 };
 
 using CommonContextCoro_var = ReferenceCounting::SmartPtr<CommonContextCoro>;

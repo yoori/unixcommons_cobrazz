@@ -29,9 +29,9 @@ public:
 
   ~Logger() override = default;
 
-  void Log(Level level, std::string_view msg) const override;
+  void Log(Level level, std::string_view msg) override;
 
-  void Flush() const override;
+  void Flush() override;
 
 private:
   Logger_var logger_;

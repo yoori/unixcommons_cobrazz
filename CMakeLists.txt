@@ -37,6 +37,10 @@ endif()
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
+if (NOT DEFINED USE_USERVER_PACKAGE)
+  set(USE_USERVER_PACKAGE FALSE)
+endif()
+
 add_library(atomic INTERFACE)
 
 find_package(ACE REQUIRED)
@@ -56,8 +60,11 @@ find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(gRPC REQUIRED)
-find_package(userver REQUIRED)
 find_package(uring REQUIRED)
+if (${USE_USERVER_PACKAGE})
+  find_package(userver REQUIRED)
+endif()
+
 SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/") # workaround for snappy-devel installation bug
 find_package(RocksDB REQUIRED)
 

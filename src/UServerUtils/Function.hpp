@@ -42,11 +42,8 @@ public:
   ~Function() = default;
 
   Function(const Function&) = default;
-
   Function(Function&&) = default;
-
   Function& operator=(const Function&) = default;
-
   Function& operator=(Function&&) = default;
 
   R operator()(Args... args)
@@ -63,7 +60,8 @@ private:
   template<class F>
   void create(F&& f)
   {
-    auto ptr = std::make_shared<std::decay_t<F>>(std::forward<F>(f));
+    auto ptr = std::make_shared<std::decay_t<F>>(
+      std::forward<F>(f));
     func_ = [ptr = std::move(ptr)] (Args... args) {
       return (*ptr)(std::forward<Args>(args)...);
     };
