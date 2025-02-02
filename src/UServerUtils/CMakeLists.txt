@@ -25,7 +25,6 @@ include_directories (
 )
 
 if (NOT ${USE_USERVER_PACKAGE})
-  get_property(compile_options DIRECTORY PROPERTY COMPILE_OPTIONS)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wno-error)
   set(GRPC_EXTERNAL_ENABLE TRUE CACHE INTERNAL "")
 
@@ -42,9 +41,6 @@ if (NOT ${USE_USERVER_PACKAGE})
     GIT_TAG cobrazz
   )
   FetchContent_MakeAvailable(userver)
-
-  set_property(DIRECTORY PROPERTY COMPILE_OPTIONS ${compile_options})
-  unset(compile_options)
 endif()
 
 set (SOURCES_FILES
