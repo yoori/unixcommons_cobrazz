@@ -52,7 +52,7 @@ namespace String
         get_token(SplitterState& state, SubString& token)
           /*throw (eh::Exception)*/;
       };
-    };
+    }
 
     template <typename Category = TokenizerDefaultSeparators,
       const bool EMPTY = false>
