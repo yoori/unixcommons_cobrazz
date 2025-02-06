@@ -36,12 +36,6 @@ namespace ReferenceCounting
   {
   }
 
-  inline
-  void
-  PolicyThrow::retn() throw ()
-  {
-  }
-
 
   //
   // PolicyAssert class
@@ -68,12 +62,6 @@ namespace ReferenceCounting
   {
   }
 
-  inline
-  void
-  PolicyAssert::retn() throw ()
-  {
-  }
-
 
   //
   // PolicyNotNull class
@@ -95,32 +83,6 @@ namespace ReferenceCounting
   void
   PolicyNotNull::check_dereference(const void* /*ptr*/)
     /*throw (NotInitialized)*/
-  {
-  }
-
-
-  //
-  // PolicyChecker class
-  //
-
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyThrow* /*policy*/)
-    throw ()
-  {
-  }
-
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyAssert* /*policy*/)
-    throw ()
-  {
-  }
-
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyNotNull* /*policy*/)
-    throw ()
   {
   }
 }

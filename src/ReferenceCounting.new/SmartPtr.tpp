@@ -24,7 +24,6 @@ namespace ReferenceCounting
   T*
   SmartPtr<T, Policy>::retn() throw ()
   {
-    Policy::retn();
     Type* ret(ptr_);
     ptr_ = 0;
     return ret;
@@ -50,7 +49,6 @@ namespace ReferenceCounting
   typename FixedPtr<T, Policy>::Type*
   FixedPtr<T, Policy>::retn() throw ()
   {
-    Policy::retn();
     Type* ret(ptr_);
     ptr_ = 0;
     return ret;
@@ -161,7 +159,7 @@ namespace ReferenceCounting
       "RefCountable class has a public destructor");
 #endif
 
-    check_policy_(static_cast<Policy*>(0));
+    static_assert(is_correct_policy<Policy>, "Try use unknown policy for SmartPtr");
     if (ptr_)
     {
       ptr_->remove_ref();
@@ -293,7 +291,7 @@ namespace ReferenceCounting
       "RefCountable class has a public destructor");
 #endif
 
-    check_policy_(static_cast<Policy*>(0));
+    static_assert(is_correct_policy<Policy>, "Try use unknown policy for FixedPtr");
     if (ptr_)
     {
       ptr_->remove_ref();
