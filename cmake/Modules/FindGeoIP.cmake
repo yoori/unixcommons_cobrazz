@@ -21,7 +21,7 @@ else()
 endif()
 
 find_package(PkgConfig)
-pkg_search_module(GEOIP geoip)
+pkg_search_module(GeoIP geoip)
 
 # Find the header
 find_path(GEOIP_INCLUDE_DIR GeoIP.h
@@ -43,7 +43,7 @@ find_library(GEOIP_LIBRARY
 # handle the QUIETLY and REQUIRED arguments and set GEOIP_FOUND to TRUE if
 # all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GEOIP DEFAULT_MSG GEOIP_LIBRARY GEOIP_INCLUDE_DIR)
+find_package_handle_standard_args(GeoIP DEFAULT_MSG GEOIP_LIBRARY GEOIP_INCLUDE_DIR)
 
 if(GEOIP_FOUND)
   set(GEOIP_LIBRARIES ${GEOIP_LIBRARY})

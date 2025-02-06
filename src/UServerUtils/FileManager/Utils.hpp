@@ -176,6 +176,6 @@ private:
   int old_errno_ = 0;
 };
 
-}; // namespace UServerUtils::FileManager::Utils
+} // namespace UServerUtils::FileManager::Utils
 
 #endif // USERVER_FILEMANAGER_UTILS_HPP

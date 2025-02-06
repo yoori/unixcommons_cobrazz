@@ -17,7 +17,7 @@ namespace String
 {
   template <typename CharType, typename Traits, typename Checker>
   class BasicSubString;
-};
+}
 
 namespace Stream
 {
