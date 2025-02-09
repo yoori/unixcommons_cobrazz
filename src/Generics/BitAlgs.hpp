@@ -104,6 +104,6 @@ namespace Generics
       return r;
     }
   }
-};
+}
 
 #endif

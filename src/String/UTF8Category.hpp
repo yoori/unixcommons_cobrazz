@@ -51,7 +51,7 @@ namespace String
     void
     add_symbols(Utf8Chars& chars, const char* first, const char* last)
       /*throw (eh::Exception)*/;
-  };
+  }
 
   class Utf8Category : private Generics::Uncopyable
   {

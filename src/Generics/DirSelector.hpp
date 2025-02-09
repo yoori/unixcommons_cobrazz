@@ -46,7 +46,7 @@ namespace Generics
       { \
         return mode_test(st.st_mode); \
       } \
-    };
+    }
 
     /**
      * Predicates test st_mode of stat struct

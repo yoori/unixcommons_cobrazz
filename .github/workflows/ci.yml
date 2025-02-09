@@ -1,0 +1,32 @@
+name: unixcommons_cobrazz_build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+    
+      - name: Set up Docker Compose
+        run: |
+          sudo apt install docker-compose
+          
+      - name: Making base cache
+        working-directory: ci
+        run: |
+          sh envprep.sh
+          exit $?
+          
+      - name: build
+        working-directory: ci
+        run: |
+          docker-compose run build;
+          exit $?;

@@ -40,7 +40,7 @@ function(add_idl _target _idlfile target_dir)
     add_custom_command(
        OUTPUT ${MIDL_OUTPUT} ${OUTPUTC} ${OUTPUTS}
 #       COMMAND ${CMAKE_COMMAND} -E echo "tao_idl gen outfiles to ${MIDL_OUTPUT_PATH} from ${SRC}"
-       COMMAND tao_idl ARGS  -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp -I ${PROJECT_SOURCE_DIR}/src/CORBA  ${SRC} -o ${MIDL_OUTPUT_PATH}
+       COMMAND tao_idl ARGS  -Sp -in -ci .ipp -cs .cpp -hc .hpp -hs _s.hpp -ss _s.cpp -I ${PROJECT_SOURCE_DIR}/src/CORBA  ${SRC} -o ${MIDL_OUTPUT_PATH} 2> NUL
        #${MIDL_FLAGS}
 
 #       COMMAND ${CMAKE_COMMAND} -E echo "done generating ${MIDL_OUTPUT_PATH}"
