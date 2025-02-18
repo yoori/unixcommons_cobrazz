@@ -8,10 +8,6 @@ set(proj "TestCommons2")
 add_library(${proj} SHARED
            CheckFileMessages.cpp
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

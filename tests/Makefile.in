@@ -20,7 +20,6 @@ target_directory_list := \
   UServerUtils \
 
 #  Oracle \
-#  Apache \
 
 clean: clean-test-results
 

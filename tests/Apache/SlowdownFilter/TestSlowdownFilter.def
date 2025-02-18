@@ -1,4 +1,0 @@
-name=SlowdownFilter
-so_files=SlowdownFilter
-
-osbe_cxx_dep "ApacheModule"

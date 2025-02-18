@@ -12,10 +12,6 @@ add_executable(${proj}
 
 
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)
