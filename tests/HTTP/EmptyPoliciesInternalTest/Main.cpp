@@ -1,7 +1,6 @@
 #include <vector>
 #include "Tests.hpp"
 #include <HTTP/HttpAsyncPoolInternals.hpp>
-#include <HTTP/HttpTestCommons/ApachePorts.hpp>
 
 const unsigned int REQUESTS_COUNT = 500;
 const unsigned int SERVER_CONNECTIONS_COUNT = 20;
@@ -10,17 +9,6 @@ const unsigned int THREADS_COUNT = 20;
 const unsigned int POOLS_COUNT = 1;
 const unsigned int UNITS_COUNT = 1;
 
-const int KEEP_ALIVE_SERV_PORT[] =
-{
-  ApachePorts::get_port(34),
-  ApachePorts::get_port(35),
-};
-const int NON_KEEP_ALIVE_SERV_PORT[] =
-{
-  ApachePorts::get_port(32),
-  ApachePorts::get_port(33),
-};
-            
 const char NOTIFICATION_MSG[] = "///////////////////////////////////////////////\n"
                                 " TO KNOW MORE ABOUT SCENARIOS RUN WITH \"help\""
                                 "\n///////////////////////////////////////////////";
@@ -56,13 +44,7 @@ main(int argc, char* argv[])
       return 0;
     }
 
-    size_t i = 0;
-
     std::vector<HTTP::HttpServer> servers;
-    for (i = 0; i < sizeof(KEEP_ALIVE_SERV_PORT) / sizeof(KEEP_ALIVE_SERV_PORT[0]); ++i)
-    {
-      servers.push_back(HTTP::HttpServer(hostname, KEEP_ALIVE_SERV_PORT[i]));
-    }
 
     SimplePolicy_var policy(new SimplePolicy);
     Generics::TaskRunner_var tests_runner(new Generics::TaskRunner(policy, 1));

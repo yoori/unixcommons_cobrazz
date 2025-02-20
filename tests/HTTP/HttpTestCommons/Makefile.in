@@ -1,7 +1,6 @@
 @httptestcommons_deps@
 
-sources := CommonClasses.cpp \
-           ApachePorts.cpp
+sources := CommonClasses.cpp
 includes := test
 
 @httptestcommons_post@
