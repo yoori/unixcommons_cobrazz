@@ -8,10 +8,6 @@ set(proj "TestEmptPoliciesInt")
 add_executable(${proj}
 Main.cpp CommonClasses.cpp Tests.cpp
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

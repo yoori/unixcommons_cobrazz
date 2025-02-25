@@ -8,10 +8,6 @@ set(proj "TestTaskRunner")
 add_executable(${proj}
 Main.cpp
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

@@ -1,5 +1,0 @@
-# @file   dir.ac
-# @author Karen Aroutiounov
-
-OSBE_CONFIG_FILE([Makefile])
-OSBE_CXX_DEF([TestSampleModule])

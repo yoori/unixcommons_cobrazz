@@ -9,10 +9,6 @@ add_executable(${proj}
 UuidTest.cpp
 
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

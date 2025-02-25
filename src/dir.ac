@@ -2,7 +2,6 @@
 # @author Karen Aroutiounov
 
 OSBE_CONFIG_FILE([Makefile])
-OSBE_CONFIG_SUBDIR([Apache])
 OSBE_CONFIG_SUBDIR([CaseUtil])
 OSBE_CONFIG_SUBDIR([CORBA])
 OSBE_CONFIG_SUBDIR([eh])

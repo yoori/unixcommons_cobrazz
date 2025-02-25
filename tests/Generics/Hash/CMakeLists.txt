@@ -18,10 +18,6 @@ add_executable(${proj}
   Test.cpp
   Types.cpp
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

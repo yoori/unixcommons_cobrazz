@@ -8,10 +8,6 @@ set(proj "TestGeoIP")
 add_executable(${proj}
 TestGeoIP.cpp
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
 #add_library(PreloadACE  SHARED
 #PreloadACE.cpp
 #)

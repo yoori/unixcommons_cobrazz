@@ -28,6 +28,4 @@ target_directory_list := \
   XMLUtility \
   xsd \
 
-#  Apache \
-
 include $(osbe_builddir)/config/Direntry.post.rules
