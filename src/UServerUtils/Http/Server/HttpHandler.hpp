@@ -3,7 +3,6 @@
 
 // USERVER
 #include <userver/server/handlers/http_handler_base.hpp>
-#include <userver/server/request/request_base.hpp>
 #include <userver/server/request/request_context.hpp>
 #include <userver/server/http/http_response_body_stream.hpp>
 

@@ -41,6 +41,10 @@ if (NOT ${USE_USERVER_PACKAGE})
     GIT_TAG cobrazz
   )
   FetchContent_MakeAvailable(userver)
+
+  target_include_directories(userver-core
+    PUBLIC ${userver_SOURCE_DIR}/third_party/uboost_coro/include/
+  )
 endif()
 
 set (SOURCES_FILES
