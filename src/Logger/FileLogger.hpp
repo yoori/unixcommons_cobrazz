@@ -191,7 +191,7 @@ namespace Logging
        * List of policies
        */
       typedef ReferenceCounting::List<Policy_var> PolicyList;
-    };
+    }
 
     struct Config;
 

@@ -94,7 +94,7 @@ namespace Generics
   private:
     LastChild* ptr_;
   };
-};
+}
 
 //
 // INLINES
