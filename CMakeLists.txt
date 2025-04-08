@@ -62,7 +62,12 @@ find_package(XercesC REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(uring REQUIRED)
 if (${USE_USERVER_PACKAGE})
-  find_package(userver REQUIRED)
+  if (NOT userver_FOUND)
+    find_package(userver REQUIRED)
+    add_library(userver-core ALIAS userver::core)
+    add_library(userver-grpc ALIAS userver::grpc)
+    add_library(userver-api-common-protos ALIAS userver::api-common-protos)
+  endif()
 endif()
 
 SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/") # workaround for snappy-devel installation bug
