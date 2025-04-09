@@ -1,5 +1,9 @@
 include(FindPackageHandleStandardArgs)
 
+if(Nghttp2_FOUND)
+  return()
+endif()
+
 find_path(Nghttp2_INCLUDE_DIR "nghttp2/nghttp2.h")
 
 find_library(Nghttp2_LIBRARY NAMES nghttp2)

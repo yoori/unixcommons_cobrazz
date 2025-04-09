@@ -4,5 +4,6 @@ GRPC_SCRIPTS_PATH="$(dirname $(realpath $0))"
 GEN_USERVER_WRAPPERS="${GRPC_SCRIPTS_PATH}/generator.py"
 
 PYTHON=python3
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib64/python3.9/site-packages/
 
 ${PYTHON} "${GEN_USERVER_WRAPPERS}" "$@"

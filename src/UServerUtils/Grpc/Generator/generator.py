@@ -10,7 +10,6 @@ For each `path/X.proto` file that contains gRPC services, we generate
 `path/X_{client,handler}.usrv.pb.{hpp,cpp}` using
 `{client,handler}.usrv.pb.{hpp,cpp}.jinja` templates.
 """
-
 import enum
 import itertools
 import os
