@@ -9,7 +9,7 @@
 #include <grpcpp/completion_queue.h>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/utils/statistics/storage.hpp>
 
 // THIS

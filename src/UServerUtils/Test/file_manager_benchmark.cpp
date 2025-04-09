@@ -5,7 +5,7 @@
 #include <random>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/task/task_with_result.hpp>
 #include <userver/utils/async.hpp>

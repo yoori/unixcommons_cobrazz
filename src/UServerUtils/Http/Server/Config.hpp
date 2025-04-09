@@ -5,7 +5,7 @@
 #include <userver/server/request/request_config.hpp>
 #include <userver/server/request/request_config.hpp>
 #include <userver/server/handlers/handler_config.hpp>
-#include <server/server_config.hpp>
+#include <userver/server/net/listener_config.hpp>
 
 namespace UServerUtils::Http::Server
 {

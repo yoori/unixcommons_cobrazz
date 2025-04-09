@@ -5,7 +5,7 @@
 #include <memory>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/dynamic_config/storage_mock.hpp>
 #include <userver/ugrpc/client/client_factory.hpp>
 #include <userver/ugrpc/impl/statistics_storage.hpp>

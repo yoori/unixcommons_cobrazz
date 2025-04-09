@@ -7,13 +7,13 @@
 #include <utility>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/engine/task/task.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/task/task_with_result.hpp>
 
 // THIS
-#include <utils/signal_catcher.hpp>
+#include <userver/utils/signal_catcher.hpp>
 
 namespace UServerUtils::Utils
 {

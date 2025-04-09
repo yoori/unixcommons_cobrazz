@@ -11,7 +11,7 @@
 #include <grpcpp/grpcpp.h>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/shared_mutex.hpp>
 #include <userver/engine/sleep.hpp>

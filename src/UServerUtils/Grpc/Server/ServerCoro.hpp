@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // USERVER
-#include <engine/task/task_processor.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 
 // THIS
 #include <UServerUtils/Component.hpp>
