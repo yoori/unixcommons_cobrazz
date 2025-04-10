@@ -311,8 +311,8 @@ namespace Stream
       public:
         typedef std::allocator<Elem> Allocator;
         typedef std::allocator_traits<Allocator> AllocatorTraits;
-        typedef AllocatorTraits::pointer Pointer;
-        typedef AllocatorTraits::size_type Size;
+        typedef typename AllocatorTraits::pointer Pointer;
+        typedef typename AllocatorTraits::size_type Size;
 
         /**
          * Constructor without parameters
