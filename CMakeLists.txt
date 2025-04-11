@@ -43,6 +43,11 @@ endif()
 
 add_library(atomic INTERFACE)
 
+set(JAVA_INCLUDE_DIRECTORIES
+  /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.442.b06-2.0.1.el8.x86_64/include/
+  /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.442.b06-2.0.1.el8.x86_64/include/linux/
+)
+
 find_package(ACE REQUIRED)
 find_package(BZip2 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)

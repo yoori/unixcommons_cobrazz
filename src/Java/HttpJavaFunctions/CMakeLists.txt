@@ -4,8 +4,7 @@ add_library(HttpJavaFunctions SHARED
 )
 
 target_include_directories(HttpJavaFunctions
-  PRIVATE /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b09-2.el8_7.x86_64/include/
-    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b09-2.el8_7.x86_64/include/linux/
+  PRIVATE ${JAVA_INCLUDE_DIRECTORIES}
 )
 
 target_link_libraries(HttpJavaFunctions
@@ -15,4 +14,4 @@ target_link_libraries(HttpJavaFunctions
   BLogic
   GenericSegmentor
   Polyglot
-  )
+)
