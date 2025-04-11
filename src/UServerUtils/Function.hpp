@@ -18,7 +18,8 @@ public:
   using Func = std::function<R(Args...)>;
 
 public:
-  template<class F,
+  template<
+    class F,
     class = std::enable_if_t<
       !std::is_same_v<Function, std::decay_t<F>> &&
        std::is_invocable_v<std::decay_t<F>, Args...>>>
@@ -27,7 +28,8 @@ public:
     create(std::forward<F>(f));
   }
 
-  template<class F,
+  template<
+    class F,
     class = std::enable_if_t<
       !std::is_same_v<Function, std::decay_t<F>> &&
       std::is_invocable_v<std::decay_t<F>, Args...>>>

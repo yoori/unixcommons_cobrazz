@@ -7,12 +7,10 @@
 #include <utility>
 
 // USERVER
-#include <userver/engine/task/task_processor_fwd.hpp>
-#include <userver/engine/task/task.hpp>
 #include <userver/engine/async.hpp>
+#include <userver/engine/task/task.hpp>
+#include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/engine/task/task_with_result.hpp>
-
-// USERVER PRIVATE HEADERS
 #include <utils/signal_catcher.hpp>
 
 namespace UServerUtils::Utils

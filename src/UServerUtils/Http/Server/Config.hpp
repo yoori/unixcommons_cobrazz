@@ -2,10 +2,10 @@
 #define USERVER_HTTP_SERVER_CONFIG_HPP
 
 // USERVER
+#include <server/net/listener_config.hpp>
 #include <userver/server/request/request_config.hpp>
 #include <userver/server/request/request_config.hpp>
 #include <userver/server/handlers/handler_config.hpp>
-#include <server/net/listener_config.hpp>
 
 namespace UServerUtils::Http::Server
 {

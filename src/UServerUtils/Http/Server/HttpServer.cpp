@@ -1,7 +1,7 @@
 // STD
 #include <iostream>
 
-// USERVER PRIVATE HEADERS
+// USERVER
 #include <server/server_config.hpp>
 
 // THIS
