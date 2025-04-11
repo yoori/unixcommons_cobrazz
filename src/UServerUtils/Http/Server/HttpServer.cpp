@@ -1,8 +1,8 @@
 // STD
 #include <iostream>
 
-// USERVER
-#include <userver/server/server_config.hpp>
+// USERVER PRIVATE HEADERS
+#include <server/server_config.hpp>
 
 // THIS
 #include <UServerUtils/Http/Server/HttpServer.hpp>

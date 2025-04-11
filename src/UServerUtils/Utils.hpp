@@ -12,8 +12,8 @@
 #include <userver/engine/async.hpp>
 #include <userver/engine/task/task_with_result.hpp>
 
-// THIS
-#include <userver/utils/signal_catcher.hpp>
+// USERVER PRIVATE HEADERS
+#include <utils/signal_catcher.hpp>
 
 namespace UServerUtils::Utils
 {

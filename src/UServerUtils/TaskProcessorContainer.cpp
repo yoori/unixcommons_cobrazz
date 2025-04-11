@@ -7,6 +7,10 @@
 // USERVER
 #include <userver/hostinfo/cpu_limit.hpp>
 
+// USERVER PRIVATE HEADERS
+#include <engine/task/task_counter.hpp>
+#include <engine/task/task_processor.hpp>
+
 // THIS
 #include <UServerUtils/TaskProcessorContainer.hpp>
 

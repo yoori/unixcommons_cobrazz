@@ -1,6 +1,8 @@
 // USERVER
-//#include <ugrpc/client/impl/client_configs.hpp>
 #include <userver/ugrpc/client/client_factory_settings.hpp>
+
+// USERVER PRIVATE HEADERS
+#include <ugrpc/client/impl/client_configs.hpp>
 
 // THIS
 #include <UServerUtils/UServerGrpc/ClientFactory.hpp>

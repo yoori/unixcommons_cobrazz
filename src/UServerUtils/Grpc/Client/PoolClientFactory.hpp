@@ -6,6 +6,7 @@
 
 // USERVER
 #include <userver/engine/task/task_processor_fwd.hpp>
+#include <userver/engine/task/current_task.hpp>
 
 // THIS
 #include <eh/Exception.hpp>
