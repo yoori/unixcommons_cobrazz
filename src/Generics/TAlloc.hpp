@@ -397,7 +397,7 @@ namespace Generics
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     Type*
-    AllocOnly<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
+    AllocOnly<Type, SIZE, HASH_HACK>::allocate([[maybe_unused]] size_t n, const void*)
       /*throw (eh::Exception)*/
     {
       assert(n == 1);
@@ -517,7 +517,7 @@ namespace Generics
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     Type*
-    Aggregated<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
+    Aggregated<Type, SIZE, HASH_HACK>::allocate([[maybe_unused]] size_t n, const void*)
       /*throw (eh::Exception)*/
     {
       assert(n == 1);
@@ -663,7 +663,7 @@ namespace Generics
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     Type*
-    ThreadPool<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
+    ThreadPool<Type, SIZE, HASH_HACK>::allocate([[maybe_unused]] size_t n, const void*)
       /*throw (eh::Exception)*/
     {
       assert(n == 1);

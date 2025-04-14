@@ -475,7 +475,7 @@ namespace
   }
 
   int
-  Reactor::handle_events(ACE_Time_Value* max_wait_time) throw ()
+  Reactor::handle_events([[maybe_unused]] ACE_Time_Value* max_wait_time) throw ()
   {
     assert(!max_wait_time);
     for (unsigned p = 0; p < CORBACommons::PARTS; p++)
@@ -912,7 +912,7 @@ namespace
   }
 
   int
-  Reactor::notify(ACE_Event_Handler* event_handler, ACE_Reactor_Mask mask,
+  Reactor::notify(ACE_Event_Handler* event_handler, [[maybe_unused]] ACE_Reactor_Mask mask,
     ACE_Time_Value*) throw ()
   {
     assert(mask == ACE_Event_Handler::READ_MASK);

@@ -25,7 +25,7 @@ namespace Generics
         {
           return false;
         }
-        fgets(buf, sizeof(buf), file);
+        [[maybe_unused]] char* fgets_result = fgets(buf, sizeof(buf), file);
         fclose(file);
       }
       const char* ptr = buf;

@@ -100,7 +100,7 @@ inline Semaphore::NonBlockingScope::~NonBlockingScope()
 {
   if (old_flags_ >= 0)
   {
-    const int result = set_flags(fd_, old_flags_);
+    [[maybe_unused]] const int result = set_flags(fd_, old_flags_);
     assert(result == 0);
   }
 }

@@ -142,7 +142,7 @@ namespace String
 
     inline
     void
-    concat(char* buffer, size_t size)
+    concat(char* buffer, [[maybe_unused]] size_t size)
       throw ()
     {
       assert(size);

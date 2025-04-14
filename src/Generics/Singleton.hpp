@@ -509,7 +509,7 @@ namespace Generics
         }
       }
 #endif
-      write(STDERR_FILENO, buf, len);
+      [[maybe_unused]] size_t write_result = write(STDERR_FILENO, buf, len);
     }
   }
 

@@ -368,7 +368,8 @@ namespace
 
     if (error_pipe)
     {
-      write(*write_descriptors.get(), error, strlen(error));
+      [[maybe_unused]] ssize_t write_result = write(
+        *write_descriptors.get(), error, strlen(error));
     }
 
     //write_descriptors.close_all(error);

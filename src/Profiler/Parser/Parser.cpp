@@ -183,7 +183,7 @@ std::string::iterator is;
        long log_filesize = ftell(log_list);
        fseek(log_list, 0, SEEK_SET);
        void* plog_list = malloc(log_filesize);
-       fread(plog_list, PROF_FUNCTIONS, sizeof(_funcprof), log_list);
+       [[maybe_unused]] size_t read_result = fread(plog_list, PROF_FUNCTIONS, sizeof(_funcprof), log_list);
 
        for (unsigned int i = 1; i <= PROF_FUNCTIONS; i++)
        {
@@ -252,7 +252,7 @@ std::string::iterator is;
            function_number = indexes_array[func_index];       
 
            fseek(log_list, function_number * sizeof(_funcprof), 0);
-           fread(&FuncProf, 1, sizeof(_funcprof), log_list);
+           [[maybe_unused]] size_t read_result = fread(&FuncProf, 1, sizeof(_funcprof), log_list);
 
            if (func_saved[function_number] == 0)
            {
@@ -263,7 +263,7 @@ std::string::iterator is;
              if (FuncProf.function_graph)
              {
                fseek(log_list, FuncProf.function_graph, SEEK_SET);
-               fread(&func_graph, 1, PROF_FUNCTIONS * sizeof(unsigned int), log_list);
+               [[maybe_unused]] size_t read_result = fread(&func_graph, 1, PROF_FUNCTIONS * sizeof(unsigned int), log_list);
         
                log_out << "Called Functions:" << std::endl;
         
@@ -273,7 +273,7 @@ std::string::iterator is;
                  if (func_graph[i] != 0)
                  {
                    fseek(log_list, i * sizeof(_funcprof), 0);
-                   fread(&FuncProf, 1, sizeof(_funcprof), log_list);
+                   [[maybe_unused]] size_t read_result = fread(&FuncProf, 1, sizeof(_funcprof), log_list);
 		   func_calls = func_graph[i];
                    indexes_array.push_back(i);
                    SaveFunctionLog(i, &log_out, &dot_out);
