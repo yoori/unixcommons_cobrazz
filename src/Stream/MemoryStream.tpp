@@ -1328,7 +1328,7 @@ namespace std
     /*throw (eh::Exception) */
   {
     auto format_str = build_format_str(doubleout);
-    int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
+    int len = std::snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
     {
       throw std::exception();
@@ -1357,7 +1357,7 @@ namespace std
     /*throw (eh::Exception) */
   {
     auto format_str = build_format_str(doubleout);
-    int len = snprintf(nullptr, 0, format_str.data(), doubleout.value());
+    int len = std::snprintf(nullptr, 0, format_str.data(), doubleout.value());
     if (len < 0)
     {
       throw std::exception();
@@ -1365,7 +1365,7 @@ namespace std
 
     std::string result(len + 1, '\0');
 
-    int ec = snprintf(result.data(), len + 1, format_str.data(), doubleout.value());
+    int ec = std::snprintf(result.data(), len + 1, format_str.data(), doubleout.value());
     if (ec < 0)
     {
       throw std::exception();
