@@ -37,9 +37,7 @@ endif()
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
-if (NOT DEFINED USE_USERVER_PACKAGE)
-  set(USE_USERVER_PACKAGE FALSE)
-endif()
+option(USE_USERVER_PACKAGE "Use preinstalled userver package on host" ON)
 
 add_library(atomic INTERFACE)
 
