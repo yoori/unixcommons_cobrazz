@@ -106,12 +106,12 @@ JNIEXPORT jstring JNICALL
 Java_com_foros_util_unixcommons_UnixCommonsTools_normalizeKeyword(
   JNIEnv* env, jobject object, jstring keyword)
 {
-  Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeKeyword(env, object, keyword);
+  return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeKeyword(env, object, keyword);
 }
 
 JNIEXPORT jboolean JNICALL
 Java_com_foros_util_unixcommons_UnixCommonsTools_validateURL(
-  JNIEnv* env, jobject object, jstring url)
+  JNIEnv* env, jobject /*object*/, jstring url)
 {
   JavaCommons::StrPtr original{env, url};
 
