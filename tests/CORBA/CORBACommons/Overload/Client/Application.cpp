@@ -144,7 +144,7 @@ public:
     }
     catch (const CORBA::COMM_FAILURE& ex)
     {
-      write(2, "!", 1);
+      [[maybe_unused]] ssize_t write_result = write(2, "!", 1);
       if (ex.minor() == 0x54410306)
       {
         context_.pstat->cf_54410306 += 1;
@@ -398,7 +398,8 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
       ostr << "Timeouts: " << context.pstat->timeouts << "\n" <<
         "Comm failures: " << context.pstat->cf_54410306 << " " <<
         context.pstat->cfo << "\n";
-      write((context.lock_file.installed() ? 2 : 1),
+      [[maybe_unused]] ssize_t write_result = write(
+        (context.lock_file.installed() ? 2 : 1),
         ostr.str().data(), ostr.str().size());
     }
   }

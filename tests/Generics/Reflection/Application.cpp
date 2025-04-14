@@ -82,12 +82,12 @@ typedef MemberCommon<int> MemberInt;
 }
 
 // The final class definition
-struct SA1
+struct __attribute__ ((visibility("hidden"))) SA1
 {
   LIST(SA1)
 };
 
-class SA2
+class __attribute__ ((visibility("hidden"))) SA2
 {
   LIST(SA2)
   public:
@@ -103,13 +103,13 @@ class SA2
 };
 
 template <typename T>
-struct SA3
+struct __attribute__ ((visibility("hidden"))) SA3
 {
   LIST(SA3)
 };
 
 #ifdef INHERITANCE
-struct SA4 : SA1
+struct __attribute__ ((visibility("hidden"))) SA4 : SA1
 {
   REFLECTION_INIT(SA4, MemberBase)
   REFLECTION_INHERITS(SA1)
@@ -161,7 +161,7 @@ struct SimpleStrings
   std::cout << "\n"; \
 }
 
-struct Strings1
+struct __attribute__ ((visibility("hidden"))) Strings1
 {
   REFLECTION_INIT(Strings1, std::string)
   REFLECTION_MEMBER1(std::string, s1)
@@ -177,7 +177,7 @@ struct Strings1
   }
 };
 
-struct Strings2
+struct __attribute__ ((visibility("hidden"))) Strings2
 {
   REFLECTION_INIT(Strings2, std::string)
   REFLECTION_MEMBER2(std::string, s1)

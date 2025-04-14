@@ -503,11 +503,11 @@ Writer::operator()() /*throw (eh::Exception)*/
 
   for (std::size_t i = 0; i < length / PORTION; ++i, str+=PORTION)
   {
-    write(write_pipes_[my_index], str, PORTION);
+    [[maybe_unused]] size_t write_result = write(write_pipes_[my_index], str, PORTION);
   }
   if (length % PORTION)
   {
-    write(write_pipes_[my_index], str, length % PORTION);
+    [[maybe_unused]] size_t write_result = write(write_pipes_[my_index], str, length % PORTION);
   }
 }
 
