@@ -93,13 +93,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
     db_options.create_if_missing = true;
     auto column_family_options = create_column_family_options();
 
+    std::optional<std::vector<std::int32_t>> ttls;
+    if (ttl)
+    {
+      ttls = std::vector<std::int32_t>(1, *ttl);
+    }
     EXPECT_THROW(DataBase database(
       logger.in(),
       path_db,
       db_options,
       {{"col1", column_family_options}},
       false,
-      std::vector<std::int32_t>(1, *ttl)), eh::Exception);
+      ttls), eh::Exception);
   }
 
   {
@@ -108,13 +113,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
     db_options.create_if_missing = false;
     auto column_family_options = create_column_family_options();
 
+    std::optional<std::vector<std::int32_t>> ttls;
+    if (ttl)
+    {
+      ttls = std::vector<std::int32_t>(1, *ttl);
+    }
     EXPECT_THROW(DataBase database(
       logger.in(),
       path_db,
       db_options,
       {{"col1", column_family_options}},
       true,
-      std::vector<std::int32_t>(1, *ttl)), eh::Exception);
+      ttls), eh::Exception);
   }
 
   {
@@ -125,13 +135,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = true;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(1, *ttl);
+      }
       DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}},
         true,
-        std::vector<std::int32_t>(1, *ttl));
+        ttls);
 
       EXPECT_TRUE(database.get().GetDBOptions().create_if_missing);
     }
@@ -141,13 +156,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = false;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(1, *ttl);
+      }
       DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}},
         false,
-        std::vector<std::int32_t>(1, *ttl));
+        ttls);
 
       EXPECT_FALSE(database.get().GetDBOptions().create_if_missing);
     }
@@ -157,13 +177,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = false;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(2, *ttl);
+      }
       EXPECT_THROW(DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}, {"col2", column_family_options}},
         false,
-        std::vector<std::int32_t>(2, *ttl)), eh::Exception);
+        ttls), eh::Exception);
     }
 
     {
@@ -171,13 +196,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = false;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(2, *ttl);
+      }
       DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}, {"col2", column_family_options}},
         true,
-        std::vector<std::int32_t>(2, *ttl));
+        ttls);
       EXPECT_FALSE(database.get().GetDBOptions().create_if_missing);
     }
 
@@ -186,13 +216,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = false;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(2, *ttl);
+      }
       DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}, {"col2", column_family_options}},
         false,
-        std::vector<std::int32_t>(2, *ttl));
+        ttls);
       EXPECT_FALSE(database.get().GetDBOptions().create_if_missing);
     }
 
@@ -201,13 +236,18 @@ void test_DataBase(std::optional<std::int32_t> ttl)
       db_options.create_if_missing = false;
       auto column_family_options = create_column_family_options();
 
+      std::optional<std::vector<std::int32_t>> ttls;
+      if (ttl)
+      {
+        ttls = std::vector<std::int32_t>(1, *ttl);
+      }
       EXPECT_THROW(DataBase database(
         logger.in(),
         path_db,
         db_options,
         {{"col1", column_family_options}},
         false,
-        std::vector<std::int32_t>(1, *ttl)), eh::Exception);
+        ttls), eh::Exception);
     }
   }
 }
@@ -597,7 +637,7 @@ void test_MultiGet(std::optional<std::int32_t> ttl)
 
 TEST(DataBaseManagerTest, MultiGet) {
   test_MultiGet({});
-  test_MultiGet(5);
+  test_MultiGet(50);
 }
 
 
@@ -665,5 +705,5 @@ void test_Pool(std::optional<std::int32_t> ttl)
 TEST(DataBaseManagerTest, Pool)
 {
   test_Pool({});
-  test_Pool(5);
+  test_Pool(50);
 }
