@@ -6,9 +6,8 @@
 #ifndef LOGGER_SYS_LOGGER_HPP
 #define LOGGER_SYS_LOGGER_HPP
 
-#include <syslog.h>
-
 #include <Logger/SimpleLogger.hpp>
+#include <Logger/SyslogAdapter.hpp>
 
 
 namespace Logging
