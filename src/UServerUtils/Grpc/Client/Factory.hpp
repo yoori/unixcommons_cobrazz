@@ -41,21 +41,22 @@ inline auto create_channels(
   const std::shared_ptr<grpc::ChannelCredentials>& credentials,
   const std::string& endpoint,
   const std::unordered_map<std::string, std::string>& channel_map_args,
-  std::optional<std::size_t> number_channels)
+  const std::optional<std::size_t> desired_channels_number)
 {
   using ChannelPtr = std::shared_ptr<grpc::Channel>;
   using Channels = std::vector<ChannelPtr>;
 
   static std::atomic<std::size_t> counter_{0};
 
-  if (!number_channels)
+  std::size_t channels_number = number_threads;
+  if (desired_channels_number)
   {
-    number_channels = number_threads;
-  }
-  else
-  {
-    const std::size_t adding = (*number_channels % number_threads != 0);
-    *number_channels = (*number_channels / number_threads + adding) * number_threads;
+    channels_number = *desired_channels_number / number_threads;
+    if (*desired_channels_number % number_threads != 0)
+    {
+      channels_number += 1;
+    }
+    channels_number *= number_threads;
   }
 
   grpc::ChannelArguments channel_arguments;
@@ -72,8 +73,8 @@ inline auto create_channels(
   }
 
   Channels channels;
-  channels.reserve(*number_channels);
-  for (std::size_t i = 1; i <= *number_channels; ++i)
+  channels.reserve(channels_number);
+  for (std::size_t i = 1; i <= channels_number; ++i)
   {
     grpc::ChannelArguments result_channel_arguments(channel_arguments);
     result_channel_arguments.SetString(
@@ -114,8 +115,6 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 private:
-  using SchedulerQueue = typename Common::Scheduler::Queue;
-  using SchedulerQueues = typename Common::Scheduler::Queues;
   using CompletionQueue = grpc::CompletionQueue;
   using CompletionQueuePtr = std::shared_ptr<CompletionQueue>;
   using ClientPtr = std::shared_ptr<Client<Request>>;

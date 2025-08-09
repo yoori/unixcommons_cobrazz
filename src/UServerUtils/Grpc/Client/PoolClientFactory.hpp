@@ -62,8 +62,7 @@ public:
   // You must ensure that ClientPool is destroyed
   // before call Manager::deactivate_object
   template<class ClientPool>
-  std::shared_ptr<ClientPool> create(
-    TaskProcessor& task_processor)
+  std::shared_ptr<ClientPool> create(TaskProcessor& task_processor)
   {
     return ClientPool::create(
       logger_.in(),
@@ -111,8 +110,12 @@ private:
       config_pool.number_channels);
 
     const auto& number_async_client = config_pool.number_async_client;
-    const std::size_t adding = number_async_client % number_thread != 0;
-    number_client_ = (adding + number_async_client / number_thread) * number_thread;
+    number_client_ = number_async_client / number_thread;
+    if (number_async_client % number_thread != 0)
+    {
+      number_client_ += 1;
+    }
+    number_client_ *= number_thread;
   }
 
 private:

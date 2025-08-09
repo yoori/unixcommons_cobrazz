@@ -326,7 +326,7 @@ public:
         logger,
         scheduler,
         channels,
-      number_async_client));
+        number_async_client));
     pool->initialize();
 
     return pool;

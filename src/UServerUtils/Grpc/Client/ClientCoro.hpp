@@ -286,8 +286,10 @@ private:
         throw Exception(stream);
       }
 
-      auto it = requests_.find(id_request);
-      if (it != std::end(requests_))
+      const auto result = requests_.try_emplace(
+        id_request,
+        std::move(promise)).second;
+      if (!result)
       {
         Stream::Error stream;
         stream << FNS
@@ -295,18 +297,15 @@ private:
                << id_request;
         throw Exception(stream);
       }
-
-      requests_.try_emplace(
-        id_request,
-        std::move(promise));
     }
     catch (const eh::Exception& exc)
     {
       Stream::Error stream;
       stream << FNS
-             << ": "
              << exc.what();
-      logger_->error(stream.str(), Aspect::CLIENT_CORO);
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_CORO);
 
       auto eptr = std::current_exception();
       try
@@ -322,7 +321,9 @@ private:
       Stream::Error stream;
       stream << FNS
              << "Unknown error";
-      logger_->error(stream.str(), Aspect::CLIENT_CORO);
+      logger_->error(
+        stream.str(),
+        Aspect::CLIENT_CORO);
 
       auto eptr = std::current_exception();
       try
@@ -360,10 +361,10 @@ private:
     }
   }
 
-  void on_finish(grpc::Status&& /*status*/) override
+  void on_finish(grpc::Status&& status) override
   {
     is_stopped_ = true;
-    Exception exc("Client finished");
+    Exception exc(status.error_message());
     auto exception_ptr = std::make_exception_ptr(exc);
     for (auto& [id_request, promise] : requests_)
     {

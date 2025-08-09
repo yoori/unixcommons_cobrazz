@@ -54,9 +54,7 @@ public:
 private:
   using Message = google::protobuf::Message;
   using MessagePtr = std::unique_ptr<Message>;
-
   using ClientPtr = std::shared_ptr<Client<Request>>;
-  using ClientWeakPtr = std::weak_ptr<Client<Request>>;
 
   using ClientAsyncReaderWriter =
     grpc::ClientAsyncReaderWriter<

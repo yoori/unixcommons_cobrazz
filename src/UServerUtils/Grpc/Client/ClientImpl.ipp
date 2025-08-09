@@ -505,17 +505,11 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
     }
     else
     {
-      Stream::Error stream;
-      stream << FNS
-             << "The channel is either permanently broken or "
-             << "transiently broken but with the fail-fast option";
-      logger_->error(stream.str(), Aspect::CLIENT_IMPL);
-
-      grpc::Status status(
+      status_ = grpc::Status(
         grpc::StatusCode::UNAVAILABLE,
-        "Channel error",
-        "The channel is either permanently broken or transiently"
-        " broken but with the fail-fast option");
+        "SERVER UNAVAILABLE",
+        "The channel is either permanently broken or transiently "
+        "broken but with the fail-fast option");
 
       on_finish(true);
     }
@@ -528,8 +522,7 @@ ClientImpl<RpcServiceMethodConcept>::on_initialize(
 
 template<class RpcServiceMethodConcept>
 inline void
-ClientImpl<RpcServiceMethodConcept>::on_read(
-  const bool ok) noexcept
+ClientImpl<RpcServiceMethodConcept>::on_read(const bool ok) noexcept
 {
   read_event_.set_pending(false);
 
