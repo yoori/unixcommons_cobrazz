@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <syslog.h>
 
+#include <Logger/SyslogAdapter.hpp>
 #include <String/StringManip.hpp>
 #include <JavaCommons/JavaCommons.hpp>
 #include <SyslogJavaAdapter/JavaAdapter.hpp>

@@ -1,8 +1,8 @@
+#include <Logger/Syslog.hpp>
+
 #include <Generics/Function.hpp>
 
 #include <Stream/MemoryStream.hpp>
-
-#include <Logger/Syslog.hpp>
 
 
 namespace Logging
@@ -103,14 +103,14 @@ namespace Logging
   
           static const int CONVERT_TO_SYSLOG_SEVERITY[] =
           {
-            LOG_ALERT, LOG_ALERT, LOG_CRIT, LOG_ERR, LOG_WARNING,
-            LOG_NOTICE, LOG_INFO
+            LOG_ALERT, LOG_ALERT, LOG_CRIT, LOG_ERR, SYSLOG_LOG_WARNING,
+            LOG_NOTICE, SYSLOG_LOG_INFO
           };
 
           int priority =
             (record.severity < sizeof(CONVERT_TO_SYSLOG_SEVERITY) 
               / sizeof(CONVERT_TO_SYSLOG_SEVERITY[0]) ?
-                CONVERT_TO_SYSLOG_SEVERITY[record.severity] : LOG_DEBUG);
+                CONVERT_TO_SYSLOG_SEVERITY[record.severity] : SYSLOG_LOG_DEBUG);
 
           syslog(priority, "%s", str);
         }
