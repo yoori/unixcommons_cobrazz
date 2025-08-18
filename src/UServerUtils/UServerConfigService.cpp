@@ -111,7 +111,15 @@ components_manager:
         }
       }
     }
-  }
+  },
+  "BAGGAGE_SETTINGS": {
+    "allowed_keys": []
+  },
+  "USERVER_BAGGAGE_ENABLED": false,
+  "USERVER_HANDLER_STREAM_API_ENABLED": true,
+  "USERVER_DEADLINE_PROPAGATION_ENABLED": false,
+  "USERVER_GRPC_SERVER_CANCEL_TASK_BY_DEADLINE": true,
+  "USERVER_GRPC_CLIENT_ENABLE_DEADLINE_PROPAGATION": true
 }
 )x";
 
