@@ -477,6 +477,7 @@ namespace
   int
   Reactor::handle_events(ACE_Time_Value* max_wait_time) throw ()
   {
+    (void)max_wait_time;
     assert(!max_wait_time);
     for (unsigned p = 0; p < CORBACommons::PARTS; p++)
     {
@@ -915,6 +916,7 @@ namespace
   Reactor::notify(ACE_Event_Handler* event_handler, ACE_Reactor_Mask mask,
     ACE_Time_Value*) throw ()
   {
+    (void)mask;
     assert(mask == ACE_Event_Handler::READ_MASK);
     assert(event_handler);
     event_handler->add_reference();

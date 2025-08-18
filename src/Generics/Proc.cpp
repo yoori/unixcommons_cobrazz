@@ -25,7 +25,7 @@ namespace Generics
         {
           return false;
         }
-        fgets(buf, sizeof(buf), file);
+        std::ignore = fgets(buf, sizeof(buf), file);
         fclose(file);
       }
       const char* ptr = buf;

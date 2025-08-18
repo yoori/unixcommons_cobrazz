@@ -368,7 +368,7 @@ namespace
 
     if (error_pipe)
     {
-      write(*write_descriptors.get(), error, strlen(error));
+      std::ignore = write(*write_descriptors.get(), error, strlen(error));
     }
 
     //write_descriptors.close_all(error);

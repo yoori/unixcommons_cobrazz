@@ -400,6 +400,7 @@ namespace Generics
     AllocOnly<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
       /*throw (eh::Exception)*/
     {
+      (void)n;
       assert(n == 1);
       if (cur_ != end_)
       {
@@ -520,6 +521,7 @@ namespace Generics
     Aggregated<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
       /*throw (eh::Exception)*/
     {
+      (void)n;
       assert(n == 1);
       return static_cast<Type*>(
         AggregatedBase<sizeof(Type), SIZE>::allocate());

@@ -509,7 +509,7 @@ namespace Generics
         }
       }
 #endif
-      write(STDERR_FILENO, buf, len);
+      std::ignore = write(STDERR_FILENO, buf, len);
     }
   }
 

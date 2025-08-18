@@ -145,6 +145,7 @@ namespace String
     concat(char* buffer, size_t size)
       throw ()
     {
+      (void)size;
       assert(size);
       *buffer = '\0';
     }
