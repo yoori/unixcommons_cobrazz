@@ -344,7 +344,7 @@ namespace Generics
   }
 
   bool
-  PeriodicRunner::active() /*throw (eh::Exception)*/
+  PeriodicRunner::active() const /*throw (eh::Exception)*/
   {
     return active_state_ == AS_ACTIVE;
   }

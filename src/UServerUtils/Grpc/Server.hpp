@@ -1,5 +1,4 @@
-#ifndef USERVER_GRPC_SERVER_HPP
-#define USERVER_GRPC_SERVER_HPP
+#pragma once
 
 // Std
 #include <mutex>
@@ -21,70 +20,62 @@
 
 namespace UServerUtils::Grpc
 {
-
-class GrpcServer final
-  : public Component,
+  class GrpcServer final:
+    public Component,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
-{
-public:
-  using Exception = ActiveObject::Exception;
-  using AlreadyActive = ActiveObject::AlreadyActive;
-  using Logger = Logging::Logger;
-  using Logger_var = Logging::Logger_var;
-  using Server = userver::ugrpc::server::Server;
-  using ServerConfig = userver::ugrpc::server::ServerConfig;
-  using TaskProcessor = userver::engine::TaskProcessor;
-  using CompletionQueue = grpc::CompletionQueue;
-  using StatisticsStorage = userver::utils::statistics::Storage;
-  using Service = userver::ugrpc::server::ServiceBase;
-  using Middlewares = userver::ugrpc::server::Middlewares;
-  using StorageMock = userver::dynamic_config::StorageMock;
-  using StorageMockPtr = std::unique_ptr<StorageMock>;
+  {
+  public:
+    using Exception = ActiveObject::Exception;
+    using Logger = Logging::Logger;
+    using Logger_var = Logging::Logger_var;
+    using Server = userver::ugrpc::server::Server;
+    using ServerConfig = userver::ugrpc::server::ServerConfig;
+    using TaskProcessor = userver::engine::TaskProcessor;
+    using CompletionQueue = grpc::CompletionQueue;
+    using StatisticsStorage = userver::utils::statistics::Storage;
+    using Service = userver::ugrpc::server::ServiceBase;
+    using Middlewares = userver::ugrpc::server::Middlewares;
+    using StorageMock = userver::dynamic_config::StorageMock;
+    using StorageMockPtr = std::unique_ptr<StorageMock>;
 
-public:
-  void activate_object() override;
+  public:
+    CompletionQueue& get_completion_queue() noexcept;
 
-  void deactivate_object() override;
+  protected:
+    ~GrpcServer() override;
 
-  void wait_object() override;
+    void deactivate_object_() override;
 
-  bool active() override;
+    void activate_object_() override;
 
-  CompletionQueue& get_completion_queue() noexcept;
+  private:
+    friend class GrpcServerBuilder;
 
-protected:
-  ~GrpcServer() override;
+    explicit GrpcServer(
+      Logger* logger,
+      ServerConfig&& config,
+      StatisticsStorage& statistics_storage,
+      StorageMockPtr&& storage_mock);
 
-private:
-  friend class GrpcServerBuilder;
+    void add_service(
+      Service& service,
+      TaskProcessor& task_processor,
+      const Middlewares& middlewares);
 
-  explicit GrpcServer(
-    Logger* logger,
-    ServerConfig&& config,
-    StatisticsStorage& statistics_storage,
-    StorageMockPtr&& storage_mock);
+  private:
+    const Logger_var logger_;
 
-  void add_service(
-    Service& service,
-    TaskProcessor& task_processor,
-    const Middlewares& middlewares);
+    StorageMockPtr storage_mock_;
 
-private:
-  const Logger_var logger_;
+    std::unique_ptr<Server> server_;
 
-  StorageMockPtr storage_mock_;
+    ACTIVE_STATE state_ = AS_NOT_ACTIVE;
 
-  std::unique_ptr<Server> server_;
+    std::mutex state_mutex_;
 
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
+    std::condition_variable condition_variable_;
+  };
 
-  std::mutex state_mutex_;
-
-  std::condition_variable condition_variable_;
-};
-
-using GrpcServer_var = ReferenceCounting::SmartPtr<GrpcServer>;
-
+  using GrpcServer_var = ReferenceCounting::SmartPtr<GrpcServer>;
 } // namespace UServerUtils::Grpc
-
-#endif //USERVER_GRPC_SERVER_HPP

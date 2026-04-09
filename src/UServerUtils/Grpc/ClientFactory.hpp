@@ -20,57 +20,56 @@
 
 namespace UServerUtils::Grpc
 {
-
-class GrpcClientFactory final :
-  public Component,
-  public ReferenceCounting::AtomicImpl
-{
-  using ClientFactory = userver::ugrpc::client::ClientFactory;
-  using ClientFactoryPtr = std::unique_ptr<ClientFactory>;
-  using ClientFactoryConfig = userver::ugrpc::client::ClientFactoryConfig;
-  using TaskProcessor = userver::engine::TaskProcessor;
-  using CompletionQueue = grpc::CompletionQueue;
-  using StatisticsStorage = userver::utils::statistics::Storage;
-  using GrpcControl = userver::testsuite::GrpcControl;
-  using StorageMock = userver::dynamic_config::StorageMock;
-  using StorageMockPtr = std::unique_ptr<StorageMock>;
-  using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
-
-public:
-  template <typename Client>
-  std::unique_ptr<Client> make_client(
-    const std::string& client_name,
-    const std::string& endpoint)
+  class GrpcClientFactory final:
+    public Component,
+    public Generics::SimpleActiveObject,
+    public ReferenceCounting::AtomicImpl
   {
-    return std::make_unique<Client>(
-      client_factory_->MakeClient<Client>(
-        client_name, endpoint));
-  }
+    using ClientFactory = userver::ugrpc::client::ClientFactory;
+    using ClientFactoryPtr = std::unique_ptr<ClientFactory>;
+    using ClientFactoryConfig = userver::ugrpc::client::ClientFactoryConfig;
+    using TaskProcessor = userver::engine::TaskProcessor;
+    using CompletionQueue = grpc::CompletionQueue;
+    using StatisticsStorage = userver::utils::statistics::Storage;
+    using GrpcControl = userver::testsuite::GrpcControl;
+    using StorageMock = userver::dynamic_config::StorageMock;
+    using StorageMockPtr = std::unique_ptr<StorageMock>;
+    using MiddlewareFactories = userver::ugrpc::client::MiddlewareFactories;
 
-protected:
-  ~GrpcClientFactory() override = default;
+  public:
+    template <typename Client>
+    std::unique_ptr<Client> make_client(
+      const std::string& client_name,
+      const std::string& endpoint)
+    {
+      return std::make_unique<Client>(
+        client_factory_->MakeClient<Client>(
+          client_name, endpoint));
+    }
 
-private:
-  explicit GrpcClientFactory(
-    GrpcClientFactoryConfig&& config,
-    TaskProcessor& channel_task_processor,
-    CompletionQueue& queue,
-    StatisticsStorage& statistics_storage,
-    const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
-    const MiddlewareFactories& middleware_factories = {});
+  protected:
+    ~GrpcClientFactory() override = default;
 
-private:
-  friend class ComponentsBuilder;
+  private:
+    explicit GrpcClientFactory(
+      GrpcClientFactoryConfig&& config,
+      TaskProcessor& channel_task_processor,
+      CompletionQueue& queue,
+      StatisticsStorage& statistics_storage,
+      const RegistratorDynamicSettingsPtr& registrator_dynamic_settings,
+      const MiddlewareFactories& middleware_factories = {});
 
-  GrpcControl testsuite_grpc_;
+  private:
+    friend class ComponentsBuilder;
 
-  StorageMockPtr storage_mock_;
+    GrpcControl testsuite_grpc_;
 
-  ClientFactoryPtr client_factory_;
-};
+    StorageMockPtr storage_mock_;
 
-using GrpcClientFactory_var = ReferenceCounting::SmartPtr<GrpcClientFactory>;
+    ClientFactoryPtr client_factory_;
+  };
 
+  using GrpcClientFactory_var = ReferenceCounting::SmartPtr<GrpcClientFactory>;
 } // namespace UServerUtils::Grpc
 
 #endif // USERVER_GRPC_CLIENTFACTORY_HPP

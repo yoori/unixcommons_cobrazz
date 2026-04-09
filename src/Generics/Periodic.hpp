@@ -152,7 +152,7 @@ namespace Generics
      */
     virtual
     bool
-    active() /*throw (eh::Exception)*/;
+    active() const /*throw (eh::Exception)*/;
 
     /**
      * Clears the aggregated tasks.

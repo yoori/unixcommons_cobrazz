@@ -163,6 +163,7 @@ namespace Generics
     PlannerJob& job_;
   };
   typedef ReferenceCounting::QualPtr<Planner> Planner_var;
+  typedef ReferenceCounting::FixedPtr<Planner> FixedPlanner_var;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

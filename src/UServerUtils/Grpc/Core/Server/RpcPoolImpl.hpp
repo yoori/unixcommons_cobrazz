@@ -1,62 +1,49 @@
-#ifndef SERVER_RPC_POOL_H_
-#define SERVER_RPC_POOL_H_
-
-// THIS
-#include <Generics/ActiveObject.hpp>
-#include <Logger/Logger.hpp>
-#include <UServerUtils/Grpc/Core/Server/RpcPool.hpp>
+#pragma once
 
 // STD
 #include <mutex>
 #include <condition_variable>
 #include <unordered_map>
 
+// THIS
+#include <Generics/ActiveObject.hpp>
+#include <Logger/Logger.hpp>
+#include <UServerUtils/Grpc/Core/Server/RpcPool.hpp>
+
 namespace UServerUtils::Grpc::Core::Server
 {
-
-class RpcPoolImpl final
-  : public RpcPool,
-    public Generics::ActiveObject,
+  class RpcPoolImpl final:
+    public RpcPool,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
-{
-public:
-  using Logger = Logging::Logger;
-  using Logger_var = Logging::Logger_var;
-  using RpcPtr = typename RpcPool::RpcPtr;
-  using Rpcs = std::unordered_map<Rpc*, RpcPtr>;
+  {
+  public:
+    using Logger = Logging::Logger;
+    using Logger_var = Logging::Logger_var;
+    using RpcPtr = typename RpcPool::RpcPtr;
+    using Rpcs = std::unordered_map<Rpc*, RpcPtr>;
 
-public:
-  RpcPoolImpl(Logger* logger);
+  public:
+    RpcPoolImpl(Logger* logger);
 
-  void add(const RpcPtr& rpc) override;
+    void add(const RpcPtr& rpc) override;
 
-  void remove(Rpc* rpc) noexcept override;
+    void remove(Rpc* rpc) noexcept override;
 
-  void activate_object() override;
+  protected:
+    ~RpcPoolImpl() override;
 
-  void deactivate_object() override;
+    void deactivate_object_() override;
 
-  void wait_object() override;
+    void wait_object_() override;
 
-  bool active() override;
+  private:
+    const Logger_var logger_;
 
-protected:
-  ~RpcPoolImpl() override;
+    mutable std::mutex mutex_;
+    Rpcs rpcs_;
+  };
 
-private:
-  Logger_var logger_;
-
-  Rpcs rpcs_;
-
-  std::mutex mutex_;
-
-  ACTIVE_STATE state_ = AS_NOT_ACTIVE;
-
-  std::condition_variable condition_variable_;
-};
-
-using RpcPoolImpl_var = ReferenceCounting::SmartPtr<RpcPoolImpl>;
+  using RpcPoolImpl_var = ReferenceCounting::SmartPtr<RpcPoolImpl>;
 
 } // namespace UServerUtils::Grpc::Core::Server
-
-#endif // SERVER_RPC_POOL_H_

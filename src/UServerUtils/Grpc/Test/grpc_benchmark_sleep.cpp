@@ -40,9 +40,10 @@ struct Statistics final
   std::atomic<std::size_t> error_read{0};
 };
 
-class Service final
-  : public Test2::TestStreamServiceBase,
-    public ReferenceCounting::AtomicImpl
+class Service final:
+  public Test2::TestStreamServiceBase,
+  public Generics::SimpleActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   explicit Service(const std::size_t sleep_duration)
@@ -78,9 +79,9 @@ private:
   std::atomic<int> counter_{0};
 };
 
-class Client final
-  : public Generics::ActiveObject,
-    public ReferenceCounting::AtomicImpl
+class Client final:
+  public Generics::SimpleActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -102,23 +103,21 @@ public:
     if (number_initial_message == 0)
     {
       Stream::Error stream;
-      stream << FNS
-             << " : number_initial_message must be more then 0";
+      stream << FNS << " : number_initial_message must be more then 0";
       throw Exception(stream);
     }
   }
 
   ~Client() override = default;
 
-  void activate_object() override
+  void activate_object_() override
   {
     const bool is_task_processor_thread=
       userver::engine::current_task::IsTaskProcessorThread();
     if (!is_task_processor_thread)
     {
       Stream::Error stream;
-      stream << FNS
-             << "Not task processor thread";
+      stream << FNS << "Not task processor thread";
       throw Exception(stream);
     }
 
@@ -129,9 +128,13 @@ public:
       });
   }
 
-  void deactivate_object() override
+  void deactivate_object_() override
   {
     is_stop_.store(true, std::memory_order_relaxed);
+  }
+
+  void wait_object_() override
+  {
     try
     {
       if (task_.IsValid())
@@ -141,22 +144,8 @@ public:
     }
     catch (const eh::Exception& exc)
     {
-      std::cerr << FNS
-                << " : "
-                << exc.what();
+      std::cerr << FNS << " : " << exc.what();
     }
-  }
-
-  void wait_object() override
-  {
-  }
-
-  bool active() override
-  {
-    using State = userver::engine::Task::State;
-    const auto state = task_.GetState();
-    return state != State::kInvalid
-           && state != State::kCompleted;
   }
 
 private:
@@ -177,8 +166,7 @@ private:
           if (!call.Write(request))
           {
             Stream::Error stream;
-            stream << FNS
-                   << " : Write is failed";
+            stream << FNS << " : Write is failed";
             throw Exception(stream);
           }
           statistics_.success_write.fetch_add(1, std::memory_order_relaxed);
@@ -191,7 +179,8 @@ private:
           if (call.Read(response))
           {
             statistics_.success_read.fetch_add(1, std::memory_order_relaxed);
-          } else
+          }
+          else
           {
             statistics_.error_read.fetch_add(1, std::memory_order_relaxed);
           }
@@ -201,7 +190,8 @@ private:
           if (call.Write(request))
           {
             statistics_.success_write.fetch_add(1, std::memory_order_relaxed);
-          } else
+          }
+          else
           {
             statistics_.error_write.fetch_add(1, std::memory_order_relaxed);
           }
@@ -210,39 +200,31 @@ private:
         if (!call.WritesDone())
         {
           Stream::Error stream;
-          stream << FNS
-                 << " : WritesDone is failed";
+          stream << FNS << " : WritesDone is failed";
           throw Exception(stream);
         }
       }
       catch (const eh::Exception &exc)
       {
-        std::cerr << "Error: "
-                  << exc.what()
-                  << std::endl;
+        std::cerr << "Error: " << exc.what() << std::endl;
       }
     }
   }
 
 private:
   const std::string message_;
-
   const std::size_t number_initial_message_;
-
   std::unique_ptr<Test2::TestStreamServiceClient> client_;
-
   std::atomic<bool> is_stop_{false};
-
   TaskProcessor& task_processor_;
-
   Statistics& statistics_;
-
   userver::engine::TaskWithResult<void> task_;
 };
 
-class Benchmark final
-  : public Component,
-    public ReferenceCounting::AtomicImpl
+class Benchmark final:
+  public Component,
+  public Generics::CompositeActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   Benchmark(
@@ -270,9 +252,7 @@ public:
       }
       catch (const std::exception& exc)
       {
-        std::cerr << "Fatal error: "
-                  << exc.what()
-                  << std::endl;
+        std::cerr << "Fatal error: " << exc.what() << std::endl;
         throw;
       }
     }
@@ -454,42 +434,38 @@ public:
     manager->activate_object();
 
     std::atomic<bool> is_cancel(false);
-    boost::scoped_thread<> thread([&statistics,
-                                   &is_cancel,
-                                   time_interval = time_interval_] () {
-      try
-      {
-        while (!is_cancel.load(std::memory_order_relaxed))
+    boost::scoped_thread<> thread(
+      [&statistics,
+        &is_cancel,
+        time_interval = time_interval_] () {
+        try
         {
-          std::this_thread::sleep_for(std::chrono::milliseconds(time_interval * 1000));
+          while (!is_cancel.load(std::memory_order_relaxed))
+          {
+            std::this_thread::sleep_for(std::chrono::milliseconds(time_interval * 1000));
 
-          const std::size_t success_write =
-            statistics.success_write.exchange(0, std::memory_order_relaxed);
-          const std::size_t error_write =
-            statistics.error_write.exchange(0, std::memory_order_relaxed);
-          const std::size_t success_read =
-            statistics.success_read.exchange(0, std::memory_order_relaxed);
-          const std::size_t error_read =
-            statistics.error_read.exchange(0, std::memory_order_relaxed);
-          std::cout << "---------------" << std::endl;
-          std::cout << "Success read[rq/s] = "
-                    << success_read / time_interval
-                    << "\n"
-                    << "Error read[rq/s] = "
-                    << error_read / time_interval
-                    << "\n"
-                    << "Success write[rq/s] = "
-                    << success_write / time_interval
-                    << "\n"
-                    << "Error write[rq/s] = "
-                    << error_write / time_interval
-                    << std::endl;
+            const std::size_t success_write =
+              statistics.success_write.exchange(0, std::memory_order_relaxed);
+            const std::size_t error_write =
+              statistics.error_write.exchange(0, std::memory_order_relaxed);
+            const std::size_t success_read =
+              statistics.success_read.exchange(0, std::memory_order_relaxed);
+            const std::size_t error_read =
+              statistics.error_read.exchange(0, std::memory_order_relaxed);
+            std::cout << "---------------" << std::endl;
+            std::cout << "Success read[rq/s] = " <<
+              success_read / time_interval << "\n" <<
+              "Error read[rq/s] = " << error_read / time_interval << "\n" <<
+              "Success write[rq/s] = " << success_write / time_interval << "\n" <<
+              "Error write[rq/s] = " << error_write / time_interval <<
+              std::endl;
+          }
+        }
+        catch (const eh::Exception& exc)
+        {
         }
       }
-      catch (const eh::Exception& exc)
-      {
-      }
-    });
+    );
 
     wait();
     std::cout << "Stopping benchmark. Please wait..." << std::endl;
@@ -516,23 +492,14 @@ private:
 
 private:
   const std::size_t port_;
-
   const std::size_t number_client_;
-
   const std::string message_;
-
   const std::size_t number_initial_message_;
-
   const std::size_t time_interval_;
-
-  const std::size_t  number_server_thread_;
-
-  const std::size_t  number_client_thread_;
-
+  const std::size_t number_server_thread_;
+  const std::size_t number_client_thread_;
   const std::size_t number_channel_thread_;
-
   const std::size_t number_channel_;
-
   const std::size_t sleep_duration_;
 };
 
@@ -565,8 +532,6 @@ int main(int /*argc*/, char** /*argv*/)
   }
   catch (const eh::Exception& exc)
   {
-    std::cerr << "Fatal error : "
-              << exc.what()
-              << std::endl;
+    std::cerr << "Fatal error : " << exc.what() << std::endl;
   }
 }

@@ -1,5 +1,4 @@
-#ifndef GRPC_CORE_SERVER_RPC_DELEGATE_H_
-#define GRPC_CORE_SERVER_RPC_DELEGATE_H_
+#pragma once
 
 // GRPC
 #include <grpcpp/grpcpp.h>
@@ -13,50 +12,46 @@
 
 namespace UServerUtils::Grpc::Core::Server
 {
+  class RpcDelegate: protected Generics::Uncopyable
+  {
+  public:
+    virtual void request_async_bidi_streaming(
+      int index,
+      grpc::ServerContext* context,
+      grpc::internal::ServerAsyncStreamingInterface* stream,
+      grpc::CompletionQueue* call_cq,
+      grpc::ServerCompletionQueue* notification_cq,
+      void* tag) = 0;
 
-class RpcDelegate : protected Generics::Uncopyable
-{
-public:
-  virtual void request_async_bidi_streaming(
-    int index,
-    grpc::ServerContext* context,
-    grpc::internal::ServerAsyncStreamingInterface* stream,
-    grpc::CompletionQueue* call_cq,
-    grpc::ServerCompletionQueue* notification_cq,
-    void* tag) = 0;
+    virtual void request_async_client_streaming(
+      int index,
+      grpc::ServerContext* context,
+      grpc::internal::ServerAsyncStreamingInterface* stream,
+      grpc::CompletionQueue* call_cq,
+      grpc::ServerCompletionQueue* notification_cq,
+      void* tag) = 0;
 
-  virtual void request_async_client_streaming(
-    int index,
-    grpc::ServerContext* context,
-    grpc::internal::ServerAsyncStreamingInterface* stream,
-    grpc::CompletionQueue* call_cq,
-    grpc::ServerCompletionQueue* notification_cq,
-    void* tag) = 0;
+    virtual void request_async_unary(
+      int index,
+      grpc::ServerContext* context,
+      google::protobuf::Message* request,
+      grpc::internal::ServerAsyncStreamingInterface* stream,
+      grpc::CompletionQueue* call_cq,
+      grpc::ServerCompletionQueue* notification_cq,
+      void* tag) = 0;
 
-  virtual void request_async_unary(
-    int index,
-    grpc::ServerContext* context,
-    google::protobuf::Message* request,
-    grpc::internal::ServerAsyncStreamingInterface* stream,
-    grpc::CompletionQueue* call_cq,
-    grpc::ServerCompletionQueue* notification_cq,
-    void* tag) = 0;
+    virtual void request_async_server_streaming(
+      int index,
+      grpc::ServerContext* context,
+      google::protobuf::Message* request,
+      grpc::internal::ServerAsyncStreamingInterface* stream,
+      grpc::CompletionQueue* call_cq,
+      grpc::ServerCompletionQueue* notification_cq,
+      void* tag) = 0;
 
-  virtual void request_async_server_streaming(
-    int index,
-    grpc::ServerContext* context,
-    google::protobuf::Message* request,
-    grpc::internal::ServerAsyncStreamingInterface* stream,
-    grpc::CompletionQueue* call_cq,
-    grpc::ServerCompletionQueue* notification_cq,
-    void* tag) = 0;
+  protected:
+    RpcDelegate() = default;
 
-protected:
-  RpcDelegate() = default;
-
-  virtual ~RpcDelegate() = default;
-};
-
+    virtual ~RpcDelegate() = default;
+  };
 } // namespace UServerUtils::Grpc::Core::Server
-
-#endif //GRPC_CORE_SERVER_RPC_DELEGATE_H_

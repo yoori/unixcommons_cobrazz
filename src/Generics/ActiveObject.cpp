@@ -87,7 +87,7 @@ namespace Generics
   }
 
   bool
-  SimpleActiveObject::active() /*throw (eh::Exception)*/
+  SimpleActiveObject::active() const /*throw (eh::Exception)*/
   {
     return state_ == AS_ACTIVE;
   }
@@ -270,7 +270,7 @@ namespace Generics
   }
 
   bool
-  ActiveObjectCommonImpl::active() /*throw (eh::Exception)*/
+  ActiveObjectCommonImpl::active() const /*throw (eh::Exception)*/
   {
     return active_state_ == AS_ACTIVE;
   }

@@ -81,7 +81,7 @@ namespace Generics
 
     virtual
     bool
-    active()
+    active() const
       /*throw (eh::Exception)*/ = 0;
 
     virtual
@@ -130,7 +130,7 @@ namespace Generics
 
     virtual
     bool
-    active() /*throw (eh::Exception)*/;
+    active() const /*throw (eh::Exception)*/;
 
   protected:
     virtual
@@ -203,7 +203,7 @@ namespace Generics
      */
     virtual
     bool
-    active() /*throw (eh::Exception)*/;
+    active() const /*throw (eh::Exception)*/;
 
   protected:
     /**

@@ -82,28 +82,29 @@ class FailActiveObjectImpl : public Generics::ActiveObject,
 public:
   FailActiveObjectImpl() throw ();
 
-  virtual void
-  activate_object()
+  void
+  activate_object() override
     /*throw (ActiveObject::AlreadyActive, Exception, eh::Exception)*/;
 
-  virtual void
-  deactivate_object()
-    /*throw (Exception, eh::Exception)*/;
+  void
+  deactivate_object() override /*throw (Exception, eh::Exception)*/;
 
-  virtual void
-  wait_object() /*throw (Exception, eh::Exception)*/;
+  void
+  wait_object() override /*throw (Exception, eh::Exception)*/;
 
-  virtual bool
-  active() /*throw (eh::Exception)*/;
+  bool
+  active() const override /*throw (eh::Exception)*/;
 
   void
   permit_work(bool new_status) throw ();
 
   void
   set_active(bool new_status) throw ();
+
 protected:
   virtual
   ~FailActiveObjectImpl() throw ();
+
 private:
   bool permit_pass_;
   bool active_;
@@ -175,7 +176,7 @@ FailActiveObjectImpl::wait_object() /*throw (Exception, eh::Exception)*/
 }
 
 bool
-FailActiveObjectImpl::active() /*throw (eh::Exception)*/
+FailActiveObjectImpl::active() const /*throw (eh::Exception)*/
 {
   return active_;
 }

@@ -177,23 +177,19 @@ namespace Generics
       execute_dumping(DumpPolicy* policy, StatSink* stat)
         /*throw (eh::Exception)*/;
 
-      virtual
       void
-      activate_object()
+      activate_object() override
         /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
-      virtual
       void
-      deactivate_object()
+      deactivate_object() override
         /*throw (Exception, eh::Exception)*/;
 
-      virtual
       void
-      wait_object() /*throw (Exception, eh::Exception)*/;
+      wait_object() override /*throw (Exception, eh::Exception)*/;
 
-      virtual
       bool
-      active() /*throw (eh::Exception)*/;
+      active() const override /*throw (eh::Exception)*/;
 
     protected:
       virtual
@@ -217,21 +213,17 @@ namespace Generics
       execute_dumping(DumpPolicy* policy, StatSink* stat)
         /*throw (eh::Exception)*/;
 
-      virtual
       void
-      activate_object() /*throw (AlreadyActive, Exception, eh::Exception)*/;
+      activate_object() override /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
-      virtual
       void
-      deactivate_object() /*throw (Exception, eh::Exception)*/;
+      deactivate_object() override /*throw (Exception, eh::Exception)*/;
 
-      virtual
       void
-      wait_object() /*throw (Exception, eh::Exception)*/;
+      wait_object() override /*throw (Exception, eh::Exception)*/;
 
-      virtual
       bool
-      active() /*throw (eh::Exception)*/;
+      active() const override /*throw (eh::Exception)*/;
 
     protected:
       virtual
@@ -299,22 +291,18 @@ namespace Generics
       void
       dump(std::ostream& ostr) /*throw (Exception, eh::Exception)*/;
 
-      virtual
       void
-      activate_object()
+      activate_object() override
         /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
-      virtual
       void
-      deactivate_object() /*throw (Exception, eh::Exception)*/;
+      deactivate_object() override /*throw (Exception, eh::Exception)*/;
 
-      virtual
       void
-      wait_object() /*throw (Exception, eh::Exception)*/;
+      wait_object() override /*throw (Exception, eh::Exception)*/;
 
-      virtual
       bool
-      active() /*throw (eh::Exception)*/;
+      active() const override /*throw (eh::Exception)*/;
 
     protected:
       virtual

@@ -1,9 +1,3 @@
-/**
- * @file   ProbeObj/Application.cpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Implements class which tests and shutdowns CORBA servers
- */
-
 #include <iostream>
 #include <sstream>
 #include <string>

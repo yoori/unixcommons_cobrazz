@@ -41,9 +41,10 @@ struct Statistics final
   std::atomic<std::size_t> error_read{0};
 };
 
-class Service final
-  : public Test2::TestStreamServiceBase,
-    public ReferenceCounting::AtomicImpl
+class Service final:
+  public Test2::TestStreamServiceBase,
+  public Generics::SimpleActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   explicit Service() = default;
@@ -64,9 +65,9 @@ public:
   }
 };
 
-class Client final
-  : public Generics::ActiveObject,
-    public ReferenceCounting::AtomicImpl
+class Client final:
+  public Generics::SimpleActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -96,7 +97,7 @@ public:
 
   ~Client() override = default;
 
-  void activate_object() override
+  void activate_object_() override
   {
     const bool is_task_processor_thread =
       userver::engine::current_task::IsTaskProcessorThread();
@@ -115,9 +116,13 @@ public:
     });
   }
 
-  void deactivate_object() override
+  void deactivate_object_() override
   {
     is_stop_.store(true, std::memory_order_relaxed);
+  }
+
+  void wait_object_() override
+  {
     try
     {
       if (task_.IsValid())
@@ -127,22 +132,8 @@ public:
     }
     catch (const eh::Exception& exc)
     {
-      std::cerr << FNS
-                << " : "
-                << exc.what();
+      std::cerr << FNS << " : " << exc.what();
     }
-  }
-
-  void wait_object() override
-  {
-  }
-
-  bool active() override
-  {
-    using State = userver::engine::Task::State;
-    const auto state = task_.GetState();
-    return state != State::kInvalid
-        && state != State::kCompleted;
   }
 
 private:
@@ -212,23 +203,18 @@ private:
 
 private:
   const std::string message_;
-
   const std::size_t number_initial_message_;
-
   std::unique_ptr<Test2::TestStreamServiceClient> client_;
-
   std::atomic<bool> is_stop_{false};
-
   TaskProcessor& task_processor_;
-
   Statistics& statistics_;
-
   userver::engine::TaskWithResult<void> task_;
 };
 
-class Benchmark final
-  : public Component,
-    public ReferenceCounting::AtomicImpl
+class Benchmark final:
+  public Component,
+  public Generics::CompositeActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   using Endpoint = std::string;

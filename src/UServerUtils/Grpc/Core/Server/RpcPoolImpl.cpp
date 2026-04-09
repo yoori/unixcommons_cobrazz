@@ -7,174 +7,94 @@
 
 namespace UServerUtils::Grpc::Core::Server
 {
-
-namespace Aspect
-{
-
-const char RPCPOOL[] = "RPCPOOLIMPL";
-
-} // namespace Aspect
-
-RpcPoolImpl::RpcPoolImpl(Logger* logger)
-  : logger_(ReferenceCounting::add_ref(logger))
-{
-  rpcs_.reserve(100000);
-}
-
-RpcPoolImpl::~RpcPoolImpl()
-{
-  using namespace std::chrono_literals;
-  try
+  namespace Aspect
   {
-    Stream::Error stream;
-    bool error = false;
+    const char RPCPOOL[] = "RPCPOOLIMPL";
+  } // namespace Aspect
 
-    if (state_ == AS_ACTIVE)
-    {
-      stream << FNS
-             << ": wasn't deactivated.";
-      error = true;
-
-      std::unique_lock lock(mutex_);
-      for (auto& rpc : rpcs_)
-      {
-        rpc.first->stop();
-      }
-      lock.unlock();
-
-      bool is_stopped = false;
-      while (!is_stopped)
-      {
-        std::this_thread::sleep_for(200ms);
-        lock.lock();
-        for (auto& rpc : rpcs_)
-        {
-          if (!rpc.first->is_stopped())
-          {
-            is_stopped = false;
-            break;
-          }
-        }
-        lock.unlock();
-      }
-    }
-
-    if (state_ != AS_NOT_ACTIVE)
-    {
-      if (error)
-      {
-        stream << std::endl;
-      }
-      stream << FNS
-             << ": didn't wait for deactivation, still active.";
-      error = true;
-    }
-
-    if (error)
-    {
-      logger_->error(stream.str(), Aspect::RPCPOOL);
-    }
+  RpcPoolImpl::RpcPoolImpl(Logger* logger)
+    : logger_(ReferenceCounting::add_ref(logger))
+  {
+    rpcs_.reserve(100000);
   }
-  catch (const eh::Exception& exc)
+
+  RpcPoolImpl::~RpcPoolImpl()
   {
     try
     {
-      std::cerr << FNS
-                << ": eh::Exception: "
-                << exc.what()
-                << std::endl;
+      if (active())
+      {
+        deactivate_object();
+        wait_object();
+      }
     }
-    catch (...)
+    catch (const eh::Exception& exc)
     {
+      std::cerr << FNS << ": eh::Exception: " << exc.what() << std::endl;
     }
   }
-}
 
-void RpcPoolImpl::add(const RpcPtr& rpc)
-{
-  std::lock_guard<std::mutex> lock(mutex_);
-  rpcs_.emplace(rpc.get(), rpc);
-  if (state_ != AS_ACTIVE)
+  void RpcPoolImpl::add(const RpcPtr& rpc)
   {
-    rpc->stop();
+    std::lock_guard<std::mutex> lock(mutex_);
+    rpcs_.emplace(rpc.get(), rpc);
+    if (!active())
+    {
+      rpc->stop();
+    }
   }
-}
 
-void RpcPoolImpl::remove(Rpc* rpc) noexcept
-{
-  try
+  void RpcPoolImpl::remove(Rpc* rpc) noexcept
   {
     std::lock_guard<std::mutex> lock(mutex_);
     rpcs_.erase(rpc);
   }
-  catch (...)
-  {
-  }
-}
 
-void RpcPoolImpl::activate_object()
-{
-  std::lock_guard lock(mutex_);
-  if (state_ != AS_NOT_ACTIVE)
+  void RpcPoolImpl::deactivate_object_()
   {
-    Stream::Error stream;
-    stream << FNS
-           << ": already active";
-    throw ActiveObject::AlreadyActive(stream);
-  }
-  state_ = AS_ACTIVE;
-}
+    Rpcs rpcs;
 
-void RpcPoolImpl::deactivate_object()
-{
-  {
-    std::lock_guard <std::mutex> lock(mutex_);
-    state_ = AS_DEACTIVATING;
-    for (auto& rpc: rpcs_)
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      rpcs = rpcs_;
+    }
+
+    for (auto& rpc: rpcs)
     {
       rpc.first->stop();
     }
   }
 
-  condition_variable_.notify_all();
-}
-
-void RpcPoolImpl::wait_object()
-{
-  using namespace std::chrono_literals;
-
-  std::unique_lock lock(mutex_);
-  condition_variable_.wait(lock, [this] () {
-    return state_ != AS_ACTIVE;
-  });
-  lock.unlock();
-
-  bool is_stopped = true;
-  while (!is_stopped)
+  void RpcPoolImpl::wait_object_()
   {
-    std::this_thread::sleep_for(200ms);
-    is_stopped = true;
-    lock.lock();
-    for (auto& rpc : rpcs_)
+    Rpcs rpcs;
+
     {
-      if (!rpc.first->is_stopped())
+      std::lock_guard<std::mutex> lock(mutex_);
+      rpcs = rpcs_;
+    }
+
+    while (true)
+    {
+      bool is_stopped = true;
+
+      for (auto& rpc: rpcs)
       {
-        is_stopped = false;
+        if (!rpc.first->is_stopped())
+        {
+          is_stopped = false;
+          break;
+        }
+      }
+
+      if (is_stopped)
+      {
         break;
       }
+
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(200ms);
     }
-    lock.unlock();
   }
-
-  lock.lock();
-  if (state_ == AS_DEACTIVATING)
-    state_ = AS_NOT_ACTIVE;
-}
-
-bool RpcPoolImpl::active()
-{
-  std::lock_guard lock(mutex_);
-  return state_ == AS_ACTIVE;
-}
 
 } // namespace UServerUtils::Grpc::Core::Server

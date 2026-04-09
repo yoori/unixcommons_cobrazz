@@ -28,219 +28,221 @@ using namespace UServerUtils::Grpc;
 namespace
 {
 
-const std::string kNameClientTest1 = "client1";
-const std::string kNameClientTest2 = "client2";
+  const std::string kNameClientTest1 = "client1";
+  const std::string kNameClientTest2 = "client2";
 
-const std::size_t kPortServer1 = 7978;
-const std::size_t kPortServer2 = 7979;
+  const std::size_t kPortServer1 = 7978;
+  const std::size_t kPortServer2 = 7979;
 
-const std::string kNameChannelTaskProcessor = "Channel";
+  const std::string kNameChannelTaskProcessor = "Channel";
 
-const std::string kNameService1 = "Service1";
-const std::string kNameService2 = "Service2";
+  const std::string kNameService1 = "Service1";
+  const std::string kNameService2 = "Service2";
 
-const std::string kRequestService1 = "RequestService1";
-const std::string kResponseService1 = "ResponseService1";
-bool kCheckService1Activate = false;
-bool kCheckService1Deactivate = false;
+  const std::string kRequestService1 = "RequestService1";
+  const std::string kResponseService1 = "ResponseService1";
+  bool kCheckService1Activate = false;
+  bool kCheckService1Deactivate = false;
 
-const std::size_t kCountRequestService2 = 100;
-const std::string kRequestService2 = "RequestService2";
-const std::string kResponseService2 = "ResponseService2";
+  const std::size_t kCountRequestService2 = 100;
+  const std::string kRequestService2 = "RequestService2";
+  const std::string kResponseService2 = "ResponseService2";
 
-class Test1Service final
-  : public Test1::TestUnaryServiceBase,
+  class Test1Service final:
+    public Test1::TestUnaryServiceBase,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
-{
-public:
-  Test1Service(const std::string& name)
-              : name_(name)
   {
-    EXPECT_EQ(name_, kNameService1);
-  }
-
-  void activate_object() override
-  {
-    Test1::TestUnaryServiceBase::activate_object();
-    kCheckService1Activate = true;
-  }
-
-  void deactivate_object() override
-  {
-    Test1::TestUnaryServiceBase::deactivate_object();
-    kCheckService1Deactivate = true;
-  }
-
-  void say_hello(
-    say_helloCall& call,
-    ::UServerUtils::Grpc::Test1::Request&& request) override
-  {
-    EXPECT_EQ(request.request(), kRequestService1);
-
-    Test1::Response response;
-    response.set_response(kResponseService1);
-    call.Finish(response);
-  }
-
-private:
-  const std::string name_;
-};
-
-class Test2Service final
-  : public Test2::TestStreamServiceBase,
-    public ReferenceCounting::AtomicImpl
-{
-public:
-  Test2Service(const std::string& name)
-    : name_(name)
-  {
-    EXPECT_EQ(name_, kNameService2);
-  }
-
-  ~Test2Service() override = default;
-
-  void chat(chatCall& call) override
-  {
-    Test2::Request request;
-    Test2::Response response;
-    std::size_t count = 0;
-    while (call.Read(request))
+  public:
+    Test1Service(const std::string& name):
+      name_(name)
     {
-      count += 1;
-      response.set_allocated_response(request.release_request());
-      call.Write(response);
-      userver::engine::Yield();
+      EXPECT_EQ(name_, kNameService1);
     }
-    call.Finish();
-    EXPECT_EQ(count, kCountRequestService2);
-  }
 
-private:
-  const std::string name_;
-};
+    void say_hello(
+      say_helloCall& call,
+      ::UServerUtils::Grpc::Test1::Request&& request) override
+    {
+      EXPECT_EQ(request.request(), kRequestService1);
 
-class Test1Client final
-  : public Component,
+      Test1::Response response;
+      response.set_response(kResponseService1);
+      call.Finish(response);
+    }
+
+  protected:
+    void activate_object_() override
+    {
+      kCheckService1Activate = true;
+    }
+
+    void deactivate_object_() override
+    {
+      kCheckService1Deactivate = true;
+    }
+
+  private:
+    const std::string name_;
+  };
+
+  class Test2Service final:
+    public Test2::TestStreamServiceBase,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
-{
-public:
-  Test1Client(
-    GrpcClientFactory* factory,
-    const std::string& endpoint)
-    : client_(factory->make_client<Test1::TestUnaryServiceClient>(
-      "Test1Client",
-      endpoint))
   {
-  }
+  public:
+    Test2Service(const std::string& name)
+      : name_(name)
+    {
+      EXPECT_EQ(name_, kNameService2);
+    }
 
-  std::string say_hello(std::string&& data)
-  {
-    Test1::Request request;
-    request.set_request(std::move(data));
+    ~Test2Service() override = default;
 
-    auto context = std::make_unique<grpc::ClientContext>();
-    context->set_deadline(
-      userver::engine::Deadline::FromDuration(std::chrono::seconds{20}));
+    void chat(chatCall& call) override
+    {
+      Test2::Request request;
+      Test2::Response response;
+      std::size_t count = 0;
+      while (call.Read(request))
+      {
+        count += 1;
+        response.set_allocated_response(request.release_request());
+        call.Write(response);
+        userver::engine::Yield();
+      }
+      call.Finish();
+      EXPECT_EQ(count, kCountRequestService2);
+    }
 
-    auto stream = client_->say_hello(request, std::move(context));
-    Test1::Response response = stream.Finish();
+  private:
+    const std::string name_;
+  };
 
-    return std::move(*response.mutable_response());
-  }
-
-protected:
-  ~Test1Client() = default;
-
-private:
-  std::unique_ptr<Test1::TestUnaryServiceClient> client_;
-};
-
-class Test2Client final
-  : public Component,
+  class Test1Client final:
+    public Component,
+    public Generics::SimpleActiveObject,
     public ReferenceCounting::AtomicImpl
-{
-public:
-  Test2Client(
-    GrpcClientFactory* factory,
-    const std::string& endpoint)
-    : client_(factory->make_client<Test2::TestStreamServiceClient>(
-        "Test2Client",
+  {
+  public:
+    Test1Client(
+      GrpcClientFactory* factory,
+      const std::string& endpoint)
+      : client_(factory->make_client<Test1::TestUnaryServiceClient>(
+        "Test1Client",
         endpoint))
-  {
-    EXPECT_TRUE(client_);
-  }
-
-  void chat()
-  {
-    auto context = std::make_unique<grpc::ClientContext>();
-    context->AddMetadata("req_header", "value");
-    context->set_deadline(
-      userver::engine::Deadline::FromDuration(std::chrono::seconds{20}));
-    auto call = client_->chat(std::move(context));
-
-    Test2::Request request;
-    Test2::Response response;
-    for (std::size_t i = 1; i <= kCountRequestService2; ++i)
     {
-      std::string data = kRequestService2 + std::to_string(i);
-      request.set_request(data);
-      EXPECT_TRUE(call.Write(request));
-      EXPECT_TRUE(call.Read(response));
-      EXPECT_EQ(response.response(), data);
-      userver::engine::Yield();
     }
-    EXPECT_TRUE(call.WritesDone());
-  }
 
-protected:
-  ~Test2Client() override = default;
+    std::string say_hello(std::string&& data)
+    {
+      Test1::Request request;
+      request.set_request(std::move(data));
 
-private:
-  std::unique_ptr<Test2::TestStreamServiceClient> client_;
-};
+      auto context = std::make_unique<grpc::ClientContext>();
+      context->set_deadline(
+        userver::engine::Deadline::FromDuration(std::chrono::seconds{20}));
 
-class GrpcFixture1 : public testing::Test
-{
-public:
-  void SetUp() override
+      auto stream = client_->say_hello(request, std::move(context));
+      Test1::Response response = stream.Finish();
+
+      return std::move(*response.mutable_response());
+    }
+
+  protected:
+    ~Test1Client() = default;
+
+  private:
+    std::unique_ptr<Test1::TestUnaryServiceClient> client_;
+  };
+
+  class Test2Client final:
+    public Component,
+    public Generics::SimpleActiveObject,
+    public ReferenceCounting::AtomicImpl
   {
-    logger_ = Logging::Logger_var(
-      new Logging::OStream::Logger(
-        Logging::OStream::Config(
-          std::cerr,
-          Logging::Logger::ERROR)));
+  public:
+    Test2Client(
+      GrpcClientFactory* factory,
+      const std::string& endpoint)
+      : client_(factory->make_client<Test2::TestStreamServiceClient>(
+          "Test2Client",
+          endpoint))
+    {
+      EXPECT_TRUE(client_);
+    }
 
-    CoroPoolConfig coro_pool_config;
-    EventThreadPoolConfig event_thread_pool_config;
+    void chat()
+    {
+      auto context = std::make_unique<grpc::ClientContext>();
+      context->AddMetadata("req_header", "value");
+      context->set_deadline(
+        userver::engine::Deadline::FromDuration(std::chrono::seconds{20}));
+      auto call = client_->chat(std::move(context));
 
-    TaskProcessorConfig main_task_processor_config;
-    main_task_processor_config.name = "main_task_processor";
-    main_task_processor_config.worker_threads = 3;
-    main_task_processor_config.thread_name = "main_tskpr";
+      Test2::Request request;
+      Test2::Response response;
+      for (std::size_t i = 1; i <= kCountRequestService2; ++i)
+      {
+        std::string data = kRequestService2 + std::to_string(i);
+        request.set_request(data);
+        EXPECT_TRUE(call.Write(request));
+        EXPECT_TRUE(call.Read(response));
+        EXPECT_EQ(response.response(), data);
+        userver::engine::Yield();
+      }
+      EXPECT_TRUE(call.WritesDone());
+    }
 
-    task_processor_container_builder_ =
-      std::make_unique<TaskProcessorContainerBuilder>(
-        logger_.in(),
-        coro_pool_config,
-        event_thread_pool_config,
-        main_task_processor_config);
+  protected:
+    ~Test2Client() override = default;
 
-    TaskProcessorConfig channel_task_processor_config;
-    channel_task_processor_config.name = kNameChannelTaskProcessor;
-    channel_task_processor_config.worker_threads = 3;
-    channel_task_processor_config.thread_name = "channel_tskpr";
+  private:
+    std::unique_ptr<Test2::TestStreamServiceClient> client_;
+  };
 
-    task_processor_container_builder_->add_task_processor(channel_task_processor_config);
-  }
-
-  void TearDown() override
+  class GrpcFixture1: public testing::Test
   {
-  }
+  public:
+    void SetUp() override
+    {
+      logger_ = Logging::Logger_var(
+        new Logging::OStream::Logger(
+          Logging::OStream::Config(
+            std::cerr,
+            Logging::Logger::ERROR)));
 
-  TaskProcessorContainerBuilderPtr task_processor_container_builder_;
-  Logging::Logger_var logger_;
-};
+      CoroPoolConfig coro_pool_config;
+      EventThreadPoolConfig event_thread_pool_config;
 
+      TaskProcessorConfig main_task_processor_config;
+      main_task_processor_config.name = "main_task_processor";
+      main_task_processor_config.worker_threads = 3;
+      main_task_processor_config.thread_name = "main_tskpr";
+
+      task_processor_container_builder_ =
+        std::make_unique<TaskProcessorContainerBuilder>(
+          logger_.in(),
+          coro_pool_config,
+          event_thread_pool_config,
+          main_task_processor_config);
+
+      TaskProcessorConfig channel_task_processor_config;
+      channel_task_processor_config.name = kNameChannelTaskProcessor;
+      channel_task_processor_config.worker_threads = 3;
+      channel_task_processor_config.thread_name = "channel_tskpr";
+
+      task_processor_container_builder_->add_task_processor(channel_task_processor_config);
+    }
+
+    void TearDown() override
+    {
+    }
+
+    TaskProcessorContainerBuilderPtr task_processor_container_builder_;
+    Logging::Logger_var logger_;
+  };
 } // namespace
 
 TEST_F(GrpcFixture1, Subtest_1)

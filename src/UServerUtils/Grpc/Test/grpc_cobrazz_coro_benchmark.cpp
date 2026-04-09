@@ -14,9 +14,10 @@
 
 using namespace UServerUtils::Grpc;
 
-class StreamStreamService final
-  : public echo::EchoService_Handler_Service,
-    public ReferenceCounting::AtomicImpl
+class StreamStreamService final:
+  public echo::EchoService_Handler_Service,
+  public Generics::SimpleActiveObject,
+  public ReferenceCounting::AtomicImpl
 {
 public:
   using Logger = Logging::Logger;
@@ -65,8 +66,7 @@ public:
         if (writer_status != WriterStatus::Ok)
         {
           Stream::Error stream;
-          stream << FNS
-                 << ": write is failed";
+          stream << FNS << ": write is failed";
           logger_->error(stream.str());
         }
       }
@@ -76,8 +76,7 @@ public:
         if (!writer)
         {
           Stream::Error stream;
-          stream << FNS
-                 << ": writer is null";
+          stream << FNS << ": writer is null";
           logger_->error(stream.str());
           continue;
         }
@@ -87,8 +86,7 @@ public:
         if (writer_status != WriterStatus::Ok)
         {
           Stream::Error stream;
-          stream << FNS
-                 << ": finish is failed";
+          stream << FNS << ": finish is failed";
           logger_->error(stream.str());
         }
       }
@@ -179,8 +177,7 @@ int main(int /*argc*/, char** /*argv*/)
   }
   catch (const std::exception& exc)
   {
-    std::cerr << "Server is failed. Reason: "
-              << exc.what();
+    std::cerr << "Server is failed. Reason: " << exc.what();
   }
   catch (...)
   {
