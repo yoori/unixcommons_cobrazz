@@ -37,8 +37,16 @@ namespace Generics
       Sync::PosixGuard guard(cond_);
       if (state_ == AS_NOT_ACTIVE)
       {
-        activate_object_();
-        state_ = AS_ACTIVE;
+        try
+        {
+          state_ = AS_ACTIVE; // activate before hook, hook can use active state for stop
+          activate_object_();
+        }
+        catch(...)
+        {
+          state_ = AS_NOT_ACTIVE;
+          throw;
+        }
         return;
       }
     }
