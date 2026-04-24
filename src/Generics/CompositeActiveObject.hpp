@@ -153,6 +153,15 @@ namespace Generics
   typedef ReferenceCounting::QualPtr<CompositeActiveObject>
     CompositeActiveObject_var;
 
+  struct ActiveObjectSet:
+    CompositeActiveObjectBase<
+      ReferenceCounting::Deque<ActiveObject_var>,
+      std::front_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>,
+      std::back_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>>,
+    public ReferenceCounting::AtomicImpl
+  {};
+  typedef ReferenceCounting::QualPtr<ActiveObjectSet>
+    ActiveObjectSet_var;
 
   class RemovableActiveObject;
 
