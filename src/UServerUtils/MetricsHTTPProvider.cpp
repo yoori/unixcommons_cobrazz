@@ -1,4 +1,43 @@
+#include "MetricsHTTPProvider.hpp"
+
 #include <string>
+
+#ifdef USERVER_UTILS_NO_HTTP_PROVIDER
+
+namespace UServerUtils
+{
+  ReferenceCounting::SmartPtr<Generics::MetricsProvider> MetricsHTTPProvider::container;
+
+  void*
+  MetricsHTTPProvider::worker(MetricsHTTPProvider*)
+  {
+    return nullptr;
+  }
+
+  void
+  MetricsHTTPProvider::activate_object_()
+  {}
+
+  void
+  MetricsHTTPProvider::wait_object_()
+  {}
+
+  MetricsHTTPProvider::MetricsHTTPProvider(
+    Generics::MetricsProvider* metrics_provider,
+    unsigned int listen_port,
+    std::string_view uri)
+    : listen_port_(listen_port),
+      uri_(uri)
+  {
+    container = ReferenceCounting::add_ref(metrics_provider);
+  }
+
+  MetricsHTTPProvider::~MetricsHTTPProvider()
+  {}
+}
+
+#else
+
 #include <components/manager.hpp>
 #include <components/manager_config.hpp>
 #include <userver/components/minimal_server_component_list.hpp>
@@ -12,7 +51,6 @@
 #include <userver/logging/log.hpp>
 #include <regex>
 
-#include "MetricsHTTPProvider.hpp"
 #include "Generics/CompositeMetricsProvider.hpp"
 #include "ConfigDistributor.hpp"
 
@@ -80,3 +118,5 @@ namespace UServerUtils
   {
   }
 }
+
+#endif

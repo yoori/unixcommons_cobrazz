@@ -23,47 +23,47 @@ include_directories (
   ${Boost_INCLUDE_DIRS}
 )
 
-set (SOURCES_FILES
-  Grpc/Core/Common/Logging.cpp
-  Grpc/Core/Common/Scheduler.cpp
-  Grpc/Core/Server/CommonContextCoro.cpp
-  Grpc/Core/Server/RpcPoolImpl.cpp
-  Grpc/Core/Server/Server.cpp
-  Grpc/Core/Server/ServerCoro.cpp
-  Grpc/Core/Server/Service.cpp
-  Grpc/CobrazzServerBuilder.cpp
-  Grpc/ComponentsBuilder.cpp
-  Grpc/ClientFactory.cpp
-  Grpc/Logger.cpp
-  Grpc/Manager.cpp
-  Grpc/RegistratorDynamicSettings.cpp
-  Grpc/Server.cpp
-  Grpc/ServerBuilder.cpp
-  Grpc/TaskProcessorContainer.cpp
-  Grpc/TaskProcessorContainerBuilder.cpp
-  ConfigDistributor.cpp
-  GRPCServer.cpp
-  MetricsHTTPProvider.cpp
-  UServerConfigService.cpp
+find_path(USERVER_INCLUDE_DIR
+  NAMES userver/components/minimal_server_component_list.hpp
+  PATHS /usr/include /usr/local/include
 )
+
+set(SOURCES_FILES MetricsHTTPProvider.cpp)
+
+if(USERVER_INCLUDE_DIR)
+  list(APPEND SOURCES_FILES
+    ConfigDistributor.cpp
+    UServerConfigService.cpp
+  )
+else()
+  add_compile_definitions(USERVER_UTILS_NO_HTTP_PROVIDER)
+endif()
 
 add_library(UServerUtils STATIC
   ${SOURCES_FILES}
 )
 
-# link userver before other libraries, because it can be static (DSO require shared linkage after)
 target_link_libraries(UServerUtils
-  userver-core
-  userver-grpc
-  ${GRPC_GRPCPP}
-  ${PROTOBUF_LIBRARY}
-  http_parser
   Generics
   Logger
   pthread
   Boost::thread
 )
 
+if(USERVER_INCLUDE_DIR)
+  # link userver before other libraries, because it can be static (DSO require shared linkage after)
+  target_link_libraries(UServerUtils
+    userver-core
+    userver-grpc
+    ${GRPC_GRPCPP}
+    ${PROTOBUF_LIBRARY}
+    http_parser
+  )
+endif()
+
+option(BUILD_USERVER_UTILS_TESTS "Build UServerUtils tests and benchmarks" OFF)
+
+if(BUILD_USERVER_UTILS_TESTS)
 # UnitTests
 include(${CMAKE_CURRENT_SOURCE_DIR}/Grpc/Generator/GrpcTargets.cmake)
 
@@ -143,3 +143,4 @@ foreach(_Target
     Boost::thread
   )
 endforeach()
+endif()
