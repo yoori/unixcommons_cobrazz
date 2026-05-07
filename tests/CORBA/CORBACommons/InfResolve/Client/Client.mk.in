@@ -1,7 +1,0 @@
-@corbainfresolveclient_deps@
-
-corba_skeleton_idls := client.idl
-sources := TestClient.cpp
-target := CORBAInfResolveClient
-
-@corbainfresolveclient_post@

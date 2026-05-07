@@ -1,6 +1,0 @@
-@httpjavafunctions_deps@
-
-sources := \
-  HttpJavaFunctions.cpp \
-
-@httpjavafunctions_post@

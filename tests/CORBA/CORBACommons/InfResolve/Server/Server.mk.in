@@ -1,7 +1,0 @@
-@corbainfresolveserver_deps@
-
-corba_skeleton_idls := server.idl
-sources := TestServer.cpp
-target := CORBAInfResolveServer
-
-@corbainfresolveserver_post@

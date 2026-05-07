@@ -1,6 +1,0 @@
-# @file   Makefile.in
-# @author Karen Aroutiounov
-
-@segmentormanager_deps@
-
-@segmentormanager_post@

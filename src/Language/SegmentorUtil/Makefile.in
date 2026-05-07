@@ -1,6 +1,0 @@
-@linguistutil_deps@
-
-sources := Application.cpp
-target := LinguistUtil
-
-@linguistutil_post@

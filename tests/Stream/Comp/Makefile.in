@@ -1,6 +1,0 @@
-@testcomp_deps@
-
-sources := Main.cpp
-target := TestCompStream
-
-include $(top_srcdir)/tests/Test.post.rules

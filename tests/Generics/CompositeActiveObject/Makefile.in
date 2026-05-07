@@ -1,6 +1,0 @@
-@testcompositeactiveobject_deps@
-
-sources := Application.cpp
-target := TestCompositeActiveObject
-
-include $(top_srcdir)/tests/Test.post.rules

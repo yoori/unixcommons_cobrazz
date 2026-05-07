@@ -1,5 +1,0 @@
-@repositorydump_deps@
-
-xsd_files := RepositoryDump.xsd
-
-@repositorydump_post@

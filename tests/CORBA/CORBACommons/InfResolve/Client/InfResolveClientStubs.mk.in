@@ -1,5 +1,0 @@
-@infresolveclientstubs_deps@
-
-corba_stub_idls := client.idl
-
-@infresolveclientstubs_post@

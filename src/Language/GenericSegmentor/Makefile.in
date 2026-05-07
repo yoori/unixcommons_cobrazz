@@ -1,6 +1,0 @@
-@genericsegmentor_deps@
-
-sources := \
-  Polyglot.cpp \
-
-@genericsegmentor_post@

@@ -5,6 +5,17 @@
 namespace Generics
 {
   //
+  // RefCountableCompositeActiveObject class
+  //
+
+  RefCountableCompositeActiveObject::RefCountableCompositeActiveObject(
+    bool sync_termination,
+    bool clear_on_exit) throw ()
+    : CompositeActiveObject(sync_termination, clear_on_exit)
+  {
+  }
+
+  //
   // CompositeSetActiveObject class
   //
 

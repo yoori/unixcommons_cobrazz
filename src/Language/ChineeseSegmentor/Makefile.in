@@ -1,6 +1,0 @@
-@chineesesegmentor_deps@
-
-sources := \
-  NLPIR.cpp \
-
-@chineesesegmentor_post@

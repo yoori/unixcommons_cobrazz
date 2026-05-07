@@ -18,6 +18,7 @@ namespace Generics
   class TaskPool :
     public TaskExecutor,
     public CompositeActiveObject,
+    public virtual RefCountableActiveObject,
     public ReferenceCounting::AtomicImpl
   {
   public:

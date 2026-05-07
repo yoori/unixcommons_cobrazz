@@ -1,6 +1,0 @@
-@blogic_deps@
-
-sources := \
-  NormalizeTrigger.cpp \
-
-@blogic_post@

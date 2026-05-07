@@ -21,8 +21,7 @@
 #include <Generics/CompositeActiveObject.hpp>
 
 class CompositeActiveObjectImpl :
-  public Generics::CompositeActiveObject,
-  public virtual ReferenceCounting::AtomicImpl
+  public Generics::RefCountableCompositeActiveObject
 {
 };
 
@@ -76,7 +75,7 @@ private:
 //      Composite->wait() OK
 //
 
-class FailActiveObjectImpl : public Generics::ActiveObject,
+class FailActiveObjectImpl : public virtual Generics::RefCountableActiveObject,
   public virtual ReferenceCounting::AtomicImpl
 {
 public:
@@ -116,13 +115,13 @@ typedef ReferenceCounting::QualPtr<FailActiveObjectImpl>
 class Waiter
 {
 public:
-  Waiter(Generics::CompositeActiveObject* active_object, bool add_child)
+  Waiter(Generics::RefCountableCompositeActiveObject* active_object, bool add_child)
     throw ();
   void
   operator ()() /*throw (eh::Exception)*/;
 
 private:
-  ReferenceCounting::FixedPtr<Generics::CompositeActiveObject>
+  ReferenceCounting::FixedPtr<Generics::RefCountableCompositeActiveObject>
     ACTIVE_OBJECT_;
   const bool ADD_CHILD_;
   volatile _Atomic_word order_;

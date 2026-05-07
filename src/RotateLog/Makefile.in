@@ -1,6 +1,0 @@
-@rotatelog_deps@
-
-sources := RotateLog.cpp
-target := RotateLog
-
-@rotatelog_post@

@@ -1,5 +1,0 @@
-@repositoryconfig_deps@
-
-xsd_files := RepositoryConfig.xsd
-
-@repositoryconfig_post@

@@ -1,7 +1,0 @@
-@httptestcommons_deps@
-
-sources := CommonClasses.cpp \
-           ApachePorts.cpp
-includes := test
-
-@httptestcommons_post@

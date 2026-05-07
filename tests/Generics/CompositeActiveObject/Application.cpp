@@ -65,7 +65,7 @@ WorkGenerator::operator()() /*throw (eh::Exception)*/
         Generics::TaskRunner_var tasker(
           new Generics::TaskRunner(callback, 5, 0, 2));
         tasker->activate_object();
-        active_objects_composite_->add_child_object(tasker);
+        active_objects_composite_->add_child_object(tasker.in());
       }
       break;
     case 1 :  // Add inactive
@@ -73,7 +73,7 @@ WorkGenerator::operator()() /*throw (eh::Exception)*/
         Generics::Planner_var scheduler(
           new Generics::Planner(callback));
 
-        active_objects_composite_->add_child_object(scheduler, true);
+        active_objects_composite_->add_child_object(scheduler.in(), true);
       }
       break;
     case 2 :  // Switch state
@@ -125,14 +125,14 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
 
     Generics::TaskRunner_var tasker(
       new Generics::TaskRunner(callback, 5, 0, 2));
-    active_objects_composite->add_child_object(tasker);
+    active_objects_composite->add_child_object(tasker.in());
     
     FailActiveObject_var looser(new FailActiveObjectImpl);
-    active_objects_composite->add_child_object(looser); // OK
+    active_objects_composite->add_child_object(looser.in()); // OK
     looser->set_active(true);
     try
     {
-      active_objects_composite->add_child_object(looser);
+      active_objects_composite->add_child_object(looser.in());
       throw TestFailed("Successfully add inconsistent state object. "
         "Inactive composite, Active object");
     }
@@ -144,7 +144,7 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
     active_objects_composite->activate_object();
     try
     {
-      active_objects_composite->add_child_object(looser2);
+      active_objects_composite->add_child_object(looser2.in());
       throw TestFailed("Successfully add inconsistent state object. "
         "Active composite, inactive object");
     }
@@ -154,7 +154,7 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
     FailActiveObject_var looser3(new FailActiveObjectImpl);
     looser2->permit_work(true);
     looser3->set_active(true);
-    active_objects_composite->add_child_object(looser3);
+    active_objects_composite->add_child_object(looser3.in());
     try
     {
       active_objects_composite->deactivate_object();
@@ -209,7 +209,7 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
 
 }
 
-Waiter::Waiter(Generics::CompositeActiveObject* active_object,
+Waiter::Waiter(Generics::RefCountableCompositeActiveObject* active_object,
   bool add_child) throw ()
   : ACTIVE_OBJECT_(ReferenceCounting::add_ref(active_object)),
     ADD_CHILD_(add_child), order_(0)
@@ -235,8 +235,8 @@ Waiter::operator ()() /*throw (eh::Exception)*/
     sleep(10);
     if (ADD_CHILD_)
     {
-      ACTIVE_OBJECT_->add_child_object(Generics::ActiveObject_var(
-        new Generics::Planner(callback)));
+      Generics::Planner_var scheduler(new Generics::Planner(callback));
+      ACTIVE_OBJECT_->add_child_object(scheduler.in());
     }
     ACTIVE_OBJECT_->deactivate_object();
   }

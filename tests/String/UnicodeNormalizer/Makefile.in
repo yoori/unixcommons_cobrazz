@@ -1,7 +1,0 @@
-@testnormalizer_deps@
-
-sources := Application.cpp
-
-target := TestNormalizer
-
-include $(top_srcdir)/tests/Test.post.rules

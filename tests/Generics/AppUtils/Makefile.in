@@ -1,6 +1,0 @@
-@testapputils_deps@
-
-sources := Application.cpp
-target := TestAppUtils
-
-include $(top_srcdir)/tests/Test.post.rules

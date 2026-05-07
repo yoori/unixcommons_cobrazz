@@ -151,7 +151,7 @@ namespace Generics
     // Dump running policies
     //
 
-    class DumpRunner : public virtual ActiveObject
+    class DumpRunner : public virtual RefCountableActiveObject
     {
     public:
       virtual

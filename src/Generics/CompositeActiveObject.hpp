@@ -3,7 +3,9 @@
 #define GENERICS_COMPOSITE_ACTIVE_OBJECT_HPP
 
 #include <algorithm>
+#include <deque>
 #include <functional>
+#include <memory>
 #include <set>
 
 #include <ReferenceCounting/Deque.hpp>
@@ -16,6 +18,32 @@
 
 namespace Generics
 {
+  class ActiveObjectHolder
+  {
+  public:
+    ActiveObjectHolder() throw ();
+    explicit ActiveObjectHolder(RefCountableActiveObject* child) throw ();
+    explicit ActiveObjectHolder(std::shared_ptr<ActiveObject> child) throw ();
+    ActiveObjectHolder(const ActiveObjectHolder& source) throw ();
+    ActiveObjectHolder(ActiveObjectHolder&& source) throw () = default;
+
+    ActiveObjectHolder& operator=(const ActiveObjectHolder& source) throw ();
+    ActiveObjectHolder& operator=(ActiveObjectHolder&& source) throw () = default;
+
+    ActiveObject* operator->() const throw ();
+    ActiveObject& operator*() const throw ();
+
+    bool operator<(const ActiveObjectHolder& right) const throw ();
+    bool operator==(const ActiveObjectHolder& right) const throw ();
+
+  private:
+    ActiveObject* get_() const throw ();
+
+  private:
+    ActiveObject_var ref_countable_child_;
+    std::shared_ptr<ActiveObject> shared_child_;
+  };
+
   /**
    * class CompositeActiveObjectBase
    * This implements Active Object for control of several Active Objects.
@@ -78,7 +106,17 @@ namespace Generics
      * of the list of contained objects or to the tail.
      */
     void
-    add_child_object(ActiveObject* child, bool add_to_head = false)
+    add_child_object(RefCountableActiveObject* child, bool add_to_head = false)
+      /*throw (Exception, eh::Exception)*/;
+
+    void
+    add_child_object(std::shared_ptr<ActiveObject> child, bool add_to_head = false)
+      /*throw (Exception, eh::Exception)*/;
+
+    void
+    add_child_object(
+      typename Container::value_type child_holder,
+      bool add_to_head = false)
       /*throw (Exception, eh::Exception)*/;
 
   protected:
@@ -143,22 +181,40 @@ namespace Generics
   };
 
   /**
-   * Default CompositeActiveObject containing a deque of ActiveObject_var.
+   * Default CompositeActiveObject containing active object holders.
    */
   typedef CompositeActiveObjectBase<
-    ReferenceCounting::Deque<ActiveObject_var>,
-    std::front_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>,
-    std::back_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>>
+    std::deque<ActiveObjectHolder>,
+    std::front_insert_iterator<std::deque<ActiveObjectHolder>>,
+    std::back_insert_iterator<std::deque<ActiveObjectHolder>>>
     CompositeActiveObject;
-  typedef ReferenceCounting::QualPtr<CompositeActiveObject>
+
+  class RefCountableCompositeActiveObject :
+    public CompositeActiveObject,
+    public virtual RefCountableActiveObject,
+    public virtual ReferenceCounting::AtomicImpl
+  {
+  public:
+    explicit
+    RefCountableCompositeActiveObject(
+      bool sync_termination = false,
+      bool clear_on_exit = true) throw ();
+
+  protected:
+    virtual
+    ~RefCountableCompositeActiveObject() throw () = default;
+  };
+
+  typedef ReferenceCounting::QualPtr<RefCountableCompositeActiveObject>
     CompositeActiveObject_var;
 
   struct ActiveObjectSet:
     CompositeActiveObjectBase<
-      ReferenceCounting::Deque<ActiveObject_var>,
-      std::front_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>,
-      std::back_insert_iterator<ReferenceCounting::Deque<ActiveObject_var>>>,
-    public ReferenceCounting::AtomicImpl
+      std::deque<ActiveObjectHolder>,
+      std::front_insert_iterator<std::deque<ActiveObjectHolder>>,
+      std::back_insert_iterator<std::deque<ActiveObjectHolder>>>,
+    public virtual RefCountableActiveObject,
+    public virtual ReferenceCounting::AtomicImpl
   {};
   typedef ReferenceCounting::QualPtr<ActiveObjectSet>
     ActiveObjectSet_var;
@@ -192,6 +248,7 @@ namespace Generics
     public CompositeActiveObjectBase<std::set<ActiveObject*>,
       Inserter<std::set<ActiveObject*>>,
       Inserter<std::set<ActiveObject*>>>,
+    public virtual RefCountableActiveObject,
     public ActiveObjectChildRemover
   {
   public:
@@ -217,7 +274,7 @@ namespace Generics
    * User may override before_remove_child_ function.
    */
   class RemovableActiveObject :
-    public virtual ActiveObject,
+    public virtual RefCountableActiveObject,
     public virtual ReferenceCounting::AtomicImpl
   {
   public:
@@ -242,6 +299,107 @@ namespace Generics
 
 namespace Generics
 {
+  inline
+  ActiveObjectHolder::ActiveObjectHolder() throw ()
+  {
+  }
+
+  inline
+  ActiveObjectHolder::ActiveObjectHolder(
+    RefCountableActiveObject* child) throw ()
+    : ref_countable_child_(ReferenceCounting::add_ref(child))
+  {
+  }
+
+  inline
+  ActiveObjectHolder::ActiveObjectHolder(
+    std::shared_ptr<ActiveObject> child) throw ()
+    : shared_child_(std::move(child))
+  {
+  }
+
+  inline
+  ActiveObjectHolder::ActiveObjectHolder(
+    const ActiveObjectHolder& source) throw ()
+    : ref_countable_child_(
+        source.ref_countable_child_.in() ?
+          ReferenceCounting::add_ref(
+            const_cast<RefCountableActiveObject*>(
+              source.ref_countable_child_.in())) :
+          0),
+      shared_child_(source.shared_child_)
+  {
+  }
+
+  inline
+  ActiveObjectHolder&
+  ActiveObjectHolder::operator=(const ActiveObjectHolder& source) throw ()
+  {
+    if (this != &source)
+    {
+      ref_countable_child_ = source.ref_countable_child_.in() ?
+        ActiveObject_var(ReferenceCounting::add_ref(
+          const_cast<RefCountableActiveObject*>(
+            source.ref_countable_child_.in()))) :
+        ActiveObject_var();
+      shared_child_ = source.shared_child_;
+    }
+    return *this;
+  }
+
+  inline
+  ActiveObject*
+  ActiveObjectHolder::operator->() const throw ()
+  {
+    return get_();
+  }
+
+  inline
+  ActiveObject&
+  ActiveObjectHolder::operator*() const throw ()
+  {
+    return *get_();
+  }
+
+  inline
+  bool
+  ActiveObjectHolder::operator<(const ActiveObjectHolder& right) const throw ()
+  {
+    return get_() < right.get_();
+  }
+
+  inline
+  bool
+  ActiveObjectHolder::operator==(const ActiveObjectHolder& right) const throw ()
+  {
+    return get_() == right.get_();
+  }
+
+  inline
+  ActiveObject*
+  ActiveObjectHolder::get_() const throw ()
+  {
+    return ref_countable_child_.in() ?
+      static_cast<ActiveObject*>(
+        const_cast<RefCountableActiveObject*>(
+          ref_countable_child_.in())) :
+      shared_child_.get();
+  }
+
+  inline
+  ActiveObject*
+  get_active_object_(const ActiveObjectHolder& child_holder) throw ()
+  {
+    return child_holder.operator->();
+  }
+
+  inline
+  ActiveObject*
+  get_active_object_(ActiveObject* child) throw ()
+  {
+    return child;
+  }
+
   template <typename Container, typename FrontIns, typename BackIns>
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
     CompositeActiveObjectBase(bool sync_termination, bool clear_on_exit)
@@ -327,13 +485,13 @@ namespace Generics
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
     wait_object_() /*throw (Exception, eh::Exception)*/
   {
-    ReferenceCounting::Deque<ActiveObject_var> copy_of_child_objects;
+    Container copy_of_child_objects;
     {
       Sync::ConditionalGuard guard(cond_);
       for (typename Container::iterator itor = child_objects_.begin();
         itor != child_objects_.end(); ++itor)
       {
-        copy_of_child_objects.push_back(ReferenceCounting::add_ref(*itor));
+        copy_of_child_objects.insert(copy_of_child_objects.end(), *itor);
       }
     }
     wait_for_some_objects_(copy_of_child_objects.rbegin(),
@@ -343,13 +501,35 @@ namespace Generics
   template <typename Container, typename FrontIns, typename BackIns>
   void
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
-    add_child_object(ActiveObject* child, bool add_to_head)
+    add_child_object(RefCountableActiveObject* child, bool add_to_head)
+    /*throw (Exception, eh::Exception)*/
+  {
+    add_child_object(
+      ActiveObjectHolder(child), add_to_head);
+  }
+
+  template <typename Container, typename FrontIns, typename BackIns>
+  void
+  CompositeActiveObjectBase<Container, FrontIns, BackIns>::
+    add_child_object(std::shared_ptr<ActiveObject> child, bool add_to_head)
+    /*throw (Exception, eh::Exception)*/
+  {
+    add_child_object(ActiveObjectHolder(std::move(child)), add_to_head);
+  }
+
+  template <typename Container, typename FrontIns, typename BackIns>
+  void
+  CompositeActiveObjectBase<Container, FrontIns, BackIns>::
+    add_child_object(
+      typename Container::value_type child_holder,
+      bool add_to_head)
     /*throw (Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(cond_);
 
     try
     {
+      ActiveObject* const child = get_active_object_(child_holder);
       if (state_ == AS_ACTIVE)
       {
         if (!child->active())
@@ -365,14 +545,13 @@ namespace Generics
           child->wait_object();
         }
       }
-      ActiveObject_var ch(ReferenceCounting::add_ref(child));
       if (add_to_head)
       {
-        *FrontIns(child_objects_) = std::move(ch);
+        *FrontIns(child_objects_) = std::move(child_holder);
       }
       else
       {
-        *BackIns(child_objects_) = std::move(ch);
+        *BackIns(child_objects_) = std::move(child_holder);
       }
     }
     catch (const eh::Exception& ex)

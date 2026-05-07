@@ -1,6 +1,0 @@
-@syslogjavaadapter_deps@
-
-sources := \
-  JavaAdapter.cpp \
-
-@syslogjavaadapter_post@

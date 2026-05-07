@@ -1,6 +1,0 @@
-@mttesterloggertest_deps@
-
-sources := MTTesterLoggerTest.cpp
-target := MTTesterExceptionsLog
-
-include $(top_srcdir)/tests/Test.post.rules

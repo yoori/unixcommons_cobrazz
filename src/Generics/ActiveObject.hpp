@@ -53,9 +53,7 @@ namespace Generics
   typedef ReferenceCounting::FixedPtr<ActiveObjectCallback>
     FixedActiveObjectCallback_var;
 
-  class ActiveObject :
-    public virtual ReferenceCounting::Interface,
-    private AllDestroyer<ActiveObject>
+  class ActiveObject
   {
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
@@ -91,10 +89,10 @@ namespace Generics
   public:
     static const char PRINTABLE_NAME[];
 
-  protected:
     virtual
     ~ActiveObject() throw ();
 
+  protected:
     enum ACTIVE_STATE
     {
       AS_ACTIVE,
@@ -102,7 +100,16 @@ namespace Generics
       AS_NOT_ACTIVE
     };
   };
-  typedef ReferenceCounting::QualPtr<ActiveObject>
+
+  class RefCountableActiveObject :
+    public virtual ActiveObject,
+    public virtual ReferenceCounting::Interface
+  {
+  protected:
+    virtual
+    ~RefCountableActiveObject() throw ();
+  };
+  typedef ReferenceCounting::QualPtr<RefCountableActiveObject>
     ActiveObject_var;
 
 
@@ -156,6 +163,16 @@ namespace Generics
     volatile sig_atomic_t state_;
   };
 
+  class RefCountableSimpleActiveObject :
+    public SimpleActiveObject,
+    public virtual RefCountableActiveObject,
+    public virtual ReferenceCounting::AtomicImpl
+  {
+  protected:
+    virtual
+    ~RefCountableSimpleActiveObject() throw ();
+  };
+
 
   /**
    * General implementation Active Object logic by default.
@@ -163,7 +180,7 @@ namespace Generics
    * through virtual methods override (of SingleJob descendand).
    */
   class ActiveObjectCommonImpl :
-    public virtual ActiveObject,
+    public virtual RefCountableActiveObject,
     public virtual ReferenceCounting::AtomicImpl
   {
   public:
@@ -360,6 +377,16 @@ namespace Generics
   //
   // SimpleActiveObject class
   //
+
+  inline
+  RefCountableActiveObject::~RefCountableActiveObject() throw ()
+  {
+  }
+
+  inline
+  RefCountableSimpleActiveObject::~RefCountableSimpleActiveObject() throw ()
+  {
+  }
 
   inline
   SimpleActiveObject::SimpleActiveObject() /*throw (eh::Exception)*/

@@ -7,8 +7,7 @@
 #include <Generics/CompositeActiveObject.hpp>
 
 class CompositeActiveObjectImpl :
-  public Generics::CompositeActiveObject,
-  public virtual ReferenceCounting::AtomicImpl
+  public Generics::RefCountableCompositeActiveObject
 {
 };
 
@@ -37,7 +36,7 @@ ActivateDeactivatePlanner::ActivateDeactivatePlanner() /*throw (eh::Exception)*/
   Generics::Planner_var scheduler(
     new Generics::Planner(callback));
 
-  active_objects_composite_->add_child_object(scheduler);
+  active_objects_composite_->add_child_object(scheduler.in());
 }
 
 void

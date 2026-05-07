@@ -1,6 +1,0 @@
-@caseutil_deps@
-
-sources := CaseUtil.cpp
-target := CaseUtil
-
-@caseutil_post@

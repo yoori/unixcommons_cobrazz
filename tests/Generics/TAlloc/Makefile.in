@@ -1,6 +1,0 @@
-@talloc_deps@
-
-sources := Application.cpp
-target := TestTAlloc
-
-include $(top_srcdir)/tests/Test.post.rules

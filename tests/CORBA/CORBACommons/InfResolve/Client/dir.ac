@@ -1,3 +1,0 @@
-OSBE_CONFIG_FILE([Makefile])
-OSBE_CXX_DEF([CORBAInfResolveClient], [Client.mk])
-OSBE_CXX_DEF([InfResolveClientStubs], [InfResolveClientStubs.mk])

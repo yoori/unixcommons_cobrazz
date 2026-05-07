@@ -1,6 +1,0 @@
-@testposixmutex_deps@
-
-sources := TestPosixMutex.cpp
-target := TestPosixMutex
-
-include $(top_srcdir)/tests/Test.post.rules

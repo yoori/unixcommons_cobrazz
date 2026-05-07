@@ -32,8 +32,7 @@ namespace Generics
   typedef ReferenceCounting::QualPtr<Task> Task_var;
 
   struct TaskExecutor :
-    public virtual ReferenceCounting::Interface,
-    public virtual ActiveObject
+    public virtual RefCountableActiveObject
   {
     DECLARE_EXCEPTION(Exception, ActiveObject::Exception);
     DECLARE_EXCEPTION(Overflow, Exception);

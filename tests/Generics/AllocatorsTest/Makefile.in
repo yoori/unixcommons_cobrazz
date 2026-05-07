@@ -1,6 +1,0 @@
-@allocatorstest_deps@
-
-sources := Application.cpp
-target := AllocatorsTest
-
-@allocatorstest_post@

@@ -1,6 +1,0 @@
-@testtaskrunner_deps@
-
-sources := Main.cpp
-target := TestTaskRunner
-
-@testtaskrunner_post@
