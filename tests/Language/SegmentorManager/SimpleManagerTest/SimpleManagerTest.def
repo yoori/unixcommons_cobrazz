@@ -1,2 +1,0 @@
-osbe_cxx_dep "SegmentorManager"
-osbe_cxx_dep "TestCommons"

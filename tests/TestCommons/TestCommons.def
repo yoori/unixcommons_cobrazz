@@ -1,4 +1,0 @@
-name=TestCommons
-so_files=TestCommons
-
-osbe_cxx_dep "CheckCommons"

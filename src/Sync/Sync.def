@@ -1,6 +1,0 @@
-name=Sync
-so_files=Sync
-
-osbe_cxx_dep "ExceptionHandling"
-
-$unixcommons_def_initializer

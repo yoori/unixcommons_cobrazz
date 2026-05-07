@@ -1,4 +1,0 @@
-name=ProxyInjector
-so_files=ProxyInjector
-
-osbe_cxx_dep "ApacheModule"

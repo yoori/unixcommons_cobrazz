@@ -1,6 +1,0 @@
-name="Plain Storage"
-so_files=PlainStorage
-
-osbe_cxx_dep "Generics"
-
-$unixcommons_def_initializer

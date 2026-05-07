@@ -1,3 +1,0 @@
-osbe_cxx_dep "http"
-osbe_cxx_dep "TestCommons"
-osbe_cxx_dep "HttpTestCommons"

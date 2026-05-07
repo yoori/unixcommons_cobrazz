@@ -1,3 +1,0 @@
-osbe_cxx_dep "UServerUtils"
-osbe_cxx_dep "TestCommons"
-

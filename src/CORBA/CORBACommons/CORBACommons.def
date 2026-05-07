@@ -1,7 +1,0 @@
-name="CORBA Common classes"
-so_files=CORBACommons
-
-osbe_cxx_feature_dep "CORBA"
-osbe_cxx_dep "Logger"
-
-$unixcommons_def_initializer

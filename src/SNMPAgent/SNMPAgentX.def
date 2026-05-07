@@ -1,7 +1,0 @@
-name="SNMP AgentX"
-so_files=SNMPAgentX
-
-osbe_cxx_dep "Logger"
-osbe_cxx_dep "netsnmp"
-
-$unixcommons_def_initializer

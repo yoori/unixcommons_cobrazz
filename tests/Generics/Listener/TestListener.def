@@ -1,2 +1,0 @@
-osbe_cxx_dep "event"
-osbe_cxx_dep "TestCommons"
