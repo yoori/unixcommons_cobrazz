@@ -9,6 +9,21 @@
 
 namespace Generics
 {
+  std::string
+  Time::float_str() const
+  {
+    char buf[64];
+    const Time::Print& print = this->print();
+    snprintf(
+      buf,
+      sizeof(buf),
+      "%s%lu.%.6ld",
+      print.sign < 0 ? "-" : "",
+      static_cast<unsigned long int>(print.integer_part),
+      static_cast<long int>(print.fractional_part));
+    return buf;
+  }
+
   const std::size_t Time::TIME_PACK_LEN;
 
   const unsigned long Time::TIME_LEN;
@@ -681,13 +696,7 @@ std::ostream&
 operator <<(std::ostream& ostr, const Generics::Time& time)
   /*throw (eh::Exception)*/
 {
-  char buf[256];
-  const Generics::Time::Print& print = time.print();
-  snprintf(buf, sizeof(buf), "%s%lu:%.6ld (sec:usec)",
-    print.sign < 0 ? "-" : "",
-    static_cast<unsigned long int>(print.integer_part),
-    static_cast<long int>(print.fractional_part));
-  return ostr << buf;
+  return ostr << time.float_str();
 }
 
 std::ostream&

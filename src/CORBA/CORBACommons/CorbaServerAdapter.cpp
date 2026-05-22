@@ -747,6 +747,48 @@ namespace CORBACommons
   }
 
   void
+  CorbaServerAdapter::activate_object_()
+    /*throw (eh::Exception, Exception)*/
+  {
+    run_exception_ = std::exception_ptr();
+    run_thread_ = std::thread(
+      [this]()
+      {
+        try
+        {
+          run();
+        }
+        catch (...)
+        {
+          run_exception_ = std::current_exception();
+          shutdown(false);
+        }
+      });
+  }
+
+  void
+  CorbaServerAdapter::deactivate_object_()
+    /*throw (eh::Exception, Exception)*/
+  {
+    shutdown(false);
+  }
+
+  void
+  CorbaServerAdapter::wait_object_()
+    /*throw (eh::Exception, Exception)*/
+  {
+    if (run_thread_.joinable())
+    {
+      run_thread_.join();
+    }
+
+    if (run_exception_)
+    {
+      std::rethrow_exception(run_exception_);
+    }
+  }
+
+  void
   CorbaServerAdapter::create_corba_endpoints_(
     const EndpointConfig& endpoint_config, ORBProperties& properties)
     /*throw (eh::Exception)*/

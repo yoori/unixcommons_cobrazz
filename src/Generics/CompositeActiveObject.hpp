@@ -119,7 +119,6 @@ namespace Generics
       bool add_to_head = false)
       /*throw (Exception, eh::Exception)*/;
 
-  protected:
     /**
      * Perform deactivating all owned objects, and waits for
      * its completion.
@@ -127,6 +126,7 @@ namespace Generics
     virtual
     ~CompositeActiveObjectBase() throw ();
 
+  protected:
     // SimpleActiveObject interface
     /**
      * Activate all owned active objects. For empty case, simply change

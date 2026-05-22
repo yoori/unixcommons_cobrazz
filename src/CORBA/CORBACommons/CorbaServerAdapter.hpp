@@ -2,7 +2,10 @@
 #define CORBACOMMONS_CORBASERVER_ADAPTER_HPP
 
 #include <set>
+#include <exception>
+#include <thread>
 
+#include <Generics/ActiveObject.hpp>
 #include <ReferenceCounting/Vector.hpp>
 #include <ReferenceCounting/Map.hpp>
 
@@ -56,7 +59,9 @@ namespace CORBACommons
    * CorbaServerAdapter
    */
   class CorbaServerAdapter :
+    public virtual ::Generics::RefCountableActiveObject,
     public ::ReferenceCounting::AtomicImpl,
+    public ::Generics::SimpleActiveObject,
     private OrbShutdowner
   {
   public:
@@ -95,6 +100,18 @@ namespace CORBACommons
   protected:
     virtual
     ~CorbaServerAdapter() throw ();
+
+    virtual
+    void
+    activate_object_() /*throw (Exception, eh::Exception)*/;
+
+    virtual
+    void
+    deactivate_object_() /*throw (Exception, eh::Exception)*/;
+
+    virtual
+    void
+    wait_object_() /*throw (Exception, eh::Exception)*/;
 
     class EndpointAddress
     {
@@ -247,6 +264,8 @@ namespace CORBACommons
 
     Sync::PosixMutex threads_mutex_;
     unsigned threads_running_;
+    std::thread run_thread_;
+    std::exception_ptr run_exception_;
   };
   typedef ::ReferenceCounting::QualPtr<CorbaServerAdapter>
     CorbaServerAdapter_var;

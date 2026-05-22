@@ -327,6 +327,12 @@ namespace Generics
     gm_ft() const /*throw (eh::Exception)*/;
 
     /**
+     * Returns time interval as seconds.microseconds.
+     */
+    std::string
+    float_str() const;
+
+    /**
      * Quicker way to call set(value, "%Y-%m-%d", strict).
      * @param value time string
      * @param strict if true leading zeros must present
