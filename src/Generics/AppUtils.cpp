@@ -94,13 +94,22 @@ namespace Generics
           {
             if (it->second->require_value())
             {
-              Stream::Error ostr;
-              ostr << FNS << "Undefined value for option '" << opt_name <<
-                "'";
-              throw Exception(ostr);
+              if (parse_state.next_word())
+              {
+                it->second->set(opt_name.c_str(), parse_state.current_pos());
+              }
+              else
+              {
+                Stream::Error ostr;
+                ostr << FNS << "Undefined value for option '" << opt_name <<
+                  "'";
+                throw Exception(ostr);
+              }
             }
-
-            it->second->set(opt_name.c_str(), 0);
+            else
+            {
+              it->second->set(opt_name.c_str(), 0);
+            }
           }
           else
           {

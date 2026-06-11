@@ -4,6 +4,7 @@
  */
 
 #include <algorithm>
+#include <utility>
 
 #include <String/StringManip.hpp>
 #include <String/UTF8Handler.hpp>
@@ -1247,8 +1248,9 @@ namespace String
       }
     }
 
-    std::string
-    json_escape(const SubString& src) /*throw (eh::Exception)*/
+    void
+    json_escape_append(std::string& dest, const SubString& src)
+      /*throw (eh::Exception)*/
     {
       static const SubString REPL[] =
       {
@@ -1289,9 +1291,6 @@ namespace String
         SubString("\\\"", 2)
       };
 
-      std::string dest;
-      dest.reserve(src.size() * 6);
-
       const char* cur = src.begin();
       const char* const END = src.end();
 
@@ -1322,7 +1321,33 @@ namespace String
           REPL[static_cast<uint8_t>(ch)].append_to(dest);
         }
       }
+    }
 
+    std::string
+    json_escape(const SubString& src) /*throw (eh::Exception)*/
+    {
+      std::string dest;
+      dest.reserve(src.size() * 6);
+      json_escape_append(dest, src);
+      return dest;
+    }
+
+    std::string
+    json_escape(std::string&& src) /*throw (eh::Exception)*/
+    {
+      const char* const begin = src.data();
+      const char* const end = begin + src.size();
+      const char* const ptr = NON_JSON.find_owned(begin, end);
+
+      if (ptr == end)
+      {
+        return std::move(src);
+      }
+
+      std::string dest;
+      dest.reserve(src.size() * 6);
+      dest.append(begin, ptr);
+      json_escape_append(dest, SubString(ptr, end));
       return dest;
     }
 

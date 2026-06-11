@@ -276,6 +276,13 @@ namespace String
     std::string
     json_escape(const SubString& src) /*throw (eh::Exception)*/;
 
+    std::string
+    json_escape(std::string&& src) /*throw (eh::Exception)*/;
+
+    void
+    json_escape_append(std::string& dest, const SubString& src)
+      /*throw (eh::Exception)*/;
+
     /**
      * Performs Punycode encode according to RFC3492
      * @param input wide string to encode
