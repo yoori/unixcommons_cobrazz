@@ -1,4 +1,5 @@
 #include <iostream>
+#include <pthread.h>
 #include <Generics/TaskRunner.hpp>
 
 //#define BUILD_WITH_DEBUG_MESSAGES
@@ -7,6 +8,15 @@
 
 namespace Generics
 {
+  namespace
+  {
+    void
+    set_task_runner_thread_name_() noexcept
+    {
+      ::pthread_setname_np(::pthread_self(), "task-runner");
+    }
+  }
+
   //
   // TaskRunner::TaskRunnerJob class
   //
@@ -143,6 +153,8 @@ namespace Generics
   void
   TaskRunner::TaskRunnerJob::work() throw ()
   {
+    set_task_runner_thread_name_();
+
     bool number_of_unused_threads_increased = true;
 
     try

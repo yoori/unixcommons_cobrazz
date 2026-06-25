@@ -1,67 +1,70 @@
 #include "CompositeMetricsProvider.hpp"
-namespace Generics{
-class to_string_visitor : public boost::static_visitor<>
+
+namespace Generics
 {
-public:
-    std::string str;
-    void operator()(long i)
+  namespace
+  {
+    class ToStringVisitor : public boost::static_visitor<>
     {
-        str=std::to_string(i);
-    }
-    void operator()(double i)
-    {
-        str=std::to_string(i);
-    }
-    void operator()(const std::string i)
-    {
-        str=i;
-    }
+    public:
+      std::string str;
 
-};
-
-
-void CompositeMetricsProvider::add_provider(MetricsProvider* p)
-{
-    providers.insert(p);
-}
-
-
-MetricsProvider::MetricArray CompositeMetricsProvider::get_values()
-{
-
-    std::lock_guard<std::mutex> g(mx);
-    MetricArray ret;
-    for(auto& z: container)
-    {
-        ret.push_back(z);
-    }
-    for(auto& z:providers)
-    {
-      auto arr=z->get_values();
-      for(auto &x: arr)
+      void
+      operator()(long value)
       {
-          ret.push_back(x);
+        str = std::to_string(value);
       }
-    }
-    return ret;
 
-}
+      void
+      operator()(double value)
+      {
+        str = std::to_string(value);
+      }
 
-std::map<std::string,std::string> CompositeMetricsProvider::getStringValues()
-{
+      void
+      operator()(const std::string& value)
+      {
+        str = value;
+      }
+    };
+  }
 
-//    std::lock_guard<std::mutex> g(mx);
-    std::map<std::string,std::string> ret;
-    MetricArray arr=get_values();
-    for(auto& z:arr)
+  void
+  CompositeMetricsProvider::add_provider(MetricsProvider* provider)
+  {
+    std::lock_guard<std::mutex> guard(lock_);
+    providers_.insert(ReferenceCounting::add_ref(provider));
+  }
+
+  MetricsProvider::MetricArray
+  CompositeMetricsProvider::get_values()
+  {
+    ProviderSet providers;
     {
-          auto& key=z.first;
-          auto v=z.second;
-          to_string_visitor vis;
-          boost::apply_visitor(vis,v);
-          ret[key]=vis.str;
+      std::lock_guard<std::mutex> guard(lock_);
+      providers = providers_;
     }
 
-    return ret;
-}
+    MetricArray result;
+    for(const auto& provider : providers)
+    {
+      MetricArray values = provider->get_values();
+      result.insert(result.end(), values.begin(), values.end());
+    }
+    return result;
+  }
+
+  std::map<std::string, std::string>
+  CompositeMetricsProvider::getStringValues()
+  {
+    std::map<std::string, std::string> result;
+    MetricArray values = get_values();
+    for(const auto& value : values)
+    {
+      ToStringVisitor visitor;
+      boost::apply_visitor(visitor, value.second);
+      result[value.first] = visitor.str;
+    }
+    return result;
+  }
 }
