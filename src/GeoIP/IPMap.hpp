@@ -7,7 +7,11 @@
 #define GEOIP_IPMAP_HPP
 
 #include <inttypes.h>
+#include <array>
+#include <deque>
 #include <memory>
+#include <memory_resource>
+#include <string>
 #include <vector>
 #include <unordered_map>
 
@@ -193,20 +197,62 @@ namespace GeoIPMapping
   protected:
     struct CityLocationHolder
     {
-      std::string country_code;
-      std::string region;
-      std::string city;
+      explicit
+      CityLocationHolder(
+        std::pmr::memory_resource* resource =
+          std::pmr::get_default_resource()) noexcept
+        : country_code(resource),
+          region(resource),
+          city(resource)
+      {}
+
+      std::pmr::string country_code;
+      std::pmr::string region;
+      std::pmr::string city;
     };
 
-    typedef std::unordered_map<
-      uint32_t,
-      CityLocationHolder>
-      MaskCityLocationMap;
+    struct PrefixNode
+    {
+      explicit
+      PrefixNode(
+        std::pmr::memory_resource* resource =
+          std::pmr::get_default_resource()) noexcept
+        : children(resource),
+          partial_locations{
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
+            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource)}
+      {}
 
-    typedef std::vector<MaskCityLocationMap>
-      MaskCityLocationMapArray;
+      CityLocationHolder* full_location = nullptr;
+      std::pmr::unordered_map<uint8_t, PrefixNode*> children;
+      std::array<std::pmr::unordered_map<uint8_t, CityLocationHolder*>, 7>
+        partial_locations;
+    };
 
   protected:
+    static
+    std::size_t
+    estimate_arena_size_(const char* filename) noexcept;
+
+    static
+    uint8_t
+    get_byte_(uint32_t ip, unsigned int byte_index) noexcept;
+
+    static
+    uint8_t
+    get_masked_byte_(
+      uint32_t ip,
+      unsigned int byte_index,
+      unsigned int bits) noexcept;
+
+    PrefixNode&
+    add_node_();
+
     bool
     city_location_by_addr_(
       CityLocation& location,
@@ -229,9 +275,10 @@ namespace GeoIPMapping
       const String::SubString& city_loc_str);
 
   protected:
-    unsigned int max_check_bits_;
-    // 0-16 masks (X.X.X.X/31 - X.X.X.X/16)
-    MaskCityLocationMapArray mask_to_locations_;
+    std::pmr::monotonic_buffer_resource arena_;
+    std::pmr::deque<CityLocationHolder> locations_;
+    std::pmr::deque<PrefixNode> nodes_;
+    PrefixNode* root_;
   };
 } // namespace GeoIPMapping
 

@@ -59,12 +59,11 @@ target_link_libraries(${proj}
   pthread
   crypto
   ev
-  pcre
+  pcre2-8
   dl
   Iconv::Iconv
   #String
 )
 
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
 

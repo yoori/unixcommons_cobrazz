@@ -651,6 +651,71 @@ namespace
     }
   }
 
+  bool
+  try_normalize_simple_ascii_host(
+    const String::SubString& host,
+    std::string& ascii)
+    /*throw (BrowserAddress::IDNAError)*/
+  {
+    std::size_t label_size = 0;
+    bool last_is_separator = false;
+
+    ascii.clear();
+    ascii.resize(host.size());
+    char* res = &ascii[0];
+
+    for(String::SubString::SizeType i = 0; i < host.size(); ++i)
+    {
+      const char ch = host[i];
+      if(ch == LABEL_SEPARATOR)
+      {
+        if(label_size == 0)
+        {
+          Stream::Error ostr;
+          ostr << FNS << "Empty label in '" << host << "'";
+          throw BrowserAddress::IDNAError(ostr);
+        }
+
+        *res++ = ch;
+        label_size = 0;
+        last_is_separator = true;
+        continue;
+      }
+
+      if(ch >= 'A' && ch <= 'Z')
+      {
+        *res++ = ch - 'A' + 'a';
+      }
+      else if((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'))
+      {
+        *res++ = ch;
+      }
+      else
+      {
+        ascii.clear();
+        return false;
+      }
+
+      ++label_size;
+      last_is_separator = false;
+      if(label_size > MAX_HOSTNAME_LABEL_SIZE)
+      {
+        Stream::Error ostr;
+        ostr << FNS << "Label in '" << host << "' is too large";
+        throw BrowserAddress::IDNAError(ostr);
+      }
+    }
+
+    ascii.resize(res - &ascii[0]);
+
+    if(ascii.empty() || (!last_is_separator && label_size == 0))
+    {
+      throw BrowserAddress::IDNAError("Host name is empty");
+    }
+
+    return true;
+  }
+
   void
   idna_normalize_host(const String::SubString& host, std::string& ascii,
     std::string& unicode)
@@ -1103,11 +1168,40 @@ namespace HTTP
     assign_url_parts_(another.parts_, false);
   }
 
+  URLAddress::URLAddress(URLAddress&& another) /*throw (eh::Exception)*/
+  {
+    move_from_(std::move(another));
+  }
+
   URLAddress&
   URLAddress::operator =(const URLAddress& another) /*throw (eh::Exception)*/
   {
     assign_url_parts_(another.parts_, false);
     return *this;
+  }
+
+  URLAddress&
+  URLAddress::operator =(URLAddress&& another) /*throw (eh::Exception)*/
+  {
+    if(this != &another)
+    {
+      move_from_(std::move(another));
+    }
+
+    return *this;
+  }
+
+  void
+  URLAddress::move_from_(URLAddress&& another) /*throw (eh::Exception)*/
+  {
+    url_ = std::move(another.url_);
+    parts_.clear();
+    if(!url_.empty())
+    {
+      parts_.split_url(url_);
+    }
+
+    another.parts_.clear();
   }
 
   void
@@ -1138,6 +1232,20 @@ namespace HTTP
     /*throw (eh::Exception, Exception, InvalidURL)*/
   {
     assign_(value);
+  }
+
+  void
+  URLAddress::url(std::string_view value)
+    /*throw (eh::Exception, Exception, InvalidURL)*/
+  {
+    assign_(String::SubString(value.data(), value.size()));
+  }
+
+  void
+  URLAddress::url(const std::string& value)
+    /*throw (eh::Exception, Exception, InvalidURL)*/
+  {
+    url(std::string_view(value.data(), value.size()));
   }
 
   void
@@ -1390,6 +1498,29 @@ namespace HTTP
       path, query, fragment);
   }
 
+  HTTPAddress::HTTPAddress(HTTPAddress&& another) /*throw (eh::Exception)*/
+    : URLAddress(std::move(another)),
+      strict_(another.strict_),
+      port_number_(another.port_number_),
+      secure_(another.secure_),
+      default_port_(another.default_port_)
+  {}
+
+  HTTPAddress&
+  HTTPAddress::operator =(HTTPAddress&& another) /*throw (eh::Exception)*/
+  {
+    if(this != &another)
+    {
+      URLAddress::operator =(std::move(another));
+      strict_ = another.strict_;
+      port_number_ = another.port_number_;
+      secure_ = another.secure_;
+      default_port_ = another.default_port_;
+    }
+
+    return *this;
+  }
+
   int
   HTTPAddress::get_default_port_(bool secure) throw ()
   {
@@ -1593,6 +1724,11 @@ namespace HTTP
       return false;
     }
 
+    if (try_normalize_simple_ascii_host(parts.host, encoded_host_))
+    {
+      return true;
+    }
+
     std::string unicode;
     if (!idna_host_normalize(url, parts.host, encoded_host_, unicode,
       error))
@@ -1625,6 +1761,22 @@ namespace HTTP
     }
   }
 
+  BrowserAddress::BrowserAddress(std::string_view url)
+    /*throw (InvalidURL, eh::Exception)*/
+    : HTTPAddress(String::SubString(), false)
+  {
+    if (!url.empty())
+    {
+      this->url(url);
+    }
+  }
+
+  BrowserAddress::BrowserAddress(const std::string& url)
+    /*throw (InvalidURL, eh::Exception)*/
+    : BrowserAddress(std::string_view(url.data(), url.size()))
+  {
+  }
+
   BrowserAddress::BrowserAddress(const String::SubString& host,
     const String::SubString& path, const String::SubString& query,
     const String::SubString& fragment, unsigned short port, bool secure,
@@ -1635,6 +1787,27 @@ namespace HTTP
     set_(secure, userinfo, encoded_host_,
       port ? port : HTTPAddress::get_default_port_(secure),
       path, query, fragment);
+  }
+
+  BrowserAddress::BrowserAddress(BrowserAddress&& another)
+    /*throw (eh::Exception)*/
+    : HTTPAddress(std::move(another)),
+      decoded_host_(std::move(another.decoded_host_)),
+      encoded_host_(std::move(another.encoded_host_))
+  {}
+
+  BrowserAddress&
+  BrowserAddress::operator =(BrowserAddress&& another)
+    /*throw (eh::Exception)*/
+  {
+    if(this != &another)
+    {
+      HTTPAddress::operator =(std::move(another));
+      decoded_host_ = std::move(another.decoded_host_);
+      encoded_host_ = std::move(another.encoded_host_);
+    }
+
+    return *this;
   }
 
   void

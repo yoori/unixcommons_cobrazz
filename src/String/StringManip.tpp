@@ -150,6 +150,25 @@ namespace String
       return true;
     }
 
+    template <typename Integer>
+    bool
+    str_to_int(std::string_view str, Integer& value) throw ()
+    {
+      if (str.empty())
+      {
+        return false;
+      }
+
+      return str_to_int(SubString(str.data(), str.size()), value);
+    }
+
+    template <typename Integer>
+    bool
+    str_to_int(const std::string& str, Integer& value) throw ()
+    {
+      return str_to_int(std::string_view(str.data(), str.size()), value);
+    }
+
 
     //
     // InverseCategory class

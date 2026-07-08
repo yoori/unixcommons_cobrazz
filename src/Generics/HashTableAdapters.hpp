@@ -6,6 +6,8 @@
 #ifndef GENERICS_HASH_TABLE_ADAPTERS_HPP
 #define GENERICS_HASH_TABLE_ADAPTERS_HPP
 
+#include <string_view>
+
 #include <String/SubString.hpp>
 
 #include <Generics/Hash.hpp>
@@ -106,6 +108,9 @@ namespace Generics
       throw ();
 
     operator String::SubString() const
+      throw ();
+
+    operator std::string_view() const
       throw ();
 
     const String::SubString&
@@ -342,6 +347,12 @@ namespace Generics
   SubStringHashAdapter::operator String::SubString() const throw ()
   {
     return text_;
+  }
+
+  inline
+  SubStringHashAdapter::operator std::string_view() const throw ()
+  {
+    return std::string_view(text_.data(), text_.size());
   }
 
   inline

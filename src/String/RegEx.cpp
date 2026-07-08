@@ -4,6 +4,19 @@
 
 namespace String
 {
+  namespace
+  {
+    using MatchDataPtr = std::unique_ptr<pcre2_match_data_8, decltype(&pcre2_match_data_free_8)>;
+
+    MatchDataPtr
+    create_match_data_(const pcre2_code_8* re)
+    {
+      return MatchDataPtr(
+        pcre2_match_data_create_from_pattern_8(re, nullptr),
+        &pcre2_match_data_free_8);
+    }
+  }
+
   RegEx&
   RegEx::operator =(const RegEx& side)
     /*throw (Exception, eh::Exception)*/
@@ -15,12 +28,10 @@ namespace String
       {
         allocator_ = side.allocator_;
         expr_ = side.expr_;
+        expr_len_ = side.expr_len_;
         expr_size_ = side.expr_size_;
         re_ = side.re_;
-        re_size_ = side.re_size_;
         substrcount_ = side.substrcount_;
-
-        pcre_refcount(side.re_, 1);
       }
     }
 
@@ -48,48 +59,53 @@ namespace String
     std::copy(regex.data(), regex.data() + regex.size(), expr);
     expr[regex.size()] = '\0';
 
-    const char* error;
-    int erroffset;
-    pcre* re = pcre_compile(expr, options, &error, &erroffset, 0);
-    if (!re)
+    int error_code = 0;
+    PCRE2_SIZE error_offset = 0;
+    pcre2_code_8* compiled_re = pcre2_compile_8(
+      reinterpret_cast<PCRE2_SPTR8>(expr),
+      regex.size(),
+      options,
+      &error_code,
+      &error_offset,
+      nullptr);
+    if (!compiled_re)
     {
       alloc->deallocate(expr, expr_size);
+
+      PCRE2_UCHAR8 error_buffer[256];
+      pcre2_get_error_message_8(
+        error_code,
+        error_buffer,
+        sizeof(error_buffer));
 
       Stream::Error ostr;
       ostr << FNS << "Couldn't compile expression '" << regex <<
-        "', Reason: " << error << ". At position: " << erroffset;
+        "', Reason: " << reinterpret_cast<const char*>(error_buffer) <<
+        ". At position: " << error_offset;
       throw Exception(ostr);
     }
 
-    size_t re_len;
-    pcre_fullinfo(re, 0, PCRE_INFO_SIZE, &re_len);
-    size_t re_size = re_len;
-    pcre* rea;
-    try
-    {
-      rea = static_cast<pcre*>(alloc->allocate(re_size));
-    }
-    catch (...)
-    {
-      pcre_free(re);
-      alloc->deallocate(expr, expr_size);
-      throw;
-    }
-    memcpy(rea, re, re_len);
-    pcre_free(re);
+    std::shared_ptr<pcre2_code_8> re(
+      compiled_re,
+      [](pcre2_code_8* code) noexcept
+      {
+        pcre2_code_free_8(code);
+      });
+
+    uint32_t capture_count = 0;
+    pcre2_pattern_info_8(
+      re.get(),
+      PCRE2_INFO_CAPTURECOUNT,
+      &capture_count);
 
     clear_();
 
     allocator_ = alloc;
     expr_ = expr;
     expr_len_ = regex.size();
-    expr_size_ = expr_size_;
-    re_ = rea;
-    re_size_ = re_size_;
-    pcre_fullinfo(re_, 0, PCRE_INFO_CAPTURECOUNT, &substrcount_);
-    substrcount_++;
-
-    pcre_refcount(re_, 1);
+    expr_size_ = expr_size;
+    re_ = std::move(re);
+    substrcount_ = static_cast<int>(capture_count) + 1;
   }
 
   bool
@@ -104,18 +120,32 @@ namespace String
       throw Exception(ostr);
     }
 
-    Generics::ArrayAutoPtr<int> ovector(3 * substrcount_);
-    if (pcre_exec(re_, 0, subject.data(), subject.size(),
-      0, options, &ovector[0], 3 * substrcount_) <= 0)
+    auto match_data = create_match_data_(re_.get());
+    if (!match_data)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "Can't create match data";
+      throw Exception(ostr);
+    }
+
+    if (pcre2_match_8(
+      re_.get(),
+      reinterpret_cast<PCRE2_SPTR8>(subject.data()),
+      subject.size(),
+      0,
+      options,
+      match_data.get(),
+      nullptr) <= 0)
     {
       return false;
     }
 
+    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(match_data.get());
     result.resize(substrcount_);
     for (int i = 0; i < substrcount_; i++)
     {
-      int start = ovector[2 * i];
-      int end = ovector[2 * i + 1];
+      const auto start = ovector[2 * i];
+      const auto end = ovector[2 * i + 1];
       if (start != end)
       {
         result[i] = subject.substr(start, end - start);
@@ -141,20 +171,33 @@ namespace String
     // match is returned.
     const int first_capture = substrcount_ > 1 ? 1 : 0;
 
-    Generics::ArrayAutoPtr<int> ovector(3 * substrcount_);
+    auto match_data = create_match_data_(re_.get());
+    if (!match_data)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "Can't create match data";
+      throw Exception(ostr);
+    }
 
     result.clear();
-    size_t offset = 0;
+    PCRE2_SIZE offset = 0;
     while (offset <= subject.size() &&
-      pcre_exec(re_, 0, subject.data(), subject.size(),
-        offset, options, &ovector[0], 3 * substrcount_) > 0)
+      pcre2_match_8(
+        re_.get(),
+        reinterpret_cast<PCRE2_SPTR8>(subject.data()),
+        subject.size(),
+        offset,
+        options,
+        match_data.get(),
+        nullptr) > 0)
     {
+      PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(match_data.get());
       size_t res_offset = result.size() - first_capture;
       result.resize(res_offset + substrcount_);
       for (int i = first_capture; i < substrcount_; ++i)
       {
-        int start = ovector[2 * i];
-        int end = ovector[2 * i + 1];
+        const auto start = ovector[2 * i];
+        const auto end = ovector[2 * i + 1];
 
         // For both zero-length match (start == end >= 0) and not
         // executed capture (start == end == -1) there's an empty
@@ -182,8 +225,19 @@ namespace String
       return false;
     }
 
-    int ovector[90];
-    return pcre_exec(re_, 0, subject.data(), subject.size(),
-      0, options, ovector, 90) > 0;
+    auto match_data = create_match_data_(re_.get());
+    if (!match_data)
+    {
+      return false;
+    }
+
+    return pcre2_match_8(
+      re_.get(),
+      reinterpret_cast<PCRE2_SPTR8>(subject.data()),
+      subject.size(),
+      0,
+      options,
+      match_data.get(),
+      nullptr) > 0;
   }
 }

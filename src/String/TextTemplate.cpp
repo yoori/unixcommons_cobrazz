@@ -280,7 +280,7 @@ namespace String
       encode_mime_(std::string&& value, std::string& encoded)
         /*throw (StringManip::InvalidFormatException, eh::Exception)*/
       {
-        StringManip::mime_url_encode(value, encoded);
+        StringManip::mime_url_encode(std::string_view(value), encoded);
       }
 
       void

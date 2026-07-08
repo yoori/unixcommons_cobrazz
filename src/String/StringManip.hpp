@@ -6,6 +6,9 @@
 #ifndef STRING_STRINGMANIP_HPP
 #define STRING_STRINGMANIP_HPP
 
+#include <string>
+#include <string_view>
+
 #include <String/AsciiStringManip.hpp>
 #include <String/UTF8Category.hpp>
 
@@ -135,6 +138,16 @@ namespace String
       bool padding = true, uint8_t* fill = 0)
       /*throw (InvalidFormatException, eh::Exception)*/;
 
+    void
+    base64mod_decode(std::string& dst, std::string_view src,
+      bool padding = true, uint8_t* fill = 0)
+      /*throw (InvalidFormatException, eh::Exception)*/;
+
+    void
+    base64mod_decode(std::string& dst, const std::string& src,
+      bool padding = true, uint8_t* fill = 0)
+      /*throw (InvalidFormatException, eh::Exception)*/;
+
     /**
      * Calculates size of data after base64 encoding
      * @param original_size data size
@@ -173,6 +186,17 @@ namespace String
     void
     mime_url_encode(const String::SubString& src, std::string& dst)
       /*throw (eh::Exception)*/;
+
+    void
+    mime_url_encode(std::string_view src, std::string& dst)
+      /*throw (eh::Exception)*/;
+
+    inline void
+    mime_url_encode(const std::string& src, std::string& dst)
+      /*throw (eh::Exception)*/
+    {
+      mime_url_encode(std::string_view(src), dst);
+    }
 
     /**
      * Decodes data according to MIME rules (replacing %XX substrings)
@@ -282,6 +306,20 @@ namespace String
     void
     json_escape_append(std::string& dest, const SubString& src)
       /*throw (eh::Exception)*/;
+
+    void
+    json_escape_append(std::string& dest, std::string_view src)
+      /*throw (eh::Exception)*/;
+
+    template<typename Traits, typename Allocator>
+    void
+    json_escape_append(
+      std::string& dest,
+      const std::basic_string<char, Traits, Allocator>& src)
+      /*throw (eh::Exception)*/
+    {
+      json_escape_append(dest, std::string_view(src.data(), src.size()));
+    }
 
     /**
      * Performs Punycode encode according to RFC3492
@@ -564,6 +602,14 @@ namespace String
     template <typename Integer>
     bool
     str_to_int(const String::SubString& str, Integer& value) throw ();
+
+    template <typename Integer>
+    bool
+    str_to_int(std::string_view str, Integer& value) throw ();
+
+    template <typename Integer>
+    bool
+    str_to_int(const std::string& str, Integer& value) throw ();
 
     /**
      * InverseCategory transposes owned() and derived

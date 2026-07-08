@@ -541,6 +541,32 @@ namespace String
     }
 
     void
+    base64mod_decode(std::string& dest, std::string_view src,
+      bool padding, uint8_t* fill)
+      /*throw (InvalidFormatException, eh::Exception)*/
+    {
+      if (src.empty())
+      {
+        dest.clear();
+        return;
+      }
+
+      base64mod_decode(dest, SubString(src.data(), src.size()), padding, fill);
+    }
+
+    void
+    base64mod_decode(std::string& dest, const std::string& src,
+      bool padding, uint8_t* fill)
+      /*throw (InvalidFormatException, eh::Exception)*/
+    {
+      base64mod_decode(
+        dest,
+        std::string_view(src.data(), src.size()),
+        padding,
+        fill);
+    }
+
+    void
     mime_url_encode(const SubString& src, std::string& dst)
       /*throw (eh::Exception)*/
     {
@@ -580,6 +606,19 @@ namespace String
       }
 
       dst.swap(dest);
+    }
+
+    void
+    mime_url_encode(std::string_view src, std::string& dst)
+      /*throw (eh::Exception)*/
+    {
+      if (src.empty())
+      {
+        dst.clear();
+        return;
+      }
+
+      mime_url_encode(SubString(src.data(), src.size()), dst);
     }
 
     void
@@ -1320,6 +1359,16 @@ namespace String
         {
           REPL[static_cast<uint8_t>(ch)].append_to(dest);
         }
+      }
+    }
+
+    void
+    json_escape_append(std::string& dest, std::string_view src)
+      /*throw (eh::Exception)*/
+    {
+      if (!src.empty())
+      {
+        json_escape_append(dest, SubString(src.data(), src.size()));
       }
     }
 

@@ -5,6 +5,7 @@
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -45,8 +46,8 @@ namespace
     hash_(const char* country, const char* region_code) const
       throw ();
 
-    typedef Generics::GnuHashTable<Generics::NumericHashAdapter<uint32_t>,
-      std::string> AllRegions;
+    using AllRegions =
+      Generics::GnuHashTable<Generics::NumericHashAdapter<uint32_t>, std::string>;
 
     AllRegions regions_;
   };
@@ -418,11 +419,60 @@ namespace GeoIPMapping
   //
   // IPMapCity2 class
   //
+  std::size_t
+  IPMapCity2::estimate_arena_size_(const char* filename) noexcept
+  {
+    const char* const path =
+      filename ? filename : "/usr/share/GeoIP/ipv4.csv";
+
+    std::ifstream istr(path, std::ios::binary | std::ios::ate);
+    if(!istr.is_open())
+    {
+      return 64 * 1024;
+    }
+
+    const auto size = istr.tellg();
+    if(size <= 0)
+    {
+      return 64 * 1024;
+    }
+
+    return std::max<std::size_t>(
+      64 * 1024,
+      static_cast<std::size_t>(size) * 4);
+  }
+
+  uint8_t
+  IPMapCity2::get_byte_(uint32_t ip, unsigned int byte_index) noexcept
+  {
+    return static_cast<uint8_t>(ip >> (24 - byte_index * 8));
+  }
+
+  uint8_t
+  IPMapCity2::get_masked_byte_(
+    uint32_t ip,
+    unsigned int byte_index,
+    unsigned int bits) noexcept
+  {
+    const uint8_t byte = get_byte_(ip, byte_index);
+    return static_cast<uint8_t>(byte & (0xFFu << (8 - bits)));
+  }
+
+  IPMapCity2::PrefixNode&
+  IPMapCity2::add_node_()
+  {
+    return nodes_.emplace_back(&arena_);
+  }
+
   IPMapCity2::IPMapCity2(const char* filename)
     /*throw (FileNotExists, InvalidFormat)*/
-    : max_check_bits_(0)
+    : arena_(estimate_arena_size_(filename)),
+      locations_(&arena_),
+      nodes_(&arena_),
+      root_(nullptr)
   {
-    mask_to_locations_.resize(32);
+    root_ = &add_node_();
+
     load_(filename ?
       String::SubString(filename) :
       String::SubString("/usr/share/GeoIP/ipv4.csv"));
@@ -462,23 +512,44 @@ namespace GeoIPMapping
     uint32_t ip)
     const throw ()
   {
-    uint32_t ip_mask = 0xFFFFFFFF;
+    const PrefixNode* node = root_;
+    const CityLocationHolder* best_location = nullptr;
 
-    unsigned int bits_i = 0;
-    for(auto it = mask_to_locations_.begin(); bits_i < max_check_bits_; ++it, ++bits_i)
+    for(unsigned int byte_index = 0; node && byte_index < 4; ++byte_index)
     {
-      uint32_t find_mask = ip & ip_mask;
-      auto mask_it = it->find(find_mask);
-      if(mask_it != it->end())
+      if(node->full_location)
       {
-        location.country_code = mask_it->second.country_code;
-        location.region = mask_it->second.region;
-        location.city = mask_it->second.city;
-
-        return true;
+        best_location = node->full_location;
       }
 
-      ip_mask = ip_mask << 1;
+      for(unsigned int bits = 7; bits >= 1; --bits)
+      {
+        const auto partial_it =
+          node->partial_locations[bits - 1].find(
+            get_masked_byte_(ip, byte_index, bits));
+        if(partial_it != node->partial_locations[bits - 1].end())
+        {
+          best_location = partial_it->second;
+          break;
+        }
+      }
+
+      const auto child_it =
+        node->children.find(get_byte_(ip, byte_index));
+      node = child_it != node->children.end() ? child_it->second : nullptr;
+    }
+
+    if(node && node->full_location)
+    {
+      best_location = node->full_location;
+    }
+
+    if(best_location)
+    {
+      location.country_code = best_location->country_code;
+      location.region = best_location->region;
+      location.city = best_location->city;
+      return true;
     }
 
     return false;
@@ -501,54 +572,70 @@ namespace GeoIPMapping
     {
       std::getline(istr, line_holder);
 
-      if(!line_holder.empty())
+      if(line_holder.empty())
       {
-        String::SubString line(line_holder);
-        String::SubString::SizeType ip_mask_end = line.find(',');
+        continue;
+      }
 
-        if(ip_mask_end != String::SubString::NPOS)
+      String::SubString line(line_holder);
+      const auto ip_mask_end = line.find(',');
+      if(ip_mask_end == String::SubString::NPOS)
+      {
+        continue;
+      }
+
+      String::SubString ip_mask_str = line.substr(0, ip_mask_end);
+      String::SubString city_loc_str = line.substr(ip_mask_end + 1);
+
+      unsigned char ip_bits;
+      uint32_t ip_mask;
+      if(!parse_ip_mask_(ip_bits, ip_mask, ip_mask_str) ||
+        (ip_bits > 32))
+      {
+        Stream::Error ostr;
+        ostr << FUN << ": can't parse ip mask '" << ip_mask_str << "'";
+        throw InvalidFormat(ostr);
+      }
+
+      if(city_loc_str.size() > 1 &&
+        *city_loc_str.begin() == '"' &&
+        *city_loc_str.rbegin() == '"')
+      {
+        city_loc_str = city_loc_str.substr(1, city_loc_str.size() - 2);
+      }
+
+      CityLocationHolder& city_location = locations_.emplace_back(&arena_);
+      if(!parse_city_location_(city_location, city_loc_str))
+      {
+        Stream::Error ostr;
+        ostr << FUN << ": can't parse city location";
+        throw InvalidFormat(ostr);
+      }
+
+      PrefixNode* node = root_;
+      const unsigned int full_bytes = ip_bits / 8;
+      const unsigned int remainder_bits = ip_bits % 8;
+
+      for(unsigned int byte_index = 0; byte_index < full_bytes; ++byte_index)
+      {
+        const uint8_t key = get_byte_(ip_mask, byte_index);
+        auto [it, inserted] = node->children.emplace(key, nullptr);
+        if(inserted)
         {
-          String::SubString ip_mask_str = line.substr(0, ip_mask_end);
-          String::SubString city_loc_str = line.substr(ip_mask_end + 1);
-
-          /*
-          if(!top_splitter.get_token(city_loc_str))
-          {
-            Stream::Error ostr;
-            ostr << FUN << ": can't parse line '" << line << "'";
-            throw InvalidFormat(ostr);
-          }
-          */
-
-          unsigned char ip_bits;
-          uint32_t ip_mask;
-
-          if(!parse_ip_mask_(ip_bits, ip_mask, ip_mask_str) ||
-            (ip_bits > 32))
-          {
-            Stream::Error ostr;
-            ostr << FUN << ": can't parse ip mask '" << ip_mask_str << "'";
-            throw InvalidFormat(ostr);
-          }
-
-          CityLocationHolder city_location;
-
-          if(city_loc_str.size() > 1 && *city_loc_str.begin() == '"' && *city_loc_str.rbegin() == '"')
-          {
-            city_loc_str = city_loc_str.substr(1, city_loc_str.size() - 2);
-          }
-
-          if(!parse_city_location_(city_location, city_loc_str))
-          {
-            Stream::Error ostr;
-            ostr << FUN << ": can't parse ip mask '" << ip_mask_str << "'";
-            throw InvalidFormat(ostr);
-          }
-
-          mask_to_locations_[32 - ip_bits].insert(std::make_pair(ip_mask, city_location));
-          max_check_bits_ = std::max(max_check_bits_, static_cast<unsigned int>(32 - ip_bits));
-          line.clear();
+          it->second = &add_node_();
         }
+        node = it->second;
+      }
+
+      if(remainder_bits == 0)
+      {
+        node->full_location = &city_location;
+      }
+      else
+      {
+        node->partial_locations[remainder_bits - 1].emplace(
+          get_masked_byte_(ip_mask, full_bytes, remainder_bits),
+          &city_location);
       }
     }
   }

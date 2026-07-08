@@ -4,6 +4,10 @@
 #ifndef HTTP_URLADDRESS_HPP
 #define HTTP_URLADDRESS_HPP
 
+#include <string>
+#include <string_view>
+#include <utility>
+
 #include <String/AsciiStringManip.hpp>
 
 
@@ -132,6 +136,8 @@ namespace HTTP
      */
     URLAddress(const URLAddress& another) /*throw (eh::Exception)*/;
 
+    URLAddress(URLAddress&& another) /*throw (eh::Exception)*/;
+
     /**
      * Destructor
      */
@@ -146,12 +152,23 @@ namespace HTTP
     URLAddress&
     operator =(const URLAddress& another) /*throw (eh::Exception)*/;
 
+    URLAddress&
+    operator =(URLAddress&& another) /*throw (eh::Exception)*/;
+
     /**
      * Assigns new URL to object
      * @param value new URL to be assigned to object
      */
     void
     url(const String::SubString& value)
+      /*throw (eh::Exception, Exception, InvalidURL)*/;
+
+    void
+    url(std::string_view value)
+      /*throw (eh::Exception, Exception, InvalidURL)*/;
+
+    void
+    url(const std::string& value)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
     /**
@@ -247,6 +264,9 @@ namespace HTTP
     url_without_check_(const String::SubString& url)
       /*throw (eh::Exception)*/;
 
+    void
+    move_from_(URLAddress&& another) /*throw (eh::Exception)*/;
+
     virtual
     void
     specific_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
@@ -292,6 +312,16 @@ namespace HTTP
       bool secure = false,
       const String::SubString& userinfo = String::SubString())
       /*throw (InvalidURL, eh::Exception)*/;
+
+    HTTPAddress(const HTTPAddress& another) = default;
+
+    HTTPAddress(HTTPAddress&& another) /*throw (eh::Exception)*/;
+
+    HTTPAddress&
+    operator =(const HTTPAddress& another) = default;
+
+    HTTPAddress&
+    operator =(HTTPAddress&& another) /*throw (eh::Exception)*/;
 
     /**
      * Destructor
@@ -399,6 +429,14 @@ namespace HTTP
     BrowserAddress(const String::SubString& url = String::SubString())
       /*throw (InvalidURL, eh::Exception)*/;
 
+    explicit
+    BrowserAddress(std::string_view url)
+      /*throw (InvalidURL, eh::Exception)*/;
+
+    explicit
+    BrowserAddress(const std::string& url)
+      /*throw (InvalidURL, eh::Exception)*/;
+
     /**
      * Constructor
      * Uses splitted HTTP URL for initialization. Combines parts
@@ -420,6 +458,16 @@ namespace HTTP
       bool secure = false,
       const String::SubString& userinfo = String::SubString())
       /*throw (InvalidURL, eh::Exception)*/;
+
+    BrowserAddress(const BrowserAddress& another) = default;
+
+    BrowserAddress(BrowserAddress&& another) /*throw (eh::Exception)*/;
+
+    BrowserAddress&
+    operator =(const BrowserAddress& another) = default;
+
+    BrowserAddress&
+    operator =(BrowserAddress&& another) /*throw (eh::Exception)*/;
 
     /**
      * Destructor

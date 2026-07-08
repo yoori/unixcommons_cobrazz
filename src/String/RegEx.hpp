@@ -5,9 +5,11 @@
 #ifndef STRING_REGEX_HPP
 #define STRING_REGEX_HPP
 
+#include <memory>
 #include <vector>
 
-#include <pcre.h>
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 
 #include <String/SubString.hpp>
 
@@ -16,6 +18,52 @@
 
 namespace String
 {
+  #ifndef PCRE_ANCHORED
+  #define PCRE_ANCHORED PCRE2_ANCHORED
+  #endif
+  #ifndef PCRE_CASELESS
+  #define PCRE_CASELESS PCRE2_CASELESS
+  #endif
+  #ifndef PCRE_DOLLAR_ENDONLY
+  #define PCRE_DOLLAR_ENDONLY PCRE2_DOLLAR_ENDONLY
+  #endif
+  #ifndef PCRE_DOTALL
+  #define PCRE_DOTALL PCRE2_DOTALL
+  #endif
+  #ifndef PCRE_DUPNAMES
+  #define PCRE_DUPNAMES PCRE2_DUPNAMES
+  #endif
+  #ifndef PCRE_EXTENDED
+  #define PCRE_EXTENDED PCRE2_EXTENDED
+  #endif
+  #ifndef PCRE_FIRSTLINE
+  #define PCRE_FIRSTLINE PCRE2_FIRSTLINE
+  #endif
+  #ifndef PCRE_MULTILINE
+  #define PCRE_MULTILINE PCRE2_MULTILINE
+  #endif
+  #ifndef PCRE_NOTBOL
+  #define PCRE_NOTBOL PCRE2_NOTBOL
+  #endif
+  #ifndef PCRE_NOTEOL
+  #define PCRE_NOTEOL PCRE2_NOTEOL
+  #endif
+  #ifndef PCRE_NOTEMPTY
+  #define PCRE_NOTEMPTY PCRE2_NOTEMPTY
+  #endif
+  #ifndef PCRE_NO_AUTO_CAPTURE
+  #define PCRE_NO_AUTO_CAPTURE PCRE2_NO_AUTO_CAPTURE
+  #endif
+  #ifndef PCRE_NO_UTF8_CHECK
+  #define PCRE_NO_UTF8_CHECK PCRE2_NO_UTF_CHECK
+  #endif
+  #ifndef PCRE_UNGREEDY
+  #define PCRE_UNGREEDY PCRE2_UNGREEDY
+  #endif
+  #ifndef PCRE_UTF8
+  #define PCRE_UTF8 PCRE2_UTF
+  #endif
+
   /**
    * Wrapper for pcre library
    */
@@ -144,8 +192,7 @@ namespace String
     char* expr_;
     size_t expr_len_;
     size_t expr_size_;
-    pcre* re_;
-    size_t re_size_;
+    std::shared_ptr<pcre2_code_8> re_;
     int substrcount_;
   };
 
@@ -189,8 +236,7 @@ namespace String
     expr_ = 0;
     expr_len_ = 0;
     expr_size_ = 0;
-    re_ = 0;
-    re_size_ = 0;
+    re_.reset();
     substrcount_ = 0;
   }
 
@@ -198,14 +244,12 @@ namespace String
   void
   RegEx::clear_() throw ()
   {
-    if (re_)
+    if (expr_)
     {
-      if (pcre_refcount(re_, -1) == 0)
-      {
-        allocator_->deallocate(expr_, expr_size_);
-        allocator_->deallocate(re_, re_size_);
-      }
+      allocator_->deallocate(expr_, expr_size_);
     }
+
+    re_.reset();
     allocator_.reset();
     init_();
   }
