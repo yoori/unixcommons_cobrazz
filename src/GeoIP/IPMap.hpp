@@ -10,12 +10,13 @@
 #include <array>
 #include <deque>
 #include <memory>
-#include <memory_resource>
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 #include <GeoIP.h>
+
+#include <Generics/MonoAllocator.hpp>
 
 #include <Sync/PosixLock.hpp>
 
@@ -143,11 +144,14 @@ namespace GeoIPMapping
      * @param location resulted city location information.
      * @param throw_if_absent throw exception if there is no corresponding
      * record in the database
+     * @param ignore_invalid_ip return false instead of throwing if the IP
+     * address is null or can't be converted to IPv4
      * @result if the call was successful or not
      */
     bool
     city_location_by_addr(const char* ip, CityLocation& location,
-      bool throw_if_absent = true)
+      bool throw_if_absent = true,
+      bool ignore_invalid_ip = false)
       /*throw (Exception, eh::Exception)*/;
   };
 
@@ -186,12 +190,15 @@ namespace GeoIPMapping
      * @param location resulted city location information.
      * @param throw_if_absent throw exception if there is no corresponding
      * record in the database
+     * @param ignore_invalid_ip return false instead of throwing if the IP
+     * address is null or can't be converted to IPv4
      * @result if the call was successful or not
      */
     bool
     city_location_by_addr(const char* ip,
       CityLocation& location,
-      bool throw_if_absent = true)
+      bool throw_if_absent = true,
+      bool ignore_invalid_ip = false)
       /*throw (Exception, eh::Exception)*/;
 
   protected:
@@ -199,38 +206,36 @@ namespace GeoIPMapping
     {
       explicit
       CityLocationHolder(
-        std::pmr::memory_resource* resource =
-          std::pmr::get_default_resource()) noexcept
+        Generics::MonoAllocatorArena* resource) noexcept
         : country_code(resource),
           region(resource),
           city(resource)
       {}
 
-      std::pmr::string country_code;
-      std::pmr::string region;
-      std::pmr::string city;
+      Generics::MonoString country_code;
+      Generics::MonoString region;
+      Generics::MonoString city;
     };
 
     struct PrefixNode
     {
       explicit
       PrefixNode(
-        std::pmr::memory_resource* resource =
-          std::pmr::get_default_resource()) noexcept
+        Generics::MonoAllocatorArena* resource) noexcept
         : children(resource),
           partial_locations{
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource),
-            std::pmr::unordered_map<uint8_t, CityLocationHolder*>(resource)}
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
+            Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource)}
       {}
 
       CityLocationHolder* full_location = nullptr;
-      std::pmr::unordered_map<uint8_t, PrefixNode*> children;
-      std::array<std::pmr::unordered_map<uint8_t, CityLocationHolder*>, 7>
+      Generics::MonoUnorderedMap<uint8_t, PrefixNode*> children;
+      std::array<Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>, 7>
         partial_locations;
     };
 
@@ -275,9 +280,9 @@ namespace GeoIPMapping
       const String::SubString& city_loc_str);
 
   protected:
-    std::pmr::monotonic_buffer_resource arena_;
-    std::pmr::deque<CityLocationHolder> locations_;
-    std::pmr::deque<PrefixNode> nodes_;
+    Generics::MonoAllocatorArena arena_;
+    Generics::MonoDeque<CityLocationHolder> locations_;
+    Generics::MonoDeque<PrefixNode> nodes_;
     PrefixNode* root_;
   };
 } // namespace GeoIPMapping

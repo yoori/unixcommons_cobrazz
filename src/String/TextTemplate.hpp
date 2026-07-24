@@ -255,6 +255,7 @@ namespace String
       typedef ReferenceCounting::Deque<Item_var> Items;
 
       Items items_;
+      SubString::SizeType fixed_size_;
     };
 
     /**
@@ -669,6 +670,7 @@ namespace String
 
     inline
     Basic::Basic() throw ()
+      : fixed_size_(0)
     {
     }
 

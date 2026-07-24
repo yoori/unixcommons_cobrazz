@@ -72,6 +72,26 @@ namespace String
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
+    class MatchContext
+    {
+    public:
+      MatchContext() noexcept;
+      MatchContext(const MatchContext&) = delete;
+      MatchContext& operator=(const MatchContext&) = delete;
+      MatchContext(MatchContext&& init) noexcept;
+      MatchContext& operator=(MatchContext&& init) noexcept;
+      ~MatchContext() noexcept;
+
+    private:
+      friend class RegEx;
+
+      bool
+      ensure_ovector_(uint32_t ovector_count) noexcept;
+
+      pcre2_match_data_8* match_data_;
+      uint32_t ovector_count_;
+    };
+
     /**
      * Constructor
      * Compiles regexp if required
@@ -143,6 +163,11 @@ namespace String
       int options = 0) const
       /*throw (Exception, eh::Exception)*/;
 
+    bool
+    search(Result& result, const String::SubString& subject,
+      MatchContext& match_context, int options = 0) const
+      /*throw (Exception, eh::Exception)*/;
+
     /**
      * Performes execution of compiled regular expression and returns
      * all of the found substrings, in the sense of /g Perl regexp
@@ -156,6 +181,11 @@ namespace String
       int options = 0) const
       /*throw (Exception, eh::Exception)*/;
 
+    void
+    gsearch(Result& result, const String::SubString& subject,
+      MatchContext& match_context, int options = 0) const
+      /*throw (Exception, eh::Exception)*/;
+
     /**
      * Performes "quick" execution of compiled regular expression
      * Neither exceptions nor implicit memory allocation is preformed
@@ -165,6 +195,11 @@ namespace String
      */
     bool
     match(const String::SubString& subject, int options = 0) const
+      throw ();
+
+    bool
+    match(const String::SubString& subject, MatchContext& match_context,
+      int options = 0) const
       throw ();
 
     /**

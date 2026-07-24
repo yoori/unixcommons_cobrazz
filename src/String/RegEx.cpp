@@ -4,17 +4,63 @@
 
 namespace String
 {
-  namespace
-  {
-    using MatchDataPtr = std::unique_ptr<pcre2_match_data_8, decltype(&pcre2_match_data_free_8)>;
+  RegEx::MatchContext::MatchContext() noexcept
+    : match_data_(nullptr),
+      ovector_count_(0)
+  {}
 
-    MatchDataPtr
-    create_match_data_(const pcre2_code_8* re)
+  RegEx::MatchContext::MatchContext(MatchContext&& init) noexcept
+    : match_data_(init.match_data_),
+      ovector_count_(init.ovector_count_)
+  {
+    init.match_data_ = nullptr;
+    init.ovector_count_ = 0;
+  }
+
+  RegEx::MatchContext&
+  RegEx::MatchContext::operator=(MatchContext&& init) noexcept
+  {
+    if (this != &init)
     {
-      return MatchDataPtr(
-        pcre2_match_data_create_from_pattern_8(re, nullptr),
-        &pcre2_match_data_free_8);
+      pcre2_match_data_free_8(match_data_);
+      match_data_ = init.match_data_;
+      ovector_count_ = init.ovector_count_;
+      init.match_data_ = nullptr;
+      init.ovector_count_ = 0;
     }
+
+    return *this;
+  }
+
+  RegEx::MatchContext::~MatchContext() noexcept
+  {
+    pcre2_match_data_free_8(match_data_);
+  }
+
+  bool
+  RegEx::MatchContext::ensure_ovector_(uint32_t ovector_count) noexcept
+  {
+    if (ovector_count == 0)
+    {
+      ovector_count = 1;
+    }
+
+    if (match_data_ && ovector_count_ >= ovector_count)
+    {
+      return true;
+    }
+
+    pcre2_match_data_8* match_data =
+      pcre2_match_data_create_8(ovector_count, nullptr);
+    if (!match_data)
+    {
+      return false;
+    }
+
+    pcre2_match_data_free_8(match_data_);
+    match_data_ = match_data;
+    ovector_count_ = pcre2_get_ovector_count_8(match_data_);
+    return true;
   }
 
   RegEx&
@@ -113,6 +159,15 @@ namespace String
     int options) const
     /*throw (Exception, eh::Exception)*/
   {
+    MatchContext match_context;
+    return search(result, subject, match_context, options);
+  }
+
+  bool
+  RegEx::search(Result& result, const String::SubString& subject,
+    MatchContext& match_context, int options) const
+    /*throw (Exception, eh::Exception)*/
+  {
     if (!re_)
     {
       Stream::Error ostr;
@@ -120,8 +175,7 @@ namespace String
       throw Exception(ostr);
     }
 
-    auto match_data = create_match_data_(re_.get());
-    if (!match_data)
+    if (!match_context.ensure_ovector_(substrcount_))
     {
       Stream::Error ostr;
       ostr << FNS << "Can't create match data";
@@ -134,13 +188,14 @@ namespace String
       subject.size(),
       0,
       options,
-      match_data.get(),
+      match_context.match_data_,
       nullptr) <= 0)
     {
       return false;
     }
 
-    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(match_data.get());
+    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(
+      match_context.match_data_);
     result.resize(substrcount_);
     for (int i = 0; i < substrcount_; i++)
     {
@@ -160,6 +215,15 @@ namespace String
     int options) const
     /*throw (Exception, eh::Exception)*/
   {
+    MatchContext match_context;
+    gsearch(result, subject, match_context, options);
+  }
+
+  void
+  RegEx::gsearch(Result& result, const String::SubString& subject,
+    MatchContext& match_context, int options) const
+    /*throw (Exception, eh::Exception)*/
+  {
     if (!re_)
     {
       Stream::Error ostr;
@@ -171,8 +235,7 @@ namespace String
     // match is returned.
     const int first_capture = substrcount_ > 1 ? 1 : 0;
 
-    auto match_data = create_match_data_(re_.get());
-    if (!match_data)
+    if (!match_context.ensure_ovector_(substrcount_))
     {
       Stream::Error ostr;
       ostr << FNS << "Can't create match data";
@@ -188,10 +251,11 @@ namespace String
         subject.size(),
         offset,
         options,
-        match_data.get(),
+        match_context.match_data_,
         nullptr) > 0)
     {
-      PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(match_data.get());
+      PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(
+        match_context.match_data_);
       size_t res_offset = result.size() - first_capture;
       result.resize(res_offset + substrcount_);
       for (int i = first_capture; i < substrcount_; ++i)
@@ -220,13 +284,21 @@ namespace String
   RegEx::match(const String::SubString& subject, int options) const
     throw ()
   {
+    MatchContext match_context;
+    return match(subject, match_context, options);
+  }
+
+  bool
+  RegEx::match(const String::SubString& subject, MatchContext& match_context,
+    int options) const
+    throw ()
+  {
     if (!re_)
     {
       return false;
     }
 
-    auto match_data = create_match_data_(re_.get());
-    if (!match_data)
+    if (!match_context.ensure_ovector_(1))
     {
       return false;
     }
@@ -237,7 +309,7 @@ namespace String
       subject.size(),
       0,
       options,
-      match_data.get(),
-      nullptr) > 0;
+      match_context.match_data_,
+      nullptr) >= 0;
   }
 }

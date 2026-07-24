@@ -6,6 +6,7 @@
 #ifndef GENERICS_RAND_HPP
 #define GENERICS_RAND_HPP
 
+#include <cstdlib>
 #include <cstdint>
 
 
@@ -18,6 +19,9 @@ namespace Generics
    */
   uint32_t
   safe_rand() throw ();
+
+  uint32_t
+  unsafe_rand() throw ();
 
   /**
    * Give uniform distribution in range [0..max_boundary-1].
@@ -34,6 +38,14 @@ namespace Generics
       safe_rand() / 2147483648.0);
   }
 
+  inline
+  uint32_t
+  unsafe_rand(uint32_t max_boundary) throw ()
+  {
+    return static_cast<uint32_t>(static_cast<double>(max_boundary) *
+      unsafe_rand() / (static_cast<double>(RAND_MAX) + 1.0));
+  }
+
   /**
    * General method give uniform distribution in range.
    * Thread-safe.
@@ -47,6 +59,13 @@ namespace Generics
   safe_rand(uint32_t min_boundary, uint32_t max_boundary) throw ()
   {
     return min_boundary + safe_rand(max_boundary - min_boundary + 1);
+  }
+
+  inline
+  uint32_t
+  unsafe_rand(uint32_t min_boundary, uint32_t max_boundary) throw ()
+  {
+    return min_boundary + unsafe_rand(max_boundary - min_boundary + 1);
   }
 
   /**

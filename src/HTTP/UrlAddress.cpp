@@ -336,7 +336,7 @@ namespace
   {
   public:
     explicit
-    IDNA0(std::string& ascii) throw ();
+    IDNA0(std::string& ascii, bool* idna_label = nullptr) throw ();
 
     ~IDNA0() throw ();
 
@@ -346,10 +346,12 @@ namespace
 
   private:
     std::string& ascii_;
+    bool* idna_label_;
   };
 
-  IDNA0::IDNA0(std::string& ascii) throw ()
-    : ascii_(ascii)
+  IDNA0::IDNA0(std::string& ascii, bool* idna_label) throw ()
+    : ascii_(ascii),
+      idna_label_(idna_label)
   {
   }
 
@@ -364,6 +366,12 @@ namespace
   {
     if (IDNA_PREFIX.start(label))
     {
+      if(idna_label_)
+      {
+        *idna_label_ = true;
+        return;
+      }
+
       throw HTTP::BrowserAddress::IDNAError(
         "Possibly IDNA label");
     }
@@ -716,18 +724,28 @@ namespace
     return true;
   }
 
-  void
+  bool
   idna_normalize_host(const String::SubString& host, std::string& ascii,
-    std::string& unicode)
+    std::string& unicode, bool throw_error = true)
     /*throw (eh::Exception, BrowserAddress::IDNAError)*/
   {
     if (host.empty())
     {
+      if(!throw_error)
+      {
+        return false;
+      }
+
       throw BrowserAddress::IDNAError("Host name is empty");
     }
 
     if (host.size() >= MAX_HOSTNAME_SIZE)
     {
+      if(!throw_error)
+      {
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "Host name '" << host << "' is too large";
       throw BrowserAddress::IDNAError(ostr);
@@ -744,10 +762,16 @@ namespace
       if (!String::UTF8Handler::utf8_char_to_wchar(&host[i],
         octet_count, wch))
       {
+        if(!throw_error)
+        {
+          return false;
+        }
+
         Stream::Error ostr;
         ostr << FNS << "Invalid input sequence in host '" << host << "'";
         throw BrowserAddress::IDNAError(ostr);
       }
+
       if (octet_count > 1)
       {
         has_unicode = true;
@@ -764,16 +788,44 @@ namespace
       try
       {
         host.assign_to(ascii);
-        idna_label_convert(host, host, IDNA0(ascii));
-        unicode = ascii;
-        return;
+        bool idna_label = false;
+        idna_label_convert(
+          host,
+          host,
+          IDNA0(ascii, throw_error ? nullptr : &idna_label));
+        if(!idna_label)
+        {
+          unicode = ascii;
+          return true;
+        }
+
+        has_unicode = true;
+        ascii.clear();
       }
       catch (const BrowserAddress::IDNAError&)
       {
+        if(!throw_error)
+        {
+          ascii.clear();
+          unicode.clear();
+          return false;
+        }
+
         // We have 'xn--' prefix in a label,
         // additional processing is required
         has_unicode = true;
         ascii.clear();
+      }
+      catch (const eh::Exception&)
+      {
+        if(!throw_error)
+        {
+          ascii.clear();
+          unicode.clear();
+          return false;
+        }
+
+        throw;
       }
     }
 
@@ -781,12 +833,26 @@ namespace
     if (!String::lower_and_normalize(
       String::WSubString(whost, whost_size), normalized, true))
     {
+      if(!throw_error)
+      {
+        ascii.clear();
+        unicode.clear();
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "Normalization of host name '" << host << "' failed";
       throw BrowserAddress::IDNAError(ostr);
     }
     if (normalized.empty())
     {
+      if(!throw_error)
+      {
+        ascii.clear();
+        unicode.clear();
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "Empty host name '" << host <<
         "' after normalization";
@@ -799,11 +865,43 @@ namespace
     ascii.reserve(normalized.size() * 4 + 1);
     unicode.reserve(normalized.size() * 4 + 1);
 
-    idna_label_convert(host, String::WSubString(normalized),
-      IDNA2008(ascii, unicode));
+    try
+    {
+      idna_label_convert(host, String::WSubString(normalized),
+        IDNA2008(ascii, unicode));
+    }
+    catch (const BrowserAddress::IDNAError&)
+    {
+      if(throw_error)
+      {
+        throw;
+      }
+
+      ascii.clear();
+      unicode.clear();
+      return false;
+    }
+    catch (const eh::Exception&)
+    {
+      if(throw_error)
+      {
+        throw;
+      }
+
+      ascii.clear();
+      unicode.clear();
+      return false;
+    }
 
     if (ascii.size() >= MAX_HOSTNAME_SIZE)
     {
+      if(!throw_error)
+      {
+        ascii.clear();
+        unicode.clear();
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "Resulted host name '" << ascii << "' is too large";
       throw BrowserAddress::IDNAError(ostr);
@@ -814,6 +912,8 @@ namespace
       ascii.resize(ascii.size() - 1);
       unicode.resize(unicode.size() - 1);
     }
+
+    return true;
   }
 
   bool
@@ -822,13 +922,9 @@ namespace
     std::string& error)
     /*throw (eh::Exception)*/
   {
-    try
+    if(!idna_normalize_host(host, ascii, unicode, false))
     {
-      idna_normalize_host(host, ascii, unicode);
-    }
-    catch (const BrowserAddress::IDNAError& ex)
-    {
-      error = ex.what();
+      error = "Invalid host name";
       error.append(" in url '");
       url.append_to(error);
       error.push_back('\'');
@@ -1708,8 +1804,6 @@ namespace HTTP
     return str;
   }
 
-
-
   //
   // BrowserChecker class
   //
@@ -1730,18 +1824,18 @@ namespace HTTP
     }
 
     std::string unicode;
-    if (!idna_host_normalize(url, parts.host, encoded_host_, unicode,
-      error))
+    if (!idna_host_normalize(url, parts.host, encoded_host_, unicode, error))
     {
       return false;
     }
     parts.host = encoded_host_;
+
     return true;
   }
 
   bool
-  BrowserChecker::operator ()(const String::SubString& url,
-    std::string* error) /*throw (eh::Exception)*/
+  BrowserChecker::operator ()(const String::SubString& url, std::string* error)
+    /*throw (eh::Exception)*/
   {
     return HTTPChecker::operator()(url, error, false);
   }
@@ -1815,8 +1909,7 @@ namespace HTTP
     /*throw (InvalidURL, eh::Exception)*/
   {
     std::string error;
-    if (!idna_host_normalize(url_, host, encoded_host_,
-      decoded_host_, error))
+    if (!idna_host_normalize(url_, host, encoded_host_, decoded_host_, error))
     {
       Stream::Error ostr;
       ostr << FNS << error;

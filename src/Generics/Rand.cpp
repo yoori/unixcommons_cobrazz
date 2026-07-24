@@ -1,4 +1,6 @@
 // Generics/Rand.cpp
+#include <cstdlib>
+
 #include <Sync/PosixLock.hpp>
 
 #include <Generics/ISAAC.hpp>
@@ -24,5 +26,11 @@ namespace Generics
   {
     Sync::PosixGuard lock(mutex);
     return generator.rand() >> 1;
+  }
+
+  uint32_t
+  unsafe_rand() throw ()
+  {
+    return static_cast<uint32_t>(std::rand());
   }
 }

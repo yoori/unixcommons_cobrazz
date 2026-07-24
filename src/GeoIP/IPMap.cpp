@@ -345,11 +345,17 @@ namespace GeoIPMapping
 
   bool
   IPMapCity::city_location_by_addr(const char* ip, CityLocation& location,
-    bool throw_if_absent)
+    bool throw_if_absent,
+    bool ignore_invalid_ip)
     /*throw (Exception, eh::Exception)*/
   {
     if (!ip)
     {
+      if (ignore_invalid_ip)
+      {
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "ip is NULL";
       throw Exception(ostr);
@@ -358,6 +364,11 @@ namespace GeoIPMapping
     unsigned long ipv4 = ip_to_ipv4(ip);
     if (!ipv4)
     {
+      if (ignore_invalid_ip)
+      {
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "unsupported IPv4 '" << ip << "'";
       throw Exception(ostr);
@@ -485,11 +496,17 @@ namespace GeoIPMapping
   IPMapCity2::city_location_by_addr(
     const char* ip,
     CityLocation& location,
-    bool /*throw_if_absent*/)
+    bool /*throw_if_absent*/,
+    bool ignore_invalid_ip)
     /*throw (Exception, eh::Exception)*/
   {
     if (!ip)
     {
+      if (ignore_invalid_ip)
+      {
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "ip is NULL";
       throw Exception(ostr);
@@ -498,6 +515,11 @@ namespace GeoIPMapping
     uint32_t ipv4 = ip_to_ipv4(ip);
     if (!ipv4)
     {
+      if (ignore_invalid_ip)
+      {
+        return false;
+      }
+
       Stream::Error ostr;
       ostr << FNS << "unsupported IPv4 '" << ip << "'";
       throw Exception(ostr);

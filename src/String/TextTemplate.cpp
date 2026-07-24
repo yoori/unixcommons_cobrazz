@@ -104,6 +104,7 @@ namespace String
     Basic::Basic(const SubString& str,
       const SubString& start_lexeme, const SubString& end_lexeme)
       /*throw (InvalidTemplate, TextTemplException, eh::Exception)*/
+      : fixed_size_(0)
     {
       init(str, start_lexeme, end_lexeme);
     }
@@ -114,6 +115,7 @@ namespace String
       /*throw (InvalidTemplate, TextTemplException, eh::Exception)*/
     {
       items_.clear();
+      fixed_size_ = 0;
 
       if (start_lexeme.empty())
       {
@@ -139,13 +141,16 @@ namespace String
 
         if (begin == SubString::NPOS)
         {
+          fixed_size_ += str.length();
           items_.push_back(Item_var(new StringItem(str)));
           break;
         }
 
         if(begin > 0)
         {
-          items_.push_back(Item_var(new StringItem(str.substr(0, begin))));
+          SubString text(str.substr(0, begin));
+          fixed_size_ += text.length();
+          items_.push_back(Item_var(new StringItem(text)));
         }
 
         begin += start_lexeme.length();
@@ -172,10 +177,10 @@ namespace String
       /*throw (UnknownName, TextTemplException, eh::Exception)*/
     {
       std::string str;
+      str.reserve(fixed_size_);
 
       // Replace keys with values
-      for (Items::const_iterator it = items_.begin();
-        it != items_.end(); ++it)
+      for (Items::const_iterator it = items_.begin(); it != items_.end(); ++it)
       {
         (*it)->append_value(args, str);
       }
@@ -188,8 +193,7 @@ namespace String
       /*throw (UnknownName, TextTemplException, eh::Exception)*/
     {
       keys.clear();
-      for (Items::const_iterator it = items_.begin();
-        it != items_.end(); ++it)
+      for (Items::const_iterator it = items_.begin(); it != items_.end(); ++it)
       {
         std::string&& name = (*it)->key(args);
         if (!name.empty())
