@@ -18,6 +18,9 @@
 #include <utility>
 #include <vector>
 
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <boost/unordered/unordered_flat_set.hpp>
+
 namespace Generics
 {
   class MonoAllocatorArena final
@@ -162,7 +165,7 @@ namespace Generics
     typename Key,
     typename Hash = std::hash<Key>,
     typename Equal = std::equal_to<Key>>
-  using MonoUnorderedSet = std::unordered_set<
+  using MonoUnorderedSet = boost::unordered_flat_set<
     Key,
     Hash,
     Equal,
@@ -173,7 +176,7 @@ namespace Generics
     typename Value,
     typename Hash = std::hash<Key>,
     typename Equal = std::equal_to<Key>>
-  using MonoUnorderedMap = std::unordered_map<
+  using MonoUnorderedMap = boost::unordered_flat_map<
     Key,
     Value,
     Hash,
