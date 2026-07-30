@@ -6,10 +6,12 @@
 #include <algorithm>
 #include <utility>
 
+#include <String/StringManipJsonEscape.hpp>
 #include <String/StringManip.hpp>
 #include <String/UTF8Handler.hpp>
 
 #include <Generics/Function.hpp>
+#include <Generics/SimdCapabilities.hpp>
 
 #include <Stream/MemoryStream.hpp>
 
@@ -241,11 +243,128 @@ namespace
   const String::AsciiStringManip::CharCategory MIME("A-Za-z0-9_*.,-");
   const String::AsciiStringManip::CharCategory NON_JS(
     "\\\"'/\n\r<>\xE2", true);
-  const String::AsciiStringManip::CharCategory NON_JSON(
-    "\\\"\n\r\x01-\x1F", true);
 
   const String::AsciiStringManip::CharCategory C_NON_CSV(",\"\n\r");
   const String::AsciiStringManip::CharCategory PC_NON_CSV(";\"\n\r");
+
+  using JsonEscapeSimdLevel = String::StringManip::JsonEscape::SimdLevel;
+
+  bool
+  json_escape_simd_level_available_(JsonEscapeSimdLevel level) throw ()
+  {
+    namespace Simd = Generics::Simd;
+
+    switch (level)
+    {
+    case JsonEscapeSimdLevel::AUTO:
+    case JsonEscapeSimdLevel::SCALAR:
+      return true;
+    case JsonEscapeSimdLevel::SSE2:
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_SSE2)
+      return Simd::has(Simd::SSE2);
+#else
+      return false;
+#endif
+    case JsonEscapeSimdLevel::AVX2:
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX2)
+      return Simd::has(Simd::AVX2);
+#else
+      return false;
+#endif
+    case JsonEscapeSimdLevel::AVX512BW:
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX512BW)
+      return Simd::has(Simd::AVX512F | Simd::AVX512BW);
+#else
+      return false;
+#endif
+    }
+
+    return false;
+  }
+
+  JsonEscapeSimdLevel
+  select_default_json_escape_simd_level_() throw ()
+  {
+    if (json_escape_simd_level_available_(JsonEscapeSimdLevel::AVX2))
+    {
+      return JsonEscapeSimdLevel::AVX2;
+    }
+
+    if (json_escape_simd_level_available_(JsonEscapeSimdLevel::SSE2))
+    {
+      return JsonEscapeSimdLevel::SSE2;
+    }
+
+    if (json_escape_simd_level_available_(JsonEscapeSimdLevel::AVX512BW))
+    {
+      return JsonEscapeSimdLevel::AVX512BW;
+    }
+
+    return JsonEscapeSimdLevel::SCALAR;
+  }
+
+  const JsonEscapeSimdLevel JSON_ESCAPE_DEFAULT_SIMD_LEVEL =
+    select_default_json_escape_simd_level_();
+
+  const char*
+  json_escape_simd_level_name_(JsonEscapeSimdLevel level) throw ()
+  {
+    switch (level)
+    {
+    case JsonEscapeSimdLevel::AUTO:
+      return "auto";
+    case JsonEscapeSimdLevel::SCALAR:
+      return "scalar";
+    case JsonEscapeSimdLevel::SSE2:
+      return "sse2";
+    case JsonEscapeSimdLevel::AVX2:
+      return "avx2";
+    case JsonEscapeSimdLevel::AVX512BW:
+      return "avx512bw";
+    }
+
+    return "unknown";
+  }
+
+  inline
+  const char*
+  find_non_json_(
+    const char* cur,
+    const char* end,
+    JsonEscapeSimdLevel simd_level) throw ()
+  {
+    namespace JsonEscape = String::StringManip::JsonEscape;
+
+    if (simd_level == JsonEscapeSimdLevel::AUTO)
+    {
+      simd_level = JSON_ESCAPE_DEFAULT_SIMD_LEVEL;
+    }
+
+    const auto size = end - cur;
+
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX512BW)
+    if (simd_level == JsonEscapeSimdLevel::AVX512BW && size >= 64)
+    {
+      return JsonEscape::find_non_json_avx512bw(cur, end);
+    }
+#endif
+
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX2)
+    if (simd_level == JsonEscapeSimdLevel::AVX2 && size >= 32)
+    {
+      return JsonEscape::find_non_json_avx2(cur, end);
+    }
+#endif
+
+#if defined(STRING_MANIP_JSON_ESCAPE_HAS_SSE2)
+    if (simd_level == JsonEscapeSimdLevel::SSE2 && size >= 16)
+    {
+      return JsonEscape::find_non_json_sse2(cur, end);
+    }
+#endif
+
+    return JsonEscape::find_non_json_scalar(cur, end);
+  }
 
   namespace JS
   {
@@ -440,6 +559,27 @@ namespace String
 {
   namespace StringManip
   {
+    namespace JsonEscape
+    {
+      bool
+      simd_level_available(SimdLevel level) throw ()
+      {
+        return json_escape_simd_level_available_(level);
+      }
+
+      SimdLevel
+      default_simd_level() throw ()
+      {
+        return JSON_ESCAPE_DEFAULT_SIMD_LEVEL;
+      }
+
+      const char*
+      simd_level_name(SimdLevel level) throw ()
+      {
+        return json_escape_simd_level_name_(level);
+      }
+    }
+
     void
     base64_encode(std::string& dst, const void* src, size_t n,
       bool padding) /*throw (eh::Exception)*/
@@ -1287,79 +1427,92 @@ namespace String
       }
     }
 
+    namespace JsonEscape
+    {
+      void
+      json_escape_append(
+        std::string& dest,
+        const SubString& src,
+        SimdLevel simd_level)
+        /*throw (eh::Exception)*/
+      {
+        static const SubString REPL[] =
+        {
+          SubString("\\u0000", 6),
+          SubString("\\u0001", 6),
+          SubString("\\u0002", 6),
+          SubString("\\u0003", 6),
+          SubString("\\u0004", 6),
+          SubString("\\u0005", 6),
+          SubString("\\u0006", 6),
+          SubString("\\u0007", 6),
+          SubString("\\b", 2),
+          SubString("\\t", 2),
+          SubString("\\n", 2),
+          SubString("\\u000B", 6),
+          SubString("\\f", 2),
+          SubString("\\r", 2),
+          SubString("\\u000E", 6),
+          SubString("\\u000F", 6),
+          SubString("\\u0010", 6),
+          SubString("\\u0011", 6),
+          SubString("\\u0012", 6),
+          SubString("\\u0013", 6),
+          SubString("\\u0014", 6),
+          SubString("\\u0015", 6),
+          SubString("\\u0016", 6),
+          SubString("\\u0017", 6),
+          SubString("\\u0018", 6),
+          SubString("\\u0019", 6),
+          SubString("\\u001A", 6),
+          SubString("\\u001B", 6),
+          SubString("\\u001C", 6),
+          SubString("\\u001D", 6),
+          SubString("\\u001E", 6),
+          SubString("\\u001F", 6),
+          SubString(),
+          SubString(),
+          SubString("\\\"", 2)
+        };
+
+        const char* cur = src.begin();
+        const char* const END = src.end();
+
+        for (;;)
+        {
+          const char* ptr = find_non_json_(cur, END, simd_level);
+
+          if (ptr != cur)
+          {
+            dest.append(cur, ptr);
+          }
+
+          if (ptr == END)
+          {
+            break;
+          }
+
+          cur = ptr + 1;
+
+          char ch = *ptr;
+
+          if (ch == '\\')
+          {
+            dest.append("\\\\", 2);
+          }
+          else
+          {
+            REPL[static_cast<uint8_t>(ch)].append_to(dest);
+          }
+        }
+      }
+    }
+
     void
     json_escape_append(std::string& dest, const SubString& src)
       /*throw (eh::Exception)*/
     {
-      static const SubString REPL[] =
-      {
-        SubString("\\u0000", 6),
-        SubString("\\u0001", 6),
-        SubString("\\u0002", 6),
-        SubString("\\u0003", 6),
-        SubString("\\u0004", 6),
-        SubString("\\u0005", 6),
-        SubString("\\u0006", 6),
-        SubString("\\u0007", 6),
-        SubString("\\b", 2),
-        SubString("\\t", 2),
-        SubString("\\n", 2),
-        SubString("\\u000B", 6),
-        SubString("\\f", 2),
-        SubString("\\r", 2),
-        SubString("\\u000E", 6),
-        SubString("\\u000F", 6),
-        SubString("\\u0010", 6),
-        SubString("\\u0011", 6),
-        SubString("\\u0012", 6),
-        SubString("\\u0013", 6),
-        SubString("\\u0014", 6),
-        SubString("\\u0015", 6),
-        SubString("\\u0016", 6),
-        SubString("\\u0017", 6),
-        SubString("\\u0018", 6),
-        SubString("\\u0019", 6),
-        SubString("\\u001A", 6),
-        SubString("\\u001B", 6),
-        SubString("\\u001C", 6),
-        SubString("\\u001D", 6),
-        SubString("\\u001E", 6),
-        SubString("\\u001F", 6),
-        SubString(),
-        SubString(),
-        SubString("\\\"", 2)
-      };
-
-      const char* cur = src.begin();
-      const char* const END = src.end();
-
-      for (;;)
-      {
-        const char* ptr = NON_JSON.find_owned(cur, END);
-
-        if (ptr != cur)
-        {
-          dest.append(cur, ptr);
-        }
-
-        if (ptr == END)
-        {
-          break;
-        }
-
-        cur = ptr + 1;
-
-        char ch = *ptr;
-
-        if (ch == '\\')
-        {
-          dest.append("\\\\", 2);
-        }
-        else
-        {
-          REPL[static_cast<uint8_t>(ch)].append_to(dest);
-        }
-      }
+      JsonEscape::json_escape_append(dest, src, JsonEscape::SimdLevel::AUTO);
     }
 
     void
@@ -1386,7 +1539,8 @@ namespace String
     {
       const char* const begin = src.data();
       const char* const end = begin + src.size();
-      const char* const ptr = NON_JSON.find_owned(begin, end);
+      const char* const ptr =
+        find_non_json_(begin, end, JsonEscape::SimdLevel::AUTO);
 
       if (ptr == end)
       {
