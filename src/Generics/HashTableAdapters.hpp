@@ -15,8 +15,8 @@
 
 /*
  * XXX!
- * StringHashAdapter and SubStringHashAdapter must return equal hash
- * values for equal strings.
+ * StringHashAdapter, SubStringHashAdapter and StringViewHashAdapter must
+ * return equal hash values for equal strings.
  * XXX!
  */
 
@@ -32,7 +32,11 @@ namespace Generics
     StringHashAdapter(const char* text = 0) /*throw (eh::Exception)*/;
     StringHashAdapter(const String::SubString& text) /*throw (eh::Exception)*/;
     StringHashAdapter(const std::string& text) /*throw (eh::Exception)*/;
+    StringHashAdapter(std::string&& text) noexcept;
     StringHashAdapter(size_t hash, const char* text)
+      /*throw (eh::Exception)*/;
+
+    StringHashAdapter(size_t hash, std::string_view text)
       /*throw (eh::Exception)*/;
 
     StringHashAdapter(const char* buffer, size_t buffer_len)
@@ -50,7 +54,13 @@ namespace Generics
     assign(const char* text) /*throw (eh::Exception)*/;
 
     StringHashAdapter&
+    assign(std::string_view text) /*throw (eh::Exception)*/;
+
+    StringHashAdapter&
     operator=(const StringHashAdapter&) noexcept;
+
+    StringHashAdapter&
+    operator=(StringHashAdapter&&) noexcept;
 
     bool
     operator ==(const StringHashAdapter& src) const /*throw (eh::Exception)*/;
@@ -126,6 +136,38 @@ namespace Generics
     size_t hash_;
   };
 
+  class StringViewHashAdapter
+  {
+  public:
+    using text_type = std::string_view;
+
+    StringViewHashAdapter(std::string_view text = {}) noexcept;
+
+    StringViewHashAdapter(const StringHashAdapter& text) noexcept;
+
+    template <typename Traits, typename Alloc>
+    StringViewHashAdapter(const std::basic_string<char, Traits, Alloc>& text) noexcept;
+
+    StringViewHashAdapter(size_t hash, std::string_view text) noexcept;
+
+    bool operator==(const StringViewHashAdapter& src) const noexcept;
+
+    bool operator<(const StringViewHashAdapter& src) const noexcept;
+
+    size_t hash() const noexcept;
+
+    operator std::string_view() const noexcept;
+
+    std::string_view text() const noexcept;
+
+  private:
+    void calc_hash_() noexcept;
+
+  private:
+    std::string_view text_;
+    size_t hash_;
+  };
+
   template <class T>
   class NumericHashAdapter
   {
@@ -197,7 +239,22 @@ namespace Generics
   }
 
   inline
+  StringHashAdapter::StringHashAdapter(std::string&& text) noexcept
+    : text_(std::move(text))
+  {
+    hash_i();
+  }
+
+  inline
   StringHashAdapter::StringHashAdapter(size_t hash, const char* text)
+    /*throw (eh::Exception)*/
+    : text_(text), hash_(hash)
+  {
+  }
+
+
+  inline
+  StringHashAdapter::StringHashAdapter(size_t hash, std::string_view text)
     /*throw (eh::Exception)*/
     : text_(text), hash_(hash)
   {
@@ -222,6 +279,15 @@ namespace Generics
 
   inline
   StringHashAdapter&
+  StringHashAdapter::operator=(StringHashAdapter&& init) noexcept
+  {
+    text_ = std::move(init.text_);
+    hash_ = init.hash_;
+    return *this;
+  }
+
+  inline
+  StringHashAdapter&
   StringHashAdapter::assign(size_t hash, const char* text)
     /*throw (eh::Exception)*/
   {
@@ -233,6 +299,16 @@ namespace Generics
   inline
   StringHashAdapter&
   StringHashAdapter::assign(const char* text) /*throw (eh::Exception)*/
+  {
+    text_.assign(text);
+    hash_i();
+
+    return *this;
+  }
+
+  inline
+  StringHashAdapter&
+  StringHashAdapter::assign(std::string_view text) /*throw (eh::Exception)*/
   {
     text_.assign(text);
     hash_i();
@@ -365,6 +441,80 @@ namespace Generics
   inline
   void
   SubStringHashAdapter::calc_hash_() throw ()
+  {
+    Murmur64Hash hash(hash_);
+    hash_add(hash, text_);
+  }
+
+//
+// StringViewHashAdapter class
+//
+  inline
+  StringViewHashAdapter::StringViewHashAdapter(std::string_view text) noexcept
+    : text_(text)
+  {
+    calc_hash_();
+  }
+
+  inline
+  StringViewHashAdapter::StringViewHashAdapter(const StringHashAdapter& text) noexcept
+    : text_(text.text()),
+      hash_(text.hash())
+  {
+  }
+
+  template <typename Traits, typename Alloc>
+  StringViewHashAdapter::StringViewHashAdapter(
+    const std::basic_string<char, Traits, Alloc>& text) noexcept
+    : text_(text.data(), text.size())
+  {
+    calc_hash_();
+  }
+
+  inline
+  StringViewHashAdapter::StringViewHashAdapter(size_t hash, std::string_view text) noexcept
+    : text_(text),
+      hash_(hash)
+  {
+  }
+
+  inline
+  bool
+  StringViewHashAdapter::operator==(const StringViewHashAdapter& src) const noexcept
+  {
+    return text_ == src.text_;
+  }
+
+  inline
+  bool
+  StringViewHashAdapter::operator<(const StringViewHashAdapter& src) const noexcept
+  {
+    return text_ < src.text_;
+  }
+
+  inline
+  size_t
+  StringViewHashAdapter::hash() const noexcept
+  {
+    return hash_;
+  }
+
+  inline
+  StringViewHashAdapter::operator std::string_view() const noexcept
+  {
+    return text_;
+  }
+
+  inline
+  std::string_view
+  StringViewHashAdapter::text() const noexcept
+  {
+    return text_;
+  }
+
+  inline
+  void
+  StringViewHashAdapter::calc_hash_() noexcept
   {
     Murmur64Hash hash(hash_);
     hash_add(hash, text_);

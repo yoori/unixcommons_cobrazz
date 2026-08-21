@@ -21,6 +21,9 @@
 
 namespace Generics
 {
+  template<typename T>
+  class MonoAllocator;
+
   class MonoAllocatorArena final
   {
   public:
@@ -83,6 +86,34 @@ namespace Generics
     unsigned char* end_ = nullptr;
     std::size_t next_buffer_size_;
     Chunk* chunks_ = nullptr;
+  };
+
+  template<std::size_t Size>
+  class MonoAllocatorFixedArena final
+  {
+  public:
+    static_assert(Size > 0, "MonoAllocatorFixedArena size must be non-zero");
+
+    explicit
+    MonoAllocatorFixedArena(std::size_t next_buffer_size = 0) noexcept;
+
+    MonoAllocatorFixedArena(const MonoAllocatorFixedArena&) = delete;
+    MonoAllocatorFixedArena& operator=(const MonoAllocatorFixedArena&) = delete;
+    MonoAllocatorFixedArena(MonoAllocatorFixedArena&&) = delete;
+    MonoAllocatorFixedArena& operator=(MonoAllocatorFixedArena&&) = delete;
+
+    MonoAllocatorArena&
+    arena() noexcept;
+
+    const MonoAllocatorArena&
+    arena() const noexcept;
+
+    void
+    release() noexcept;
+
+  private:
+    alignas(std::max_align_t) unsigned char buffer_[Size];
+    MonoAllocatorArena arena_;
   };
 
   template<typename T>
@@ -334,6 +365,37 @@ namespace Generics
     return size + increment;
   }
 
+  template<std::size_t Size>
+  inline
+  MonoAllocatorFixedArena<Size>::MonoAllocatorFixedArena(
+    std::size_t next_buffer_size) noexcept
+    : arena_(buffer_, Size, next_buffer_size)
+  {}
+
+  template<std::size_t Size>
+  inline
+  MonoAllocatorArena&
+  MonoAllocatorFixedArena<Size>::arena() noexcept
+  {
+    return arena_;
+  }
+
+  template<std::size_t Size>
+  inline
+  const MonoAllocatorArena&
+  MonoAllocatorFixedArena<Size>::arena() const noexcept
+  {
+    return arena_;
+  }
+
+  template<std::size_t Size>
+  inline
+  void
+  MonoAllocatorFixedArena<Size>::release() noexcept
+  {
+    arena_.release();
+  }
+
   template<typename T>
   inline
   MonoAllocator<T>::MonoAllocator(MonoAllocatorArena& arena) noexcept
@@ -400,6 +462,14 @@ namespace Generics
   mono_allocator(MonoAllocatorArena& arena) noexcept
   {
     return MonoAllocator<T>(arena);
+  }
+
+  template<typename T, std::size_t Size>
+  inline
+  MonoAllocator<T>
+  mono_allocator(MonoAllocatorFixedArena<Size>& arena) noexcept
+  {
+    return MonoAllocator<T>(arena.arena());
   }
 
   template<typename Left, typename Right>
