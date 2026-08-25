@@ -12,7 +12,17 @@ Application.cpp
 add_dependencies(${proj} TestCrashIDL)
 
 
-target_link_libraries(${proj} Generics Logger Geoip TestCrashIDL CORBACommons CORBAConfigParser)
+target_link_libraries(${proj}
+  PRIVATE
+    TAO::PortableServer
+    TAO::Valuetype
+    CORBACommons
+    CORBAConfigParser
+    Generics
+    Logger
+    ProcessControlIDL
+    TestCrashIDL
+)
 
 
 add_test(NAME ${proj}

@@ -14,7 +14,7 @@ add_library(${proj}  SHARED
 )
 
 
-target_link_libraries(${proj} Generics pthread)
+target_link_libraries(${proj} PRIVATE Generics pthread)
 
 
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

@@ -8,9 +8,16 @@ add_executable(${proj}
 Application.cpp
 )
 
-target_link_libraries(${proj}  CORBAConfigParser
-#TestInt2IDL
-    )
+target_link_libraries(${proj}
+  PRIVATE
+    TAO::PortableServer
+    TAO::Valuetype
+    CORBACommons
+    Generics
+    Logger
+    ProcessControlIDL
+    StatsIDL
+    Sync
+)
 add_test(NAME ${proj}
          COMMAND ${proj})
-

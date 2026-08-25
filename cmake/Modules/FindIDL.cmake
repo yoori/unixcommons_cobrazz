@@ -74,7 +74,7 @@ function(add_idl _target _idlfile target_dir)
 
     
 
-    cmake_parse_arguments(FINDIDL "" "TLBIMP" "" ${ARGN})
+    cmake_parse_arguments(FINDIDL "NO_SERVANT;VALUETYPE" "TLBIMP" "" ${ARGN})
  
     if(FINDIDL_TLBIMP)
         file(GLOB TLBIMPv7_FILES "C:/Program Files*/Microsoft SDKs/Windows/v7*/bin/TlbImp.exe") 
@@ -126,15 +126,17 @@ function(add_idl _target _idlfile target_dir)
 #    ${IDL_FILE_NAME_WE}/${IDL_FILE_NAME_WE}S.cpp
 #    ${IDL_FILE_NAME_WE}/${IDL_FILE_NAME_WE}C.cpp
 	${OUTPUTC} ${OUTPUTS}
-    )    
-    target_link_libraries(
-	${_target}
-	ACE
-	TAO TAO_AnyTypeCode  TAO_CodecFactory TAO_CosEvent TAO_CosNaming TAO_CosNotification TAO_DynamicAny TAO_EndpointPolicy TAO_FaultTolerance
-	TAO_FT_ClientORB TAO_FT_ServerORB TAO_FTORB_Utils TAO_IORManip TAO_IORTable 
-	TAO_Messaging TAO_PI TAO_PI_Server TAO_PortableGroup TAO_PortableServer TAO_Security TAO_SSLIOP TAO_TC TAO_TC_IIOP TAO_Valuetype ACE_SSL 
-
     )
+
+    target_link_libraries(${_target} PRIVATE TAO::AnyTypeCode)
+
+    if(NOT FINDIDL_NO_SERVANT)
+      target_link_libraries(${_target} PRIVATE TAO::PortableServer)
+    endif()
+
+    if(FINDIDL_VALUETYPE)
+      target_link_libraries(${_target} PRIVATE TAO::Valuetype)
+    endif()
     install(TARGETS ${_target} DESTINATION ${INSTALL_LIB})
     #SOURCES 
     #${OUTPUTC} ${OUTPUTS} 

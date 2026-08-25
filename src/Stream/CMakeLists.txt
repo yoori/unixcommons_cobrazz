@@ -7,7 +7,11 @@ add_library(${proj}  SHARED
   SocketStream.cpp
 
 )
-target_link_libraries(${proj} z bz2 ACE)
+target_link_libraries(${proj}
+  PUBLIC
+    ACE::ACE
+  PRIVATE
+    z
+    bz2
+)
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
-

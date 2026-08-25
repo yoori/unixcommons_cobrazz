@@ -7,7 +7,14 @@ add_library(${proj}  SHARED
   CorbaConfigReader.cpp
   ParameterConfig.cpp
 )
-target_link_libraries(${proj} CORBACommons   xerces-c XMLUtility
-    )
+target_link_libraries(${proj}
+  PRIVATE
+  TAO::PortableServer
+  TAO::Valuetype
+  CORBACommons
+  Generics
+  ProcessControlIDL
+  xerces-c
+  XMLUtility)
 
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

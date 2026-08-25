@@ -8,7 +8,6 @@ add_library(${proj}  SHARED
 
 )
 
-target_link_libraries(${proj} xerces-c)
+target_link_libraries(${proj} PRIVATE xerces-c)
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
 

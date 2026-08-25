@@ -7,8 +7,6 @@ Main.cpp
 )
 
 
-target_link_libraries(${proj} Generics Logger TestCommons2 String ACE)
+target_link_libraries(${proj} ACE::ACE)
 add_test(NAME ${proj}
          COMMAND ${proj})
-
-

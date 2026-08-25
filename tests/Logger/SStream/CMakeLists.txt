@@ -8,7 +8,7 @@ Application.cpp
 )
 
 
-target_link_libraries(${proj} Generics Logger TestCommons2)
+target_link_libraries(${proj} Generics Logger Sync)
 
 
 add_test(NAME ${proj}

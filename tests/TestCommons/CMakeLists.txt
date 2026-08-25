@@ -20,6 +20,5 @@ add_library(${proj} SHARED
 
 
 
-target_link_libraries(${proj} Generics Logger)
-
+target_link_libraries(${proj} Generics)
 

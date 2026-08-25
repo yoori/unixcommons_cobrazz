@@ -5,7 +5,7 @@ add_library(${proj}  SHARED
 )
 
 
-target_link_libraries(${proj} crypto)
+target_link_libraries(${proj} PRIVATE crypto)
 
 
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

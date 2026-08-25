@@ -5,6 +5,7 @@ add_library(${proj} SHARED
 )
 
 target_link_libraries(${proj}
+  PRIVATE
   Generics
   pthread
   netsnmpagent

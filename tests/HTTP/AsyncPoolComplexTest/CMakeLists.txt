@@ -24,7 +24,7 @@ add_executable(${proj}
 
 
 
-target_link_libraries(${proj} Generics Logger HTTP HttpTestCommons TestCommons)
+target_link_libraries(${proj} Generics Logger Sync HTTP HttpTestCommons)
 
 
 add_test(NAME ${proj}

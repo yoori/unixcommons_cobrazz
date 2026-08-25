@@ -7,9 +7,15 @@ add_executable(${proj}
 Combined.cpp
 )
 
-target_link_libraries(${proj} CORBACommons  CORBAConfigParser TestIntIDL ProcessControlIDL StatsIDL
-# CORBAInfResolveClientIDL
-    )
+target_link_libraries(${proj}
+  PRIVATE
+    TAO::PortableServer
+    TAO::Valuetype
+    CORBACommons
+    CORBAConfigParser
+    Generics
+    ProcessControlIDL
+    TestIntIDL
+)
 add_test(NAME ${proj}
          COMMAND ${proj})
-

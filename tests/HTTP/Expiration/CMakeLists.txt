@@ -21,7 +21,7 @@ Main.cpp
 
 
 
-target_link_libraries(${proj} Generics Logger HTTP TestCommons HttpTestCommons)
+target_link_libraries(${proj} Generics Logger Sync HTTP TestCommons HttpTestCommons)
 
 
 add_test(NAME ${proj}

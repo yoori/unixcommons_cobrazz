@@ -1,7 +1,7 @@
 #cmake_minimum_required (VERSION 2.6)
 add_idl(StatsIDL Stats.idl ${IDL_DIRECTORY}/CORBACommons)
-add_idl(CorbaObjectRefIDL CorbaObjectRef.idl ${IDL_DIRECTORY}/CORBACommons)
-add_idl(ProcessControlIDL ProcessControl.idl ${IDL_DIRECTORY}/CORBACommons)
+add_idl(CorbaObjectRefIDL CorbaObjectRef.idl ${IDL_DIRECTORY}/CORBACommons NO_SERVANT)
+add_idl(ProcessControlIDL ProcessControl.idl ${IDL_DIRECTORY}/CORBACommons VALUETYPE)
 
 set(proj "CORBACommons")
 
@@ -14,11 +14,13 @@ add_library(${proj} SHARED
   Reactor.cpp
 )
 
-target_link_libraries(${proj} StatsIDL CorbaObjectRefIDL ProcessControlIDL
-    Generics ACE Logger Sync String
-    pcre ssl crypto z event
-    TAO TAO_AnyTypeCode  TAO_CodecFactory TAO_CosEvent TAO_CosNaming TAO_CosNotification TAO_DynamicAny TAO_EndpointPolicy TAO_FaultTolerance
-    TAO_FT_ClientORB TAO_FT_ServerORB TAO_FTORB_Utils TAO_IORManip TAO_IORTable
-    TAO_Messaging TAO_PI TAO_PI_Server TAO_PortableGroup TAO_PortableServer TAO_Security TAO_SSLIOP TAO_TC TAO_TC_IIOP TAO_Valuetype ACE_SSL
+add_dependencies(${proj} CorbaObjectRefIDL)
+
+target_link_libraries(${proj} PRIVATE ProcessControlIDL
+    Generics ACE::ACE Sync
+    ssl crypto
+    TAO::TAO TAO::AnyTypeCode TAO::CodecFactory TAO::EndpointPolicy TAO::IORTable
+    TAO::Messaging TAO::PortableServer TAO::Security TAO::TC_IIOP TAO::Valuetype
+    ACE::SSL
     )
 #install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

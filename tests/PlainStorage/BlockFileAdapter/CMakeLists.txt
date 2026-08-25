@@ -8,7 +8,7 @@ Main.cpp
 )
 
 
-target_link_libraries(${proj} Generics Logger TestCommons2 PlainStorage)
+target_link_libraries(${proj} Generics PlainStorage)
 
 
 add_test(NAME ${proj}

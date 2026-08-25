@@ -8,8 +8,15 @@ add_executable(${proj}
 ObjectPoolTestServer.cpp
 )
 
-target_link_libraries(${proj} SimpleIDL TestCrashIDL CORBAConfigParser
-    )
+target_link_libraries(${proj}
+  PRIVATE
+    TAO::PortableServer
+    TAO::Valuetype
+    CORBACommons
+    Generics
+    Logger
+    ProcessControlIDL
+    SimpleIDL
+)
 add_test(NAME ${proj}
          COMMAND ${proj})
-

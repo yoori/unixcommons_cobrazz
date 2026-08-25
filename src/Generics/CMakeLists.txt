@@ -58,9 +58,12 @@ add_library(${proj} SHARED
 )
 
 target_link_libraries(${proj}
+  PUBLIC
+  crypto
+
+  PRIVATE
   Sync
   pthread
-  crypto
   ev
   pcre2-8
   dl

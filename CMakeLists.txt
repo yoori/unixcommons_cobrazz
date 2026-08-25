@@ -34,6 +34,7 @@ endif()
 
 add_library(atomic INTERFACE) # workaround for third party libraries that try to link it
 find_package(ACE REQUIRED)
+find_package(TAO REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(BZip2 REQUIRED)

@@ -7,9 +7,9 @@ add_executable(${proj}
 )
 
 target_link_libraries(${proj}
-  CORBACommons
-  CORBAConfigParser
-  CORBAInfResolveClientIDL
+  PRIVATE
+    TAO::TAO
+    CORBAInfResolveClientIDL
 )
 
 add_test(NAME ${proj}

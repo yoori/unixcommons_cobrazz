@@ -9,7 +9,6 @@ target_include_directories(HttpJavaFunctions
 
 target_link_libraries(HttpJavaFunctions
   Generics
-  Stream
   HTTP
   BLogic
   GenericSegmentor

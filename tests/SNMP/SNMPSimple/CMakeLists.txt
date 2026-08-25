@@ -4,6 +4,6 @@ add_executable(${proj}
   Application.cpp
 )
 
-target_link_libraries(${proj} Generics Logger TestCommons2 SNMPAgent)
+target_link_libraries(${proj} Generics Logger SNMPAgent)
 
 add_test(NAME ${proj} COMMAND ${proj})

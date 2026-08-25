@@ -11,8 +11,18 @@ Application.cpp
 
 
 
-target_link_libraries(${proj} Generics Logger  TestIntIDL CORBACommons CORBAConfigParser)
-#Geoip TestCrashIDL )
+target_link_libraries(${proj}
+  PRIVATE
+    TAO::PortableServer
+    TAO::Valuetype
+    CORBACommons
+    CORBAConfigParser
+    Generics
+    Logger
+    ProcessControlIDL
+    Sync
+    TestIntIDL
+)
 
 add_test(NAME ${proj}
          COMMAND ${proj})
