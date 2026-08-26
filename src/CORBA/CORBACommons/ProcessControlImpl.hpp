@@ -1,11 +1,4 @@
-/**
- * @file   CORBACommons/ProcessControlImpl.hpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Declare implementation class for CORBA process control
- */
-
-#ifndef CORBA_COMMONS_PROCESS_CONTROL_IMPL_HPP
-#define CORBA_COMMONS_PROCESS_CONTROL_IMPL_HPP
+#pragma once
 
 #include <Generics/ThreadRunner.hpp>
 
@@ -30,18 +23,18 @@ namespace CORBACommons
      */
     virtual
     void
-    shutdown(bool type) throw () = 0;
+    shutdown(bool type) noexcept = 0;
 
   protected:
     /**
      * Constructor
      */
-    OrbShutdowner() throw ();
+    OrbShutdowner() noexcept;
     /**
      * Destructor
      */
     virtual
-    ~OrbShutdowner() throw ();
+    ~OrbShutdowner() noexcept;
   };
   typedef ::ReferenceCounting::QualPtr<OrbShutdowner> OrbShutdowner_var;
 
@@ -58,7 +51,7 @@ namespace CORBACommons
      * @param orb orb to shutdown
      */
     explicit
-    SimpleOrbShutdowner(CORBA::ORB_ptr orb) throw ();
+    SimpleOrbShutdowner(CORBA::ORB_ptr orb) noexcept;
     /**
      * Shutdowns controlled ORB
      * @param type whether wait for completion of pending CORBA requests
@@ -66,14 +59,14 @@ namespace CORBACommons
      */
     virtual
     void
-    shutdown(bool type) throw ();
+    shutdown(bool type) noexcept;
 
   private:
     /**
      * Destructor
      */
     virtual
-    ~SimpleOrbShutdowner() throw ();
+    ~SimpleOrbShutdowner() noexcept;
 
     CORBA::ORB_var orb_;
   };
@@ -126,7 +119,7 @@ namespace CORBACommons
      * Destructor
      */
     virtual
-    ~ProcessControlDefault() throw ();
+    ~ProcessControlDefault() noexcept;
     /**
      * Called by is_alive implementation to determine AS_ALIVE or AS_READY
      * status
@@ -134,7 +127,7 @@ namespace CORBACommons
      */
     virtual
     bool
-    is_ready_() throw ();
+    is_ready_() noexcept;
   };
 
   /**
@@ -189,25 +182,25 @@ namespace CORBACommons
      * Destructor
      */
     virtual
-    ~ProcessControlImpl() throw ();
+    ~ProcessControlImpl() noexcept;
 
   private:
     class ShutdownJob : public Generics::ThreadJob
     {
     public:
       explicit
-      ShutdownJob(OrbShutdowner_var& shutdowner) throw ();
+      ShutdownJob(OrbShutdowner_var& shutdowner) noexcept;
 
       virtual
       void
-      work() throw ();
+      work() noexcept;
 
       void
-      wake(bool shutdown) throw ();
+      wake(bool shutdown) noexcept;
 
     protected:
       virtual
-      ~ShutdownJob() throw ();
+      ~ShutdownJob() noexcept;
 
     private:
       OrbShutdowner_var& shutdowner_;
@@ -259,7 +252,7 @@ namespace CORBACommons
      * Destructor
      */
     virtual
-    ~ProcessControlWithLogger() throw ();
+    ~ProcessControlWithLogger() noexcept;
   };
   typedef ::ReferenceCounting::QualPtr<ProcessControlWithLogger>
     ProcessControlWithLogger_var;
@@ -277,7 +270,7 @@ namespace CORBACommons
 
   template <typename Parent>
   ProcessControlDefault<Parent>::~ProcessControlDefault()
-    throw ()
+    noexcept
   {
   }
 
@@ -299,7 +292,7 @@ namespace CORBACommons
 
   template <typename Parent>
   bool
-  ProcessControlDefault<Parent>::is_ready_() throw ()
+  ProcessControlDefault<Parent>::is_ready_() noexcept
   {
     return true;
   }
@@ -337,9 +330,7 @@ namespace CORBACommons
   
   inline
   ProcessControlWithLogger::~ProcessControlWithLogger()
-    throw ()
+    noexcept
   {
   }
 }
-
-#endif

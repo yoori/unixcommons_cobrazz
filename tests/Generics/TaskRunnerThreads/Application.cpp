@@ -17,11 +17,11 @@ public:
 
 
   unsigned
-  number_of_threads() const throw ();
+  number_of_threads() const noexcept;
 
 protected:
   virtual
-  ~TRunner() throw ();
+  ~TRunner() noexcept;
 };
 typedef ReferenceCounting::QualPtr<TRunner> TRunner_var;
 
@@ -32,12 +32,12 @@ TRunner::TRunner(Generics::ActiveObjectCallback* callback,
 {
 }
 
-TRunner::~TRunner() throw ()
+TRunner::~TRunner() noexcept
 {
 }
 
 unsigned
-TRunner::number_of_threads() const throw ()
+TRunner::number_of_threads() const noexcept
 {
   return thread_runner_.running();
 }
@@ -51,10 +51,10 @@ public:
 
 protected:
   virtual
-  ~STask() throw ();
+  ~STask() noexcept;
 };
 
-STask::~STask() throw ()
+STask::~STask() noexcept
 {
 }
 

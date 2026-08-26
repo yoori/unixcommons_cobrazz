@@ -3,8 +3,7 @@
 // copyright : Copyright (c) 2002-2003 Boris Kolpackov
 // license   : http://kolpackov.net/license.html
 
-#ifndef SYNC_NULL_SYNCH_POLICY_HPP
-#define SYNC_NULL_SYNCH_POLICY_HPP
+#pragma once
 
 #include <Generics/Uncopyable.hpp>
 
@@ -21,7 +20,7 @@ namespace Sync
     {
     public:
       explicit
-      NullGuard(NullMutex&) throw ();
+      NullGuard(NullMutex&) noexcept;
     };
 
     struct Null
@@ -39,10 +38,8 @@ namespace Sync
   namespace Policy
   {
     inline
-    NullGuard::NullGuard (NullMutex&) throw ()
+    NullGuard::NullGuard (NullMutex&) noexcept
     {
     }
   }
 }
-
-#endif

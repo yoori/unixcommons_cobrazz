@@ -1,5 +1,4 @@
-#ifndef CORBACOMMONS_ADAPTERS_INTERNAL_HPP
-#define CORBACOMMONS_ADAPTERS_INTERNAL_HPP
+#pragma once
 
 #include <vector>
 
@@ -62,7 +61,7 @@ namespace CORBACommons
     static
     int
     pem_password_callback_(char* buf, int size, int rwflag, void* userdata)
-      throw ();
+      noexcept;
 
     static
     void
@@ -78,7 +77,7 @@ namespace CORBACommons
     void
     add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/;
     void
-    remove_logger(Logging::Logger* logger) throw ();
+    remove_logger(Logging::Logger* logger) noexcept;
   }
 
   static const unsigned DESCRIPTORS = 65536;
@@ -89,5 +88,3 @@ namespace CORBACommons
 }
 
 #define TAO_LIB(x) ACE_DLL_PREFIX x ACE_DLL_SUFFIX "." TAO_VERSION
-
-#endif

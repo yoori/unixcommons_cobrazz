@@ -27,13 +27,13 @@ namespace Logging
           config.openlog_option, config.openlog_facility);
       }
 
-      Connection::~Connection() throw ()
+      Connection::~Connection() noexcept
       {
         closelog();
       }
 
       void
-      Connection::delete_this_() const throw ()
+      Connection::delete_this_() const noexcept
       {
         Sync::PosixGuard guard(mutex);
         add_ref();

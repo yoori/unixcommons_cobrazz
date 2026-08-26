@@ -40,13 +40,13 @@ namespace Generics
       return default_allocator_;
     }
 
-    Base::~Base() throw ()
+    Base::~Base() noexcept
     {
     }
 
     inline
     void
-    Base::align_(size_t& number, size_t mask) throw ()
+    Base::align_(size_t& number, size_t mask) noexcept
     {
       number += (-number) & mask;
     }
@@ -70,12 +70,12 @@ namespace Generics
 
     const size_t Default::DEF_ALIGN;
 
-    Default::Default(size_t align_code) throw ()
+    Default::Default(size_t align_code) noexcept
       : MASK_((1 << align_code) - 1)
     {
     }
 
-    Default::~Default() throw ()
+    Default::~Default() noexcept
     {
     }
 
@@ -88,7 +88,7 @@ namespace Generics
     }
 
     void
-    Default::deallocate(Pointer ptr, size_t size) throw ()
+    Default::deallocate(Pointer ptr, size_t size) noexcept
     {
       (void)size;
       assert(!(size & MASK_));
@@ -107,7 +107,7 @@ namespace Generics
     {
     }
 
-    VarSizeList::~VarSizeList() throw ()
+    VarSizeList::~VarSizeList() noexcept
     {
       std::for_each(pool_memory_blocks_.begin(),
         pool_memory_blocks_.end(),
@@ -116,7 +116,7 @@ namespace Generics
 
     inline
     void
-    VarSizeList::memory_block_delete_(MemoryBlock& mb) throw ()
+    VarSizeList::memory_block_delete_(MemoryBlock& mb) noexcept
     {
       delete [] (static_cast<unsigned char*>(mb.second));
     }
@@ -147,7 +147,7 @@ namespace Generics
     }
 
     void
-    VarSizeList::deallocate(Pointer ptr, size_t size) throw ()
+    VarSizeList::deallocate(Pointer ptr, size_t size) noexcept
     {
       try
       {
@@ -217,7 +217,7 @@ namespace Generics
     {
     }
 
-    ConstSizeArray::~ConstSizeArray() throw ()
+    ConstSizeArray::~ConstSizeArray() noexcept
     {
     }
 
@@ -246,7 +246,7 @@ namespace Generics
     }
 
     void
-    ConstSizeArray::deallocate(Pointer ptr, size_t size) throw ()
+    ConstSizeArray::deallocate(Pointer ptr, size_t size) noexcept
     {
       (void)size;
       assert(size == BLOCK_SIZE_);
@@ -339,13 +339,13 @@ namespace Generics
         statistics_.get() + statistics_limit + 1, 0);
     }
 
-    Universal::~Universal() throw ()
+    Universal::~Universal() noexcept
     {
     }
 
     inline
     Base_var
-    Universal::get_allocator_(size_t size) throw ()
+    Universal::get_allocator_(size_t size) noexcept
     {
       if (size <= DEFAULT_THRESHOLD_LOW_ || size >= DEFAULT_THRESHOLD_HIGH_)
       {
@@ -371,7 +371,7 @@ namespace Generics
     }
 
     void
-    Universal::deallocate(Pointer ptr, size_t size) throw ()
+    Universal::deallocate(Pointer ptr, size_t size) noexcept
     {
       get_allocator_(size)->deallocate(ptr, size);
     }
@@ -421,7 +421,7 @@ namespace Generics
     const size_t Align::DEF_PTR_ALIGN;
     const size_t Align::DEF_ALIGN;
 
-    Align::Align(size_t ptr_align_code, size_t align_code) throw ()
+    Align::Align(size_t ptr_align_code, size_t align_code) noexcept
       : ALIGN_(1 << ptr_align_code), MASK_((1 << align_code) - 1)
     {
     }
@@ -441,7 +441,7 @@ namespace Generics
     }
 
     void
-    Align::deallocate(Pointer ptr, size_t size) throw ()
+    Align::deallocate(Pointer ptr, size_t size) noexcept
     {
       (void)size;
       assert(!(size & MASK_));

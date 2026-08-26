@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_SEGMENTOR_MANAGER_SEGMENTOR_MANAGER_HPP
-#define LANGUAGE_SEGMENTOR_MANAGER_SEGMENTOR_MANAGER_HPP
+#pragma once
 
 #include <ReferenceCounting/ReferenceCounting.hpp>
 
@@ -21,7 +20,7 @@ namespace Language
     class CompositeSegmentor : public SegmentorInterface
     {
     public:
-      CompositeSegmentor() throw ();
+      CompositeSegmentor() noexcept;
 
       template <typename Iterator>
       CompositeSegmentor(const Iterator& begin, const Iterator& end)
@@ -44,7 +43,7 @@ namespace Language
 
     protected:
       virtual
-      ~CompositeSegmentor() throw ();
+      ~CompositeSegmentor() noexcept;
 
     private:
       typedef std::list<SegmentorInterface_var> SegmentorList;
@@ -64,12 +63,12 @@ namespace Language
     //
 
     inline
-    CompositeSegmentor::CompositeSegmentor() throw ()
+    CompositeSegmentor::CompositeSegmentor() noexcept
     {
     }
 
     inline
-    CompositeSegmentor::~CompositeSegmentor() throw ()
+    CompositeSegmentor::~CompositeSegmentor() noexcept
     {
     }
 
@@ -173,5 +172,3 @@ namespace Language
     }
   } //namespace Segmentor
 } //namespace Language
-
-#endif

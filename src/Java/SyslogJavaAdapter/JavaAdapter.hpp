@@ -1,5 +1,4 @@
-#ifndef LOGGER_SYSLOG_JAVA_ADAPTER_HPP
-#define LOGGER_SYSLOG_JAVA_ADAPTER_HPP
+#pragma once
 
 #include <jni.h>
 
@@ -14,5 +13,3 @@ extern "C"
   Java_com_phorm_oix_logging_UnixcommonsSyslog_publish(
     JNIEnv* env, jobject obj, jint priority, jstring text);
 }
-
-#endif

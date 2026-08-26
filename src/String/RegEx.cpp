@@ -282,7 +282,7 @@ namespace String
 
   bool
   RegEx::match(const String::SubString& subject, int options) const
-    throw ()
+    noexcept
   {
     MatchContext match_context;
     return match(subject, match_context, options);
@@ -291,7 +291,7 @@ namespace String
   bool
   RegEx::match(const String::SubString& subject, MatchContext& match_context,
     int options) const
-    throw ()
+    noexcept
   {
     if (!re_)
     {

@@ -1,10 +1,4 @@
-/**
- * @file   String/BasicAnalyzer.hpp
- * @author Anna Ignatenkova
- */
-
-#ifndef STRING_BASIC_ANALIZER_HPP
-#define STRING_BASIC_ANALIZER_HPP
+#pragma once
 
 #include <istream>
 #include <ostream>
@@ -43,5 +37,3 @@ namespace String
       /*throw (BasicAnalyzerException, eh::Exception)*/;
   } // namespace SequenceAnalyzer
 }
-
-#endif

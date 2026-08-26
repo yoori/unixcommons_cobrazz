@@ -14,8 +14,7 @@
  *  give us all combinations of test cases.
  *  3. Container->deactivate, Container->wait. Test done.
  */
-#ifndef _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_
-#define _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_ 
+#pragma once
 
 #include <Generics/TaskRunner.hpp>
 #include <Generics/CompositeActiveObject.hpp>
@@ -31,7 +30,7 @@ public:
   DECLARE_EXCEPTION(TestFailed, eh::DescriptiveException);
 
   virtual
-  ~TestComposeActors() throw ();
+  ~TestComposeActors() noexcept;
 
   void
   do_test() /*throw (eh::Exception, TestFailed)*/;
@@ -79,7 +78,7 @@ class FailActiveObjectImpl : public virtual Generics::RefCountableActiveObject,
   public virtual ReferenceCounting::AtomicImpl
 {
 public:
-  FailActiveObjectImpl() throw ();
+  FailActiveObjectImpl() noexcept;
 
   void
   activate_object() override
@@ -95,14 +94,14 @@ public:
   active() const override /*throw (eh::Exception)*/;
 
   void
-  permit_work(bool new_status) throw ();
+  permit_work(bool new_status) noexcept;
 
   void
-  set_active(bool new_status) throw ();
+  set_active(bool new_status) noexcept;
 
 protected:
   virtual
-  ~FailActiveObjectImpl() throw ();
+  ~FailActiveObjectImpl() noexcept;
 
 private:
   bool permit_pass_;
@@ -116,7 +115,7 @@ class Waiter
 {
 public:
   Waiter(Generics::RefCountableCompositeActiveObject* active_object, bool add_child)
-    throw ();
+    noexcept;
   void
   operator ()() /*throw (eh::Exception)*/;
 
@@ -134,12 +133,12 @@ private:
 // class FailActiveObjectImpl
 //
 
-FailActiveObjectImpl::FailActiveObjectImpl() throw ()
+FailActiveObjectImpl::FailActiveObjectImpl() noexcept
   : permit_pass_(false), active_(false)
 {
 }
 
-FailActiveObjectImpl::~FailActiveObjectImpl() throw ()
+FailActiveObjectImpl::~FailActiveObjectImpl() noexcept
 {
 }
 
@@ -181,20 +180,20 @@ FailActiveObjectImpl::active() const /*throw (eh::Exception)*/
 }
 
 void
-FailActiveObjectImpl::permit_work(bool new_status) throw ()
+FailActiveObjectImpl::permit_work(bool new_status) noexcept
 {
   permit_pass_ = new_status;
 }
 
 void
-FailActiveObjectImpl::set_active(bool new_status) throw ()
+FailActiveObjectImpl::set_active(bool new_status) noexcept
 {
   active_ = new_status;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-TestComposeActors::~TestComposeActors() throw ()
+TestComposeActors::~TestComposeActors() noexcept
 {
   if (task_runner_.in())
   {
@@ -202,5 +201,3 @@ TestComposeActors::~TestComposeActors() throw ()
     task_runner_->wait_object();
   }
 }
-
-#endif  // _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_

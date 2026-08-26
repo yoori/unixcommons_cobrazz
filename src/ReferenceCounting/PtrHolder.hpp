@@ -1,5 +1,4 @@
-#ifndef REFERENCECOUNTING_PTRHOLDER_HPP
-#define REFERENCECOUNTING_PTRHOLDER_HPP
+#pragma once
 
 #include <Sync/PosixLock.hpp>
 
@@ -27,7 +26,7 @@ namespace ReferenceCounting
     explicit
     PtrHolder(Other&& sptr) /*throw (eh::Exception)*/;
 
-    ~PtrHolder() throw ();
+    ~PtrHolder() noexcept;
 
     template <typename Other>
     PtrHolder&
@@ -61,7 +60,7 @@ namespace ReferenceCounting
   }
 
   template <typename SmartPtr>
-  PtrHolder<SmartPtr>::~PtrHolder() throw ()
+  PtrHolder<SmartPtr>::~PtrHolder() noexcept
   {
     if (ptr_)
     {
@@ -104,5 +103,3 @@ namespace ReferenceCounting
     return SmartPtr(add_ref(ptr_));
   }
 }
-
-#endif

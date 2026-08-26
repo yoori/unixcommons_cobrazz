@@ -1,10 +1,4 @@
-/**
- * @file   ActiveObject.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef GENERICS_ACTIVE_OBJECT_HPP
-#define GENERICS_ACTIVE_OBJECT_HPP
+#pragma once
 
 #include <Sync/Condition.hpp>
 
@@ -30,23 +24,23 @@ namespace Generics
     virtual
     void
     report_error(Severity severity, const String::SubString& description,
-      const char* error_code = 0) throw () = 0;
+      const char* error_code = 0) noexcept = 0;
 
     void
     critical(const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
     void
     error(const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
     void
     warning(const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
   protected:
     virtual
-    ~ActiveObjectCallback() throw ();
+    ~ActiveObjectCallback() noexcept;
   };
   typedef ReferenceCounting::QualPtr<ActiveObjectCallback>
     ActiveObjectCallback_var;
@@ -90,7 +84,7 @@ namespace Generics
     static const char PRINTABLE_NAME[];
 
     virtual
-    ~ActiveObject() throw ();
+    ~ActiveObject() noexcept;
 
   protected:
     enum ACTIVE_STATE
@@ -107,7 +101,7 @@ namespace Generics
   {
   protected:
     virtual
-    ~RefCountableActiveObject() throw ();
+    ~RefCountableActiveObject() noexcept;
   };
   typedef ReferenceCounting::QualPtr<RefCountableActiveObject>
     ActiveObject_var;
@@ -141,7 +135,7 @@ namespace Generics
 
   protected:
     virtual
-    ~SimpleActiveObject() throw ();
+    ~SimpleActiveObject() noexcept;
 
     virtual
     void
@@ -170,7 +164,7 @@ namespace Generics
   {
   protected:
     virtual
-    ~RefCountableSimpleActiveObject() throw ();
+    ~RefCountableSimpleActiveObject() noexcept;
   };
 
 
@@ -249,41 +243,41 @@ namespace Generics
        * @return stored callback
        */
       ActiveObjectCallback_var
-      callback() throw ();
+      callback() noexcept;
 
       /**
        * Mutex for operations synchronizations
        * @return stored mutex
        */
       Sync::PosixMutex&
-      mutex() const throw ();
+      mutex() const noexcept;
 
       virtual
       void
-      started(unsigned threads) throw ();
+      started(unsigned threads) noexcept;
 
       void
-      make_terminate() throw ();
+      make_terminate() noexcept;
 
       void
-      terminated() throw ();
+      terminated() noexcept;
 
       bool
-      is_terminating() throw ();
+      is_terminating() noexcept;
 
       /**
        * Function must inform the object to stop jobs to work.
        */
       virtual
       void
-      terminate() throw () = 0;
+      terminate() noexcept = 0;
 
     protected:
       /**
        * Destructor
        */
       virtual
-      ~SingleJob() throw ();
+      ~SingleJob() noexcept;
 
     private:
       mutable Sync::PosixMutex mutex_;
@@ -310,13 +304,13 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~ActiveObjectCommonImpl() throw ();
+    ~ActiveObjectCommonImpl() noexcept;
 
     /**
      * @return the same mutex SINGLE_JOB_->mutex() returns
      */
     Sync::PosixMutex&
-    mutex_() const throw ();
+    mutex_() const noexcept;
 
 
     SingleJob_var SINGLE_JOB_;
@@ -342,7 +336,7 @@ namespace Generics
   //
 
   inline
-  ActiveObjectCallback::~ActiveObjectCallback() throw ()
+  ActiveObjectCallback::~ActiveObjectCallback() noexcept
   {
   }
 
@@ -350,7 +344,7 @@ namespace Generics
   void
   ActiveObjectCallback::critical(const String::SubString& description,
     const char* error_code)
-    throw ()
+    noexcept
   {
     report_error(CRITICAL_ERROR, description, error_code);
   }
@@ -359,7 +353,7 @@ namespace Generics
   void
   ActiveObjectCallback::error(const String::SubString& description,
     const char* error_code)
-    throw ()
+    noexcept
   {
     report_error(ERROR, description, error_code);
   }
@@ -368,7 +362,7 @@ namespace Generics
   void
   ActiveObjectCallback::warning(const String::SubString& description,
     const char* error_code)
-    throw ()
+    noexcept
   {
     report_error(WARNING, description, error_code);
   }
@@ -379,12 +373,12 @@ namespace Generics
   //
 
   inline
-  RefCountableActiveObject::~RefCountableActiveObject() throw ()
+  RefCountableActiveObject::~RefCountableActiveObject() noexcept
   {
   }
 
   inline
-  RefCountableSimpleActiveObject::~RefCountableSimpleActiveObject() throw ()
+  RefCountableSimpleActiveObject::~RefCountableSimpleActiveObject() noexcept
   {
   }
 
@@ -401,7 +395,7 @@ namespace Generics
 
   inline
   Sync::PosixMutex&
-  ActiveObjectCommonImpl::mutex_() const throw ()
+  ActiveObjectCommonImpl::mutex_() const noexcept
   {
     return work_mutex_;
   }
@@ -412,7 +406,7 @@ namespace Generics
   //
 
   inline
-  ActiveObject::~ActiveObject() throw ()
+  ActiveObject::~ActiveObject() noexcept
   {
   }
 
@@ -443,33 +437,33 @@ namespace Generics
   }
 
   inline
-  ActiveObjectCommonImpl::SingleJob::~SingleJob() throw ()
+  ActiveObjectCommonImpl::SingleJob::~SingleJob() noexcept
   {
   }
 
   inline
   ActiveObjectCallback_var
-  ActiveObjectCommonImpl::SingleJob::callback() throw ()
+  ActiveObjectCommonImpl::SingleJob::callback() noexcept
   {
     return callback_;
   }
 
   inline
   Sync::PosixMutex&
-  ActiveObjectCommonImpl::SingleJob::mutex() const throw ()
+  ActiveObjectCommonImpl::SingleJob::mutex() const noexcept
   {
     return mutex_;
   }
 
   inline
   void
-  ActiveObjectCommonImpl::SingleJob::started(unsigned /*threads*/) throw ()
+  ActiveObjectCommonImpl::SingleJob::started(unsigned /*threads*/) noexcept
   {
   }
 
   inline
   void
-  ActiveObjectCommonImpl::SingleJob::make_terminate() throw ()
+  ActiveObjectCommonImpl::SingleJob::make_terminate() noexcept
   {
     terminating_ = true;
     terminate();
@@ -477,17 +471,15 @@ namespace Generics
 
   inline
   void
-  ActiveObjectCommonImpl::SingleJob::terminated() throw ()
+  ActiveObjectCommonImpl::SingleJob::terminated() noexcept
   {
     terminating_ = false;
   }
 
   inline
   bool
-  ActiveObjectCommonImpl::SingleJob::is_terminating() throw ()
+  ActiveObjectCommonImpl::SingleJob::is_terminating() noexcept
   {
     return terminating_;
   }
 }
-
-#endif

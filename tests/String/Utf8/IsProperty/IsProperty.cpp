@@ -39,10 +39,10 @@ const PropertyDescription PROPERTIES[] =
 
 struct TestAllProperties : public AllProperties
 {
-  TestAllProperties(const AllProperties& val) throw ();
+  TestAllProperties(const AllProperties& val) noexcept;
 
   uint8_t
-  value() const throw ();
+  value() const noexcept;
 };
 
 const int NUMBER_OF_PROPERTIES = sizeof(PROPERTIES) / sizeof(*PROPERTIES);
@@ -90,7 +90,7 @@ class TestContext
 {
 public:
 
-  TestContext() throw ();
+  TestContext() noexcept;
 
   void
   check_reference(const char* name, bool result)
@@ -102,10 +102,10 @@ public:
     /*throw (eh::Exception)*/;
 
   void
-  set_all_checks_mode(bool new_value) throw ();
+  set_all_checks_mode(bool new_value) noexcept;
 
   void
-  set_symbol(const UnicodeSymbol& new_symbol) throw ();
+  set_symbol(const UnicodeSymbol& new_symbol) noexcept;
 private:
   UnicodeSymbol symbol_;
   std::string operation_;
@@ -121,13 +121,13 @@ get_root_path() /*throw (eh::Exception)*/;
 //  Implementations
 //////////////////////////////////////////////////////////////////////////
 
-TestAllProperties::TestAllProperties(const AllProperties& val) throw ()
+TestAllProperties::TestAllProperties(const AllProperties& val) noexcept
   : AllProperties(val)
 {
 }
 
 uint8_t
-TestAllProperties::value() const throw ()
+TestAllProperties::value() const noexcept
 {
   return cumulative_value_;
 }
@@ -146,7 +146,7 @@ get_root_path() /*throw (eh::Exception)*/
 }
 
 
-TestContext::TestContext() throw () : do_all_checks_(false)
+TestContext::TestContext() noexcept : do_all_checks_(false)
 {
 }
 
@@ -189,13 +189,13 @@ TestContext::property_check(const DynamicTrees::IsProperty& property,
 }
 
 void
-TestContext::set_all_checks_mode(bool new_value) throw ()
+TestContext::set_all_checks_mode(bool new_value) noexcept
 {
   do_all_checks_ = new_value;
 }
 
 void
-TestContext::set_symbol(const UnicodeSymbol& new_symbol) throw ()
+TestContext::set_symbol(const UnicodeSymbol& new_symbol) noexcept
 {
   symbol_ = new_symbol;
 }

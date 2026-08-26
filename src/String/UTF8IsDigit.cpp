@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Static N-arc tree definition for is_digit property
 
-// @file String/UTF8IsDigit.cpp
 #include <String/UTF8IsProperty.hpp>
 
 

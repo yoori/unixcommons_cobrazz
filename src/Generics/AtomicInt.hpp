@@ -1,5 +1,4 @@
-#ifndef GENERICS_ATOMIC_HPP_
-#define GENERICS_ATOMIC_HPP_
+#pragma once
 
 #if __GNUC__ >= 8
 #  include <atomic>
@@ -262,5 +261,3 @@ namespace Generics
       std::numeric_limits<AtomicHolderInternalType>::min();
   }
 }
-
-#endif /*GENERICS_ATOMIC_HPP_*/

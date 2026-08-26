@@ -28,12 +28,12 @@ show_stats(const Generics::BoundedMapStat& stat)
 class DeleteNotifier : public virtual ReferenceCounting::AtomicImpl
 {
 public:
-  DeleteNotifier(int& notify) throw ()
+  DeleteNotifier(int& notify) noexcept
     : notify_(notify)
   {
   }
 
-  ~DeleteNotifier() throw ()
+  ~DeleteNotifier() noexcept
   {
     notify_ = true;
   }
@@ -204,17 +204,17 @@ test_work() /*throw (eh::Exception)*/
 class Size : public virtual ReferenceCounting::AtomicImpl
 {
 public:
-  Size(size_t size) throw ()
+  Size(size_t size) noexcept
     : size_(size)
   {
   }
   void
-  resize(size_t size) throw ()
+  resize(size_t size) noexcept
   {
     size_ = size;
   }
   size_t
-  size() const throw ()
+  size() const noexcept
   {
     return size_;
   }
@@ -226,7 +226,7 @@ typedef ReferenceCounting::QualPtr<Size> Size_var;
 class Sizer : public DeleteNotifier, public Size
 {
 public:
-  Sizer(int& notify, size_t size) throw ()
+  Sizer(int& notify, size_t size) noexcept
     : DeleteNotifier(notify), Size(size)
   {
   }
@@ -235,7 +235,7 @@ typedef ReferenceCounting::QualPtr<Sizer> Sizer_var;
 
 size_t
 get_size(const Generics::NumericHashAdapter<int>&, const Size* size)
-  throw ()
+  noexcept
 {
   assert(size);
   return size->size();
@@ -318,7 +318,7 @@ public:
   {
   }
 
-  ~MultiTest() throw ()
+  ~MultiTest() noexcept
   {
     std::cout << "Size " << map_.size() << std::endl;
     show_stats(map_.statistics());
@@ -367,13 +367,13 @@ test_multi() /*throw (eh::Exception)*/
 class Sum
 {
 public:
-  Sum() throw ()
+  Sum() noexcept
     : sum_(0), sums_(0), num_(0)
   {
   }
 
   Sum&
-  operator *() throw ()
+  operator *() noexcept
   {
     return *this;
   }
@@ -397,7 +397,7 @@ public:
   }
 
   void
-  operator ++() throw ()
+  operator ++() noexcept
   {
   }
 

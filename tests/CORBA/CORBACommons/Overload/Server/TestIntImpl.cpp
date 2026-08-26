@@ -11,7 +11,7 @@
 
 namespace CORBATest
 {
-  TestIntImpl::TestIntImpl(int seq3, int seq2, int size) throw ()
+  TestIntImpl::TestIntImpl(int seq3, int seq2, int size) noexcept
     : CORBACommons::ProcessStatsImpl(Generics::Values_var(
         new Generics::Values).in()),
       received_requests(0), timeout_(0),
@@ -33,12 +33,12 @@ namespace CORBATest
       Generics::Time::get_time_of_day().get_gm_time());
   }
 
-  TestIntImpl::~TestIntImpl() throw ()
+  TestIntImpl::~TestIntImpl() noexcept
   {
   }
 
   void
-  TestIntImpl::test(const OctetSeq& in_seq) throw ()
+  TestIntImpl::test(const OctetSeq& in_seq) noexcept
   {
     stats().add("received_requests", 1ul);
 
@@ -81,7 +81,7 @@ namespace CORBATest
   }
 
   void
-  TestIntImpl::oneway_test(const OctetSeq& in_seq) throw ()
+  TestIntImpl::oneway_test(const OctetSeq& in_seq) noexcept
   {
     test(in_seq);
   }
@@ -109,7 +109,7 @@ namespace CORBATest
   }
 
   void
-  TestIntImpl::print_memory(CORBA::Boolean full) throw ()
+  TestIntImpl::print_memory(CORBA::Boolean full) noexcept
   {
     unsigned long vsize, rss;
 

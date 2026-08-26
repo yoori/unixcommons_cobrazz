@@ -1,9 +1,3 @@
-/**
- * @file ProcessControl.idl
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Declares interface for process control object
- */
-
 #ifndef CORBA_COMMONS_PROCESS_CONTROL_IDL
 #define CORBA_COMMONS_PROCESS_CONTROL_IDL
 

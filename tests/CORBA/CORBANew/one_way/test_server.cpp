@@ -14,19 +14,19 @@ class Echo_i : public POA_Echo
 {
 public:
   virtual void
-  two_way() throw ();
+  two_way() noexcept;
   virtual void
-  one_way() throw ();
+  one_way() noexcept;
 };
 
 void
-Echo_i::two_way() throw ()
+Echo_i::two_way() noexcept
 {
   std::cerr << "two_way\n";
 }
 
 void
-Echo_i::one_way() throw ()
+Echo_i::one_way() noexcept
 {
   std::cerr << "one_way\n";
 }

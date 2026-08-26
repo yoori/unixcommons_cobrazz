@@ -1,5 +1,3 @@
-// @file UTF8Category/TestUTF8Category.cpp
-
 #include <iostream>
 
 #include <String/UTF8Category.hpp>

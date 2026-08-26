@@ -1,11 +1,4 @@
-/**
- * @file   Application.hpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Declares class which tests object of CORBACommons::ProcessControlImpl class
- */
-
-#ifndef _TEST_PROCESS_CONTROL_APPLICATION_HPP_
-#define _TEST_PROCESS_CONTROL_APPLICATION_HPP_
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -44,7 +37,7 @@ public:
   /**X
    * Destructs Application object.
    */
-  virtual ~Application() throw();
+  virtual ~Application() noexcept;
 
 /**X
  * Initalizes ORB, POA, creates and
@@ -86,5 +79,3 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // Inlines
 ///////////////////////////////////////////////////////////////////////////////
-
-#endif // _TEST_PROCESS_CONTROL_APPLICATION_HPP_

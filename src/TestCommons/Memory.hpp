@@ -1,5 +1,4 @@
-#ifndef TESTCOMMONS_MEMORY_HPP
-#define TESTCOMMONS_MEMORY_HPP
+#pragma once
 
 #include <iostream>
 
@@ -21,5 +20,3 @@ namespace TestCommons
   print_mallinfo(std::ostream& ostr, struct mallinfo* info = 0)
     /*throw (eh::Exception)*/;
 }
-
-#endif

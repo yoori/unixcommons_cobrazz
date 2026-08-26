@@ -1,5 +1,4 @@
-#ifndef _ASYNCH_VS_SYNCH_TEST_COMMON_CLASSES_HPP_
-#define _ASYNCH_VS_SYNCH_TEST_COMMON_CLASSES_HPP_
+#pragma once
 
 #include <HTTP/HttpTestCommons/CommonClasses.hpp>
 #include <vector>
@@ -17,23 +16,23 @@ public:
     /*throw(eh::Exception)*/;
 
   virtual void
-  on_response(const HTTP::ResponseInformation& data) throw ();
+  on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
   on_error(const String::SubString& descr,
-    const HTTP::RequestInformation& data) throw ();
+    const HTTP::RequestInformation& data) noexcept;
 
   Sync::Semaphore&
-  get_semaphore() throw();
+  get_semaphore() noexcept;
 
 protected:
 
   virtual
-  ~NotificationCallback() throw ();
+  ~NotificationCallback() noexcept;
 
 private:
 
-  void check() throw();
+  void check() noexcept;
 
   std::unique_ptr<Sync::Semaphore> sem_;
   volatile _Atomic_word notify_number_;
@@ -57,7 +56,7 @@ public:
 protected:
 
   virtual
-  ~VSTestInterface() throw ();
+  ~VSTestInterface() noexcept;
   
   Sync::Semaphore& finish_sem_;
 };
@@ -81,5 +80,3 @@ struct InfoToCallback
       Sync::Semaphore& thrs_sem, Sync::Semaphore& sem)
     /*throw(eh::Exception)*/;
 };
-
-#endif

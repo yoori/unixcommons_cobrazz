@@ -10,40 +10,40 @@
 class Shutdowner
 {
 public:
-  Shutdowner(CORBA::ORB_var orb) throw ();
-  ~Shutdowner() throw ();
+  Shutdowner(CORBA::ORB_var orb) noexcept;
+  ~Shutdowner() noexcept;
 
 private:
   void
-  shutdown() throw ();
+  shutdown() noexcept;
   static void*
-  thread_proc_(void* arg) throw ();
+  thread_proc_(void* arg) noexcept;
 
   CORBA::ORB_var orb_;
   pthread_t thread_;
 };
 
 
-Shutdowner::Shutdowner(CORBA::ORB_var orb) throw ()
+Shutdowner::Shutdowner(CORBA::ORB_var orb) noexcept
   : orb_(orb)
 {
   pthread_create(&thread_, NULL, &thread_proc_, this);
 }
 
-Shutdowner::~Shutdowner() throw ()
+Shutdowner::~Shutdowner() noexcept
 {
   pthread_join(thread_, NULL);
   orb_ = 0;
 }
 
 void
-Shutdowner::shutdown() throw ()
+Shutdowner::shutdown() noexcept
 {
   orb_->shutdown(true);
 }
 
 void*
-Shutdowner::thread_proc_(void* arg) throw ()
+Shutdowner::thread_proc_(void* arg) noexcept
 {
   static_cast<Shutdowner*>(arg)->shutdown();
   return NULL;
@@ -56,25 +56,25 @@ static Generics::AtomicInt req;
 class Echo_i : public POA_Echo
 {
 public:
-  Echo_i(CORBA::ORB_var orb) throw ();
+  Echo_i(CORBA::ORB_var orb) noexcept;
   virtual CORBA::Long
-  echoString(CORBA::Long sent_client, const char* message) throw ();
+  echoString(CORBA::Long sent_client, const char* message) noexcept;
   void
-  shutdown() throw ();
+  shutdown() noexcept;
 
 private:
   pthread_mutex_t mutex_;
   CORBA::ORB_var orb_;
 };
 
-Echo_i::Echo_i(CORBA::ORB_var orb) throw ()
+Echo_i::Echo_i(CORBA::ORB_var orb) noexcept
   : orb_(orb)
 {
   pthread_mutex_init(&mutex_, 0);
 }
 
 CORBA::Long
-Echo_i::echoString(CORBA::Long sent_client, const char* message) throw ()
+Echo_i::echoString(CORBA::Long sent_client, const char* message) noexcept
 {
   ++req;
   time_t received_server = time(NULL);
@@ -93,7 +93,7 @@ Echo_i::echoString(CORBA::Long sent_client, const char* message) throw ()
 }
 
 void
-Echo_i::shutdown() throw ()
+Echo_i::shutdown() noexcept
 {
   pthread_mutex_lock(&mutex_);
   if (orb_)

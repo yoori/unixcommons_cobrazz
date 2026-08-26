@@ -1,5 +1,4 @@
-#ifndef CHECKCOMMONS_COUNTER
-#define CHECKCOMMONS_COUNTER
+#pragma once
 
 #include <sstream>
 
@@ -11,7 +10,7 @@ namespace TestCommons
   class Counter
   {
   public:
-    Counter() throw ();
+    Counter() noexcept;
 
     void
     print() const /*throw (eh::Exception)*/;
@@ -20,16 +19,16 @@ namespace TestCommons
     print(std::ostream& ostr) const /*throw (eh::Exception)*/;
 
     void
-    success() throw ();
+    success() noexcept;
 
     void
-    failure() throw ();
+    failure() noexcept;
 
     int
-    succeeded() const throw ();
+    succeeded() const noexcept;
 
     int
-    failed() const throw ();
+    failed() const noexcept;
 
   private:
     Generics::AtomicInt success_, failure_;
@@ -37,5 +36,3 @@ namespace TestCommons
 }
 
 #include "Counter.ipp"
-
-#endif

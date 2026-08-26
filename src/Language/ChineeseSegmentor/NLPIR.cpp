@@ -17,12 +17,12 @@
 namespace
 {
   void
-  free_nlpir(void* nlpir) throw ();
+  free_nlpir(void* nlpir) noexcept;
 
   Sync::Key<CNLPIR> nlpir_key(free_nlpir);
 
   void
-  free_nlpir(void* nlpir) throw ()
+  free_nlpir(void* nlpir) noexcept
   {
     delete static_cast<CNLPIR*>(nlpir);
     nlpir_key.set_data(0);
@@ -64,7 +64,7 @@ namespace Language
         }
       }
 
-      NlpirSegmentor::~NlpirSegmentor() throw ()
+      NlpirSegmentor::~NlpirSegmentor() noexcept
       {
         NLPIR_Exit();
       }

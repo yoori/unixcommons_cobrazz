@@ -5,9 +5,9 @@ class Echo_i : virtual public POA_Echo1, virtual public POA_Echo2
 {
 public:
   virtual char*
-  echoString(const char* message) throw ();
+  echoString(const char* message) noexcept;
   virtual CORBA::Long
-  echoLong(CORBA::Long message) throw ();
+  echoLong(CORBA::Long message) noexcept;
 
     virtual void invoke (CORBA::StaticServerRequest_ptr req)
     {
@@ -73,13 +73,13 @@ public:
 };
 
 char*
-Echo_i::echoString(const char* message) throw ()
+Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }
 
 CORBA::Long
-Echo_i::echoLong(CORBA::Long message) throw ()
+Echo_i::echoLong(CORBA::Long message) noexcept
 {
   return message;
 }

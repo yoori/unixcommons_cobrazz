@@ -1,5 +1,4 @@
-#ifndef SNMP_AGENTX_HPP
-#define SNMP_AGENTX_HPP
+#pragma once
 
 #include <deque>
 #include <vector>
@@ -19,7 +18,7 @@ namespace SNMPAgentX
   {
     int
     proxy(void* reg, void* requests)
-      throw ();
+      noexcept;
   }
 
   /**
@@ -57,7 +56,7 @@ namespace SNMPAgentX
      */
     virtual
     ~GenericSNMPAgent()
-      throw ();
+      noexcept;
 
     /**
      * Breaks the main cycle
@@ -106,7 +105,7 @@ namespace SNMPAgentX
     {
       explicit
       RootInfo(GenericSNMPAgent* agent)
-        throw ();
+        noexcept;
       RootInfo(RootInfo& root, const std::string& prefix,
         size_t index_length)
         /*throw (eh::Exception)*/;
@@ -131,19 +130,19 @@ namespace SNMPAgentX
     static
     void
     set_variable(void* variable, unsigned long value)
-      throw ();
+      noexcept;
     static
     void
     set_variable(void* variable, long value)
-      throw ();
+      noexcept;
     static
     void
     set_variable64(void* variable, unsigned long value)
-      throw ();
+      noexcept;
     static
     void
     set_variable(void* variable, const String::SubString& value)
-      throw ();
+      noexcept;
 
     template <typename Values>
     static
@@ -195,7 +194,7 @@ namespace SNMPAgentX
     void
     no_such_value_(const VariableInfo& info, unsigned size,
       const unsigned* ids, const char* reason)
-      throw ();
+      noexcept;
 
     /**
      * Logging severity for no_such_value_ default behaviour.
@@ -204,7 +203,7 @@ namespace SNMPAgentX
     virtual
     unsigned
     no_such_value_severity_()
-      throw ();
+      noexcept;
 
     mutable Logging::FLogger_var logger_;
 
@@ -234,7 +233,7 @@ namespace SNMPAgentX
     friend
     int
     SNMPAgentX::Helper::proxy(void* reginfo, void* requests)
-      throw ();
+      noexcept;
 
     friend
     struct RootInfo;
@@ -255,7 +254,7 @@ namespace SNMPAgentX
        */
       RegInfo(GenericSNMPAgent* agent, const VariableInfo* info,
         void* registration)
-        throw ();
+        noexcept;
 
       GenericSNMPAgent* agent;
       const VariableInfo* info;
@@ -283,7 +282,7 @@ namespace SNMPAgentX
     static
     int
     log_callback_(int major, int minor, void* serverarg, void* clientarg)
-      throw ();
+      noexcept;
 
     /**
      * Puts the net-snmp log message to the logger
@@ -328,7 +327,7 @@ namespace SNMPAgentX
      */
     virtual
     ~SNMPAgentAsync()
-      throw ();
+      noexcept;
 
   protected:
     /**
@@ -359,7 +358,7 @@ namespace SNMPAgentX
       virtual
       void
       work()
-        throw ();
+        noexcept;
 
     protected:
       /**
@@ -367,7 +366,7 @@ namespace SNMPAgentX
        */
       virtual
       ~SNMPJob()
-        throw ();
+        noexcept;
     };
     typedef ReferenceCounting::FixedPtr<SNMPJob> SNMPJob_var;
 
@@ -389,7 +388,7 @@ namespace SNMPAgentX
   public:
     explicit
     ValuesProcessor(unsigned id)
-      throw ();
+      noexcept;
 
     void
     register_ids(GenericSNMPAgent* agent) const
@@ -440,7 +439,7 @@ namespace SNMPAgentX
      */
     virtual
     ~SNMPStatsGen()
-      throw ();
+      noexcept;
 
     class SNMPStatsImplJob : public SNMPJob
     {
@@ -455,7 +454,7 @@ namespace SNMPAgentX
     protected:
       virtual
       ~SNMPStatsImplJob()
-        throw ();
+        noexcept;
 
       /**
        * Processing GET request on previously bound oid by looking for the
@@ -600,7 +599,7 @@ namespace SNMPAgentX
 
   template <typename Values>
   ValuesProcessor<Values>::ValuesProcessor(unsigned id)
-    throw ()
+    noexcept
     : id_(id)
   {
   }
@@ -658,7 +657,7 @@ namespace SNMPAgentX
 
   template <typename Values, typename Processor>
   SNMPStatsGen<Values, Processor>::SNMPStatsImplJob::~SNMPStatsImplJob()
-    throw ()
+    noexcept
   {
   }
 
@@ -682,9 +681,7 @@ namespace SNMPAgentX
 
   template <typename Values, typename Processor>
   SNMPStatsGen<Values, Processor>::~SNMPStatsGen()
-    throw ()
+    noexcept
   {
   }
 }
-
-#endif

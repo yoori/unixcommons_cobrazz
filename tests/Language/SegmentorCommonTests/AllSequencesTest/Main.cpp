@@ -1,8 +1,3 @@
-/**
- * @file Main.cpp
- * @author unknown
- * @modified Alexey Bulavitsky [alexey_bulavitsky@ocslab.com]
- */
 #include "TestClasses.hpp"
 #include <fstream>
 #include <sstream>
@@ -149,14 +144,14 @@ namespace
                 const std::string& input_file,
                 bool  has_error_file,
                 const std::string& error_file)
-      throw ();
+      noexcept;
 
     /** Copy constructor */
-    TaskFunctor(const TaskFunctor& c) throw ();
+    TaskFunctor(const TaskFunctor& c) noexcept;
 
     /** Get segmentor name of this task */
     const char*
-    name() const throw ();
+    name() const noexcept;
 
     /** Execute task */
     void
@@ -164,7 +159,7 @@ namespace
 
     /** Get errors of execution of this task */
     const std::string&
-    errors() const throw ();
+    errors() const noexcept;
 
   protected:
     /** must be initialized with name and task */
@@ -194,7 +189,7 @@ namespace
                            const std::string& input_file,
                            bool  has_error_file,
                            const std::string& error_file)
-    throw ()
+    noexcept
     : name_(name),
       task_(task),
       input_file_(input_file),
@@ -205,7 +200,7 @@ namespace
 
   inline
   TaskFunctor::TaskFunctor(const TaskFunctor& c)
-    throw ()
+    noexcept
     : name_(c.name_), 
       task_(c.task_),
       input_file_(c.input_file_),
@@ -217,7 +212,7 @@ namespace
   inline
   const char*
   TaskFunctor::name() const
-    throw ()
+    noexcept
   {
     return name_.c_str();
   }
@@ -225,7 +220,7 @@ namespace
   inline
   const std::string&
   TaskFunctor::errors() const
-    throw ()
+    noexcept
   {
     return errors_;
   }
@@ -317,14 +312,14 @@ public:
    * @return is usage param set
    */
   bool
-  is_usage() const throw ();
+  is_usage() const noexcept;
 
   /**
    * Threads num param
    * @return threads num
    */
   unsigned long
-  threads_num() const throw ();
+  threads_num() const noexcept;
 
   /**
    * Create tasks for this config
@@ -367,7 +362,7 @@ protected:
 
   /** Construct scenario from params */
   Segment::TestScenarios
-  get_scenario_() const throw ();
+  get_scenario_() const noexcept;
 
   /** Validate borders params*/
   void
@@ -391,7 +386,7 @@ protected:
 
 Segment::TestScenarios
 Config::get_scenario_() const
-  throw ()
+  noexcept
 {
   if (std_utf8_.enabled())
   {
@@ -509,7 +504,7 @@ Config::Config(int argc, char **argv)
 inline
 bool
 Config::is_usage() const
-  throw ()
+  noexcept
 { 
   return usage_.enabled();
 }
@@ -517,7 +512,7 @@ Config::is_usage() const
 inline
 unsigned long
 Config::threads_num() const
-  throw ()
+  noexcept
 { 
   return *threads_num_;
 }

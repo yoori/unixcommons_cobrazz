@@ -1,5 +1,4 @@
-#ifndef LOGGER_ACTIVE_OBJECT_CALLBACK_HPP
-#define LOGGER_ACTIVE_OBJECT_CALLBACK_HPP
+#pragma once
 
 #include <Generics/ActiveObject.hpp>
 
@@ -20,32 +19,32 @@ namespace Logging
     explicit
     ActiveObjectCallbackImpl(Logger* logger = 0,
       const char* message_prefix = "ActiveObject",
-      const char* aspect = 0, const char* code = 0) throw ();
+      const char* aspect = 0, const char* code = 0) noexcept;
 
     virtual
     void
     report_error(Severity severity, const String::SubString& description,
-      const char* code = 0) throw ();
+      const char* code = 0) noexcept;
 
     virtual
     Logger*
-    logger() const throw ();
+    logger() const noexcept;
 
     virtual
     const char*
-    message_prefix() const throw ();
+    message_prefix() const noexcept;
 
     virtual
     const char*
-    aspect() const throw ();
+    aspect() const noexcept;
 
     virtual
     const char*
-    code(const char* error_code) const throw ();
+    code(const char* error_code) const noexcept;
 
   protected:
     virtual
-    ~ActiveObjectCallbackImpl() throw ();
+    ~ActiveObjectCallbackImpl() noexcept;
 
   private:
     Logger* logger_;
@@ -78,19 +77,19 @@ namespace Logging
      * @return stored callback
      */
     Generics::ActiveObjectCallback*
-    callback() throw ();
+    callback() noexcept;
     /*
      * Get stored logger
      * @return stored logger
      */
     Logger*
-    logger() const throw ();
+    logger() const noexcept;
     /*
      * Set stored logger
      * @param new_logger is logger to store
      */
     void
-    logger(Logger* new_logger) throw ();
+    logger(Logger* new_logger) noexcept;
 
   protected:
     mutable LoggerHolder_var logger_holder_;
@@ -110,14 +109,14 @@ namespace Logging
 
   inline
   ActiveObjectCallbackImpl::ActiveObjectCallbackImpl(Logging::Logger* logger,
-    const char* message_prefix, const char* aspect, const char* code) throw ()
+    const char* message_prefix, const char* aspect, const char* code) noexcept
     : logger_(logger), message_prefix_(message_prefix), aspect_(aspect),
       code_(code)
   {
   }
 
   inline
-  ActiveObjectCallbackImpl::~ActiveObjectCallbackImpl() throw ()
+  ActiveObjectCallbackImpl::~ActiveObjectCallbackImpl() noexcept
   {
   }
 
@@ -138,24 +137,22 @@ namespace Logging
 
   inline
   Generics::ActiveObjectCallback*
-  LoggerCallbackHolder::callback() throw ()
+  LoggerCallbackHolder::callback() noexcept
   {
     return callback_;
   }
 
   inline
   Logger*
-  LoggerCallbackHolder::logger() const throw ()
+  LoggerCallbackHolder::logger() const noexcept
   {
     return logger_holder_;
   }
 
   inline
   void
-  LoggerCallbackHolder::logger(Logger* new_logger) throw ()
+  LoggerCallbackHolder::logger(Logger* new_logger) noexcept
   {
     logger_holder_->logger(new_logger);
   }
 }
-
-#endif

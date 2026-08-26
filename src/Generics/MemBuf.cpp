@@ -12,7 +12,7 @@
 
 namespace Generics
 {
-  MemBuf::MemBuf(Allocator::Base* allocator) throw ()
+  MemBuf::MemBuf(Allocator::Base* allocator) noexcept
     : allocator_(ReferenceCounting::add_ref(
         allocator ? allocator : Allocator::Base::get_default_allocator())),
       ptr_(0), size_(0), capacity_(2 * DEV_MEMBUF_BOUNDS)
@@ -73,7 +73,7 @@ namespace Generics
     }
   }
 
-  MemBuf::MemBuf(MemBuf&& right) throw ()
+  MemBuf::MemBuf(MemBuf&& right) noexcept
     : allocator_(right.allocator_), ptr_(0), size_(0),
       capacity_(2 * DEV_MEMBUF_BOUNDS)
   {
@@ -100,13 +100,13 @@ namespace Generics
     }
   }
 
-  MemBuf::~MemBuf() throw ()
+  MemBuf::~MemBuf() noexcept
   {
     clear();
   }
 
   void
-  MemBuf::clear() throw ()
+  MemBuf::clear() noexcept
   {
     if (capacity())
     {
@@ -170,7 +170,7 @@ namespace Generics
   }
 
   void
-  MemBuf::swap(MemBuf& right) throw ()
+  MemBuf::swap(MemBuf& right) noexcept
   {
     std::swap(ptr_, right.ptr_);
     std::swap(size_, right.size_);
@@ -187,7 +187,7 @@ namespace Generics
   }
 
   MemBuf&
-  MemBuf::operator =(MemBuf&& right) throw ()
+  MemBuf::operator =(MemBuf&& right) noexcept
   {
     if (&right != this)
     {

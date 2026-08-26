@@ -1,5 +1,4 @@
-#ifndef SYNC_MUTEXPTR_HPP
-#define SYNC_MUTEXPTR_HPP
+#pragma once
 
 #include <memory>
 
@@ -22,12 +21,12 @@ namespace Sync
       ProtectedObject(ObjectType* ptr, Sync::PosixMutex& mutex)
         /*throw (eh::Exception)*/;
 
-      ProtectedObject(ProtectedObject&& object) throw ();
+      ProtectedObject(ProtectedObject&& object) noexcept;
 
-      ~ProtectedObject() throw ();
+      ~ProtectedObject() noexcept;
 
       ObjectType*
-      operator ->() const throw ();
+      operator ->() const noexcept;
 
     private:
       ObjectType* object_;
@@ -67,7 +66,7 @@ namespace Sync
 
   protected:
     virtual
-    ~MutexRefPtr() throw () = default;
+    ~MutexRefPtr() noexcept = default;
   };
 }
 
@@ -92,7 +91,7 @@ namespace Sync
   template <typename Object>
   template <typename ObjectType>
   MutexPtr<Object>::ProtectedObject<ObjectType>::ProtectedObject(
-    ProtectedObject&& object) throw ()
+    ProtectedObject&& object) noexcept
     : Generics::Uncopyable(), object_(object.object_), mutex_(object.mutex_)
   {
     object.mutex_ = nullptr;
@@ -100,7 +99,7 @@ namespace Sync
 
   template <typename Object>
   template <typename ObjectType>
-  MutexPtr<Object>::ProtectedObject<ObjectType>::~ProtectedObject() throw ()
+  MutexPtr<Object>::ProtectedObject<ObjectType>::~ProtectedObject() noexcept
   {
     if (mutex_)
     {
@@ -112,7 +111,7 @@ namespace Sync
   template <typename ObjectType>
   ObjectType*
   MutexPtr<Object>::ProtectedObject<ObjectType>::operator ->() const
-    throw ()
+    noexcept
   {
     return object_;
   }
@@ -171,5 +170,3 @@ namespace Sync
   {
   }
 }
-
-#endif

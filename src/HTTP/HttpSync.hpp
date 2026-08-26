@@ -1,5 +1,4 @@
-#ifndef HTTP_HTTPSYNC_HPP
-#define HTTP_HTTPSYNC_HPP
+#pragma once
 
 #include <vector>
 
@@ -69,5 +68,3 @@ namespace HTTP
     const HeaderList& headers = HeaderList())
     /*throw (eh::Exception, eh::DescriptiveException)*/;
 }
-
-#endif

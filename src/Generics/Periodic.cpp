@@ -23,19 +23,19 @@ namespace Generics
   {
   }
 
-  PeriodicTask::~PeriodicTask() throw ()
+  PeriodicTask::~PeriodicTask() noexcept
   {
   }
 
   void
-  PeriodicTask::set_period(const Generics::Time& period) throw ()
+  PeriodicTask::set_period(const Generics::Time& period) noexcept
   {
     Sync::PosixGuard guard(mutex_);
     period_ = period;
   }
 
   Generics::Time
-  PeriodicTask::wait_period(const Generics::Time& elapsed) const throw ()
+  PeriodicTask::wait_period(const Generics::Time& elapsed) const noexcept
   {
     Sync::PosixGuard guard(mutex_);
     return period_ > elapsed ? period_ - elapsed : Time::ZERO;
@@ -61,7 +61,7 @@ namespace Generics
 
   void
   PeriodicTask::run_once(ActiveObjectCallback* callback, bool forced)
-    throw ()
+    noexcept
   {
     trace_message(FNB, this);
     try
@@ -80,7 +80,7 @@ namespace Generics
   }
 
   void
-  PeriodicTask::run(ActiveObjectCallback* callback) throw ()
+  PeriodicTask::run(ActiveObjectCallback* callback) noexcept
   {
     trace_message(FNB, this);
 
@@ -142,18 +142,18 @@ namespace Generics
   //
 
   PeriodicRunner::PeriodicJob::PeriodicJob(ActiveObjectCallback* callback,
-    PeriodicTask* task) throw ()
+    PeriodicTask* task) noexcept
     : callback_(ReferenceCounting::add_ref(callback)),
       task_(ReferenceCounting::add_ref(task))
   {
   }
 
-  PeriodicRunner::PeriodicJob::~PeriodicJob() throw ()
+  PeriodicRunner::PeriodicJob::~PeriodicJob() noexcept
   {
   }
 
   void
-  PeriodicRunner::PeriodicJob::work() throw ()
+  PeriodicRunner::PeriodicJob::work() noexcept
   {
     task_->run(callback_);
   }
@@ -209,7 +209,7 @@ namespace Generics
     }
   }
 
-  PeriodicRunner::~PeriodicRunner() throw ()
+  PeriodicRunner::~PeriodicRunner() noexcept
   {
     try
     {

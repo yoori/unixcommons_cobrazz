@@ -1,10 +1,4 @@
-/**
- * @file Logger/Syslog.hpp
- * @author Denis Badikov
- */
-
-#ifndef LOGGER_SYS_LOGGER_HPP
-#define LOGGER_SYS_LOGGER_HPP
+#pragma once
 
 #include <syslog.h>
 
@@ -63,11 +57,11 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~Connection() throw ();
+        ~Connection() noexcept;
 
         virtual
         void
-        delete_this_() const throw ();
+        delete_this_() const noexcept;
 
       private:
         static Connection* connection_;
@@ -104,7 +98,7 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~Handler() throw ();
+        ~Handler() noexcept;
 
       private:
         FormatWrapper formatter_;
@@ -190,7 +184,7 @@ namespace Logging
       }
 
       inline
-      Handler::~Handler() throw ()
+      Handler::~Handler() noexcept
       {
       }
     }
@@ -211,5 +205,3 @@ namespace Logging
     }
   }
 }
-
-#endif

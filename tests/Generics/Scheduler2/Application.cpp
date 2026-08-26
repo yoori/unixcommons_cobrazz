@@ -14,9 +14,9 @@ namespace Generics
   {
     PrintMessage(const char* msg_val): msg(msg_val) {}
 
-    virtual ~PrintMessage() throw() {}
+    virtual ~PrintMessage() noexcept {}
 
-    virtual void deliver() throw ()
+    virtual void deliver() noexcept
     {
       if(!msg.empty())
       {
@@ -54,7 +54,7 @@ namespace Generics
       : deliver_count_(deliver_count)
     {}
 
-    virtual void deliver() throw ()
+    virtual void deliver() noexcept
     {
       deliver_count_ += -1;
     }
@@ -132,7 +132,7 @@ namespace Generics
 }
 
 int
-main() throw ()
+main() noexcept
 {
   int result = 1;
 

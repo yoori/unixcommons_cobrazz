@@ -1,5 +1,4 @@
-#ifndef EH_ERRNO_HPP
-#define EH_ERRNO_HPP
+#pragma once
 
 #include <errno.h>
 
@@ -33,7 +32,7 @@ namespace eh
     template <typename... Args>
     void
     compose_safe(char* string, size_t string_size, int error, Args... args)
-      throw ()
+      noexcept
     {
       char error_buf[128];
       char buf[128];
@@ -61,5 +60,3 @@ namespace eh
     throw_errno_exception<SomeException>(errno, args...);
   }
 }
-
-#endif

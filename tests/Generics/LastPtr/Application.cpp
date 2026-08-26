@@ -11,20 +11,20 @@ class Obj : public Generics::Last<ReferenceCounting::AtomicImpl>
 {
 public:
   void
-  func() throw ();
+  func() noexcept;
 
 protected:
   virtual
-  ~Obj() throw ();
+  ~Obj() noexcept;
 };
 
-Obj::~Obj() throw ()
+Obj::~Obj() noexcept
 {
   std::cout << FNS << std::endl;
 }
 
 void
-Obj::func() throw ()
+Obj::func() noexcept
 {
   std::cout << FNS << std::endl;
 }

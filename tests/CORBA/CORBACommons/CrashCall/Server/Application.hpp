@@ -1,5 +1,4 @@
-#ifndef _CORBA_CRASHCALL_APPLICATION_HPP_
-#define _CORBA_CRASHCALL_APPLICATION_HPP_
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -17,22 +16,22 @@ namespace CORBATest
   {
   public:
     virtual void
-    crash() throw ();
+    crash() noexcept;
 
   protected:
     virtual
-    ~TestCrashImpl() throw ();
+    ~TestCrashImpl() noexcept;
   };
   typedef ReferenceCounting::QualPtr<TestCrashImpl> TestCrashImpl_var;
 }
 
 inline
-CORBATest::TestCrashImpl::~TestCrashImpl() throw ()
+CORBATest::TestCrashImpl::~TestCrashImpl() noexcept
 {
 }
 
 inline void
-CORBATest::TestCrashImpl::crash() throw ()
+CORBATest::TestCrashImpl::crash() noexcept
 {
   _exit(1);
 }
@@ -51,7 +50,5 @@ public:
 
 protected:
   virtual
-  ~Application() throw ();
+  ~Application() noexcept;
 };
-
-#endif

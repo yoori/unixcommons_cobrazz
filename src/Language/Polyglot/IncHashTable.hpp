@@ -1,5 +1,4 @@
-#ifndef INCHASHTABLE_HPP
-#define INCHASHTABLE_HPP
+#pragma once
 
 #include <Generics/CRC.hpp>
 #include <Generics/GnuHashTable.hpp>
@@ -13,9 +12,9 @@ namespace Generics
   struct IncHash
   {
     IncHashValue
-    operator()() const throw ();
+    operator()() const noexcept;
     IncHashValue
-    operator()(IncHashValue hash, CharType hash_inc) const throw ();
+    operator()(IncHashValue hash, CharType hash_inc) const noexcept;
   };
 
   template <typename CharType, typename ElementType,
@@ -41,17 +40,17 @@ namespace Generics
       append(const CharType& key_char) /*throw (eh::Exception)*/;
 
       Word&
-      value() throw ();
+      value() noexcept;
       const Word&
-      value() const throw ();
+      value() const noexcept;
 
-      operator Word&() throw ();
-      operator const Word&() const throw ();
+      operator Word&() noexcept;
+      operator const Word&() const noexcept;
 
       Hash
-      hash() const throw ();
+      hash() const noexcept;
       bool
-      operator ==(const WordHashAdapter& right) const throw ();
+      operator ==(const WordHashAdapter& right) const noexcept;
 
     private:
       IncHashType inc_hash_op_;
@@ -81,7 +80,7 @@ namespace Generics
       bool
       find(const CharType& key_char) /*throw (eh::Exception)*/;
       const ElementType*
-      element() const throw ();
+      element() const noexcept;
 
     private:
       const Container* cont_;
@@ -134,7 +133,7 @@ namespace Generics
 
   template <typename CharType>
   IncHashValue
-  IncHash<CharType>::operator()() const throw ()
+  IncHash<CharType>::operator()() const noexcept
   {
     return 0;
   }
@@ -142,7 +141,7 @@ namespace Generics
   template <typename CharType>
   IncHashValue
   IncHash<CharType>::operator()(IncHashValue hash, CharType hash_inc) const
-    throw ()
+    noexcept
   {
     return Generics::CRC::quick(hash, &hash_inc, sizeof(hash_inc));
   }
@@ -175,7 +174,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   const ElementType*
   IncHashTable<CharType, ElementType, IncHashType>::
-    ConstFinder::element() const throw ()
+    ConstFinder::element() const noexcept
   {
     return main_table_it_ != cont_->main_table_.end() ?
       &(main_table_it_->second) : 0;
@@ -226,7 +225,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::Hash
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::hash() const throw ()
+    WordHashAdapter::hash() const noexcept
   {
     return hash_;
   }
@@ -234,7 +233,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::Word&
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::value() throw ()
+    WordHashAdapter::value() noexcept
   {
     return word_;
   }
@@ -242,14 +241,14 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   const typename IncHashTable<CharType, ElementType, IncHashType>::Word&
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::value() const throw ()
+    WordHashAdapter::value() const noexcept
   {
     return word_;
   }
 
   template <typename CharType, typename ElementType, typename IncHashType>
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::operator Word&() throw ()
+    WordHashAdapter::operator Word&() noexcept
   {
     return word_;
   }
@@ -257,7 +256,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   IncHashTable<CharType, ElementType, IncHashType>::
     WordHashAdapter::operator const typename IncHashTable<CharType, ElementType, IncHashType>::Word&()
-    const throw ()
+    const noexcept
   {
     return word_;
   }
@@ -265,7 +264,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   bool
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::operator ==(const WordHashAdapter& right) const throw ()
+    WordHashAdapter::operator ==(const WordHashAdapter& right) const noexcept
   {
     return word_ == right.word_;
   }
@@ -392,5 +391,3 @@ namespace Generics
     return find(word);
   }
 }
-
-#endif

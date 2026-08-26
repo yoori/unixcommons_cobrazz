@@ -1,6 +1,5 @@
 // Generics/Listener.hpp
-#ifndef DESCRIPTOR_LISTENER_HPP
-#define DESCRIPTOR_LISTENER_HPP
+#pragma once
 
 #include <event.h>
 
@@ -33,14 +32,14 @@ namespace Generics
      * @param new_listener pointer to object that calls the callback.
      */
     void
-    listener(ListenerHolder new_listener) throw ();
+    listener(ListenerHolder new_listener) noexcept;
 
     /**
      * Stored listener
      * @return stored listener pointer
      */
     Listener*
-    listener() throw ();
+    listener() noexcept;
 
     /**
      * Event data available, data string is not zero terminated!
@@ -53,7 +52,7 @@ namespace Generics
     virtual
     void
     on_data_ready(int fd, size_t fd_index, const char* str, size_t size)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when a read on a descriptor does not provide data.
@@ -66,7 +65,7 @@ namespace Generics
      */
     virtual
     void
-    on_closed(int fd, size_t fd_index, int error) throw ();
+    on_closed(int fd, size_t fd_index, int error) noexcept;
 
     /**
      * Called when all descriptors used for Listener creation are closed.
@@ -75,7 +74,7 @@ namespace Generics
      */
     virtual
     void
-    on_all_closed() throw () = 0;
+    on_all_closed() noexcept = 0;
 
     /**
      * Periodically called.
@@ -83,14 +82,14 @@ namespace Generics
      */
     virtual
     void
-    on_periodic() throw ();
+    on_periodic() noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~DescriptorListenerCallbackTempl() throw ();
+    ~DescriptorListenerCallbackTempl() noexcept;
 
   private:
     ListenerHolder listener_;
@@ -111,14 +110,14 @@ namespace Generics
      */
     virtual
     void
-    on_all_closed() throw ();
+    on_all_closed() noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~DescriptorListenerCallback() throw ();
+    ~DescriptorListenerCallback() noexcept;
   };
   typedef ReferenceCounting::QualPtr<DescriptorListenerCallback>
     DescriptorListenerCallback_var;
@@ -167,7 +166,7 @@ namespace Generics
     /**
      * Destructor
      */
-    ~DescriptorListener() throw ();
+    ~DescriptorListener() noexcept;
 
     /**
      * Demultiplex events and call callbacks.
@@ -180,7 +179,7 @@ namespace Generics
      * listen call exit.
      */
     void
-    terminate() throw ();
+    terminate() noexcept;
 
   protected:
     DescriptorListenerCallback_var callback_;
@@ -216,7 +215,7 @@ namespace Generics
      * @param context structure for fd maintenance
      */
     void
-    handle_read_(int fd, DescriptorActionContext& context) throw ();
+    handle_read_(int fd, DescriptorActionContext& context) noexcept;
 
     /**
      * Translate system callbacks to class method handle_read_.
@@ -226,7 +225,7 @@ namespace Generics
      */
     static
     void
-    read_callback_(int fd, short type, void* arg) throw ();
+    read_callback_(int fd, short type, void* arg) noexcept;
 
     /**
      * Calls when anyone writes data to termination pipe.
@@ -236,7 +235,7 @@ namespace Generics
      */
     static
     void
-    terminate_callback_(int fd, short type, void* arg) throw ();
+    terminate_callback_(int fd, short type, void* arg) noexcept;
 
     /**
      * Called periodically.
@@ -246,7 +245,7 @@ namespace Generics
      */
     static
     void
-    periodic_callback_(int fd, short type, void* arg) throw ();
+    periodic_callback_(int fd, short type, void* arg) noexcept;
 
     typedef ArrayAutoPtr<DescriptorActionContext> ReadContexts;
 
@@ -276,14 +275,14 @@ namespace Generics
      */
     virtual
     void
-    on_all_closed() throw ();
+    on_all_closed() noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~ActiveDescriptorListenerCallback() throw ();
+    ~ActiveDescriptorListenerCallback() noexcept;
   };
   typedef ReferenceCounting::QualPtr<ActiveDescriptorListenerCallback>
     ActiveDescriptorListenerCallback_var;
@@ -317,7 +316,7 @@ namespace Generics
      * Destructor check active state and stop object if require.
      */
     virtual
-    ~ActiveDescriptorListener() throw ();
+    ~ActiveDescriptorListener() noexcept;
 
   private:
     class ListenerJob :
@@ -332,19 +331,19 @@ namespace Generics
 
       void
       active_listener(ActiveDescriptorListener* active_listener)
-        throw ();
+        noexcept;
 
       virtual
       void
-      work() throw ();
+      work() noexcept;
 
       virtual
       void
-      terminate() throw ();
+      terminate() noexcept;
 
     protected:
       virtual
-      ~ListenerJob() throw ();
+      ~ListenerJob() noexcept;
 
     private:
       /**
@@ -364,11 +363,11 @@ namespace Generics
          * Must be != 0.
          */
         DLCAdapter(ActiveDescriptorListenerCallback* active_callback)
-          throw ();
+          noexcept;
 
         void
         active_listener(ActiveDescriptorListener* active_listener)
-          throw ();
+          noexcept;
 
         /**
          * @param listener pointer to object which called callback method.
@@ -381,7 +380,7 @@ namespace Generics
         virtual
         void
         on_data_ready(int fd, size_t fd_index, const char* str, size_t size)
-          throw ();
+          noexcept;
 
         /**
          * @param listener pointer to object which called callback method.
@@ -393,7 +392,7 @@ namespace Generics
          */
         virtual
         void
-        on_closed(int fd, size_t fd_index, int error) throw ();
+        on_closed(int fd, size_t fd_index, int error) noexcept;
 
         /**
          * Call when all descriptors used for DescriptorListener
@@ -402,7 +401,7 @@ namespace Generics
          */
         virtual
         void
-        on_all_closed() throw ();
+        on_all_closed() noexcept;
 
         /**
          * Sink for Active object errors.
@@ -414,14 +413,14 @@ namespace Generics
         void
         report_error(Severity severity,
           const String::SubString& description,
-          const char* error_code = 0) throw ();
+          const char* error_code = 0) noexcept;
 
       protected:
         /**
          * protected destructor because reference counting object.
          */
         virtual
-        ~DLCAdapter() throw ();
+        ~DLCAdapter() noexcept;
 
       private:
         ActiveDescriptorListenerCallback_var active_callback_;
@@ -438,11 +437,11 @@ namespace Generics
   public:
     virtual
     void
-    set_pid(pid_t pid) throw ();
+    set_pid(pid_t pid) noexcept;
 
   protected:
     virtual
-    ~ExecuteAndListenCallback() throw ();
+    ~ExecuteAndListenCallback() noexcept;
   };
   typedef ReferenceCounting::QualPtr<ExecuteAndListenCallback>
     ExecuteAndListenCallback_var;
@@ -496,14 +495,14 @@ namespace Generics
 
   template <typename Listener, typename ListenerHolder>
   DescriptorListenerCallbackTempl<Listener, ListenerHolder>::
-    ~DescriptorListenerCallbackTempl() throw ()
+    ~DescriptorListenerCallbackTempl() noexcept
   {
   }
 
   template <typename Listener, typename ListenerHolder>
   void
   DescriptorListenerCallbackTempl<Listener, ListenerHolder>::listener(
-    ListenerHolder new_listener) throw ()
+    ListenerHolder new_listener) noexcept
   {
     listener_ = std::move(new_listener);
   }
@@ -511,7 +510,7 @@ namespace Generics
   template <typename Listener, typename ListenerHolder>
   Listener*
   DescriptorListenerCallbackTempl<Listener, ListenerHolder>::listener()
-    throw ()
+    noexcept
   {
     return listener_;
   }
@@ -519,14 +518,14 @@ namespace Generics
   template <typename Listener, typename ListenerHolder>
   void
   DescriptorListenerCallbackTempl<Listener, ListenerHolder>::on_closed(
-    int /*fd*/, size_t /*fd_index*/, int /*error*/) throw ()
+    int /*fd*/, size_t /*fd_index*/, int /*error*/) noexcept
   {
   }
 
   template <typename Listener, typename ListenerHolder>
   void
   DescriptorListenerCallbackTempl<Listener, ListenerHolder>::on_periodic()
-    throw ()
+    noexcept
   {
   }
 
@@ -535,7 +534,7 @@ namespace Generics
   //
 
   inline
-  DescriptorListenerCallback::~DescriptorListenerCallback() throw ()
+  DescriptorListenerCallback::~DescriptorListenerCallback() noexcept
   {
   }
 
@@ -546,7 +545,7 @@ namespace Generics
 
   inline
   ActiveDescriptorListenerCallback::~ActiveDescriptorListenerCallback()
-    throw ()
+    noexcept
   {
   }
 
@@ -556,9 +555,7 @@ namespace Generics
   //
 
   inline
-  ExecuteAndListenCallback::~ExecuteAndListenCallback() throw ()
+  ExecuteAndListenCallback::~ExecuteAndListenCallback() noexcept
   {
   }
 }
-
-#endif

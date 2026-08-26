@@ -132,7 +132,7 @@ namespace
   inline
   bool
   is_valid_chars(const String::SubString& str,
-    const String::AsciiStringManip::CharCategory& category) throw ()
+    const String::AsciiStringManip::CharCategory& category) noexcept
   {
     const char* const END = str.end();
     return category.find_nonowned(str.begin(), END) == END;
@@ -141,7 +141,7 @@ namespace
   inline
   const char*
   find_invalid(const char* str, const char* end,
-    const String::AsciiStringManip::CharCategory& category) throw ()
+    const String::AsciiStringManip::CharCategory& category) noexcept
   {
     while ((str = category.find_nonowned(str, end)) && str != end)
     {
@@ -162,7 +162,7 @@ namespace
 
   bool
   is_valid_encoded(const String::SubString& encoded_str,
-    const String::AsciiStringManip::CharCategory& category) throw ()
+    const String::AsciiStringManip::CharCategory& category) noexcept
   {
     const char* const END = encoded_str.end();
     return find_invalid(encoded_str.begin(), END, category) == END;
@@ -336,9 +336,9 @@ namespace
   {
   public:
     explicit
-    IDNA0(std::string& ascii, bool* idna_label = nullptr) throw ();
+    IDNA0(std::string& ascii, bool* idna_label = nullptr) noexcept;
 
-    ~IDNA0() throw ();
+    ~IDNA0() noexcept;
 
     void
     append(const String::SubString& label)
@@ -349,13 +349,13 @@ namespace
     bool* idna_label_;
   };
 
-  IDNA0::IDNA0(std::string& ascii, bool* idna_label) throw ()
+  IDNA0::IDNA0(std::string& ascii, bool* idna_label) noexcept
     : ascii_(ascii),
       idna_label_(idna_label)
   {
   }
 
-  IDNA0::~IDNA0() throw ()
+  IDNA0::~IDNA0() noexcept
   {
     String::AsciiStringManip::to_lower(ascii_);
   }
@@ -380,7 +380,7 @@ namespace
   class IDNA2008 : private Generics::Uncopyable
   {
   public:
-    IDNA2008(std::string& ascii, std::string& unicode) throw ();
+    IDNA2008(std::string& ascii, std::string& unicode) noexcept;
 
     void
     append(const String::WSubString& label)
@@ -399,7 +399,7 @@ namespace
     std::string& unicode_;
   };
 
-  IDNA2008::IDNA2008(std::string& ascii, std::string& unicode) throw ()
+  IDNA2008::IDNA2008(std::string& ascii, std::string& unicode) noexcept
     : ascii_(ascii), unicode_(unicode)
   {
   }
@@ -954,7 +954,7 @@ namespace HTTP
     const String::SubString& userinfo, const String::SubString& host,
     const String::SubString& port, const String::SubString& path,
     const String::SubString& query, const String::SubString& fragment)
-    throw ()
+    noexcept
     : has_scheme(!scheme.empty()), scheme(scheme),
       has_userinfo(!userinfo.empty()), userinfo(userinfo),
       has_host(!host.empty()), host(host),
@@ -970,7 +970,7 @@ namespace HTTP
   //
 
   void
-  ExtendedUrlParts::clear() throw ()
+  ExtendedUrlParts::clear() noexcept
   {
     has_scheme = false;
     scheme.clear();
@@ -1239,7 +1239,7 @@ namespace HTTP
   // URLAddress class
   //
 
-  URLAddress::URLAddress() throw ()
+  URLAddress::URLAddress() noexcept
   {
   }
 
@@ -1618,7 +1618,7 @@ namespace HTTP
   }
 
   int
-  HTTPAddress::get_default_port_(bool secure) throw ()
+  HTTPAddress::get_default_port_(bool secure) noexcept
   {
     return secure ? DEFAULT_HTTPS_PORT : DEFAULT_HTTP_PORT;
   }

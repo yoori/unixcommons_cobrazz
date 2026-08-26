@@ -1,5 +1,4 @@
-#ifndef GENERICS_THREAD_BUFFER_HPP
-#define GENERICS_THREAD_BUFFER_HPP
+#pragma once
 
 #include <Sync/PosixLock.hpp>
 #include <Sync/Key.hpp>
@@ -11,11 +10,11 @@ namespace Generics
   class ThreadBuffer : private Uncopyable
   {
   public:
-    ThreadBuffer() throw ();
+    ThreadBuffer() noexcept;
 
     static
     char*
-    get_buffer() throw ();
+    get_buffer() noexcept;
 
   private:
     typedef char Buffer[BUFFER_SIZE];
@@ -29,7 +28,7 @@ namespace Generics
 
     static
     void
-    free_buffer_(void* buffer) throw ();
+    free_buffer_(void* buffer) noexcept;
   };
 }
 
@@ -55,7 +54,7 @@ namespace Generics
   size_t ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::available_;
 
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
-  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::ThreadBuffer() throw ()
+  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::ThreadBuffer() noexcept
   {
     for (available_ = 0; available_ < THREADS; available_++)
     {
@@ -65,7 +64,7 @@ namespace Generics
 
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
   char*
-  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::get_buffer() throw ()
+  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::get_buffer() noexcept
   {
     char* buffer = buffer_key_.get_data();
     if (buffer)
@@ -101,7 +100,7 @@ namespace Generics
 
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
   void
-  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::free_buffer_(void* buffer) throw ()
+  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::free_buffer_(void* buffer) noexcept
   {
     if (type_key_.get_data())
     {
@@ -117,5 +116,3 @@ namespace Generics
     buffer_key_.set_data(0);
   }
 }
-
-#endif

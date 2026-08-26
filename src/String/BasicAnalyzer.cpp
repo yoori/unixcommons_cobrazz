@@ -1,8 +1,3 @@
-/**
- * @file   String/BasicAnalyzer.cpp
- * @author Anna Ignatenkova
- */
-
 #include <iostream>
 
 #include <String/AnalyzerParams.hpp>
@@ -20,21 +15,21 @@ namespace
     virtual
     void
     report_error(Severity severity, const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
   protected:
     virtual
-    ~CerrCallback() throw ();
+    ~CerrCallback() noexcept;
   };
 
-  CerrCallback::~CerrCallback() throw ()
+  CerrCallback::~CerrCallback() noexcept
   {
   }
 
   void
   CerrCallback::report_error(Severity /*severity*/,
     const String::SubString& description,
-    const char* /*error_code*/) throw ()
+    const char* /*error_code*/) noexcept
   {
     try
     {

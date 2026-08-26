@@ -10,7 +10,7 @@ namespace Generics
 
   RefCountableCompositeActiveObject::RefCountableCompositeActiveObject(
     bool sync_termination,
-    bool clear_on_exit) throw ()
+    bool clear_on_exit) noexcept
     : CompositeActiveObject(sync_termination, clear_on_exit)
   {
   }
@@ -28,7 +28,7 @@ namespace Generics
   }
 
   void
-  CompositeSetActiveObject::remove_child_(ActiveObject* child) throw ()
+  CompositeSetActiveObject::remove_child_(ActiveObject* child) noexcept
   {
     Sync::PosixGuard guard(cond_);
     this->child_objects_.erase(child);
@@ -40,13 +40,13 @@ namespace Generics
   //
 
   RemovableActiveObject::RemovableActiveObject(
-    ActiveObjectChildRemover* owner) throw ()
+    ActiveObjectChildRemover* owner) noexcept
     : owner_(ReferenceCounting::add_ref(owner))
   {
   }
 
   void
-  RemovableActiveObject::delete_this_() const throw ()
+  RemovableActiveObject::delete_this_() const noexcept
   {
     if (owner_)
     {
@@ -59,7 +59,7 @@ namespace Generics
   }
 
   void
-  RemovableActiveObject::before_remove_child_() throw ()
+  RemovableActiveObject::before_remove_child_() noexcept
   {
   }
 }

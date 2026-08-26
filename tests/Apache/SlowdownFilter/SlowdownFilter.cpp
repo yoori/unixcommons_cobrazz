@@ -7,7 +7,7 @@ namespace
   const char DELAY_PARAM[] = "SlowdownFilter_Delay";
 }
 
-SlowdownFilterModule::SlowdownFilterModule() throw ()
+SlowdownFilterModule::SlowdownFilterModule() noexcept
   : Apache::InsertFilterHook<SlowdownFilterModule>(APR_HOOK_MIDDLE)
 {
   delay_.tv_sec = 0;
@@ -15,12 +15,12 @@ SlowdownFilterModule::SlowdownFilterModule() throw ()
   add_directive(DELAY_PARAM, OR_OPTIONS, TAKE1, DELAY_PARAM);
 }
 
-SlowdownFilterModule::~SlowdownFilterModule() throw ()
+SlowdownFilterModule::~SlowdownFilterModule() noexcept
 {
 }
 
 void
-SlowdownFilterModule::insert_filter(request_rec* r) throw ()
+SlowdownFilterModule::insert_filter(request_rec* r) noexcept
 {
   try
   {
@@ -36,14 +36,14 @@ SlowdownFilterModule::insert_filter(request_rec* r) throw ()
 //
 
 SlowdownFilterModule::SlowdownFilter::SlowdownFilter(
-  request_rec* r, timespec& delay) throw ()
+  request_rec* r, timespec& delay) noexcept
   : RequestOutputFilter(AP_FTYPE_RESOURCE, r, r->connection),
     delay_(delay)
 {
 }
 
 const char*
-SlowdownFilterModule::handle_command(const ConfigArgs& args) throw ()
+SlowdownFilterModule::handle_command(const ConfigArgs& args) noexcept
 {
   if (!strcmp(args.name(), DELAY_PARAM))
   {
@@ -57,7 +57,7 @@ SlowdownFilterModule::handle_command(const ConfigArgs& args) throw ()
 
 apr_status_t
 SlowdownFilterModule::SlowdownFilter::filter(
-  ap_filter_t*, apr_bucket_brigade* bb) throw ()
+  ap_filter_t*, apr_bucket_brigade* bb) noexcept
 {
   nanosleep(&delay_, 0);
   remove();

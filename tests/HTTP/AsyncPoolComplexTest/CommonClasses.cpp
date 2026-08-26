@@ -14,26 +14,26 @@ CallBackProxy::CallBackProxy(Sync::Semaphore& finish_semaphore,
 {
 }
 
-CallBackProxy::~CallBackProxy() throw()
+CallBackProxy::~CallBackProxy() noexcept
 {
   finish_semaphore_.release();
 }
 
 void
-CallBackProxy::quick_on_response(const HTTP::ResponseInformation& data) throw ()
+CallBackProxy::quick_on_response(const HTTP::ResponseInformation& data) noexcept
 {
   p_impl_->quick_on_response(data);
 }
 
 void
 CallBackProxy::quick_on_error(const String::SubString& description,
-                              const HTTP::RequestInformation& data) throw ()
+                              const HTTP::RequestInformation& data) noexcept
 {
   p_impl_->quick_on_error(description, data);
 }
 
 void
-CallBackProxy::on_response(const HTTP::ResponseInformation& data) throw ()
+CallBackProxy::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   p_impl_->on_response(data);
 }
@@ -41,7 +41,7 @@ CallBackProxy::on_response(const HTTP::ResponseInformation& data) throw ()
 void
 CallBackProxy::on_error(const String::SubString& description,
                         const HTTP::RequestInformation& data)
-  throw ()
+  noexcept
 {
   p_impl_->on_error(description, data);
 }
@@ -60,7 +60,7 @@ CheckUpCallback::CheckUpCallback(HTTP::PoolPolicy* policy,
 }
 
 void
-CheckUpCallback::on_response(const HTTP::ResponseInformation& data) throw ()
+CheckUpCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   SimpleCounterCallback::on_response(data);
 
@@ -86,7 +86,7 @@ CheckUpCallback::on_response(const HTTP::ResponseInformation& data) throw ()
 
 void
 CheckUpCallback::on_error(const String::SubString& descr,
-  const HTTP::RequestInformation& data) throw ()
+  const HTTP::RequestInformation& data) noexcept
 {
   SimpleCounterCallback::on_error(descr, data);
 }
@@ -100,12 +100,12 @@ CheckUpCallback::print_stat(std::ostream& ostr) /*throw (eh::Exception)*/
 }
 
 const TestCommons::Counter&
-CheckUpCallback::get_checkup_counter() const throw ()
+CheckUpCallback::get_checkup_counter() const noexcept
 {
   return response_checkup_;
 }
 
-CheckUpCallback::~CheckUpCallback() throw ()
+CheckUpCallback::~CheckUpCallback() noexcept
 {
 }
 
@@ -132,7 +132,7 @@ CTTestInterface::additional_http_query() /*throw (eh::Exception)*/
 }
 
 void
-CTTestInterface::execute() throw ()
+CTTestInterface::execute() noexcept
 {
   try
   {
@@ -192,6 +192,6 @@ CTTestInterface::is_error(const char* test_name, const TestCommons::Counter* add
   return false;
 }
 
-CTTestInterface::~CTTestInterface() throw ()
+CTTestInterface::~CTTestInterface() noexcept
 {
 }

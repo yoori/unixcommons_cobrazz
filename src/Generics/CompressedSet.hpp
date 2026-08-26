@@ -1,5 +1,4 @@
-#ifndef GENERICS_COMPRESSEDSET_HPP
-#define GENERICS_COMPRESSEDSET_HPP
+#pragma once
 
 #include <map>
 
@@ -33,7 +32,7 @@ namespace Generics
      * @return true if no element is present in the set
      */
     bool
-    empty() const throw ();
+    empty() const noexcept;
 
     /**
      * Adds interval [low, high] to the set. Merges stored intervals
@@ -138,7 +137,7 @@ namespace Generics
 
   template <typename Integer>
   bool
-  CompressedSet<Integer>::empty() const throw ()
+  CompressedSet<Integer>::empty() const noexcept
   {
     return holder_.empty();
   }
@@ -377,5 +376,3 @@ namespace Generics
     return itor->second >= high ? CS_ALL : CS_SOME;
   }
 }
-
-#endif

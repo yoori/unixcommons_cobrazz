@@ -1,13 +1,9 @@
-/**
- * @file TestServer.cpp
- */
-
 #include <iostream>
 #include <UServerUtils/GRPCServer.hpp>
 
 
 int
-main() throw ()
+main() noexcept
 {
   try
   {

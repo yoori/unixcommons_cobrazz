@@ -1,5 +1,4 @@
-#ifndef GENERICS_UNCOPYABLE_HPP
-#define GENERICS_UNCOPYABLE_HPP
+#pragma once
 
 namespace Generics
 {
@@ -29,5 +28,3 @@ namespace Generics
     operator =(const Uncopyable&&) = delete;
   };
 }
-
-#endif

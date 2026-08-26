@@ -1,6 +1,4 @@
-// @file PhormHash.hpp
-#ifndef PHORM_HASH_HPP
-#define PHORM_HASH_HPP
+#pragma once
 
 #include <iostream>
 
@@ -167,5 +165,3 @@ test_custom_key_incremental_hash_indirect(const char* hash_name,
       " expected) by hash adapter" << std::endl;
   }
 }
-
-#endif // PHORM_HASH_HPP

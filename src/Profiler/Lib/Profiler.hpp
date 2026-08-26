@@ -1,11 +1,4 @@
-/**
- * @file Profiler.hpp
- * @author Alexey Tsurikov
- *
- */
-
-#ifndef _PROFILER_H
-#define _PROFILER_H
+#pragma once
 #define PROF_FUNCTIONS 3500
 
 #include <time.h>
@@ -39,6 +32,5 @@ public:
  static void CreateMyKey(void);
 protected:
  void
- add_time(timespec& tm) throw ();
+ add_time(timespec& tm) noexcept;
 };
-#endif

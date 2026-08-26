@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_JAPAN_SEGMENTOR_MECAB_HPP
-#define LANGUAGE_JAPAN_SEGMENTOR_MECAB_HPP
+#pragma once
 
 #include <memory>
 
@@ -49,7 +48,7 @@ namespace Language
 
       protected:
         virtual
-        ~MecabSegmentor() throw ();
+        ~MecabSegmentor() noexcept;
 
         template <class Target>
         void
@@ -67,7 +66,7 @@ namespace Language
           MecabTagger_(const char* cmd) /*throw (SegmException)*/;
 
           bool
-          empty() const throw ();
+          empty() const noexcept;
 
           template <class Target>
           void
@@ -76,7 +75,7 @@ namespace Language
 
         private:
           virtual
-          ~MecabTagger_() throw ();
+          ~MecabTagger_() noexcept;
 
           std::unique_ptr<MeCab::Tagger> tagger_;
         };
@@ -84,7 +83,7 @@ namespace Language
 
 
         bool
-        is_valid_utf8_(const char* str, size_t str_len) const throw ();
+        is_valid_utf8_(const char* str, size_t str_len) const noexcept;
 
         MecabTagger_var_
         init_new_tagger_() const /*throw (SegmException)*/;
@@ -108,5 +107,3 @@ namespace Language
     } //namespace Japanese
   } //namespace Segmentor
 } //namespace Language
-
-#endif

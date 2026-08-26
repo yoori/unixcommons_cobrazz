@@ -1,6 +1,4 @@
-// @file Stream/MMapStream.hpp
-#ifndef STREAM_MMAPSTREAM_HPP
-#define STREAM_MMAPSTREAM_HPP
+#pragma once
 
 #include <Stream/MemoryStream.hpp>
 #include <Generics/MMap.hpp>
@@ -60,5 +58,3 @@ namespace Stream
     }
   }
 }
-
-#endif

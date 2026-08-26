@@ -1,9 +1,3 @@
-/**
- * @file   CORBACommons/ProcessControlImpl.cpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Implements class for CORBA process control
- */
-
 #include <CORBACommons/ProcessControlImpl.hpp>
 
 
@@ -13,11 +7,11 @@ namespace CORBACommons
   // OrbShutdowner class
   //
 
-  OrbShutdowner::OrbShutdowner() throw ()
+  OrbShutdowner::OrbShutdowner() noexcept
   {
   }
 
-  OrbShutdowner::~OrbShutdowner() throw ()
+  OrbShutdowner::~OrbShutdowner() noexcept
   {
   }
 
@@ -26,17 +20,17 @@ namespace CORBACommons
   // SimpleOrbShutdowner class
   //
 
-  SimpleOrbShutdowner::SimpleOrbShutdowner(CORBA::ORB_ptr orb) throw ()
+  SimpleOrbShutdowner::SimpleOrbShutdowner(CORBA::ORB_ptr orb) noexcept
     : orb_(CORBA::ORB::_duplicate(orb))
   {
   }
 
-  SimpleOrbShutdowner::~SimpleOrbShutdowner() throw ()
+  SimpleOrbShutdowner::~SimpleOrbShutdowner() noexcept
   {
   }
 
   void
-  SimpleOrbShutdowner::shutdown(bool type) throw ()
+  SimpleOrbShutdowner::shutdown(bool type) noexcept
   {
     if (!CORBA::is_nil(orb_))
     {
@@ -72,7 +66,7 @@ namespace CORBACommons
     }
   }
 
-  ProcessControlImpl::~ProcessControlImpl() throw ()
+  ProcessControlImpl::~ProcessControlImpl() noexcept
   {
     job_->wake(false);
   }
@@ -114,17 +108,17 @@ namespace CORBACommons
   //
 
   ProcessControlImpl::ShutdownJob::ShutdownJob(
-    OrbShutdowner_var& shutdowner) throw ()
+    OrbShutdowner_var& shutdowner) noexcept
     : shutdowner_(shutdowner), sem_(0)
   {
   }
 
-  ProcessControlImpl::ShutdownJob::~ShutdownJob() throw ()
+  ProcessControlImpl::ShutdownJob::~ShutdownJob() noexcept
   {
   }
 
   void
-  ProcessControlImpl::ShutdownJob::work() throw ()
+  ProcessControlImpl::ShutdownJob::work() noexcept
   {
     sem_.acquire();
     if (shutdown_ && shutdowner_)
@@ -134,7 +128,7 @@ namespace CORBACommons
   }
 
   void
-  ProcessControlImpl::ShutdownJob::wake(bool shutdown) throw ()
+  ProcessControlImpl::ShutdownJob::wake(bool shutdown) noexcept
   {
     shutdown_ = shutdown;
     sem_.release();

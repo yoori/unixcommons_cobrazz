@@ -14,22 +14,22 @@ namespace HTTP
       public ReferenceCounting::AtomicImpl
     {
     public:
-      Callback(ResponseCallback* callback, CookiePoolPtr* cookie) throw ();
+      Callback(ResponseCallback* callback, CookiePoolPtr* cookie) noexcept;
 
       virtual
       void
-      on_response(const ResponseInformation& data) throw ();
+      on_response(const ResponseInformation& data) noexcept;
 
       virtual
       void
       on_error(
         const String::SubString& description,
         const RequestInformation& data)
-        throw ();
+        noexcept;
 
     protected:
       virtual
-      ~Callback() throw ();
+      ~Callback() noexcept;
 
     private:
       ResponseCallback_var callback_;
@@ -63,7 +63,7 @@ namespace HTTP
 
     protected:
       virtual
-      ~CookieClient() throw ();
+      ~CookieClient() noexcept;
 
     private:
       void
@@ -80,18 +80,18 @@ namespace HTTP
     //
 
     Callback::Callback(ResponseCallback* callback, CookiePoolPtr* cookie)
-      throw ()
+      noexcept
       : callback_(ReferenceCounting::add_ref(callback)),
         cookie_(ReferenceCounting::add_ref(cookie))
     {
     }
 
-    Callback::~Callback() throw ()
+    Callback::~Callback() noexcept
     {
     }
 
     void
-    Callback::on_response(const ResponseInformation& data) throw ()
+    Callback::on_response(const ResponseInformation& data) noexcept
     {
       try
       {
@@ -112,7 +112,7 @@ namespace HTTP
 
     void
     Callback::on_error(const String::SubString& description,
-      const RequestInformation& data) throw ()
+      const RequestInformation& data) noexcept
     {
       callback_->on_error(description, data);
     }
@@ -158,7 +158,7 @@ namespace HTTP
         body, peer, new_headers);
     }
 
-    CookieClient::~CookieClient() throw ()
+    CookieClient::~CookieClient() noexcept
     {
     }
 

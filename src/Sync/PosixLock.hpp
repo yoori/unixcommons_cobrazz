@@ -1,6 +1,4 @@
-// @file Sync/PosixLock.hpp
-#ifndef SYNC_POSIX_LOCK_HPP
-#define SYNC_POSIX_LOCK_HPP
+#pragma once
 
 #include <pthread.h>
 
@@ -13,24 +11,24 @@ namespace Sync
   {
   public:
     constexpr
-    PosixMutex() throw ();
+    PosixMutex() noexcept;
 
     /**
      * Create mutex and set pshared attribute
      * @param pshared value to do system call pthread_mutexattr_setpshared
      */
     explicit
-    PosixMutex(int pshared) throw ();
+    PosixMutex(int pshared) noexcept;
 
-    ~PosixMutex() throw ();
+    ~PosixMutex() noexcept;
 
-    operator pthread_mutex_t&() throw ();
-
-    void
-    lock() throw ();
+    operator pthread_mutex_t&() noexcept;
 
     void
-    unlock() throw ();
+    lock() noexcept;
+
+    void
+    unlock() noexcept;
 
   private:
     pthread_mutex_t mutex_;
@@ -40,8 +38,8 @@ namespace Sync
   {
   public:
     explicit
-    PosixGuard(pthread_mutex_t& mutex) throw ();
-    ~PosixGuard() throw ();
+    PosixGuard(pthread_mutex_t& mutex) noexcept;
+    ~PosixGuard() noexcept;
 
   private:
     pthread_mutex_t& mutex_;
@@ -51,9 +49,9 @@ namespace Sync
   {
   public:
     explicit
-    PosixTryGuard(pthread_mutex_t& mutex) throw ();
-    ~PosixTryGuard() throw ();
-    operator bool() const throw ();
+    PosixTryGuard(pthread_mutex_t& mutex) noexcept;
+    ~PosixTryGuard() noexcept;
+    operator bool() const noexcept;
 
   private:
     pthread_mutex_t& mutex_;
@@ -64,15 +62,15 @@ namespace Sync
   {
   public:
     constexpr
-    PosixRWLock() throw ();
-    ~PosixRWLock() throw ();
-    operator pthread_rwlock_t&() throw ();
+    PosixRWLock() noexcept;
+    ~PosixRWLock() noexcept;
+    operator pthread_rwlock_t&() noexcept;
     void
-    lock_read() throw ();
+    lock_read() noexcept;
     void
-    lock_write() throw ();
+    lock_write() noexcept;
     void
-    unlock() throw ();
+    unlock() noexcept;
 
   private:
     pthread_rwlock_t lock_;
@@ -82,8 +80,8 @@ namespace Sync
   {
   public:
     explicit
-    PosixRGuard(pthread_rwlock_t& lock) throw ();
-    ~PosixRGuard() throw ();
+    PosixRGuard(pthread_rwlock_t& lock) noexcept;
+    ~PosixRGuard() noexcept;
 
   private:
     pthread_rwlock_t& lock_;
@@ -93,8 +91,8 @@ namespace Sync
   {
   public:
     explicit
-    PosixWGuard(pthread_rwlock_t& lock) throw ();
-    ~PosixWGuard() throw ();
+    PosixWGuard(pthread_rwlock_t& lock) noexcept;
+    ~PosixWGuard() noexcept;
 
   private:
     pthread_rwlock_t& lock_;
@@ -108,17 +106,17 @@ namespace Sync
      * @param pshared value to do system call pthread_spin_init
      */
     explicit
-    PosixSpinLock(int pshared = PTHREAD_PROCESS_PRIVATE) throw ();
+    PosixSpinLock(int pshared = PTHREAD_PROCESS_PRIVATE) noexcept;
 
-    ~PosixSpinLock() throw ();
+    ~PosixSpinLock() noexcept;
 
-    operator pthread_spinlock_t&() throw ();
-
-    void
-    lock() throw ();
+    operator pthread_spinlock_t&() noexcept;
 
     void
-    unlock() throw ();
+    lock() noexcept;
+
+    void
+    unlock() noexcept;
 
   private:
     pthread_spinlock_t spinlock_;
@@ -128,8 +126,8 @@ namespace Sync
   {
   public:
     explicit
-    PosixSpinGuard(pthread_spinlock_t& mutex) throw ();
-    ~PosixSpinGuard() throw ();
+    PosixSpinGuard(pthread_spinlock_t& mutex) noexcept;
+    ~PosixSpinGuard() noexcept;
 
   private:
     pthread_spinlock_t& spinlock_;
@@ -148,13 +146,13 @@ namespace Sync
 
   inline
   constexpr
-  PosixMutex::PosixMutex() throw ()
+  PosixMutex::PosixMutex() noexcept
     : mutex_ PTHREAD_MUTEX_INITIALIZER
   {
   }
 
   inline
-  PosixMutex::PosixMutex(int pshared) throw ()
+  PosixMutex::PosixMutex(int pshared) noexcept
   {
     pthread_mutexattr_t mutex_attributes;
     pthread_mutexattr_init(&mutex_attributes);
@@ -163,27 +161,27 @@ namespace Sync
   }
 
   inline
-  PosixMutex::~PosixMutex() throw ()
+  PosixMutex::~PosixMutex() noexcept
   {
     pthread_mutex_destroy(&mutex_);
   }
 
   inline
-  PosixMutex::operator pthread_mutex_t&() throw ()
+  PosixMutex::operator pthread_mutex_t&() noexcept
   {
     return mutex_;
   }
 
   inline
   void
-  PosixMutex::lock() throw ()
+  PosixMutex::lock() noexcept
   {
     pthread_mutex_lock(&mutex_);
   }
 
   inline
   void
-  PosixMutex::unlock() throw ()
+  PosixMutex::unlock() noexcept
   {
     pthread_mutex_unlock(&mutex_);
   }
@@ -194,14 +192,14 @@ namespace Sync
   //
 
   inline
-  PosixGuard::PosixGuard(pthread_mutex_t& mutex) throw ()
+  PosixGuard::PosixGuard(pthread_mutex_t& mutex) noexcept
     : mutex_(mutex)
   {
     pthread_mutex_lock(&mutex_);
   }
 
   inline
-  PosixGuard::~PosixGuard() throw ()
+  PosixGuard::~PosixGuard() noexcept
   {
     pthread_mutex_unlock(&mutex_);
   }
@@ -212,13 +210,13 @@ namespace Sync
   //
 
   inline
-  PosixTryGuard::PosixTryGuard(pthread_mutex_t& mutex) throw ()
+  PosixTryGuard::PosixTryGuard(pthread_mutex_t& mutex) noexcept
     : mutex_(mutex), locked_(!pthread_mutex_trylock(&mutex_))
   {
   }
 
   inline
-  PosixTryGuard::~PosixTryGuard() throw ()
+  PosixTryGuard::~PosixTryGuard() noexcept
   {
     if (locked_)
     {
@@ -227,7 +225,7 @@ namespace Sync
   }
 
   inline
-  PosixTryGuard::operator bool() const throw ()
+  PosixTryGuard::operator bool() const noexcept
   {
     return locked_;
   }
@@ -239,40 +237,40 @@ namespace Sync
 
   inline
   constexpr
-  PosixRWLock::PosixRWLock() throw ()
+  PosixRWLock::PosixRWLock() noexcept
     : lock_ PTHREAD_RWLOCK_INITIALIZER
   {
   }
 
   inline
-  PosixRWLock::~PosixRWLock() throw ()
+  PosixRWLock::~PosixRWLock() noexcept
   {
     pthread_rwlock_destroy(&lock_);
   }
 
   inline
-  PosixRWLock::operator pthread_rwlock_t&() throw ()
+  PosixRWLock::operator pthread_rwlock_t&() noexcept
   {
     return lock_;
   }
 
   inline
   void
-  PosixRWLock::lock_read() throw ()
+  PosixRWLock::lock_read() noexcept
   {
     pthread_rwlock_rdlock(&lock_);
   }
 
   inline
   void
-  PosixRWLock::lock_write() throw ()
+  PosixRWLock::lock_write() noexcept
   {
     pthread_rwlock_wrlock(&lock_);
   }
 
   inline
   void
-  PosixRWLock::unlock() throw ()
+  PosixRWLock::unlock() noexcept
   {
     pthread_rwlock_unlock(&lock_);
   }
@@ -283,14 +281,14 @@ namespace Sync
   //
 
   inline
-  PosixRGuard::PosixRGuard(pthread_rwlock_t& lock) throw ()
+  PosixRGuard::PosixRGuard(pthread_rwlock_t& lock) noexcept
     : lock_(lock)
   {
     pthread_rwlock_rdlock(&lock_);
   }
 
   inline
-  PosixRGuard::~PosixRGuard() throw ()
+  PosixRGuard::~PosixRGuard() noexcept
   {
     pthread_rwlock_unlock(&lock_);
   }
@@ -301,14 +299,14 @@ namespace Sync
   //
 
   inline
-  PosixWGuard::PosixWGuard(pthread_rwlock_t& lock) throw ()
+  PosixWGuard::PosixWGuard(pthread_rwlock_t& lock) noexcept
     : lock_(lock)
   {
     pthread_rwlock_wrlock(&lock_);
   }
 
   inline
-  PosixWGuard::~PosixWGuard() throw ()
+  PosixWGuard::~PosixWGuard() noexcept
   {
     pthread_rwlock_unlock(&lock_);
   }
@@ -319,33 +317,33 @@ namespace Sync
   //
 
   inline
-  PosixSpinLock::PosixSpinLock(int pshared) throw ()
+  PosixSpinLock::PosixSpinLock(int pshared) noexcept
   {
     pthread_spin_init(&spinlock_, pshared);
   }
 
   inline
-  PosixSpinLock::~PosixSpinLock() throw ()
+  PosixSpinLock::~PosixSpinLock() noexcept
   {
     pthread_spin_destroy(&spinlock_);
   }
 
   inline
-  PosixSpinLock::operator pthread_spinlock_t& () throw ()
+  PosixSpinLock::operator pthread_spinlock_t& () noexcept
   {
     return spinlock_;
   }
 
   inline
   void
-  PosixSpinLock::lock() throw ()
+  PosixSpinLock::lock() noexcept
   {
     pthread_spin_lock(&spinlock_);
   }
 
   inline
   void
-  PosixSpinLock::unlock() throw ()
+  PosixSpinLock::unlock() noexcept
   {
     pthread_spin_unlock(&spinlock_);
   }
@@ -356,17 +354,15 @@ namespace Sync
   //
 
   inline
-  PosixSpinGuard::PosixSpinGuard(pthread_spinlock_t& spinlock) throw ()
+  PosixSpinGuard::PosixSpinGuard(pthread_spinlock_t& spinlock) noexcept
     : spinlock_(spinlock)
   {
     pthread_spin_lock(&spinlock_);
   }
 
   inline
-  PosixSpinGuard::~PosixSpinGuard() throw ()
+  PosixSpinGuard::~PosixSpinGuard() noexcept
   {
     pthread_spin_unlock(&spinlock_);
   }
 }
-
-#endif

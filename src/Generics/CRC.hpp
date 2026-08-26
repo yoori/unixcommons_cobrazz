@@ -1,10 +1,4 @@
-/**
- * @file   CRC.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef GENERICS_CRC_HPP
-#define GENERICS_CRC_HPP
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -21,7 +15,7 @@ namespace Generics
      * @param size its size
      */
     uint32_t
-    quick(uint32_t crc, const void* data, size_t size) throw ();
+    quick(uint32_t crc, const void* data, size_t size) noexcept;
 
     /**
      * Calculates reversed CRC32 of the supplied data
@@ -30,7 +24,7 @@ namespace Generics
      * @param size its size
      */
     uint32_t
-    reversed(uint32_t crc, const void* data, size_t size) throw ();
+    reversed(uint32_t crc, const void* data, size_t size) noexcept;
   }
 }
 
@@ -44,7 +38,7 @@ namespace Generics
     inline
     uint32_t
     quick(uint32_t crc, const void* data, size_t size)
-      throw ()
+      noexcept
     {
       const uint8_t* udata = static_cast<const uint8_t*>(data);
       while (size-- > 0)
@@ -60,7 +54,7 @@ namespace Generics
     inline
     uint32_t
     reversed(uint32_t crc, const void* data, size_t size)
-      throw ()
+      noexcept
     {
       const uint8_t* udata = static_cast<const uint8_t*>(data);
       crc = ~crc;
@@ -73,5 +67,3 @@ namespace Generics
     }
   }
 }
-
-#endif

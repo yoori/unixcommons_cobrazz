@@ -1,5 +1,4 @@
-#ifndef GENERICS_DEBUG_HPP
-#define GENERICS_DEBUG_HPP
+#pragma once
 
 #ifdef DEV_DEBUG
 
@@ -11,7 +10,5 @@
 #else
 
 #define DEV_ASSERT(x)
-
-#endif
 
 #endif

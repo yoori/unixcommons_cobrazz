@@ -35,7 +35,7 @@ const std::string ECHO_POST_REQUEST = REQUEST + "/cgi-bin/echo.pl";
 const char echo_test_name[] = "EchoTest";
 
 const char*
-EchoTest::usage() throw()
+EchoTest::usage() noexcept
 {
   return "[EchoTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -90,7 +90,7 @@ EchoTest::checkup_and_print_stat() /*throw (eh::Exception)*/
   return stat_.str();
 }
 
-EchoTest::~EchoTest() throw ()
+EchoTest::~EchoTest() noexcept
 {
 }
 
@@ -106,7 +106,7 @@ const std::string UNREQUITED_REQ = REQUEST + "/cgi-bin/nonexistant.pl";
 const char nonexistance_test_name[] = "NonexistanceTest";
 
 const char*
-NonExistanceTest::usage() throw()
+NonExistanceTest::usage() noexcept
 {
   return "[NonExistanceTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -160,7 +160,7 @@ NonExistanceTest::checkup_and_print_stat() /*throw (eh::Exception)*/
   return stat_.str();
 }
 
-NonExistanceTest::~NonExistanceTest() throw ()
+NonExistanceTest::~NonExistanceTest() noexcept
 {
 }
 
@@ -177,7 +177,7 @@ const std::string BAD_REQ = std::string("http://") + SERVER.first +
 const char bad_address_test_name[] = "BadAddressTest";
 
 const char*
-BadAddressTest::usage() throw()
+BadAddressTest::usage() noexcept
 {
   return "[BadAddressTest]\n"
          "1. Sends GET and POST requests one after another to server,\n"
@@ -230,7 +230,7 @@ BadAddressTest::checkup_and_print_stat() /*throw (eh::Exception)*/
   return stat_.str();
 }
 
-BadAddressTest::~BadAddressTest() throw ()
+BadAddressTest::~BadAddressTest() noexcept
 {
 }
 
@@ -247,7 +247,7 @@ const std::string INTERRUPT_REQ = std::string("http://") + SERVER.first +
 const char interrupt_test_name[] = "InterruptTest";
 
 const char*
-InterruptTest::usage() throw()
+InterruptTest::usage() noexcept
 {
   return "[InterruptTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -270,12 +270,12 @@ InterruptCallback::InterruptCallback(HTTP::PoolPolicy* policy,
 {
 }
 
-InterruptCallback::~InterruptCallback() throw()
+InterruptCallback::~InterruptCallback() noexcept
 {
 }
 
 void
-InterruptCallback::on_response(const HTTP::ResponseInformation& data) throw ()
+InterruptCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   check();
   SimpleCounterCallback::on_response(data);
@@ -283,7 +283,7 @@ InterruptCallback::on_response(const HTTP::ResponseInformation& data) throw ()
 
 void
 InterruptCallback::on_error(const String::SubString& description,
-  const HTTP::RequestInformation& data) throw ()
+  const HTTP::RequestInformation& data) noexcept
 {
   check();
   SimpleCounterCallback::on_error(description, data);
@@ -291,7 +291,7 @@ InterruptCallback::on_error(const String::SubString& description,
 
 inline
 void
-InterruptCallback::check() throw()
+InterruptCallback::check() noexcept
 {
   if (cnt_ >= 50)
   {
@@ -370,7 +370,7 @@ InterruptTest::checkup_and_print_stat() /*throw (eh::Exception)*/
   return stat_.str();
 }
 
-InterruptTest::~InterruptTest() throw ()
+InterruptTest::~InterruptTest() noexcept
 {
 }
 
@@ -386,7 +386,7 @@ const std::string BAD_RESP_REQ = REQUEST + "/cgi-bin/bad_resp.pl";
 const char bad_response_test_name[] = "BadResponseTest";
 
 const char*
-BadRespTest::usage() throw()
+BadRespTest::usage() noexcept
 {
   return "[BadRespTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -455,6 +455,6 @@ BadRespTest::checkup_and_print_stat() /*throw (eh::Exception)*/
   return stat_.str();
 }
 
-BadRespTest::~BadRespTest() throw ()
+BadRespTest::~BadRespTest() noexcept
 {
 }

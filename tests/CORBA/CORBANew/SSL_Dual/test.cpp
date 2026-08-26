@@ -7,7 +7,7 @@ class Echo_i : public POA_Echo
 public:
   Echo_i(CORBA::ORB_ptr orb);
   virtual char*
-  echoString(const char* message, const char* ior) throw ();
+  echoString(const char* message, const char* ior) noexcept;
 
 private:
   CORBA::ORB_ptr orb_;
@@ -19,7 +19,7 @@ Echo_i::Echo_i(CORBA::ORB_ptr orb)
 }
 
 char*
-Echo_i::echoString(const char* message, const char* ior) throw ()
+Echo_i::echoString(const char* message, const char* ior) noexcept
 {
   std::cerr << "Server!\n" << ior << std::endl;
   sleep(5);

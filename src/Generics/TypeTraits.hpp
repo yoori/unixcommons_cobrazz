@@ -1,6 +1,5 @@
 // Generics/TypeTraits.hpp
-#ifndef GENERICS_TYPE_TRAITS_HPP
-#define GENERICS_TYPE_TRAITS_HPP
+#pragma once
 
 #include <limits>
 
@@ -25,9 +24,9 @@ namespace Generics
   {
   public:
     explicit
-    Inserter(Container& container) throw ();
+    Inserter(Container& container) noexcept;
     Inserter&
-    operator *() throw ();
+    operator *() noexcept;
     template <typename T>
     Inserter&
     operator =(T&& data) /*throw (eh::Exception)*/;
@@ -38,7 +37,7 @@ namespace Generics
 
   template <typename Integer>
   Integer
-  safe_next(Integer number) throw ()
+  safe_next(Integer number) noexcept
   {
     return number < std::numeric_limits<Integer>::max() ?
       number + 1 : number;
@@ -48,11 +47,11 @@ namespace Generics
   class PairPtr : private Generics::Uncopyable
   {
   public:
-    PairPtr(From* from) throw ();
-    PairPtr(PairPtr&& other) throw ();
+    PairPtr(From* from) noexcept;
+    PairPtr(PairPtr&& other) noexcept;
 
     To*
-    operator ->() throw ();
+    operator ->() noexcept;
 
   private:
     To to;
@@ -66,14 +65,14 @@ namespace Generics
   //
 
   template <typename Container>
-  Inserter<Container>::Inserter(Container& container) throw ()
+  Inserter<Container>::Inserter(Container& container) noexcept
     : container_(container)
   {
   }
 
   template <typename Container>
   Inserter<Container>&
-  Inserter<Container>::operator *() throw ()
+  Inserter<Container>::operator *() noexcept
   {
     return *this;
   }
@@ -93,23 +92,21 @@ namespace Generics
   //
 
   template <typename From, typename To>
-  PairPtr<From, To>::PairPtr(From* from) throw ()
+  PairPtr<From, To>::PairPtr(From* from) noexcept
     : to(from->first, from->second)
   {
   }
 
   template <typename From, typename To>
-  PairPtr<From, To>::PairPtr(PairPtr&& other) throw ()
+  PairPtr<From, To>::PairPtr(PairPtr&& other) noexcept
     : to(other.to)
   {
   }
 
   template <typename From, typename To>
   To*
-  PairPtr<From, To>::operator ->() throw ()
+  PairPtr<From, To>::operator ->() noexcept
   {
     return &to;
   }
 }
-
-#endif

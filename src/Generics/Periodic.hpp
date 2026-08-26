@@ -1,5 +1,4 @@
-#ifndef GENERICS_PERIODIC_HPP
-#define GENERICS_PERIODIC_HPP
+#pragma once
 
 #include <ReferenceCounting/Vector.hpp>
 
@@ -27,7 +26,7 @@ namespace Generics
      * @param period new desired time interval
      */
     void
-    set_period(const Generics::Time& period) throw ();
+    set_period(const Generics::Time& period) noexcept;
 
     /**
      * Wait time calculator. Depending on elapsed time it calculates
@@ -37,7 +36,7 @@ namespace Generics
      */
     virtual
     Generics::Time
-    wait_period(const Generics::Time& elapsed) const throw ();
+    wait_period(const Generics::Time& elapsed) const noexcept;
 
     /**
      * Action function to execute.
@@ -59,14 +58,14 @@ namespace Generics
      * @param forced it will be passed to task function
      */
     void
-    run_once(ActiveObjectCallback* callback, bool forced) throw ();
+    run_once(ActiveObjectCallback* callback, bool forced) noexcept;
 
     /**
      * Runs the main cycle with action execution and wait.
      * Can be used for separate (without Periodic) functionality usage.
      */
     void
-    run(ActiveObjectCallback* callback) throw ();
+    run(ActiveObjectCallback* callback) noexcept;
 
     /**
      * Notifies to break the main cycle
@@ -79,7 +78,7 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~PeriodicTask() throw ();
+    ~PeriodicTask() noexcept;
 
   protected:
     mutable Sync::PosixMutex mutex_;
@@ -173,25 +172,25 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~PeriodicRunner() throw ();
+    ~PeriodicRunner() noexcept;
 
   private:
     class PeriodicJob : public ThreadJob
     {
     public:
       PeriodicJob(ActiveObjectCallback* callback, PeriodicTask* task)
-        throw ();
+        noexcept;
 
       virtual
       void
-      work() throw ();
+      work() noexcept;
 
       void
       signal(void (PeriodicTask::*signal)()) /*throw (eh::Exception)*/;
 
     protected:
       virtual
-      ~PeriodicJob() throw ();
+      ~PeriodicJob() noexcept;
 
     private:
       ActiveObjectCallback_var callback_;
@@ -215,5 +214,3 @@ namespace Generics
   };
   typedef ReferenceCounting::QualPtr<PeriodicRunner> PeriodicRunner_var;
 }
-
-#endif

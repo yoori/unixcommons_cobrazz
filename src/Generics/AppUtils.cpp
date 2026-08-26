@@ -8,7 +8,7 @@ namespace Generics
   namespace AppUtils
   {
     OptionCont
-    OptionCont::operator ||(const OptionCont& right) throw ()
+    OptionCont::operator ||(const OptionCont& right) noexcept
     {
       OptionCont ret(*this);
 
@@ -22,13 +22,13 @@ namespace Generics
 
     /**X Args::ParseState */
     Args::ParseState::ParseState(unsigned long argc_val,
-      const char* const *argv_val, const char* arg_pos_val) throw ()
+      const char* const *argv_val, const char* arg_pos_val) noexcept
       : argc_(argc_val), argv_(argv_val), arg_pos_(arg_pos_val)
     {
     }
 
     bool
-    Args::ParseState::next_word() throw ()
+    Args::ParseState::next_word() noexcept
     {
       ++argv_;
       --argc_;
@@ -37,19 +37,19 @@ namespace Generics
     };
 
     bool
-    Args::ParseState::end() throw ()
+    Args::ParseState::end() noexcept
     {
       return argc_ == 0;
     }
 
     const char*
-    Args::ParseState::current_pos() throw ()
+    Args::ParseState::current_pos() noexcept
     {
       return arg_pos_;
     }
 
     void
-    Args::ParseState::current_pos(const char* pos) throw ()
+    Args::ParseState::current_pos(const char* pos) noexcept
     {
       arg_pos_ = pos;
     }

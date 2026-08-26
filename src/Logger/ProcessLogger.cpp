@@ -40,7 +40,7 @@ namespace Logging
         }
       }
 
-      Handler::~Handler() throw ()
+      Handler::~Handler() noexcept
       {
         if (child_ != -1)
         {

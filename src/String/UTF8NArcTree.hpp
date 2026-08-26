@@ -1,12 +1,4 @@
-/**
- * @file String/UTF8NArcTree.hpp
- * N-arc static tree definitions
- * Used for subsets of UTF-8 sequences representation.
- * We can use this storage method for fastest access and search routines.
- */
-
-#ifndef STRING_UTF8_NARCTREE_HPP
-#define STRING_UTF8_NARCTREE_HPP
+#pragma once
 
 #include <String/UTF8Handler.hpp>
 
@@ -19,13 +11,13 @@ namespace String
     union Node
     {
       constexpr
-      Node() throw ();
+      Node() noexcept;
       constexpr
-      Node(int) throw ();
+      Node(int) noexcept;
       constexpr
-      Node(long long unsigned int leaf) throw ();
+      Node(long long unsigned int leaf) noexcept;
       constexpr
-      Node(const Node* node) throw ();
+      Node(const Node* node) noexcept;
 
       TreeLeaf leaf;
       const Node* node;
@@ -40,7 +32,7 @@ namespace String
      * @param str input data with checking character UTF-8 encoded.
      */
     bool
-    belong(const TreeStartNode& tree, const char* str) throw ();
+    belong(const TreeStartNode& tree, const char* str) noexcept;
   } // namespace UnicodeProperty
 } // namespace String
 
@@ -58,28 +50,28 @@ namespace String
 
     inline
     constexpr
-    Node::Node() throw ()
+    Node::Node() noexcept
       : node(0)
     {
     }
 
     inline
     constexpr
-    Node::Node(int) throw ()
+    Node::Node(int) noexcept
       : node(0)
     {
     }
 
     inline
     constexpr
-    Node::Node(long long unsigned int leaf) throw ()
+    Node::Node(long long unsigned int leaf) noexcept
       : leaf(leaf)
     {
     }
 
     inline
     constexpr
-    Node::Node(const Node* node) throw ()
+    Node::Node(const Node* node) noexcept
       : node(node)
     {
     }
@@ -87,7 +79,7 @@ namespace String
 
     inline
     bool
-    belong(const TreeStartNode& tree, const char* str) throw ()
+    belong(const TreeStartNode& tree, const char* str) noexcept
     {
       const Node* current_tree = &tree[static_cast<uint8_t>(*str)];
       for (unsigned long depth = UTF8Handler::get_octet_count(*str);
@@ -109,5 +101,3 @@ namespace String
     }
   }
 }
-
-#endif

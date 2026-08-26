@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Static N-arc tree definition for is_letter_lower property
 
-// @file String/UTF8IsLowerLetter.cpp
 #include <String/UTF8IsProperty.hpp>
 
 

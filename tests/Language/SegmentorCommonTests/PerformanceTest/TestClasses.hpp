@@ -1,5 +1,4 @@
-#ifndef _GENERAL_SEGMETOR_TEST_TEST_CLASSES_HPP_
-#define _GENERAL_SEGMETOR_TEST_TEST_CLASSES_HPP_
+#pragma once
 
 #include <sstream>
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
@@ -65,18 +64,18 @@ public:
   void dump(std::ostream& out);
 
   const SegmentorStats* find_segmentor_stats(
-    const Language::Segmentor::SegmentorInterface* id) const throw();
+    const Language::Segmentor::SegmentorInterface* id) const noexcept;
 
   void flush_segmentor_stats(SegmentorStats& stats,
     const Language::Segmentor::SegmentorInterface* id, Operation op)
     /*throw(eh::Exception)*/;
 
-  size_t get_segmentations_count() const throw();
-  double get_average_seqs_length() const throw();
+  size_t get_segmentations_count() const noexcept;
+  double get_average_seqs_length() const noexcept;
 
 private:
 
-  static bool is_space_(const char ch) throw();
+  static bool is_space_(const char ch) noexcept;
 
   typedef std::vector<SegmentorStats> SegmentorsStats_;
 
@@ -102,14 +101,14 @@ class CommonFunctor
   virtual void operator()() const = 0;
 
   const CheckSegmentResult::SegmentorStats* find_segmentor_stats(
-    const Language::Segmentor::SegmentorInterface* id) const throw();
+    const Language::Segmentor::SegmentorInterface* id) const noexcept;
 
   void dump(std::ostream& out);
 
-  size_t get_segmentations_count() const throw();
-  double get_average_seqs_length() const throw();
+  size_t get_segmentations_count() const noexcept;
+  double get_average_seqs_length() const noexcept;
 
-  virtual ~CommonFunctor() throw();
+  virtual ~CommonFunctor() noexcept;
 
 protected:
 
@@ -138,7 +137,7 @@ public:
 
   virtual void operator()() const;
 
-  virtual ~RandomUtf8SegmentFunctor() throw();
+  virtual ~RandomUtf8SegmentFunctor() noexcept;
 
 protected:
 
@@ -160,7 +159,7 @@ public:
 
   virtual void operator()() const;
 
-  virtual ~ParseStdIn() throw();
+  virtual ~ParseStdIn() noexcept;
 
 private:
 
@@ -181,7 +180,7 @@ public:
 
   virtual void operator()() const;
 
-  virtual ~RandomAsciiSegmentFunctor() throw();
+  virtual ~RandomAsciiSegmentFunctor() noexcept;
 };
 
 //
@@ -197,7 +196,7 @@ public:
 
   virtual void operator()() const;
 
-  virtual ~ParseFile() throw();
+  virtual ~ParseFile() noexcept;
 
 private:
 
@@ -205,5 +204,3 @@ private:
   int max_iteration_number_;
   bool check_transforms_;
 };
-
-#endif

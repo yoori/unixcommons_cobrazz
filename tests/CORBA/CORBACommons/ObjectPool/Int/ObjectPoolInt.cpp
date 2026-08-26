@@ -7,7 +7,7 @@ struct ConfigInt : public CORBACommons::ObjectPoolConfiguration<int, int>
   {
     template <typename T>
     T
-    resolve(int ref) throw ()
+    resolve(int ref) noexcept
     {
       return -ref;
     }

@@ -30,7 +30,7 @@ class ResponseCounter
 {
 public:
   void
-  success() throw ()
+  success() noexcept
   {
     counter_.success();
   }
@@ -52,13 +52,13 @@ public:
   }
 
   int
-  succeeded() const throw ()
+  succeeded() const noexcept
   {
     return counter_.succeeded();
   }
 
   int
-  failed() const throw ()
+  failed() const noexcept
   {
     return counter_.failed();
   }
@@ -87,7 +87,7 @@ public:
 
   virtual void
   server_connection_added(Identifier server, Identifier connection)
-    throw ()
+    noexcept
   {
     PoolPolicySimpleDecider::server_connection_added(server, connection);
     __gnu_cxx::__atomic_add(&connections_, 1);
@@ -95,13 +95,13 @@ public:
 
   virtual void
   report_error(Severity /*severity*/, const String::SubString& description,
-    const char* /*error_code*/) throw ()
+    const char* /*error_code*/) noexcept
   {
     errors_.add(description, true);
   }
 protected:
   virtual
-  ~MyPolicy() throw ()
+  ~MyPolicy() noexcept
   {
     std::cout << "Number of connections created: " << connections_ << std::endl;
     std::cout << "Policy errors:" << std::endl;
@@ -118,19 +118,19 @@ class CallbackRequester :
 {
 public:
   CallbackRequester(HttpInterface* pool,
-    Sync::Semaphore& semaphore) throw ()
+    Sync::Semaphore& semaphore) noexcept
     : pool_(ReferenceCounting::add_ref(pool)), semaphore_(semaphore)
   {
   }
 
   virtual void
-  on_response(const ResponseInformation& /*data*/) throw ()
+  on_response(const ResponseInformation& /*data*/) noexcept
   {
     response_counter_.success();
   }
 
   virtual void
-  on_error(const String::SubString& description, const RequestInformation& data) throw ()
+  on_error(const String::SubString& description, const RequestInformation& data) noexcept
   {
     std::string error;
     try
@@ -146,7 +146,7 @@ public:
   }
 
   void
-  operator ()() throw ()
+  operator ()() noexcept
   {
     ResponseCallback_var cb(this);
     add_ref();
@@ -184,7 +184,7 @@ public:
 
 protected:
   virtual
-  ~CallbackRequester() throw ()
+  ~CallbackRequester() noexcept
   {
     std::cout << "Addition: ";
     addition_.print();

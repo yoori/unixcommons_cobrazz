@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_KOREAN_SEGMENTOR_KOREAN_HPP
-#define LANGUAGE_KOREAN_SEGMENTOR_KOREAN_HPP
+#pragma once
 
 #include <String/StringManip.hpp>
 #include <String/UTF8Handler.hpp>
@@ -18,5 +17,3 @@ namespace Language
     }
   }
 }
-
-#endif

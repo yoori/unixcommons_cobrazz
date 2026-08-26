@@ -1,10 +1,4 @@
-/**
- * @file TestClasses.hpp
- * @author unknown
- * @modified Alexey Bulavitsky [alexey_bulavitsky@ocslab.com]
- */
-#ifndef LANGUAGE_SEGMENTOR_COMMON_TESTS_ALL_SEQUENCE_TESTS_TEST_CLASSES_HPP
-#define LANGUAGE_SEGMENTOR_COMMON_TESTS_ALL_SEQUENCE_TESTS_TEST_CLASSES_HPP
+#pragma once
 
 #include <iostream>
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
@@ -52,7 +46,7 @@ public:
           bool symbols_only)
     /*throw (SegmentError)*/;
 
-  virtual ~Segment() throw ();
+  virtual ~Segment() noexcept;
 
   /**
    * Main entry point for task execution
@@ -121,7 +115,7 @@ private:
   bool
   equal_ignore_spaces(const char *orig, size_t orig_len,
                       const char *with_spaces, size_t with_spaces_len)
-    throw ();
+    noexcept;
 
   Language::Segmentor::SegmentorInterface_var segmentor_;
   unsigned long start_border_;
@@ -135,7 +129,7 @@ typedef ReferenceCounting::SmartPtr<Segment> Segment_var;
 
 inline
 Segment::~Segment()
-  throw ()
+  noexcept
 {
 }
 
@@ -190,5 +184,3 @@ Segment::check_with_walker_(std::istream&, std::ostream& estrm) const
     while (test_str.next());
   }
 }
-
-#endif //LANGUAGE_SEGMENTOR_COMMON_TESTS_ALL_SEQUENCE_TESTS_TEST_CLASSES_HPP

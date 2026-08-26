@@ -1,6 +1,3 @@
-// @file String/UnicodeNormalizer.cpp
-// @author Denis Badikov
-
 #include <cstddef>
 #include <algorithm>
 
@@ -33,7 +30,7 @@ namespace
   template <typename Table>
   wchar_t*
   decompose(const Table* body, const uint16_t* indices,
-    wchar_t wch, wchar_t start, wchar_t* output) throw ()
+    wchar_t wch, wchar_t start, wchar_t* output) noexcept
   {
     indices += wch - start;
     const Table* cur = &body[indices[0]];
@@ -57,7 +54,7 @@ namespace
   inline
   wchar_t*
   decompose(const uint64_t* body, wchar_t wch, wchar_t start,
-    wchar_t* output) throw ()
+    wchar_t* output) noexcept
   {
     start = wch - start;
     if (!(body[start >> 6] & (1ull << (start & 0x3F))))
@@ -71,7 +68,7 @@ namespace
   template <typename Table>
   wchar_t*
   decompose(const Table* body, wchar_t wch, wchar_t start, wchar_t* output)
-    throw ()
+    noexcept
   {
     wch = body[wch - start];
     if (!wch)
@@ -88,7 +85,7 @@ namespace String
   namespace Normalizer
   {
     wchar_t*
-    hangul_decompose(wchar_t wch, wchar_t* output) throw ()
+    hangul_decompose(wchar_t wch, wchar_t* output) noexcept
     {
       if (wch < S_BASE || wch >= S_BASE + S_COUNT)
       {
@@ -108,7 +105,7 @@ namespace String
     }
 
     wchar_t*
-    decompose_2008(wchar_t wch, wchar_t* output) throw ()
+    decompose_2008(wchar_t wch, wchar_t* output) noexcept
     {
       if (wch <= 0x33FF)
       {
@@ -557,7 +554,7 @@ namespace String
     }
 
     wchar_t*
-    decompose_2003(wchar_t wch, wchar_t* output) throw ()
+    decompose_2003(wchar_t wch, wchar_t* output) noexcept
     {
       wchar_t* res = decompose_2008(wch, output);
       if (res)
@@ -585,25 +582,25 @@ namespace String
 
 
     int
-    get_non_zero_combining_class(uint32_t wch) throw ()
+    get_non_zero_combining_class(uint32_t wch) noexcept
     {
       return (*Combining::COMBINING_CLASS_INDEX[wch >> 8])[wch & 0xFF];
     }
 
     int
-    get_combining_class(uint32_t wch) throw ()
+    get_combining_class(uint32_t wch) noexcept
     {
       return wch > 0x1D244 ? 0 : get_non_zero_combining_class(wch);
     }
 
     bool
-    is_starter(uint32_t wch) throw ()
+    is_starter(uint32_t wch) noexcept
     {
       return get_combining_class(wch) == 0;
     }
 
     bool
-    canonical_order(wchar_t a, wchar_t b) throw ()
+    canonical_order(wchar_t a, wchar_t b) noexcept
     {
       return get_non_zero_combining_class(a) <
         get_non_zero_combining_class(b);
@@ -611,7 +608,7 @@ namespace String
 
     wchar_t*
     normalize(const wchar_t* input, const wchar_t* last, wchar_t* output,
-      wchar_t* (*decomposer)(wchar_t, wchar_t*) throw ()) throw ()
+      wchar_t* (*decomposer)(wchar_t, wchar_t*) noexcept) noexcept
     {
       // output will point to first raw, unwritten byte!
       wchar_t* first_combiner = output;
@@ -669,7 +666,7 @@ namespace String
     }
 
     unsigned
-    hash(wchar_t starter, wchar_t combiner) throw ()
+    hash(wchar_t starter, wchar_t combiner) noexcept
     {
       unsigned hash = starter;
       hash ^= (hash & 0x800) >> 6;
@@ -681,7 +678,7 @@ namespace String
     }
 
     wchar_t*
-    compose_string(wchar_t* first, const wchar_t* last) throw ()
+    compose_string(wchar_t* first, const wchar_t* last) noexcept
     {
       wchar_t* write_pos = first;
 
@@ -700,7 +697,7 @@ namespace String
      */
     bool
     pair_compose(wchar_t& maybe_starter, int& last_class,
-      wchar_t*& first, wchar_t*& output) throw ()
+      wchar_t*& first, wchar_t*& output) noexcept
     {
       wchar_t& maybe_combiner = *first;
       int combiner_class = get_combining_class(maybe_combiner);
@@ -777,7 +774,7 @@ namespace String
      * @return if cannot be composed, needs forward to next starter!
      */
     wchar_t*
-    compose(wchar_t*& first, const wchar_t* last, wchar_t* output) throw ()
+    compose(wchar_t*& first, const wchar_t* last, wchar_t* output) noexcept
     {
       *output = *first++;
       if (first == last)

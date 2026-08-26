@@ -34,14 +34,14 @@ namespace
   {
   public:
     const char*
-    operator ()(const sockaddr_in* address) throw ();
+    operator ()(const sockaddr_in* address) noexcept;
 
   private:
     char ip_[32];
   };
 
   const char*
-  IPToString::operator ()(const sockaddr_in* address) throw ()
+  IPToString::operator ()(const sockaddr_in* address) noexcept
   {
     return inet_ntop(AF_INET, &address->sin_addr, ip_, sizeof(ip_));
   }
@@ -71,7 +71,7 @@ namespace
 namespace CORBACommons
 {
   ACE_Reactor_Impl*
-  create_reactor_impl(ACE_Timer_Queue* tq) throw ();
+  create_reactor_impl(ACE_Timer_Queue* tq) noexcept;
 
   //
   // Data for control of number of unoccupied threads per orb
@@ -125,7 +125,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~Locator() throw ();
+    ~Locator() noexcept;
 
   private:
     typedef Generics::GnuHashTable<Generics::StringHashAdapter,
@@ -161,23 +161,23 @@ namespace CORBACommons
   {
   public:
     void
-    set(Orb* orb, Threads* threads) throw ();
+    set(Orb* orb, Threads* threads) noexcept;
 
     virtual
     void
-    work() throw ();
+    work() noexcept;
 
   protected:
     virtual
-    ~ServerAdapterJob() throw ();
+    ~ServerAdapterJob() noexcept;
 
   private:
     void
-    check_waiters_(int waiters) throw ();
+    check_waiters_(int waiters) noexcept;
 
     static
     void
-    waiters_cb_(int waiters) throw ();
+    waiters_cb_(int waiters) noexcept;
 
     Orb* orb_;
     Threads* threads_;
@@ -195,7 +195,7 @@ namespace CORBACommons
   const int EndpointConfig::BIND_PORT_OFFSET = 50;
 
   int
-  EndpointConfig::bind_port() const throw ()
+  EndpointConfig::bind_port() const noexcept
   {
     return secure_connection_config.is_secure() ?
       port + BIND_PORT_OFFSET : port;
@@ -232,7 +232,7 @@ namespace CORBACommons
   {
   }
 
-  CorbaServerAdapter::Locator::~Locator() throw ()
+  CorbaServerAdapter::Locator::~Locator() noexcept
   {
   }
 
@@ -348,7 +348,7 @@ namespace CORBACommons
     }
   }
 
-  CorbaServerAdapter::Endpoint::~Endpoint() throw ()
+  CorbaServerAdapter::Endpoint::~Endpoint() noexcept
   {
     for (BindPoints::const_iterator itor(bind_points_.begin());
       itor != bind_points_.end(); ++itor)
@@ -434,7 +434,7 @@ namespace CORBACommons
   }
 
   void
-  CorbaServerAdapter::Endpoint::activate() throw ()
+  CorbaServerAdapter::Endpoint::activate() noexcept
   {
     for (BindPoints::const_iterator itor(bind_points_.begin());
      itor != bind_points_.end(); ++itor)
@@ -444,7 +444,7 @@ namespace CORBACommons
   }
 
   const CorbaServerAdapter::Endpoint::ObjectIdTable&
-  CorbaServerAdapter::Endpoint::bound_objects() const throw ()
+  CorbaServerAdapter::Endpoint::bound_objects() const noexcept
   {
     return bound_objects_;
   }
@@ -454,7 +454,7 @@ namespace CORBACommons
   // CorbaServerAdapter::Orb class
   //
 
-  CorbaServerAdapter::Orb::Orb(CORBA::ORB_var orb) throw ()
+  CorbaServerAdapter::Orb::Orb(CORBA::ORB_var orb) noexcept
     : orb(orb)
   {
   }
@@ -471,20 +471,20 @@ namespace CORBACommons
        static_cast<void (*)(void*)>(0))
       );
 
-  CorbaServerAdapter::ServerAdapterJob::~ServerAdapterJob() throw ()
+  CorbaServerAdapter::ServerAdapterJob::~ServerAdapterJob() noexcept
   {
   }
 
   void
   CorbaServerAdapter::ServerAdapterJob::set(Orb* orb, Threads* threads)
-    throw ()
+    noexcept
   {
     orb_ = orb;
     threads_ = threads;
   }
 
   void
-  CorbaServerAdapter::ServerAdapterJob::work() throw ()
+  CorbaServerAdapter::ServerAdapterJob::work() noexcept
   {
     key_.set_data(this);
 
@@ -504,7 +504,7 @@ namespace CORBACommons
   }
 
   void
-  CorbaServerAdapter::ServerAdapterJob::check_waiters_(int waiters) throw ()
+  CorbaServerAdapter::ServerAdapterJob::check_waiters_(int waiters) noexcept
   {
     Sync::PosixGuard guard(threads_->mutex);
     orb_->waiters = waiters;
@@ -542,7 +542,7 @@ namespace CORBACommons
   }
 
   void
-  CorbaServerAdapter::ServerAdapterJob::waiters_cb_(int waiters) throw ()
+  CorbaServerAdapter::ServerAdapterJob::waiters_cb_(int waiters) noexcept
   {
     if (ServerAdapterJob* job = key_.get_data())
     {
@@ -585,7 +585,7 @@ namespace CORBACommons
     init_env_();
   }
 
-  CorbaServerAdapter::~CorbaServerAdapter() throw ()
+  CorbaServerAdapter::~CorbaServerAdapter() noexcept
   {
     try
     {
@@ -1038,7 +1038,7 @@ namespace CORBACommons
   }
 
   void
-  CorbaServerAdapter::shutdown(bool type) throw ()
+  CorbaServerAdapter::shutdown(bool type) noexcept
   {
     Sync::PosixGuard guard_(mutex_);
 
@@ -1062,7 +1062,7 @@ namespace CORBACommons
   }
 
   OrbShutdowner_var
-  CorbaServerAdapter::shutdowner() throw ()
+  CorbaServerAdapter::shutdowner() noexcept
   {
     add_ref();
     return OrbShutdowner_var(static_cast<OrbShutdowner*>(this));

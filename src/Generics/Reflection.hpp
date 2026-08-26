@@ -1,11 +1,4 @@
-/**
- * @file Reflection.hpp
- * @author Konstantin Sadov
- * @brief Reflection implementation: access to list of data members of class
- */
-
-#ifndef GENERICS_REFLECTION_HPP
-#define GENERICS_REFLECTION_HPP
+#pragma once
 
 #include <list>
 
@@ -27,7 +20,7 @@ namespace Generics
     class MemberRegistrator
     {
     public:
-      MemberRegistrator() throw ();
+      MemberRegistrator() noexcept;
 
     private:
       /**
@@ -124,7 +117,7 @@ namespace Generics
       MembersBase& (Aggregator::* const MEMBER)(),
       const MembersBase& (Aggregator::* const CONST_MEMBER)() const>
     MemberRegistrator<MembersBase, Aggregator, NAME, MEMBER, CONST_MEMBER>::
-      MemberRegistrator() throw ()
+      MemberRegistrator() noexcept
     {
       (void)INITIALIZER_;
     }
@@ -358,17 +351,17 @@ namespace Generics
 #define REFLECTION_MEMBER_COMMON(Member, member_name, string_name) \
   static \
   const char* \
-  reflection_##member_name##_name() throw () \
+  reflection_##member_name##_name() noexcept \
   { \
     return string_name; \
   } \
   ReflectionMembersBase& \
-  reflection_##member_name##_member() throw ()\
+  reflection_##member_name##_member() noexcept\
   { \
     return member_name; \
   }\
   const ReflectionMembersBase& \
-  reflection_##member_name##_const_member() const throw () \
+  reflection_##member_name##_const_member() const noexcept \
   { \
     return member_name; \
   } \
@@ -424,5 +417,3 @@ namespace Generics
  */
 #define REFLECTION_MEMBER2(Member, member_name) \
   REFLECTION_MEMBER2_NAME(Member, member_name, #member_name)
-
-#endif

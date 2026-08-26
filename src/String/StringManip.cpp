@@ -1,8 +1,3 @@
-/**
- * @file   Stream/StringManip.cpp
- * @author Karen Aroutiounov
- */
-
 #include <algorithm>
 #include <utility>
 
@@ -50,14 +45,14 @@ namespace
 
     inline
     char
-    std_encode(unsigned char ch) throw ()
+    std_encode(unsigned char ch) noexcept
     {
       return STD_ENCODE[ch & 077];
     }
 
     inline
     char
-    mod_encode(unsigned char ch) throw ()
+    mod_encode(unsigned char ch) noexcept
     {
       return MOD_ENCODE[ch & 077];
     }
@@ -158,14 +153,14 @@ namespace
     class Iterator
     {
     public:
-      Iterator(const String::SubString& src) throw ();
+      Iterator(const String::SubString& src) noexcept;
       bool
-      available() const throw ();
+      available() const noexcept;
       uint8_t
       operator *() const
         /*throw (String::StringManip::InvalidFormatException)*/;
       void
-      operator ++() throw ();
+      operator ++() noexcept;
       uint8_t
       skip_blanks() /*throw (String::StringManip::InvalidFormatException)*/;
       void
@@ -182,14 +177,14 @@ namespace
     const char PAD3[] = "======";
 
     inline
-    Iterator::Iterator(const String::SubString& src) throw ()
+    Iterator::Iterator(const String::SubString& src) noexcept
       : ptr_(src.data()), length_(src.length())
     {
     }
 
     inline
     bool
-    Iterator::available() const throw ()
+    Iterator::available() const noexcept
     {
       return length_ > 0;
     }
@@ -204,7 +199,7 @@ namespace
 
     inline
     void
-    Iterator::operator ++() throw ()
+    Iterator::operator ++() noexcept
     {
       ++ptr_;
       --length_;
@@ -250,7 +245,7 @@ namespace
   using JsonEscapeSimdLevel = String::StringManip::JsonEscape::SimdLevel;
 
   bool
-  json_escape_simd_level_available_(JsonEscapeSimdLevel level) throw ()
+  json_escape_simd_level_available_(JsonEscapeSimdLevel level) noexcept
   {
     namespace Simd = Generics::Simd;
 
@@ -283,7 +278,7 @@ namespace
   }
 
   JsonEscapeSimdLevel
-  select_default_json_escape_simd_level_() throw ()
+  select_default_json_escape_simd_level_() noexcept
   {
     if (json_escape_simd_level_available_(JsonEscapeSimdLevel::AVX2))
     {
@@ -307,7 +302,7 @@ namespace
     select_default_json_escape_simd_level_();
 
   const char*
-  json_escape_simd_level_name_(JsonEscapeSimdLevel level) throw ()
+  json_escape_simd_level_name_(JsonEscapeSimdLevel level) noexcept
   {
     switch (level)
     {
@@ -331,7 +326,7 @@ namespace
   find_non_json_(
     const char* cur,
     const char* end,
-    JsonEscapeSimdLevel simd_level) throw ()
+    JsonEscapeSimdLevel simd_level) noexcept
   {
     namespace JsonEscape = String::StringManip::JsonEscape;
 
@@ -539,7 +534,7 @@ namespace
     // assert(MAX_WCHAR_T >= 1 << 26)
 
     wchar_t
-    adapt(wchar_t delta, wchar_t numpoints, bool firsttime) throw ()
+    adapt(wchar_t delta, wchar_t numpoints, bool firsttime) noexcept
     {
       delta = firsttime ? delta / 700 : delta >> 1;
       delta += delta / numpoints;
@@ -562,19 +557,19 @@ namespace String
     namespace JsonEscape
     {
       bool
-      simd_level_available(SimdLevel level) throw ()
+      simd_level_available(SimdLevel level) noexcept
       {
         return json_escape_simd_level_available_(level);
       }
 
       SimdLevel
-      default_simd_level() throw ()
+      default_simd_level() noexcept
       {
         return JSON_ESCAPE_DEFAULT_SIMD_LEVEL;
       }
 
       const char*
-      simd_level_name(SimdLevel level) throw ()
+      simd_level_name(SimdLevel level) noexcept
       {
         return json_escape_simd_level_name_(level);
       }
@@ -1645,7 +1640,7 @@ namespace String
 
     bool
     utf8_substr(const String::SubString& src, size_t max_octets,
-      String::SubString& dst) throw ()
+      String::SubString& dst) noexcept
     {
       size_t length = 0;
       for (size_t octets; max_octets && length < src.size();
@@ -1675,7 +1670,7 @@ namespace String
 
     void
     trim(SubString& str, const AsciiStringManip::CharCategory& trim_set)
-      throw ()
+      noexcept
     {
       const char* end = str.end();
       const char* begin =
@@ -1691,7 +1686,7 @@ namespace String
 
     String::SubString
     trim_ret(SubString str, const AsciiStringManip::CharCategory& trim_set)
-      throw ()
+      noexcept
     {
       trim(str, trim_set);
       return str;
@@ -1892,7 +1887,7 @@ namespace String
     //
 
     Translit::Translit(const char* invalid, const char* valid)
-      throw ()
+      noexcept
     {
       for (int i = 0; i < 256; i++)
       {
@@ -1950,7 +1945,7 @@ namespace String
 
     void
     Translit::translit(char* str) const
-      throw ()
+      noexcept
     {
       for (; *str; str++)
       {
@@ -1960,7 +1955,7 @@ namespace String
 
     void
     Translit::translit(char* str, size_t size) const
-      throw ()
+      noexcept
     {
       for (; size-- > 0; str++)
       {

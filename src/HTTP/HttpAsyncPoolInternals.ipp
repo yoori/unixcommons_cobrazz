@@ -94,7 +94,7 @@ namespace HTTP::HttpInternals
 
   template <typename Object, typename Data>
   void
-  SignalQueue<Object, Data>::handle_read_() throw ()
+  SignalQueue<Object, Data>::handle_read_() noexcept
   {
     bool states[RT_LAST];
     std::fill(states, states + RT_LAST, false);
@@ -164,7 +164,7 @@ namespace HTTP::HttpInternals
   template <typename Object, typename Data>
   void
   SignalQueue<Object, Data>::read_callback_(
-    int /*fd*/, short /*type*/, void* arg) throw ()
+    int /*fd*/, short /*type*/, void* arg) noexcept
   {
     static_cast<SignalQueue<Object, Data>*>(arg)->handle_read_();
   }
@@ -199,7 +199,7 @@ namespace HTTP::HttpInternals
 
   template <typename Object, typename Data>
   void
-  SignalQueue<Object, Data>::terminate_() throw ()
+  SignalQueue<Object, Data>::terminate_() noexcept
   {
     remove_event_();
     (object_.*quit_callback_)();
@@ -207,7 +207,7 @@ namespace HTTP::HttpInternals
 
   template <typename Object, typename Data>
   void
-  SignalQueue<Object, Data>::remove_event_() throw ()
+  SignalQueue<Object, Data>::remove_event_() noexcept
   {
     if (!removed_)
     {

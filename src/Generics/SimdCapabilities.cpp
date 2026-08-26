@@ -3,7 +3,7 @@
 namespace
 {
   std::uint32_t
-  detect_cpu_capabilities_() throw ()
+  detect_cpu_capabilities_() noexcept
   {
     std::uint32_t capabilities = 0;
 

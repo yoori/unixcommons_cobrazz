@@ -1,5 +1,4 @@
-#ifndef GENERICS_BOUNDED_MAP_HPP
-#define GENERICS_BOUNDED_MAP_HPP
+#pragma once
 
 #include <list>
 //#include <cassert>
@@ -16,7 +15,7 @@ namespace Generics
 {
   struct BoundedMapStat
   {
-    BoundedMapStat() throw ();
+    BoundedMapStat() noexcept;
 
     int inserted_new;      // A new value was inserted into container
     int insert_existing;   // Tried to insert a value with existing key
@@ -36,7 +35,7 @@ namespace Generics
   struct DefaultSizePolicy
   {
     size_t
-    operator ()(const Key&, const Data&) const throw ();
+    operator ()(const Key&, const Data&) const noexcept;
   };
 
   /**
@@ -70,9 +69,9 @@ namespace Generics
         /*throw (eh::Exception)*/;
       Item(Data&& data, size_t size, typename Queue::iterator order)
         /*throw (eh::Exception)*/;
-      Item(Item&& i) throw ();
-      Item(Item&) throw () = delete;
-      Item(const Item&) throw () = delete;
+      Item(Item&& i) noexcept;
+      Item(Item&) noexcept = delete;
+      Item(const Item&) noexcept = delete;
     };
   };
 
@@ -133,7 +132,7 @@ namespace Generics
        * @return true only if both this and itor equal to end()
        */
       bool
-      operator ==(const IteratorBase& itor) const throw ();
+      operator ==(const IteratorBase& itor) const noexcept;
 
       /**
        * Non-equal comparison operator
@@ -141,21 +140,21 @@ namespace Generics
        * @return false only if both this and itor equal to end()
        */
       bool
-      operator !=(const IteratorBase& itor) const throw ();
+      operator !=(const IteratorBase& itor) const noexcept;
 
       /**
        * Asterisk operator
        * @return reference (const) to the stored pair of key and data
        */
       const_reference
-      operator *() const throw ();
+      operator *() const noexcept;
 
       /**
        * Arrow operator
        * @return pointer (const) to the stored pair of key and data
        */
       const_pointer
-      operator ->() const throw ();
+      operator ->() const noexcept;
 
     protected:
       /**
@@ -185,13 +184,13 @@ namespace Generics
        * Moves data from another IteratorBase
        * @param itor another IteratorBase
        */
-      IteratorBase(IteratorBase&& itor) throw ();
+      IteratorBase(IteratorBase&& itor) noexcept;
 
       /**
        * Destructor
        * Destroys value_ if necessary
        */
-      ~IteratorBase() throw ();
+      ~IteratorBase() noexcept;
 
       /**
        * Assignment operator
@@ -207,13 +206,13 @@ namespace Generics
        * @param itor source iterator
        */
       void
-      operator =(IteratorBase&& itor) throw ();
+      operator =(IteratorBase&& itor) noexcept;
 
       /**
        * Destroys value_ if necessary
        */
       void
-      clear_() throw ();
+      clear_() noexcept;
 
 
       char buf_[sizeof(Value)];
@@ -293,14 +292,14 @@ namespace Generics
        * @return reference to the stored pair of key and data
        */
       reference
-      operator *() throw ();
+      operator *() noexcept;
 
       /**
        * Arrow operator
        * @return pointer to the stored pair of key and data
        */
       pointer
-      operator ->() throw ();
+      operator ->() noexcept;
 
       /**
        * Constructor
@@ -358,8 +357,8 @@ namespace Generics
       operator =(Data&& data) /*throw (eh::Exception)*/;
 
     private:
-      Inserter(BoundedMap& map, const Key& key) throw ();
-      Inserter(Inserter&& inserter) throw ();
+      Inserter(BoundedMap& map, const Key& key) noexcept;
+      Inserter(Inserter&& inserter) noexcept;
 
       BoundedMap& map_;
       const Key& key_;
@@ -456,7 +455,7 @@ namespace Generics
      * @param key key describing changing element
      */
     void
-    update(const Key& key) throw ();
+    update(const Key& key) noexcept;
 
     /**
      * Updates the size of the specified item
@@ -470,7 +469,7 @@ namespace Generics
      * @param iterator iterator describing changing element
      */
     void
-    update(const IteratorBase& iterator) throw ();
+    update(const IteratorBase& iterator) noexcept;
 
     /**
      * Either replaces the existing item or tries to insert it if it's
@@ -495,7 +494,7 @@ namespace Generics
      * @return proxy object allowing assignment of Data
      */
     Inserter
-    operator [](const Key& key) throw ();
+    operator [](const Key& key) noexcept;
 
     /**
      * Removes the item from the container by the key.
@@ -503,7 +502,7 @@ namespace Generics
      * @param key item key
      */
     void
-    erase(const Key& key) throw ();
+    erase(const Key& key) noexcept;
 
     /**
      * Removes the item from the container by the key.
@@ -511,13 +510,13 @@ namespace Generics
      * @param itor item descriptor
      */
     void
-    erase(const IteratorBase& itor) throw ();
+    erase(const IteratorBase& itor) noexcept;
 
     /**
      * Clears the container
      */
     void
-    clear() throw ();
+    clear() noexcept;
 
     /**
      * Beyond-the-last iterator is required for success test of
@@ -525,14 +524,14 @@ namespace Generics
      * @return iterator referencing to nothing
      */
     const const_iterator&
-    end() const throw ();
+    end() const noexcept;
 
     /**
      * Actual number of elements stored
      * @return number of elements in the map
      */
     size_type
-    size() const throw ();
+    size() const noexcept;
 
     /**
      * Copies all of value pairs to insert iterator
@@ -549,34 +548,34 @@ namespace Generics
      * @return gathered statistics
      */
     BoundedMapStat
-    statistics(bool reset = false) throw ();
+    statistics(bool reset = false) noexcept;
 
     /**
      * Current bound limit
      * @return current bound limit
      */
     size_type
-    bound() const throw ();
+    bound() const noexcept;
 
     /**
      * Sets new bound limit. No removal of extra elements is made
      * @param new_bound new bound limit
      */
     void
-    bound(size_type new_bound) throw ();
+    bound(size_type new_bound) noexcept;
 
     /**
      * Current expiration timeout
      * @return expiration timeout
      */
     Time
-    timeout() const throw ();
+    timeout() const noexcept;
 
     /**
      * Sets new expiration timeout. No removal of expired elements is made
      */
     void
-    timeout(Time new_timeout) throw ();
+    timeout(Time new_timeout) noexcept;
 
 
   private:
@@ -585,7 +584,7 @@ namespace Generics
     typedef typename BoundedMapTypes<Key, Data>::Item Item;
 
     typename Container::iterator
-    find_(const key_type& key, const Time& now) const throw ();
+    find_(const key_type& key, const Time& now) const noexcept;
 
     template <typename DataType>
     std::pair<iterator, bool>
@@ -597,7 +596,7 @@ namespace Generics
     insert_(ValueType&& value) /*throw (eh::Exception)*/;
 
     bool
-    update_(typename Container::iterator itor, const Time& now) throw ();
+    update_(typename Container::iterator itor, const Time& now) noexcept;
 
     template <typename DataType>
     void
@@ -630,7 +629,7 @@ namespace Generics
   //
 
   inline
-  BoundedMapStat::BoundedMapStat() throw ()
+  BoundedMapStat::BoundedMapStat() noexcept
     : inserted_new(0), insert_existing(0),
       removed_outdated(0), removed_updated(0), not_inserted(0),
       replaced(0)
@@ -645,7 +644,7 @@ namespace Generics
   template <typename Key, typename Data>
   size_t
   DefaultSizePolicy<Key, Data>::operator ()(const Key&, const Data&) const
-    throw ()
+    noexcept
   {
     return 1;
   }
@@ -670,7 +669,7 @@ namespace Generics
   }
 
   template <typename Key, typename Data>
-  BoundedMapTypes<Key, Data>::Item::Item(Item&& i) throw ()
+  BoundedMapTypes<Key, Data>::Item::Item(Item&& i) noexcept
     : data(std::move(i.data)), size(i.size), order(std::move(i.order))
   {
   }
@@ -711,7 +710,7 @@ namespace Generics
   template <typename Key, typename Data, typename SizePolicy,
     typename SyncPolicy, typename Container>
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::IteratorBase(IteratorBase&& itor) throw ()
+    IteratorBase::IteratorBase(IteratorBase&& itor) noexcept
     : value_(itor.value_ ? new (buf_) Value(std::move(*itor.value_)) :
         nullptr)
   {
@@ -721,7 +720,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::clear_() throw ()
+    IteratorBase::clear_() noexcept
   {
     if (value_)
     {
@@ -733,7 +732,7 @@ namespace Generics
   template <typename Key, typename Data, typename SizePolicy,
     typename SyncPolicy, typename Container>
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::~IteratorBase() throw ()
+    IteratorBase::~IteratorBase() noexcept
   {
     clear_();
   }
@@ -765,7 +764,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::operator =(IteratorBase&& itor) throw ()
+    IteratorBase::operator =(IteratorBase&& itor) noexcept
   {
     if (itor.value_)
     {
@@ -788,7 +787,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   bool
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::operator ==(const IteratorBase& itor) const throw ()
+    IteratorBase::operator ==(const IteratorBase& itor) const noexcept
   {
     return !value_ && !itor.value_;
   }
@@ -797,7 +796,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   bool
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::operator !=(const IteratorBase& itor) const throw ()
+    IteratorBase::operator !=(const IteratorBase& itor) const noexcept
   {
     return !operator ==(itor);
   }
@@ -807,7 +806,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     const_reference
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::operator *() const throw ()
+    IteratorBase::operator *() const noexcept
   {
     assert(value_);
     return *value_;
@@ -818,7 +817,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     const_pointer
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    IteratorBase::operator ->() const throw ()
+    IteratorBase::operator ->() const noexcept
   {
     assert(value_);
     return value_;
@@ -936,7 +935,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     reference
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    iterator::operator *() throw ()
+    iterator::operator *() noexcept
   {
     assert(this->value_);
     return *this->value_;
@@ -946,7 +945,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::pointer
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    iterator::operator ->() throw ()
+    iterator::operator ->() noexcept
   {
     assert(this->value_);
     return this->value_;
@@ -960,7 +959,7 @@ namespace Generics
   template <typename Key, typename Data, typename SizePolicy,
     typename SyncPolicy, typename Container>
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    Inserter::Inserter(BoundedMap& map, const Key& key) throw ()
+    Inserter::Inserter(BoundedMap& map, const Key& key) noexcept
     : map_(map), key_(key)
   {
   }
@@ -968,7 +967,7 @@ namespace Generics
   template <typename Key, typename Data, typename SizePolicy,
     typename SyncPolicy, typename Container>
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    Inserter::Inserter(Inserter&& inserter) throw ()
+    Inserter::Inserter(Inserter&& inserter) noexcept
     : map_(inserter.map_), key_(inserter.key_)
   {
   }
@@ -1022,7 +1021,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   typename Container::iterator
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    find_(const key_type& key, const Time& now) const throw ()
+    find_(const key_type& key, const Time& now) const noexcept
   {
     typename Container::iterator itor(
       const_cast<Container&>(container_).find(key));
@@ -1222,7 +1221,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     Inserter
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    operator [](const Key& key) throw ()
+    operator [](const Key& key) noexcept
   {
     return Inserter(*this, key);
   }
@@ -1231,7 +1230,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   bool
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    update_(typename Container::iterator itor, const Time& now) throw ()
+    update_(typename Container::iterator itor, const Time& now) noexcept
   {
     size_t size = size_policy_(itor->first, itor->second.data);
     size_t new_size = size_ + size - itor->second.size;
@@ -1294,7 +1293,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    update(const Key& key) throw ()
+    update(const Key& key) noexcept
   {
     Time now(Time::get_time_of_day());
 
@@ -1311,7 +1310,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    update(const IteratorBase& iterator) throw ()
+    update(const IteratorBase& iterator) noexcept
   {
     update(iterator->first);
   }
@@ -1320,7 +1319,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    erase(const Key& key) throw ()
+    erase(const Key& key) noexcept
   {
     typename SyncPolicy::WriteGuard guard(mutex_);
 
@@ -1340,7 +1339,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    erase(const IteratorBase& it) throw ()
+    erase(const IteratorBase& it) noexcept
   {
     assert(it.value_);
     erase(it.value_->first);
@@ -1350,7 +1349,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    clear() throw ()
+    clear() noexcept
   {
     typename SyncPolicy::WriteGuard guard(mutex_);
 
@@ -1364,7 +1363,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     const_iterator const &
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    end() const throw ()
+    end() const noexcept
   {
     return END_CONST_ITERATOR;
   }
@@ -1395,7 +1394,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     size_type
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    size() const throw ()
+    size() const noexcept
   {
     typename SyncPolicy::ReadGuard guard(mutex_);
 
@@ -1406,7 +1405,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   BoundedMapStat
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    statistics(bool reset) throw ()
+    statistics(bool reset) noexcept
   {
     typename SyncPolicy::WriteGuard guard(mutex_);
 
@@ -1423,7 +1422,7 @@ namespace Generics
   typename BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     size_type
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    bound() const throw ()
+    bound() const noexcept
   {
     typename SyncPolicy::ReadGuard guard(mutex_);
 
@@ -1434,7 +1433,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    bound(size_type new_bound) throw ()
+    bound(size_type new_bound) noexcept
   {
     typename SyncPolicy::WriteGuard guard(mutex_);
 
@@ -1445,7 +1444,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   Time
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    timeout() const throw ()
+    timeout() const noexcept
   {
     typename SyncPolicy::ReadGuard guard(mutex_);
 
@@ -1456,12 +1455,10 @@ namespace Generics
     typename SyncPolicy, typename Container>
   void
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
-    timeout(Time new_timeout) throw ()
+    timeout(Time new_timeout) noexcept
   {
     typename SyncPolicy::WriteGuard guard(mutex_);
 
     timeout_ = new_timeout;
   }
 }
-
-#endif

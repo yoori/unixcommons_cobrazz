@@ -1,10 +1,4 @@
-/**
- * @file   Stream/SocketStream.hpp
- * @author Pavel Gubin
- */
-
-#ifndef STREAM_SOCKET_STREAM_HPP
-#define STREAM_SOCKET_STREAM_HPP
+#pragma once
 
 #include <memory>
 #include <streambuf>
@@ -50,7 +44,7 @@ namespace Stream
      * @return The number of received bytes 
      */
     size_t
-    bytes_received() const throw ();
+    bytes_received() const noexcept;
 
   protected:
     //
@@ -122,7 +116,7 @@ namespace Stream
      * @return The number of receved bytes 
      */
     size_t
-    bytes_received() const throw ();
+    bytes_received() const noexcept;
 
   protected:
     SocketStreambuf buf_;
@@ -140,7 +134,7 @@ namespace Stream
   //
 
   size_t
-  SocketStreambuf::bytes_received() const throw ()
+  SocketStreambuf::bytes_received() const noexcept
   {
     return bytes_received_;
   }
@@ -150,10 +144,8 @@ namespace Stream
   //
 
   size_t
-  SocketInStream::bytes_received() const throw ()
+  SocketInStream::bytes_received() const noexcept
   {
     return buf_.bytes_received();
   }
 }
-
-#endif

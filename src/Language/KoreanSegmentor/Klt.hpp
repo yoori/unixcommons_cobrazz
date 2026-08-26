@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_KOREAN_SEGMENTOR_KLT_HPP
-#define LANGUAGE_KOREAN_SEGMENTOR_KLT_HPP
+#pragma once
 
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
 
@@ -30,12 +29,10 @@ namespace Language
 
       protected:
         virtual
-        ~KltSegmentor() throw ();
+        ~KltSegmentor() noexcept;
       };
       typedef ReferenceCounting::ConstPtr<KltSegmentor>
         KltSegmentor_var;
     } //namespace Korean
   } //namespace Segmentor
 } //namespace Language
-
-#endif

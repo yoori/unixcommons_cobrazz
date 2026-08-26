@@ -1,7 +1,3 @@
-/**
- * @file MTTesterLoggerTest.cpp
- */
-
 #include <TestCommons/MTTester.hpp>
 
 /// Multi-thread executable functor
@@ -20,7 +16,7 @@ Tester::operator ()() /*throw (Exception)*/
 
 
 int
-main() throw ()
+main() noexcept
 {
   dup2(STDOUT_FILENO, STDERR_FILENO);
 

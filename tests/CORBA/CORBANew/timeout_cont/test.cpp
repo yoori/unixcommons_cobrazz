@@ -7,22 +7,22 @@
 class TestInt_i : public POA_TestInt
 {
 public:
-  TestInt_i() throw ();
+  TestInt_i() noexcept;
   virtual void
-  test(CORBA::Long number, const OctetSeq& in_seq) throw ();
+  test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
   virtual void
-  oneway_test(CORBA::Long number, const OctetSeq& in_seq) throw ();
+  oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
 private:
   volatile _Atomic_word total;
 };
 
-TestInt_i::TestInt_i() throw ()
+TestInt_i::TestInt_i() noexcept
   : total(0)
 {
 }
 
 void
-TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) throw ()
+TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) noexcept
 {
   unsigned sleep = 900 + rand() % 200;
   timeval tv = { sleep / 1000, (sleep % 1000) * 1000 };
@@ -45,7 +45,7 @@ TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) throw ()
 }
 
 void
-TestInt_i::oneway_test(CORBA::Long number, const OctetSeq& in_seq) throw ()
+TestInt_i::oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept
 {
   test(number, in_seq);
 }

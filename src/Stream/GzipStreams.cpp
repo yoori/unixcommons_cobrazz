@@ -1,8 +1,3 @@
-/**
- * @file   Stream/GzipStreams.cpp
- * @author Dmitry Trifilov
- */
-
 #include <zlib.h>
 
 #include <eh/Errno.hpp>
@@ -22,7 +17,7 @@ namespace
     FileHandleAdapter(const char* file_name, const char* mode)
       /*throw (InvalidArgument, eh::Exception)*/;
 
-    ~FileHandleAdapter() throw ();
+    ~FileHandleAdapter() noexcept;
 
     size_t
     read(void* buf, size_t size) /*throw (eh::Exception)*/;
@@ -65,7 +60,7 @@ namespace
   }
 
   template <typename InvalidArgument, typename IOError>
-  FileHandleAdapter<InvalidArgument, IOError>::~FileHandleAdapter() throw ()
+  FileHandleAdapter<InvalidArgument, IOError>::~FileHandleAdapter() noexcept
   {
     ::gzclose(gzip_handle_);
   }

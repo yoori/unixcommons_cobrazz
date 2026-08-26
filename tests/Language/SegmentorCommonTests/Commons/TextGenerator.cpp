@@ -1,8 +1,3 @@
-/**
- * @file TextGenerator.cpp
- * @author unknown
- * @modified Alexey Bulavitsky [alexey_bulavitsky@ocslab.com]
- */
 #include "TextGenerator.hpp"
 #include <String/UTF8Handler.hpp>
 #include <String/UTF8Category.hpp>
@@ -29,7 +24,7 @@ namespace SegmentorTestCommons
   Utf8Generator::gen_rand_utf8_sequence(char* buf,
                                         size_t max_sequence_len,
                                         bool valid_only)
-    throw()
+    noexcept
   {
     size_t i = 0;
     while (i + (valid_only? 4: 6) < max_sequence_len)
@@ -89,7 +84,7 @@ namespace SegmentorTestCommons
 
   void
   AsciiGenerator::gen_rand_ascii_sequence(char* buf, size_t buf_len)
-    throw ()
+    noexcept
   {
     for (size_t i = 0; i < buf_len; ++i)
     {
@@ -101,7 +96,7 @@ namespace SegmentorTestCommons
 
   void
   hex_dump (std::ostream &os, const char* str, size_t size)
-    throw ()
+    noexcept
   {
     if(str == 0 || size == 0)
     {
@@ -123,7 +118,7 @@ namespace SegmentorTestCommons
 
   void
   Utf8CharWalker::setup_ (size_t octets)
-    throw ()
+    noexcept
   {
     octets_ = octets; 
     if (octets_ > 4)
@@ -142,7 +137,7 @@ namespace SegmentorTestCommons
   
   const char* 
   Utf8CharWalker::next()
-    throw ()
+    noexcept
   {
     if (String::UnicodeSymbol::MAX_CODE_UNIT > sym_)
     {
@@ -167,7 +162,7 @@ namespace SegmentorTestCommons
 
   void
   PseudoUtf8CharWalker::setup_(size_t octets)
-    throw ()
+    noexcept
   {
     octets_ = octets; 
     if (octets_ > 6)
@@ -184,7 +179,7 @@ namespace SegmentorTestCommons
 
   const char* 
   PseudoUtf8CharWalker::next ()
-    throw ()
+    noexcept
   {
     if (octets_ > 6)
     {

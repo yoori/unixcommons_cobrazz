@@ -1,10 +1,3 @@
-/**
- * @file Parser.cpp
- * @author Alexey Tsurikov
- *
- */
-
-
 #include <stdio.h>
 #include <sstream>
 #include <vector>

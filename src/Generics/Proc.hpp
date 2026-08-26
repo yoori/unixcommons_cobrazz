@@ -1,5 +1,4 @@
-#ifndef GENERICS_PROC_HPP
-#define GENERICS_PROC_HPP
+#pragma once
 
 #include <cstddef>
 
@@ -16,7 +15,7 @@ namespace Generics
      */
     bool
     memory_status(unsigned long& vsize, unsigned long& rss)
-      throw ();
+      noexcept;
 
     /**
      * Fills buffer with backtrace information
@@ -27,8 +26,6 @@ namespace Generics
      */
     void
     backtrace(char* buf, size_t size, size_t from, size_t to)
-      throw ();
+      noexcept;
   }
 }
-
-#endif

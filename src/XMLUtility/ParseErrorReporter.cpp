@@ -1,8 +1,3 @@
-/**
- * @file   ParseErrorReporter.hpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- */
-
 #include <iostream>
 #include <string>
 

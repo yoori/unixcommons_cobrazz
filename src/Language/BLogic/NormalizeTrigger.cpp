@@ -25,7 +25,7 @@ namespace
 
 
   const char*
-  find_quote(const char* cur, const char* const END) throw ()
+  find_quote(const char* cur, const char* const END) noexcept
   {
     for (;; cur++)
     {
@@ -45,7 +45,7 @@ namespace
 
   const char*
   find_space_or_quote(const char* cur, const char* const END, const bool EXACT)
-    throw ()
+    noexcept
   {
     for (;; cur++)
     {
@@ -78,7 +78,7 @@ namespace
   }
 
   bool
-  skip_spaces(const char*& cur, const char* END) throw ()
+  skip_spaces(const char*& cur, const char* END) noexcept
   {
     do
     {
@@ -94,7 +94,7 @@ namespace
   }
 
   void
-  shrink(std::string& str) throw ()
+  shrink(std::string& str) noexcept
   {
     char* out = &str[0];
     const char* cur = out;
@@ -180,7 +180,7 @@ namespace
   }
 
   bool
-  next(const char*& cur, const char* const END) throw ()
+  next(const char*& cur, const char* const END) noexcept
   {
     while (*cur == ' ' || *cur == '\t')
     {
@@ -367,7 +367,7 @@ namespace
 
   bool
   is_substr(const String::SubString& small, const String::SubString& big)
-    throw ()
+    noexcept
   {
     String::SubString::SizeType pos = big.find(small);
     if (pos == String::SubString::NPOS)
@@ -387,7 +387,7 @@ namespace
   }
 
   bool
-  narrow_one(Split::Parts& parts, Split::Parts::iterator itor) throw ()
+  narrow_one(Split::Parts& parts, Split::Parts::iterator itor) noexcept
   {
     Split::Parts::iterator next(itor);
 
@@ -427,7 +427,7 @@ namespace
   }
 
   void
-  narrow(Split::Parts& parts) throw ()
+  narrow(Split::Parts& parts) noexcept
   {
     for (Split::Parts::iterator itor = parts.begin(); itor != parts.end();)
     {

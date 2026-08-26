@@ -10,7 +10,7 @@ namespace Generics
   // class TaskPool::TaskQueue
   //
 
-  TaskPool::TaskQueue::TaskQueue() throw()
+  TaskPool::TaskQueue::TaskQueue() noexcept
     : waiting_threads_(0)
   {}
 
@@ -45,7 +45,7 @@ namespace Generics
   }
 
   void
-  TaskPool::TaskQueue::terminate() throw ()
+  TaskPool::TaskQueue::terminate() noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     new_task_.broadcast();
@@ -67,7 +67,7 @@ namespace Generics
     ActiveObjectCallback* callback,
     TaskQueue* task_queue,
     unsigned stack_size)
-    throw()
+    noexcept
     : ActiveObjectCommonImpl(
         Job_var(
           new Job(callback, task_queue)),
@@ -89,16 +89,16 @@ namespace Generics
   {}
 
   void
-  TaskPool::TaskQueueProcessor::Job::terminate() throw ()
+  TaskPool::TaskQueueProcessor::Job::terminate() noexcept
   {
     task_queue_->terminate();
   }
 
-  TaskPool::TaskQueueProcessor::Job::~Job() throw ()
+  TaskPool::TaskQueueProcessor::Job::~Job() noexcept
   {}
 
   void
-  TaskPool::TaskQueueProcessor::Job::work() throw ()
+  TaskPool::TaskQueueProcessor::Job::work() noexcept
   {
     TaskQueue* task_queue = task_queue_.in();
 
@@ -193,7 +193,7 @@ namespace Generics
   }
 
   void
-  TaskPool::deactivate_object() throw()
+  TaskPool::deactivate_object() noexcept
   {
     CompositeActiveObject::deactivate_object();
 
@@ -212,6 +212,6 @@ namespace Generics
     }
   }
 
-  TaskPool::~TaskPool() throw ()
+  TaskPool::~TaskPool() noexcept
   {}
 }

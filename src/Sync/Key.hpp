@@ -1,5 +1,4 @@
-#ifndef SYNC_KEY_HPP
-#define SYNC_KEY_HPP
+#pragma once
 
 #include <pthread.h>
 
@@ -40,7 +39,7 @@ namespace Sync
      * @return stored data
      */
     Data*
-    get_data() throw ();
+    get_data() noexcept;
 
   private:
     pthread_key_t key_;
@@ -74,10 +73,8 @@ namespace Sync
 
   template <typename Data>
   Data*
-  Key<Data>::get_data() throw ()
+  Key<Data>::get_data() noexcept
   {
     return static_cast<Data*>(pthread_getspecific(key_));
   }
 }
-
-#endif

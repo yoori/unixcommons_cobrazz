@@ -1,6 +1,4 @@
-// @file String/AsciiStringManip.hpp
-#ifndef ASCII_STRING_MANIP_HPP
-#define ASCII_STRING_MANIP_HPP
+#pragma once
 
 #include <algorithm>
 #include <cstring>
@@ -30,19 +28,19 @@ namespace String
      * affect only for (0-127) chars.
      */
     char
-    to_lower(char ch) throw ()
+    to_lower(char ch) noexcept
       __attribute__((always_inline));
 
     char
-    to_upper(char ch) throw ()
+    to_upper(char ch) noexcept
       __attribute__((always_inline));
 
     void
-    to_lower(std::string& dest) throw ()
+    to_lower(std::string& dest) noexcept
       __attribute__((always_inline));
 
     void
-    to_upper(std::string& dest) throw ()
+    to_upper(std::string& dest) noexcept
       __attribute__((always_inline));
 
     template <typename Iterator>
@@ -88,7 +86,7 @@ namespace String
          * @return Presence of the character in the set
          */
         bool
-        is_owned(char ch) const throw ()
+        is_owned(char ch) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -96,7 +94,7 @@ namespace String
          * @return true if category has no symbol inside
          */
         bool
-        empty() const throw ();
+        empty() const noexcept;
 
         /**
          * Finds the first character in the string which belongs to the set
@@ -104,7 +102,7 @@ namespace String
          * @return Pointer to found character or NULL if none
          */
         const char*
-        find_owned(const char* str) const throw ()
+        find_owned(const char* str) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -116,7 +114,7 @@ namespace String
          */
         const char*
         find_owned(const char* begin, const char* end,
-          unsigned long* octets_length = 0) const throw ()
+          unsigned long* octets_length = 0) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -126,7 +124,7 @@ namespace String
          * @return Pointer to found character or NULL if none
          */
         const char*
-        find_nonowned(const char* str) const throw ()
+        find_nonowned(const char* str) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -137,7 +135,7 @@ namespace String
          * @return Pointer to found character or end if none
          */
         const char*
-        find_nonowned(const char* begin, const char* end) const throw ()
+        find_nonowned(const char* begin, const char* end) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -149,7 +147,7 @@ namespace String
          * none.
          */
         const char*
-        rfind_owned(const char* pos, const char* start) const throw ()
+        rfind_owned(const char* pos, const char* start) const noexcept
           __attribute__((always_inline));
 
         /**
@@ -162,7 +160,7 @@ namespace String
          * none.
          */
         const char*
-        rfind_nonowned(const char* pos, const char* start) const throw ()
+        rfind_nonowned(const char* pos, const char* start) const noexcept
           __attribute__((always_inline));
       };
 
@@ -178,7 +176,7 @@ namespace String
          * Does not initialize the object.
          */
         CharTable()
-          throw ()
+          noexcept
           __attribute__((always_inline));
 
         /**
@@ -190,7 +188,7 @@ namespace String
          */
         explicit
         CharTable(const char* str, bool check_zero = false)
-          throw ();
+          noexcept;
 
         /**
          * Constructor
@@ -199,7 +197,7 @@ namespace String
          * @param second second object to unite
          */
         CharTable(const CharTable& first, const CharTable& second)
-          throw ();
+          noexcept;
 
         /**
          * Constructor
@@ -210,7 +208,7 @@ namespace String
          */
         CharTable(const CharTable& first, const CharTable& second,
           const CharTable& third)
-          throw ();
+          noexcept;
 
         /**
          * Constructor
@@ -219,10 +217,10 @@ namespace String
          */
         template <typename Predicate>
         explicit
-        CharTable(Predicate predicate) throw ();
+        CharTable(Predicate predicate) noexcept;
 
         bool
-        operator ()(char ch) const throw ()
+        operator ()(char ch) const noexcept
           __attribute__((always_inline));
 
       private:
@@ -241,7 +239,7 @@ namespace String
          * @return if ch equals to SYMBOL
          */
         bool
-        operator ()(char ch) const throw ()
+        operator ()(char ch) const noexcept
           __attribute__((always_inline));
       };
 
@@ -257,7 +255,7 @@ namespace String
          * @return if ch equals to SYMBOL1 or SYMBOL2
          */
         bool
-        operator ()(char ch) const throw ()
+        operator ()(char ch) const noexcept
           __attribute__((always_inline));
       };
 
@@ -273,7 +271,7 @@ namespace String
          * @return if ch equals to SYMBOL1, SYMBOL2 or SYMBOL3
          */
         bool
-        operator ()(char ch) const throw ()
+        operator ()(char ch) const noexcept
           __attribute__((always_inline));
       };
     }
@@ -295,7 +293,7 @@ namespace String
       find_owned(
         const char* begin,
         const char* end,
-        unsigned long* octets_length = 0) const throw ()
+        unsigned long* octets_length = 0) const noexcept
       {
         const char* result = static_cast<const char*>(std::memchr(begin, '\t', end - begin));
         if (!result)
@@ -378,13 +376,13 @@ namespace String
        * @param str string to store for comparison
        */
       explicit
-      Caseless(const char* str) throw ();
+      Caseless(const char* str) noexcept;
       /**
        * Constructor
        * @param str string to store for comparison
        */
       explicit
-      Caseless(const SubString& str) throw ();
+      Caseless(const SubString& str) noexcept;
 
       /**
        * Compares the stored string with the given one.
@@ -395,7 +393,7 @@ namespace String
        * greater than str
        */
       int
-      compare(const SubString& str) const throw ();
+      compare(const SubString& str) const noexcept;
 
       /**
        * Checks SubStrings on equality ignoring letters case.
@@ -405,7 +403,7 @@ namespace String
        * ignoring case, false if not.
        */
       bool
-      equal(const SubString& str) const throw ();
+      equal(const SubString& str) const noexcept;
 
       /**
        * Checks if str begins from the stored string.
@@ -414,7 +412,7 @@ namespace String
        * size and those first letters are equal ignoring case.
        */
       bool
-      start(const SubString& str) const throw ();
+      start(const SubString& str) const noexcept;
 
       SubString str;
     };
@@ -425,7 +423,7 @@ namespace String
      * @return the corresponding char value
      */
     char
-    convert(unsigned char ch) throw ()
+    convert(unsigned char ch) noexcept
       __attribute__((always_inline));
 
     /**
@@ -434,7 +432,7 @@ namespace String
      * @return corresponding number
      */
     unsigned char
-    hex_to_int(char ch) throw ()
+    hex_to_int(char ch) noexcept
       __attribute__((always_inline));
 
     /**
@@ -444,7 +442,7 @@ namespace String
      * @return corresponding char value
      */
     char
-    hex_to_char(char major, char minor) throw ()
+    hex_to_char(char major, char minor) noexcept
       __attribute__((always_inline));
 
     /**
@@ -454,7 +452,7 @@ namespace String
      */
     template <typename Integer>
     void
-    hex_to_integer(const char* data, Integer& value) throw ()
+    hex_to_integer(const char* data, Integer& value) noexcept
       __attribute__((always_inline));
 
     /**
@@ -463,7 +461,7 @@ namespace String
      * @param buf resulted data
      */
     void
-    hex_to_buf(const SubString& data, char* buf) throw ()
+    hex_to_buf(const SubString& data, char* buf) noexcept
       __attribute__((always_inline));
   }
 }
@@ -514,14 +512,14 @@ namespace String::AsciiStringManip
 
   inline
   char
-  to_lower(char ch) throw ()
+  to_lower(char ch) noexcept
   {
     return Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(ch)];
   }
 
   inline
   char
-  to_upper(char ch) throw ()
+  to_upper(char ch) noexcept
   {
     return Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(ch)];
   }
@@ -552,7 +550,7 @@ namespace String::AsciiStringManip
 
   inline
   void
-  to_lower(std::string& dest) throw ()
+  to_lower(std::string& dest) noexcept
   {
     if (!dest.empty())
     {
@@ -563,7 +561,7 @@ namespace String::AsciiStringManip
 
   inline
   void
-  to_upper(std::string& dest) throw ()
+  to_upper(std::string& dest) noexcept
   {
     if (!dest.empty())
     {
@@ -573,20 +571,20 @@ namespace String::AsciiStringManip
   }
 
   inline
-  Caseless::Caseless(const char* str) throw ()
+  Caseless::Caseless(const char* str) noexcept
     : str(str)
   {
   }
 
   inline
-  Caseless::Caseless(const SubString& str) throw ()
+  Caseless::Caseless(const SubString& str) noexcept
     : str(str)
   {
   }
 
   inline
   int
-  Caseless::compare(const SubString& str) const throw ()
+  Caseless::compare(const SubString& str) const noexcept
   {
     const char* str1 = this->str.data();
     const char* str2 = str.data();
@@ -612,7 +610,7 @@ namespace String::AsciiStringManip
 
   inline
   bool
-  Caseless::equal(const SubString& str) const throw ()
+  Caseless::equal(const SubString& str) const noexcept
   {
     const char* str1 = str.data();
     const char* str2 = this->str.data();
@@ -640,7 +638,7 @@ namespace String::AsciiStringManip
 
   inline
   bool
-  Caseless::start(const SubString& str) const throw ()
+  Caseless::start(const SubString& str) const noexcept
   {
     return equal(str.substr(0, this->str.size()));
   }
@@ -648,7 +646,7 @@ namespace String::AsciiStringManip
   inline
   bool
   operator ==(const SubString& str, const Caseless& cl)
-    throw ()
+    noexcept
   {
     return cl.equal(str);
   }
@@ -656,7 +654,7 @@ namespace String::AsciiStringManip
   inline
   bool
   operator ==(const Caseless& cl, const SubString& str)
-    throw ()
+    noexcept
   {
     return str == cl;
   }
@@ -664,7 +662,7 @@ namespace String::AsciiStringManip
   inline
   bool
   operator !=(const SubString& str, const Caseless& cl)
-    throw ()
+    noexcept
   {
     return !(str == cl);
   }
@@ -672,7 +670,7 @@ namespace String::AsciiStringManip
   inline
   bool
   operator !=(const Caseless& cl, const SubString& str)
-    throw ()
+    noexcept
   {
     return str != cl;
   }
@@ -698,14 +696,14 @@ namespace String::AsciiStringManip
     template <typename Predicate>
     inline
     bool
-    Category<Predicate>::is_owned(char ch) const throw ()
+    Category<Predicate>::is_owned(char ch) const noexcept
     {
       return Predicate::operator ()(ch);
     }
 
     template <typename Predicate>
     bool
-    Category<Predicate>::empty() const throw ()
+    Category<Predicate>::empty() const noexcept
     {
       for (char ch = std::numeric_limits<char>::min(); ; ch++)
       {
@@ -724,7 +722,7 @@ namespace String::AsciiStringManip
     template <typename Predicate>
     inline
     const char*
-    Category<Predicate>::find_owned(const char* str) const throw ()
+    Category<Predicate>::find_owned(const char* str) const noexcept
     {
       for (char ch; (ch = *str) != '\0'; str++)
       {
@@ -740,7 +738,7 @@ namespace String::AsciiStringManip
     inline
     const char*
     Category<Predicate>::find_owned(const char* str, const char* end,
-      unsigned long* octets_length) const throw ()
+      unsigned long* octets_length) const noexcept
     {
       for (; str != end; ++str)
       {
@@ -761,7 +759,7 @@ namespace String::AsciiStringManip
     inline
     const char*
     Category<Predicate>::find_nonowned(const char* str) const
-      throw ()
+      noexcept
     {
       for (char ch; (ch = *str) != '\0'; str++)
       {
@@ -778,7 +776,7 @@ namespace String::AsciiStringManip
     const char*
     Category<Predicate>::find_nonowned(const char* str,
       const char* end) const
-      throw ()
+      noexcept
     {
       for (; str != end; ++str)
       {
@@ -795,7 +793,7 @@ namespace String::AsciiStringManip
     const char*
     Category<Predicate>::rfind_owned(const char* pos,
       const char* start) const
-      throw ()
+      noexcept
     {
       const char* const NOT_FOUND = pos;
       while (start != pos)
@@ -813,7 +811,7 @@ namespace String::AsciiStringManip
     const char*
     Category<Predicate>::rfind_nonowned(const char* pos,
       const char* start) const
-      throw ()
+      noexcept
     {
       const char* const NOT_FOUND = pos;
       while (start != pos)
@@ -832,12 +830,12 @@ namespace String::AsciiStringManip
     //
 
     inline
-    CharTable::CharTable() throw ()
+    CharTable::CharTable() noexcept
     {
     }
 
     template <typename Predicate>
-    CharTable::CharTable(Predicate predicate) throw ()
+    CharTable::CharTable(Predicate predicate) noexcept
     {
       for (int i = 0; i < 256; i++)
       {
@@ -847,7 +845,7 @@ namespace String::AsciiStringManip
 
     inline
     bool
-    CharTable::operator ()(char ch) const throw ()
+    CharTable::operator ()(char ch) const noexcept
     {
       return table_[static_cast<uint8_t>(ch)];
     }
@@ -860,7 +858,7 @@ namespace String::AsciiStringManip
     template <const char SYMBOL>
     inline
     bool
-    Char1<SYMBOL>::operator ()(char ch) const throw ()
+    Char1<SYMBOL>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL;
     }
@@ -873,7 +871,7 @@ namespace String::AsciiStringManip
     template <const char SYMBOL1, const char SYMBOL2>
     inline
     bool
-    Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const throw ()
+    Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL1 || ch == SYMBOL2;
     }
@@ -886,7 +884,7 @@ namespace String::AsciiStringManip
     template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
     inline
     bool
-    Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const throw ()
+    Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL1 || ch == SYMBOL2 || ch == SYMBOL3;
     }
@@ -894,21 +892,21 @@ namespace String::AsciiStringManip
 
   inline
   char
-  convert(unsigned char ch) throw ()
+  convert(unsigned char ch) noexcept
   {
     return static_cast<const char&>(ch);
   }
 
   inline
   unsigned char
-  hex_to_int(char ch) throw ()
+  hex_to_int(char ch) noexcept
   {
     return ch <= '9' ? ch - '0' : (ch & 0x0F) + 9;
   }
 
   inline
   char
-  hex_to_char(char major, char minor) throw ()
+  hex_to_char(char major, char minor) noexcept
   {
     return convert((hex_to_int(major) << 4) | hex_to_int(minor));
   }
@@ -916,7 +914,7 @@ namespace String::AsciiStringManip
   template <typename Integer>
   inline
   void
-  hex_to_integer(const char* data, Integer& value) throw ()
+  hex_to_integer(const char* data, Integer& value) noexcept
   {
     assert(!std::numeric_limits<Integer>::is_signed);
     value = 0;
@@ -929,7 +927,7 @@ namespace String::AsciiStringManip
 
   inline
   void
-  hex_to_buf(const SubString& data, char* buf) throw ()
+  hex_to_buf(const SubString& data, char* buf) noexcept
   {
     assert(!(data.size() & 1));
     for (size_t i = 0; i < data.size(); i += 2)
@@ -938,5 +936,3 @@ namespace String::AsciiStringManip
     }
   }
 }
-
-#endif

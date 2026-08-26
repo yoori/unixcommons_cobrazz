@@ -14,7 +14,7 @@ struct Config
   std::string message;
 
   /// Init struct via constructor
-  Config() throw();
+  Config() noexcept;
 };
 
 Config config;
@@ -22,7 +22,7 @@ Config config;
 //////////////////////////////////////////////////////////////////////////
 // Implementations 
 
-Config::Config() throw()
+Config::Config() noexcept
   : count(20),
     message("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

@@ -1,6 +1,4 @@
-// @file String/UTF8IsProperty.hpp
-#ifndef UTF8_IS_PROPERTY_HPP
-#define UTF8_IS_PROPERTY_HPP
+#pragma once
 
 #include <String/UTF8NArcTree.hpp>
 
@@ -14,7 +12,7 @@ namespace String
    * @return true for space Unicode symbols.
    */
   bool
-  is_space(const char* str) throw ();
+  is_space(const char* str) noexcept;
 
   /**
    * Check that UTF-8 encoded string contain digit Unicode character,
@@ -23,7 +21,7 @@ namespace String
    * @return true for digit Unicode symbols.
    */
   bool
-  is_digit(const char* str) throw ();
+  is_digit(const char* str) noexcept;
 
   /**
    * Check that UTF-8 encoded string contain letter Unicode character,
@@ -32,7 +30,7 @@ namespace String
    * @return true for letter Unicode symbols.
    */
   bool
-  is_letter(const char* str) throw ();
+  is_letter(const char* str) noexcept;
 
   /**
    * Check that UTF-8 encoded string contain lower letter Unicode character,
@@ -41,7 +39,7 @@ namespace String
    * @return true for lower letter Unicode symbols.
    */
   bool
-  is_lower_letter(const char* str) throw ();
+  is_lower_letter(const char* str) noexcept;
 
   /**
    * Check that UTF-8 encoded string contain title letter Unicode character,
@@ -50,7 +48,7 @@ namespace String
    * @return true for title letter Unicode symbols.
    */
   bool
-  is_title_letter(const char* str) throw ();
+  is_title_letter(const char* str) noexcept;
 
   /**
    * Check that UTF-8 encoded string contain upper letter Unicode character,
@@ -59,7 +57,7 @@ namespace String
    * @return true for upper letter Unicode symbols.
    */
   bool
-  is_upper_letter(const char* str) throw ();
+  is_upper_letter(const char* str) noexcept;
 } // namespace String
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,45 +80,43 @@ namespace String
 
   inline
   bool
-  is_space(const char* str) throw ()
+  is_space(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::SPACE_TREE, str);
   }
 
   inline
   bool
-  is_digit(const char* str) throw ()
+  is_digit(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::DIGIT_TREE, str);
   }
 
   inline
   bool
-  is_letter(const char* str) throw ()
+  is_letter(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::LETTER_TREE, str);
   }
 
   inline
   bool
-  is_lower_letter(const char* str) throw ()
+  is_lower_letter(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::LETTER_LOWER_TREE, str);
   }
 
   inline
   bool
-  is_title_letter(const char* str) throw ()
+  is_title_letter(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::LETTER_TITLE_TREE, str);
   }
 
   inline
   bool
-  is_upper_letter(const char* str) throw ()
+  is_upper_letter(const char* str) noexcept
   {
     return UnicodeProperty::belong(UnicodeProperty::LETTER_UPPER_TREE, str);
   }
 } // namespace String
-
-#endif

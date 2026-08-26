@@ -22,13 +22,13 @@ namespace String
       {
         static
         size_t
-        convert(Integer value, char* str) throw ();
+        convert(Integer value, char* str) noexcept;
       };
 
       template <typename Integer>
       size_t
       IntToStrSign<Integer, false>::convert(Integer value, char* str)
-        throw ()
+        noexcept
       {
         char* ptr = str;
         do
@@ -49,13 +49,13 @@ namespace String
       {
         static
         size_t
-        convert(Integer value, char* str) throw ();
+        convert(Integer value, char* str) noexcept;
       };
 
       template <typename Integer>
       size_t
       IntToStrSign<Integer, true>::convert(Integer value, char* str)
-        throw ()
+        noexcept
       {
         if (value < -std::numeric_limits<Integer>::max())
         {
@@ -72,7 +72,7 @@ namespace String
 
     template <typename Integer>
     size_t
-    int_to_str(Integer value, char* str, size_t size) throw ()
+    int_to_str(Integer value, char* str, size_t size) noexcept
     {
       static_assert(std::numeric_limits<Integer>::is_integer,
         "Integer is not an integer type");
@@ -103,7 +103,7 @@ namespace String
 
     template <typename Integer>
     bool
-    str_to_int(const String::SubString& str, Integer& value) throw ()
+    str_to_int(const String::SubString& str, Integer& value) noexcept
     {
       static_assert(
         std::numeric_limits<Integer>::is_integer,
@@ -118,14 +118,13 @@ namespace String
         return false;
       }
 
-      bool negative = false;
-      if (*current == '-')
+      const bool negative = *current == '-';
+      if (negative)
       {
         if (!std::numeric_limits<Integer>::is_signed)
         {
           return false;
         }
-        negative = true;
         ++current;
       }
       else if (*current == '+')
@@ -206,7 +205,7 @@ namespace String
 
     template <typename Integer>
     bool
-    str_to_int(std::string_view str, Integer& value) throw ()
+    str_to_int(std::string_view str, Integer& value) noexcept
     {
       if (str.empty())
       {
@@ -218,7 +217,7 @@ namespace String
 
     template <typename Integer>
     bool
-    str_to_int(const std::string& str, Integer& value) throw ()
+    str_to_int(const std::string& str, Integer& value) noexcept
     {
       return str_to_int(std::string_view(str.data(), str.size()), value);
     }
@@ -245,7 +244,7 @@ namespace String
     template <class Category>
     template <typename Character>
     bool
-    InverseCategory<Category>::is_owned(Character ch) const throw ()
+    InverseCategory<Category>::is_owned(Character ch) const noexcept
     {
       return !Category::is_owned(ch);
     }
@@ -253,7 +252,7 @@ namespace String
     template <class Category>
     template <typename Character>
     bool
-    InverseCategory<Category>::operator ()(Character ch) const throw ()
+    InverseCategory<Category>::operator ()(Character ch) const noexcept
     {
       return is_owned(ch);
     }
@@ -262,7 +261,7 @@ namespace String
     const char*
     InverseCategory<Category>::find_owned(
       const char* begin, const char* end, unsigned long* octets) const
-      throw ()
+      noexcept
     {
       return Category::find_nonowned(begin, end, octets);
     }
@@ -271,7 +270,7 @@ namespace String
     const char*
     InverseCategory<Category>::find_nonowned(
       const char* begin, const char* end, unsigned long* octets) const
-      throw ()
+      noexcept
     {
       return Category::find_owned(begin, end, octets);
     }
@@ -280,7 +279,7 @@ namespace String
     const char*
     InverseCategory<Category>::rfind_owned(
       const char* begin, const char* end, unsigned long* octets) const
-      throw ()
+      noexcept
     {
       return Category::rfind_nonowned(begin, end, octets);
     }
@@ -289,7 +288,7 @@ namespace String
     const char*
     InverseCategory<Category>::rfind_nonowned(
       const char* begin, const char* end, unsigned long* octets) const
-      throw ()
+      noexcept
     {
       return Category::rfind_owned(begin, end, octets);
     }
@@ -300,20 +299,20 @@ namespace String
     //
 
     template <typename Integer>
-    IntToStr::IntToStr(Integer value) throw ()
+    IntToStr::IntToStr(Integer value) noexcept
       : length_(int_to_str(value, buf_, sizeof(buf_)))
     {
     }
 
     inline
     SubString
-    IntToStr::str() const throw ()
+    IntToStr::str() const noexcept
     {
       return SubString(buf_, length_);
     }
 
     inline
-    IntToStr::operator SubString() const throw ()
+    IntToStr::operator SubString() const noexcept
     {
       return str();
     }

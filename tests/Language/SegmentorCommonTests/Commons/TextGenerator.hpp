@@ -1,10 +1,4 @@
-/**
- * @file TextGenerator.hpp
- * @author unknown
- * @modified Alexey Bulavitsky [alexey_bulavitsky@ocslab.com]
- */
-#ifndef LANGUAGE_SEGMENTOR_COMMON_TESTS_COMMONS_TEXT_GENERATOR_HPP
-#define LANGUAGE_SEGMENTOR_COMMON_TESTS_COMMONS_TEXT_GENERATOR_HPP
+#pragma once
 
 #include <cstddef>
 #include <String/UnicodeSymbol.hpp>
@@ -30,7 +24,7 @@ namespace SegmentorTestCommons
     static
     size_t
     gen_rand_utf8_sequence(char* buf, size_t max_sequence_len,
-                           bool valid_only = true) throw ();
+                           bool valid_only = true) noexcept;
     
     /**
      * Borders for unicode with different UTF8 char length
@@ -64,7 +58,7 @@ namespace SegmentorTestCommons
      */
     static
     void
-    gen_rand_ascii_sequence(char* buf, size_t buf_len) throw ();
+    gen_rand_ascii_sequence(char* buf, size_t buf_len) noexcept;
   };
 
   /**
@@ -74,7 +68,7 @@ namespace SegmentorTestCommons
    * @param size is this size
    */
   void
-  hex_dump (std::ostream &os, const char* str, size_t size) throw ();
+  hex_dump (std::ostream &os, const char* str, size_t size) noexcept;
 
   /**
    * Provide iteration over valid utf8 chars and not more 4 octets for char
@@ -93,7 +87,7 @@ namespace SegmentorTestCommons
      * @param octets number of octets of this new utf8 char
      */
     void
-    setup_(size_t octets) throw (); 
+    setup_(size_t octets) noexcept;
 
   public:
 
@@ -102,7 +96,7 @@ namespace SegmentorTestCommons
      * create walker for octets size char but always not more 4 octets
      * @param octets number of octets of this new utf8 char
      */
-    explicit Utf8CharWalker(size_t octets) throw ();
+    explicit Utf8CharWalker(size_t octets) noexcept;
 
     /**
      * Accessor for number of octets.
@@ -110,13 +104,13 @@ namespace SegmentorTestCommons
      * special value 5 is overflow number of octets
      */
     size_t
-    octets() const throw ();
+    octets() const noexcept;
 
     /**
      * Interpret this char as C string.
      * @return C string interpretation of this char.
      */
-    operator const char*() const throw ();
+    operator const char*() const noexcept;
 
     /**
      * Accessor to indexed octet of this char.
@@ -124,14 +118,14 @@ namespace SegmentorTestCommons
      * @return indexed octet of this char.
      */
     unsigned char
-    operator [](size_t index) const throw ();
+    operator [](size_t index) const noexcept;
 
     /**
      * Unicode code of this char.
      * @return unicode code of this char.
      */
     unsigned long
-    code() const throw ();
+    code() const noexcept;
 
     /**
      * Move to next char.
@@ -140,14 +134,14 @@ namespace SegmentorTestCommons
      * in all other cases return C string interpretation of this char.
      */
     const char*
-    next() throw ();
+    next() noexcept;
 
     /**
      * Dump hex representation of symbol
      * @param os is output stream
      */
     void
-    dump (std::ostream &os) const throw ();
+    dump (std::ostream &os) const noexcept;
   };
 
   /**
@@ -168,7 +162,7 @@ namespace SegmentorTestCommons
      * @param octets number of octets of this new pseudo utf8 char
      */
     void
-    setup_(size_t octets) throw (); 
+    setup_(size_t octets) noexcept;
 
   public:
 
@@ -177,7 +171,7 @@ namespace SegmentorTestCommons
      * create walker for octets size char but always not more 6 octets
      * @param octets number of octets of this new pseudo utf8 char
      */
-    explicit PseudoUtf8CharWalker(size_t octets) throw ();
+    explicit PseudoUtf8CharWalker(size_t octets) noexcept;
 
     /**
      * Accessor for number of octets.
@@ -185,13 +179,13 @@ namespace SegmentorTestCommons
      * special value 7 is overflow number of octets
      */
     size_t
-    octets() const throw ();
+    octets() const noexcept;
 
     /**
      * Interpret this char as C string.
      * @return C string interpretation of this char.
      */
-    operator const char*() const throw ();
+    operator const char*() const noexcept;
 
     /**
      * Accessor to indexed octet of this char.
@@ -199,14 +193,14 @@ namespace SegmentorTestCommons
      * @return indexed octet of this char.
      */
     unsigned char
-    operator [](size_t index) const throw ();
+    operator [](size_t index) const noexcept;
 
     /**
      * Unicode code of this char.
      * @return unicode code of this char.
      */
     unsigned long
-    code() const throw ();
+    code() const noexcept;
 
     /**
      * Move to next char.
@@ -215,14 +209,14 @@ namespace SegmentorTestCommons
      * in all other cases return C string interpretation of this char.
      */
     const char*
-    next() throw ();
+    next() noexcept;
 
     /**
      * Dump hex representation of symbol
      * @param os is output stream
      */
     void
-    dump (std::ostream &os) const throw ();
+    dump (std::ostream &os) const noexcept;
 
   };
 } //namespace SegmentorTestCommons
@@ -233,7 +227,7 @@ namespace SegmentorTestCommons
 {
   inline
   Utf8CharWalker::Utf8CharWalker(size_t octets)
-    throw ()
+    noexcept
   {
     setup_(octets);
   }
@@ -241,14 +235,14 @@ namespace SegmentorTestCommons
   inline
   size_t
   Utf8CharWalker::octets() const
-    throw ()
+    noexcept
   { 
     return octets_;
   }
 
   inline
   Utf8CharWalker::operator const char*() const
-    throw ()
+    noexcept
   { 
     return sym_.c_str();
   }
@@ -256,7 +250,7 @@ namespace SegmentorTestCommons
   inline
   unsigned char
   Utf8CharWalker::operator [](size_t index) const
-    throw ()
+    noexcept
   { 
     return sym_.c_ustr()[index];
   }
@@ -264,7 +258,7 @@ namespace SegmentorTestCommons
   inline
   unsigned long 
   Utf8CharWalker::code() const
-    throw ()
+    noexcept
   { 
     return static_cast<wchar_t>(sym_);
   }
@@ -272,14 +266,14 @@ namespace SegmentorTestCommons
   inline
   void
   Utf8CharWalker::dump (std::ostream &os) const
-    throw ()
+    noexcept
   {
     SegmentorTestCommons::hex_dump(os, sym_.c_str(), octets_);
   }
 
   inline
   PseudoUtf8CharWalker::PseudoUtf8CharWalker(size_t octets)
-    throw ()
+    noexcept
   {
     setup_(octets);
   }
@@ -287,14 +281,14 @@ namespace SegmentorTestCommons
   inline
   size_t
   PseudoUtf8CharWalker::octets() const
-    throw ()
+    noexcept
   { 
     return octets_;
   }
 
   inline
   PseudoUtf8CharWalker::operator const char*() const
-    throw ()
+    noexcept
   {
     return reinterpret_cast<const char*>(data_);
   }
@@ -302,7 +296,7 @@ namespace SegmentorTestCommons
   inline
   unsigned char
   PseudoUtf8CharWalker::operator [](size_t index) const
-    throw ()
+    noexcept
   { 
     return data_[index];
   }
@@ -310,7 +304,7 @@ namespace SegmentorTestCommons
   inline
   unsigned long 
   PseudoUtf8CharWalker::code() const
-    throw ()
+    noexcept
   {
     unsigned long octets_count = octets_;
     wchar_t dest;
@@ -322,7 +316,7 @@ namespace SegmentorTestCommons
   inline
   void
   PseudoUtf8CharWalker::dump (std::ostream &os) const
-    throw ()
+    noexcept
   {
     SegmentorTestCommons::hex_dump(os, 
       reinterpret_cast<const char*>(data_),
@@ -330,5 +324,3 @@ namespace SegmentorTestCommons
   }
 
 } //namespace SegmentorTestCommons
-
-#endif //LANGUAGE_SEGMENTOR_COMMON_TESTS_COMMONS_TEXT_GENERATOR_HPP

@@ -84,7 +84,7 @@ struct HashFun
 namespace
 {
   inline uint32_t
-  get_country_code(const char* str) throw ()
+  get_country_code(const char* str) noexcept
   {
     union
     {

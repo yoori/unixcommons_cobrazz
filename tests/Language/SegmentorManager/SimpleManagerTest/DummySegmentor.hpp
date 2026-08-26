@@ -1,5 +1,4 @@
-#ifndef _TESTS_LANGUAGE_SEGMETOR_MANAGER_SIMPLE_MANAGER_TEST_DUMMY_SEGMENTOR_HPP_
-#define _TESTS_LANGUAGE_SEGMETOR_MANAGER_SIMPLE_MANAGER_TEST_DUMMY_SEGMENTOR_HPP_
+#pragma once
 
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
 #include <Stream/MemoryStream.hpp>
@@ -9,7 +8,7 @@ class DummySegmentor: public Language::Segmentor::SegmentorInterface
 {
 public:
 
-  DummySegmentor(int my_id, std::ostream& out) throw ();
+  DummySegmentor(int my_id, std::ostream& out) noexcept;
 
   virtual void
   segmentation(Language::Segmentor::WordsList& result,
@@ -21,7 +20,7 @@ public:
 
 private:
   virtual
-  ~DummySegmentor() throw ();
+  ~DummySegmentor() noexcept;
 
   int my_id_;
   std::ostream& out_;
@@ -32,13 +31,13 @@ private:
 // class DummySegmentor
 //
 
-DummySegmentor::DummySegmentor(int my_id, std::ostream& out) throw ():
+DummySegmentor::DummySegmentor(int my_id, std::ostream& out) noexcept:
   my_id_(my_id),
   out_(out)
 {
 }
 
-DummySegmentor::~DummySegmentor() throw ()
+DummySegmentor::~DummySegmentor() noexcept
 {
 }
 
@@ -143,5 +142,3 @@ DummySegmentor::put_spaces(std::string& res, const char* phrase,
     throw SegmException(error);
   }
 }
-
-#endif

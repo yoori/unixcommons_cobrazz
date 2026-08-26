@@ -1,10 +1,3 @@
-/**
- * @file   String/TextTemplate.cpp
- * @author Denis Erygin
- * Source for the class TextTemplate.
- * Inserts values into a pattern.
- */
-
 #include <map>
 
 #include <String/StringManip.hpp>
@@ -21,7 +14,7 @@ namespace String
     // Basic::Item class
     //
 
-    Basic::Item::~Item() throw ()
+    Basic::Item::~Item() noexcept
     {
     }
 
@@ -36,7 +29,7 @@ namespace String
     {
     }
 
-    Basic::StringItem::~StringItem() throw ()
+    Basic::StringItem::~StringItem() noexcept
     {
     }
 
@@ -65,7 +58,7 @@ namespace String
     {
     }
 
-    Basic::VarItem::~VarItem() throw ()
+    Basic::VarItem::~VarItem() noexcept
     {
     }
 
@@ -321,7 +314,7 @@ namespace String
                    or zero if not found
          */
         Args::ValueEncoder
-        get_value_encoder(const SubString& key) const throw ();
+        get_value_encoder(const SubString& key) const noexcept;
 
         /**
          * Performs registration of encoder
@@ -340,7 +333,7 @@ namespace String
 
       inline
       Args::ValueEncoder
-      EncoderHolder::get_value_encoder(const SubString& key) const throw ()
+      EncoderHolder::get_value_encoder(const SubString& key) const noexcept
       {
         RelationType::const_iterator found(relation_.find(key));
         return found == relation_.end() ? 0 : found->second;
@@ -365,7 +358,7 @@ namespace String
     // DefaultValue class
     //
 
-    DefaultValue::DefaultValue(const ArgsCallback* callback) throw ()
+    DefaultValue::DefaultValue(const ArgsCallback* callback) noexcept
       : callback_(callback)
     {
     }
@@ -445,7 +438,7 @@ namespace String
     }
 
     void
-    ArgsEncoder::set_callback(ArgsCallback* args_container) throw ()
+    ArgsEncoder::set_callback(ArgsCallback* args_container) noexcept
     {
       args_container_ = args_container;
     }

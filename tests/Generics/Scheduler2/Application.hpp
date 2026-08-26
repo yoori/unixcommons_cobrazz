@@ -1,5 +1,4 @@
-#ifndef SCHEDULER_TEST_NUMBER_TWO_INCLUDED
-#define SCHEDULER_TEST_NUMBER_TWO_INCLUDED
+#pragma once
 
 #include <eh/Exception.hpp>
 #include <Generics/Scheduler.hpp>
@@ -25,5 +24,3 @@ namespace Generics
     Planner_var scheduler2_;
   };
 }
-
-#endif // SCHEDULER_TEST_NUMBER_TWO_INCLUDED

@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_SEGMENTOR_COMMONS_SEGMENTOR_INTERFACE_HPP
-#define LANGUAGE_SEGMENTOR_COMMONS_SEGMENTOR_INTERFACE_HPP
+#pragma once
 
 #include <list>
 #include <string>
@@ -34,7 +33,7 @@ namespace Language
 
     protected:
       virtual
-      ~SegmentorInterface() throw ();
+      ~SegmentorInterface() noexcept;
     };
     typedef ReferenceCounting::ConstPtr<SegmentorInterface>
       SegmentorInterface_var;
@@ -51,7 +50,7 @@ namespace Language
         UniqueException;
 
       virtual
-      ~UniqueSegmentorInterface() throw ();
+      ~UniqueSegmentorInterface() noexcept;
     };
   } //Segmentor
 } //namespace Language
@@ -61,16 +60,14 @@ namespace Language
   namespace Segmentor
   {
     inline
-    SegmentorInterface::~SegmentorInterface() throw ()
+    SegmentorInterface::~SegmentorInterface() noexcept
     {
     }
 
     template <typename Implementation>
     UniqueSegmentorInterface<Implementation>::
-      ~UniqueSegmentorInterface() throw ()
+      ~UniqueSegmentorInterface() noexcept
     {
     }
   }
 }
-
-#endif

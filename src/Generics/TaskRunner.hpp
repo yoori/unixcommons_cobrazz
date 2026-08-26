@@ -1,5 +1,4 @@
-#ifndef GENERICS_TASK_RUNNER_HPP
-#define GENERICS_TASK_RUNNER_HPP
+#pragma once
 
 #include <Sync/Semaphore.hpp>
 
@@ -26,7 +25,7 @@ namespace Generics
 
   protected:
     virtual
-    ~Task() throw ();
+    ~Task() noexcept;
   };
 
   typedef ReferenceCounting::QualPtr<Task> Task_var;
@@ -96,7 +95,7 @@ namespace Generics
      * @return number of tasks enqueued
      */
     unsigned
-    task_count() const throw ();
+    task_count() const noexcept;
 
     /**
      * Waits for the moment task queue is empty and returns control.
@@ -115,7 +114,7 @@ namespace Generics
 
   protected:
     virtual
-    ~TaskRunner() throw ();
+    ~TaskRunner() noexcept;
 
   private:
     class TaskRunnerJob : public SingleJob
@@ -130,15 +129,15 @@ namespace Generics
 
       virtual
       void
-      work() throw ();
+      work() noexcept;
 
       virtual
       void
-      started(unsigned threads) throw ();
+      started(unsigned threads) noexcept;
 
       virtual
       void
-      terminate() throw ();
+      terminate() noexcept;
 
       void
       enqueue_task(Task* task, const Time* timeout,
@@ -146,7 +145,7 @@ namespace Generics
         /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
       unsigned
-      task_count() const throw ();
+      task_count() const noexcept;
 
       void
       wait_for_queue_exhausting() /*throw (eh::Exception)*/;
@@ -156,10 +155,10 @@ namespace Generics
 
     protected:
       virtual
-      ~TaskRunnerJob() throw ();
+      ~TaskRunnerJob() noexcept;
 
       void
-      add_thread_i_(ThreadRunner& thread_runner) throw ();
+      add_thread_i_(ThreadRunner& thread_runner) noexcept;
 
     private:
       typedef ReferenceCounting::Deque<Task_var> Tasks;
@@ -198,7 +197,7 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~TaskImpl() throw ();
+    ~TaskImpl() noexcept;
   };
 
   /**
@@ -231,7 +230,7 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~TaskGoal() throw ();
+    ~TaskGoal() noexcept;
 
   private:
     TaskExecutor_var task_executor_;
@@ -277,7 +276,7 @@ namespace Generics
      * Destructor
      */
     virtual
-    ~GoalTask() throw ();
+    ~GoalTask() noexcept;
 
   private:
     Planner_var planner_;
@@ -296,7 +295,7 @@ namespace Generics
   //
 
   inline
-  Task::~Task() throw ()
+  Task::~Task() noexcept
   {
   }
 
@@ -306,7 +305,7 @@ namespace Generics
   //
 
   inline
-  TaskImpl::~TaskImpl() throw ()
+  TaskImpl::~TaskImpl() noexcept
   {
   }
 
@@ -323,7 +322,7 @@ namespace Generics
   }
 
   inline
-  TaskGoal::~TaskGoal() throw ()
+  TaskGoal::~TaskGoal() noexcept
   {
   }
 
@@ -348,7 +347,7 @@ namespace Generics
   }
 
   inline
-  GoalTask::~GoalTask() throw ()
+  GoalTask::~GoalTask() noexcept
   {
   }
 
@@ -373,7 +372,7 @@ namespace Generics
 
   inline
   unsigned
-  TaskRunner::TaskRunnerJob::task_count() const throw ()
+  TaskRunner::TaskRunnerJob::task_count() const noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     return tasks_.size();
@@ -394,7 +393,7 @@ namespace Generics
 
   inline
   unsigned
-  TaskRunner::task_count() const throw ()
+  TaskRunner::task_count() const noexcept
   {
     return job_.task_count();
   }
@@ -413,5 +412,3 @@ namespace Generics
     job_.clear();
   }
 }
-
-#endif

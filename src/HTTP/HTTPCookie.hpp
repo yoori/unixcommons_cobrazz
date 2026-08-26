@@ -1,12 +1,4 @@
-/**
- * @file   HTTPCookie.hpp
- * @author Karen Aroutiounov
- *
- * Contains HTTP cookies support classes definition
- */
-
-#ifndef HTTP_HTTPCOOKIE_HPP
-#define HTTP_HTTPCOOKIE_HPP
+#pragma once
 
 #include <sstream>
 #include <list>
@@ -23,10 +15,10 @@ namespace HTTP
 {
   struct Cookie
   {
-    Cookie() throw ();
+    Cookie() noexcept;
 
     Cookie(const String::SubString& name, const String::SubString& value)
-      throw ();
+      noexcept;
 
     String::SubString name;
     String::SubString value;
@@ -34,11 +26,11 @@ namespace HTTP
 
   struct CookieDef : public Cookie
   {
-    CookieDef() throw ();
+    CookieDef() noexcept;
 
     CookieDef(const String::SubString& nam, const String::SubString& val,
       const String::SubString& dmn, const String::SubString& pth,
-      const Generics::Time& exp, bool sec) throw ();
+      const Generics::Time& exp, bool sec) noexcept;
 
     String::SubString domain;
     String::SubString path;
@@ -48,14 +40,14 @@ namespace HTTP
 
   struct PersistentCookieDef
   {
-    PersistentCookieDef() throw ();
+    PersistentCookieDef() noexcept;
 
     PersistentCookieDef(const String::SubString& nam,
       const String::SubString& val, const String::SubString& dmn,
       const String::SubString& pth, const Generics::Time& exp, bool sec)
       /*throw (eh::Exception)*/;
 
-    operator CookieDef() const throw ();
+    operator CookieDef() const noexcept;
 
     std::string name;
     std::string value;
@@ -86,7 +78,7 @@ namespace HTTP
     using Parent::emplace_back;
 
     virtual
-    ~CookieList() throw ();
+    ~CookieList() noexcept;
 
     void
     load_from_headers(const SubHeaderList& headers,
@@ -133,7 +125,7 @@ namespace HTTP
     CookieDefList(bool keep_expired = false) /*throw (eh::Exception)*/;
 
     virtual
-    ~CookieDefList() throw ();
+    ~CookieDefList() noexcept;
 
     void
     load_from_headers(const SubHeaderList& headers,
@@ -179,7 +171,7 @@ namespace HTTP
     using Parent::emplace_back;
 
     virtual
-    ~ClientCookieFacility() throw ();
+    ~ClientCookieFacility() noexcept;
 
     void
     load_from_headers(const SubHeaderList& headers,
@@ -235,13 +227,13 @@ namespace HTTP
 
   inline
   Cookie::Cookie(const String::SubString& nam,
-    const String::SubString& val) throw ()
+    const String::SubString& val) noexcept
     : name(nam), value(val)
   {
   }
 
   inline
-  Cookie::Cookie() throw ()
+  Cookie::Cookie() noexcept
   {
   }
 
@@ -251,7 +243,7 @@ namespace HTTP
   //
 
   inline
-  CookieDef::CookieDef() throw ()
+  CookieDef::CookieDef() noexcept
     : expires(Generics::Time::ZERO), secure(false)
   {
   }
@@ -260,7 +252,7 @@ namespace HTTP
   CookieDef::CookieDef(const String::SubString& nam,
     const String::SubString& val, const String::SubString& dmn,
     const String::SubString& pth, const Generics::Time& exp, bool sec)
-    throw ()
+    noexcept
     : Cookie(nam, val), domain(dmn), path(pth), expires(exp), secure(sec)
   {
   }
@@ -271,7 +263,7 @@ namespace HTTP
   //
 
   inline
-  PersistentCookieDef::PersistentCookieDef() throw ()
+  PersistentCookieDef::PersistentCookieDef() noexcept
     : expires(Generics::Time::ZERO), secure(false)
   {
   }
@@ -287,7 +279,7 @@ namespace HTTP
   }
 
   inline
-  PersistentCookieDef::operator CookieDef() const throw ()
+  PersistentCookieDef::operator CookieDef() const noexcept
   {
     return CookieDef(name, value, domain, path, expires, secure);
   }
@@ -364,5 +356,3 @@ namespace HTTP
     header.str().swap(dst);
   }
 } // namespace HTTP
-
-#endif

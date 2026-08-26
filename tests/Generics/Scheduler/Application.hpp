@@ -1,10 +1,4 @@
-/**
- * @file   Application.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef SCHEDULER_TEST_INCLUDED
-#define SCHEDULER_TEST_INCLUDED
+#pragma once
 
 #include <vector>
 #include <set>
@@ -47,7 +41,7 @@ namespace Generics
     compact_time_series() const /*throw (eh::Exception)*/;
 
     void
-    set_test_execution_time(int nt) throw ();
+    set_test_execution_time(int nt) noexcept;
 
     /**
      * Scheduling strategies
@@ -65,7 +59,7 @@ namespace Generics
       /*throw (Planner::Exception, eh::Exception)*/;
 
     void
-    set_message_count(unsigned long new_value) throw ();
+    set_message_count(unsigned long new_value) noexcept;
 
   private:
 
@@ -129,7 +123,7 @@ namespace Generics
 
     void
     deliver_message(TimedMessage* timed_message)
-      throw ();
+      noexcept;
 
   private:
 
@@ -139,7 +133,7 @@ namespace Generics
 
     bool
     is_test_successfull_(std::string& error_description) const
-      throw ();
+      noexcept;
 
     mutable Mutex_ lock_;
 
@@ -253,5 +247,3 @@ namespace Generics
   }
 
 }
-
-#endif // SCHEDULER_TEST_INCLUDED

@@ -23,7 +23,7 @@ CheckSegmentResult::CheckSegmentResult(const Segmentors& segms_map,
 
 inline
 bool
-CheckSegmentResult::is_space_(const char ch) throw()
+CheckSegmentResult::is_space_(const char ch) noexcept
 {
   return ch == ' ';
 }
@@ -166,7 +166,7 @@ CheckSegmentResult::dump(std::ostream& out)
 
 const CheckSegmentResult::SegmentorStats*
 CheckSegmentResult::find_segmentor_stats(
-  const Language::Segmentor::SegmentorInterface* id) const throw()
+  const Language::Segmentor::SegmentorInterface* id) const noexcept
 {
   for (size_t i = 0; i < segmentors_vect_.size(); ++i)
   {
@@ -216,13 +216,13 @@ CheckSegmentResult::flush_segmentor_stats(
 }
 
 size_t
-CheckSegmentResult::get_segmentations_count() const throw()
+CheckSegmentResult::get_segmentations_count() const noexcept
 {
   return segmentations_count_;
 }
 
 double
-CheckSegmentResult::get_average_seqs_length() const throw()
+CheckSegmentResult::get_average_seqs_length() const noexcept
 {
   return average_seqs_length_;
 }
@@ -306,7 +306,7 @@ CommonFunctor::fix_results_(CheckSegmentResult& checker) const
 
 const CheckSegmentResult::SegmentorStats*
 CommonFunctor::find_segmentor_stats(
-  const Language::Segmentor::SegmentorInterface* id) const throw()
+  const Language::Segmentor::SegmentorInterface* id) const noexcept
 {
   for (size_t i = 0; i < segms_map_.size(); ++i)
   {
@@ -350,18 +350,18 @@ CommonFunctor::dump(std::ostream& out)
 
 
 size_t
-CommonFunctor::get_segmentations_count() const throw()
+CommonFunctor::get_segmentations_count() const noexcept
 {
   return segmentations_count_;
 }
 
 double
-CommonFunctor::get_average_seqs_length() const throw()
+CommonFunctor::get_average_seqs_length() const noexcept
 {
   return average_seqs_length_;
 }
 
-CommonFunctor::~CommonFunctor() throw()
+CommonFunctor::~CommonFunctor() noexcept
 {
 }
 
@@ -415,7 +415,7 @@ RandomUtf8SegmentFunctor::operator()() const
   }
 }
 
-RandomUtf8SegmentFunctor::~RandomUtf8SegmentFunctor() throw()
+RandomUtf8SegmentFunctor::~RandomUtf8SegmentFunctor() noexcept
 {
 }
 
@@ -462,7 +462,7 @@ ParseStdIn::operator()() const
   }
 }
 
-ParseStdIn::~ParseStdIn() throw()
+ParseStdIn::~ParseStdIn() noexcept
 {
 }
 
@@ -513,7 +513,7 @@ RandomAsciiSegmentFunctor::operator()() const
   }
 }
 
-RandomAsciiSegmentFunctor::~RandomAsciiSegmentFunctor() throw()
+RandomAsciiSegmentFunctor::~RandomAsciiSegmentFunctor() noexcept
 {
 }
 
@@ -575,7 +575,7 @@ ParseFile::operator()() const
   }
 }
 
-ParseFile::~ParseFile() throw()
+ParseFile::~ParseFile() noexcept
 {
 }
 

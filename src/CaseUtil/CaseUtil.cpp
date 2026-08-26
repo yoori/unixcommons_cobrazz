@@ -24,7 +24,7 @@ private:
 
   template <typename Convert>
   CaseChange
-  get_case_change() throw ();
+  get_case_change() noexcept;
 
   void
   convert_(std::istream& istr, CaseChange case_change)
@@ -59,7 +59,7 @@ Application::usage_() /*throw (eh::Exception)*/
 
 template <typename Convert>
 Application::CaseChange
-Application::get_case_change() throw ()
+Application::get_case_change() noexcept
 {
   return String::case_change<Convert, std::char_traits<char>,
     std::allocator<char> >;

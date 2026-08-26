@@ -1,8 +1,3 @@
-/**
- * @file IPMap.cpp
- * @author Denis Erygin [denis@peopleonpage.com]
- */
-
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <algorithm>
@@ -34,17 +29,17 @@ namespace
       /*throw (eh::Exception)*/;
 
     ~Regions()
-      throw ();
+      noexcept;
 
     void
     region(const char* country, const char* region_code,
       String::SubString& region) const
-      throw ();
+      noexcept;
 
   private:
     uint32_t
     hash_(const char* country, const char* region_code) const
-      throw ();
+      noexcept;
 
     using AllRegions =
       Generics::GnuHashTable<Generics::NumericHashAdapter<uint32_t>, std::string>;
@@ -54,7 +49,7 @@ namespace
 
   uint32_t
   Regions::hash_(const char* country, const char* region_code) const
-    throw ()
+    noexcept
   {
     if (!country[0] || !country[1] || country[2] ||
       !region_code[0] || !region_code[1] || region_code[2])
@@ -99,7 +94,7 @@ namespace
     }
   }
 
-  Regions::~Regions() throw ()
+  Regions::~Regions() noexcept
   {
     GeoIP_cleanup();
   }
@@ -107,7 +102,7 @@ namespace
   void
   Regions::region(const char* country, const char* region_code,
     String::SubString& region) const
-    throw ()
+    noexcept
   {
     uint32_t hash = hash_(country, region_code);
     if (!hash)
@@ -128,7 +123,7 @@ namespace
 
 
   unsigned long
-  ip_to_ipv4(const char* ip) throw ()
+  ip_to_ipv4(const char* ip) noexcept
   {
     for (const char* p = ip; *p; p++)
     {
@@ -201,7 +196,7 @@ namespace GeoIPMapping
     }
   }
 
-  IPMapBase::~IPMapBase() throw ()
+  IPMapBase::~IPMapBase() noexcept
   {
     if (geo_ip_)
     {
@@ -489,7 +484,7 @@ namespace GeoIPMapping
       String::SubString("/usr/share/GeoIP/ipv4.csv"));
   }
 
-  IPMapCity2::~IPMapCity2() throw()
+  IPMapCity2::~IPMapCity2() noexcept
   {}
 
   bool
@@ -532,7 +527,7 @@ namespace GeoIPMapping
   IPMapCity2::city_location_by_addr_(
     CityLocation& location,
     uint32_t ip)
-    const throw ()
+    const noexcept
   {
     const PrefixNode* node = root_;
     const CityLocationHolder* best_location = nullptr;

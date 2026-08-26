@@ -1,10 +1,4 @@
-/**
- * @file   Application.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef GENERICS_HASHTABLE_APPLICATION_HPP
-#define GENERICS_HASHTABLE_APPLICATION_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 #include <Generics/Statistics.hpp>
@@ -23,7 +17,7 @@ namespace Generics
     Application() /*throw (eh::Exception)*/;
 
     virtual
-    ~Application() throw ();
+    ~Application() noexcept;
 
     void
     init(int& argc, char** argv)
@@ -91,5 +85,3 @@ namespace Generics
     return active_;
   }
 }
-
-#endif

@@ -1,9 +1,3 @@
-/**
- * @file Profiler.cpp
- * @author Alexey Tsurikov
- *
- */
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -85,7 +79,7 @@ unsigned int* spc_value;
 
 inline
 void
-Profiling::add_time(timespec& tm) throw ()
+Profiling::add_time(timespec& tm) noexcept
 {
   timespec t = { tm.tv_sec + tm2.tv_sec - tm1.tv_sec,
     tm.tv_nsec + tm2.tv_nsec - tm1.tv_nsec };

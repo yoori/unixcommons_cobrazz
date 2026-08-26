@@ -16,7 +16,7 @@ namespace
 
   jstring
   normalize_keyword(JNIEnv* env, jstring keyword,
-    const Language::Segmentor::SegmentorInterface* segmentor) throw ()
+    const Language::Segmentor::SegmentorInterface* segmentor) noexcept
   {
     try
     {

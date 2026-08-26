@@ -1,8 +1,7 @@
 // File   : UrlAddress.hpp
 // Author : Karen Aroutiounov
 
-#ifndef HTTP_URLADDRESS_HPP
-#define HTTP_URLADDRESS_HPP
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -47,7 +46,7 @@ namespace HTTP
      * Constructor
      * Initializes data members with default values
      */
-    UrlParts() throw ();
+    UrlParts() noexcept;
 
     /**
      * Constructor
@@ -64,7 +63,7 @@ namespace HTTP
       const String::SubString& userinfo, const String::SubString& host,
       const String::SubString& port, const String::SubString& path,
       const String::SubString& query, const String::SubString& fragment)
-      throw ();
+      noexcept;
   };
 
   /**
@@ -79,7 +78,7 @@ namespace HTTP
      * Resets data members to have default values
      */
     void
-    clear() throw ();
+    clear() noexcept;
 
     /**
      * Splits URL into its parts, parts are stored in data members.
@@ -102,7 +101,7 @@ namespace HTTP
     /**
      * Constructor
      */
-    URLAddress() throw ();
+    URLAddress() noexcept;
 
     /**
      * Constructor
@@ -142,7 +141,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~URLAddress() throw ();
+    ~URLAddress() noexcept;
 
     /**
      * Assignment operator
@@ -176,63 +175,63 @@ namespace HTTP
      * @return full URL
      */
     const std::string&
-    url() const throw ();
+    url() const noexcept;
 
     /**
      * Scheme part of the URL
      * @return scheme part
      */
     const String::SubString&
-    scheme() const throw ();
+    scheme() const noexcept;
 
     /**
      * Authority part of the URL
      * @return authority part
      */
     const String::SubString&
-    authority() const throw ();
+    authority() const noexcept;
 
     /**
      * Path part of the URL
      * @return path part
      */
     const String::SubString&
-    path() const throw ();
+    path() const noexcept;
 
     /**
      * Query part of the URL
      * @return query part
      */
     const String::SubString&
-    query() const throw ();
+    query() const noexcept;
 
     /**
      * Fragment part of the URL
      * @return fragment part
      */
     const String::SubString&
-    fragment() const throw ();
+    fragment() const noexcept;
 
     /**
      * Userinfo part of the URL
      * @return userinfo part
      */
     const String::SubString&
-    userinfo() const throw ();
+    userinfo() const noexcept;
 
     /**
      * Host part of the URL
      * @return host part
      */
     const String::SubString&
-    host() const throw ();
+    host() const noexcept;
 
     /**
      * Port part of the URL
      * @return port part
      */
     const String::SubString&
-    port() const throw ();
+    port() const noexcept;
 
 
     /**
@@ -327,28 +326,28 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~HTTPAddress() throw () = default;
+    ~HTTPAddress() noexcept = default;
 
     /**
      * Port number of the HTTP URL
      * @return port number
      */
     unsigned short
-    port_number() const throw ();
+    port_number() const noexcept;
 
     /**
      * If HTTP URL uses secure scheme
      * @return whether secure or not
      */
     bool
-    secure() const throw ();
+    secure() const noexcept;
 
     /**
      * If the port is default for the scheme
      * @return whether default port or not
      */
     bool
-    is_default_port() const throw ();
+    is_default_port() const noexcept;
 
     /**
      * Returns URL combined of the selected parts of the original URL
@@ -383,7 +382,7 @@ namespace HTTP
 
     static
     int
-    get_default_port_(bool secure) throw ();
+    get_default_port_(bool secure) noexcept;
 
     virtual
     void
@@ -473,14 +472,14 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~BrowserAddress() throw () = default;
+    ~BrowserAddress() noexcept = default;
 
     /**
      * Unicode host part of the URL
      * @return unicode host part
      */
     String::SubString
-    unicode_host() const throw ();
+    unicode_host() const noexcept;
 
   protected:
     virtual
@@ -539,7 +538,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~HTTPChecker() throw ();
+    ~HTTPChecker() noexcept;
 
     /**
      * Checks HTTP URL for validness
@@ -569,7 +568,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~BrowserChecker() throw () = default;
+    ~BrowserChecker() noexcept = default;
 
     /**
      * Checks HTTP URL for validness
@@ -621,7 +620,7 @@ namespace HTTP
   //
 
   inline
-  UrlParts::UrlParts() throw ()
+  UrlParts::UrlParts() noexcept
     : has_scheme(false), has_userinfo(false), has_host(false),
       has_port(false), has_path(false), has_query(false),
       has_fragment(false)
@@ -634,69 +633,69 @@ namespace HTTP
   //
 
   inline
-  URLAddress::~URLAddress() throw ()
+  URLAddress::~URLAddress() noexcept
   {
   }
 
   inline
   const std::string&
-  URLAddress::url() const throw ()
+  URLAddress::url() const noexcept
   {
     return url_;
   }
 
   inline
   const String::SubString&
-  URLAddress::scheme() const throw ()
+  URLAddress::scheme() const noexcept
   {
     return parts_.scheme;
   }
 
   inline
   const String::SubString&
-  URLAddress::authority() const throw ()
+  URLAddress::authority() const noexcept
   {
     return parts_.authority;
   }
 
   inline
   const String::SubString&
-  URLAddress::path() const throw ()
+  URLAddress::path() const noexcept
   {
     return parts_.path;
   }
 
   inline
   const String::SubString&
-  URLAddress::query() const throw ()
+  URLAddress::query() const noexcept
   {
     return parts_.query;
   }
 
   inline
   const String::SubString&
-  URLAddress::fragment() const throw ()
+  URLAddress::fragment() const noexcept
   {
     return parts_.fragment;
   }
 
   inline
   const String::SubString&
-  URLAddress::userinfo() const throw ()
+  URLAddress::userinfo() const noexcept
   {
     return parts_.userinfo;
   }
 
   inline
   const String::SubString&
-  URLAddress::host() const throw ()
+  URLAddress::host() const noexcept
   {
     return parts_.host;
   }
 
   inline
   const String::SubString&
-  URLAddress::port() const throw ()
+  URLAddress::port() const noexcept
   {
     return parts_.port;
   }
@@ -708,21 +707,21 @@ namespace HTTP
 
   inline
   unsigned short
-  HTTPAddress::port_number() const throw ()
+  HTTPAddress::port_number() const noexcept
   {
     return port_number_;
   }
 
   inline
   bool
-  HTTPAddress::secure() const throw ()
+  HTTPAddress::secure() const noexcept
   {
     return secure_;
   }
 
   inline
   bool
-  HTTPAddress::is_default_port() const throw ()
+  HTTPAddress::is_default_port() const noexcept
   {
     return default_port_;
   }
@@ -734,7 +733,7 @@ namespace HTTP
 
   inline
   String::SubString
-  BrowserAddress::unicode_host() const throw ()
+  BrowserAddress::unicode_host() const noexcept
   {
     return decoded_host_;
   }
@@ -745,9 +744,7 @@ namespace HTTP
   //
 
   inline
-  HTTPChecker::~HTTPChecker() throw ()
+  HTTPChecker::~HTTPChecker() noexcept
   {
   }
 }
-
-#endif

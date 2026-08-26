@@ -1,11 +1,4 @@
-/**
- * @file   String/UTF8Tables.hpp
- * @author Denis Badikov
- * Types and tables for UTF-8 routines definition
- */
-
-#ifndef STRING_UTF8_TABLES_HPP
-#define STRING_UTF8_TABLES_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -155,5 +148,3 @@ namespace String
     extern const Plane4Bytes TABLE_4_F0_AF[9];
   }
 }
-
-#endif

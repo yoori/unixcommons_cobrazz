@@ -1,4 +1,3 @@
-// @file String/UTF8AllProperties.cpp
 #include <String/UTF8AllProperties.hpp>
 
 

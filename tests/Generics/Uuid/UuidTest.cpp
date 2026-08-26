@@ -1,4 +1,3 @@
-// @file uuid_test.cpp
 // Generics::uuid test
 // First stage check uuids 
 // 1. start some threads

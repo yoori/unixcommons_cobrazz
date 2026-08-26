@@ -1,8 +1,3 @@
-/**
- * @file   Stream/SocketStream.cpp
- * @author Pavel Gubin
- */
-
 #include <Stream/SocketStream.hpp>
 
 

@@ -1,5 +1,3 @@
-// @file Map/Main.cpp
-
 #include <iostream>
 #include <sstream>
 
@@ -119,7 +117,7 @@ class Reader
 {
 public:
   typedef PlainStorage::PlainWriter PlainWriter;
-  Reader(PlainWriter* plain_writer) throw ();
+  Reader(PlainWriter* plain_writer) noexcept;
 
   void
   operator ()() const /*throw (eh::Exception)*/;
@@ -131,7 +129,7 @@ class Writer
 {
 public:
   typedef PlainStorage::PlainWriter PlainWriter;
-  Writer(PlainWriter* plain_writer) throw ();
+  Writer(PlainWriter* plain_writer) noexcept;
 
   void
   operator ()() const /*throw (eh::Exception)*/;
@@ -142,7 +140,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-Writer::Writer(PlainWriter* plain_writer) throw ()
+Writer::Writer(PlainWriter* plain_writer) noexcept
   : plain_writer_(ReferenceCounting::add_ref(plain_writer))
 {
 }
@@ -179,7 +177,7 @@ Writer::operator ()() const /*throw (eh::Exception)*/
 }
 
 
-Reader::Reader(PlainStorage::PlainWriter* plain_writer) throw ()
+Reader::Reader(PlainStorage::PlainWriter* plain_writer) noexcept
   : plain_writer_(ReferenceCounting::add_ref(plain_writer))
 {
 }
@@ -567,7 +565,7 @@ test_default_parameters() /*throw (eh::Exception)*/
  * Remove all test artifacts on disk
  */
 void
-cleanup() throw ()
+cleanup() noexcept
 {
   unlink("./test.db");
   unlink("./empty1.db");

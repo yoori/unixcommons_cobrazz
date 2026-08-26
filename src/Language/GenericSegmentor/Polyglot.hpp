@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_GENERIC_SEGMENTOR_POLYGLOT_HPP
-#define LANGUAGE_GENERIC_SEGMENTOR_POLYGLOT_HPP
+#pragma once
 
 #include <memory>
 
@@ -47,7 +46,7 @@ namespace Language
 
     protected:
       virtual
-      ~PolyglotSegmentorWrap() throw ();
+      ~PolyglotSegmentorWrap() noexcept;
 
     private:
       Dictionary dict_;
@@ -127,7 +126,7 @@ namespace Language
     template <typename Tokenizer, typename Dictionary,
       typename SuffixDictionary>
     PolyglotSegmentorWrap<Tokenizer, Dictionary, SuffixDictionary>::
-      ~PolyglotSegmentorWrap() throw ()
+      ~PolyglotSegmentorWrap() noexcept
     {
     }
 
@@ -183,5 +182,3 @@ namespace Language
     }
   } //namespace Segmentor
 } //namespace Language
-
-#endif

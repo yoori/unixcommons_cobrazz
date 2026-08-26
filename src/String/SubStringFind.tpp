@@ -1,5 +1,3 @@
-// @file String/SubStringFind.tpp
-
 namespace String
 {
   //
@@ -10,7 +8,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find(ValueType ch,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     if (pos < length_)
     {
@@ -31,7 +29,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find(const BasicSubString& str,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     if (!str.length_)
     {
@@ -76,7 +74,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::rfind(ValueType ch,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     if (length_)
     {
@@ -104,7 +102,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::rfind(const BasicSubString& str,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     if (str.length_ > length_)
     {
@@ -167,7 +165,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_first_of(ValueType ch,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     return find(ch, pos);
   }
@@ -180,7 +178,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_first_of(
     const BasicSubString& str, SizeType pos) const
-    throw ()
+    noexcept
   {
     for (; pos < length_; pos++)
     {
@@ -220,7 +218,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_first_not_of(ValueType ch,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     for (; pos < length_; pos++)
     {
@@ -240,7 +238,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_first_not_of(
     const BasicSubString& str, SizeType pos) const
-    throw ()
+    noexcept
   {
     for (; pos < length_; pos++)
     {
@@ -280,7 +278,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_last_of(ValueType ch,
     SizeType pos) const
-    throw ()
+    noexcept
   {
     return rfind(ch, pos);
   }
@@ -293,7 +291,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_last_of(
     const BasicSubString& str, SizeType pos) const
-    throw ()
+    noexcept
   {
     if (length_ && str.length_)
     {
@@ -341,7 +339,7 @@ namespace String
   typename BasicSubString<CharType, Traits, Checker>::SizeType
   BasicSubString<CharType, Traits, Checker>::find_last_not_of(
     const BasicSubString& str, SizeType pos) const
-    throw ()
+    noexcept
   {
     if (length_ && str.length_)
     {

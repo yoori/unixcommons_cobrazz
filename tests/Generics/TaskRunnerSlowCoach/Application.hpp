@@ -1,6 +1,5 @@
 // Application.hpp
-#ifndef _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_
-#define _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_ 
+#pragma once
 
 #include <Generics/TaskRunner.hpp>
 #include <TestCommons/ActiveObjectCallback.hpp>
@@ -11,7 +10,7 @@ public:
   TestTasker() /*throw (eh::Exception)*/;
 
   virtual
-  ~TestTasker() throw ();
+  ~TestTasker() noexcept;
 
   void
   do_test() /*throw (eh::Exception)*/;
@@ -35,7 +34,7 @@ TestTasker::TestTasker() /*throw (eh::Exception)*/
 {
 }
 
-TestTasker::~TestTasker() throw ()
+TestTasker::~TestTasker() noexcept
 {
   if (task_runner_.in())
   {
@@ -59,5 +58,3 @@ TestTasker::spawn_tasker_(std::size_t threads_number,
       threads_number, 0, queue_size);
   task_runner_->activate_object();
 }
-
-#endif  // _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_

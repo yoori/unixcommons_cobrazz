@@ -1,5 +1,3 @@
-// @file String/SubStringExternal.tpp
-
 namespace String
 {
   //
@@ -45,7 +43,7 @@ namespace String
   bool
   operator ==(const BasicSubString<CharType, Traits, Checker>& left_substr,
     const BasicSubString<CharType, Traits, Checker>& right_substr)
-    throw ()
+    noexcept
   {
     return left_substr.equal(right_substr);
   }
@@ -97,7 +95,7 @@ namespace String
   bool
   operator !=(const BasicSubString<CharType, Traits, Checker>& left_substr,
     const BasicSubString<CharType, Traits, Checker>& right_substr)
-    throw ()
+    noexcept
   {
     return !left_substr.equal(right_substr);
   }
@@ -148,7 +146,7 @@ namespace String
   template <typename CharType, typename Traits, typename Checker>
   bool
   operator <(const BasicSubString<CharType, Traits, Checker>& left_substr,
-    const BasicSubString<CharType, Traits, Checker>& right_substr) throw ()
+    const BasicSubString<CharType, Traits, Checker>& right_substr) noexcept
   {
     return left_substr.compare(right_substr) < 0;
   }
@@ -160,7 +158,7 @@ namespace String
     const std::basic_string<
       typename BasicSubString<CharType, Traits, Checker>::
         BasicStringValueType, BasicStringTraits, Allocator>& str)
-    throw ()
+    noexcept
   {
     return substr.compare(str) < 0;
   }
@@ -172,7 +170,7 @@ namespace String
     typename BasicSubString<CharType, Traits, Checker>::
       BasicStringValueType, BasicStringTraits, Allocator>& str,
     const BasicSubString<CharType, Traits, Checker>& substr)
-    throw ()
+    noexcept
   {
     return substr.compare(str) > 0;
   }
@@ -181,7 +179,7 @@ namespace String
     typename CharType, typename Traits, typename Checker>
   void
   hash_add(Hash& hash,
-    const BasicSubString<CharType, Traits, Checker>& value) throw ()
+    const BasicSubString<CharType, Traits, Checker>& value) noexcept
   {
     hash.add(value.data(), value.size());
   }

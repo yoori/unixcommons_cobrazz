@@ -510,7 +510,7 @@ check_find() /*throw (eh::Exception)*/
 }
 
 void
-check_compile_constrain() throw ()
+check_compile_constrain() noexcept
 {
   String::SubString a;
 #if 0

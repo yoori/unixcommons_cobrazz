@@ -1,13 +1,4 @@
-/**
- * @file   DOMDocumentAdapter.hpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- *
- * File contains group of utility classes related to Xerces DOMDocument
- * interface.
- */
-
-#ifndef XML_UTILITY_DOM_DOCUMENT_ADAPTER_HPP
-#define XML_UTILITY_DOM_DOCUMENT_ADAPTER_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -52,7 +43,7 @@ namespace XMLUtility
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
     /** Destructor. */
-    ~DOMDocumentAdapter() throw();
+    ~DOMDocumentAdapter() noexcept;
 
     /** Parses the provided text into a DOM tree.
      *
@@ -90,7 +81,7 @@ namespace XMLUtility
      * <code>false</code> otherwise.
      */
     bool
-    parsed() throw ();
+    parsed() noexcept;
 
     /** Destroys the parser and clears the DOM tree.
      *
@@ -146,13 +137,13 @@ namespace XMLUtility
   }
 
   inline
-  DOMDocumentAdapter::~DOMDocumentAdapter() throw ()
+  DOMDocumentAdapter::~DOMDocumentAdapter() noexcept
   {
   }
 
   inline
   bool
-  DOMDocumentAdapter::parsed() throw ()
+  DOMDocumentAdapter::parsed() noexcept
   {
     return parser_.get() != 0;
   }
@@ -178,5 +169,3 @@ namespace XMLUtility
     return schema_location_.c_str();
   }
 }
-
-#endif

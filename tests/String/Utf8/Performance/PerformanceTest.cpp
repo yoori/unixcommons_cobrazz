@@ -125,7 +125,7 @@ namespace
     long long
     operator () () const /*throw (eh::Exception)*/;
 
-    CountingPerformanceFunctor(CountingFunction f) throw ();
+    CountingPerformanceFunctor(CountingFunction f) noexcept;
   private:
     CountingFunction* function_;
   };
@@ -179,7 +179,7 @@ namespace
   };
 
   inline bool
-  empty(const char*) throw ();
+  empty(const char*) noexcept;
 
   TestIsPropertyCases test_is_property_cases[] =
   {
@@ -260,7 +260,7 @@ UTF8IsPropertyOnStringPerformance::UTF8IsPropertyOnStringPerformance(
 namespace
 {
   inline bool
-  empty(const char*) throw ()
+  empty(const char*) noexcept
   {
     return false;
   }
@@ -427,7 +427,7 @@ CountingPerformanceFunctor::operator () () const
 }
 
 CountingPerformanceFunctor::CountingPerformanceFunctor(
-  CountingFunction f) throw ()
+  CountingFunction f) noexcept
   : function_(f)
 {
 }

@@ -131,7 +131,7 @@ namespace TestCommons
 
   bool
   CheckFileMessages::FileNameComparer::operator ()(
-    const std::string& left, const std::string& right) throw ()
+    const std::string& left, const std::string& right) noexcept
   {
     return left == common_ ? false : right == common_ ? true : left < right;
   }

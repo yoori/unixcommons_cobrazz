@@ -1,6 +1,5 @@
 // Condition.hpp
-#ifndef SYNC_CONDITION_HPP
-#define SYNC_CONDITION_HPP
+#pragma once
 
 #include <Sync/PosixLock.hpp>
 
@@ -37,12 +36,12 @@ namespace Sync
      * Constructor
      */
     constexpr
-    Conditional() throw ();
+    Conditional() noexcept;
 
     /**
      * Destructor
      */
-    ~Conditional() throw ();
+    ~Conditional() noexcept;
 
     // Lock accessors.
 
@@ -153,7 +152,7 @@ namespace Sync
      */
     explicit
     ConditionalGuard(Condition& condition)
-      throw ();
+      noexcept;
 
     /**
      * Constructor with Conditional and mutex.
@@ -161,7 +160,7 @@ namespace Sync
      * @param mutex lock mutex for conditional using
      */
     ConditionalGuard(Conditional& conditional, pthread_mutex_t& mutex)
-      throw ();
+      noexcept;
 
     /**
      * Destructor unlocks mutex that locked by constructor.
@@ -207,10 +206,8 @@ namespace Sync
 
   inline
   constexpr
-  Conditional::Conditional() throw ()
+  Conditional::Conditional() noexcept
     : cond_ PTHREAD_COND_INITIALIZER
   {
   }
 }
-
-#endif

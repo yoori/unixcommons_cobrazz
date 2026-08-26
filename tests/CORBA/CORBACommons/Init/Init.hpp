@@ -1,5 +1,4 @@
-#ifndef CORBACOMMONS_COMBINED_HPP
-#define CORBACOMMONS_COMBINED_HPP
+#pragma once
 
 #include <Generics/AppUtils.hpp>
 #include <String/StringManip.hpp>
@@ -13,7 +12,7 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
   bool
-  require_value() throw ()
+  require_value() noexcept
   {
     return true;
   }
@@ -44,12 +43,12 @@ public:
   }
 
 protected:
-  Initializer() throw ()
+  Initializer() noexcept
   {
   }
 
   virtual
-  ~Initializer() throw ()
+  ~Initializer() noexcept
   {
   }
 
@@ -83,7 +82,7 @@ public:
   }
 
   virtual
-  ~Client() throw ()
+  ~Client() noexcept
   {
   }
 
@@ -113,7 +112,7 @@ public:
   }
 
   virtual
-  ~Server() throw ()
+  ~Server() noexcept
   {
   }
 
@@ -188,7 +187,7 @@ template <typename Client, typename Server>
 struct Usage
 {
   virtual
-  ~Usage() throw ()
+  ~Usage() noexcept
   {
   }
 
@@ -199,7 +198,7 @@ struct Usage
   }
 
   int
-  use(int argc, char* argv[]) throw ()
+  use(int argc, char* argv[]) noexcept
   {
     try
     {
@@ -238,5 +237,3 @@ struct Usage
     return 1;
   }
 };
-
-#endif

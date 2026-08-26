@@ -1,5 +1,4 @@
-#ifndef JAVA_HTTPJAVAFUNCTIONS_HPP
-#define JAVA_HTTPJAVAFUNCTIONS_HPP
+#pragma once
 
 #include <jni.h>
 
@@ -38,5 +37,3 @@ extern "C"
   Java_com_foros_util_unixcommons_UnixCommonsTools_validateURL(
     JNIEnv* env, jobject object, jstring url);
 }
-
-#endif

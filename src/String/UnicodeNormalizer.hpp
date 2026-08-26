@@ -1,8 +1,4 @@
-// @file String/UnicodeNormalizer.hpp
-// @author Denis Badikov
-
-#ifndef UNICODE_NORMALIZER_HPP
-#define UNICODE_NORMALIZER_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -33,7 +29,7 @@ namespace String
      * or NULL if wch is prohibited
      */
     wchar_t*
-    decompose_2003(wchar_t wch, wchar_t* output) throw ();
+    decompose_2003(wchar_t wch, wchar_t* output) noexcept;
 
     /**
      * Perform decomposition and case folding according to RFC-5894
@@ -44,7 +40,7 @@ namespace String
      * or NULL if wch is prohibited
      */
     wchar_t*
-    decompose_2008(wchar_t wch, wchar_t* output) throw ();
+    decompose_2008(wchar_t wch, wchar_t* output) noexcept;
 
     /**
      * At first run starter_pos must be equal to output. While we are
@@ -61,7 +57,7 @@ namespace String
      */
     wchar_t*
     compose(wchar_t*& first, const wchar_t* last, wchar_t* output)
-      throw ();
+      noexcept;
 
     /**
      * @param first The pointer to begin of input data
@@ -69,7 +65,7 @@ namespace String
      * @return The new last position, pointer to beyond of data.
      */
     wchar_t*
-    compose_string(wchar_t* first, const wchar_t* last) throw ();
+    compose_string(wchar_t* first, const wchar_t* last) noexcept;
 
     /**
      * Calculate Canonical Combining Class of code unit,
@@ -79,7 +75,7 @@ namespace String
      * to Unicode database.
      */
     int
-    get_combining_class(uint32_t wch) throw ();
+    get_combining_class(uint32_t wch) noexcept;
 
     /**
      * Decompose and canonical order input data.
@@ -93,7 +89,7 @@ namespace String
      */
     wchar_t*
     normalize(const wchar_t* input, const wchar_t* last, wchar_t* output)
-      throw ();
+      noexcept;
 
     namespace Combining
     {
@@ -142,5 +138,3 @@ namespace String
     }
   }
 }
-
-#endif // UNICODE_NORMALIZER_HPP

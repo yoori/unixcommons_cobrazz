@@ -1,9 +1,4 @@
-/**
- * @file   Stream/BzlibStreams.hpp
- * @author Dmitry Trifilov
- */
-#ifndef STREAM_BZLIB_STREAMS_HPP
-#define STREAM_BZLIB_STREAMS_HPP
+#pragma once
 
 #include <istream>
 #include <ostream>
@@ -60,5 +55,3 @@ namespace Stream
     File::OutStreamBuf buf_;
   };
 }
-
-#endif

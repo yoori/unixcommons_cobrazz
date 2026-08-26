@@ -1,8 +1,4 @@
-/**
- * @author Pavel Gubin <pgubin@ipmce.ru>
- */
-#ifndef APACHE_SLOWDOWN_FILTER_HPP
-#define APACHE_SLOWDOWN_FILTER_HPP
+#pragma once
 
 #include <time.h>
 
@@ -24,28 +20,26 @@ public:
   class SlowdownFilter : public Apache::RequestOutputFilter
   {
   public:
-    SlowdownFilter(request_rec* r, timespec& delay) throw ();
+    SlowdownFilter(request_rec* r, timespec& delay) noexcept;
     virtual apr_status_t
-    filter(ap_filter_t* f, apr_bucket_brigade* bb) throw ();
+    filter(ap_filter_t* f, apr_bucket_brigade* bb) noexcept;
 
   private:
     timespec delay_;
   };
 
 public:
-  SlowdownFilterModule() throw ();
+  SlowdownFilterModule() noexcept;
 
   virtual const char*
-  handle_command(const ConfigArgs& args) throw ();
+  handle_command(const ConfigArgs& args) noexcept;
   virtual void
-  insert_filter(request_rec* r) throw ();
+  insert_filter(request_rec* r) noexcept;
 
 protected:
   virtual
-  ~SlowdownFilterModule() throw ();
+  ~SlowdownFilterModule() noexcept;
 
 private:
   timespec delay_;
 };
-
-#endif

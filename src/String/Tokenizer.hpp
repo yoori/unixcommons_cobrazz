@@ -1,6 +1,4 @@
-// @file String/Tokenizer.hpp
-#ifndef STRING_TOKENIZER_HPP
-#define STRING_TOKENIZER_HPP
+#pragma once
 
 #include <String/AsciiStringManip.hpp>
 
@@ -88,7 +86,7 @@ namespace String
        * @return pointer to the separator symbol in the string
        */
       const char*
-      get_separator() const throw ();
+      get_separator() const noexcept;
 
       /**
        * If get_token() returned negative it may mean category found
@@ -96,7 +94,7 @@ namespace String
        * @return whether or not error has been found in the string
        */
       bool
-      is_error() const throw ();
+      is_error() const noexcept;
 
     private:
       Helper::SplitterState<Category> state_;
@@ -248,14 +246,14 @@ namespace String
 
     template <typename Category, const bool EMPTY>
     const char*
-    Splitter<Category, EMPTY>::get_separator() const throw ()
+    Splitter<Category, EMPTY>::get_separator() const noexcept
     {
       return state_.separator;
     }
 
     template <typename Category, const bool EMPTY>
     bool
-    Splitter<Category, EMPTY>::is_error() const throw ()
+    Splitter<Category, EMPTY>::is_error() const noexcept
     {
       return state_.error;
     }
@@ -315,5 +313,3 @@ namespace String
     }
   }
 }
-
-#endif

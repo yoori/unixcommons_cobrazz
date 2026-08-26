@@ -27,7 +27,7 @@ namespace SNMPAgentX
     inline
     int
     proxy(void* reginfo, void* requests)
-      throw ()
+      noexcept
     {
       try
       {
@@ -51,7 +51,7 @@ namespace
     netsnmp_handler_registration* reginfo,
     netsnmp_agent_request_info* reqinfo,
     netsnmp_request_info* requests)
-    throw ()
+    noexcept
   {
     return reqinfo->mode != MODE_GET ? SNMP_ERR_NOERROR :
       SNMPAgentX::Helper::proxy(reginfo->my_reg_void, requests);
@@ -83,7 +83,7 @@ namespace SNMPAgentX
   //
 
   GenericSNMPAgent::RootInfo::RootInfo(GenericSNMPAgent* agent)
-    throw ()
+    noexcept
     : agent(agent)
   {
   }
@@ -110,7 +110,7 @@ namespace SNMPAgentX
 
   GenericSNMPAgent::RegInfo::RegInfo(GenericSNMPAgent* agent,
     const VariableInfo* info, void* registration)
-    throw ()
+    noexcept
     : agent(agent), info(info), registration(registration)
   {
   }
@@ -191,7 +191,7 @@ namespace SNMPAgentX
   }
 
   GenericSNMPAgent::~GenericSNMPAgent()
-    throw ()
+    noexcept
   {
 #ifdef SNMP_DEBUG
     snmp_set_do_debugging(0);
@@ -428,7 +428,7 @@ namespace SNMPAgentX
   void
   GenericSNMPAgent::no_such_value_(const VariableInfo& info, unsigned size,
     const unsigned* ids, const char* reason)
-    throw ()
+    noexcept
   {
     Stream::Error ostr;
     ostr << FNS << "failed to process variable " << info.name << "[";
@@ -442,7 +442,7 @@ namespace SNMPAgentX
 
   unsigned
   GenericSNMPAgent::no_such_value_severity_()
-    throw ()
+    noexcept
   {
     return Logging::Logger::DEBUG;
   }
@@ -498,7 +498,7 @@ namespace SNMPAgentX
   int
   GenericSNMPAgent::log_callback_(int /*major*/, int /*minor*/,
     void* serverarg, void* clientarg)
-    throw ()
+    noexcept
   {
     try
     {
@@ -686,7 +686,7 @@ namespace SNMPAgentX
 
   void
   GenericSNMPAgent::set_variable(void* variable, unsigned long value)
-    throw ()
+    noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_UNSIGNED, reinterpret_cast<const u_char*>(&value), sizeof(value));
@@ -694,7 +694,7 @@ namespace SNMPAgentX
 
   void
   GenericSNMPAgent::set_variable(void* variable, long value)
-    throw ()
+    noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_INTEGER, reinterpret_cast<const u_char*>(&value), sizeof(value));
@@ -702,7 +702,7 @@ namespace SNMPAgentX
 
   void
   GenericSNMPAgent::set_variable64(void* variable, unsigned long value)
-    throw ()
+    noexcept
   {
     counter64 v;
     v.high = value >> 32;
@@ -714,7 +714,7 @@ namespace SNMPAgentX
   void
   GenericSNMPAgent::set_variable(void* variable,
     const String::SubString& value)
-    throw ()
+    noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_OCTET_STR, reinterpret_cast<const u_char*>(value.data()),
@@ -735,13 +735,13 @@ namespace SNMPAgentX
   }
 
   SNMPAgentAsync::SNMPJob::~SNMPJob()
-    throw ()
+    noexcept
   {
   }
 
   void
   SNMPAgentAsync::SNMPJob::work()
-    throw ()
+    noexcept
   {
     try
     {
@@ -768,7 +768,7 @@ namespace SNMPAgentX
   }
 
   SNMPAgentAsync::~SNMPAgentAsync()
-    throw ()
+    noexcept
   {
     agent_.stop();
     //thread_runner_.wait_for_completion(); // will be called in destructor

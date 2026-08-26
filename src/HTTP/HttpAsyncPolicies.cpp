@@ -14,50 +14,50 @@ namespace HTTP
     static
     int
     when_close_entity(typename EntitiesMap::const_iterator& cur_obj_it,
-      const AuxiliaryMap& map, Policy& policy) throw ();
+      const AuxiliaryMap& map, Policy& policy) noexcept;
 
     template <class Policy, class EntitiesMap, class AuxiliaryMap>
     static
     int
     process_entity_active_state(
       typename EntitiesMap::const_iterator& cur_obj_it,
-      const AuxiliaryMap& map, Policy& policy) throw ();
+      const AuxiliaryMap& map, Policy& policy) noexcept;
 
     template <class Policy, class EntitiesMap, class AuxiliaryMap>
     static
     int
     process_entity_closure_awaiting_state(
       typename EntitiesMap::const_iterator& cur_obj_it,
-      const AuxiliaryMap& map, Policy& policy) throw ();
+      const AuxiliaryMap& map, Policy& policy) noexcept;
 
     static
     PoolPolicySimpleEmptyThread::Threads::const_iterator
     convert(PoolPolicySimpleEmptyThread::Threads::const_iterator& src)
-      throw ();
+      noexcept;
 
     static
     PoolPolicySimpleEmptyConnection::Connections::const_iterator
     convert(
       PoolPolicySimpleEmptyConnection::ConnectionPtrs::const_iterator& src)
-      throw ();
+      noexcept;
 
     static
     bool
     additional_closing_validator(
-      PoolPolicySimpleEmptyThread::Threads::const_iterator& it) throw ();
+      PoolPolicySimpleEmptyThread::Threads::const_iterator& it) noexcept;
 
     static
     bool
     additional_closing_validator(
       PoolPolicySimpleEmptyConnection::Connections::const_iterator& it)
-      throw ();
+      noexcept;
   };
 
   template <class Policy, class EntitiesMap, class AuxiliaryMap>
   int
   EmptyPoliciesCommonMethods::when_close_entity(
     typename EntitiesMap::const_iterator& cur_obj_it,
-    const AuxiliaryMap& map, Policy& policy) throw ()
+    const AuxiliaryMap& map, Policy& policy) noexcept
   {
     int res = -1;
 
@@ -100,7 +100,7 @@ namespace HTTP
   PoolPolicySimpleEmptyThread::Threads::const_iterator
   EmptyPoliciesCommonMethods::convert(
     PoolPolicySimpleEmptyThread::Threads::const_iterator& src)
-    throw ()
+    noexcept
   {
     return src;
   }
@@ -108,14 +108,14 @@ namespace HTTP
   PoolPolicySimpleEmptyConnection::Connections::const_iterator
   EmptyPoliciesCommonMethods::convert(
     PoolPolicySimpleEmptyConnection::ConnectionPtrs::const_iterator& src)
-    throw ()
+    noexcept
   {
     return src->second;
   }
 
   bool
   EmptyPoliciesCommonMethods::additional_closing_validator(
-    PoolPolicySimpleEmptyThread::Threads::const_iterator& it) throw ()
+    PoolPolicySimpleEmptyThread::Threads::const_iterator& it) noexcept
   {
     return !it->second.full;
   }
@@ -123,7 +123,7 @@ namespace HTTP
   bool
   EmptyPoliciesCommonMethods::additional_closing_validator(
     PoolPolicySimpleEmptyConnection::Connections::const_iterator& /*it*/)
-    throw ()
+    noexcept
   {
     return true;
   }
@@ -132,7 +132,7 @@ namespace HTTP
   int
   EmptyPoliciesCommonMethods::process_entity_active_state(
     typename EntitiesMap::const_iterator& cur_obj_it,
-    const AuxiliaryMap& map, Policy& policy) throw ()
+    const AuxiliaryMap& map, Policy& policy) noexcept
   {
     if (cur_obj_it->second.items_count)
     {
@@ -190,7 +190,7 @@ namespace HTTP
   int
   EmptyPoliciesCommonMethods::process_entity_closure_awaiting_state(
     typename EntitiesMap::const_iterator& cur_obj_it,
-    const AuxiliaryMap& map, Policy& policy) throw ()
+    const AuxiliaryMap& map, Policy& policy) noexcept
   {
     typename AuxiliaryMap::const_iterator it = map.begin();
     typename AuxiliaryMap::const_iterator end = map.end();
@@ -222,7 +222,7 @@ namespace HTTP
   const PoolPolicyCommon::Identifier
     PoolPolicyCommon::SPECIAL_IDENTIFIER = 0;
 
-  PoolPolicyCommon::~PoolPolicyCommon() throw ()
+  PoolPolicyCommon::~PoolPolicyCommon() noexcept
   {
   }
 
@@ -231,7 +231,7 @@ namespace HTTP
   // PoolPolicyStatistics class
   //
 
-  PoolPolicyStatistics::~PoolPolicyStatistics() throw ()
+  PoolPolicyStatistics::~PoolPolicyStatistics() noexcept
   {
   }
 
@@ -240,7 +240,7 @@ namespace HTTP
   // PoolPolicyDecider class
   //
 
-  PoolPolicyDecider::~PoolPolicyDecider() throw ()
+  PoolPolicyDecider::~PoolPolicyDecider() noexcept
   {
   }
 
@@ -249,7 +249,7 @@ namespace HTTP
   // PoolPolicyEmptyThread class
   //
 
-  PoolPolicyEmptyThread::~PoolPolicyEmptyThread() throw ()
+  PoolPolicyEmptyThread::~PoolPolicyEmptyThread() noexcept
   {
   }
 
@@ -258,7 +258,7 @@ namespace HTTP
   // PoolPolicyEmptyConnection class
   //
 
-  PoolPolicyEmptyConnection::~PoolPolicyEmptyConnection() throw ()
+  PoolPolicyEmptyConnection::~PoolPolicyEmptyConnection() noexcept
   {
   }
 
@@ -267,7 +267,7 @@ namespace HTTP
   // PoolPolicyRequests class
   //
 
-  PoolPolicyRequests::~PoolPolicyRequests() throw ()
+  PoolPolicyRequests::~PoolPolicyRequests() noexcept
   {
   }
 
@@ -276,7 +276,7 @@ namespace HTTP
   // PoolPolicyTimeout class
   //
 
-  PoolPolicyTimeout::~PoolPolicyTimeout() throw ()
+  PoolPolicyTimeout::~PoolPolicyTimeout() noexcept
   {
   }
 
@@ -286,7 +286,7 @@ namespace HTTP
   //
 
   inline
-  PoolPolicySimpleStatistics::StateInfo::StateInfo() throw ()
+  PoolPolicySimpleStatistics::StateInfo::StateInfo() noexcept
     : state(ACTIVE_AWAITING)
   {
   }
@@ -296,7 +296,7 @@ namespace HTTP
   //
 
   inline
-  PoolPolicySimpleStatistics::SimpleStat::SimpleStat() throw ()
+  PoolPolicySimpleStatistics::SimpleStat::SimpleStat() noexcept
     : items_count(0)
   {
   }
@@ -306,13 +306,13 @@ namespace HTTP
   // PoolPolicySimpleStatistics::Connection class
   //
 
-  PoolPolicySimpleStatistics::Connection::Connection() throw ()
+  PoolPolicySimpleStatistics::Connection::Connection() noexcept
     : server(0), thread(0)
   {
   }
 
   PoolPolicySimpleStatistics::Connection::Connection(Identifier server)
-    throw ()
+    noexcept
     : server(server), thread(0)
   {
   }
@@ -321,7 +321,7 @@ namespace HTTP
   // PoolPolicySimpleStatistics::Thread class
   //
 
-  PoolPolicySimpleStatistics::Thread::Thread() throw ()
+  PoolPolicySimpleStatistics::Thread::Thread() noexcept
     : full(false)
   {
   }
@@ -330,7 +330,7 @@ namespace HTTP
   // PoolPolicySimpleStatistics class
   //
 
-  PoolPolicySimpleStatistics::~PoolPolicySimpleStatistics() throw ()
+  PoolPolicySimpleStatistics::~PoolPolicySimpleStatistics() noexcept
   {
     assert(servers_.empty());
     assert(threads_.empty());
@@ -338,7 +338,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicySimpleStatistics::server_added(Identifier server) throw ()
+  PoolPolicySimpleStatistics::server_added(Identifier server) noexcept
   {
     try
     {
@@ -362,7 +362,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicySimpleStatistics::server_removed(Identifier server) throw ()
+  PoolPolicySimpleStatistics::server_removed(Identifier server) noexcept
   {
     try
     {
@@ -391,7 +391,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::server_connection_added(
-    Identifier server, Identifier connection) throw ()
+    Identifier server, Identifier connection) noexcept
   {
     try
     {
@@ -423,7 +423,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::server_connection_removed(
-    Identifier server, Identifier connection) throw ()
+    Identifier server, Identifier connection) noexcept
   {
     try
     {
@@ -476,7 +476,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicySimpleStatistics::thread_added(Identifier thread) throw ()
+  PoolPolicySimpleStatistics::thread_added(Identifier thread) noexcept
   {
     try
     {
@@ -493,7 +493,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicySimpleStatistics::thread_removed(Identifier thread) throw ()
+  PoolPolicySimpleStatistics::thread_removed(Identifier thread) noexcept
   {
     try
     {
@@ -522,7 +522,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::thread_connection_added(
-    Identifier thread, Identifier connection) throw ()
+    Identifier thread, Identifier connection) noexcept
   {
     try
     {
@@ -560,7 +560,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::thread_connection_removed(
-    Identifier thread, Identifier connection) throw ()
+    Identifier thread, Identifier connection) noexcept
   {
     try
     {
@@ -605,7 +605,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::connection_request_added(
-    Identifier server, Identifier connection, Identifier request) throw ()
+    Identifier server, Identifier connection, Identifier request) noexcept
   {
     try
     {
@@ -642,7 +642,7 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::connection_request_removed(
-    Identifier connection, Identifier request) throw ()
+    Identifier connection, Identifier request) noexcept
   {
     try
     {
@@ -672,30 +672,30 @@ namespace HTTP
 
   void
   PoolPolicySimpleStatistics::server_request_added(
-    Identifier /*server*/, Identifier /*request*/) throw ()
+    Identifier /*server*/, Identifier /*request*/) noexcept
   {
   }
 
   void
   PoolPolicySimpleStatistics::server_request_removed(
-    Identifier /*server*/, Identifier /*request*/) throw ()
+    Identifier /*server*/, Identifier /*request*/) noexcept
   {
   }
 
   const PoolPolicySimpleStatistics::Servers&
-  PoolPolicySimpleStatistics::get_servers_() const throw ()
+  PoolPolicySimpleStatistics::get_servers_() const noexcept
   {
     return servers_;
   }
 
   const PoolPolicySimpleStatistics::Threads&
-  PoolPolicySimpleStatistics::get_threads_() const throw ()
+  PoolPolicySimpleStatistics::get_threads_() const noexcept
   {
     return threads_;
   }
 
   const PoolPolicySimpleStatistics::Connections&
-  PoolPolicySimpleStatistics::get_connections_() const throw ()
+  PoolPolicySimpleStatistics::get_connections_() const noexcept
   {
     return connections_;
   }
@@ -707,7 +707,7 @@ namespace HTTP
 
   void
   PoolPolicyAdvancedStatistics::server_request_added(
-    Identifier server, Identifier request) throw ()
+    Identifier server, Identifier request) noexcept
   {
     try
     {
@@ -729,7 +729,7 @@ namespace HTTP
 
   void
   PoolPolicyAdvancedStatistics::server_request_removed(
-    Identifier server, Identifier request) throw ()
+    Identifier server, Identifier request) noexcept
   {
     try
     {
@@ -812,7 +812,7 @@ namespace HTTP
     }
   }
 
-  PoolPolicyAdvancedStatistics::~PoolPolicyAdvancedStatistics() throw ()
+  PoolPolicyAdvancedStatistics::~PoolPolicyAdvancedStatistics() noexcept
   {
     assert(server_requests_.empty());
   }
@@ -831,7 +831,7 @@ namespace HTTP
   }
 
   PoolPolicySimpleDecider::Identifier
-  PoolPolicySimpleDecider::choose_thread() throw ()
+  PoolPolicySimpleDecider::choose_thread() noexcept
   {
     try
     {
@@ -868,7 +868,7 @@ namespace HTTP
 
   PoolPolicySimpleDecider::Identifier
   PoolPolicySimpleDecider::choose_connection(
-    Identifier server, Identifier /*request*/) throw ()
+    Identifier server, Identifier /*request*/) noexcept
   {
     try
     {
@@ -929,14 +929,14 @@ namespace HTTP
 
   PoolPolicySimpleDecider::RequestPolicy
   PoolPolicySimpleDecider::request_failed(Identifier /*server*/,
-    Identifier /*request*/) throw ()
+    Identifier /*request*/) noexcept
   {
     return RP_CANCEL_ALL;
   }
 
   PoolPolicySimpleDecider::RequestPolicy
   PoolPolicySimpleDecider::requests_failed(Identifier /*server*/)
-    throw ()
+    noexcept
   {
     return RP_CANCEL_FIRST_RESEND_OTHERS;
   }
@@ -947,13 +947,13 @@ namespace HTTP
   //
 
   PoolPolicySimpleEmptyThread::PoolPolicySimpleEmptyThread(
-    time_t closure_delay) throw ()
+    time_t closure_delay) noexcept
     : CLOSURE_DELAY_(closure_delay)
   {
   }
 
   int
-  PoolPolicySimpleEmptyThread::when_close_thread(Identifier thread) throw ()
+  PoolPolicySimpleEmptyThread::when_close_thread(Identifier thread) noexcept
   {
     int res = -1;
     try
@@ -997,7 +997,7 @@ namespace HTTP
         cur_thr, get_threads_(), *this);
   }
 
-  PoolPolicySimpleEmptyThread::~PoolPolicySimpleEmptyThread() throw ()
+  PoolPolicySimpleEmptyThread::~PoolPolicySimpleEmptyThread() noexcept
   {
   }
 
@@ -1007,14 +1007,14 @@ namespace HTTP
   //
 
   PoolPolicySimpleEmptyConnection::PoolPolicySimpleEmptyConnection(
-    time_t closure_delay) throw ()
+    time_t closure_delay) noexcept
     : CLOSURE_DELAY_(closure_delay)
   {
   }
 
   int
   PoolPolicySimpleEmptyConnection::when_close_connection(
-    Identifier connection) throw ()
+    Identifier connection) noexcept
   {
     int res = -1;
     try
@@ -1077,7 +1077,7 @@ namespace HTTP
           conn_it, aux_map, *this);
   }
 
-  PoolPolicySimpleEmptyConnection::~PoolPolicySimpleEmptyConnection() throw ()
+  PoolPolicySimpleEmptyConnection::~PoolPolicySimpleEmptyConnection() noexcept
   {
   }
 
@@ -1086,7 +1086,7 @@ namespace HTTP
   // PoolPolicySimpleRequests class
   //
 
-  PoolPolicySimpleRequests::~PoolPolicySimpleRequests() throw ()
+  PoolPolicySimpleRequests::~PoolPolicySimpleRequests() noexcept
   {
   }
 
@@ -1096,7 +1096,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicySimpleRequests::request_destroying() throw ()
+  PoolPolicySimpleRequests::request_destroying() noexcept
   {
   }
 
@@ -1111,7 +1111,7 @@ namespace HTTP
   {
   }
 
-  PoolPolicyWaitRequests::~PoolPolicyWaitRequests() throw ()
+  PoolPolicyWaitRequests::~PoolPolicyWaitRequests() noexcept
   {
   }
 
@@ -1122,7 +1122,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicyWaitRequests::request_destroying() throw ()
+  PoolPolicyWaitRequests::request_destroying() noexcept
   {
     semaphore_.release();
   }
@@ -1138,7 +1138,7 @@ namespace HTTP
   {
   }
 
-  PoolPolicyThrowRequests::~PoolPolicyThrowRequests() throw ()
+  PoolPolicyThrowRequests::~PoolPolicyThrowRequests() noexcept
   {
   }
 
@@ -1156,7 +1156,7 @@ namespace HTTP
   }
 
   void
-  PoolPolicyThrowRequests::request_destroying() throw ()
+  PoolPolicyThrowRequests::request_destroying() noexcept
   {
     __gnu_cxx::__atomic_add(&requests_, 1);
   }
@@ -1166,18 +1166,18 @@ namespace HTTP
   // PoolPolicySimpleTimeout class
   //
 
-  PoolPolicySimpleTimeout::PoolPolicySimpleTimeout(time_t timeout) throw ()
+  PoolPolicySimpleTimeout::PoolPolicySimpleTimeout(time_t timeout) noexcept
     : TIMEOUT_(timeout)
   {
   }
 
-  PoolPolicySimpleTimeout::~PoolPolicySimpleTimeout() throw ()
+  PoolPolicySimpleTimeout::~PoolPolicySimpleTimeout() noexcept
   {
   }
 
   int
   PoolPolicySimpleTimeout::expiration_timeout(Identifier /*connection*/)
-    throw ()
+    noexcept
   {
     return TIMEOUT_;
   }

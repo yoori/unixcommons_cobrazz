@@ -1,5 +1,4 @@
-#ifndef STREAM_FILE_STREAMBUF_HPP
-#define STREAM_FILE_STREAMBUF_HPP
+#pragma once
 
 #include <memory>
 #include <streambuf>
@@ -15,7 +14,7 @@ namespace Stream
     struct IO : private Generics::Uncopyable
     {
       virtual
-      ~IO() throw ();
+      ~IO() noexcept;
 
       virtual
       size_t
@@ -62,7 +61,7 @@ namespace Stream
         /*throw (InvalidArgument, eh::Exception)*/;
 
       virtual
-      ~OutStreamBuf() throw ();
+      ~OutStreamBuf() noexcept;
 
       virtual
       int_type
@@ -75,5 +74,3 @@ namespace Stream
     };
   }
 }
-
-#endif

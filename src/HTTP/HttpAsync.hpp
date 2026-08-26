@@ -1,5 +1,4 @@
-#ifndef HTTP_HTTPASYNC_HPP
-#define HTTP_HTTPASYNC_HPP
+#pragma once
 
 #include <Generics/ActiveObject.hpp>
 #include <Generics/Time.hpp>
@@ -16,7 +15,7 @@ namespace HTTP
   };
 
   const char*
-  method_name(HttpMethod method) throw ();
+  method_name(HttpMethod method) noexcept;
 
 
   // host name and port
@@ -33,7 +32,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~RequestInformation() throw ();
+    ~RequestInformation() noexcept;
 
 
     /**
@@ -42,7 +41,7 @@ namespace HTTP
      */
     virtual
     HttpMethod
-    method() const throw () = 0;
+    method() const noexcept = 0;
 
     /**
      * Request URI
@@ -50,7 +49,7 @@ namespace HTTP
      */
     virtual
     const char*
-    http_request() const throw () = 0;
+    http_request() const noexcept = 0;
 
     /**
      * List of provided request headers
@@ -58,7 +57,7 @@ namespace HTTP
      */
     virtual
     const HeaderList&
-    headers() const throw () = 0;
+    headers() const noexcept = 0;
   };
 
   /**
@@ -73,7 +72,7 @@ namespace HTTP
      */
     virtual
     int
-    response_code() const throw () = 0;
+    response_code() const noexcept = 0;
 
     /**
      * Response headers
@@ -81,7 +80,7 @@ namespace HTTP
      */
     virtual
     const HeaderList&
-    response_headers() const throw () = 0;
+    response_headers() const noexcept = 0;
 
     /**
      * Searches for specific header in the response
@@ -98,7 +97,7 @@ namespace HTTP
      */
     virtual
     String::SubString
-    body() const throw () = 0;
+    body() const noexcept = 0;
   };
 
 
@@ -115,7 +114,7 @@ namespace HTTP
      */
     virtual
     void
-    on_response(const ResponseInformation& data) throw () = 0;
+    on_response(const ResponseInformation& data) noexcept = 0;
 
     /**
      * Called when request succeeded and it is not possible to call on_response
@@ -124,7 +123,7 @@ namespace HTTP
      */
     virtual
     void
-    quick_on_response(const ResponseInformation& data) throw ();
+    quick_on_response(const ResponseInformation& data) noexcept;
 
     /**
      * Called when request failed
@@ -136,7 +135,7 @@ namespace HTTP
     on_error(
       const String::SubString& description,
       const RequestInformation& data)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when request failed and it is not possible to call on_error
@@ -149,14 +148,14 @@ namespace HTTP
     quick_on_error(
       const String::SubString& description,
       const RequestInformation& data)
-      throw ();
+      noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~ResponseCallback() throw ();
+    ~ResponseCallback() noexcept;
   };
   typedef ReferenceCounting::QualPtr<ResponseCallback> ResponseCallback_var;
 
@@ -208,7 +207,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~HttpInterface() throw ();
+    ~HttpInterface() noexcept;
   };
   typedef ReferenceCounting::QualPtr<HttpInterface>
     HttpInterface_var;
@@ -230,7 +229,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~HttpActiveInterface() throw ();
+    ~HttpActiveInterface() noexcept;
   };
   typedef ReferenceCounting::QualPtr<HttpActiveInterface>
     HttpActiveInterface_var;
@@ -245,5 +244,3 @@ namespace HTTP
     const Generics::Time* recv_timeout = 0)
     /*throw (eh::Exception)*/;
 }
-
-#endif

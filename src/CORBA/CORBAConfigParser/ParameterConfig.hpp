@@ -1,5 +1,4 @@
-#ifndef CORBACONFIGPARSER_PARAMETERCONFIG_HPP
-#define CORBACONFIGPARSER_PARAMETERCONFIG_HPP
+#pragma once
 
 #include <Generics/AppUtils.hpp>
 
@@ -110,5 +109,3 @@ namespace CORBAConfigParser
     }
   }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _COMPLEX_TEST_TESTS_HPP_
-#define _COMPLEX_TEST_TESTS_HPP_
+#pragma once
 
 #include "CommonClasses.hpp"
 
@@ -11,7 +10,7 @@ class EchoTest : public CTTestInterface
 {
 public:
 
-  static const char* usage() throw();
+  static const char* usage() noexcept;
 
   EchoTest(Sync::Semaphore& finish_semaphore,
            HTTP::HttpInterface* pool, unsigned int test_duration,
@@ -25,7 +24,7 @@ public:
 protected:
 
   virtual
-  ~EchoTest() throw ();
+  ~EchoTest() noexcept;
 
 private:
   CheckUpCallback_var my_cb_;
@@ -40,7 +39,7 @@ class NonExistanceTest : public CTTestInterface
 {
 public:
 
-  static const char* usage() throw();
+  static const char* usage() noexcept;
 
   NonExistanceTest(Sync::Semaphore& finish_semaphore,
       HTTP::HttpInterface* pool, unsigned int test_duration,
@@ -54,7 +53,7 @@ public:
 protected:
 
   virtual
-  ~NonExistanceTest() throw ();
+  ~NonExistanceTest() noexcept;
 
 private:
   SimpleCounterCallback_var my_cb_;
@@ -69,7 +68,7 @@ class BadAddressTest : public CTTestInterface
 {
 public:
 
-  static const char* usage() throw();
+  static const char* usage() noexcept;
 
   BadAddressTest(Sync::Semaphore& finish_semaphore,
       HTTP::HttpInterface* pool, unsigned int test_duration,
@@ -83,7 +82,7 @@ public:
 protected:
 
   virtual
-  ~BadAddressTest() throw ();
+  ~BadAddressTest() noexcept;
 
 private:
 
@@ -102,17 +101,17 @@ public:
     /*throw(eh::Exception)*/;
 
   virtual void
-  on_response(const HTTP::ResponseInformation& data) throw ();
+  on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
   on_error(const String::SubString& description,
-    const HTTP::RequestInformation& data) throw ();
+    const HTTP::RequestInformation& data) noexcept;
 
-  void check() throw();
+  void check() noexcept;
 
 protected:
   virtual
-  ~InterruptCallback() throw ();
+  ~InterruptCallback() noexcept;
 
 private:
   Sync::Semaphore& sem_;
@@ -127,7 +126,7 @@ class InterruptTest : public CTTestInterface
 {
 public:
 
-  static const char* usage() throw();
+  static const char* usage() noexcept;
 
   InterruptTest(Sync::Semaphore& finish_semaphore,
                 HTTP::HttpInterface* pool, unsigned int test_duration,
@@ -144,7 +143,7 @@ public:
 protected:
 
   virtual
-  ~InterruptTest() throw ();
+  ~InterruptTest() noexcept;
 
 private:
 
@@ -164,7 +163,7 @@ class BadRespTest : public CTTestInterface
 {
 public:
 
-  static const char* usage() throw();
+  static const char* usage() noexcept;
 
   BadRespTest(Sync::Semaphore& finish_semaphore,
               HTTP::HttpInterface* pool, unsigned int test_duration,
@@ -181,7 +180,7 @@ public:
 protected:
 
   virtual
-  ~BadRespTest() throw ();
+  ~BadRespTest() noexcept;
 
 private:
 
@@ -190,5 +189,3 @@ private:
   int counter_;
   bool log_needed_;
 };
-
-#endif

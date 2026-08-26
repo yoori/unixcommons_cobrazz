@@ -4,20 +4,20 @@
 class Echo_i : public POA_Echo
 {
 public:
-  Echo_i() throw ();
+  Echo_i() noexcept;
   virtual char*
-  echoString(const char* message) throw ();
+  echoString(const char* message) noexcept;
 private:
   unsigned sleep;
 };
 
-Echo_i::Echo_i() throw ()
+Echo_i::Echo_i() noexcept
   : sleep(10)
 {
 }
 
 char*
-Echo_i::echoString(const char* message) throw ()
+Echo_i::echoString(const char* message) noexcept
 {
   timeval tv = { sleep / 1000, (sleep % 1000) * 1000 };
   sleep *= 2;

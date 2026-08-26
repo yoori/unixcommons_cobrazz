@@ -1,5 +1,4 @@
-#ifndef GENERICS_TALLOC_HPP
-#define GENERICS_TALLOC_HPP
+#pragma once
 
 #include <memory>
 //#include <cassert>
@@ -60,17 +59,17 @@ namespace Generics
         typedef AllocOnly<Other, SIZE, HASH_HACK> other;
       };
 
-      AllocOnly() throw ();
-      AllocOnly(const AllocOnly&) throw ();
+      AllocOnly() noexcept;
+      AllocOnly(const AllocOnly&) noexcept;
       template <typename Other>
-      AllocOnly(const AllocOnly<Other, SIZE, HASH_HACK>&) throw ();
-      ~AllocOnly() throw ();
+      AllocOnly(const AllocOnly<Other, SIZE, HASH_HACK>&) noexcept;
+      ~AllocOnly() noexcept;
 
       Type*
       allocate(size_t n, const void* = 0) /*throw (eh::Exception)*/;
 
       void
-      deallocate(Type* ptr, size_t) throw ();
+      deallocate(Type* ptr, size_t) noexcept;
 
     private:
       struct Item
@@ -95,9 +94,9 @@ namespace Generics
     class AllocOnly<Type*, SIZE, true> : public std::allocator<Type*>
     {
     public:
-      AllocOnly() throw ();
+      AllocOnly() noexcept;
       template <typename Other>
-      AllocOnly(const AllocOnly<Other, SIZE, true>&) throw ();
+      AllocOnly(const AllocOnly<Other, SIZE, true>&) noexcept;
 
       template <typename Other>
       struct rebind
@@ -118,15 +117,15 @@ namespace Generics
       static_assert(SIZE > 1, "SIZE must be larger");
 
     public:
-      AggregatedBase() throw ();
-      AggregatedBase(const AggregatedBase&) throw ();
-      ~AggregatedBase() throw ();
+      AggregatedBase() noexcept;
+      AggregatedBase(const AggregatedBase&) noexcept;
+      ~AggregatedBase() noexcept;
 
       void*
       allocate() /*throw (eh::Exception)*/;
 
       void
-      deallocate(void* ptr) throw ();
+      deallocate(void* ptr) noexcept;
 
     private:
       union Item
@@ -162,15 +161,15 @@ namespace Generics
         typedef Aggregated<Other, SIZE, HASH_HACK> other;
       };
 
-      Aggregated() throw ();
+      Aggregated() noexcept;
       template <typename Other>
-      Aggregated(const Aggregated<Other, SIZE, HASH_HACK>&) throw ();
+      Aggregated(const Aggregated<Other, SIZE, HASH_HACK>&) noexcept;
 
       Type*
       allocate(size_t n, const void* = 0) /*throw (eh::Exception)*/;
 
       void
-      deallocate(Type* ptr, size_t) throw ();
+      deallocate(Type* ptr, size_t) noexcept;
     };
 
 
@@ -181,9 +180,9 @@ namespace Generics
     class Aggregated<Type*, SIZE, true> : public std::allocator<Type*>
     {
     public:
-      Aggregated() throw ();
+      Aggregated() noexcept;
       template <typename Other>
-      Aggregated(const Aggregated<Other, SIZE, true>&) throw ();
+      Aggregated(const Aggregated<Other, SIZE, true>&) noexcept;
 
       template <typename Other>
       struct rebind
@@ -210,7 +209,7 @@ namespace Generics
 
       static
       void
-      deallocate_(void* ptr) throw ();
+      deallocate_(void* ptr) noexcept;
 
     private:
       class MemoryHolder : public AggregatedBase<TYPE, SIZE>
@@ -222,7 +221,7 @@ namespace Generics
       class GlobalMemoryHolder : private Uncopyable
       {
       public:
-        ~GlobalMemoryHolder() throw ();
+        ~GlobalMemoryHolder() noexcept;
 
         MemoryHolder*
         operator ->() const /*throw (eh::Exception)*/;
@@ -230,7 +229,7 @@ namespace Generics
       private:
         static
         void
-        delete_holder_(void* holder) throw ();
+        delete_holder_(void* holder) noexcept;
 
         static Sync::Key<MemoryHolder> key_;
         static Sync::PosixSpinLock lock_;
@@ -262,16 +261,16 @@ namespace Generics
         typedef ThreadPool<Other, SIZE, HASH_HACK> other;
       };
 
-      ThreadPool() throw ();
-      ThreadPool(const ThreadPool&) throw ();
+      ThreadPool() noexcept;
+      ThreadPool(const ThreadPool&) noexcept;
       template <typename Other>
-      ThreadPool(const ThreadPool<Other, SIZE, HASH_HACK>&) throw ();
+      ThreadPool(const ThreadPool<Other, SIZE, HASH_HACK>&) noexcept;
 
       Type*
       allocate(size_t n, const void* = 0) /*throw (eh::Exception)*/;
 
       void
-      deallocate(Type* ptr, size_t) throw ();
+      deallocate(Type* ptr, size_t) noexcept;
     };
 
 
@@ -282,9 +281,9 @@ namespace Generics
     class ThreadPool<Type*, SIZE, true> : public std::allocator<Type*>
     {
     public:
-      ThreadPool() throw ();
+      ThreadPool() noexcept;
       template <typename Other>
-      ThreadPool(const ThreadPool<Other, SIZE, true>&) throw ();
+      ThreadPool(const ThreadPool<Other, SIZE, true>&) noexcept;
 
       template <typename Other>
       struct rebind
@@ -315,28 +314,28 @@ namespace Generics
         typedef GlobalPool<Other, SIZE> other;
       };
 
-      GlobalPool() throw ();
-      GlobalPool(const GlobalPool&) throw ();
+      GlobalPool() noexcept;
+      GlobalPool(const GlobalPool&) noexcept;
       template <typename Other>
-      GlobalPool(const GlobalPool<Other, SIZE>&) throw ();
+      GlobalPool(const GlobalPool<Other, SIZE>&) noexcept;
 
       Type*
       allocate(size_t n, const void* = 0) /*throw (eh::Exception)*/;
 
       void
-      deallocate(Type* ptr, size_t) throw ();
+      deallocate(Type* ptr, size_t) noexcept;
 
     private:
       class MemoryHolder : private Uncopyable
       {
       public:
-        MemoryHolder() throw ();
-        ~MemoryHolder() throw ();
+        MemoryHolder() noexcept;
+        ~MemoryHolder() noexcept;
 
         void*
         allocate() /*throw (eh::Exception)*/;
         void
-        deallocate(void* ptr) throw ();
+        deallocate(void* ptr) noexcept;
 
       private:
         union Block
@@ -365,13 +364,13 @@ namespace Generics
     //
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    AllocOnly<Type, SIZE, HASH_HACK>::AllocOnly() throw ()
+    AllocOnly<Type, SIZE, HASH_HACK>::AllocOnly() noexcept
       : all_(0), cur_(0), end_(0)
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    AllocOnly<Type, SIZE, HASH_HACK>::AllocOnly(const AllocOnly&) throw ()
+    AllocOnly<Type, SIZE, HASH_HACK>::AllocOnly(const AllocOnly&) noexcept
       : std::allocator<Type>(), all_(0), cur_(0), end_(0)
     {
     }
@@ -379,13 +378,13 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     template <typename Other>
     AllocOnly<Type, SIZE, HASH_HACK>::AllocOnly(
-      const AllocOnly<Other, SIZE, HASH_HACK>&) throw ()
+      const AllocOnly<Other, SIZE, HASH_HACK>&) noexcept
       : all_(0), cur_(0), end_(0)
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    AllocOnly<Type, SIZE, HASH_HACK>::~AllocOnly() throw ()
+    AllocOnly<Type, SIZE, HASH_HACK>::~AllocOnly() noexcept
     {
       while (all_)
       {
@@ -419,20 +418,20 @@ namespace Generics
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     void
-    AllocOnly<Type, SIZE, HASH_HACK>::deallocate(Type*, size_t) throw ()
+    AllocOnly<Type, SIZE, HASH_HACK>::deallocate(Type*, size_t) noexcept
     {
     }
 
 
     template <typename Type, const size_t SIZE>
-    AllocOnly<Type*, SIZE, true>::AllocOnly() throw ()
+    AllocOnly<Type*, SIZE, true>::AllocOnly() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE>
     template <typename Other>
     AllocOnly<Type*, SIZE, true>::AllocOnly(
-      const AllocOnly<Other, SIZE, true>&) throw ()
+      const AllocOnly<Other, SIZE, true>&) noexcept
     {
     }
 
@@ -442,20 +441,20 @@ namespace Generics
     //
 
     template <const size_t TYPE, const size_t SIZE>
-    AggregatedBase<TYPE, SIZE>::AggregatedBase() throw ()
+    AggregatedBase<TYPE, SIZE>::AggregatedBase() noexcept
       : all_(0), head_(0), cur_(0), end_(0)
     {
     }
 
     template <const size_t TYPE, const size_t SIZE>
     AggregatedBase<TYPE, SIZE>::AggregatedBase(const AggregatedBase&)
-      throw ()
+      noexcept
       : all_(0), head_(0), cur_(0), end_(0)
     {
     }
 
     template <const size_t TYPE, const size_t SIZE>
-    AggregatedBase<TYPE, SIZE>::~AggregatedBase() throw ()
+    AggregatedBase<TYPE, SIZE>::~AggregatedBase() noexcept
     {
       while (all_)
       {
@@ -492,7 +491,7 @@ namespace Generics
 
     template <const size_t TYPE, const size_t SIZE>
     void
-    AggregatedBase<TYPE, SIZE>::deallocate(void* ptr) throw ()
+    AggregatedBase<TYPE, SIZE>::deallocate(void* ptr) noexcept
     {
       Item* p = static_cast<Item*>(ptr);
       p->next = head_;
@@ -505,14 +504,14 @@ namespace Generics
     //
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    Aggregated<Type, SIZE, HASH_HACK>::Aggregated() throw ()
+    Aggregated<Type, SIZE, HASH_HACK>::Aggregated() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     template <typename Other>
     Aggregated<Type, SIZE, HASH_HACK>::Aggregated(
-      const Aggregated<Other, SIZE, HASH_HACK>&) throw ()
+      const Aggregated<Other, SIZE, HASH_HACK>&) noexcept
     {
     }
 
@@ -530,21 +529,21 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     void
     Aggregated<Type, SIZE, HASH_HACK>::deallocate(Type* ptr, size_t)
-      throw ()
+      noexcept
     {
       AggregatedBase<sizeof(Type), SIZE>::deallocate(ptr);
     }
 
 
     template <typename Type, const size_t SIZE>
-    Aggregated<Type*, SIZE, true>::Aggregated() throw ()
+    Aggregated<Type*, SIZE, true>::Aggregated() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE>
     template <typename Other>
     Aggregated<Type*, SIZE, true>::Aggregated(
-      const Aggregated<Other, SIZE, true>&) throw ()
+      const Aggregated<Other, SIZE, true>&) noexcept
     {
     }
 
@@ -565,7 +564,7 @@ namespace Generics
 
     template <const size_t TYPE, const size_t SIZE>
     ThreadPoolBase<TYPE, SIZE>::GlobalMemoryHolder::~GlobalMemoryHolder()
-      throw ()
+      noexcept
     {
       while (head_)
       {
@@ -604,7 +603,7 @@ namespace Generics
     template <const size_t TYPE, const size_t SIZE>
     void
     ThreadPoolBase<TYPE, SIZE>::GlobalMemoryHolder::
-      delete_holder_(void* pholder) throw ()
+      delete_holder_(void* pholder) noexcept
     {
       if (!pholder)
       {
@@ -634,7 +633,7 @@ namespace Generics
 
     template <const size_t TYPE, const size_t SIZE>
     void
-    ThreadPoolBase<TYPE, SIZE>::deallocate_(void* ptr) throw ()
+    ThreadPoolBase<TYPE, SIZE>::deallocate_(void* ptr) noexcept
     {
       holder_->deallocate(ptr);
     }
@@ -645,13 +644,13 @@ namespace Generics
     //
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    ThreadPool<Type, SIZE, HASH_HACK>::ThreadPool() throw ()
+    ThreadPool<Type, SIZE, HASH_HACK>::ThreadPool() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     ThreadPool<Type, SIZE, HASH_HACK>::ThreadPool(const ThreadPool&)
-      throw ()
+      noexcept
       : std::allocator<Type>()
     {
     }
@@ -659,7 +658,7 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     template <typename Other>
     ThreadPool<Type, SIZE, HASH_HACK>::ThreadPool(
-      const ThreadPool<Other, SIZE, HASH_HACK>&) throw ()
+      const ThreadPool<Other, SIZE, HASH_HACK>&) noexcept
     {
     }
 
@@ -676,21 +675,21 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     void
     ThreadPool<Type, SIZE, HASH_HACK>::deallocate(Type* ptr, size_t)
-      throw ()
+      noexcept
     {
       ThreadPoolBase<sizeof(Type), SIZE>::deallocate_(ptr);
     }
 
 
     template <typename Type, const size_t SIZE>
-    ThreadPool<Type*, SIZE, true>::ThreadPool() throw ()
+    ThreadPool<Type*, SIZE, true>::ThreadPool() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE>
     template <typename Other>
     ThreadPool<Type*, SIZE, true>::ThreadPool(
-      const ThreadPool<Other, SIZE, true>&) throw ()
+      const ThreadPool<Other, SIZE, true>&) noexcept
     {
     }
 
@@ -701,14 +700,14 @@ namespace Generics
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     GlobalPool<Type, SIZE, HASH_HACK>::MemoryHolder::MemoryHolder()
-      throw ()
+      noexcept
       : head_(0), cur_(0), end_(0)
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     GlobalPool<Type, SIZE, HASH_HACK>::MemoryHolder::~MemoryHolder()
-      throw ()
+      noexcept
     {
     }
 
@@ -739,7 +738,7 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     void
     GlobalPool<Type, SIZE, HASH_HACK>::MemoryHolder::deallocate(void* ptr)
-      throw ()
+      noexcept
     {
       Sync::PosixSpinGuard guard(lock_);
       Block* p = static_cast<Block*>(ptr);
@@ -757,13 +756,13 @@ namespace Generics
       GlobalPool<Type, SIZE, HASH_HACK>::holder_;
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
-    GlobalPool<Type, SIZE, HASH_HACK>::GlobalPool() throw ()
+    GlobalPool<Type, SIZE, HASH_HACK>::GlobalPool() noexcept
     {
     }
 
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     GlobalPool<Type, SIZE, HASH_HACK>::GlobalPool(const GlobalPool&)
-      throw ()
+      noexcept
       : std::allocator<Type>()
     {
     }
@@ -771,7 +770,7 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     template <typename Other>
     GlobalPool<Type, SIZE, HASH_HACK>::GlobalPool(
-      const GlobalPool<Other, SIZE>&) throw ()
+      const GlobalPool<Other, SIZE>&) noexcept
     {
     }
 
@@ -787,11 +786,9 @@ namespace Generics
     template <typename Type, const size_t SIZE, const bool HASH_HACK>
     void
     GlobalPool<Type, SIZE, HASH_HACK>::deallocate(Type* ptr, size_t)
-      throw ()
+      noexcept
     {
       holder_.deallocate(ptr);
     }
   }
 }
-
-#endif

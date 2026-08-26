@@ -9,7 +9,7 @@
 
 template <typename Type>
 Type
-generate_lowest(unsigned bit) throw ()
+generate_lowest(unsigned bit) noexcept
 {
   const unsigned BITS = std::numeric_limits<Type>::digits;
   Type number = static_cast<Type>(1) << bit;
@@ -22,7 +22,7 @@ generate_lowest(unsigned bit) throw ()
 
 template <typename Type>
 Type
-generate_highest(unsigned bit) throw ()
+generate_highest(unsigned bit) noexcept
 {
   Type number = static_cast<Type>(1) << bit;
   for (unsigned bits = Generics::safe_rand(4); bits--;)

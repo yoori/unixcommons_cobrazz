@@ -1,6 +1,5 @@
 // Application.hpp
-#ifndef TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED
-#define TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED
+#pragma once
 
   /**
    * Special callback with checks and correctness control abilities.
@@ -12,36 +11,36 @@ class DescriptorListenerCallbackTester :
   public ReferenceCounting::AtomicImpl
 {
 public:
-  DescriptorListenerCallbackTester() throw ();
+  DescriptorListenerCallbackTester() noexcept;
 
   virtual void
   on_data_ready(int fd, std::size_t fd_index,
-    const char* str, std::size_t size) throw ();
+    const char* str, std::size_t size) noexcept;
 
   virtual void
-  on_closed(int fd, std::size_t fd_index, int error) throw ();
+  on_closed(int fd, std::size_t fd_index, int error) noexcept;
 
   virtual void
-  on_all_closed() throw ();
+  on_all_closed() noexcept;
 
   std::size_t
-  get_and_reset_closed() throw ();
+  get_and_reset_closed() noexcept;
 
   std::string
-  received_data() const throw ();
+  received_data() const noexcept;
 
   void
-  reset() throw ();
+  reset() noexcept;
 
   void
-  set_full_lines_test(bool new_value) throw ();
+  set_full_lines_test(bool new_value) noexcept;
 
   virtual void
   report_error(Severity severity, const String::SubString& description,
-    const char* error_code = 0) throw ();
+    const char* error_code = 0) noexcept;
 protected:
   virtual
-  ~DescriptorListenerCallbackTester() throw ();
+  ~DescriptorListenerCallbackTester() noexcept;
 private:
   volatile _Atomic_word close_counter_;
   std::string ready_data_;
@@ -63,7 +62,7 @@ public:
   TestTasker() /*throw (eh::Exception)*/;
 
   virtual
-  ~TestTasker() throw ();
+  ~TestTasker() noexcept;
 
   /**
    * Check all data delivery.
@@ -117,7 +116,7 @@ do_execute_and_listen_test_child_code(char* argv[])
 class Writer
 {
 public:
-  Writer(Descriptors& dscs, const char* msg) throw ();
+  Writer(Descriptors& dscs, const char* msg) noexcept;
 
   void
   operator()() /*throw (eh::Exception)*/;
@@ -126,7 +125,7 @@ public:
    * Should reset multiplexer before new test cycle.
    */
   void
-  reset() throw ();
+  reset() noexcept;
 
 private:
 
@@ -140,7 +139,7 @@ private:
 class MTAdapter
 {
 public:
-  MTAdapter(const char* progname) throw ();
+  MTAdapter(const char* progname) noexcept;
   void
   operator ()() /*throw (eh::Exception)*/;
 
@@ -152,7 +151,7 @@ class MPAdapter
 {
 public:
   MPAdapter(const char* progname, int threads, time_t interval,
-    int limit = -1) throw ();
+    int limit = -1) noexcept;
   void
   operator ()() /*throw (eh::Exception)*/;
 
@@ -162,6 +161,3 @@ private:
   time_t interval;
   int limit;
 };
-
-
-#endif  // _TEST_APPLICATION_TASK_RUNNER_HPP_INCLUDED_

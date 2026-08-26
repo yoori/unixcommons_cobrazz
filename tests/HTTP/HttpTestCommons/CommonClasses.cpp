@@ -5,7 +5,7 @@
 // class TestInterface
 //
 
-TestInterface::~TestInterface() throw()
+TestInterface::~TestInterface() noexcept
 {
 }
 
@@ -28,12 +28,12 @@ SimplePolicy::SimplePolicy(int connections_per_server,
 void
 SimplePolicy::report_error(Severity /*severity*/, const String::SubString& description,
   const char* /*error_code*/)
-  throw ()
+  noexcept
 {
   errors_.add(description, true);
 }
 
-SimplePolicy::~SimplePolicy() throw ()
+SimplePolicy::~SimplePolicy() noexcept
 {
   if (!errors_.empty())
   {
@@ -200,7 +200,7 @@ SimpleCounterCallback::SimpleCounterCallback(HTTP::PoolPolicy* policy,
 }
 
 void
-SimpleCounterCallback::on_response(const HTTP::ResponseInformation& data) throw ()
+SimpleCounterCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   counter_.success();
   try
@@ -221,7 +221,7 @@ SimpleCounterCallback::on_response(const HTTP::ResponseInformation& data) throw 
 
 void
 SimpleCounterCallback::on_error(const String::SubString& description,
-  const HTTP::RequestInformation& data) throw ()
+  const HTTP::RequestInformation& data) noexcept
 {
   errors_.add(description);
   counter_.failure();
@@ -262,12 +262,12 @@ SimpleCounterCallback::print_errors(std::ostream& ostr, bool log_needed)
 }
 
 const TestCommons::Counter&
-SimpleCounterCallback::get_counter() const throw ()
+SimpleCounterCallback::get_counter() const noexcept
 {
   return counter_;
 }
 
-SimpleCounterCallback::~SimpleCounterCallback() throw ()
+SimpleCounterCallback::~SimpleCounterCallback() noexcept
 {
 }
 
@@ -293,7 +293,7 @@ Requester::print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/
 }
 
 void
-Requester::operator ()() throw ()
+Requester::operator ()() noexcept
 {
   for (int i = 0; i < 100; i++)
   {
@@ -320,13 +320,13 @@ Requester::operator ()() throw ()
 }
 
 void
-Requester::release_callback() throw()
+Requester::release_callback() noexcept
 {
   cb_.reset();
 }
 
 const TestCommons::Counter&
-Requester::get_counter() const throw ()
+Requester::get_counter() const noexcept
 {
   return counter_;
 }

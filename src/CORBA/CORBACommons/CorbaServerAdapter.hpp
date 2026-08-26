@@ -1,5 +1,4 @@
-#ifndef CORBACOMMONS_CORBASERVER_ADAPTER_HPP
-#define CORBACOMMONS_CORBASERVER_ADAPTER_HPP
+#pragma once
 
 #include <set>
 #include <exception>
@@ -32,7 +31,7 @@ namespace CORBACommons
     EndpointObjectTable objects;
 
     int
-    bind_port() const throw ();
+    bind_port() const noexcept;
 
     static const int BIND_PORT_OFFSET;
   };
@@ -83,7 +82,7 @@ namespace CORBACommons
     run() /*throw (eh::Exception, Exception)*/;
 
     OrbShutdowner_var
-    shutdowner() throw ();
+    shutdowner() noexcept;
 
 
     struct ThreadsUsage
@@ -99,7 +98,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~CorbaServerAdapter() throw ();
+    ~CorbaServerAdapter() noexcept;
 
     virtual
     void
@@ -122,16 +121,16 @@ namespace CORBACommons
         /*throw (eh::Exception)*/;
 
       const char*
-      host() throw ();
+      host() noexcept;
 
       const char*
-      ip() throw ();
+      ip() noexcept;
 
       unsigned long
-      port() throw ();
+      port() noexcept;
 
       bool
-      operator <(const EndpointAddress& address) const throw ();
+      operator <(const EndpointAddress& address) const noexcept;
 
     private:
       std::string host_;
@@ -163,10 +162,10 @@ namespace CORBACommons
         /*throw (eh::Exception, Exception)*/;
 
       void
-      activate() throw ();
+      activate() noexcept;
 
       const ObjectIdTable&
-      bound_objects() const throw ();
+      bound_objects() const noexcept;
 
     protected:
       struct BindPoint
@@ -180,7 +179,7 @@ namespace CORBACommons
 
 
       virtual
-      ~Endpoint() throw ();
+      ~Endpoint() noexcept;
 
       const ObjectsExternalNames&
       find_name_(const char* name) const /*throw (eh::Exception, Exception)*/;
@@ -212,7 +211,7 @@ namespace CORBACommons
     struct Orb
     {
       explicit
-      Orb(CORBA::ORB_var orb = CORBA::ORB_var()) throw ();
+      Orb(CORBA::ORB_var orb = CORBA::ORB_var()) noexcept;
 
       CORBA::ORB_var orb;
       unsigned waiters;
@@ -245,7 +244,7 @@ namespace CORBACommons
 
     virtual
     void
-    shutdown(bool type) throw ();
+    shutdown(bool type) noexcept;
 
 
   protected:
@@ -298,21 +297,21 @@ namespace CORBACommons
 
   inline
   const char*
-  CorbaServerAdapter::EndpointAddress::host() throw ()
+  CorbaServerAdapter::EndpointAddress::host() noexcept
   {
     return host_.c_str();
   }
 
   inline
   const char*
-  CorbaServerAdapter::EndpointAddress::ip() throw ()
+  CorbaServerAdapter::EndpointAddress::ip() noexcept
   {
     return ip_.c_str();
   }
 
   inline
   unsigned long
-  CorbaServerAdapter::EndpointAddress::port() throw ()
+  CorbaServerAdapter::EndpointAddress::port() noexcept
   {
     return port_;
   }
@@ -320,7 +319,7 @@ namespace CORBACommons
   inline
   bool
   CorbaServerAdapter::EndpointAddress::operator <(
-    const EndpointAddress& address) const throw ()
+    const EndpointAddress& address) const noexcept
   {
     return ip_ == address.ip_ ? port_ < address.port_ :
       ip_ < address.ip_;
@@ -366,5 +365,3 @@ namespace CORBACommons
     }
   }
 }
-
-#endif

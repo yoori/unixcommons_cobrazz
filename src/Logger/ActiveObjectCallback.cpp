@@ -13,7 +13,7 @@ namespace Logging
   ActiveObjectCallbackImpl::report_error(Severity severity,
     const String::SubString& description,
     const char* error_code)
-    throw ()
+    noexcept
   {
     unsigned long log_level = 0;
     const char* str_severity = "UNKNOWN";
@@ -52,25 +52,25 @@ namespace Logging
   }
 
   Logger*
-  ActiveObjectCallbackImpl::logger() const throw ()
+  ActiveObjectCallbackImpl::logger() const noexcept
   {
     return logger_;
   }
 
   const char*
-  ActiveObjectCallbackImpl::message_prefix() const throw ()
+  ActiveObjectCallbackImpl::message_prefix() const noexcept
   {
     return message_prefix_;
   }
 
   const char*
-  ActiveObjectCallbackImpl::aspect() const throw ()
+  ActiveObjectCallbackImpl::aspect() const noexcept
   {
     return aspect_;
   }
 
   const char*
-  ActiveObjectCallbackImpl::code(const char* error_code) const throw ()
+  ActiveObjectCallbackImpl::code(const char* error_code) const noexcept
   {
     return error_code ? error_code : code_;
   }

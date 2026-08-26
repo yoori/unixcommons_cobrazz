@@ -54,24 +54,24 @@ class TaskImpl :
 {
 public:
   TaskImpl(State* state)
-    throw ();
+    noexcept;
 
   virtual void
-  execute() throw ();
+  execute() noexcept;
 
 private:
   Generics::TaskExecutor_var task_runner_;
   State* state_;
 };
 
-TaskImpl::TaskImpl(State* state) throw ()
+TaskImpl::TaskImpl(State* state) noexcept
   : state_(state)
 {
   state_->inc();
 }
 
 void
-TaskImpl::execute() throw ()
+TaskImpl::execute() noexcept
 {
   state_->dec();
 }

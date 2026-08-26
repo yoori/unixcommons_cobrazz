@@ -17,7 +17,7 @@ namespace CORBACommons
   // CorbaObjectRef class
   //
 
-  CorbaObjectRef::CorbaObjectRef() throw ()
+  CorbaObjectRef::CorbaObjectRef() noexcept
   {
   }
 
@@ -103,26 +103,26 @@ namespace CORBACommons
   }
 
   size_t
-  CorbaClientAdapter::Orbs::OrbDesignator::hash() const throw ()
+  CorbaClientAdapter::Orbs::OrbDesignator::hash() const noexcept
   {
     return config_.hash();
   }
 
   bool
   CorbaClientAdapter::Orbs::OrbDesignator::operator ==(
-    const OrbDesignator& designator) const throw ()
+    const OrbDesignator& designator) const noexcept
   {
     return timeout_ == designator.timeout_ && config_ == designator.config_;
   }
 
   const Generics::Time&
-  CorbaClientAdapter::Orbs::OrbDesignator::timeout() const throw ()
+  CorbaClientAdapter::Orbs::OrbDesignator::timeout() const noexcept
   {
     return timeout_;
   }
 
   const SecureConnectionConfig&
-  CorbaClientAdapter::Orbs::OrbDesignator::config() const throw ()
+  CorbaClientAdapter::Orbs::OrbDesignator::config() const noexcept
   {
     return *config_;
   }
@@ -132,7 +132,7 @@ namespace CORBACommons
   // CorbaClientAdapter::Orbs class
   //
 
-  CorbaClientAdapter::Orbs::~Orbs() throw ()
+  CorbaClientAdapter::Orbs::~Orbs() noexcept
   {
     for (OrbsHolder::iterator itor(orbs_.begin()); itor != orbs_.end();
       ++itor)
@@ -213,7 +213,7 @@ namespace CORBACommons
   }
 
   const CorbaClientAdapter::Orbs::OrbsHolder&
-  CorbaClientAdapter::Orbs::get_orbs() const throw ()
+  CorbaClientAdapter::Orbs::get_orbs() const noexcept
   {
     return orbs_;
   }
@@ -259,7 +259,7 @@ namespace CORBACommons
   //
 
   CorbaClientAdapter::CorbaClientAdapter(
-    Logging::Logger* logger) throw ()
+    Logging::Logger* logger) noexcept
     : logger_(::ReferenceCounting::add_ref(logger))
   {
     if (logger_)
@@ -280,7 +280,7 @@ namespace CORBACommons
     }
   }
 
-  CorbaClientAdapter::~CorbaClientAdapter() throw ()
+  CorbaClientAdapter::~CorbaClientAdapter() noexcept
   {
     AceLogger::remove_logger(logger_);
   }

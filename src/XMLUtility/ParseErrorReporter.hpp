@@ -1,13 +1,4 @@
-/**
- * @file   ParseErrorReporter.hpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- *
- * File contains group of utility classes related to XML parsing
- * errors reporting.
- */
-
-#ifndef XML_UTILITY_PARSE_ERROR_REPORTER_HPP
-#define XML_UTILITY_PARSE_ERROR_REPORTER_HPP
+#pragma once
 
 #include <iostream>
 
@@ -46,7 +37,7 @@ namespace XMLUtility
      * <code>false</code> otherwise.
      */
     bool
-    errors() throw ();
+    errors() noexcept;
 
   protected:
     virtual
@@ -87,10 +78,8 @@ namespace XMLUtility
 
   inline
   bool
-  ParseErrorReporter::errors() throw ()
+  ParseErrorReporter::errors() noexcept
   {
     return errors_;
   }
 }
-
-#endif

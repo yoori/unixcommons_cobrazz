@@ -1,5 +1,4 @@
-#ifndef POLYGLOT_TOKENIZER_HPP
-#define POLYGLOT_TOKENIZER_HPP
+#pragma once
 
 #include <vector>
 //#include <cassert>
@@ -11,7 +10,7 @@
 namespace Polyglot
 {
   bool
-  is_asian_char(wchar_t ch) throw ();
+  is_asian_char(wchar_t ch) noexcept;
 
   template <typename DictionaryNodeType, typename SuffixDictionaryNodeType>
   struct SumWeightCollector
@@ -20,29 +19,29 @@ namespace Polyglot
 
     SumWeightCollector(
       const DictionaryTraits& dict_traits,
-      const DictionaryTraits& suffix_dict_traits) throw ();
+      const DictionaryTraits& suffix_dict_traits) noexcept;
 
     WeightType
-    start() const throw ();
+    start() const noexcept;
 
     WeightType
-    unknown_symbol(WeightType in) const throw ();
+    unknown_symbol(WeightType in) const noexcept;
 
     WeightType
-    unknown_word_start() const throw ();
+    unknown_word_start() const noexcept;
 
     WeightType
-    unknown_word_start(WeightType in) const throw ();
+    unknown_word_start(WeightType in) const noexcept;
 
     WeightType
-    collect(WeightType in, const DictionaryNodeType& in2) const throw ();
+    collect(WeightType in, const DictionaryNodeType& in2) const noexcept;
 
     WeightType
     collect(WeightType in,
-      const typename SuffixDictionaryNodeType::Suffix& in2) const throw ();
+      const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept;
 
     WeightType
-    collect(WeightType in, WeightType in2) const throw ();
+    collect(WeightType in, WeightType in2) const noexcept;
 
   protected:
     long long min_weight_;
@@ -108,7 +107,7 @@ namespace Polyglot
         Variant(const DictionaryNode* node_val,
           const typename WeightCollectorType::WeightType& weight_val,
           std::wstring::const_iterator sep_pos_val,
-          const DictionaryNode* next_node_val) throw ();
+          const DictionaryNode* next_node_val) noexcept;
 
         const DictionaryNode* node;
         typename WeightCollectorType::WeightType weight;
@@ -120,7 +119,7 @@ namespace Polyglot
       {
         SuffixVariant(const SuffixDictionaryNode::Suffix* node_val,
           const typename WeightCollectorType::WeightType& weight_val,
-          std::wstring::const_iterator sep_pos_val) throw ();
+          std::wstring::const_iterator sep_pos_val) noexcept;
 
         const SuffixDictionaryNode::Suffix* node;
         typename WeightCollectorType::WeightType weight;
@@ -144,7 +143,7 @@ namespace Polyglot
     typedef std::list<std::string> Result;
 
     GenericNGramTokenizer(const DictionaryType& dict,
-      const SuffixDictionaryType& suffix_dict) throw ();
+      const SuffixDictionaryType& suffix_dict) noexcept;
 
     void
     print_bi_tokenize_seq(const std::wstring& orig,
@@ -200,7 +199,7 @@ namespace Polyglot
 {
   inline
   bool
-  is_asian_char(wchar_t ch) throw ()
+  is_asian_char(wchar_t ch) noexcept
   {
     return
       (ch >= 0x1100 && ch < 0x11FA) ||
@@ -236,7 +235,7 @@ namespace Polyglot
   template <typename DictionaryNodeType, typename SuffixDictionaryNodeType>
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
     SumWeightCollector(const DictionaryTraits& dict_traits,
-      const DictionaryTraits& /*suffix_dict_traits*/) throw ()
+      const DictionaryTraits& /*suffix_dict_traits*/) noexcept
     : min_weight_(dict_traits.min_el)
   {
   }
@@ -245,7 +244,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    start() const throw ()
+    start() const noexcept
   {
     return 0;
   }
@@ -254,7 +253,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    unknown_symbol(WeightType in) const throw ()
+    unknown_symbol(WeightType in) const noexcept
   {
     return 1LL * min_weight_ + 1 + in;
   }
@@ -263,7 +262,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    unknown_word_start() const throw ()
+    unknown_word_start() const noexcept
   {
 //  return 4LL * min_weight_;
     return 1LL * min_weight_ + 1;
@@ -273,7 +272,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    unknown_word_start(WeightType in) const throw ()
+    unknown_word_start(WeightType in) const noexcept
   {
 //  return 4LL * min_weight_ + in;
     return 1LL * min_weight_ + 1 + in;
@@ -283,7 +282,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    collect(WeightType in, const DictionaryNodeType& in2) const throw ()
+    collect(WeightType in, const DictionaryNodeType& in2) const noexcept
   {
     return in + in2.freq;
   }
@@ -293,7 +292,7 @@ namespace Polyglot
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
     collect(WeightType in,
-      const typename SuffixDictionaryNodeType::Suffix& in2) const throw ()
+      const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept
   {
     return in + in2.freq;
   }
@@ -302,7 +301,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    collect(WeightType in, WeightType in2) const throw ()
+    collect(WeightType in, WeightType in2) const noexcept
   {
     return in + in2;
   }
@@ -355,7 +354,7 @@ namespace Polyglot
       Variant(const DictionaryNode* node_val,
         const typename WeightCollectorType::WeightType& weight_val,
         std::wstring::const_iterator sep_pos_val,
-        const DictionaryNode* next_node_val) throw ()
+        const DictionaryNode* next_node_val) noexcept
     : node(node_val), weight(weight_val), sep_pos(sep_pos_val),
       next_node(next_node_val)
   {
@@ -373,7 +372,7 @@ namespace Polyglot
       SuffixVariant::SuffixVariant(
         const SuffixDictionaryNode::Suffix* node_val,
         const typename WeightCollectorType::WeightType& weight_val,
-        std::wstring::const_iterator sep_pos_val) throw ()
+        std::wstring::const_iterator sep_pos_val) noexcept
     : node(node_val), weight(weight_val), sep_pos(sep_pos_val)
   {
   }
@@ -388,7 +387,7 @@ namespace Polyglot
   GenericNGramTokenizer<WeightCollectorType, DictionaryType,
     SuffixDictionaryType, NormalizeStrategyType>::
     GenericNGramTokenizer(const DictionaryType& dict,
-      const SuffixDictionaryType& suffix_dict) throw ()
+      const SuffixDictionaryType& suffix_dict) noexcept
     : dict_(dict), suffix_dict_(suffix_dict),
       coll_(dict.traits(), suffix_dict.traits())
   {
@@ -823,5 +822,3 @@ namespace Polyglot
     }
   }
 }
-
-#endif

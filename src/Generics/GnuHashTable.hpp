@@ -1,5 +1,4 @@
-#ifndef GENERICS_GOOGLE_HASH_TABLE_HPP
-#define GENERICS_GOOGLE_HASH_TABLE_HPP
+#pragma once
 
 #include <unordered_set>
 #include <unordered_map>
@@ -38,15 +37,15 @@ namespace Generics
     GnuHashTable(size_t table_size = 0) /*throw (eh::Exception)*/;
 
     size_type
-    table_size() const throw ();
+    table_size() const noexcept;
 
     void
-    table_size(const size_t&) throw ();
+    table_size(const size_t&) noexcept;
     void
-    optimize() throw ();
+    optimize() noexcept;
 
     bool
-    operator ==(const GnuHashTable& table) const throw ();
+    operator ==(const GnuHashTable& table) const noexcept;
   };
 
   template <class Key, class Alloc = std::allocator<Key>,
@@ -64,7 +63,7 @@ namespace Generics
     typedef size_t size_type;
 
     bool
-    operator ==(const GnuHashSet& set) const throw ();
+    operator ==(const GnuHashSet& set) const noexcept;
   };
 }
 
@@ -99,21 +98,21 @@ namespace Generics
 
   template <class Key, class Value, class Alloc, class EqualKey>
   typename GnuHashTable<Key, Value, Alloc, EqualKey>::size_type
-  GnuHashTable<Key, Value, Alloc, EqualKey>::table_size() const throw ()
+  GnuHashTable<Key, Value, Alloc, EqualKey>::table_size() const noexcept
   {
     return Parent::size();
   }
 
   template <class Key, class Value, class Alloc, class EqualKey>
   void
-  GnuHashTable<Key, Value, Alloc, EqualKey>::optimize() throw ()
+  GnuHashTable<Key, Value, Alloc, EqualKey>::optimize() noexcept
   {
   }
 
   template <class Key, class Value, class Alloc, class EqualKey>
   void
   GnuHashTable<Key, Value, Alloc, EqualKey>::table_size(
-    const size_t& new_size) throw ()
+    const size_t& new_size) noexcept
   {
     Parent::resize(new_size);
   }
@@ -121,7 +120,7 @@ namespace Generics
   template <class Key, class Value, class Alloc, class EqualKey>
   bool
   GnuHashTable<Key, Value, Alloc, EqualKey>::operator ==(
-    const GnuHashTable& table) const throw ()
+    const GnuHashTable& table) const noexcept
   {
     if (this->size() != table.size())
     {
@@ -146,7 +145,7 @@ namespace Generics
   template <class Key, class Alloc, class EqualKey>
   bool
   GnuHashSet<Key, Alloc, EqualKey>::operator ==(const GnuHashSet& set) const
-    throw ()
+    noexcept
   {
     if (this->size() != set.size())
     {
@@ -163,5 +162,3 @@ namespace Generics
     return true;
   }
 }
-
-#endif

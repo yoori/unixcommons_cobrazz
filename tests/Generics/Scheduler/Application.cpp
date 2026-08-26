@@ -1,9 +1,3 @@
-
-/**
- * @file   Application.cpp
- * @author Karen Aroutiounov
- */
-
 #include <iostream>
 #include <sstream>
 
@@ -147,7 +141,7 @@ namespace Generics
    */
   inline
   void
-  sleep_msc(unsigned int msec) throw ()
+  sleep_msc(unsigned int msec) noexcept
   {
     timespec ts;
     ts.tv_sec = msec / 1000;
@@ -311,7 +305,7 @@ namespace Generics
 
   void
   Application::deliver_message(Application::TimedMessage* timed_message)
-    throw ()
+    noexcept
   {
 #ifdef TRACE
     {
@@ -577,7 +571,7 @@ namespace Generics
 
   bool
   Application::is_test_successfull_(std::string& error_description) const
-    throw ()
+    noexcept
   {
     error_description.clear();
     Generics::Time epsilon(0, 500000);
@@ -666,12 +660,12 @@ namespace Generics
     }
   }
   void
-  Application::set_test_execution_time(const int nt) throw ()
+  Application::set_test_execution_time(const int nt) noexcept
   {
     execution_time_ = Generics::Time(nt);
   }
   void
-  Application::set_message_count(unsigned long new_value) throw ()
+  Application::set_message_count(unsigned long new_value) noexcept
   {
     message_count_ = new_value;
   }

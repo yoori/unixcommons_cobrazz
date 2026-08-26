@@ -1,5 +1,4 @@
-#ifndef GENERICS_MEMBUF_HPP
-#define GENERICS_MEMBUF_HPP
+#pragma once
 
 #include <Generics/Allocator.hpp>
 
@@ -35,7 +34,7 @@ namespace Generics
      * if not specified using special default allocator.
      */
     explicit
-    MemBuf(Allocator::Base* allocator = 0) throw ();
+    MemBuf(Allocator::Base* allocator = 0) noexcept;
 
     /**
      * Construct memory buffer and mark all size bytes as used.
@@ -68,7 +67,7 @@ namespace Generics
      * Move constructor
      * @param right moving content
      */
-    MemBuf(MemBuf&& right) throw ();
+    MemBuf(MemBuf&& right) noexcept;
 
     /**
      * Construct MemBuf object that able to store size bytes,
@@ -86,39 +85,39 @@ namespace Generics
      * Frees allocated memory, while debug mode on, checks
      * buffer boundaries for buffer overrun.
      */
-    ~MemBuf() throw ();
+    ~MemBuf() noexcept;
 
     /**
      * @return true if buffer size used by user is zero.
      */
     bool
-    empty() const throw ();
+    empty() const noexcept;
 
     /**
      * Free allocated memory, set logical size and capacity
      * to zero.
      */
     void
-    clear() throw ();
+    clear() noexcept;
 
     /**
      * @return buffer size used by user.
      */
     std::size_t
-    size() const throw ();
+    size() const noexcept;
 
     /**
      * @return really allocated memory by this MemBuf object.
      */
     std::size_t
-    capacity() const throw();
+    capacity() const noexcept;
 
     /**
      * @param offset from begin of user data in bytes
      * @return pointer on user data.
      */
     void*
-    data(std::size_t offset = 0) throw ();
+    data(std::size_t offset = 0) noexcept;
 
     /**
      * @param offset from begin of user data in bytes
@@ -126,7 +125,7 @@ namespace Generics
      * Constant version.
      */
     const void*
-    data(std::size_t offset = 0) const throw ();
+    data(std::size_t offset = 0) const noexcept;
 
     /**
      * @param offset from begin of user data in bytes
@@ -134,7 +133,7 @@ namespace Generics
      */
     template <typename DataType>
     DataType*
-    get(std::size_t offset = 0) throw ();
+    get(std::size_t offset = 0) noexcept;
 
     /**
      * @param offset from begin of user data in bytes
@@ -143,7 +142,7 @@ namespace Generics
      */
     template <typename DataType>
     const DataType*
-    get(std::size_t offset = 0) const throw ();
+    get(std::size_t offset = 0) const noexcept;
 
     /**
      * Assigns new content for the buffer.
@@ -177,13 +176,13 @@ namespace Generics
      * @param right object
      */
     void
-    swap(MemBuf& right) throw ();
+    swap(MemBuf& right) noexcept;
 
     /**
      * Assignment operator is prohibited.
      */
     MemBuf&
-    operator =(MemBuf& right) throw () = delete;
+    operator =(MemBuf& right) noexcept = delete;
 
     /**
      * Move operator. Calls swap().
@@ -191,13 +190,13 @@ namespace Generics
      * @return reference to this object
      */
     MemBuf&
-    operator =(MemBuf&& right) throw ();
+    operator =(MemBuf&& right) noexcept;
 
     /**
      * @return pointer to memory allocator
      */
     Allocator::Base_var
-    get_allocator() throw ();
+    get_allocator() noexcept;
 
   private:
     mutable Allocator::Base_var allocator_;
@@ -228,7 +227,7 @@ namespace Generics
      * @return aggregated MemBuf
      */
     MemBuf&
-    membuf() throw ();
+    membuf() noexcept;
 
   private:
     MemBuf mem_buf_;
@@ -256,21 +255,21 @@ namespace Generics
      * @return aggregated MemBuf
      */
     MemBuf&
-    membuf() throw ();
+    membuf() noexcept;
 
     /**
      * Aggregated MemBuf
      * @return aggregated MemBuf
      */
     const MemBuf&
-    membuf() const throw ();
+    membuf() const noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~SmartTmplMemBuf() throw () = default;
+    ~SmartTmplMemBuf() noexcept = default;
 
   private:
     MemBuf mem_buf_;
@@ -297,7 +296,7 @@ namespace Generics
 
   protected:
     virtual
-    ~SmartMemBufTmpl() throw () = default;
+    ~SmartMemBufTmpl() noexcept = default;
   };
 
   /**
@@ -307,7 +306,7 @@ namespace Generics
   struct ConstSmartMemBufSize
   {
     std::size_t
-    operator()(ConstSmartMemBuf* smb) const throw ();
+    operator()(ConstSmartMemBuf* smb) const noexcept;
   };
 
 
@@ -331,56 +330,56 @@ namespace Generics
   //
   inline
   bool
-  MemBuf::empty() const throw ()
+  MemBuf::empty() const noexcept
   {
     return !size_;
   }
 
   inline
   void*
-  MemBuf::data(std::size_t offset) throw ()
+  MemBuf::data(std::size_t offset) noexcept
   {
     return static_cast<unsigned char*>(ptr_) + offset + DEV_MEMBUF_BOUNDS;
   }
 
   inline
   const void*
-  MemBuf::data(std::size_t offset) const throw ()
+  MemBuf::data(std::size_t offset) const noexcept
   {
     return static_cast<unsigned char*>(ptr_) + offset + DEV_MEMBUF_BOUNDS;
   }
 
   template <typename DataType>
   DataType*
-  MemBuf::get(std::size_t offset) throw ()
+  MemBuf::get(std::size_t offset) noexcept
   {
     return static_cast<DataType*>(data(offset));
   }
 
   template <typename DataType>
   const DataType*
-  MemBuf::get(std::size_t offset) const throw ()
+  MemBuf::get(std::size_t offset) const noexcept
   {
     return static_cast<const DataType*>(data(offset));
   }
 
   inline
   std::size_t
-  MemBuf::size() const throw ()
+  MemBuf::size() const noexcept
   {
     return size_;
   }
 
   inline
   std::size_t
-  MemBuf::capacity() const throw ()
+  MemBuf::capacity() const noexcept
   {
     return capacity_ - 2 * DEV_MEMBUF_BOUNDS;
   }
 
   inline
   Allocator::Base_var
-  MemBuf::get_allocator() throw ()
+  MemBuf::get_allocator() noexcept
   {
     return allocator_;
   }
@@ -398,7 +397,7 @@ namespace Generics
 
   template <typename AllocatorValue>
   MemBuf&
-  MemBufTmpl<AllocatorValue>::membuf() throw ()
+  MemBufTmpl<AllocatorValue>::membuf() noexcept
   {
     return mem_buf_;
   }
@@ -416,14 +415,14 @@ namespace Generics
 
   template <typename MemBuf>
   MemBuf&
-  SmartTmplMemBuf<MemBuf>::membuf() throw ()
+  SmartTmplMemBuf<MemBuf>::membuf() noexcept
   {
     return mem_buf_;
   }
 
   template <typename MemBuf>
   const MemBuf&
-  SmartTmplMemBuf<MemBuf>::membuf() const throw ()
+  SmartTmplMemBuf<MemBuf>::membuf() const noexcept
   {
     return mem_buf_;
   }
@@ -447,10 +446,8 @@ namespace Generics
   //
   inline
   std::size_t
-  ConstSmartMemBufSize::operator()(ConstSmartMemBuf* smb) const throw ()
+  ConstSmartMemBufSize::operator()(ConstSmartMemBuf* smb) const noexcept
   {
     return smb->membuf().size();
   }
 }
-
-#endif

@@ -1,12 +1,4 @@
-/**
- * @file   FileLogger.hpp
- * @author Karen Aroutiounov
- * Source for class FileLogger.
- * Logging of messages.
- */
-
-#ifndef LOGGER_FILE_LOGGER_HPP
-#define LOGGER_FILE_LOGGER_HPP
+#pragma once
 
 #include <sys/stat.h>
 
@@ -51,7 +43,7 @@ namespace Logging
         /**
          * Destructor
          */
-        ~Policy() throw ();
+        ~Policy() noexcept;
       };
 
       /**
@@ -90,7 +82,7 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~TimeSpanPolicy() throw ();
+        ~TimeSpanPolicy() noexcept;
 
       public:
         Generics::Time rotation_time;
@@ -132,7 +124,7 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~SizeSpanPolicy() throw ();
+        ~SizeSpanPolicy() noexcept;
 
       public:
         unsigned long long rotation_size;
@@ -174,7 +166,7 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~AlignedTimeSpanPolicy() throw ();
+        ~AlignedTimeSpanPolicy() noexcept;
 
       private:
         Generics::ExtendedTime start_time_;
@@ -270,35 +262,35 @@ namespace Logging
          * @return log creation time
          */
         Generics::Time
-        log_create_time() const throw ();
+        log_create_time() const noexcept;
 
         /**
          * Last log time
          * @return last log time
          */
         Generics::Time
-        log_time() const throw ();
+        log_time() const noexcept;
 
         /**
          * Current state of log file
          * @return current state of log file
          */
         const struct stat&
-        file_stat() const throw ();
+        file_stat() const noexcept;
 
         /**
          * Configured time zone
          * @return time zone to use
          */
         Generics::Time::TimeZone
-        get_time_zone() const throw ();
+        get_time_zone() const noexcept;
 
       protected:
         /**
          * Destructor
          */
         virtual
-        ~Handler() throw ();
+        ~Handler() noexcept;
 
       protected:
         typedef char FileName[MAXPATHLEN];
@@ -364,7 +356,7 @@ namespace Logging
       //
 
       inline
-      Policy::~Policy() throw ()
+      Policy::~Policy() noexcept
       {
       }
 
@@ -430,7 +422,7 @@ namespace Logging
       //
 
       inline
-      Handler::~Handler() throw ()
+      Handler::~Handler() noexcept
       {
         if (outfile_)
         {
@@ -441,28 +433,28 @@ namespace Logging
 
       inline
       Generics::Time
-      Handler::log_create_time() const throw ()
+      Handler::log_create_time() const noexcept
       {
         return log_create_time_;
       }
 
       inline
       Generics::Time
-      Handler::log_time() const throw ()
+      Handler::log_time() const noexcept
       {
         return log_time_;
       }
 
       inline
       const struct stat&
-      Handler::file_stat() const throw ()
+      Handler::file_stat() const noexcept
       {
         return file_stat_;
       }
 
       inline
       Generics::Time::TimeZone
-      Handler::get_time_zone() const throw ()
+      Handler::get_time_zone() const noexcept
       {
         return TIME_ZONE_;
       }
@@ -484,5 +476,3 @@ namespace Logging
     }
   }
 }
-
-#endif

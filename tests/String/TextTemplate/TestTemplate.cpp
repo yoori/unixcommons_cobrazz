@@ -1,10 +1,3 @@
-/**
- * @file   TestTemplate.hpp
- * @author Denis Erygin <denis@peopleonpage.com>
- * Gives hard test to Generics classes TextTemplate::IStream,
- * TextTemplate::UpdateStrategy, FileCacheManager
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,8 +16,8 @@ using namespace String;
 class CallBack : public TextTemplate::ArgsCallback
 {
 public:
-  CallBack(const char* click_url, const char* ad_image) throw ();
-  ~CallBack() throw ();
+  CallBack(const char* click_url, const char* ad_image) noexcept;
+  ~CallBack() noexcept;
 
   std::string
   get_argument(const char* key) const
@@ -35,7 +28,7 @@ private:
   std::string ad_image_;
 };
 
-CallBack::CallBack(const char* click_url, const char* ad_image) throw ()
+CallBack::CallBack(const char* click_url, const char* ad_image) noexcept
   : click_url_(click_url ? click_url : ""),
     ad_image_(ad_image ? ad_image : "")
 {
@@ -43,7 +36,7 @@ CallBack::CallBack(const char* click_url, const char* ad_image) throw ()
     "  ad_image: " << ad_image << std::endl << std::endl;
 }
 
-CallBack::~CallBack() throw ()
+CallBack::~CallBack() noexcept
 {
 }
 
@@ -78,7 +71,7 @@ public:
   TestTextTemplateUpdateStrategy(const char* fname) /*throw (eh::Exception)*/;
 
   virtual
-  ~TestTextTemplateUpdateStrategy() throw ();
+  ~TestTextTemplateUpdateStrategy() noexcept;
 
   virtual String::SubString
   start_lexeme() const /*throw (eh::Exception)*/;
@@ -218,6 +211,6 @@ TestTextTemplateUpdateStrategy::end_lexeme() const /*throw (eh::Exception)*/
   return String::TextTemplate::Basic::DEFAULT_LEXEME;
 }
 
-TestTextTemplateUpdateStrategy::~TestTextTemplateUpdateStrategy() throw ()
+TestTextTemplateUpdateStrategy::~TestTextTemplateUpdateStrategy() noexcept
 {
 }

@@ -26,7 +26,7 @@ const std::string ECHO_POST_STRING =
 BasicsTestEmptyThreadPolicy::BasicsTestEmptyThreadPolicy(
   std::ostringstream& log, TestCommons::Errors& errors,
   Sync::Semaphore& work_finished, unsigned short closure_delay)
-    throw():
+    noexcept:
   CheckSimpleEmptyThread(closure_delay),
   log_(log),
   errors_(errors),
@@ -35,7 +35,7 @@ BasicsTestEmptyThreadPolicy::BasicsTestEmptyThreadPolicy(
 }
 
 int
-BasicsTestEmptyThreadPolicy::when_close_thread(Identifier thread) throw()
+BasicsTestEmptyThreadPolicy::when_close_thread(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -62,13 +62,13 @@ BasicsTestEmptyThreadPolicy::when_close_thread(Identifier thread) throw()
   return res;
 }
 
-BasicsTestEmptyThreadPolicy::~BasicsTestEmptyThreadPolicy() throw()
+BasicsTestEmptyThreadPolicy::~BasicsTestEmptyThreadPolicy() noexcept
 {
 }
 
 void
 BasicsTestEmptyThreadPolicy::check_thread_connection_added(
-  Identifier thread, Identifier connection) throw ()
+  Identifier thread, Identifier connection) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -94,7 +94,7 @@ BasicsTestEmptyThreadPolicy::check_thread_connection_added(
 }
 
 void
-BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) throw ()
+BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -123,7 +123,7 @@ BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) throw ()
 }
 
 void
-BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) throw ()
+BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -149,7 +149,7 @@ BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) throw ()
 }
 
 void
-BasicsTestEmptyThreadPolicy::check_thread_removed(Identifier thread) throw ()
+BasicsTestEmptyThreadPolicy::check_thread_removed(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -204,7 +204,7 @@ BasicsTestEmptyThreadPolicy::dynamic_states_checker_(const char* prefix,
 BasicsTestEmptyConnectionPolicy::BasicsTestEmptyConnectionPolicy(
   std::ostringstream& log, TestCommons::Errors& errors,
   Sync::Semaphore& work_finished, unsigned short closure_delay)
-    throw():
+    noexcept:
   CheckSimpleEmptyConnection(closure_delay),
   log_(log),
   errors_(errors),
@@ -213,7 +213,7 @@ BasicsTestEmptyConnectionPolicy::BasicsTestEmptyConnectionPolicy(
 }
 
 int
-BasicsTestEmptyConnectionPolicy::when_close_connection(Identifier connection) throw()
+BasicsTestEmptyConnectionPolicy::when_close_connection(Identifier connection) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -240,13 +240,13 @@ BasicsTestEmptyConnectionPolicy::when_close_connection(Identifier connection) th
   return res;
 }
 
-BasicsTestEmptyConnectionPolicy::~BasicsTestEmptyConnectionPolicy() throw()
+BasicsTestEmptyConnectionPolicy::~BasicsTestEmptyConnectionPolicy() noexcept
 {
 }
 
 void
 BasicsTestEmptyConnectionPolicy::check_connection_request_added(
-  Identifier connection, Identifier request) throw ()
+  Identifier connection, Identifier request) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -273,7 +273,7 @@ BasicsTestEmptyConnectionPolicy::check_connection_request_added(
 
 void
 BasicsTestEmptyConnectionPolicy::check_choose_connection(Identifier connection,
-  Identifier server, Identifier request) throw ()
+  Identifier server, Identifier request) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -303,7 +303,7 @@ BasicsTestEmptyConnectionPolicy::check_choose_connection(Identifier connection,
 
 void
 BasicsTestEmptyConnectionPolicy::check_server_connection_added(Identifier server,
-  Identifier connection) throw ()
+  Identifier connection) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -330,7 +330,7 @@ BasicsTestEmptyConnectionPolicy::check_server_connection_added(Identifier server
 
 void
 BasicsTestEmptyConnectionPolicy::check_server_connection_removed(Identifier server,
-  Identifier connection) throw ()
+  Identifier connection) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -391,12 +391,12 @@ BasicsTestPolicy::BasicsTestPolicy(std::ostringstream& log,
 void
 BasicsTestPolicy::report_error(Severity /*severity*/, const String::SubString& description,
   const char* /*error_code*/)
-  throw ()
+  noexcept
 {
   errors_.add(description);
 }
 
-BasicsTestPolicy::~BasicsTestPolicy() throw ()
+BasicsTestPolicy::~BasicsTestPolicy() noexcept
 {
 }
 
@@ -430,7 +430,7 @@ BasicsTest::BasicsTest(Sync::Semaphore& finish_sem,
   init_("echo.pl");
 }
 
-BasicsTest::~BasicsTest() throw ()
+BasicsTest::~BasicsTest() noexcept
 {
 }
 
@@ -446,13 +446,13 @@ BasicsTest::init_(const char* pl_script_name, size_t serv_numb)
 }
 
 const char*
-BasicsTest::name() throw()
+BasicsTest::name() noexcept
 {
   return "BasicsTest";
 }
 
 void
-BasicsTest::exec_main_() throw()
+BasicsTest::exec_main_() noexcept
 {
   try
   {
@@ -494,7 +494,7 @@ BasicsTest::exec_main_() throw()
 }
 
 void
-BasicsTest::exec_finish_() throw()
+BasicsTest::exec_finish_() noexcept
 {
   try
   {
@@ -575,7 +575,7 @@ BasicsTest::print_errors(std::ostream& out) /*throw(eh::Exception)*/
 //
 
 const char*
-BasicsTest01::scenario_descr() throw()
+BasicsTest01::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest01 scenario.\n"
          "  Params: 1 connection per server, 1 connection per thread.\n"
@@ -598,18 +598,18 @@ BasicsTest01::BasicsTest01(Sync::Semaphore& finish_sem,
   init_("echo_w_optional_delay.pl");
 }
 
-BasicsTest01::~BasicsTest01() throw ()
+BasicsTest01::~BasicsTest01() noexcept
 {
 }
 
 const char*
-BasicsTest01::name() throw()
+BasicsTest01::name() noexcept
 {
   return "BasicsTest01";
 }
 
 void
-BasicsTest01::exec_init_() throw()
+BasicsTest01::exec_init_() noexcept
 {
   typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
   typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
@@ -652,7 +652,7 @@ BasicsTest01::scenario_(HTTP::HttpActiveInterface* pool,
 //
 
 const char*
-BasicsTest02::scenario_descr() throw()
+BasicsTest02::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest02 scenario.\n"
          "  Params: 2 connections per server, 2 connections per thread.\n"
@@ -692,18 +692,18 @@ BasicsTest02::BasicsTest02(Sync::Semaphore& finish_sem,
   init_("echo_w_optional_delay.pl");
 }
 
-BasicsTest02::~BasicsTest02() throw ()
+BasicsTest02::~BasicsTest02() noexcept
 {
 }
 
 const char*
-BasicsTest02::name() throw()
+BasicsTest02::name() noexcept
 {
   return "BasicsTest02";
 }
 
 void
-BasicsTest02::exec_init_() throw()
+BasicsTest02::exec_init_() noexcept
 {
   typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
   typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
@@ -759,7 +759,7 @@ BasicsTest02::scenario_(HTTP::HttpActiveInterface* pool,
 //
 
 const char*
-BasicsTest03::scenario_descr() throw()
+BasicsTest03::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest03 scenario.\n"
          "  Params: 2 connections per server, 2 connections per thread.\n"
@@ -822,18 +822,18 @@ BasicsTest03::BasicsTest03(Sync::Semaphore& finish_sem,
   init_("echo_w_optional_delay.pl");
 }
 
-BasicsTest03::~BasicsTest03() throw ()
+BasicsTest03::~BasicsTest03() noexcept
 {
 }
 
 const char*
-BasicsTest03::name() throw()
+BasicsTest03::name() noexcept
 {
   return "BasicsTest03";
 }
 
 void
-BasicsTest03::exec_init_() throw()
+BasicsTest03::exec_init_() noexcept
 {
   typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
   typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
@@ -920,7 +920,7 @@ BasicsTest03::scenario_(HTTP::HttpActiveInterface* pool,
 //
 
 const char*
-BasicsTest04::scenario_descr() throw()
+BasicsTest04::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest04 scenario.\n"
          "  Params: 3 connections per server, 1 connections per thread.\n"
@@ -961,18 +961,18 @@ BasicsTest04::BasicsTest04(Sync::Semaphore& finish_sem,
   init_("echo_w_optional_delay.pl");
 }
 
-BasicsTest04::~BasicsTest04() throw ()
+BasicsTest04::~BasicsTest04() noexcept
 {
 }
 
 const char*
-BasicsTest04::name() throw()
+BasicsTest04::name() noexcept
 {
   return "BasicsTest04";
 }
 
 void
-BasicsTest04::exec_init_() throw()
+BasicsTest04::exec_init_() noexcept
 {
   typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
   typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
@@ -1067,7 +1067,7 @@ BasicsTest04::scenario_(HTTP::HttpActiveInterface* pool,
 //
 
 const char*
-RandomLoadingTest::scenario_descr() throw()
+RandomLoadingTest::scenario_descr() noexcept
 {
   return "This is a description of RandomLoadingTest. It is intended for\n"
          "  dynamic checking of states switchings (for both threads and connections).\n"
@@ -1092,18 +1092,18 @@ RandomLoadingTest::RandomLoadingTest(Sync::Semaphore& finish_sem,
   }
 }
 
-RandomLoadingTest::~RandomLoadingTest() throw ()
+RandomLoadingTest::~RandomLoadingTest() noexcept
 {
 }
 
 const char*
-RandomLoadingTest::name() throw()
+RandomLoadingTest::name() noexcept
 {
   return "RandomLoadingTest";
 }
 
 void
-RandomLoadingTest::execute() throw()
+RandomLoadingTest::execute() noexcept
 {
   exec_main_();
 
@@ -1136,6 +1136,6 @@ RandomLoadingTest::scenario_(HTTP::HttpActiveInterface* pool,
 }
 
 void
-RandomLoadingTest::exec_init_() throw()
+RandomLoadingTest::exec_init_() noexcept
 {
 }

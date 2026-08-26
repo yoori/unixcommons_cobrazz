@@ -1,6 +1,5 @@
 // Generics/Trace.hpp
-#ifndef GENERICS_TRACE_HPP
-#define GENERICS_TRACE_HPP
+#pragma once
 
 #ifdef BUILD_WITH_DEBUG_MESSAGES
 #include <pthread.h>
@@ -26,6 +25,4 @@ namespace
 }
 #else
 #define trace_message(x, y)
-#endif
-
 #endif

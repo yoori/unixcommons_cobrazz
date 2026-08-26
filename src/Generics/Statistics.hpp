@@ -1,10 +1,4 @@
-/**
- * @file   Statistics.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef GENERICS_STATISTICS_HPP
-#define GENERICS_STATISTICS_HPP
+#pragma once
 
 #include <iostream>
 #include <list>
@@ -30,7 +24,7 @@ namespace Generics
     {
     public:
       virtual
-      ~Subject() throw () = 0;
+      ~Subject() noexcept = 0;
     };
 
     class StatSink : public virtual ReferenceCounting::Interface
@@ -98,7 +92,7 @@ namespace Generics
       dump(StatSink* stat) /*throw (eh::Exception)*/;
 
     protected:
-      ~NullDumpPolicy() throw ();
+      ~NullDumpPolicy() noexcept;
     };
 
     class StreamDumpPolicy :
@@ -119,7 +113,7 @@ namespace Generics
 
     protected:
       virtual
-      ~StreamDumpPolicy() throw ();
+      ~StreamDumpPolicy() noexcept;
 
       mutable Sync::PosixMutex mutex_;
       std::ostream& ostream_;
@@ -141,7 +135,7 @@ namespace Generics
 
     protected:
       virtual
-      ~CountBasedDumpPolicy() throw ();
+      ~CountBasedDumpPolicy() noexcept;
 
     protected:
       unsigned long long dump_freq_;
@@ -161,7 +155,7 @@ namespace Generics
 
     protected:
       virtual
-      ~DumpRunner() throw ();
+      ~DumpRunner() noexcept;
     };
     typedef ReferenceCounting::QualPtr<DumpRunner> DumpRunner_var;
 
@@ -170,7 +164,7 @@ namespace Generics
       public virtual ReferenceCounting::AtomicImpl
     {
     public:
-      NullDumpRunner() throw ();
+      NullDumpRunner() noexcept;
 
       virtual
       void
@@ -193,7 +187,7 @@ namespace Generics
 
     protected:
       virtual
-      ~NullDumpRunner() throw ();
+      ~NullDumpRunner() noexcept;
 
     private:
       bool active_;
@@ -227,7 +221,7 @@ namespace Generics
 
     protected:
       virtual
-      ~TaskDumpRunner() throw ();
+      ~TaskDumpRunner() noexcept;
     public:
       class DumpTask : public virtual TaskImpl
       {
@@ -237,11 +231,11 @@ namespace Generics
 
         virtual
         void
-        execute() throw ();
+        execute() noexcept;
 
       protected:
         virtual
-        ~DumpTask() throw ();
+        ~DumpTask() noexcept;
 
       private:
         StatSink_var stat_;
@@ -306,7 +300,7 @@ namespace Generics
 
     protected:
       virtual
-      ~Collection() throw ();
+      ~Collection() noexcept;
 
       class Item :
         public virtual Statistics::StatSink,
@@ -342,7 +336,7 @@ namespace Generics
 
       protected:
         virtual
-        ~Item() throw ();
+        ~Item() noexcept;
 
         virtual
         StatSink*
@@ -390,13 +384,13 @@ namespace Generics
         /*throw (eh::Exception)*/;
 
       typename Policy::Mutex&
-      mutex() const throw ();
+      mutex() const noexcept;
       Data&
-      get() throw ();
+      get() noexcept;
       const Data&
-      get() const throw ();
+      get() const noexcept;
       void
-      set() throw ();
+      set() noexcept;
 
     private:
       mutable typename Policy::Mutex mutex_;
@@ -416,7 +410,7 @@ namespace Generics
         /*throw (eh::Exception)*/;
 
       virtual
-      ~TimedSubject() throw ();
+      ~TimedSubject() noexcept;
 
       const Time&
       time() const /*throw (eh::Exception)*/;
@@ -512,7 +506,7 @@ namespace Generics
         /*throw (eh::Exception)*/;
 
       virtual
-      ~TimedStatSinkTempl() throw ();
+      ~TimedStatSinkTempl() noexcept;
 
       static
       Time
@@ -545,7 +539,7 @@ namespace Generics
       MeasurableSubject(DataType value) /*throw (eh::Exception)*/;
 
       DataType
-      value() const throw ();
+      value() const noexcept;
 
     protected:
       DataType value_;
@@ -633,7 +627,7 @@ namespace Generics
       MeasurableStatSink(const Data& data) /*throw (eh::Exception)*/;
 
       virtual
-      ~MeasurableStatSink() throw ();
+      ~MeasurableStatSink() noexcept;
 
       static
       DataType
@@ -655,5 +649,3 @@ operator <<(std::ostream& ostr, Generics::Statistics::StatSink& stat)
   stat.dump(ostr);
   return ostr;
 }
-
-#endif

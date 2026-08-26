@@ -90,20 +90,20 @@ namespace HTTP::HttpInternals
     };
 
     void
-    handle_read_() throw ();
+    handle_read_() noexcept;
 
     static
     void
-    read_callback_(int fd, short type, void* arg) throw ();
+    read_callback_(int fd, short type, void* arg) noexcept;
 
     void
     signal(unsigned char data) /*throw (SyscallFailure)*/;
 
     void
-    terminate_() throw ();
+    terminate_() noexcept;
 
     void
-    remove_event_() throw ();
+    remove_event_() noexcept;
 
 
     typedef ReferenceCounting::List<Data> Queue;
@@ -168,7 +168,7 @@ namespace HTTP::HttpInternals
      * Destructor
      */
     virtual
-    ~ServerInterface() throw ();
+    ~ServerInterface() noexcept;
 
   public:
     /**
@@ -177,7 +177,7 @@ namespace HTTP::HttpInternals
      */
     virtual
     void
-    remove_by_address(const HttpServer& address) throw () = 0;
+    remove_by_address(const HttpServer& address) noexcept = 0;
 
     /**
      * Receive common pool policy
@@ -185,7 +185,7 @@ namespace HTTP::HttpInternals
      */
     virtual
     PoolPolicy_var
-    policy() throw () = 0;
+    policy() noexcept = 0;
 
     /**
      * Places connection to event pool
@@ -202,30 +202,30 @@ namespace HTTP::HttpInternals
   {
   protected:
     virtual
-    ~ConnServInterface() throw ();
+    ~ConnServInterface() noexcept;
 
   public:
     virtual
     PoolPolicy_var
-    policy() throw () = 0;
+    policy() noexcept = 0;
 
     virtual
     void
-    exclude_connection(Connection* connection) throw () = 0;
+    exclude_connection(Connection* connection) noexcept = 0;
 
     virtual
     void
     transf_failed_request(Request* req,
-      const String::SubString& error) throw () = 0;
+      const String::SubString& error) noexcept = 0;
 
     virtual
     void
     transf_unused_requests(Requests& requests, const String::SubString& error)
-      throw () = 0;
+      noexcept = 0;
 
     virtual
     void
-    add_task_on_response(Request* req) throw () = 0;
+    add_task_on_response(Request* req) noexcept = 0;
   };
 
 
@@ -233,20 +233,20 @@ namespace HTTP::HttpInternals
   {
   protected:
     virtual
-    ~ConnThreadInterface() throw ();
+    ~ConnThreadInterface() noexcept;
 
   public:
     virtual
     PoolPolicy_var
-    policy() throw () = 0;
+    policy() noexcept = 0;
 
     virtual
     void
-    exclude_connection(Connection* connection) throw () = 0;
+    exclude_connection(Connection* connection) noexcept = 0;
 
     virtual
     event_base*
-    get_base() throw () = 0;
+    get_base() noexcept = 0;
   };
 
 
@@ -257,16 +257,16 @@ namespace HTTP::HttpInternals
     virtual
     void
     process_requests(Requests& src, const String::SubString& error)
-      throw () = 0;
+      noexcept = 0;
 
     virtual
     void
     process_request(Request* req, const String::SubString& error)
-      throw () = 0;
+      noexcept = 0;
 
   protected:
     virtual
-    ~RequestsTransfererInterface() throw ();
+    ~RequestsTransfererInterface() noexcept;
   };
 
 
@@ -288,59 +288,59 @@ namespace HTTP::HttpInternals
       /*throw (eh::Exception, Exception)*/;
 
     void
-    set_response(evhttp_request* request) throw ();
+    set_response(evhttp_request* request) noexcept;
 
     void
     set_error(const String::SubString& description) /*throw (eh::Exception)*/;
 
     evhttp_cmd_type
-    evhttp_method() const throw ();
+    evhttp_method() const noexcept;
 
     String::SubString
-    req_body() throw ();
+    req_body() noexcept;
 
     const HttpServer&
-    address() const throw ();
+    address() const noexcept;
 
     void
-    quick_on_response() throw ();
+    quick_on_response() noexcept;
 
     void
-    quick_on_error(const String::SubString& description) throw ();
+    quick_on_error(const String::SubString& description) noexcept;
 
 
   public:
     virtual
     const char*
-    http_request() const throw ();
+    http_request() const noexcept;
 
     virtual
     const HeaderList&
-    headers() const throw ();
+    headers() const noexcept;
 
 
   protected:
     virtual
     int
-    response_code() const throw ();
+    response_code() const noexcept;
 
     virtual
     const HeaderList&
-    response_headers() const throw ();
+    response_headers() const noexcept;
 
     virtual
     String::SubString
-    body() const throw ();
+    body() const noexcept;
 
     virtual
     HttpMethod
-    method() const throw ();
+    method() const noexcept;
 
 
   public:
     virtual
     void
-    execute() throw ();
+    execute() noexcept;
 
 
   protected:
@@ -348,7 +348,7 @@ namespace HTTP::HttpInternals
      * Destructor
      */
     virtual
-    ~Request() throw ();
+    ~Request() noexcept;
 
 
   private:
@@ -384,46 +384,46 @@ namespace HTTP::HttpInternals
       /*throw (eh::Exception, Exception)*/;
 
     bool
-    deactivate() throw ();
+    deactivate() noexcept;
 
     void
     register_connection(ConnThreadInterface* thread_interf)
       /*throw (eh::Exception, Exception)*/;
 
     void
-    process_close() throw ();
+    process_close() noexcept;
 
     void
-    check_try_close() throw ();
+    check_try_close() noexcept;
 
   protected:
     virtual
-    ~Connection() throw ();
+    ~Connection() noexcept;
 
   private:
     void
-    process_request_(Request_var& request) throw ();
+    process_request_(Request_var& request) noexcept;
 
     static
     void
-    close_callback_(int fd, short type, void* arg) throw ();
+    close_callback_(int fd, short type, void* arg) noexcept;
 
     void
-    process_response_(evhttp_request* req) throw ();
-
-    static
-    void
-    response_callback_(evhttp_request* req, void* arg) throw ();
-
-    void
-    process_partial_close_() throw ();
+    process_response_(evhttp_request* req) noexcept;
 
     static
     void
-    try_close_callback_(int, short, void* arg) throw ();
+    response_callback_(evhttp_request* req, void* arg) noexcept;
 
     void
-    try_close_() throw ();
+    process_partial_close_() noexcept;
+
+    static
+    void
+    try_close_callback_(int, short, void* arg) noexcept;
+
+    void
+    try_close_() noexcept;
 
 
     ConnThreadInterface_var thread_interf_;
@@ -457,59 +457,59 @@ namespace HTTP::HttpInternals
     add_request(Request* request) /*throw (eh::Exception)*/;
 
     void
-    deactivate() throw ();
+    deactivate() noexcept;
 
   protected:
     virtual
-    ~Server() throw ();
+    ~Server() noexcept;
 
     virtual
     PoolPolicy_var
-    policy() throw ();
+    policy() noexcept;
 
     virtual
     void
-    exclude_connection(Connection* connection) throw ();
+    exclude_connection(Connection* connection) noexcept;
 
     virtual
     void
     transf_unused_requests(Requests& src, const String::SubString& error)
-      throw ();
+      noexcept;
 
     virtual
     void
     transf_failed_request(Request* req, const String::SubString& error)
-      throw ();
+      noexcept;
 
     virtual
     void
-    add_task_on_response(Request* req) throw ();
+    add_task_on_response(Request* req) noexcept;
 
   protected:
     virtual
     void
     process_requests(Requests& src, const String::SubString& error)
-      throw ();
+      noexcept;
 
     virtual
     void
     process_request(Request* req, const String::SubString& error)
-      throw ();
+      noexcept;
 
   private:
     void
-    deactivate_connection_(Connection* conn) throw ();
+    deactivate_connection_(Connection* conn) noexcept;
 
     void
     add_task_(Generics::Task* task) /*throw (eh::Exception)*/;
 
     void
     add_task_on_error_(Request* req, const String::SubString& error)
-      throw ();
+      noexcept;
 
     void
     transf_requests_(const String::SubString& error, Request* request,
-      Requests& src) throw ();
+      Requests& src) noexcept;
 
   private:
     Sync::PosixMutex mutex_;
@@ -543,55 +543,55 @@ namespace HTTP::HttpInternals
     add_connection(Connection* connection) /*throw (eh::Exception)*/;
 
     void
-    deactivate() throw ();
+    deactivate() noexcept;
 
     virtual
     void
-    execute() throw ();
+    execute() noexcept;
 
     void
-    check_try_close() throw ();
+    check_try_close() noexcept;
 
 
   protected:
     virtual
-    ~EventThread() throw ();
+    ~EventThread() noexcept;
 
 
   protected:
     virtual
     PoolPolicy_var
-    policy() throw ();
+    policy() noexcept;
 
     virtual
     void
-    exclude_connection(Connection* connection) throw ();
+    exclude_connection(Connection* connection) noexcept;
 
     virtual
     event_base*
-    get_base() throw ();
+    get_base() noexcept;
 
 
   private:
     void
-    thread_proc_() throw ();
+    thread_proc_() noexcept;
 
     static
     void*
-    thread_proc_(void* arg) throw ();
+    thread_proc_(void* arg) noexcept;
 
     void
-    process_connection_(Connection_var& connection) throw ();
+    process_connection_(Connection_var& connection) noexcept;
 
     void
-    process_quit_() throw ();
+    process_quit_() noexcept;
 
     static
     void
-    try_close_callback_(int, short, void* arg) throw ();
+    try_close_callback_(int, short, void* arg) noexcept;
 
     void
-    try_close_() throw ();
+    try_close_() noexcept;
 
 
     PoolPolicy_var policy_;
@@ -613,15 +613,15 @@ namespace HTTP::HttpInternals
   public:
     virtual
     bool
-    exclude_thread_from_choice_list(EventThread* thread) throw () = 0;
+    exclude_thread_from_choice_list(EventThread* thread) noexcept = 0;
 
     virtual
     bool
-    exclude_thread_from_pool(EventThread* thread) throw () = 0;
+    exclude_thread_from_pool(EventThread* thread) noexcept = 0;
 
   protected:
     virtual
-    ~ThrPoolThrInterface() throw ();
+    ~ThrPoolThrInterface() noexcept;
   };
 
 
@@ -655,15 +655,15 @@ namespace HTTP::HttpInternals
 
   protected:
     virtual
-    ~EventThreadPool() throw ();
+    ~EventThreadPool() noexcept;
 
     virtual
     bool
-    exclude_thread_from_choice_list(EventThread* thread) throw ();
+    exclude_thread_from_choice_list(EventThread* thread) noexcept;
 
     virtual
     bool
-    exclude_thread_from_pool(EventThread* thread) throw ();
+    exclude_thread_from_pool(EventThread* thread) noexcept;
 
   private:
     typedef ReferenceCounting::List<EventThread_var> Threads;
@@ -681,11 +681,11 @@ namespace HTTP::HttpInternals
   {
   public:
     Informer(ServerInterface* server_interface,
-      Sync::Semaphore& semaphore) throw ();
+      Sync::Semaphore& semaphore) noexcept;
 
   protected:
     virtual
-    ~Informer() throw ();
+    ~Informer() noexcept;
 
   private:
     ServerInterface_var server_interface_;
@@ -705,11 +705,11 @@ namespace HTTP::HttpInternals
 
     virtual
     void
-    execute() throw ();
+    execute() noexcept;
 
   protected:
     virtual
-    ~RequestsTransferer() throw ();
+    ~RequestsTransferer() noexcept;
 
   private:
     RequestsTransfererInterface_var requests_transferer_interface_;
@@ -802,7 +802,7 @@ namespace HTTP::HttpInternals
      * Destructor
      */
     virtual
-    ~HttpAsyncPool() throw ();
+    ~HttpAsyncPool() noexcept;
 
     /**
      * Remove Server from Servers
@@ -810,7 +810,7 @@ namespace HTTP::HttpInternals
      */
     virtual
     void
-    remove_by_address(const HttpServer& address) throw ();
+    remove_by_address(const HttpServer& address) noexcept;
 
     /**
      * Receive common pool policy
@@ -818,7 +818,7 @@ namespace HTTP::HttpInternals
      */
     virtual
     PoolPolicy_var
-    policy() throw ();
+    policy() noexcept;
 
     /**
      * Places connection to event pool

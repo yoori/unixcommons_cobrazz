@@ -1,5 +1,4 @@
-#ifndef LOGGER_DISTRIBUTOR_LOGGER_HPP
-#define LOGGER_DISTRIBUTOR_LOGGER_HPP
+#pragma once
 
 #include <ReferenceCounting/Deque.hpp>
 
@@ -22,14 +21,14 @@ namespace Logging
      * @param high the high border of severity interval
      */
     SeveritySelectorLogger(Logger* logger,
-      unsigned long low, unsigned long high = ULONG_MAX) throw ();
+      unsigned long low, unsigned long high = ULONG_MAX) noexcept;
 
     /**
      * Constructor
      * @param logger logger to use for messages publishing
      * @param high the high border of severity interval
      */
-    SeveritySelectorLogger(unsigned long high, Logger* logger) throw ();
+    SeveritySelectorLogger(unsigned long high, Logger* logger) noexcept;
 
     /*
      * Returns minimum of high severity bound and stored logger log level
@@ -37,7 +36,7 @@ namespace Logging
      */
     virtual
     unsigned long
-    log_level() throw ();
+    log_level() noexcept;
 
     /**
      * Passes log data to the contained logger if severity matches
@@ -51,14 +50,14 @@ namespace Logging
     virtual
     bool
     log(const String::SubString& text, unsigned long severity = INFO,
-      const char* aspect = 0, const char* code = 0) throw ();
+      const char* aspect = 0, const char* code = 0) noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~SeveritySelectorLogger() throw ();
+    ~SeveritySelectorLogger() noexcept;
 
   private:
     unsigned long low_;
@@ -88,7 +87,7 @@ namespace Logging
      */
     virtual
     unsigned long
-    log_level() throw ();
+    log_level() noexcept;
 
     /*
      * Sets new trace level to the stored loggers
@@ -96,7 +95,7 @@ namespace Logging
      */
     virtual
     void
-    log_level(unsigned long value) throw ();
+    log_level(unsigned long value) noexcept;
 
     /**
      * Passes log data to all of the stored loggers
@@ -109,14 +108,14 @@ namespace Logging
     virtual
     bool
     log(const String::SubString& text, unsigned long severity = INFO,
-      const char* aspect = 0, const char* code = 0) throw ();
+      const char* aspect = 0, const char* code = 0) noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~DistributorLogger() throw ();
+    ~DistributorLogger() noexcept;
 
   private:
     typedef ReferenceCounting::Deque<QLogger_var> Loggers;
@@ -142,6 +141,3 @@ namespace Logging
     }
   }
 }
-
-
-#endif

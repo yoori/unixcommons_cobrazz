@@ -1,4 +1,3 @@
-// @file PosixMutex/TestPosixMutex.cpp
 #include <iostream>
 #include <memory>
 
@@ -25,7 +24,7 @@ public:
    * SUCCESS if isn't race condition in results.
    */
   void
-  do_lock_test() throw ();
+  do_lock_test() noexcept;
 
 private:
   typedef typename TestingPolicy::Mutex TestingMutex;
@@ -40,7 +39,7 @@ private:
      */
     ThreadContext(MutexTester *this_ptr_val,
       SmartMutex& mutex_selector,
-      SmartMutex& mutex_relese) throw();
+      SmartMutex& mutex_relese) noexcept;
     /// Access to sharable data from enclosing class MutexTester
     MutexTester* this_ptr;
     /// ID of the created thread
@@ -57,7 +56,7 @@ private:
    * Cycle with pairs of random numbers
    */
   void
-  do_lock_test_() throw ();
+  do_lock_test_() noexcept;
 
   /**
    * Select numbers by ordering thread actions
@@ -65,13 +64,13 @@ private:
    * If second = false function must return alpha value.
    */
   std::size_t
-  select_(std::size_t alpha, std::size_t beta, bool second) throw ();
+  select_(std::size_t alpha, std::size_t beta, bool second) noexcept;
 
   /**
    * Working code of concurrency threads
    */
   void
-  rival_(const ThreadContext& context) throw ();
+  rival_(const ThreadContext& context) noexcept;
 
   class Active
   {
@@ -79,25 +78,25 @@ private:
     /**
      * Save context in object
      */
-    Active(ThreadContext& context) throw ();
+    Active(ThreadContext& context) noexcept;
 
     virtual void
-    activate() throw () = 0;
+    activate() noexcept = 0;
 
     virtual void
-    join() throw () = 0;
+    join() noexcept = 0;
 
     /**
      * Save number that Actor will push to shared memory
      */
     void
-    set_number(std::size_t number) throw ();
+    set_number(std::size_t number) noexcept;
 
     /**
      * virtual empty destructor
      */
     virtual
-    ~Active() throw ();
+    ~Active() noexcept;
   protected:
     ThreadContext& context_;
   };
@@ -112,25 +111,25 @@ private:
     /**
      * Save context in object
      */
-    Thread(ThreadContext& context) throw ();
+    Thread(ThreadContext& context) noexcept;
 
     /**
      * Start thread with stored context
      */
     virtual void
-    activate() throw ();
+    activate() noexcept;
 
     /**
      * do join to created thread
      */
     virtual void
-    join() throw ();
+    join() noexcept;
 
     /**
      * do join to created thread
      */
     virtual
-    ~Thread() throw ();
+    ~Thread() noexcept;
   protected:
     bool active_state_;
   };
@@ -140,19 +139,19 @@ private:
     /**
      * Save context in object
      */
-    Process(ThreadContext& context) throw ();
+    Process(ThreadContext& context) noexcept;
 
     /**
      * Start process with stored context
      */
     virtual void
-    activate() throw ();
+    activate() noexcept;
 
     /**
      * do join to created process
      */
     virtual void
-    join() throw ();
+    join() noexcept;
 
   private:
     pid_t cpid_;
@@ -163,7 +162,7 @@ private:
    * Mediator to C++ from C-functions
    */
   static void*
-  rival_(void* arg) throw ();
+  rival_(void* arg) noexcept;
 
   SmartMutex mutex1_;
   SmartMutex mutex2_;
@@ -210,7 +209,7 @@ main()
 // Test body below
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::do_lock_test() throw ()
+MutexTester<TestingPolicy>::do_lock_test() noexcept
 {
   shared_value_.reset(new std::size_t);
   //case 1
@@ -252,7 +251,7 @@ MutexTester<TestingPolicy>::do_lock_test() throw ()
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::do_lock_test_() throw ()
+MutexTester<TestingPolicy>::do_lock_test_() noexcept
 {
   for (std::size_t i = 0; i < 100; ++i)
   {
@@ -282,7 +281,7 @@ template <typename TestingPolicy>
 std::size_t
 MutexTester<TestingPolicy>::select_(std::size_t alpha,
   std::size_t beta, bool second)
-  throw ()
+  noexcept
 {
   mutex1_->lock();
   mutex2_->lock();
@@ -310,7 +309,7 @@ MutexTester<TestingPolicy>::select_(std::size_t alpha,
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::rival_(const ThreadContext& context) throw ()
+MutexTester<TestingPolicy>::rival_(const ThreadContext& context) noexcept
 {
   {
     typename TestingPolicy::WriteGuard lock(*context.mutex);
@@ -321,7 +320,7 @@ MutexTester<TestingPolicy>::rival_(const ThreadContext& context) throw ()
 
 template <typename TestingPolicy>
 void*
-MutexTester<TestingPolicy>::rival_(void* arg) throw ()
+MutexTester<TestingPolicy>::rival_(void* arg) noexcept
 {
   try
   {
@@ -343,7 +342,7 @@ MutexTester<TestingPolicy>::ThreadContext::ThreadContext(
   MutexTester *this_ptr_val,
   SmartMutex& mutex_selector,
   SmartMutex& mutex_relese)
-  throw ()
+  noexcept
   : this_ptr(this_ptr_val),
     mutex(mutex_selector),
     mutex_to_release(mutex_relese),
@@ -355,20 +354,20 @@ MutexTester<TestingPolicy>::ThreadContext::ThreadContext(
 // MutexTester<TestingPolicy>::Active class
 //
 template <typename TestingPolicy>
-MutexTester<TestingPolicy>::Active::Active(ThreadContext& context) throw ()
+MutexTester<TestingPolicy>::Active::Active(ThreadContext& context) noexcept
   : context_(context)
 {
 }
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::Active::set_number(std::size_t number) throw ()
+MutexTester<TestingPolicy>::Active::set_number(std::size_t number) noexcept
 {
   context_.result_value = number;
 }
 
 template <typename TestingPolicy>
-MutexTester<TestingPolicy>::Active::~Active() throw ()
+MutexTester<TestingPolicy>::Active::~Active() noexcept
 {
 }
 
@@ -377,7 +376,7 @@ MutexTester<TestingPolicy>::Active::~Active() throw ()
 //
 
 template <typename TestingPolicy>
-MutexTester<TestingPolicy>::Thread::Thread(ThreadContext& context) throw ()
+MutexTester<TestingPolicy>::Thread::Thread(ThreadContext& context) noexcept
   : Active(context),
     active_state_(false)
 {
@@ -385,7 +384,7 @@ MutexTester<TestingPolicy>::Thread::Thread(ThreadContext& context) throw ()
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::Thread::activate() throw ()
+MutexTester<TestingPolicy>::Thread::activate() noexcept
 {
   ThreadContext& ref = MutexTester<TestingPolicy>::Active::context_;
   if (pthread_create(&ref.thread,
@@ -399,14 +398,14 @@ MutexTester<TestingPolicy>::Thread::activate() throw ()
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::Thread::join() throw ()
+MutexTester<TestingPolicy>::Thread::join() noexcept
 {
   pthread_join(MutexTester<TestingPolicy>::Active::context_.thread, 0);
   active_state_ = false;
 }
 
 template <typename TestingPolicy>
-MutexTester<TestingPolicy>::Thread::~Thread() throw ()
+MutexTester<TestingPolicy>::Thread::~Thread() noexcept
 {
   if (active_state_)
   {
@@ -420,14 +419,14 @@ MutexTester<TestingPolicy>::Thread::~Thread() throw ()
 
 template <typename TestingPolicy>
 MutexTester<TestingPolicy>::Process::Process(ThreadContext& context)
-  throw ()
+  noexcept
   : Active(context)
 {
 }
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::Process::activate() throw ()
+MutexTester<TestingPolicy>::Process::activate() noexcept
 {
   cpid_ = fork();
   if (cpid_ == -1)
@@ -445,7 +444,7 @@ MutexTester<TestingPolicy>::Process::activate() throw ()
 
 template <typename TestingPolicy>
 void
-MutexTester<TestingPolicy>::Process::join() throw ()
+MutexTester<TestingPolicy>::Process::join() noexcept
 {
   // wait for child termination
   int status;

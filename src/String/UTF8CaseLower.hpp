@@ -1,6 +1,4 @@
-// @file String/UTF8CaseLower.hpp
-#ifndef STRING_UTF8_CASE_LOWER_HPP
-#define STRING_UTF8_CASE_LOWER_HPP
+#pragma once
 
 #include <String/UTF8Case.hpp>
 #include <String/UTF8Tables.hpp>
@@ -9,7 +7,7 @@
 
 bool
 String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
-  throw ()
+  noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -314,5 +312,3 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
   }
   return true;
 }
-
-#endif

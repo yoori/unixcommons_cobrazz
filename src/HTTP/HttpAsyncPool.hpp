@@ -1,5 +1,4 @@
-#ifndef HTTP_HTTPASYNCPOOL_HPP
-#define HTTP_HTTPASYNCPOOL_HPP
+#pragma once
 
 #include <HTTP/HttpAsync.hpp>
 
@@ -25,7 +24,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~PoolPolicyCommon() throw ();
+    ~PoolPolicyCommon() noexcept;
 
 
     Sync::PosixMutex mutex_;
@@ -44,7 +43,7 @@ namespace HTTP
      */
     virtual
     void
-    server_added(Identifier server) throw () = 0;
+    server_added(Identifier server) noexcept = 0;
 
     /**
      * Called when a new server is deleted in HttpAsyncPool
@@ -52,7 +51,7 @@ namespace HTTP
      */
     virtual
     void
-    server_removed(Identifier server) throw () = 0;
+    server_removed(Identifier server) noexcept = 0;
 
     /**
      * Called when a new connection for a server is created in HttpAsyncPool
@@ -62,7 +61,7 @@ namespace HTTP
     virtual
     void
     server_connection_added(Identifier server, Identifier connection)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when a new connection for a server is deleted in HttpAsyncPool
@@ -72,7 +71,7 @@ namespace HTTP
     virtual
     void
     server_connection_removed(Identifier server, Identifier connection)
-      throw () = 0;
+      noexcept = 0;
 
 
     /**
@@ -81,7 +80,7 @@ namespace HTTP
      */
     virtual
     void
-    thread_added(Identifier thread) throw () = 0;
+    thread_added(Identifier thread) noexcept = 0;
 
     /**
      * Called when a new thread is deleted in HttpAsyncPool
@@ -89,7 +88,7 @@ namespace HTTP
      */
     virtual
     void
-    thread_removed(Identifier thread) throw () = 0;
+    thread_removed(Identifier thread) noexcept = 0;
 
     /**
      * Called when a connection is attached for a thread in HttpAsyncPool
@@ -99,7 +98,7 @@ namespace HTTP
     virtual
     void
     thread_connection_added(Identifier thread, Identifier connection)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when a connection is detached from a thread in HttpAsyncPool
@@ -109,7 +108,7 @@ namespace HTTP
     virtual
     void
     thread_connection_removed(Identifier thread, Identifier connection)
-      throw () = 0;
+      noexcept = 0;
 
 
     /**
@@ -121,7 +120,7 @@ namespace HTTP
     virtual
     void
     connection_request_added(Identifier server, Identifier connection,
-      Identifier request) throw () = 0;
+      Identifier request) noexcept = 0;
 
     /**
      * Called when a new request is removed from a connection in HttpAsyncPool
@@ -131,7 +130,7 @@ namespace HTTP
     virtual
     void
     connection_request_removed(Identifier connection, Identifier request)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when a new request is added to a server in HttpAsyncPool
@@ -141,7 +140,7 @@ namespace HTTP
     virtual
     void
     server_request_added(Identifier server, Identifier request)
-      throw () = 0;
+      noexcept = 0;
 
     /**
      * Called when a new request is removed from a server in HttpAsyncPool
@@ -151,7 +150,7 @@ namespace HTTP
     virtual
     void
     server_request_removed(Identifier server, Identifier request)
-      throw () = 0;
+      noexcept = 0;
 
 
   protected:
@@ -159,7 +158,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~PoolPolicyStatistics() throw ();
+    ~PoolPolicyStatistics() noexcept;
   };
 
   /**
@@ -183,7 +182,7 @@ namespace HTTP
      */
     virtual
     Identifier
-    choose_thread() throw () = 0;
+    choose_thread() noexcept = 0;
 
     /**
      * Determines which connection to choose for a request in the server
@@ -194,7 +193,7 @@ namespace HTTP
      */
     virtual
     Identifier
-    choose_connection(Identifier server, Identifier request) throw () = 0;
+    choose_connection(Identifier server, Identifier request) noexcept = 0;
 
     /**
      * Determines the future of the failed request - resending or
@@ -205,7 +204,7 @@ namespace HTTP
      */
     virtual
     RequestPolicy
-    request_failed(Identifier server, Identifier request) throw () = 0;
+    request_failed(Identifier server, Identifier request) noexcept = 0;
 
     /**
      * Determines the future of the failed requests - resending or
@@ -216,7 +215,7 @@ namespace HTTP
      */
     virtual
     RequestPolicy
-    requests_failed(Identifier server) throw () = 0;
+    requests_failed(Identifier server) noexcept = 0;
 
 
   protected:
@@ -224,7 +223,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~PoolPolicyDecider() throw ();
+    ~PoolPolicyDecider() noexcept;
   };
 
   /**
@@ -243,14 +242,14 @@ namespace HTTP
      */
     virtual
     int
-    when_close_connection(Identifier connection) throw () = 0;
+    when_close_connection(Identifier connection) noexcept = 0;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~PoolPolicyEmptyConnection() throw ();
+    ~PoolPolicyEmptyConnection() noexcept;
   };
 
   /**
@@ -269,14 +268,14 @@ namespace HTTP
      */
     virtual
     int
-    when_close_thread(Identifier thread) throw () = 0;
+    when_close_thread(Identifier thread) noexcept = 0;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~PoolPolicyEmptyThread() throw ();
+    ~PoolPolicyEmptyThread() noexcept;
   };
 
   /**
@@ -300,14 +299,14 @@ namespace HTTP
      */
     virtual
     void
-    request_destroying() throw () = 0;
+    request_destroying() noexcept = 0;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~PoolPolicyRequests() throw ();
+    ~PoolPolicyRequests() noexcept;
   };
 
   /**
@@ -325,14 +324,14 @@ namespace HTTP
      */
     virtual
     int
-    expiration_timeout(Identifier connection) throw () = 0;
+    expiration_timeout(Identifier connection) noexcept = 0;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~PoolPolicyTimeout() throw ();
+    ~PoolPolicyTimeout() noexcept;
   };
 
   /**
@@ -351,7 +350,7 @@ namespace HTTP
      * Destructor
      */
     virtual
-    ~PoolPolicy() throw ();
+    ~PoolPolicy() noexcept;
   };
   typedef ReferenceCounting::QualPtr<PoolPolicy> PoolPolicy_var;
 
@@ -366,5 +365,3 @@ namespace HTTP
   CreatePool(PoolPolicy* policy, Generics::TaskRunner* task_runner)
     /*throw (eh::Exception)*/;
 }
-
-#endif

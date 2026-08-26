@@ -1,6 +1,4 @@
 #if 0
-// @file UnicodeNormalizer/Application.cpp
-// @author Denis Badikov
 
 #include <stdint.h>
 #include <iostream>
@@ -311,7 +309,7 @@ namespace
   };
 
   inline bool
-  get_NZ_canonical_class(wchar_t wch) throw ()
+  get_NZ_canonical_class(wchar_t wch) noexcept
   {
     if (wch < 0x30C0)
     {
@@ -656,7 +654,7 @@ do_canonical_perf_test() /*throw (eh::Exception)*/
 }
 
 unsigned short
-hash(wchar_t starter, wchar_t combiner) throw ()
+hash(wchar_t starter, wchar_t combiner) noexcept
 {
   // 0..5, 16..20, 22..24
   // combiner 31..16, starter 15..0

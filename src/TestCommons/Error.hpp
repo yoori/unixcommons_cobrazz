@@ -1,5 +1,4 @@
-#ifndef CHECKCOMMONS_ERROR
-#define CHECKCOMMONS_ERROR
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -14,16 +13,16 @@ namespace TestCommons
   {
   public:
     void
-    add(const String::SubString& error, bool write = false) throw ();
+    add(const String::SubString& error, bool write = false) noexcept;
 
     void
-    print() const throw ();
+    print() const noexcept;
 
     void
-    print(std::ostream& ostr) const throw ();
+    print(std::ostream& ostr) const noexcept;
 
     bool
-    empty() const throw ();
+    empty() const noexcept;
 
   private:
     typedef std::map<std::string, int> AllErrors;
@@ -41,12 +40,10 @@ namespace TestCommons
 {
   inline
   bool
-  Errors::empty() const throw ()
+  Errors::empty() const noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
     return errors_.empty();
   }
 }
-
-#endif

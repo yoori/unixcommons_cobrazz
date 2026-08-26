@@ -1,6 +1,5 @@
 // ApachePorts.hpp
-#ifndef _APACHE_PORTS_HPP_INCLUDED_
-#define _APACHE_PORTS_HPP_INCLUDED_
+#pragma once
 
 #include <string>
 #include <cstdio>
@@ -50,5 +49,3 @@ private:
 //
 // Inlines
 //
-
-#endif // _APACHE_PORTS_HPP_INCLUDED_

@@ -8,20 +8,20 @@ namespace HTTP
   // ResponseCallback class
   //
 
-  ResponseCallback::~ResponseCallback() throw ()
+  ResponseCallback::~ResponseCallback() noexcept
   {
   }
 
   void
   ResponseCallback::quick_on_response(const ResponseInformation& data)
-    throw ()
+    noexcept
   {
     on_response(data);
   }
 
   void
   ResponseCallback::quick_on_error(const String::SubString& description,
-    const RequestInformation& data) throw ()
+    const RequestInformation& data) noexcept
   {
     on_error(description, data);
   }
@@ -31,7 +31,7 @@ namespace HTTP
   // RequestInformation class
   //
 
-  RequestInformation::~RequestInformation() throw ()
+  RequestInformation::~RequestInformation() noexcept
   {
   }
 
@@ -62,7 +62,7 @@ namespace HTTP
   // HttpInterface class
   //
 
-  HttpInterface::~HttpInterface() throw ()
+  HttpInterface::~HttpInterface() noexcept
   {
   }
 
@@ -71,13 +71,13 @@ namespace HTTP
   // HttpActiveInterface class
   //
 
-  HttpActiveInterface::~HttpActiveInterface() throw ()
+  HttpActiveInterface::~HttpActiveInterface() noexcept
   {
   }
 
 
   const char*
-  method_name(HttpMethod method) throw ()
+  method_name(HttpMethod method) noexcept
   {
     switch (method)
     {
@@ -122,7 +122,7 @@ namespace HTTP
 
     protected:
       virtual
-      ~HttpConnectionWrapper() throw ();
+      ~HttpConnectionWrapper() noexcept;
 
     private:
       void
@@ -142,36 +142,36 @@ namespace HTTP
     {
     public:
       Response(HttpMethod method, const char* request,
-        const HeaderList& headers) throw ();
+        const HeaderList& headers) noexcept;
 
       void
       response(int response_code, const HeaderList& response_headers,
         const String::SubString& response_body, ResponseCallback* callback)
-        throw ();
+        noexcept;
 
       virtual
       HttpMethod
-      method() const throw ();
+      method() const noexcept;
 
       virtual
       const char*
-      http_request() const throw ();
+      http_request() const noexcept;
 
       virtual
       const HeaderList&
-      headers() const throw ();
+      headers() const noexcept;
 
       virtual
       int
-      response_code() const throw ();
+      response_code() const noexcept;
 
       virtual
       const HeaderList&
-      response_headers() const throw ();
+      response_headers() const noexcept;
 
       virtual
       String::SubString
-      body() const throw ();
+      body() const noexcept;
 
     private:
       HttpMethod method_;
@@ -189,7 +189,7 @@ namespace HTTP
     //
 
     Response::Response(HttpMethod method, const char* request,
-      const HeaderList& headers) throw ()
+      const HeaderList& headers) noexcept
       : method_(method), request_(request), headers_(headers),
         response_code_(0), response_body_(0)
     {
@@ -198,7 +198,7 @@ namespace HTTP
     void
     Response::response(int response_code, const HeaderList& response_headers,
       const String::SubString& response_body, ResponseCallback* callback)
-      throw ()
+      noexcept
     {
       if (callback)
       {
@@ -210,37 +210,37 @@ namespace HTTP
     }
 
     HttpMethod
-    Response::method() const throw ()
+    Response::method() const noexcept
     {
       return method_;
     }
 
     const char*
-    Response::http_request() const throw ()
+    Response::http_request() const noexcept
     {
       return request_;
     }
 
     const HeaderList&
-    Response::headers() const throw ()
+    Response::headers() const noexcept
     {
       return headers_;
     }
 
     int
-    Response::response_code() const throw ()
+    Response::response_code() const noexcept
     {
       return response_code_;
     }
 
     const HeaderList&
-    Response::response_headers() const throw ()
+    Response::response_headers() const noexcept
     {
       return *response_headers_;
     }
 
     String::SubString
-    Response::body() const throw ()
+    Response::body() const noexcept
     {
       return *response_body_;
     }
@@ -262,7 +262,7 @@ namespace HTTP
     {
     }
 
-    HttpConnectionWrapper::~HttpConnectionWrapper() throw ()
+    HttpConnectionWrapper::~HttpConnectionWrapper() noexcept
     {
     }
 

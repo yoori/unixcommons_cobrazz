@@ -1,5 +1,4 @@
-#ifndef SYNC_SEMAPHORE_HPP
-#define SYNC_SEMAPHORE_HPP
+#pragma once
 
 #include <semaphore.h>
 
@@ -19,7 +18,7 @@ namespace Sync
 
     explicit
     Semaphore(int count) /*throw (Exception)*/;
-    ~Semaphore() throw ();
+    ~Semaphore() noexcept;
 
     void
     acquire() /*throw (Exception)*/;
@@ -59,7 +58,7 @@ namespace Sync
   }
 
   inline
-  Semaphore::~Semaphore() throw ()
+  Semaphore::~Semaphore() noexcept
   {
     sem_destroy(&semaphore_);
   }
@@ -158,7 +157,7 @@ namespace Sync
   {}
 
   inline
-  Semaphore::~Semaphore() throw()
+  Semaphore::~Semaphore() noexcept
   {}
 
   inline
@@ -239,5 +238,3 @@ namespace Sync
     return count_;
   }
 }
-
-#endif

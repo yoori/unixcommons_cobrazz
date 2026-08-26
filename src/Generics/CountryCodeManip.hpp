@@ -1,5 +1,4 @@
-#ifndef GENERICS_COUNTRYCODEMANIP_HPP
-#define GENERICS_COUNTRYCODEMANIP_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -28,7 +27,7 @@ namespace Generics
      * return false if don't comply or str is nul.
      */
     bool
-    is_country_code(const String::SubString& code) const throw ();
+    is_country_code(const String::SubString& code) const noexcept;
 
   private:
     /**
@@ -39,12 +38,10 @@ namespace Generics
      */
     static
     uint32_t
-    get_country_code_(const String::SubString& str) throw ();
+    get_country_code_(const String::SubString& str) noexcept;
 
     typedef Generics::GnuHashSet<NumericHashAdapter<uint32_t> >
       CountryMap_;
     CountryMap_ country_map_;
   };
 }
-
-#endif

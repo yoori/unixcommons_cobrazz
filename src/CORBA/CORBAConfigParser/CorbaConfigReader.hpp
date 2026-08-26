@@ -1,5 +1,4 @@
-#ifndef COMMONS_CORBACONFIGREADER_HPP
-#define COMMONS_CORBACONFIGREADER_HPP
+#pragma once
 
 #include <CORBACommons/CorbaAdapters.hpp>
 
@@ -52,5 +51,3 @@ namespace CORBAConfigParser
       /*throw (eh::Exception, Exception)*/;
   };
 }
-
-#endif

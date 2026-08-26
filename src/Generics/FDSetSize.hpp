@@ -1,5 +1,4 @@
-#ifndef GENERICS_FDSETSIZE
-#define GENERICS_FDSETSIZE
+#pragma once
 
 #include <sys/select.h>
 
@@ -9,13 +8,13 @@ namespace Generics
   union FDSet
   {
   public:
-    FDSet() throw ();
+    FDSet() noexcept;
 
     fd_set*
-    operator &() throw ();
+    operator &() noexcept;
 
     const fd_set*
-    operator &() const throw ();
+    operator &() const noexcept;
 
   private:
     unsigned data_[16384 / (8 * sizeof(unsigned))];
@@ -25,7 +24,7 @@ namespace Generics
 
 namespace Generics
 {
-  FDSet::FDSet() throw ()
+  FDSet::FDSet() noexcept
   {
     for (unsigned i = 0; i < sizeof(data_) / sizeof(*data_); i++)
     {
@@ -34,16 +33,14 @@ namespace Generics
   }
 
   fd_set*
-  FDSet::operator &() throw ()
+  FDSet::operator &() noexcept
   {
     return &set_;
   }
 
   const fd_set*
-  FDSet::operator &() const throw ()
+  FDSet::operator &() const noexcept
   {
     return &set_;
   }
 }
-
-#endif

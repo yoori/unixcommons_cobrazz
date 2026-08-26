@@ -1,6 +1,4 @@
-// @file String/UTF8AllProperties.hpp
-#ifndef STRING_UTF8_ALL_PROPERTIES_HPP
-#define STRING_UTF8_ALL_PROPERTIES_HPP
+#pragma once
 
 #include <String/UTF8NArcTree.hpp>
 
@@ -16,43 +14,43 @@ namespace String
     /**
      * Constructor get value encoded properties traits
      */
-    AllProperties(uint8_t value) throw ();
+    AllProperties(uint8_t value) noexcept;
 
     /**
      * @return true if object store is_space info
      */
     bool
-    is_space() const throw ();
+    is_space() const noexcept;
 
     /**
      * @return true if object store is_digit info
      */
     bool
-    is_digit() const throw ();
+    is_digit() const noexcept;
 
     /**
      * @return true if object store is_letter info
      */
     bool
-    is_letter() const throw ();
+    is_letter() const noexcept;
 
     /**
      * @return true if object store is_lower_letter info
      */
     bool
-    is_lower_letter() const throw ();
+    is_lower_letter() const noexcept;
 
     /**
      * @return true if object store is_title_letter info
      */
     bool
-    is_title_letter() const throw ();
+    is_title_letter() const noexcept;
 
     /**
      * @return true if object store is_upper_letter info
      */
     bool
-    is_upper_letter() const throw ();
+    is_upper_letter() const noexcept;
 
   protected:
     uint8_t cumulative_value_;
@@ -66,7 +64,7 @@ namespace String
    * Unicode properties for UTF-8 byte sequence from str
    */
   AllProperties
-  all_properties(const char* str) throw ();
+  all_properties(const char* str) noexcept;
 
   namespace UnicodeProperty
   {
@@ -100,56 +98,56 @@ namespace String
 namespace String
 {
   inline
-  AllProperties::AllProperties(uint8_t value) throw ()
+  AllProperties::AllProperties(uint8_t value) noexcept
     : cumulative_value_(value)
   {
   }
 
   inline
   bool
-  AllProperties::is_space() const throw ()
+  AllProperties::is_space() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_SPACE;
   }
 
   inline
   bool
-  AllProperties::is_digit() const throw ()
+  AllProperties::is_digit() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_DIGIT;
   }
 
   inline
   bool
-  AllProperties::is_letter() const throw ()
+  AllProperties::is_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_LETTER;
   }
 
   inline
   bool
-  AllProperties::is_lower_letter() const throw ()
+  AllProperties::is_lower_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_LOWER_LETTER;
   }
 
   inline
   bool
-  AllProperties::is_title_letter() const throw ()
+  AllProperties::is_title_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_TITLE_LETTER;
   }
 
   inline
   bool
-  AllProperties::is_upper_letter() const throw ()
+  AllProperties::is_upper_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_UPPER_LETTER;
   }
 
   inline
   AllProperties
-  all_properties(const char* str) throw ()
+  all_properties(const char* str) noexcept
   {
     if (static_cast<uint8_t>(*str) < 0x80)
     {
@@ -179,5 +177,3 @@ namespace String
       [static_cast<uint8_t>(*++str) & 0x3F];
   }
 }
-
-#endif // STRING_UTF8_ALL_PROPERTIES_HPP

@@ -31,7 +31,7 @@ namespace
      * TAO create own threads with own ACE loggers. After backend set
      * spawning threads will inherit this logging option.
      */
-    ACELoggerHook() throw ();
+    ACELoggerHook() noexcept;
 
     /**
      * Open the back end object. Perform any actions needed to prepare
@@ -46,7 +46,7 @@ namespace
      */
     virtual
     int
-    open(const ACE_TCHAR* logger_key) throw ();
+    open(const ACE_TCHAR* logger_key) noexcept;
 
     /**
      * Reset the backend.  If ACE_Log_Msg is reopened during execution, this
@@ -58,12 +58,12 @@ namespace
      */
     virtual
     int
-    reset() throw ();
+    reset() noexcept;
 
     /// Close the backend completely.
     virtual
     int
-    close() throw ();
+    close() noexcept;
 
     /**
      * Process a log record.
@@ -73,14 +73,14 @@ namespace
      */
     virtual
     ssize_t
-    log(ACE_Log_Record& log_record) throw ();
+    log(ACE_Log_Record& log_record) noexcept;
 
     /**
      * Remove logger from internal counting map.
      * @param this pointer to logger used as key for logger count
      */
     void
-    remove_logger(Logging::Logger* logger) throw ();
+    remove_logger(Logging::Logger* logger) noexcept;
 
     /**
      * Memorize phorm logger, there delegate ACE_Log_Msg calls.
@@ -93,13 +93,13 @@ namespace
   private:
     /// Convert ACE message types to Phorm logger types.
     Logging::Logger::Severity
-    convert_severity(ACE_UINT32 ace_severity) const throw ();
+    convert_severity(ACE_UINT32 ace_severity) const noexcept;
 
     struct LoggerCounter
     {
       explicit
-      LoggerCounter(Logging::Logger* logger = 0) throw ();
-      LoggerCounter(LoggerCounter&&) throw ();
+      LoggerCounter(Logging::Logger* logger = 0) noexcept;
+      LoggerCounter(LoggerCounter&&) noexcept;
 
       Logging::QLogger_var logger;
       unsigned count;
@@ -116,13 +116,13 @@ namespace
   };
 
   ACELoggerHook::LoggerCounter::LoggerCounter(Logging::Logger* logger)
-    throw ()
+    noexcept
     : logger(ReferenceCounting::add_ref(logger)), count(0)
   {
   }
 
   ACELoggerHook::LoggerCounter::LoggerCounter(LoggerCounter&& l)
-    throw ()
+    noexcept
     : logger(std::move(l.logger)), count(l.count)
   {
   }
@@ -135,7 +135,7 @@ namespace
   // ACELoggerHook implementation
   //
 
-  ACELoggerHook::ACELoggerHook() throw ()
+  ACELoggerHook::ACELoggerHook() noexcept
   {
     ACE_Log_Msg::instance()->msg_backend(this);
     ACE_Log_Msg::instance()->clr_flags(ACE_Log_Msg::STDERR);
@@ -144,25 +144,25 @@ namespace
   }
 
   int
-  ACELoggerHook::open(const ACE_TCHAR* /*logger_key*/) throw ()
+  ACELoggerHook::open(const ACE_TCHAR* /*logger_key*/) noexcept
   {
     return 0;
   }
 
   int
-  ACELoggerHook::reset() throw ()
+  ACELoggerHook::reset() noexcept
   {
     return 0;
   }
 
   int
-  ACELoggerHook::close() throw ()
+  ACELoggerHook::close() noexcept
   {
     return 0;
   }
 
   void
-  ACELoggerHook::remove_logger(Logging::Logger* logger) throw ()
+  ACELoggerHook::remove_logger(Logging::Logger* logger) noexcept
   {
     Logging::Logger_var logger_find(ReferenceCounting::add_ref(logger));
     WriteGuard_ guard(lock_);
@@ -186,7 +186,7 @@ namespace
   }
 
   ssize_t
-  ACELoggerHook::log(ACE_Log_Record& log_record) throw ()
+  ACELoggerHook::log(ACE_Log_Record& log_record) noexcept
   {
     ReadGuard_ guard(lock_);
     if (!loggers_.empty())
@@ -210,7 +210,7 @@ namespace
   }
 
   Logging::Logger::Severity
-  ACELoggerHook::convert_severity(ACE_UINT32 ace_severity) const throw ()
+  ACELoggerHook::convert_severity(ACE_UINT32 ace_severity) const noexcept
   {
     switch (ace_severity)
     {
@@ -250,7 +250,7 @@ namespace CORBACommons
     }
 
     void
-    remove_logger(Logging::Logger* logger) throw ()
+    remove_logger(Logging::Logger* logger) noexcept
     {
       ace_logger_replacement->remove_logger(logger);
     }

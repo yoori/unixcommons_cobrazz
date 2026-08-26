@@ -1,6 +1,4 @@
-//@file  Stream/FlagsSaver.hpp
-#ifndef STREAM_FLAGS_SAVER_HPP
-#define STREAM_FLAGS_SAVER_HPP
+#pragma once
 
 #include <ios>
 
@@ -25,7 +23,7 @@ namespace Stream
      * the state of input-output to be saved
      */
     explicit
-    FlagsSaver(StateType &s) throw ();
+    FlagsSaver(StateType &s) noexcept;
 
     /**
      * Constructor
@@ -33,18 +31,18 @@ namespace Stream
      * the state of input-output to be saved
      * @param a flags to be set on s.
      */
-    FlagsSaver(StateType& s, const AspectType& a) throw ();
+    FlagsSaver(StateType& s, const AspectType& a) noexcept;
 
     /**
      * Destructor restore state of stream
      */
-    ~FlagsSaver() throw ();
+    ~FlagsSaver() noexcept;
 
     /**
      * Restore state of stream
      */
     void
-    restore() throw ();
+    restore() noexcept;
 
   private:
     StateType& state_;
@@ -63,29 +61,27 @@ namespace Stream
   //
 
   inline
-  FlagsSaver::FlagsSaver(StateType &state) throw ()
+  FlagsSaver::FlagsSaver(StateType &state) noexcept
     : state_(state), ASPECT_(state.flags())
   {
   }
 
   inline
-  FlagsSaver::FlagsSaver(StateType& state, const AspectType& aspect) throw ()
+  FlagsSaver::FlagsSaver(StateType& state, const AspectType& aspect) noexcept
     : state_(state), ASPECT_(state.flags(aspect))
   {
   }
 
   inline
   void
-  FlagsSaver::restore() throw ()
+  FlagsSaver::restore() noexcept
   {
     state_.flags(ASPECT_);
   }
 
   inline
-  FlagsSaver::~FlagsSaver() throw ()
+  FlagsSaver::~FlagsSaver() noexcept
   {
     restore();
   }
 }  // namespace Stream
-
-#endif

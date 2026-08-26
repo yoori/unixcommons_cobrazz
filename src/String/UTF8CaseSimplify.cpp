@@ -1,9 +1,3 @@
-/**
- * @file UTF8CaseSimplify.cpp
- * @author Konstantin Sadov
- * UTF-8 Simplify tables definitions
- */
-
 #include "UTF8CaseSimplify.hpp"
 
 

@@ -1,12 +1,4 @@
-/**
- * @file   String/TextTemplate.hpp
- * @author Denis Erygin <denis@peopleonpage.com>
- * Source for the TextTemplate classes.
- * Inserts values into a pattern.
- */
-
-#ifndef STRING_TEXTTEMPLATE_HPP
-#define STRING_TEXTTEMPLATE_HPP
+#pragma once
 
 #include <istream>
 #include <set>
@@ -37,7 +29,7 @@ namespace String
        * Destructor
        */
       virtual
-      ~ArgsCallback() throw ();
+      ~ArgsCallback() noexcept;
 
       /**
        * Returns value for a key.
@@ -67,7 +59,7 @@ namespace String
       /**
        * Constructor.
        */
-      Basic() throw ();
+      Basic() noexcept;
 
       /**
        * Constructor. Calls init.
@@ -88,7 +80,7 @@ namespace String
        * Destructor.
        */
       virtual
-      ~Basic() throw ();
+      ~Basic() noexcept;
 
       /**
        * Initializes a pattern.
@@ -147,7 +139,7 @@ namespace String
          * Destructor
          */
         virtual
-        ~Item() throw ();
+        ~Item() noexcept;
 
       public:
         /**
@@ -205,7 +197,7 @@ namespace String
          * Destructor
          */
         virtual
-        ~StringItem() throw ();
+        ~StringItem() noexcept;
 
       private:
         SubString value_;
@@ -245,7 +237,7 @@ namespace String
          * Destructor
          */
         virtual
-        ~VarItem() throw ();
+        ~VarItem() noexcept;
 
       private:
         SubString key_;
@@ -265,7 +257,7 @@ namespace String
     class String : public Basic
     {
     public:
-      String() throw ();
+      String() noexcept;
 
       /**
        * Constructor. Calls init.
@@ -283,7 +275,7 @@ namespace String
         /*throw (InvalidTemplate, TextTemplException, eh::Exception)*/;
 
       virtual
-      ~String() throw ();
+      ~String() noexcept;
 
       /**
        * Initializes a pattern.
@@ -315,7 +307,7 @@ namespace String
       /**
        * Constructor
        */
-      IStream() throw ();
+      IStream() noexcept;
 
       /**
        * Initializes a pattern.
@@ -336,7 +328,7 @@ namespace String
        * Destructor
        */
       virtual
-      ~IStream() throw ();
+      ~IStream() noexcept;
 
       /**
        * Initializes a pattern.
@@ -362,7 +354,7 @@ namespace String
     {
       static
       const SubString&
-      real_key(const SubString& key) throw ();
+      real_key(const SubString& key) noexcept;
 
       template <typename Iterator>
       static
@@ -394,7 +386,7 @@ namespace String
        * @param cont pointer to container
        */
       explicit
-      ArgsContainer(const Container* cont) throw ();
+      ArgsContainer(const Container* cont) noexcept;
 
       /**
        * Returns value for a key.
@@ -424,7 +416,7 @@ namespace String
        * @param callback callback for keys lacking default values
        */
       explicit
-      DefaultValue(const ArgsCallback* callback) throw ();
+      DefaultValue(const ArgsCallback* callback) noexcept;
 
       /**
        * Returns value for a key.
@@ -465,7 +457,7 @@ namespace String
          * @param encode Function providing encoding
          */
         explicit
-        EncoderItem(ValueEncoder encode) throw ();
+        EncoderItem(ValueEncoder encode) noexcept;
 
         /**
          * Constructor
@@ -481,7 +473,7 @@ namespace String
          * @return Saved encoder
          */
         ValueEncoder
-        get_encoder_() const throw ();
+        get_encoder_() const noexcept;
 
       private:
         ValueEncoder encoder_;
@@ -516,7 +508,7 @@ namespace String
        */
       void
       set_callback(ArgsCallback* args_container)
-        throw ();
+        noexcept;
 
       /**
        * Returns value for a key.
@@ -565,7 +557,7 @@ namespace String
         bool has_defaults = true)
         /*throw (UnknownName, eh::Exception)*/;
 
-      ~Args() throw ();
+      ~Args() noexcept;
 
     protected:
       typedef Generics::GnuHashTable<
@@ -604,7 +596,7 @@ namespace String
        * Destructs UpdateStrategy object
        */
       virtual
-      ~UpdateStrategy() throw ();
+      ~UpdateStrategy() noexcept;
 
       /**
        * Provides reference to Default object as a in-memory buffer of a
@@ -612,7 +604,7 @@ namespace String
        * @return Returns reference to the stored Default object.
        */
       Buffer&
-      get() throw ();
+      get() noexcept;
 
       /**
        * Updates stored Default object from a template file.
@@ -659,7 +651,7 @@ namespace String
     //
 
     inline
-    ArgsCallback::~ArgsCallback() throw ()
+    ArgsCallback::~ArgsCallback() noexcept
     {
     }
 
@@ -669,13 +661,13 @@ namespace String
     //
 
     inline
-    Basic::Basic() throw ()
+    Basic::Basic() noexcept
       : fixed_size_(0)
     {
     }
 
     inline
-    Basic::~Basic() throw ()
+    Basic::~Basic() noexcept
     {
     }
 
@@ -692,12 +684,12 @@ namespace String
     //
 
     inline
-    String::String() throw ()
+    String::String() noexcept
     {
     }
 
     inline
-    String::~String() throw ()
+    String::~String() noexcept
     {
     }
 
@@ -707,12 +699,12 @@ namespace String
     //
 
     inline
-    IStream::IStream() throw ()
+    IStream::IStream() noexcept
     {
     }
 
     inline
-    IStream::~IStream() throw ()
+    IStream::~IStream() noexcept
     {
     }
 
@@ -723,7 +715,7 @@ namespace String
 
     inline
     const SubString&
-    ArgsContainerAdapter::real_key(const SubString& key) throw ()
+    ArgsContainerAdapter::real_key(const SubString& key) noexcept
     {
       return key;
     }
@@ -756,7 +748,7 @@ namespace String
 
     template <typename Container, typename Adapter>
     ArgsContainer<Container, Adapter>::ArgsContainer(const Container* cont)
-      throw ()
+      noexcept
       : cont_(cont)
     {
     }
@@ -789,14 +781,14 @@ namespace String
     //
 
     inline
-    ArgsEncoder::EncoderItem::EncoderItem(ValueEncoder encoder) throw ()
+    ArgsEncoder::EncoderItem::EncoderItem(ValueEncoder encoder) noexcept
       : encoder_(encoder)
     {
     }
 
     inline
     ArgsEncoder::ValueEncoder
-    ArgsEncoder::EncoderItem::get_encoder_() const throw ()
+    ArgsEncoder::EncoderItem::get_encoder_() const noexcept
     {
       return encoder_;
     }
@@ -807,7 +799,7 @@ namespace String
     //
 
     inline
-    Args::~Args() throw ()
+    Args::~Args() noexcept
     {
     }
 
@@ -824,17 +816,15 @@ namespace String
     }
 
     inline
-    UpdateStrategy::~UpdateStrategy() throw ()
+    UpdateStrategy::~UpdateStrategy() noexcept
     {
     }
 
     inline
     UpdateStrategy::Buffer&
-    UpdateStrategy::get() throw ()
+    UpdateStrategy::get() noexcept
     {
       return text_template_;
     }
   }
 }
-
-#endif

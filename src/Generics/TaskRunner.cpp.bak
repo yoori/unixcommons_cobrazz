@@ -18,11 +18,11 @@ namespace Generics
       LIMITED_(max_pending_tasks)
   {}
 
-  TaskRunner::TaskRunnerJob::~TaskRunnerJob() throw ()
+  TaskRunner::TaskRunnerJob::~TaskRunnerJob() noexcept
   {}
 
   void
-  TaskRunner::TaskRunnerJob::started(unsigned threads) throw ()
+  TaskRunner::TaskRunnerJob::started(unsigned threads) noexcept
   {
     number_of_unused_threads_ = threads;
   }
@@ -107,7 +107,7 @@ namespace Generics
   }
 
   void
-  TaskRunner::TaskRunnerJob::work() throw ()
+  TaskRunner::TaskRunnerJob::work() noexcept
   {
     try
     {
@@ -173,7 +173,7 @@ namespace Generics
 
   void
   TaskRunner::TaskRunnerJob::add_thread(ThreadRunner& thread_runner)
-    throw ()
+    noexcept
   {
     if (!thread_runner.running() ||
       thread_runner.running() == thread_runner.number_of_jobs())
@@ -200,7 +200,7 @@ namespace Generics
   }
 
   void
-  TaskRunner::TaskRunnerJob::terminate() throw ()
+  TaskRunner::TaskRunnerJob::terminate() noexcept
   {
     for (unsigned long i = NUMBER_OF_THREADS_; i; i--)
     {
@@ -225,7 +225,7 @@ namespace Generics
   {
   }
 
-  TaskRunner::~TaskRunner() throw ()
+  TaskRunner::~TaskRunner() noexcept
   {
   }
 }

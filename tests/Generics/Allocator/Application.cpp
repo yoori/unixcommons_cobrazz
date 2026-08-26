@@ -53,13 +53,13 @@ public:
     std::size_t low;
     std::size_t value;
     void
-    swap(Memory& right) throw ();
+    swap(Memory& right) noexcept;
   };
 
   typedef std::vector<Memory> TestStrategy;
   typedef std::vector<TestStrategy> AllStrategies;
 
-  TestStategyGenerator() throw ();
+  TestStategyGenerator() noexcept;
 
   void
   generate_test_strategy(std::size_t low,
@@ -67,7 +67,7 @@ public:
     std::size_t threads = 1) /*throw (eh::Exception)*/;
 
   const AllStrategies&
-  get() const throw ();
+  get() const noexcept;
 
 private:
 
@@ -81,10 +81,10 @@ private:
      * Create mixers for one thread (random data using for hashing sequence for
      * one thread.
      */
-    RandomOnceAtRun(std::size_t random_data_len) throw ();
+    RandomOnceAtRun(std::size_t random_data_len) noexcept;
 
     std::size_t
-    operator() (std::size_t pos) const throw ();
+    operator() (std::size_t pos) const noexcept;
   private:
 
     typedef std::vector<std::size_t> RandomData;
@@ -97,13 +97,13 @@ private:
   AllStrategies memories_;
 };
 
-TestStategyGenerator::TestStategyGenerator() throw ()
+TestStategyGenerator::TestStategyGenerator() noexcept
   :  low_(0), high_(0)
 {
 }
 
 void
-TestStategyGenerator::Memory::swap(Memory& right) throw ()
+TestStategyGenerator::Memory::swap(Memory& right) noexcept
 {
   std::swap(high, right.high);
   std::swap(low, right.low);
@@ -111,7 +111,7 @@ TestStategyGenerator::Memory::swap(Memory& right) throw ()
 }
 
 TestStategyGenerator::RandomOnceAtRun::RandomOnceAtRun(
-  std::size_t random_data_len) throw ()
+  std::size_t random_data_len) noexcept
 {
   random_at_once_.reserve(random_data_len);
   for (std::size_t i = 1; i < random_data_len; ++i)
@@ -122,13 +122,13 @@ TestStategyGenerator::RandomOnceAtRun::RandomOnceAtRun(
 
 std::size_t
 TestStategyGenerator::RandomOnceAtRun::operator() (std::size_t pos) const
-  throw ()
+  noexcept
 {
   return random_at_once_[pos - 2];
 }
 
 const TestStategyGenerator::AllStrategies&
-TestStategyGenerator::get() const throw ()
+TestStategyGenerator::get() const noexcept
 {
   return memories_;
 }
@@ -174,7 +174,7 @@ public:
   MultiThreadPerformanceTest(std::size_t meters,
     std::size_t buffers_amount,
     const TestStategyGenerator::AllStrategies& ref)
-    throw ();
+    noexcept;
 
   void
   operator()() /*throw (eh::Exception)*/;
@@ -183,7 +183,7 @@ public:
    * Should reset multiplexer before new test cycle.
    */
   void
-  reset() throw ();
+  reset() noexcept;
 
 private:
   const std::size_t METERS_;
@@ -197,7 +197,7 @@ private:
 MultiThreadPerformanceTest::MultiThreadPerformanceTest(
   std::size_t meters,
   std::size_t threads,
-  const TestStategyGenerator::AllStrategies& ref) throw ()
+  const TestStategyGenerator::AllStrategies& ref) noexcept
   : METERS_(meters),
     BUFFERS_AMOUNT_(BUFFERS_AMOUNT / threads),
     STRATEGY_(ref),
@@ -227,7 +227,7 @@ MultiThreadPerformanceTest::operator()() /*throw (eh::Exception)*/
 }
 
 void
-MultiThreadPerformanceTest::reset() throw ()
+MultiThreadPerformanceTest::reset() noexcept
 {
   multiplexor_ = 0;
 }

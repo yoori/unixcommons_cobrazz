@@ -76,7 +76,7 @@ private:
   }
 
   static void*
-  thread_proc_(void* arg) throw ()
+  thread_proc_(void* arg) noexcept
   {
     try
     {

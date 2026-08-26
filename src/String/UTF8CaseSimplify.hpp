@@ -1,6 +1,4 @@
-// @file String/UTF8CaseSimplify.hpp
-#ifndef STRING_UTF8_CASE_SIMPLIFY_HPP
-#define STRING_UTF8_CASE_SIMPLIFY_HPP
+#pragma once
 
 #include <String/UTF8Case.hpp>
 #include <String/UTF8Tables.hpp>
@@ -111,7 +109,7 @@ namespace String
       }
 
       void
-      out_hangul(unsigned ch, char*& dest) throw ()
+      out_hangul(unsigned ch, char*& dest) noexcept
       {
         unsigned char tmp = (ch >> 12) | 0xE0;
         *dest++ = reinterpret_cast<const char&>(tmp);
@@ -124,7 +122,7 @@ namespace String
       void
       decompose_hangul(const unsigned char FIRST,
         const unsigned char SECOND,
-        const unsigned char THIRD, char*& dest) throw ()
+        const unsigned char THIRD, char*& dest) noexcept
       {
         unsigned ch = (((static_cast<unsigned>(FIRST) & 0x0F) << 12) |
           ((static_cast<unsigned>(SECOND) & 0x3F) << 6) |
@@ -145,7 +143,7 @@ namespace String
 
 bool
 String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
-  size_t& counter) throw ()
+  size_t& counter) noexcept
 {
   counter = 0;
 
@@ -1127,5 +1125,3 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
 
   return true;
 }
-
-#endif

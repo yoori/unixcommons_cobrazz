@@ -1,5 +1,4 @@
-#ifndef GENERICS_THREAD_RUNNER_HPP
-#define GENERICS_THREAD_RUNNER_HPP
+#pragma once
 
 #include <signal.h>
 #include <pthread.h>
@@ -26,14 +25,14 @@ namespace Generics
      */
     virtual
     void
-    work() throw () = 0;
+    work() noexcept = 0;
 
   protected:
     /**
      * Destructor.
      */
     virtual
-    ~ThreadJob() throw ();
+    ~ThreadJob() noexcept;
   };
   typedef ReferenceCounting::QualPtr<ThreadJob> ThreadJob_var;
 
@@ -49,18 +48,18 @@ namespace Generics
      */
     virtual
     void
-    on_start() throw ();
+    on_start() noexcept;
 
     /**
      * Called in the thread going to terminate.
      */
     virtual
     void
-    on_stop() throw ();
+    on_stop() noexcept;
 
   protected:
     virtual
-    ~ThreadCallback() throw ();
+    ~ThreadCallback() noexcept;
   };
   typedef ReferenceCounting::SmartPtr<ThreadCallback> ThreadCallback_var;
 
@@ -86,7 +85,7 @@ namespace Generics
        */
       explicit
       Options(size_t stack_size = 0, ThreadCallback* thread_callback = 0)
-        throw ();
+        noexcept;
 
       // Default stack size for threads
       static const size_t DEFAULT_STACK_SIZE = 1024 * 1024;
@@ -132,21 +131,21 @@ namespace Generics
      * Destructor
      * Waits for threads' completion if they are not terminated yet.
      */
-    ~ThreadRunner() throw ();
+    ~ThreadRunner() noexcept;
 
     /**
      * Number of jobs to execute
      * @return number of jobs
      */
     unsigned
-    number_of_jobs() const throw ();
+    number_of_jobs() const noexcept;
 
     /**
      * Return number of jobs running. Thread unsafe.
      * @return jobs running number
      */
     unsigned
-    running() const throw ();
+    running() const noexcept;
 
     /**
      * Creates threads and runs the jobs. If creation of a thread fails,
@@ -173,10 +172,10 @@ namespace Generics
   private:
     static
     void*
-    thread_func_(void* arg) throw ();
+    thread_func_(void* arg) noexcept;
 
     void
-    thread_func_(ThreadJob& job) throw ();
+    thread_func_(ThreadJob& job) noexcept;
 
     void
     start_one_thread_() /*throw (PosixException)*/;
@@ -186,8 +185,8 @@ namespace Generics
     public:
       explicit
       PThreadAttr(size_t stack_size) /*throw (PosixException)*/;
-      ~PThreadAttr() throw ();
-      operator pthread_attr_t*() throw ();
+      ~PThreadAttr() noexcept;
+      operator pthread_attr_t*() noexcept;
 
     private:
       pthread_attr_t attr_;
@@ -220,14 +219,14 @@ namespace Generics
 
   inline
   unsigned
-  ThreadRunner::number_of_jobs() const throw ()
+  ThreadRunner::number_of_jobs() const noexcept
   {
     return number_of_jobs_;
   }
 
   inline
   unsigned
-  ThreadRunner::running() const throw ()
+  ThreadRunner::running() const noexcept
   {
     return number_running_;
   }
@@ -260,5 +259,3 @@ namespace Generics
     }
   }
 }
-
-#endif

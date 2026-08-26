@@ -1,5 +1,4 @@
-#ifndef GENERICS_DESCRIPTORS_HPP
-#define GENERICS_DESCRIPTORS_HPP
+#pragma once
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -30,20 +29,20 @@ namespace Generics
     /**
      * Closes both ends of the pipe
      */
-    ~Pipe() throw ();
+    ~Pipe() noexcept;
 
     /**
      * Read descriptor
      * @return read descriptor
      */
     int
-    read_descriptor() const throw ();
+    read_descriptor() const noexcept;
     /**
      * Write descriptor
      * @return write descriptor
      */
     int
-    write_descriptor() const throw ();
+    write_descriptor() const noexcept;
 
     /**
      * Performs a single read operation from the pipe
@@ -52,7 +51,7 @@ namespace Generics
      * @return see read(2)
      */
     ssize_t
-    read(void* buf, size_t size) throw ();
+    read(void* buf, size_t size) noexcept;
 
     /**
      * Tries to read the exact amount of data.
@@ -70,7 +69,7 @@ namespace Generics
      * @return see write(2)
      */
     ssize_t
-    write(const void* buf, size_t size) throw ();
+    write(const void* buf, size_t size) noexcept;
 
     /**
      * Tries to write the exact amount of data.
@@ -87,7 +86,7 @@ namespace Generics
      * @return see write(2)
      */
     ssize_t
-    signal(char ch = '\0') throw ();
+    signal(char ch = '\0') noexcept;
 
   protected:
     template <typename Functor>
@@ -130,10 +129,10 @@ namespace Generics
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
     DevNull() /*throw (eh::Exception, Exception)*/;
-    ~DevNull() throw ();
+    ~DevNull() noexcept;
 
     int
-    fd() throw ();
+    fd() noexcept;
 
   private:
     int fd_;
@@ -145,7 +144,7 @@ namespace Generics
    * @return 0 for success, negative for fcntl error
    */
   int
-  set_cloexec(int fd) throw ();
+  set_cloexec(int fd) noexcept;
 }
 
 //
@@ -168,7 +167,7 @@ namespace Generics
   }
 
   inline
-  Pipe::~Pipe() throw ()
+  Pipe::~Pipe() noexcept
   {
     close(pipe_[1]);
     close(pipe_[0]);
@@ -176,21 +175,21 @@ namespace Generics
 
   inline
   int
-  Pipe::read_descriptor() const throw ()
+  Pipe::read_descriptor() const noexcept
   {
     return pipe_[0];
   }
 
   inline
   int
-  Pipe::write_descriptor() const throw ()
+  Pipe::write_descriptor() const noexcept
   {
     return pipe_[1];
   }
 
   inline
   ssize_t
-  Pipe::read(void* buf, size_t size) throw ()
+  Pipe::read(void* buf, size_t size) noexcept
   {
     return ::read(read_descriptor(), buf, size);
   }
@@ -237,7 +236,7 @@ namespace Generics
 
   inline
   ssize_t
-  Pipe::write(const void* buf, size_t size) throw ()
+  Pipe::write(const void* buf, size_t size) noexcept
   {
     return ::write(write_descriptor(), buf, size);
   }
@@ -251,7 +250,7 @@ namespace Generics
 
   inline
   ssize_t
-  Pipe::signal(char ch) throw ()
+  Pipe::signal(char ch) noexcept
   {
     ssize_t result;
     while ((result = write(&ch, 1)) < 0 && errno == EINTR)
@@ -293,14 +292,14 @@ namespace Generics
   }
 
   inline
-  DevNull::~DevNull() throw ()
+  DevNull::~DevNull() noexcept
   {
     close(fd_);
   }
 
   inline
   int
-  DevNull::fd() throw ()
+  DevNull::fd() noexcept
   {
     return fd_;
   }
@@ -310,11 +309,9 @@ namespace Generics
 
   inline
   int
-  set_cloexec(int fd) throw ()
+  set_cloexec(int fd) noexcept
   {
     int flags = fcntl(fd, F_GETFD);
     return flags < 0 ? flags : fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
   }
 }
-
-#endif

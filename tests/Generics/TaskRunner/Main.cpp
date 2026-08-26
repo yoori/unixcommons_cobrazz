@@ -18,23 +18,23 @@ class TaskImpl :
 {
 public:
   TaskImpl(Generics::TaskRunner* task_runner)
-    throw ();
+    noexcept;
 
   virtual void
-  execute() throw ();
+  execute() noexcept;
 
 private:
   Generics::TaskRunner_var task_runner_;
 };
 
 TaskImpl::TaskImpl(Generics::TaskRunner* task_runner)
-  throw ()
+  noexcept
   : task_runner_(ReferenceCounting::add_ref(task_runner))
 {
 }
 
 void
-TaskImpl::execute() throw ()
+TaskImpl::execute() noexcept
 {
   task_runner_->enqueue_task(this);
 }

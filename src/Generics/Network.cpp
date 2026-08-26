@@ -61,7 +61,7 @@ namespace Generics
       }
     }
 
-    LocalInterfaces::~LocalInterfaces() throw ()
+    LocalInterfaces::~LocalInterfaces() noexcept
     {
       freeifaddrs(addresses_);
     }
@@ -99,7 +99,7 @@ namespace Generics
     }
 
     uint32_t
-    IsLocalInterface::ip_address(const sockaddr_in* address) throw ()
+    IsLocalInterface::ip_address(const sockaddr_in* address) noexcept
     {
       return address->sin_addr.s_addr;
     }

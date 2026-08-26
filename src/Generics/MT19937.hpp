@@ -1,5 +1,4 @@
-#ifndef GENERICS_MT19937_HPP
-#define GENERICS_MT19937_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -31,47 +30,47 @@ namespace Generics
      * Constructor
      * Uses /dev/urandom for initialization
      */
-    MT19937() throw ();
+    MT19937() noexcept;
     /**
      * Constructor
      * @param value initial seed number
      */
     explicit
-    MT19937(const uint32_t value) throw ();
+    MT19937(const uint32_t value) noexcept;
     /**
      * Constructor
      * @param value pointer to data for initial seed
      * @param size data size
      */
     explicit
-    MT19937(const uint32_t* value, size_t size = STATE_SIZE) throw ();
+    MT19937(const uint32_t* value, size_t size = STATE_SIZE) noexcept;
 
     /**
      * Initializes object
      * Uses /dev/urandom for initialization
      */
     void
-    seed() throw ();
+    seed() noexcept;
     /**
      * Initializes object
      * @param value initial seed number
      */
     void
-    seed(uint32_t value) throw ();
+    seed(uint32_t value) noexcept;
     /**
      * Initializes object
      * @param value pointer to data for initial seed
      * @param size data size
      */
     void
-    seed(const uint32_t* value, size_t size = STATE_SIZE) throw ();
+    seed(const uint32_t* value, size_t size = STATE_SIZE) noexcept;
 
     /**
      * Creates next random number in the sequence
      * @return random number in [0..2^32-1] range
      */
     uint32_t
-    rand() throw ();
+    rand() noexcept;
 
   protected:
     /**
@@ -79,13 +78,13 @@ namespace Generics
      * @param value initial seed number
      */
     void
-    initialize(uint32_t value) throw ();
+    initialize(uint32_t value) noexcept;
 
     /**
      * Refreshes state after each pass
      */
     void
-    reinit() throw ();
+    reinit() noexcept;
 
   private:
     uint32_t State_[STATE_SIZE];
@@ -101,26 +100,26 @@ namespace Generics
 namespace Generics
 {
   inline
-  MT19937::MT19937() throw ()
+  MT19937::MT19937() noexcept
   {
     seed();
   }
 
   inline
-  MT19937::MT19937(const uint32_t value) throw ()
+  MT19937::MT19937(const uint32_t value) noexcept
   {
     seed(value);
   }
 
   inline
-  MT19937::MT19937(const uint32_t* value, size_t size) throw ()
+  MT19937::MT19937(const uint32_t* value, size_t size) noexcept
   {
     seed(value, size);
   }
 
   inline
   uint32_t
-  MT19937::rand() throw ()
+  MT19937::rand() noexcept
   {
     if (!Left_)
     {
@@ -139,7 +138,7 @@ namespace Generics
   {
     inline
     uint32_t
-    MT19937_hash(const void* data, size_t size) throw ()
+    MT19937_hash(const void* data, size_t size) noexcept
     {
       const uint8_t* ptr = static_cast<const uint8_t*>(data);
       uint32_t value = 0;
@@ -154,7 +153,7 @@ namespace Generics
     template <typename T>
     inline
     uint32_t
-    MT19937_hash(const T data) throw ()
+    MT19937_hash(const T data) noexcept
     {
       return MT19937_hash(&data, sizeof(data));
     }
@@ -162,7 +161,7 @@ namespace Generics
     inline
     uint32_t
     MT19937_mix(const uint32_t m, const uint32_t s0,
-      const uint32_t s1) throw ()
+      const uint32_t s1) noexcept
     {
       return m ^
         (((s0 & 0x80000000ul) | (s1 & 0x7FFFFFFFul)) >> 1) ^
@@ -172,7 +171,7 @@ namespace Generics
 
   inline
   void
-  MT19937::reinit() throw ()
+  MT19937::reinit() noexcept
   {
     static const size_t PERIOD_LENGTH = 397;
 
@@ -195,7 +194,7 @@ namespace Generics
 
   inline
   void
-  MT19937::seed() throw ()
+  MT19937::seed() noexcept
   {
     int urandom = open("/dev/urandom", O_RDONLY);
     if (urandom >= 0)
@@ -230,7 +229,7 @@ namespace Generics
 
   inline
   void
-  MT19937::seed(uint32_t value) throw ()
+  MT19937::seed(uint32_t value) noexcept
   {
     initialize(value);
     reinit();
@@ -238,7 +237,7 @@ namespace Generics
 
   inline
   void
-  MT19937::seed(const uint32_t* value, size_t size) throw ()
+  MT19937::seed(const uint32_t* value, size_t size) noexcept
   {
     initialize(0x21414B53ul);
     size_t i = 1;
@@ -274,7 +273,7 @@ namespace Generics
 
   inline
   void
-  MT19937::initialize(uint32_t value) throw ()
+  MT19937::initialize(uint32_t value) noexcept
   {
     uint32_t* s = State_;
     *s++ = value;
@@ -285,5 +284,3 @@ namespace Generics
     }
   }
 }
-
-#endif

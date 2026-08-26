@@ -1,5 +1,4 @@
-#ifndef GENERICS_TASKPOOL_HPP
-#define GENERICS_TASKPOOL_HPP
+#pragma once
 
 #include <vector>
 
@@ -52,7 +51,7 @@ namespace Generics
 
     virtual
     void
-    deactivate_object() throw();
+    deactivate_object() noexcept;
 
     /**
      * Returns number of tasks recently being enqueued
@@ -60,7 +59,7 @@ namespace Generics
      * @return number of tasks enqueued
      */
     unsigned
-    task_count() const throw ();
+    task_count() const noexcept;
 
     /**
      * Clear task queue
@@ -71,7 +70,7 @@ namespace Generics
 
   protected:
     virtual
-    ~TaskPool() throw ();
+    ~TaskPool() noexcept;
 
   private:
     class TaskQueueProcessor;
@@ -81,14 +80,14 @@ namespace Generics
       friend class TaskQueueProcessor;
 
     public:
-      TaskQueue() throw();
+      TaskQueue() noexcept;
 
       void
       enqueue_task(Task* task, const Time* timeout)
         /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
       void
-      terminate() throw ();
+      terminate() noexcept;
 
       virtual
       void
@@ -96,7 +95,7 @@ namespace Generics
 
     protected:
       virtual
-      ~TaskQueue() throw()
+      ~TaskQueue() noexcept
       {}
 
     protected:
@@ -124,15 +123,15 @@ namespace Generics
 
         virtual
         void
-        work() throw ();
+        work() noexcept;
 
         virtual
         void
-        terminate() throw ();
+        terminate() noexcept;
 
       protected:
         virtual
-        ~Job() throw ();
+        ~Job() noexcept;
 
       protected:
         TaskQueue_var task_queue_;
@@ -143,7 +142,7 @@ namespace Generics
         ActiveObjectCallback* callback,
         TaskQueue* task_queue,
         unsigned stack_size)
-        throw();
+        noexcept;
 
     protected:
       typedef ReferenceCounting::QualPtr<Job> Job_var;
@@ -164,5 +163,3 @@ namespace Generics
   typedef ReferenceCounting::QualPtr<TaskPool> TaskPool_var;
   typedef ReferenceCounting::FixedPtr<TaskPool> FixedTaskPool_var;
 }
-
-#endif

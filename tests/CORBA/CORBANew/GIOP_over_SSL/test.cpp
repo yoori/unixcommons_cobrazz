@@ -9,11 +9,11 @@ class Echo_i : public POA_Echo
 {
 public:
   virtual char*
-  echoString(const char* message) throw ();
+  echoString(const char* message) noexcept;
 };
 
 char*
-Echo_i::echoString(const char* message) throw ()
+Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }

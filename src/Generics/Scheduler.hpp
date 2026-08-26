@@ -1,10 +1,4 @@
-/**
- * @file   Scheduler.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef GENERICS_SCHEDULER_HPP
-#define GENERICS_SCHEDULER_HPP
+#pragma once
 
 #include <ReferenceCounting/List.hpp>
 
@@ -74,7 +68,7 @@ namespace Generics
      * Decreases all unmatched messages' reference counters
      */
     virtual
-    ~Planner() throw ();
+    ~Planner() noexcept;
 
   private:
     class PlannerJob : public SingleJob
@@ -85,11 +79,11 @@ namespace Generics
 
       virtual
       void
-      work() throw ();
+      work() noexcept;
 
       virtual
       void
-      terminate() throw ();
+      terminate() noexcept;
 
       void
       schedule(Goal* goal, const Time& time)
@@ -100,11 +94,11 @@ namespace Generics
         /*throw (eh::Exception)*/;
 
       void
-      clear() throw ();
+      clear() noexcept;
 
     protected:
       virtual
-      ~PlannerJob() throw ();
+      ~PlannerJob() noexcept;
 
       /**
        * Element of messages' queue. Composition of Message and
@@ -113,7 +107,7 @@ namespace Generics
       class TimedMessage
       {
       public:
-        TimedMessage() throw ();
+        TimedMessage() noexcept;
 
         TimedMessage(TimedMessage&) = default;
 
@@ -122,14 +116,14 @@ namespace Generics
          * @param time Associated time
          * @param goal Shared ownership on goal
          */
-        TimedMessage(const Time& time, Goal* goal) throw ();
+        TimedMessage(const Time& time, Goal* goal) noexcept;
 
         /**
          * Holding time
          * @return Associated time
          */
         const Time&
-        time() const throw ();
+        time() const noexcept;
 
         /**
          * Calls deliver() on owned goal
@@ -143,7 +137,7 @@ namespace Generics
          * @return true if they coincide
          */
         bool
-        is_goal(const Goal* goal) const throw ();
+        is_goal(const Goal* goal) const noexcept;
 
       private:
         Time time_;
@@ -177,20 +171,20 @@ namespace Generics
   //
 
   inline
-  Planner::PlannerJob::TimedMessage::TimedMessage() throw ()
+  Planner::PlannerJob::TimedMessage::TimedMessage() noexcept
   {
   }
 
   inline
   Planner::PlannerJob::TimedMessage::TimedMessage(
-    const Time& time, Goal* goal) throw ()
+    const Time& time, Goal* goal) noexcept
     : time_(time), goal_(ReferenceCounting::add_ref(goal))
   {
   }
 
   inline
   const Time&
-  Planner::PlannerJob::TimedMessage::time() const throw ()
+  Planner::PlannerJob::TimedMessage::time() const noexcept
   {
     return time_;
   }
@@ -205,7 +199,7 @@ namespace Generics
   inline
   bool
   Planner::PlannerJob::TimedMessage::is_goal(const Goal* goal) const
-    throw ()
+    noexcept
   {
     return goal == goal_;
   }
@@ -238,5 +232,3 @@ namespace Generics
     job_.clear();
   }
 }
-
-#endif

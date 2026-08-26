@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Static N-arc tree definition for is_space property
 
-// @file String/UTF8IsSpace.cpp
 #include <String/UTF8IsProperty.hpp>
 
 

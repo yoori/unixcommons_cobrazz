@@ -1,12 +1,4 @@
-/**
- * @file   HttpMisc.hpp
- * @author Karen Aroutiounov
- *
- * Contains HTTP protocol basis definitions
- */
-
-#ifndef HTTP_HTTPMISC_HPP
-#define HTTP_HTTPMISC_HPP
+#pragma once
 
 #include <list>
 
@@ -38,11 +30,11 @@ namespace HTTP
    */
   struct SubHeader
   {
-    SubHeader() throw ();
-    SubHeader(const char* nm, const char* vl) throw ();
+    SubHeader() noexcept;
+    SubHeader(const char* nm, const char* vl) noexcept;
     SubHeader(const String::SubString& nm, const String::SubString& vl)
-      throw ();
-    SubHeader(const Header& header) throw (); // implicit
+      noexcept;
+    SubHeader(const Header& header) noexcept; // implicit
 
     String::SubString name;
     String::SubString value;
@@ -71,11 +63,11 @@ namespace HTTP
    */
   struct SubParam
   {
-    SubParam() throw ();
-    SubParam(const char* nm, const char* vl) throw ();
+    SubParam() noexcept;
+    SubParam(const char* nm, const char* vl) noexcept;
     SubParam(const String::SubString& nm, const String::SubString& vl)
-      throw ();
-    SubParam(const Param& param) throw (); // implicit
+      noexcept;
+    SubParam(const Param& param) noexcept; // implicit
 
     String::SubString name;
     String::SubString value;
@@ -118,25 +110,25 @@ namespace HTTP
   //
 
   inline
-  SubHeader::SubHeader() throw ()
+  SubHeader::SubHeader() noexcept
   {
   }
 
   inline
-  SubHeader::SubHeader(const char* nm, const char* vl) throw ()
+  SubHeader::SubHeader(const char* nm, const char* vl) noexcept
     : name(nm), value(vl)
   {
   }
 
   inline
   SubHeader::SubHeader(const String::SubString& nm,
-    const String::SubString& vl) throw ()
+    const String::SubString& vl) noexcept
     : name(nm), value(vl)
   {
   }
 
   inline
-  SubHeader::SubHeader(const Header& header) throw ()
+  SubHeader::SubHeader(const Header& header) noexcept
     : name(header.name), value(header.value)
   {
   }
@@ -170,28 +162,26 @@ namespace HTTP
   //
 
   inline
-  SubParam::SubParam() throw ()
+  SubParam::SubParam() noexcept
   {
   }
 
   inline
-  SubParam::SubParam(const char* nm, const char* vl) throw ()
+  SubParam::SubParam(const char* nm, const char* vl) noexcept
     : name(nm), value(vl)
   {
   }
 
   inline
   SubParam::SubParam(const String::SubString& nm,
-    const String::SubString& vl) throw ()
+    const String::SubString& vl) noexcept
     : name(nm), value(vl)
   {
   }
 
   inline
-  SubParam::SubParam(const Param& param) throw ()
+  SubParam::SubParam(const Param& param) noexcept
     : name(param.name), value(param.value)
   {
   }
 }
-
-#endif

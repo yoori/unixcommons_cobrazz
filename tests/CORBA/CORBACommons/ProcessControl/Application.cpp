@@ -1,9 +1,3 @@
-/**
- * @file   Application.hpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Defines class which tests object of CORBACommons::ProcessControlImpl class
- */
-
 #include <iostream>
 #include <sstream>
 
@@ -18,7 +12,7 @@ Application::Application() /*throw(Application::Exception, eh::Exception)*/
 {
 }
 
-Application::~Application() throw()
+Application::~Application() noexcept
 {
   try
   {

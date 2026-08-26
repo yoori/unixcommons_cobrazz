@@ -22,7 +22,7 @@ class MultiThreadPerformanceTest
 public:
   MultiThreadPerformanceTest(std::size_t meters,
     std::size_t buffers_amount)
-    throw ();
+    noexcept;
 
   void
     operator()() /*throw (eh::Exception)*/;
@@ -34,7 +34,7 @@ private:
 
 MultiThreadPerformanceTest::MultiThreadPerformanceTest(
   std::size_t meters,
-  std::size_t buffers_amount) throw ()
+  std::size_t buffers_amount) noexcept
   : METERS_(meters),
     BUFFERS_AMOUNT_(buffers_amount)
 {

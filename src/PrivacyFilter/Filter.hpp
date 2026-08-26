@@ -1,5 +1,4 @@
-#ifndef PRIVACYFILTER_FILTER_HPP
-#define PRIVACYFILTER_FILTER_HPP
+#pragma once
 
 #include <String/SubString.hpp>
 
@@ -11,7 +10,7 @@ namespace PrivacyFilter
    * @return filtering status
    */
   bool
-  filter() throw ();
+  filter() noexcept;
 
   /**
    * Filters messages depending on found correct key.
@@ -21,7 +20,7 @@ namespace PrivacyFilter
    */
   const char*
   filter(const char* original_message, const char* replace_message = "")
-    throw ();
+    noexcept;
 
   /**
    * Filters messages depending on found correct key.
@@ -32,7 +31,5 @@ namespace PrivacyFilter
   const String::SubString&
   filter(const String::SubString& original_message,
     const String::SubString& replace_message)
-    throw ();
+    noexcept;
 }
-
-#endif

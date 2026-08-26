@@ -1,5 +1,3 @@
-// @file Application.cpp
-
 #include <Logger/StreamLogger.hpp>
 #include <Logger/ActiveObjectCallback.hpp>
 

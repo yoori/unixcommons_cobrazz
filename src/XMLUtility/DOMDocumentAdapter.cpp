@@ -1,8 +1,3 @@
-/**
- * @file   DOMDocumentAdapter.cpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- */
-
 #include <sstream>
 
 #include <xercesc/dom/DOM.hpp>

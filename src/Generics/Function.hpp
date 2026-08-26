@@ -1,5 +1,4 @@
-#ifndef GENERICS_FUNCTION_HPP
-#define GENERICS_FUNCTION_HPP
+#pragma once
 
 #include <String/SubString.hpp>
 
@@ -10,7 +9,7 @@ namespace Generics
   {
     inline
     String::SubString
-    get_function_name(const char* function) throw ()
+    get_function_name(const char* function) noexcept
     {
       for (const char* end = function;; end++)
       {
@@ -34,7 +33,7 @@ namespace Generics
 
     inline
     String::SubString
-    get_template_info(const char* function) throw ()
+    get_template_info(const char* function) noexcept
     {
       const char with[] = " [with ";
       for (; *function; function++)
@@ -83,5 +82,3 @@ namespace Generics
  * Designed specially for eh::throw_errno_exception function.
  */
 #define FNE FNB, "(): "
-
-#endif

@@ -1,8 +1,3 @@
-/**
- * @file TestClasses.cpp
- * @author unknown
- * @modified Alexey Bulavitsky [alexey_bulavitsky@ocslab.com]
- */
 #include "TestClasses.hpp"
 #include <iostream>
 #include <string>
@@ -24,7 +19,7 @@ namespace
   inline
   bool
   set_next(unsigned char& uc)
-    throw ()
+    noexcept
   {
     if (uc == 255)
     {
@@ -130,7 +125,7 @@ Segment::Segment(Language::Segmentor::SegmentorInterface_var segmentor,
 bool
 Segment::equal_ignore_spaces(const char *orig, size_t orig_len,
                              const char *with_spaces, size_t with_spaces_len)
-  throw ()
+  noexcept
 {
   if (with_spaces_len < orig_len)
   {

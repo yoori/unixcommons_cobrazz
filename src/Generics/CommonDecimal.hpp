@@ -1,5 +1,4 @@
-#ifndef GENERICS_COMMON_DECIMAL_HPP
-#define GENERICS_COMMON_DECIMAL_HPP
+#pragma once
 
 #include <ios>
 #include <limits>
@@ -59,7 +58,7 @@ namespace Generics
     {
       static
       void
-      split(Integer& integer, bool& negative) throw ();
+      split(Integer& integer, bool& negative) noexcept;
     };
 
     template <typename Integer>
@@ -67,13 +66,13 @@ namespace Generics
     {
       static
       void
-      split(Integer& integer, bool& negative) throw ();
+      split(Integer& integer, bool& negative) noexcept;
     };
 
     template <typename Integer, const bool UNSIGNED>
     void
     Splitter<Integer, UNSIGNED>::split(Integer& integer, bool& negative)
-      throw ()
+      noexcept
     {
       if (integer < 0)
       {
@@ -90,14 +89,14 @@ namespace Generics
     template <typename Integer>
     void
     Splitter<Integer, true>::split(Integer& /*integer*/, bool& negative)
-      throw ()
+      noexcept
     {
       negative = false;
     }
 
     template <typename Integer>
     void
-    split(Integer& integer, bool& negative) throw ()
+    split(Integer& integer, bool& negative) noexcept
     {
       Splitter<Integer, !std::numeric_limits<Integer>::is_signed>::split(
         integer, negative);
@@ -108,7 +107,7 @@ namespace Generics
      */
     template <typename Base>
     Base
-    assemble_decimal(unsigned digits, const unsigned char* num) throw ()
+    assemble_decimal(unsigned digits, const unsigned char* num) noexcept
     {
       Base ret = 0;
       for (unsigned i = 0; i < digits; ++i)
@@ -124,7 +123,7 @@ namespace Generics
     template <typename Base>
     void
     disassemble_decimal(unsigned digits, Base elem, unsigned char* num)
-      throw ()
+      noexcept
     {
       if (digits)
       {
@@ -144,7 +143,7 @@ namespace Generics
      */
     template <typename Base>
     Base
-    pow10(unsigned pow) throw ()
+    pow10(unsigned pow) noexcept
     {
       if (pow < 20)
       {
@@ -194,7 +193,7 @@ namespace Generics
 
     inline
     bool
-    exceeds(unsigned long long a, unsigned long long b) throw ()
+    exceeds(unsigned long long a, unsigned long long b) noexcept
     {
       return a >= b;
     }
@@ -202,7 +201,7 @@ namespace Generics
     template <typename Iterator>
     void
     skip(Iterator& cur, Iterator& end, std::ios_base::iostate& iostate)
-      throw ()
+      noexcept
     {
       bool eof;
       while (!(eof = ++cur == end) &&
@@ -233,7 +232,7 @@ namespace Generics
     const char*
     extract_decimal(Iterator cur, Iterator end,
       std::ios_base::iostate& iostate, Base& data, bool& negative_sign)
-      throw ()
+      noexcept
     {
       bool eof = cur == end;
       if (eof)
@@ -344,13 +343,13 @@ namespace Generics
      */
     bool
     muldiv(uint64_t factor1, uint64_t factor2, uint64_t divisor,
-      uint64_t& quotient, uint64_t& remainder) throw ()
+      uint64_t& quotient, uint64_t& remainder) noexcept
       __attribute__((always_inline));
 
     inline
     bool
     muldiv(uint64_t factor1, uint64_t factor2, uint64_t divisor,
-      uint64_t& quotient, uint64_t& remainder) throw ()
+      uint64_t& quotient, uint64_t& remainder) noexcept
     {
       uint64_t a, b, c;
       __asm__ __volatile__(
@@ -371,7 +370,7 @@ namespace Generics
     template <const bool>
     void
     mul(uint64_t factor1, uint64_t factor2, uint64_t base,
-      uint64_t& major, uint64_t& minor) throw ()
+      uint64_t& major, uint64_t& minor) noexcept
     {
       major = factor1 * factor2;
       minor = major % base;
@@ -381,12 +380,12 @@ namespace Generics
     template <>
     void
     mul<false>(uint64_t factor1, uint64_t factor2, uint64_t base,
-      uint64_t& major, uint64_t& minor) throw ();
+      uint64_t& major, uint64_t& minor) noexcept;
 
     template <const bool>
     void
     div(uint64_t major, uint64_t minor, uint64_t base, uint64_t divisor,
-      uint64_t& quotient, uint64_t& remainder) throw ()
+      uint64_t& quotient, uint64_t& remainder) noexcept
     {
       quotient = major * base + minor;
       remainder = quotient % divisor;
@@ -396,7 +395,7 @@ namespace Generics
     template <>
     void
     div<false>(uint64_t major, uint64_t minor, uint64_t base,
-      uint64_t divisor, uint64_t& quotient, uint64_t& remainder) throw ();
+      uint64_t divisor, uint64_t& quotient, uint64_t& remainder) noexcept;
   }
 
   /**
@@ -433,7 +432,7 @@ namespace Generics
     /**
      * Destructor
      */
-    ~DecimalRanks() throw () = default;
+    ~DecimalRanks() noexcept = default;
   };
 
   /**
@@ -452,7 +451,7 @@ namespace Generics
     /**
      * Destructor
      */
-    ~DecimalBase() throw () = default;
+    ~DecimalBase() noexcept = default;
   };
 
   /**
@@ -488,7 +487,7 @@ namespace Generics
     /**
      * Destructor
      */
-    ~SimpleDecimalBase() throw () = default;
+    ~SimpleDecimalBase() noexcept = default;
   };
 
   /**
@@ -574,5 +573,3 @@ namespace Generics
   template <typename Parent>
   const typename Parent::Base SimpleDecimalBase<Parent>::MAX_INTEGER_;
 }
-
-#endif

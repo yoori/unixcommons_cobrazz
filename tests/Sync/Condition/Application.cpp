@@ -11,7 +11,7 @@ using Sync::Conditional;
 using Sync::ConditionalGuard;
 
 ConsumerProducer::ThreadContext::ThreadContext(
-  ConsumerProducer *this_ptr_val) throw()
+  ConsumerProducer *this_ptr_val) noexcept
   : this_ptr(this_ptr_val), work_done_stat(0)
 {
 }
@@ -47,7 +47,7 @@ ConsumerProducer::ConsumerProducer(std::size_t max_item_count,
   pthread_create(&stored_context.thread, 0, consumer, this);
 }
 
-ConsumerProducer::~ConsumerProducer() throw()
+ConsumerProducer::~ConsumerProducer() noexcept
 {
   for(std::size_t i = 0; !threads_.empty(); threads_.pop_back())
   {
@@ -88,7 +88,7 @@ ConsumerProducer::producer(std::size_t &work_stat)
 }
 
 void *
-ConsumerProducer::producer(void *arg) throw()
+ConsumerProducer::producer(void *arg) noexcept
 {
   try
   {
@@ -129,7 +129,7 @@ ConsumerProducer::consumer()
 }
 
 void *
-ConsumerProducer::consumer(void *arg) throw()
+ConsumerProducer::consumer(void *arg) noexcept
 {
   try
   {

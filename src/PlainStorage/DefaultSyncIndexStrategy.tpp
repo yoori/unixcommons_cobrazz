@@ -1,6 +1,4 @@
-// @file PlainStorage/DefaultSyncIndexStrategy.tpp
-#ifndef PLAINSTORAGE_DEFAULTSYNCINDEXSTRATEGY_TPP
-#define PLAINSTORAGE_DEFAULTSYNCINDEXSTRATEGY_TPP
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -325,5 +323,3 @@ namespace PlainStorage
 */
   }
 }
-
-#endif // PLAINSTORAGE_DEFAULTSYNCINDEXSTRATEGY_TPP

@@ -1,4 +1,3 @@
-// @file Server/ObjectPoolTestServer.cpp
 #include <iostream>
 #include <sstream>
 

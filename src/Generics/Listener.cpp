@@ -39,7 +39,7 @@ namespace
     /**
      * Destructor, closes all owned descriptors.
      */
-    ~DescriptorsHolder() throw ();
+    ~DescriptorsHolder() noexcept;
 
     /**
      * Add at end of descriptors array open file descriptor.
@@ -54,14 +54,14 @@ namespace
      * @return the last descriptor available.
      */
     int
-    pop_back(Error& error) throw ();
+    pop_back(Error& error) noexcept;
 
     /**
      * Close all owned descriptors. Call before destruction to get
      * potential closing troubles error info.
      */
     void
-    close_all(Error& error) throw ();
+    close_all(Error& error) noexcept;
 
     /**
      * Close all owned descriptors. Call before destruction to get
@@ -76,7 +76,7 @@ namespace
      * @return pointer to descriptors array
      */
     int*
-    get() const throw ();
+    get() const noexcept;
 
     /**
      * Find fd element in descriptors container.
@@ -85,14 +85,14 @@ namespace
      * such element.
      */
     int*
-    find(int fd) const throw ();
+    find(int fd) const noexcept;
 
     /**
      * Get count of open descriptors that owned by descriptor object
      * @return current number of descriptors
      */
     size_t
-    count() const throw ()
+    count() const noexcept
     {
       return used_count_;
     }
@@ -119,7 +119,7 @@ namespace
   {
   }
 
-  DescriptorsHolder::~DescriptorsHolder() throw ()
+  DescriptorsHolder::~DescriptorsHolder() noexcept
   {
     if (used_count_)
     {
@@ -141,7 +141,7 @@ namespace
   }
 
   int
-  DescriptorsHolder::pop_back(Error& error) throw ()
+  DescriptorsHolder::pop_back(Error& error) noexcept
   {
     if (used_count_ == 0)
     {
@@ -153,7 +153,7 @@ namespace
   }
 
   int*
-  DescriptorsHolder::find(int fd) const throw ()
+  DescriptorsHolder::find(int fd) const noexcept
   {
     for (int* p_fd = descriptors_.get();
       p_fd < descriptors_.get() + used_count_; ++p_fd)
@@ -167,7 +167,7 @@ namespace
   }
 
   void
-  DescriptorsHolder::close_all(Error& error) throw ()
+  DescriptorsHolder::close_all(Error& error) noexcept
   {
     close_(descriptors_.get(), descriptors_.get() + used_count_, error);
     used_count_ = 0;
@@ -185,7 +185,7 @@ namespace
   }
 
   int*
-  DescriptorsHolder::get() const throw ()
+  DescriptorsHolder::get() const noexcept
   {
     return descriptors_.get();
   }
@@ -266,7 +266,7 @@ namespace
     size_t redirect_descriptors_amount, const int redirect_descriptors[],
     bool error_pipe, int devnull,
     DescriptorsHolder& read_descriptors, DescriptorsHolder& write_descriptors)
-    throw ()
+    noexcept
   {
     // Only reenterable functions are allowed here.
     // STL and other stuff could be non-reenterable (esp. streams).
@@ -384,7 +384,7 @@ namespace Generics
   //
 
   void
-  DescriptorListenerCallback::on_all_closed() throw ()
+  DescriptorListenerCallback::on_all_closed() noexcept
   {
     if (listener())
     {
@@ -465,20 +465,20 @@ namespace Generics
     }
   }
 
-  DescriptorListener::~DescriptorListener() throw ()
+  DescriptorListener::~DescriptorListener() noexcept
   {
     event_base_free(base_);
   }
 
   void
-  DescriptorListener::terminate() throw ()
+  DescriptorListener::terminate() noexcept
   {
     termination_pipe_.signal();
   }
 
   void
   DescriptorListener::read_callback_(int fd, short /*type*/, void* arg)
-    throw ()
+    noexcept
   {
     DescriptorActionContext* context =
       static_cast<DescriptorActionContext*>(arg);
@@ -487,7 +487,7 @@ namespace Generics
 
   void
   DescriptorListener::terminate_callback_(int /*fd*/, short /*type*/,
-    void* arg) throw ()
+    void* arg) noexcept
   {
     DescriptorListener* listener = static_cast<DescriptorListener*>(arg);
     if (event_base_loopexit(listener->base_, 0) == -1)
@@ -500,7 +500,7 @@ namespace Generics
 
   void
   DescriptorListener::periodic_callback_(int /*fd*/, short /*type*/,
-    void* arg) throw ()
+    void* arg) noexcept
   {
     DescriptorListener* listener = static_cast<DescriptorListener*>(arg);
     listener->callback_->on_periodic();
@@ -514,7 +514,7 @@ namespace Generics
 
   void
   DescriptorListener::handle_read_(int fd, DescriptorActionContext& context)
-    throw ()
+    noexcept
   {
     for (;;)
     {
@@ -646,7 +646,7 @@ namespace Generics
   //
 
   void
-  ActiveDescriptorListenerCallback::on_all_closed() throw ()
+  ActiveDescriptorListenerCallback::on_all_closed() noexcept
   {
     if (listener())
     {
@@ -661,18 +661,18 @@ namespace Generics
   //
 
   ActiveDescriptorListener::ListenerJob::DLCAdapter::DLCAdapter(
-    ActiveDescriptorListenerCallback* active_callback) throw ()
+    ActiveDescriptorListenerCallback* active_callback) noexcept
     : active_callback_(ReferenceCounting::add_ref(active_callback))
   {
   }
 
-  ActiveDescriptorListener::ListenerJob::DLCAdapter::~DLCAdapter() throw ()
+  ActiveDescriptorListener::ListenerJob::DLCAdapter::~DLCAdapter() noexcept
   {
   }
 
   void
   ActiveDescriptorListener::ListenerJob::DLCAdapter::active_listener(
-    ActiveDescriptorListener* active_listener) throw ()
+    ActiveDescriptorListener* active_listener) noexcept
   {
     active_callback_->listener(ActiveDescriptorListener_var(
       ReferenceCounting::add_ref(active_listener)));
@@ -680,21 +680,21 @@ namespace Generics
 
   void
   ActiveDescriptorListener::ListenerJob::DLCAdapter::on_data_ready(
-    int fd, size_t fd_index, const char* buf, size_t size) throw ()
+    int fd, size_t fd_index, const char* buf, size_t size) noexcept
   {
     active_callback_->on_data_ready(fd, fd_index, buf, size);
   }
 
   void
   ActiveDescriptorListener::ListenerJob::DLCAdapter::on_closed(
-    int fd, size_t fd_index, int error) throw ()
+    int fd, size_t fd_index, int error) noexcept
   {
     active_callback_->on_closed(fd, fd_index, error);
   }
 
   void
   ActiveDescriptorListener::ListenerJob::DLCAdapter::on_all_closed()
-    throw ()
+    noexcept
   {
     active_callback_->on_all_closed();
   }
@@ -702,7 +702,7 @@ namespace Generics
   void
   ActiveDescriptorListener::ListenerJob::DLCAdapter::report_error(
     ActiveObjectCallback::Severity severity,
-    const String::SubString& description, const char* error_code) throw ()
+    const String::SubString& description, const char* error_code) noexcept
   {
     active_callback_->report_error(severity, description,
       error_code);
@@ -724,20 +724,20 @@ namespace Generics
   {
   }
 
-  ActiveDescriptorListener::ListenerJob::~ListenerJob() throw ()
+  ActiveDescriptorListener::ListenerJob::~ListenerJob() noexcept
   {
   }
 
   void
   ActiveDescriptorListener::ListenerJob::active_listener(
-    ActiveDescriptorListener* active_listener) throw ()
+    ActiveDescriptorListener* active_listener) noexcept
   {
     static_cast<DLCAdapter&>(*DescriptorListener::callback_).active_listener(
       active_listener);
   }
 
   void
-  ActiveDescriptorListener::ListenerJob::terminate() throw ()
+  ActiveDescriptorListener::ListenerJob::terminate() noexcept
   {
     try
     {
@@ -752,7 +752,7 @@ namespace Generics
   }
 
   void
-  ActiveDescriptorListener::ListenerJob::work() throw ()
+  ActiveDescriptorListener::ListenerJob::work() noexcept
   {
     try
     {
@@ -781,7 +781,7 @@ namespace Generics
     static_cast<ListenerJob&>(*SINGLE_JOB_).active_listener(this);
   }
 
-  ActiveDescriptorListener::~ActiveDescriptorListener() throw ()
+  ActiveDescriptorListener::~ActiveDescriptorListener() noexcept
   {
   }
 
@@ -791,7 +791,7 @@ namespace Generics
   //
 
   void
-  ExecuteAndListenCallback::set_pid(pid_t /*pid*/) throw ()
+  ExecuteAndListenCallback::set_pid(pid_t /*pid*/) noexcept
   {
   }
 

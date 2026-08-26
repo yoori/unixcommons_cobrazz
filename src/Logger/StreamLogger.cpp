@@ -1,8 +1,3 @@
-/**
-* @file   StreamLogger.hpp
-* @author Karen Aroutiounov
-*/
-
 #include <Generics/Function.hpp>
 
 #include <Stream/MemoryStream.hpp>

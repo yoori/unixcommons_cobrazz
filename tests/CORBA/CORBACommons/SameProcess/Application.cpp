@@ -13,13 +13,13 @@ namespace CORBATest
   public:
     virtual
     void
-    test() throw ()
+    test() noexcept
     {
     }
 
   protected:
     virtual
-    ~TestIntImpl() throw ()
+    ~TestIntImpl() noexcept
     {
     }
   };

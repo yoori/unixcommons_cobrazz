@@ -1,13 +1,4 @@
-/**
- * @file   Stream/BinaryStream.hpp
- * @author Pavel Gubin <pgubin@ipmce.ru>
- *
- * Binary stream definitions.
- * Interfaces mimics STL streams as much as possible.
- */
-
-#ifndef STREAM_BINARY_STREAM_HPP
-#define STREAM_BINARY_STREAM_HPP
+#pragma once
 
 #include <ostream>
 #include <istream>
@@ -35,33 +26,33 @@ namespace Stream
     /**
      * Construct object in good state
      */
-    StreamBase() throw ();
+    StreamBase() noexcept;
 
     /**
      * Empty virtual destructor
      */
     virtual
-    ~StreamBase() throw ();
+    ~StreamBase() noexcept;
 
     /**
      * Indicates if the stream is still good
      * @return The operator returns a null pointer only if fail()
      */
-    operator const void*() const throw ();
+    operator const void*() const noexcept;
 
     /**
      * Indicates if the stream is not bad
      * @return returns fail()
      */
     bool
-    operator !() const throw ();
+    operator !() const noexcept;
 
     /**
      * Reads the state of bits for flags
      * @return The stored stream state information
      */
     std::ios_base::iostate
-    rdstate() const throw ();
+    rdstate() const noexcept;
 
     /**
      * Clears all error flags
@@ -86,7 +77,7 @@ namespace Stream
      * otherwise, false
      */
     bool
-    good() const throw ();
+    good() const noexcept;
 
     /**
      * Indicates if the end of a stream has been reached
@@ -94,7 +85,7 @@ namespace Stream
      *  false otherwise
      */
     bool
-    eof() const throw ();
+    eof() const noexcept;
 
     /**
      * Indicates the status of
@@ -103,14 +94,14 @@ namespace Stream
      * otherwise false
      */
     bool
-    fail() const throw ();
+    fail() const noexcept;
 
     /**
      * Indicates the state of rdstate() & std::ios_base::badbit
      * @return true if rdstate & badbit is nonzero; otherwise false
      */
     bool
-    bad() const throw ();
+    bad() const noexcept;
 
     /**
      * Indicates which exceptions will be thrown by the stream
@@ -118,7 +109,7 @@ namespace Stream
      * an exception for the stream
      */
     std::ios_base::iostate
-    exceptions() const throw ();
+    exceptions() const noexcept;
 
     /**
      * Set new exceptions mask
@@ -141,7 +132,7 @@ namespace Stream
     /**
      * Constructor initialize the extraction count to zero
      */
-    BinaryInputStream() throw ();
+    BinaryInputStream() noexcept;
 
     /**
      * Get the number of characters read during the last unformatted input
@@ -149,7 +140,7 @@ namespace Stream
      * input member function called for the object.
      */
     streamsize
-    gcount() const throw ();
+    gcount() const noexcept;
 
     // TODO: Do we need this?
     // virtual
@@ -321,32 +312,32 @@ namespace Stream
   //
 
   inline
-  StreamBase::StreamBase() throw ()
+  StreamBase::StreamBase() noexcept
     : state_(std::ios_base::goodbit), exceptions_(std::ios_base::goodbit)
   {
   }
 
   inline
-  StreamBase::~StreamBase() throw ()
+  StreamBase::~StreamBase() noexcept
   {
   }
 
   inline
-  StreamBase::operator const void*() const throw ()
+  StreamBase::operator const void*() const noexcept
   {
     return fail() ? 0 : static_cast<const void*>(this);
   }
 
   inline
   bool
-  StreamBase::operator !() const throw ()
+  StreamBase::operator !() const noexcept
   {
     return fail();
   }
 
   inline
   std::ios_base::iostate
-  StreamBase::rdstate() const throw ()
+  StreamBase::rdstate() const noexcept
   {
     return state_;
   }
@@ -371,35 +362,35 @@ namespace Stream
 
   inline
   bool
-  StreamBase::good() const throw ()
+  StreamBase::good() const noexcept
   {
     return !state_;
   }
 
   inline
   bool
-  StreamBase::eof() const throw ()
+  StreamBase::eof() const noexcept
   {
     return state_ & std::ios_base::eofbit;
   }
 
   inline
   bool
-  StreamBase::fail() const throw ()
+  StreamBase::fail() const noexcept
   {
     return state_ & (std::ios_base::failbit | std::ios_base::badbit);
   }
 
   inline
   bool
-  StreamBase::bad() const throw ()
+  StreamBase::bad() const noexcept
   {
     return state_ & std::ios_base::badbit;
   }
 
   inline
   std::ios_base::iostate
-  StreamBase::exceptions() const throw ()
+  StreamBase::exceptions() const noexcept
   {
     return exceptions_;
   }
@@ -418,14 +409,14 @@ namespace Stream
   //
 
   inline
-  BinaryInputStream::BinaryInputStream() throw ()
+  BinaryInputStream::BinaryInputStream() noexcept
     : gcount_(0)
   {
   }
 
   inline
   BinaryInputStream::streamsize
-  BinaryInputStream::gcount() const throw ()
+  BinaryInputStream::gcount() const noexcept
   {
     return gcount_;
   }
@@ -475,5 +466,3 @@ namespace Stream
     init(&buf_);
   }
 }
-
-#endif

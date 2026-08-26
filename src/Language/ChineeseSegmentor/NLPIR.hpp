@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_CHINEESE_SEGMENTOR_NLPIR_HPP
-#define LANGUAGE_CHINEESE_SEGMENTOR_NLPIR_HPP
+#pragma once
 
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
 
@@ -34,12 +33,10 @@ namespace Language
           /*throw (eh::Exception)*/;
 
         virtual
-        ~NlpirSegmentor() throw ();
+        ~NlpirSegmentor() noexcept;
       };
       typedef ReferenceCounting::ConstPtr<NlpirSegmentor>
         NlpirSegmentor_var;
     }
   }
 }
-
-#endif

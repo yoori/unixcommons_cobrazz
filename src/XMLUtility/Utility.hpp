@@ -1,13 +1,4 @@
-/**
- * @file   Utility.hpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- *
- * File contains group of helper functions
- * interface.
- */
-
-#ifndef XML_UTILITY_UTILITY_HPP
-#define XML_UTILITY_UTILITY_HPP
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -49,7 +40,7 @@ namespace XMLUtility
    * Performs per process Xerces termination.
    */
   void
-  terminate() throw ();
+  terminate() noexcept;
 
   /**
    * Retrieves an attribute value for the specified XML node.
@@ -259,7 +250,7 @@ namespace XMLUtility
     class GetStringFilter : public DOMLSSerializerFilter
     {
     public:
-      GetStringFilter(DOMNode* node, bool content_only) throw ()
+      GetStringFilter(DOMNode* node, bool content_only) noexcept
         : node_(node), content_only_(content_only),
           to_show_(DOMNodeFilter::SHOW_ALL)
       {
@@ -359,5 +350,3 @@ namespace XMLUtility
           name_space));
   }
 }
-
-#endif

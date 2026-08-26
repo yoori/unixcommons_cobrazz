@@ -1,6 +1,5 @@
 // Application.hpp
-#ifndef __TEST_APPLICATION_CONDITION_HPP_INCLUDED__
-#define __TEST_APPLICATION_CONDITION_HPP_INCLUDED__ 
+#pragma once
 
 #include <vector>
 #include <Sync/Condition.hpp>
@@ -12,20 +11,20 @@ public:
   ConsumerProducer(std::size_t max_item_count,
     std::size_t producer_threads_count = 1)
     /*throw(Sync::Conditional::Exception)*/;
-  ~ConsumerProducer() throw();
+  ~ConsumerProducer() noexcept;
 
   void
   producer(std::size_t &work_stat)
     /*throw(Sync::Conditional::Exception)*/;
 
   static void *
-  producer(void *arg) throw();
+  producer(void *arg) noexcept;
 
   void
   consumer() /*throw(Sync::Conditional::Exception)*/;
 
   static void *
-  consumer(void *arg) throw();
+  consumer(void *arg) noexcept;
 
 private:
   const std::size_t MAX_ITEM_COUNT_;
@@ -40,7 +39,7 @@ private:
 
   struct ThreadContext
   {
-    ThreadContext(ConsumerProducer *this_ptr_val) throw();
+    ThreadContext(ConsumerProducer *this_ptr_val) noexcept;
     ConsumerProducer *this_ptr;
     std::size_t work_done_stat;
     pthread_t thread;
@@ -49,5 +48,3 @@ private:
   typedef std::vector<ThreadContext> ThreadsContainer;
   ThreadsContainer threads_;
 };
-
-#endif  // __TEST_APPLICATION_CONDITION_HPP_INCLUDED__

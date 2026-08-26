@@ -20,7 +20,7 @@ namespace Generics
     std::atomic<uint64_t> unsafe_rand_seed_counter(0);
 
     inline uint64_t
-    splitmix64(uint64_t& state) throw ()
+    splitmix64(uint64_t& state) noexcept
     {
       uint64_t result = (state += 0x9E3779B97F4A7C15ULL);
       result = (result ^ (result >> 30)) * 0xBF58476D1CE4E5B9ULL;
@@ -29,7 +29,7 @@ namespace Generics
     }
 
     uint64_t
-    unsafe_rand_seed() throw ()
+    unsafe_rand_seed() noexcept
     {
       uint64_t state = unsafe_rand_seed_counter.fetch_add(
         0x9E3779B97F4A7C15ULL,
@@ -44,7 +44,7 @@ namespace Generics
     }
 
     inline uint64_t
-    xorshift64(uint64_t& state) throw ()
+    xorshift64(uint64_t& state) noexcept
     {
       uint64_t result = state;
       result ^= result >> 12;
@@ -62,14 +62,14 @@ namespace Generics
   const size_t ISAAC::SIZE;
 
   uint32_t
-  safe_rand() throw ()
+  safe_rand() noexcept
   {
     Sync::PosixGuard lock(mutex);
     return generator.rand() >> 1;
   }
 
   uint32_t
-  unsafe_rand() throw ()
+  unsafe_rand() noexcept
   {
     static thread_local uint64_t state = unsafe_rand_seed();
     return static_cast<uint32_t>(xorshift64(state) >> 33);

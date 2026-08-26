@@ -1,6 +1,4 @@
-// @file Generics/AppUtils.hpp
-#ifndef GENERICS_APP_UTILS_HPP
-#define GENERICS_APP_UTILS_HPP
+#pragma once
 
 #include <list>
 
@@ -24,7 +22,7 @@ namespace Generics
       typedef std::list<std::string> StringList;
 
       OptionCont
-      operator ||(const OptionCont& right) throw ();
+      operator ||(const OptionCont& right) noexcept;
 
       StringList eq_options;
       StringList short_options;
@@ -33,15 +31,15 @@ namespace Generics
     class CheckOption
     {
     public:
-      CheckOption() throw ();
+      CheckOption() noexcept;
 
       bool
-      require_value() const throw ();
+      require_value() const noexcept;
       bool
-      enabled() const throw ();
+      enabled() const noexcept;
 
       void
-      set(const char* opt_name, const char* val) throw ();
+      set(const char* opt_name, const char* val) noexcept;
 
     protected:
       bool enabled_;
@@ -51,24 +49,24 @@ namespace Generics
     class Option
     {
     public:
-      Option() throw ();
+      Option() noexcept;
       explicit
-      Option(const Object& val) throw ();
+      Option(const Object& val) noexcept;
 
       const Object&
-      operator *() const throw ();
+      operator *() const noexcept;
       const Object*
-      operator ->() const throw ();
+      operator ->() const noexcept;
 
       bool
-      require_value() const throw ();
+      require_value() const noexcept;
       bool
-      installed() const throw ();
+      installed() const noexcept;
 
       void
       set(const char* opt_name, const char* val) /*throw (InvalidParam)*/;
       void
-      set_value(const Object& val) throw ();
+      set_value(const Object& val) noexcept;
 
     protected:
       Object val_;
@@ -88,7 +86,7 @@ namespace Generics
       /**
        * Construct options container object in not installed state
        */
-      OptionsSet() throw ();
+      OptionsSet() noexcept;
 
       /**
        * Construct options container object in not installed state,
@@ -96,7 +94,7 @@ namespace Generics
        * @param val value to be assigned
        */
       explicit
-      OptionsSet(const Object& val) throw ();
+      OptionsSet(const Object& val) noexcept;
 
       /**
        * Parse source and store read value to OptionsSet object
@@ -110,8 +108,8 @@ namespace Generics
     class StringOption : public Option<std::string>
     {
     public:
-      StringOption() throw ();
-      StringOption(const std::string& val) throw ();
+      StringOption() noexcept;
+      StringOption(const std::string& val) noexcept;
 
       void
       set(const char* opt_name, const char* val) /*throw (InvalidParam)*/;
@@ -135,7 +133,7 @@ namespace Generics
         /*throw (eh::Exception, Exception, InvalidParam)*/;
 
       const CommandList&
-      commands() const throw ();
+      commands() const noexcept;
 
       void
       usage(std::ostream& ostr) const /*throw (eh::Exception)*/;
@@ -145,17 +143,17 @@ namespace Generics
       {
       public:
         ParseState(unsigned long argc_val, const char* const* argv_val,
-          const char* arg_pos_val) throw ();
+          const char* arg_pos_val) noexcept;
 
         bool
-        next_word() throw ();
+        next_word() noexcept;
         bool
-        end() throw ();
+        end() noexcept;
 
         const char*
-        current_pos() throw ();
+        current_pos() noexcept;
         void
-        current_pos(const char* pos) throw ();
+        current_pos(const char* pos) noexcept;
 
       protected:
         unsigned long argc_;
@@ -167,7 +165,7 @@ namespace Generics
       {
       protected:
         virtual
-        ~OptionSetter() throw ();
+        ~OptionSetter() noexcept;
 
       public:
         virtual
@@ -176,7 +174,7 @@ namespace Generics
 
         virtual
         bool
-        require_value() const throw () = 0;
+        require_value() const noexcept = 0;
       };
       typedef ReferenceCounting::QualPtr<OptionSetter> OptionSetter_var;
 
@@ -203,7 +201,7 @@ namespace Generics
       class OptionSetterImpl : public OptionSetter
       {
       public:
-        OptionSetterImpl(Option& opt) throw ();
+        OptionSetterImpl(Option& opt) noexcept;
 
         virtual
         void
@@ -211,11 +209,11 @@ namespace Generics
 
         virtual
         bool
-        require_value() const throw ();
+        require_value() const noexcept;
 
       protected:
         virtual
-        ~OptionSetterImpl() throw ();
+        ~OptionSetterImpl() noexcept;
 
       private:
         Option& opt_;
@@ -264,28 +262,28 @@ namespace Generics
     //
 
     inline
-    CheckOption::CheckOption() throw ()
+    CheckOption::CheckOption() noexcept
       : enabled_(false)
     {
     }
 
     inline
     bool
-    CheckOption::require_value() const throw ()
+    CheckOption::require_value() const noexcept
     {
       return false;
     }
 
     inline
     bool
-    CheckOption::enabled() const throw ()
+    CheckOption::enabled() const noexcept
     {
       return enabled_;
     }
 
     inline
     void
-    CheckOption::set(const char* /*opt_name*/, const char* /*val*/) throw ()
+    CheckOption::set(const char* /*opt_name*/, const char* /*val*/) noexcept
     {
       enabled_ = true;
     }
@@ -296,41 +294,41 @@ namespace Generics
     //
 
     template <typename Object>
-    Option<Object>::Option() throw ()
+    Option<Object>::Option() noexcept
       : installed_(false)
     {
     }
 
     template <typename Object>
-    Option<Object>::Option(const Object& val) throw ()
+    Option<Object>::Option(const Object& val) noexcept
       : val_(val), installed_(false)
     {
     }
 
     template <typename Object>
     const Object&
-    Option<Object>::operator *() const throw ()
+    Option<Object>::operator *() const noexcept
     {
       return val_;
     }
 
     template <typename Object>
     const Object*
-    Option<Object>::operator ->() const throw ()
+    Option<Object>::operator ->() const noexcept
     {
       return &val_;
     }
 
     template <typename Object>
     bool
-    Option<Object>::require_value() const throw ()
+    Option<Object>::require_value() const noexcept
     {
       return true;
     }
 
     template <typename Object>
     bool
-    Option<Object>::installed() const throw ()
+    Option<Object>::installed() const noexcept
     {
       return installed_;
     }
@@ -361,7 +359,7 @@ namespace Generics
 
     template <typename Object>
     void
-    Option<Object>::set_value(const Object& val) throw ()
+    Option<Object>::set_value(const Object& val) noexcept
     {
       val_ = val;
       installed_ = true;
@@ -373,12 +371,12 @@ namespace Generics
     //
 
     template <typename Object>
-    OptionsSet<Object>::OptionsSet() throw ()
+    OptionsSet<Object>::OptionsSet() noexcept
     {
     }
 
     template <typename Object>
-    OptionsSet<Object>::OptionsSet(const Object& val) throw ()
+    OptionsSet<Object>::OptionsSet(const Object& val) noexcept
       : Option<Object>(val)
     {
     }
@@ -407,12 +405,12 @@ namespace Generics
     //
 
     inline
-    StringOption::StringOption() throw ()
+    StringOption::StringOption() noexcept
     {
     }
 
     inline
-    StringOption::StringOption(const std::string& val) throw ()
+    StringOption::StringOption(const std::string& val) noexcept
       : Option<std::string>(val)
     {
     }
@@ -438,7 +436,7 @@ namespace Generics
     //
 
     inline
-    Args::OptionSetter::~OptionSetter() throw ()
+    Args::OptionSetter::~OptionSetter() noexcept
     {
     }
 
@@ -448,13 +446,13 @@ namespace Generics
     //
 
     template <typename Option>
-    Args::OptionSetterImpl<Option>::OptionSetterImpl(Option& opt) throw ()
+    Args::OptionSetterImpl<Option>::OptionSetterImpl(Option& opt) noexcept
       : opt_(opt)
     {
     }
 
     template <typename Option>
-    Args::OptionSetterImpl<Option>::~OptionSetterImpl() throw ()
+    Args::OptionSetterImpl<Option>::~OptionSetterImpl() noexcept
     {
     }
 
@@ -468,7 +466,7 @@ namespace Generics
 
     template <typename Option>
     bool
-    Args::OptionSetterImpl<Option>::require_value() const throw ()
+    Args::OptionSetterImpl<Option>::require_value() const noexcept
     {
       return opt_.require_value();
     }
@@ -486,7 +484,7 @@ namespace Generics
 
     inline
     const Args::CommandList&
-    Args::commands() const throw ()
+    Args::commands() const noexcept
     {
       return commands_;
     }
@@ -550,5 +548,3 @@ namespace Generics
     }
   }
 }
-
-#endif

@@ -1,9 +1,3 @@
-/**
-* @file UTF8CaseUpper.cpp
-* @author Denis Badikov
-*  UTF-8 tables declarations.
-*/
-
 #include "UTF8CaseUpper.hpp"
 
 

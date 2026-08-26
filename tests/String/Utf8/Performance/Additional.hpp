@@ -1,6 +1,5 @@
 // Additional.hpp
-#ifndef _PERFORMANCE_TEST_ADDITIONAL_HPP_INCLUDED_
-#define _PERFORMANCE_TEST_ADDITIONAL_HPP_INCLUDED_
+#pragma once
 
 #include <numeric>
 #include <cmath>
@@ -70,13 +69,13 @@ namespace Test
   };
 
   inline std::size_t
-  get_octet_count_outdoor(char ch) throw()
+  get_octet_count_outdoor(char ch) noexcept
   {
     return trailingBytesUTF8[static_cast<unsigned char>(ch)];
   }
 
   inline std::size_t
-  get_octet_count_inside(char ch) throw()
+  get_octet_count_inside(char ch) noexcept
   {
     const unsigned char trailingBytesForUTF8[256] = {
       1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, //32
@@ -93,7 +92,7 @@ namespace Test
   }
 
   inline std::size_t
-  get_octet_count_inside_static(char ch) throw()
+  get_octet_count_inside_static(char ch) noexcept
   {
     static const unsigned char trailingBytesForUTF8[256] = {
       1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, //32
@@ -110,7 +109,7 @@ namespace Test
   }
 
   inline std::size_t
-  get_octet_count_if(char ch) throw()
+  get_octet_count_if(char ch) noexcept
   {
     if ((ch & 0x80) == 0)
     {
@@ -142,5 +141,3 @@ namespace Test
     }
   }
 } // namespace Test
-
-#endif  // _PERFORMANCE_TEST_ADDITIONAL_HPP_INCLUDED_

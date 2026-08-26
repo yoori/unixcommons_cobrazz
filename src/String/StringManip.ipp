@@ -9,7 +9,7 @@ namespace String
   {
     inline
     size_t
-    strlcpy(char* dst, const char* src, size_t size) throw ()
+    strlcpy(char* dst, const char* src, size_t size) noexcept
     {
       const char* const saved_src = src;
 
@@ -32,7 +32,7 @@ namespace String
 
     inline
     size_t
-    strlcat(char* dst, const char* src, size_t size) throw ()
+    strlcat(char* dst, const char* src, size_t size) noexcept
     {
       const char* const saved_src = src;
 
@@ -65,7 +65,7 @@ namespace String
     inline
     constexpr
     size_t
-    base64mod_encoded_size(size_t original_size, bool padding) throw ()
+    base64mod_encoded_size(size_t original_size, bool padding) noexcept
     {
       return padding ? (original_size + 2) / 3 * 4 :
         original_size / 3 * 4 +
@@ -75,7 +75,7 @@ namespace String
     inline
     constexpr
     size_t
-    base64mod_max_decoded_size(size_t original_size) throw ()
+    base64mod_max_decoded_size(size_t original_size) noexcept
     {
       return (original_size + 3) / 4 * 3;
     }
@@ -83,14 +83,14 @@ namespace String
     inline
     constexpr
     size_t
-    base64mod_fill_size(size_t original_size) throw ()
+    base64mod_fill_size(size_t original_size) noexcept
     {
       return (8 >> (original_size % 3)) & 6;
     }
 
     inline
     size_t
-    append(char* buffer, size_t size, const char* str) throw ()
+    append(char* buffer, size_t size, const char* str) noexcept
     {
       size_t length = strlcpy(buffer, str, size);
       return length < size ? length : size;
@@ -98,14 +98,14 @@ namespace String
 
     inline
     size_t
-    append(char* buffer, size_t size, char* str) throw ()
+    append(char* buffer, size_t size, char* str) noexcept
     {
       return append(buffer, size, const_cast<const char*>(str));
     }
 
     inline
     size_t
-    append(char* buffer, size_t size, const SubString& str) throw ()
+    append(char* buffer, size_t size, const SubString& str) noexcept
     {
       //assert(size);
       if (str.size() >= size)
@@ -121,14 +121,14 @@ namespace String
 
     inline
     size_t
-    append(char* buffer, size_t size, const std::string& str) throw ()
+    append(char* buffer, size_t size, const std::string& str) noexcept
     {
       return append(buffer, size, SubString(str));
     }
 
     template <typename Integer>
     size_t
-    append(char* buffer, size_t size, Integer integer) throw ()
+    append(char* buffer, size_t size, Integer integer) noexcept
     {
       size_t res = int_to_str(integer, buffer, size);
       if (!res)
@@ -143,7 +143,7 @@ namespace String
     inline
     void
     concat(char* buffer, size_t size)
-      throw ()
+      noexcept
     {
       (void)size;
       assert(size);
@@ -153,7 +153,7 @@ namespace String
     template <typename First, typename... Args>
     void
     concat(char* buffer, size_t size, First f, Args... args)
-      throw ()
+      noexcept
     {
       size_t length = append(buffer, size, f);
       if (length < size)
@@ -169,7 +169,7 @@ namespace String
   //
 
   inline
-  Fmt::Fmt(const char* fmt, ...) throw ()
+  Fmt::Fmt(const char* fmt, ...) noexcept
   {
     int n;
     std::va_list ap;
@@ -184,7 +184,7 @@ namespace String
   }
 
   inline
-  Fmt::~Fmt() throw ()
+  Fmt::~Fmt() noexcept
   {
     if (text_)
     {
@@ -193,7 +193,7 @@ namespace String
   }
 
   inline
-  Fmt::operator const char*() const throw ()
+  Fmt::operator const char*() const noexcept
   {
     if (text_)
     {
@@ -291,7 +291,7 @@ namespace String
 
     inline
     const char*
-    base_name(const char* path) throw ()
+    base_name(const char* path) noexcept
     {
       const char* file = strrchr(path, '/');
       return file ? file + 1 : path;

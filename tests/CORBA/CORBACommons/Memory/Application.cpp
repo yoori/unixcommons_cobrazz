@@ -1,6 +1,3 @@
-/**
- * @file CORBACommons/Memory/Client/Application.cpp
- */
 #include <iostream>
 #include <sstream>
 

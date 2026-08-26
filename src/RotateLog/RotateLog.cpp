@@ -18,7 +18,7 @@ namespace
   class Config
   {
   public:
-    Config() throw ();
+    Config() noexcept;
 
     void
     parse(int argc, char* argv[])
@@ -67,21 +67,21 @@ namespace
   public:
     ListenerCallback(Logging::Logger* logger,
       const Logging::Formatter* non_stdin_formatter,
-      Logging::Logger::Severity used_severity) throw ();
+      Logging::Logger::Severity used_severity) noexcept;
 
     virtual
     void
     report_error(Severity severity, const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
     virtual
     void
     on_data_ready(int fd, std::size_t fd_index, const char* str,
-      std::size_t size) throw ();
+      std::size_t size) noexcept;
 
   protected:
     virtual
-    ~ListenerCallback() throw ();
+    ~ListenerCallback() noexcept;
 
   private:
     Logging::FLogger_var logger_;
@@ -89,7 +89,7 @@ namespace
     Logging::Logger::Severity used_severity_;
   };
 
-  Config::Config() throw ()
+  Config::Config() noexcept
     : file_set(false), size(0), time(0), when_set(0),
       hour(0), minute(0), second(0), local_tz(false),
       severity(Logging::Logger::INFO),
@@ -257,27 +257,27 @@ namespace
   ListenerCallback::ListenerCallback(Logging::Logger* logger,
     const Logging::Formatter* non_stdin_formatter,
     Logging::Logger::Severity used_severity)
-    throw ()
+    noexcept
     : logger_(ReferenceCounting::add_ref(logger)),
       non_stdin_formatter_(ReferenceCounting::add_ref(non_stdin_formatter)),
       used_severity_(used_severity)
   {
   }
 
-  ListenerCallback::~ListenerCallback() throw ()
+  ListenerCallback::~ListenerCallback() noexcept
   {
   }
 
   void
   ListenerCallback::report_error(Severity /*severity*/,
     const  String::SubString& /*description*/,
-    const char* /*error_code*/) throw ()
+    const char* /*error_code*/) noexcept
   {
   }
 
   void
   ListenerCallback::on_data_ready(int fd, std::size_t /*fd_index*/,
-    const char* str, std::size_t size) throw ()
+    const char* str, std::size_t size) noexcept
   {
     if (!size)
     {

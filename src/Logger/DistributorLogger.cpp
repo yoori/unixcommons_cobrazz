@@ -7,12 +7,12 @@ namespace Logging
   // DistributorLogger class
   //
 
-  DistributorLogger::~DistributorLogger() throw ()
+  DistributorLogger::~DistributorLogger() noexcept
   {
   }
 
   unsigned long
-  DistributorLogger::log_level() throw ()
+  DistributorLogger::log_level() noexcept
   {
     unsigned long level = 0;
     for (Loggers::iterator it(loggers_.begin());
@@ -28,7 +28,7 @@ namespace Logging
   }
 
   void
-  DistributorLogger::log_level(unsigned long value) throw ()
+  DistributorLogger::log_level(unsigned long value) noexcept
   {
     for (Loggers::iterator it(loggers_.begin());
       it != loggers_.end(); ++it)
@@ -39,7 +39,7 @@ namespace Logging
 
   bool
   DistributorLogger::log(const String::SubString& text,
-    unsigned long severity, const char* aspect, const char* code) throw ()
+    unsigned long severity, const char* aspect, const char* code) noexcept
   {
     bool result = false;
     for (Loggers::iterator it(loggers_.begin());
@@ -59,23 +59,23 @@ namespace Logging
   //
 
   SeveritySelectorLogger::SeveritySelectorLogger(
-    Logger* logger, unsigned long low, unsigned long high) throw ()
+    Logger* logger, unsigned long low, unsigned long high) noexcept
     : SimpleLoggerHolder(logger), low_(low), high_(high)
   {
   }
 
   SeveritySelectorLogger::SeveritySelectorLogger(
-    unsigned long high, Logger* logger) throw ()
+    unsigned long high, Logger* logger) noexcept
     : SimpleLoggerHolder(logger), low_(0), high_(high)
   {
   }
 
-  SeveritySelectorLogger::~SeveritySelectorLogger() throw ()
+  SeveritySelectorLogger::~SeveritySelectorLogger() noexcept
   {
   }
 
   unsigned long
-  SeveritySelectorLogger::log_level() throw ()
+  SeveritySelectorLogger::log_level() noexcept
   {
     unsigned long level = SimpleLoggerHolder::log_level();
     return level > high_ ? high_ : level;
@@ -83,7 +83,7 @@ namespace Logging
 
   bool
   SeveritySelectorLogger::log(const String::SubString& text,
-    unsigned long severity, const char* aspect, const char* code) throw ()
+    unsigned long severity, const char* aspect, const char* code) noexcept
   {
     if (severity >= low_ && severity <= high_)
     {

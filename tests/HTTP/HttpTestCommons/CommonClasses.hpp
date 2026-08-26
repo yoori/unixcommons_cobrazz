@@ -1,5 +1,4 @@
-#ifndef _HTTP_TEST_COMMONS_COMMON_CLASSES_HPP_
-#define _COMPLEX_TEST_COMMON_CLASSES_HPP_
+#pragma once
 
 #include <Generics/TaskRunner.hpp>
 
@@ -24,12 +23,12 @@ public:
   additional_http_query() /*throw (eh::Exception)*/;
 
   virtual void
-  execute() throw () = 0;
+  execute() noexcept = 0;
 
 protected:
 
   virtual
-  ~TestInterface() throw () = 0;
+  ~TestInterface() noexcept = 0;
 };
 
 //
@@ -52,12 +51,12 @@ public:
 
   virtual void
   report_error(Severity /*severity*/, const String::SubString& description,
-    const char* error_code = 0) throw ();
+    const char* error_code = 0) noexcept;
 
 protected:
 
   virtual
-  ~SimplePolicy() throw ();
+  ~SimplePolicy() noexcept;
 
 private:
   TestCommons::Errors errors_;
@@ -122,11 +121,11 @@ public:
     /*throw(eh::Exception)*/;
 
   virtual void
-  on_response(const HTTP::ResponseInformation& data) throw ();
+  on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
   on_error(const String::SubString& description,
-    const HTTP::RequestInformation& data) throw ();
+    const HTTP::RequestInformation& data) noexcept;
 
   virtual void
   print_stat(std::ostream& ostr) const /*throw (eh::Exception)*/;
@@ -135,12 +134,12 @@ public:
   print_errors(std::ostream& ostr, bool log_needed = false) /*throw (eh::Exception)*/;
 
   const TestCommons::Counter&
-  get_counter() const throw ();
+  get_counter() const noexcept;
 
 protected:
 
   virtual
-  ~SimpleCounterCallback() throw ();
+  ~SimpleCounterCallback() noexcept;
   
   HTTP::PoolPolicy_var policy_;
 
@@ -170,13 +169,13 @@ public:
   print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/;
 
   void
-  operator ()() throw ();
+  operator ()() noexcept;
 
   const TestCommons::Counter&
-  get_counter() const throw ();
+  get_counter() const noexcept;
 
   void
-  release_callback() throw();
+  release_callback() noexcept;
 
 private:
   HTTP::HttpInterface_var pool_;
@@ -187,5 +186,3 @@ private:
   const String::SubString post_body_;
   TestInterface& test_;
 };
-
-#endif

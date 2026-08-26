@@ -69,7 +69,7 @@ namespace Language
         klt_mode.index.stopw = 0;
       }
 
-      KltSegmentor::~KltSegmentor() throw ()
+      KltSegmentor::~KltSegmentor() noexcept
       {
         close_HAM_index(&klt_mode);
       }
@@ -187,7 +187,7 @@ namespace Language
       {
       }
 
-      KltSegmentor::~KltSegmentor() throw ()
+      KltSegmentor::~KltSegmentor() noexcept
       {
       }
 

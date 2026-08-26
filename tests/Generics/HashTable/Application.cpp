@@ -1,8 +1,3 @@
-/**
- * @file   Application.cpp
- * @author Karen Aroutiounov
- */
-
 #include <iostream>
 #include <map>
 #include <string>
@@ -75,7 +70,7 @@ namespace Generics
     srand(time(0));
   }
 
-  Application::~Application() throw ()
+  Application::~Application() noexcept
   {
   }
 

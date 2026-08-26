@@ -1,5 +1,4 @@
-#ifndef GENERICS_RSA_HPP
-#define GENERICS_RSA_HPP
+#pragma once
 
 #include <cstdio>
 
@@ -37,14 +36,14 @@ namespace Generics
      * Destructor
      * Frees the key
      */
-    ~RSAKey() throw ();
+    ~RSAKey() noexcept;
 
     /**
      * Returns pointer to the key
      * @return pointer to the key
      */
     RSA*
-    key() const throw ();
+    key() const noexcept;
 
   private:
     RSA* key_;
@@ -85,17 +84,15 @@ namespace Generics
   }
 
   template <const bool PRIVATE_KEY>
-  RSAKey<PRIVATE_KEY>::~RSAKey() throw ()
+  RSAKey<PRIVATE_KEY>::~RSAKey() noexcept
   {
     RSA_free(key_);
   }
 
   template <const bool PRIVATE_KEY>
   RSA*
-  RSAKey<PRIVATE_KEY>::key() const throw ()
+  RSAKey<PRIVATE_KEY>::key() const noexcept
   {
     return key_;
   }
 }
-
-#endif

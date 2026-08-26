@@ -1,5 +1,4 @@
-#ifndef GENERICS_VALUES_HPP
-#define GENERICS_VALUES_HPP
+#pragma once
 
 #include <limits>
 #include <functional>
@@ -159,7 +158,7 @@ namespace Generics
 
   protected:
     virtual
-    ~Values() throw () = default;
+    ~Values() noexcept = default;
 
   protected:
     /**
@@ -534,5 +533,3 @@ namespace Generics
     }
   }
 }
-
-#endif

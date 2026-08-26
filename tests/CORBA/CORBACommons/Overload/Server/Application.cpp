@@ -27,19 +27,19 @@ Application::Application() /*throw (eh::Exception)*/
 {
 }
 
-Application::~Application() throw ()
+Application::~Application() noexcept
 {
 }
 
 void
-Application::error(const char* message) throw ()
+Application::error(const char* message) noexcept
 {
   error_state_ = true;
   std::cerr << message << std::endl;
 };
 
 char*
-Application::control(const char* param_name, const char* param_value) throw ()
+Application::control(const char* param_name, const char* param_value) noexcept
 {
   std::cout << "Param '" << param_name << "' value '" << param_value << "'" <<
     std::endl;

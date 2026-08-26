@@ -1,5 +1,4 @@
-#ifndef TEST_CORBA_OVERLOAD_SERVER_APPLICATION_HPP
-#define TEST_CORBA_OVERLOAD_SERVER_APPLICATION_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -23,17 +22,15 @@ public:
   run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/;
 
   void
-  error(const char* message) throw ();
+  error(const char* message) noexcept;
 
   virtual char*
-  control(const char* param_name, const char* param_value) throw ();
+  control(const char* param_name, const char* param_value) noexcept;
 
 protected:
   virtual
-  ~Application() throw ();
+  ~Application() noexcept;
 
 private:
   bool error_state_;
 };
-
-#endif

@@ -7,33 +7,33 @@ Logging::QLogger_var out;
 class PeriodicPrint : public Generics::PeriodicTask
 {
 public:
-  PeriodicPrint(int time) throw ();
+  PeriodicPrint(int time) noexcept;
 
   virtual
   void
-  task(bool forced) throw ();
+  task(bool forced) noexcept;
 
 protected:
   virtual
-  ~PeriodicPrint() throw ();
+  ~PeriodicPrint() noexcept;
 
 private:
   int index_;
 };
 
 
-PeriodicPrint::PeriodicPrint(int time) throw ()
+PeriodicPrint::PeriodicPrint(int time) noexcept
   : Generics::PeriodicTask(Generics::Time(time)), index_(time)
 {
 }
 
 void
-PeriodicPrint::task(bool forced) throw ()
+PeriodicPrint::task(bool forced) noexcept
 {
   out->stream(Logging::Logger::INFO) << index_ << (forced ? " forced" : "");
 }
 
-PeriodicPrint::~PeriodicPrint() throw ()
+PeriodicPrint::~PeriodicPrint() noexcept
 {
 }
 

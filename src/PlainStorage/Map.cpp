@@ -1,4 +1,3 @@
-// @file PlainStorage/Map.cpp
 #include <cstring>
 
 #include <Generics/Function.hpp>
@@ -164,14 +163,14 @@ namespace PlainStorage
   }
 
   DefaultBlockAllocator::~DefaultBlockAllocator()
-    throw ()
+    noexcept
   {
     sync_();
   }
 
   void
   DefaultBlockAllocator::sync_()
-    throw ()
+    noexcept
   {
     static_cast<AllocatorIndex*>(
       block_allocator_description_->content())->value() =

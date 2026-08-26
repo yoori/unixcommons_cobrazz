@@ -101,7 +101,7 @@ namespace String
     namespace Category
     {
       CharTable::CharTable(const char* str, bool check_zero)
-        throw ()
+        noexcept
       {
         std::fill(table_, table_ + 256, false);
 
@@ -138,7 +138,7 @@ namespace String
       }
 
       CharTable::CharTable(const CharTable& first, const CharTable& second)
-        throw ()
+        noexcept
       {
         for (int i = 0; i < 256; i++)
         {
@@ -147,7 +147,7 @@ namespace String
       }
 
       CharTable::CharTable(const CharTable& first, const CharTable& second,
-        const CharTable& third) throw ()
+        const CharTable& third) noexcept
       {
         for (int i = 0; i < 256; i++)
         {

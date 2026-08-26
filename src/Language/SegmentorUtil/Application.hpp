@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_SEGMENTOR_UTIL_APPLICATION_HPP
-#define LANGUAGE_SEGMENTOR_UTIL_APPLICATION_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -13,5 +12,3 @@ public:
   run(int argc, char* argv[])
     /*throw (Exception, eh::Exception)*/;
 };
-
-#endif

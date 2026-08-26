@@ -1,6 +1,4 @@
-// @file String/UTF8CaseUpper.hpp
-#ifndef STRING_UTF8_CASE_UPPER_HPP
-#define STRING_UTF8_CASE_UPPER_HPP
+#pragma once
 
 #include <String/UTF8Case.hpp>
 #include <String/UTF8Tables.hpp>
@@ -9,7 +7,7 @@
 
 bool
 String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
-  throw ()
+  noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -356,5 +354,3 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
   }
   return true;
 }
-
-#endif

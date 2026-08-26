@@ -1,5 +1,4 @@
-#ifndef REFERENCECOUNTING_VECTOR_HPP
-#define REFERENCECOUNTING_VECTOR_HPP
+#pragma once
 
 #include <vector>
 
@@ -54,20 +53,20 @@ namespace ReferenceCounting
     using Base::erase;
     using Base::clear;
 
-    Vector() throw ();
+    Vector() noexcept;
     explicit
     Vector(size_type n) /*throw (eh::Exception)*/;
     Vector(size_type n, value_type& x) /*throw (eh::Exception)*/;
     Vector(Vector& v) /*throw (eh::Exception)*/;
     Vector(const Vector&) = delete;
-    Vector(Vector&& v) throw ();
+    Vector(Vector&& v) noexcept;
     template <typename InputIterator>
     Vector(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
     Vector&
     operator =(Vector& v) /*throw (eh::Exception)*/;
     Vector&
-    operator =(Vector&& v) throw ();
+    operator =(Vector&& v) noexcept;
 
     void
     assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
@@ -99,10 +98,10 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
     void
-    swap(Vector&& v) throw ();
+    swap(Vector&& v) noexcept;
 #else
     void
-    swap(Vector& v) throw ();
+    swap(Vector& v) noexcept;
 #endif
 
   private:
@@ -114,7 +113,7 @@ namespace ReferenceCounting
 namespace ReferenceCounting
 {
   template <typename T, typename Allocator>
-  Vector<T, Allocator>::Vector() throw ()
+  Vector<T, Allocator>::Vector() noexcept
   {
   }
 
@@ -139,7 +138,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  Vector<T, Allocator>::Vector(Vector&& v) throw ()
+  Vector<T, Allocator>::Vector(Vector&& v) noexcept
     : Base(std::move(v))
   {
   }
@@ -162,7 +161,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   Vector<T, Allocator>&
-  Vector<T, Allocator>::operator =(Vector&& v) throw ()
+  Vector<T, Allocator>::operator =(Vector&& v) noexcept
   {
     Base::operator =(std::move(v));
     return *this;
@@ -331,14 +330,14 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  Vector<T, Allocator>::swap(Vector&& v) throw ()
+  Vector<T, Allocator>::swap(Vector&& v) noexcept
   {
     Base::swap(std::move(v));
   }
 #else
   template <typename T, typename Allocator>
   void
-  Vector<T, Allocator>::swap(Vector& v) throw ()
+  Vector<T, Allocator>::swap(Vector& v) noexcept
   {
     Base::swap(v);
   }
@@ -364,7 +363,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   void
-  swap(Vector<T, Allocator>& x, Vector<T, Allocator>& y) throw ()
+  swap(Vector<T, Allocator>& x, Vector<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -372,18 +371,16 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  swap(Vector<T, Allocator>&& x, Vector<T, Allocator>& y) throw ()
+  swap(Vector<T, Allocator>&& x, Vector<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
   void
-  swap(Vector<T, Allocator>& x, Vector<T, Allocator>&& y) throw ()
+  swap(Vector<T, Allocator>& x, Vector<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }
 #endif
 }
-
-#endif

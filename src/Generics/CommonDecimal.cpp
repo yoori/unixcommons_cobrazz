@@ -8,7 +8,7 @@ namespace Generics
     template <>
     void
     mul<false>(uint64_t factor1, uint64_t factor2, uint64_t base,
-      uint64_t& major, uint64_t& minor) throw ()
+      uint64_t& major, uint64_t& minor) noexcept
     {
       uint64_t h, l;
       __asm__ __volatile__(
@@ -24,7 +24,7 @@ namespace Generics
     template <>
     void
     div<false>(uint64_t major, uint64_t minor, uint64_t base,
-      uint64_t divisor, uint64_t& quotient, uint64_t& remainder) throw ()
+      uint64_t divisor, uint64_t& quotient, uint64_t& remainder) noexcept
     {
       uint64_t q, r;
       __asm__ __volatile__(

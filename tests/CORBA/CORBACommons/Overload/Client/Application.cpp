@@ -1,6 +1,3 @@
-/**
- * @file CORBACommons/Overload/Client/Application.cpp
- */
 #include <iostream>
 #include <sstream>
 
@@ -39,21 +36,21 @@ namespace
 
 struct Stat
 {
-  Stat() throw ();
+  Stat() noexcept;
 
   std::atomic<int> usage;
   std::atomic<int> timeouts;
   std::atomic<int> cf_54410306, cfo;
 };
 
-Stat::Stat() throw ()
+Stat::Stat() noexcept
   : usage(0), timeouts(0), cf_54410306(0), cfo(0)
 {
 }
 
 struct TestContext
 {
-  TestContext() throw ();
+  TestContext() noexcept;
 
   Generics::AppUtils::Option<unsigned long> threads_amount;
   Generics::AppUtils::Option<unsigned long> sim_task_amount;
@@ -68,7 +65,7 @@ struct TestContext
   volatile Stat* pstat;
 };
 
-TestContext::TestContext() throw ()
+TestContext::TestContext() noexcept
   : threads_amount(DEFAULT_THREADS_AMOUNT),
     sim_task_amount(DEFAULT_SIMUL_TASK),
     task_limit(DEFAULT_TASK_LIMIT),
@@ -113,7 +110,7 @@ private:
     stat_ = statistics_->get(name);
   }
 
-  ~ClientFunctor() throw ()
+  ~ClientFunctor() noexcept
   {
     statistics_->dump(std::cout);
   }
@@ -190,7 +187,7 @@ class ExtendedCorbaClientAdapter : public CORBACommons::CorbaClientAdapter
 {
 public:
   ExtendedCorbaClientAdapter(const CORBACommons::CorbaClientConfig& config,
-    Logging::Logger* logger) throw ();
+    Logging::Logger* logger) noexcept;
 
   void
   orbs_run() /*throw (eh::Exception)*/;
@@ -200,11 +197,11 @@ public:
 
 protected:
   virtual
-  ~ExtendedCorbaClientAdapter() throw ();
+  ~ExtendedCorbaClientAdapter() noexcept;
 
 private:
   static void*
-  thread_func_(void* arg) throw ();
+  thread_func_(void* arg) noexcept;
 
   typedef std::list<pthread_t> Threads;
   Threads threads_;
@@ -214,12 +211,12 @@ typedef ReferenceCounting::QualPtr<ExtendedCorbaClientAdapter>
 
 ExtendedCorbaClientAdapter::ExtendedCorbaClientAdapter(
   const CORBACommons::CorbaClientConfig& config, Logging::Logger* logger)
-  throw ()
+  noexcept
   : CORBACommons::CorbaClientAdapter(config, logger)
 {
 }
 
-ExtendedCorbaClientAdapter::~ExtendedCorbaClientAdapter() throw ()
+ExtendedCorbaClientAdapter::~ExtendedCorbaClientAdapter() noexcept
 {
 }
 
@@ -250,7 +247,7 @@ ExtendedCorbaClientAdapter::orbs_shutdown() /*throw (eh::Exception)*/
 }
 
 void*
-ExtendedCorbaClientAdapter::thread_func_(void* arg) throw ()
+ExtendedCorbaClientAdapter::thread_func_(void* arg) noexcept
 {
   static_cast<CORBA::ORB_ptr>(arg)->run();
   return 0;

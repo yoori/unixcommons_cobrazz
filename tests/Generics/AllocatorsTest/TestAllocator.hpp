@@ -1,7 +1,6 @@
 // Allocator.hpp
 
-#ifndef _TEST_ALLOCATOR_HPP_INCLUDED_
-#define _TEST_ALLOCATOR_HPP_INCLUDED_
+#pragma once
 
 #include <stdint.h>
 #include <map>
@@ -55,7 +54,7 @@ namespace Generics
       typedef void* Pointer;
       typedef const void* ConstPointer;
 
-      BaseAllocator() throw ();
+      BaseAllocator() noexcept;
 
       /**
        * @param n mean request for n bytes for code needs,
@@ -78,7 +77,7 @@ namespace Generics
        * throw exceptions. [Note: p shall not be null.]
        */
       virtual void
-      deallocate(Pointer ptr, std::size_t) throw () = 0;
+      deallocate(Pointer ptr, std::size_t) noexcept = 0;
 
       /**
        * Get and collect client allocation queries
@@ -87,7 +86,7 @@ namespace Generics
        * value and return it.
        */
       std::size_t 
-      stat_allocate(bool get = false) throw ();
+      stat_allocate(bool get = false) noexcept;
 
       /**
        * Get and collect client deallocation queries
@@ -96,7 +95,7 @@ namespace Generics
        * value and return it.
        */
       std::size_t 
-      stat_deallocate(bool get = false) throw ();
+      stat_deallocate(bool get = false) noexcept;
 
       /**
        * Get and collect amount of system resources queries by
@@ -106,7 +105,7 @@ namespace Generics
        * value and return it.
        */
       std::size_t 
-      stat_sys_allocate(bool get = false) throw ();
+      stat_sys_allocate(bool get = false) noexcept;
 
       /**
        * Get and collect amount of system resources releases by
@@ -116,7 +115,7 @@ namespace Generics
        * value and return it.
        */
       std::size_t 
-      stat_sys_deallocate(bool get = false) throw ();
+      stat_sys_deallocate(bool get = false) noexcept;
 
       /**
        * Need this method, because system resources are releasing
@@ -124,19 +123,19 @@ namespace Generics
        */
       virtual
       void
-      calc_sys_deallocate() throw () = 0;
+      calc_sys_deallocate() noexcept = 0;
 
       /**
        * Reset statistics values to zeros
        */
       void
-      stat_reset() throw ();
+      stat_reset() noexcept;
 
     protected:
       typedef std::pair<std::size_t, Pointer> MemoryBlock;
 
       virtual
-      ~BaseAllocator() throw () = 0;
+      ~BaseAllocator() noexcept = 0;
 
       Pointer
       alloc_size_block_(std::size_t n) /*throw (MemoryOut)*/;
@@ -144,11 +143,11 @@ namespace Generics
       struct SizeBlockEraser
       {
         void
-        operator() (const MemoryBlock& ptr) const throw ();
+        operator() (const MemoryBlock& ptr) const noexcept;
       };
 
       const SizeBlockEraser&
-      get_eraser_() throw ();
+      get_eraser_() noexcept;
 
     private:
 
@@ -167,7 +166,7 @@ namespace Generics
       static void
       modify(std::size_t& n, std::size_t align,
         bool pool = false)
-        throw ();
+        noexcept;
     };
 
     struct Reserve
@@ -175,7 +174,7 @@ namespace Generics
       static void
       modify(std::size_t& n, std::size_t align,
         bool pool = false)
-        throw ();
+        noexcept;
     };
 
     struct Aligned
@@ -183,7 +182,7 @@ namespace Generics
       static void
       modify(std::size_t& n, std::size_t align,
         bool pool = false)
-        throw ();
+        noexcept;
     };
 
     struct AlignedReserve
@@ -191,7 +190,7 @@ namespace Generics
       static void
       modify(std::size_t& n, std::size_t align,
         bool pool = false)
-        throw ();
+        noexcept;
     };
 
     class DefaultAllocator : public BaseAllocator,
@@ -208,14 +207,14 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, std::size_t) throw ()
+      deallocate(Pointer ptr, std::size_t) noexcept
       {
         delete[] static_cast<unsigned char*>(ptr);
       }
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
     };
 
 
@@ -237,11 +236,11 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
 
     private:
       ArrayByte ptr_;
@@ -262,11 +261,11 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
     };
 
     /**
@@ -280,20 +279,20 @@ namespace Generics
       public ReferenceCounting::AtomicImpl
     {
     public:
-      PoolListSimple() throw ();
+      PoolListSimple() noexcept;
 
       Pointer
       allocate(std::size_t& n) /*throw (MemoryOut)*/;
 
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
 
       virtual
-      ~PoolListSimple() throw ();
+      ~PoolListSimple() noexcept;
 
     private:
       typedef std::list<MemoryBlock> MemBlocks;
@@ -313,20 +312,20 @@ namespace Generics
       public ReferenceCounting::AtomicImpl
     {
     public:
-      BlocksPool() throw ();
+      BlocksPool() noexcept;
 
       Pointer
       allocate(std::size_t& n) /*throw (MemoryOut)*/;
 
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
 
       virtual
-      ~BlocksPool() throw ();
+      ~BlocksPool() noexcept;
 
     private:
       typedef std::list<MemoryBlock> MemBlocks;
@@ -353,14 +352,14 @@ namespace Generics
       allocate(std::size_t& n) /*throw (MemoryOut)*/;
 
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
 
       virtual
-      ~PoolMultiMapSimple() throw ();
+      ~PoolMultiMapSimple() noexcept;
 
     private:
       typedef std::multimap<uint32_t, void*> MemBlocks;
@@ -385,14 +384,14 @@ namespace Generics
       allocate(std::size_t& n) /*throw (MemoryOut)*/;
 
       void
-      deallocate(Pointer ptr, std::size_t) throw ();
+      deallocate(Pointer ptr, std::size_t) noexcept;
 
       virtual
       void
-      calc_sys_deallocate() throw ();
+      calc_sys_deallocate() noexcept;
 
     protected:
-      ~PoolMultiThread() throw ()
+      ~PoolMultiThread() noexcept
       {
       }
 
@@ -420,7 +419,7 @@ namespace Generics
     void
     DefaultModifier::modify(std::size_t& n, std::size_t /*align*/,
       bool pool)
-      throw ()
+      noexcept
     {
       if (pool)
       {
@@ -431,7 +430,7 @@ namespace Generics
     void
     Reserve::modify(std::size_t& n, std::size_t /*align*/,
       bool pool)
-      throw ()
+      noexcept
     {
       n <<= 1;
       if (pool)
@@ -443,7 +442,7 @@ namespace Generics
     void
     Aligned::modify(std::size_t& n, std::size_t align,
       bool pool)
-      throw ()
+      noexcept
     {
       if (pool)
       {
@@ -455,7 +454,7 @@ namespace Generics
     void
     AlignedReserve::modify(std::size_t& n, std::size_t align,
       bool pool)
-      throw ()
+      noexcept
     {
       // maximum n = 0x7FFFFFFF
       Reserve::modify(n, align, false);
@@ -463,7 +462,7 @@ namespace Generics
     }
 
     inline
-    BaseAllocator::BaseAllocator() throw ()
+    BaseAllocator::BaseAllocator() noexcept
       : stat_allocate_(0),
         stat_deallocate_(0),
         stat_sys_allocate_(0),
@@ -472,20 +471,20 @@ namespace Generics
     }
 
     inline
-    BaseAllocator::~BaseAllocator() throw ()
+    BaseAllocator::~BaseAllocator() noexcept
     {
     }
 
     inline
     const BaseAllocator::SizeBlockEraser&
-    BaseAllocator::get_eraser_() throw ()
+    BaseAllocator::get_eraser_() noexcept
     {
       return eraser_;
     }
 
     inline
     std::size_t 
-    BaseAllocator::stat_allocate(bool get) throw ()
+    BaseAllocator::stat_allocate(bool get) noexcept
     {
       return get ? stat_allocate_ :
         __gnu_cxx::__exchange_and_add(&stat_allocate_, 1);
@@ -493,7 +492,7 @@ namespace Generics
 
     inline
     std::size_t 
-    BaseAllocator::stat_deallocate(bool get) throw ()
+    BaseAllocator::stat_deallocate(bool get) noexcept
     {
       return get ? stat_deallocate_ :
         __gnu_cxx::__exchange_and_add(&stat_deallocate_, 1);
@@ -501,7 +500,7 @@ namespace Generics
 
     inline
     std::size_t 
-    BaseAllocator::stat_sys_allocate(bool get) throw ()
+    BaseAllocator::stat_sys_allocate(bool get) noexcept
     {
       return get ? stat_sys_allocate_ :
         __gnu_cxx::__exchange_and_add(&stat_sys_allocate_, 1);
@@ -509,7 +508,7 @@ namespace Generics
 
     inline
     std::size_t 
-    BaseAllocator::stat_sys_deallocate(bool get) throw ()
+    BaseAllocator::stat_sys_deallocate(bool get) noexcept
     {
       return get ? stat_sys_deallocate_ :
         __gnu_cxx::__exchange_and_add(&stat_sys_deallocate_, 1);
@@ -531,7 +530,7 @@ namespace Generics
     inline
     void
     BaseAllocator::SizeBlockEraser::operator() (const MemoryBlock& mb) const
-      throw ()
+      noexcept
     {
       trace_message("Generics::SizeBlockEraser::operator(): ", mb.first);
       trace_message("Generics::BaseAllocator::deleting: ",
@@ -565,14 +564,14 @@ namespace Generics
 
     template<typename SizeModificator, size_t align>
     void
-    FakeAllocator<SizeModificator, align>::deallocate(FakeAllocator::Pointer, std::size_t) throw ()
+    FakeAllocator<SizeModificator, align>::deallocate(FakeAllocator::Pointer, std::size_t) noexcept
     {
       stat_deallocate();
     }
 
     template<typename SizeModificator, size_t align>
     void
-    FakeAllocator<SizeModificator, align>::calc_sys_deallocate() throw ()
+    FakeAllocator<SizeModificator, align>::calc_sys_deallocate() noexcept
     {
     }
 
@@ -601,7 +600,7 @@ namespace Generics
     inline
     void
     Simple<SizeModificator, align>::deallocate(
-      BaseAllocator::Pointer ptr, std::size_t) throw ()
+      BaseAllocator::Pointer ptr, std::size_t) noexcept
     {
       stat_deallocate();
       stat_sys_deallocate();
@@ -613,7 +612,7 @@ namespace Generics
     template<typename SizeModificator, size_t align>
     inline
     void
-    Simple<SizeModificator, align>::calc_sys_deallocate() throw ()
+    Simple<SizeModificator, align>::calc_sys_deallocate() noexcept
     {
     }
 
@@ -624,7 +623,7 @@ namespace Generics
     template<typename SizeModificator, size_t align>
     inline
     PoolListSimple<SizeModificator, align>::PoolListSimple()
-      throw ()
+      noexcept
       : blocks_in_pool_(0)
     {
     }
@@ -664,7 +663,7 @@ namespace Generics
     inline
     void
     PoolListSimple<SizeModificator, align>::deallocate(
-      BaseAllocator::Pointer ptr, std::size_t) throw ()
+      BaseAllocator::Pointer ptr, std::size_t) noexcept
     {
       MemBlocks::value_type save(
         *(static_cast<std::size_t*>(ptr) - 1),
@@ -703,14 +702,14 @@ namespace Generics
 
     template<typename SizeModificator, size_t align>
     void
-    PoolListSimple<SizeModificator, align>::calc_sys_deallocate() throw ()
+    PoolListSimple<SizeModificator, align>::calc_sys_deallocate() noexcept
     {
     }
 
     template<typename SizeModificator, size_t align>
     inline
     PoolListSimple<SizeModificator, align>::~PoolListSimple()
-      throw ()
+      noexcept
     {
       std::for_each(pool_memory_blocks_.begin(),
                     pool_memory_blocks_.end(),
@@ -751,7 +750,7 @@ namespace Generics
     inline
     void
     PoolMultiMapSimple<SizeModificator, align>::deallocate(
-      BaseAllocator::Pointer ptr, std::size_t) throw ()
+      BaseAllocator::Pointer ptr, std::size_t) noexcept
     {
       MemBlocks::value_type save(
         *(static_cast<std::size_t*>(ptr) - 1),
@@ -774,7 +773,7 @@ namespace Generics
 
     template<typename SizeModificator, size_t align>
     void
-    PoolMultiMapSimple<SizeModificator, align>::calc_sys_deallocate() throw ()
+    PoolMultiMapSimple<SizeModificator, align>::calc_sys_deallocate() noexcept
     {
       for (std::size_t i = 0; i < pool_memory_blocks_.size(); ++i)
       {
@@ -785,7 +784,7 @@ namespace Generics
     template<typename SizeModificator, size_t align>
     inline
     PoolMultiMapSimple<SizeModificator, align>::~PoolMultiMapSimple()
-      throw ()
+      noexcept
     {
       std::for_each(pool_memory_blocks_.begin(),
         pool_memory_blocks_.end(),
@@ -798,7 +797,7 @@ namespace Generics
 
     inline
     BlocksPool::BlocksPool()
-      throw ()
+      noexcept
       : blocks_in_pool_(0)
     {
     }
@@ -827,7 +826,7 @@ namespace Generics
     inline
     void
     BlocksPool::deallocate(
-      BaseAllocator::Pointer ptr, std::size_t) throw ()
+      BaseAllocator::Pointer ptr, std::size_t) noexcept
     {
       MemBlocks::value_type save(
         *(static_cast<std::size_t*>(ptr) - 1),
@@ -865,13 +864,13 @@ namespace Generics
     }
 
     void
-    BlocksPool::calc_sys_deallocate() throw ()
+    BlocksPool::calc_sys_deallocate() noexcept
     {
     }
 
     inline
     BlocksPool::~BlocksPool()
-      throw ()
+      noexcept
     {
       std::for_each(pool_memory_blocks_.begin(),
                     pool_memory_blocks_.end(),
@@ -918,7 +917,7 @@ namespace Generics
     inline
     void
     PoolMultiThread<SizeModificator>::deallocate(
-      BaseAllocator::Pointer ptr, std::size_t) throw ()
+      BaseAllocator::Pointer ptr, std::size_t) noexcept
     {
       stat_deallocate();
       // And now select allocators by size
@@ -944,7 +943,7 @@ namespace Generics
 
     template<typename SizeModificator>
     void
-    PoolMultiThread<SizeModificator>::calc_sys_deallocate() throw ()
+    PoolMultiThread<SizeModificator>::calc_sys_deallocate() noexcept
     {
       std::size_t amount_allocate = 0;
       std::size_t amount = 0;
@@ -970,5 +969,3 @@ namespace Generics
   } // namespace Allocator
 
 } //namespace Generics
-
-#endif  // _TEST_ALLOCATOR_HPP_INCLUDED_

@@ -31,7 +31,7 @@ namespace String
 
       StringManipTest(int argc, char* argv[]) /*throw(InvalidArguments)*/;
 
-      int run() throw();
+      int run() noexcept;
     private:
       typedef std::string StdString;
       typedef std::vector<StdString> Strings;
@@ -90,7 +90,7 @@ namespace String
       }
     }
 
-    int StringManipTest::run() throw()
+    int StringManipTest::run() noexcept
     {
       if(interactive_)
       {
@@ -280,13 +280,13 @@ is_equal(T1 b1, T1 e1, T2 b2, T2 e2)
 }
 
 char
-get_separator(const char*, char ch) throw ()
+get_separator(const char*, char ch) noexcept
 {
   return ch;
 }
 
 char
-get_separator(const char* end, const char* str) throw ()
+get_separator(const char* end, const char* str) noexcept
 {
   return str == end ? '\0' : *str;
 }
@@ -459,7 +459,7 @@ test_tokenizer() /*throw (eh::Exception)*/
 }
 
 int
-string_manip_test(int argc, char** argv) throw()
+string_manip_test(int argc, char** argv) noexcept
 {
   try
   {

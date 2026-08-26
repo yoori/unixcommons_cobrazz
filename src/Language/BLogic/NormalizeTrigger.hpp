@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_BLOGIC_NORMALIZETRIGGER_HPP
-#define LANGUAGE_BLOGIC_NORMALIZETRIGGER_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -71,5 +70,3 @@ namespace Language
       /*throw (eh::Exception, Exception)*/;
   }
 }
-
-#endif

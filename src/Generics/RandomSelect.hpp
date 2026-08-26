@@ -1,5 +1,4 @@
-#ifndef GENERICS_RANDOM_SELECT_HPP
-#define GENERICS_RANDOM_SELECT_HPP
+#pragma once
 
 #include <iterator>
 #include <functional>
@@ -37,5 +36,3 @@ namespace Generics
     return end;
   }
 }
-
-#endif

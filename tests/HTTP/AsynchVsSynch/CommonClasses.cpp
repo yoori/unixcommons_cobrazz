@@ -21,7 +21,7 @@ NotificationCallback::NotificationCallback(HTTP::PoolPolicy_var policy,
 }
 
 void
-NotificationCallback::on_response(const HTTP::ResponseInformation& data) throw ()
+NotificationCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   SimpleCounterCallback::on_response(data);
   check();
@@ -29,7 +29,7 @@ NotificationCallback::on_response(const HTTP::ResponseInformation& data) throw (
 
 void
 NotificationCallback::on_error(const String::SubString& descr,
-  const HTTP::RequestInformation& data) throw ()
+  const HTTP::RequestInformation& data) noexcept
 {
   SimpleCounterCallback::on_error(descr, data);
   check();
@@ -37,7 +37,7 @@ NotificationCallback::on_error(const String::SubString& descr,
 
 inline
 void
-NotificationCallback::check() throw()
+NotificationCallback::check() noexcept
 {
   if (get_counter().succeeded() + get_counter().failed() >= notify_number_ 
       && waits_number_)
@@ -52,7 +52,7 @@ NotificationCallback::check() throw()
 }
 
 Sync::Semaphore&
-NotificationCallback::get_semaphore() throw()
+NotificationCallback::get_semaphore() noexcept
 {
   if (waits_number_++ == 0)
   {
@@ -66,7 +66,7 @@ NotificationCallback::get_semaphore() throw()
   return *sem_;
 }
 
-NotificationCallback::~NotificationCallback() throw ()
+NotificationCallback::~NotificationCallback() noexcept
 {
 }
 
@@ -80,7 +80,7 @@ VSTestInterface::VSTestInterface(Sync::Semaphore& finish_sem)
 {
 }
 
-VSTestInterface::~VSTestInterface() throw ()
+VSTestInterface::~VSTestInterface() noexcept
 {
 }
 

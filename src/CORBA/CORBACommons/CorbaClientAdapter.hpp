@@ -1,5 +1,4 @@
-#ifndef CORBACOMMONS_CORBACLIENT_ADAPTER_HPP
-#define CORBACOMMONS_CORBACLIENT_ADAPTER_HPP
+#pragma once
 
 #include <iostream>
 #include <list>
@@ -25,10 +24,10 @@ namespace CORBACommons
   /**X CorbaObjectConnection */
   struct CorbaObjectConnection
   {
-    CorbaObjectConnection() throw ();
+    CorbaObjectConnection() noexcept;
 
     CorbaObjectConnection(
-      const SecureConnectionConfig& secure_connection_config_) throw ();
+      const SecureConnectionConfig& secure_connection_config_) noexcept;
 
     enum ConnectionType
     {
@@ -47,15 +46,15 @@ namespace CORBACommons
   {
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-    CorbaObjectRef() throw ();
+    CorbaObjectRef() noexcept;
 
     /* initialize non secure object ref */
-    CorbaObjectRef(const char* object_ref_) throw ();
+    CorbaObjectRef(const char* object_ref_) noexcept;
 
     /* initialize secure object ref */
     CorbaObjectRef(const char* object_ref_,
       const SecureConnectionConfig& secure_connection_config)
-      throw ();
+      noexcept;
 
     void
     load(const CORBACommons::CorbaObjectRefDef& in_corba_object_ref)
@@ -81,7 +80,7 @@ namespace CORBACommons
 
     explicit
     CorbaClientAdapter(Logging::Logger* logger = 0)
-      throw ();
+      noexcept;
 
     explicit
     CorbaClientAdapter(const CorbaClientConfig& corba_config,
@@ -128,7 +127,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~CorbaClientAdapter() throw ();
+    ~CorbaClientAdapter() noexcept;
 
 
     /**
@@ -146,16 +145,16 @@ namespace CORBACommons
           const SecureConnectionConfig& config) /*throw (eh::Exception)*/;
 
         size_t
-        hash() const throw ();
+        hash() const noexcept;
 
         bool
-        operator ==(const OrbDesignator& designator) const throw ();
+        operator ==(const OrbDesignator& designator) const noexcept;
 
         const Generics::Time&
-        timeout() const throw ();
+        timeout() const noexcept;
 
         const SecureConnectionConfig&
-        config() const throw ();
+        config() const noexcept;
 
       private:
         Generics::Time timeout_;
@@ -165,7 +164,7 @@ namespace CORBACommons
       /**
        * Destructor
        */
-      ~Orbs() throw ();
+      ~Orbs() noexcept;
 
       /**
        * Returns existing or creates a new orb
@@ -191,7 +190,7 @@ namespace CORBACommons
         CORBA::ORB_var> OrbsHolder;
 
       const OrbsHolder&
-      get_orbs() const throw ();
+      get_orbs() const noexcept;
 
     private:
       /**
@@ -238,14 +237,14 @@ namespace CORBACommons
   //
 
   inline
-  CorbaObjectConnection::CorbaObjectConnection() throw ()
+  CorbaObjectConnection::CorbaObjectConnection() noexcept
     : type(CT_NON_SECURE)
   {
   }
 
   inline
   CorbaObjectConnection::CorbaObjectConnection(
-    const SecureConnectionConfig& secure_connection_config_) throw ()
+    const SecureConnectionConfig& secure_connection_config_) noexcept
     : type(CT_SECURE),
       secure_connection_config(secure_connection_config_)
   {
@@ -257,14 +256,14 @@ namespace CORBACommons
   //
 
   inline
-  CorbaObjectRef::CorbaObjectRef(const char* object_ref_) throw ()
+  CorbaObjectRef::CorbaObjectRef(const char* object_ref_) noexcept
     : object_ref(object_ref_)
   {
   }
 
   inline
   CorbaObjectRef::CorbaObjectRef(const char* object_ref_,
-    const SecureConnectionConfig& secure_connection_config_) throw ()
+    const SecureConnectionConfig& secure_connection_config_) noexcept
     : CorbaObjectConnection(secure_connection_config_),
       object_ref(object_ref_)
   {
@@ -321,5 +320,3 @@ operator <<(std::ostream& ostr, const CORBACommons::CorbaObjectRef& ref)
   ostr << "'" << ref.object_ref << "'";
   return ostr;
 }
-
-#endif

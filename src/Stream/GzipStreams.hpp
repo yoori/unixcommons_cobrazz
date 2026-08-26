@@ -1,9 +1,4 @@
-/**
- * @file   Stream/GzipStreams.hpp
- * @author Dmitry Trifilov
- */
-#ifndef STREAM_GZIP_STREAMS_HPP
-#define STREAM_GZIP_STREAMS_HPP
+#pragma once
 
 #include <istream>
 #include <ostream>
@@ -61,5 +56,3 @@ namespace Stream
     File::OutStreamBuf buf_;
   };
 }
-
-#endif

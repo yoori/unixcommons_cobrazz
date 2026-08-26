@@ -1,9 +1,3 @@
-/**
- * @file   InterConvertion.hpp
- * @author Andrey Gusev
- *
- * Contains international conversion interface
- */
 #include <errno.h>
 
 #include <String/InterConvertion.hpp>

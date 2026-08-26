@@ -1,4 +1,3 @@
-// @file AsciiStringManipTest.cpp
 //
 
 #include <iostream>

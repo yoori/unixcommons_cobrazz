@@ -1,7 +1,3 @@
-/**
- * @file   FileLogger.hpp
- * @author Karen Aroutiounov
- */
 #include <eh/Errno.hpp>
 
 #include <Generics/ArrayAutoPtr.hpp>
@@ -204,7 +200,7 @@ namespace Logging
       // TimeSpanPolicy class
       //
 
-      TimeSpanPolicy::~TimeSpanPolicy() throw ()
+      TimeSpanPolicy::~TimeSpanPolicy() noexcept
       {
       }
 
@@ -226,7 +222,7 @@ namespace Logging
       // SizeSpanPolicy class
       //
 
-      SizeSpanPolicy::~SizeSpanPolicy() throw ()
+      SizeSpanPolicy::~SizeSpanPolicy() noexcept
       {
       }
 
@@ -244,7 +240,7 @@ namespace Logging
       // AlignedTimeSpanPolicy class
       //
 
-      AlignedTimeSpanPolicy::~AlignedTimeSpanPolicy() throw ()
+      AlignedTimeSpanPolicy::~AlignedTimeSpanPolicy() noexcept
       {
       }
 

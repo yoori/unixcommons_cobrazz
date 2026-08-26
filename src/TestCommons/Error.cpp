@@ -4,7 +4,7 @@
 namespace TestCommons
 {
   void
-  Errors::add(const String::SubString& error, bool write) throw ()
+  Errors::add(const String::SubString& error, bool write) noexcept
   {
     try
     {
@@ -25,13 +25,13 @@ namespace TestCommons
   }
 
   void
-  Errors::print() const throw ()
+  Errors::print() const noexcept
   {
     print(std::cout);
   }
 
   void
-  Errors::print(std::ostream& ostr) const throw ()
+  Errors::print(std::ostream& ostr) const noexcept
   {
     Sync::PosixGuard guard(mutex_);
 

@@ -153,7 +153,7 @@ namespace Language
         MorAn16_open_dbs(const_cast<char*>(config_file));
       }
 
-      MoranSegmentor::~MoranSegmentor() throw ()
+      MoranSegmentor::~MoranSegmentor() noexcept
       {
         MorAn16_close_dbs();
       }
@@ -224,7 +224,7 @@ namespace Language
 
       bool
       MoranSegmentor::is_valid_utf8_(const char* str, size_t str_len) const
-        throw ()
+        noexcept
       {
         bool valid_utf8 = true;
         unsigned long count = 0;
@@ -250,7 +250,7 @@ namespace Language
         /*throw (UniqueException)*/
       {
       }
-      MoranSegmentor::~MoranSegmentor() throw ()
+      MoranSegmentor::~MoranSegmentor() noexcept
       {
       }
       void
@@ -267,7 +267,7 @@ namespace Language
       }
       bool
       MoranSegmentor::is_valid_utf8_(const char* /*str*/,
-        size_t /*str_len*/) const throw ()
+        size_t /*str_len*/) const noexcept
       {
         return false;
       }

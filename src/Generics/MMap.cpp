@@ -1,4 +1,3 @@
-// @file Generics/MMap.cpp
 #include <unistd.h>
 
 #include <limits>
@@ -64,7 +63,7 @@ namespace Generics
     }
   }
 
-  MMap::MMap() throw ()
+  MMap::MMap() noexcept
     : memory_(0), length_(0)
   {
   }
@@ -82,19 +81,19 @@ namespace Generics
       MAP_SHARED | MAP_ANONYMOUS);
   }
 
-  MMap::~MMap() throw ()
+  MMap::~MMap() noexcept
   {
     munmap(memory_, length_);
   }
 
   void*
-  MMap::memory() const throw ()
+  MMap::memory() const noexcept
   {
     return memory_;
   }
 
   size_t
-  MMap::length() const throw ()
+  MMap::length() const noexcept
   {
     return length_;
   }
@@ -162,13 +161,13 @@ namespace Generics
     }
   }
 
-  MMapFile::~MMapFile() throw ()
+  MMapFile::~MMapFile() noexcept
   {
     close(fd_);
   }
 
   int
-  MMapFile::file_descriptor() const throw ()
+  MMapFile::file_descriptor() const noexcept
   {
     return fd_;
   }

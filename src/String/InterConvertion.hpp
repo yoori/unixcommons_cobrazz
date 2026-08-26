@@ -1,11 +1,4 @@
-/**
- * @file   String/InterConvertion.hpp
- * @author Andrey Gusev
- *
- * Contains international conversion interface
- */
-#ifndef STRING_INTERCONVERTION_HPP
-#define STRING_INTERCONVERTION_HPP
+#pragma once
 
 #include <iconv.h>
 
@@ -37,7 +30,7 @@ namespace String
        * Simple constructor don't acquire system resources
        * and do not load iconv
        */
-      Convertion() throw ();
+      Convertion() noexcept;
 
       /**
        * Constructor load iconv and set encodings for conversion
@@ -50,7 +43,7 @@ namespace String
       /**
        * Destructor free open iconv handle if necessary
        */
-      ~Convertion() throw ();
+      ~Convertion() noexcept;
 
       /**
        * Set encodings for conversion
@@ -85,7 +78,7 @@ namespace String
   namespace International
   {
     inline
-    Convertion::Convertion() throw ()
+    Convertion::Convertion() noexcept
       : fd_(INVALID_), mult_(1)
     {
     }
@@ -99,7 +92,7 @@ namespace String
     }
 
     inline
-    Convertion::~Convertion() throw ()
+    Convertion::~Convertion() noexcept
     {
       if (fd_ != INVALID_)
       {
@@ -108,5 +101,3 @@ namespace String
     }
   }
 }
-
-#endif

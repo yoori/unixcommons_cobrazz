@@ -27,7 +27,7 @@ struct Config
   int time;
   bool check_test;
 
-  Config() throw ()
+  Config() noexcept
     : count(20000),
       message("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
               "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -49,13 +49,13 @@ struct Stat
   Generics::Time max_time;
   Generics::Time min_time;
 
-  Stat() throw()
+  Stat() noexcept
     : calls(0), total_time(0), max_time(0), min_time(0)
   {
   }
 
   void
-  update(const Generics::Time& time) throw()
+  update(const Generics::Time& time) noexcept
   {
     total_time += time;
     max_time = max_time < time ? time : max_time;
@@ -64,7 +64,7 @@ struct Stat
   }
 
   Generics::Time
-  avg_time() throw()
+  avg_time() noexcept
   {
     if (calls > 0)
     {

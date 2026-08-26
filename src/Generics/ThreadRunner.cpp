@@ -12,7 +12,7 @@ namespace Generics
   // ThreadJob class
   //
 
-  ThreadJob::~ThreadJob() throw ()
+  ThreadJob::~ThreadJob() noexcept
   {
   }
 
@@ -21,17 +21,17 @@ namespace Generics
   // ThreadCallback class
   //
 
-  ThreadCallback::~ThreadCallback() throw ()
+  ThreadCallback::~ThreadCallback() noexcept
   {
   }
 
   void
-  ThreadCallback::on_start() throw ()
+  ThreadCallback::on_start() noexcept
   {
   }
 
   void
-  ThreadCallback::on_stop() throw ()
+  ThreadCallback::on_stop() noexcept
   {
   }
 
@@ -43,7 +43,7 @@ namespace Generics
   const size_t ThreadRunner::Options::DEFAULT_STACK_SIZE;
 
   ThreadRunner::Options::Options(size_t stack_size,
-    ThreadCallback* thread_callback) throw ()
+    ThreadCallback* thread_callback) noexcept
     : stack_size(stack_size < PTHREAD_STACK_MIN ? DEFAULT_STACK_SIZE :
         stack_size),
       thread_callback(ReferenceCounting::add_ref(thread_callback))
@@ -72,12 +72,12 @@ namespace Generics
     }
   }
 
-  ThreadRunner::PThreadAttr::~PThreadAttr() throw ()
+  ThreadRunner::PThreadAttr::~PThreadAttr() noexcept
   {
     ::pthread_attr_destroy(&attr_);
   }
 
-  ThreadRunner::PThreadAttr::operator pthread_attr_t*() throw ()
+  ThreadRunner::PThreadAttr::operator pthread_attr_t*() noexcept
   {
     return &attr_;
   }
@@ -102,7 +102,7 @@ namespace Generics
     }
   }
 
-  ThreadRunner::~ThreadRunner() throw ()
+  ThreadRunner::~ThreadRunner() noexcept
   {
     try
     {
@@ -114,7 +114,7 @@ namespace Generics
   }
 
   void
-  ThreadRunner::thread_func_(ThreadJob& job) throw ()
+  ThreadRunner::thread_func_(ThreadJob& job) noexcept
   {
     start_semaphore_.acquire();
     start_semaphore_.release();
@@ -135,7 +135,7 @@ namespace Generics
   }
 
   void*
-  ThreadRunner::thread_func_(void* arg) throw ()
+  ThreadRunner::thread_func_(void* arg) noexcept
   {
     JobInfo* info = static_cast<JobInfo*>(arg);
     info->runner->thread_func_(*info->job);

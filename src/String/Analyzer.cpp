@@ -1,4 +1,3 @@
-// @file String/Analyzer.cpp
 #include <limits>
 
 #include <String/SubString.hpp>
@@ -33,7 +32,7 @@ namespace String
     // class AnalyzerParams
     //
 
-    AnalyzerParams::AnalyzerParams() throw ()
+    AnalyzerParams::AnalyzerParams() noexcept
       : shield_symbol('\0'),
         ignore_successive_separators(false),
         allow_ignored_symbs(false),
@@ -66,7 +65,7 @@ namespace String
     }
 
     inline
-    Analyzer::TreeNode::~TreeNode() throw ()
+    Analyzer::TreeNode::~TreeNode() noexcept
     {
       debug(FNB);
     }
@@ -233,7 +232,7 @@ namespace String
       recursion_depth_ = 0;
     }
 
-    Analyzer::~Analyzer() throw ()
+    Analyzer::~Analyzer() noexcept
     {
     }
 

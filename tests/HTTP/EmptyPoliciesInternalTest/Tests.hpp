@@ -1,5 +1,4 @@
-#ifndef _EMPTY_POLICIES_INTERNAL_TEST_TESTS_HPP_
-#define _EMPTY_POLICIES_INTERNAL_TEST_TESTS_HPP_
+#pragma once
 
 #include "CommonClasses.hpp"
 #include <climits>
@@ -14,26 +13,26 @@ class BasicsTestEmptyThreadPolicy :
 public:
 
   BasicsTestEmptyThreadPolicy(std::ostringstream& log, TestCommons::Errors& errors,
-    Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) throw();
+    Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) noexcept;
 
   virtual int
-  when_close_thread(Identifier thread) throw();
+  when_close_thread(Identifier thread) noexcept;
 
 protected:
 
-  virtual ~BasicsTestEmptyThreadPolicy() throw();
+  virtual ~BasicsTestEmptyThreadPolicy() noexcept;
 
   virtual void
-  check_thread_connection_added(Identifier thread, Identifier connection) throw ();
+  check_thread_connection_added(Identifier thread, Identifier connection) noexcept;
 
   virtual void
-  check_choose_thread(Identifier thread) throw ();
+  check_choose_thread(Identifier thread) noexcept;
 
   virtual void
-  check_thread_added(Identifier thread) throw ();
+  check_thread_added(Identifier thread) noexcept;
 
   virtual void
-  check_thread_removed(Identifier thread) throw ();
+  check_thread_removed(Identifier thread) noexcept;
 
   void dynamic_states_checker_(const char* prefix, const void* addr,
     const StateHistory* prev_n_now) /*throw (eh::Exception)*/;
@@ -55,29 +54,29 @@ class BasicsTestEmptyConnectionPolicy :
 public:
 
   BasicsTestEmptyConnectionPolicy(std::ostringstream& log, TestCommons::Errors& errors,
-    Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) throw();
+    Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) noexcept;
 
   virtual int
-  when_close_connection(Identifier connection) throw();
+  when_close_connection(Identifier connection) noexcept;
 
 protected:
 
-  virtual ~BasicsTestEmptyConnectionPolicy() throw();
+  virtual ~BasicsTestEmptyConnectionPolicy() noexcept;
 
   virtual void
-  check_connection_request_added(Identifier connection, Identifier request) throw ();
+  check_connection_request_added(Identifier connection, Identifier request) noexcept;
 
   virtual void
   check_choose_connection(Identifier connection, Identifier server,
-    Identifier request) throw ();
+    Identifier request) noexcept;
 
   virtual void
   check_server_connection_added(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
   virtual void
   check_server_connection_removed(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
   void dynamic_states_checker_(const char* prefix, const void* addr,
     const StateHistory* prev_n_now) /*throw (eh::Exception)*/;
@@ -112,14 +111,14 @@ public:
 
   virtual void
   report_error(Severity severity, const String::SubString& description,
-    const char* error_code = 0) throw ();
+    const char* error_code = 0) noexcept;
 
   void
   dump_errors(std::ostringstream& err_stream) /*throw(eh::Exception)*/;
 
 protected:
   virtual
-  ~BasicsTestPolicy() throw ();
+  ~BasicsTestPolicy() noexcept;
 private:
 
   TestCommons::Errors errors_;
@@ -146,9 +145,9 @@ public:
   virtual void init_(const char* pl_script_name, size_t serv_numb = 0)
     /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
-  //virtual void execute() throw();
+  //virtual void execute() noexcept;
 
   void print_stats(std::ostream& out) /*throw(eh::Exception)*/;
 
@@ -156,11 +155,11 @@ public:
 
 protected:
 
-  virtual ~BasicsTest() throw ();
+  virtual ~BasicsTest() noexcept;
 
-  virtual void exec_main_() throw();
+  virtual void exec_main_() noexcept;
 
-  virtual void exec_finish_() throw();
+  virtual void exec_finish_() noexcept;
 
   void callback_error_(SimpleCounterCallback* callback)
     /*throw(eh::Exception)*/;
@@ -190,18 +189,18 @@ class BasicsTest01 :
 {
 public:
 
-  static const char* scenario_descr() throw();
+  static const char* scenario_descr() noexcept;
 
   BasicsTest01(Sync::Semaphore& finish_sem,
     std::vector<HTTP::HttpServer>& servers) /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
 protected:
 
-  virtual ~BasicsTest01() throw ();
+  virtual ~BasicsTest01() noexcept;
 
-  virtual void exec_init_() throw();
+  virtual void exec_init_() noexcept;
 
   virtual void scenario_(HTTP::HttpActiveInterface* pool,
     SimpleCounterCallback* callback) /*throw(eh::Exception)*/;
@@ -216,18 +215,18 @@ class BasicsTest02 :
 {
 public:
 
-  static const char* scenario_descr() throw();
+  static const char* scenario_descr() noexcept;
 
   BasicsTest02(Sync::Semaphore& finish_sem,
     std::vector<HTTP::HttpServer>& servers) /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
 protected:
 
-  virtual ~BasicsTest02() throw ();
+  virtual ~BasicsTest02() noexcept;
 
-  virtual void exec_init_() throw();
+  virtual void exec_init_() noexcept;
 
   virtual void scenario_(HTTP::HttpActiveInterface* pool,
     SimpleCounterCallback* callback) /*throw(eh::Exception)*/;
@@ -242,18 +241,18 @@ class BasicsTest03 :
 {
 public:
 
-  static const char* scenario_descr() throw();
+  static const char* scenario_descr() noexcept;
 
   BasicsTest03(Sync::Semaphore& finish_sem,
     std::vector<HTTP::HttpServer>& servers) /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
 protected:
 
-  virtual ~BasicsTest03() throw ();
+  virtual ~BasicsTest03() noexcept;
 
-  virtual void exec_init_() throw();
+  virtual void exec_init_() noexcept;
 
   virtual void scenario_(HTTP::HttpActiveInterface* pool,
     SimpleCounterCallback* callback) /*throw(eh::Exception)*/;
@@ -268,18 +267,18 @@ class BasicsTest04 :
 {
 public:
 
-  static const char* scenario_descr() throw();
+  static const char* scenario_descr() noexcept;
 
   BasicsTest04(Sync::Semaphore& finish_sem,
     std::vector<HTTP::HttpServer>& servers) /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
 protected:
 
-  virtual ~BasicsTest04() throw ();
+  virtual ~BasicsTest04() noexcept;
 
-  virtual void exec_init_() throw();
+  virtual void exec_init_() noexcept;
 
   virtual void scenario_(HTTP::HttpActiveInterface* pool,
     SimpleCounterCallback* callback) /*throw(eh::Exception)*/;
@@ -296,23 +295,21 @@ class RandomLoadingTest :
 
 public:
 
-  static const char* scenario_descr() throw();
+  static const char* scenario_descr() noexcept;
 
   RandomLoadingTest(Sync::Semaphore& finish_sem,
     std::vector<HTTP::HttpServer>& servers) /*throw (eh::Exception)*/;
 
-  virtual const char* name() throw();
+  virtual const char* name() noexcept;
 
-  virtual void execute() throw();
+  virtual void execute() noexcept;
 
 protected:
 
-  virtual ~RandomLoadingTest() throw ();
+  virtual ~RandomLoadingTest() noexcept;
 
   virtual void scenario_(HTTP::HttpActiveInterface* pool,
     SimpleCounterCallback* callback) /*throw(eh::Exception)*/;
 
-  virtual void exec_init_() throw();
+  virtual void exec_init_() noexcept;
 };
-
-#endif

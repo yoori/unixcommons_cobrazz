@@ -13,12 +13,12 @@ PoliciesTestInterface::PoliciesTestInterface(Sync::Semaphore& finish_sem)
 {
 }
 
-PoliciesTestInterface::~PoliciesTestInterface() throw ()
+PoliciesTestInterface::~PoliciesTestInterface() noexcept
 {
 }
 
 void
-PoliciesTestInterface::execute() throw()
+PoliciesTestInterface::execute() noexcept
 {
   exec_init_();
   exec_main_();
@@ -37,12 +37,12 @@ PoliciesTestInterface::execute() throw()
 Sync::PosixMutex CheckSimpleEmptyCommons::dump_mutex_;
 
 CheckSimpleEmptyCommons::CheckSimpleEmptyCommons(
-    unsigned int closure_delay_value) throw():
+    unsigned int closure_delay_value) noexcept:
   closure_delay_value_(closure_delay_value)
 {
 }
 
-CheckSimpleEmptyCommons::~CheckSimpleEmptyCommons() throw()
+CheckSimpleEmptyCommons::~CheckSimpleEmptyCommons() noexcept
 {
 }
 
@@ -174,7 +174,7 @@ CheckSimpleEmptyCommons::print_state_history(const char* prefix,
 }
 
 CheckSimpleEmptyCommons::StateHistory::StateHistory(ObjectType new_type,
-    int new_result, StateInfo::States new_state, const Generics::Time& new_time) throw():
+    int new_result, StateInfo::States new_state, const Generics::Time& new_time) noexcept:
   object_type(new_type), result(new_result), state(new_state), time(new_time), next(0)
 {
 }
@@ -190,14 +190,14 @@ CheckSimpleEmptyCommons::StateHistory::StateHistory(
   }
 }
 
-CheckSimpleEmptyCommons::StateHistory::~StateHistory() throw()
+CheckSimpleEmptyCommons::StateHistory::~StateHistory() noexcept
 {
   delete next;
 }
 
 bool
 CheckSimpleEmptyCommons::StateHistory::operator== (
-  const StateHistory& src) const throw()
+  const StateHistory& src) const noexcept
 {
   //Ignoring any result equals -1
   if (result == -1 || src.result == -1)
@@ -222,14 +222,14 @@ CheckSimpleEmptyCommons::StateHistory::operator== (
 //
 
 CheckSimpleEmptyThread::CheckSimpleEmptyThread(
-    unsigned short closure_delay) throw():
+    unsigned short closure_delay) noexcept:
   PoolPolicySimpleEmptyThread(closure_delay),
   CheckSimpleEmptyCommons(closure_delay)
 {
 }
 
 int
-CheckSimpleEmptyThread::when_close_thread(Identifier thread) throw()
+CheckSimpleEmptyThread::when_close_thread(Identifier thread) noexcept
 {
   int res = PoolPolicySimpleEmptyThread::when_close_thread(thread);
   StateInfo::States state = get_thread_state(thread);
@@ -262,13 +262,13 @@ CheckSimpleEmptyThread::get_thread_state(Identifier thread)
   }
 }
 
-CheckSimpleEmptyThread::~CheckSimpleEmptyThread() throw()
+CheckSimpleEmptyThread::~CheckSimpleEmptyThread() noexcept
 {
 }
 
 void
 CheckSimpleEmptyThread::check_thread_connection_added(
-  Identifier thread, Identifier /*connection*/) throw ()
+  Identifier thread, Identifier /*connection*/) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -278,7 +278,7 @@ CheckSimpleEmptyThread::check_thread_connection_added(
 }
 
 void
-CheckSimpleEmptyThread::check_choose_thread(Identifier thread) throw ()
+CheckSimpleEmptyThread::check_choose_thread(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -288,7 +288,7 @@ CheckSimpleEmptyThread::check_choose_thread(Identifier thread) throw ()
 }
 
 void
-CheckSimpleEmptyThread::check_thread_added(Identifier thread) throw ()
+CheckSimpleEmptyThread::check_thread_added(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -298,7 +298,7 @@ CheckSimpleEmptyThread::check_thread_added(Identifier thread) throw ()
 }
 
 void
-CheckSimpleEmptyThread::check_thread_removed(Identifier thread) throw ()
+CheckSimpleEmptyThread::check_thread_removed(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -308,7 +308,7 @@ CheckSimpleEmptyThread::check_thread_removed(Identifier thread) throw ()
 }
 
 const CheckSimpleEmptyCommons::CompletedHistories&
-CheckSimpleEmptyThread::get_thr_history() throw()
+CheckSimpleEmptyThread::get_thr_history() noexcept
 {
   return completed_histories_;
 }
@@ -318,14 +318,14 @@ CheckSimpleEmptyThread::get_thr_history() throw()
 //
 
 CheckSimpleEmptyConnection::CheckSimpleEmptyConnection(
-    unsigned short closure_delay) throw():
+    unsigned short closure_delay) noexcept:
   HTTP::PoolPolicySimpleEmptyConnection(closure_delay),
   CheckSimpleEmptyCommons(closure_delay)
 {
 }
 
 int
-CheckSimpleEmptyConnection::when_close_connection(Identifier connection) throw()
+CheckSimpleEmptyConnection::when_close_connection(Identifier connection) noexcept
 {
   int res = PoolPolicySimpleEmptyConnection::when_close_connection(connection);
   StateInfo::States state = get_connection_state(connection);
@@ -358,13 +358,13 @@ CheckSimpleEmptyConnection::get_connection_state(Identifier connection)
   }
 }
 
-CheckSimpleEmptyConnection::~CheckSimpleEmptyConnection() throw()
+CheckSimpleEmptyConnection::~CheckSimpleEmptyConnection() noexcept
 {
 }
 
 void
 CheckSimpleEmptyConnection::check_connection_request_added(
-  Identifier connection, Identifier /*request*/) throw ()
+  Identifier connection, Identifier /*request*/) noexcept
 {
   StateInfo::States state = get_connection_state(connection);
   if (state != INT_MAX)
@@ -375,7 +375,7 @@ CheckSimpleEmptyConnection::check_connection_request_added(
 
 void
 CheckSimpleEmptyConnection::check_choose_connection(Identifier connection,
-  Identifier /*server*/, Identifier /*request*/) throw ()
+  Identifier /*server*/, Identifier /*request*/) noexcept
 {
   StateInfo::States state = get_connection_state(connection);
   if (state != INT_MAX)
@@ -386,7 +386,7 @@ CheckSimpleEmptyConnection::check_choose_connection(Identifier connection,
 
 void
 CheckSimpleEmptyConnection::check_server_connection_added(Identifier /*server*/,
-  Identifier connection) throw ()
+  Identifier connection) noexcept
 {
   StateInfo::States state = get_connection_state(connection);
   if (state != INT_MAX)
@@ -397,7 +397,7 @@ CheckSimpleEmptyConnection::check_server_connection_added(Identifier /*server*/,
 
 void
 CheckSimpleEmptyConnection::check_server_connection_removed(Identifier /*server*/,
-  Identifier connection) throw ()
+  Identifier connection) noexcept
 {
   StateInfo::States state = get_connection_state(connection);
   if (state != INT_MAX)
@@ -407,7 +407,7 @@ CheckSimpleEmptyConnection::check_server_connection_removed(Identifier /*server*
 }
 
 const CheckSimpleEmptyCommons::CompletedHistories&
-CheckSimpleEmptyConnection::get_conn_history() throw()
+CheckSimpleEmptyConnection::get_conn_history() noexcept
 {
   return completed_histories_;
 }
@@ -427,7 +427,7 @@ CheckSimpleDecider::CheckSimpleDecider(int connections_per_server,
 
 inline
 HTTP::PoolPolicyCommon::Identifier
-CheckSimpleDecider::choose_thread() throw ()
+CheckSimpleDecider::choose_thread() noexcept
 {
   Identifier thread = PoolPolicySimpleDecider::choose_thread();
   thr_policy_.check_choose_thread(thread);
@@ -437,7 +437,7 @@ CheckSimpleDecider::choose_thread() throw ()
 inline
 HTTP::PoolPolicyCommon::Identifier
 CheckSimpleDecider::choose_connection(
-  Identifier server, Identifier request) throw ()
+  Identifier server, Identifier request) noexcept
 {
   Identifier conn = PoolPolicySimpleDecider::choose_connection(server, request);
   conn_policy_.check_choose_connection(conn, server, request);
@@ -447,7 +447,7 @@ CheckSimpleDecider::choose_connection(
 inline
 void
 CheckSimpleDecider::connection_request_added(Identifier server,
-  Identifier connection, Identifier request) throw ()
+  Identifier connection, Identifier request) noexcept
 {
   PoolPolicySimpleStatistics::connection_request_added(server, connection, request);
   conn_policy_.check_connection_request_added(connection, request);
@@ -456,7 +456,7 @@ CheckSimpleDecider::connection_request_added(Identifier server,
 inline
 void
 CheckSimpleDecider::thread_connection_added(
-  Identifier thread, Identifier connection) throw ()
+  Identifier thread, Identifier connection) noexcept
 {
   PoolPolicySimpleStatistics::thread_connection_added(thread, connection);
   thr_policy_.check_thread_connection_added(thread, connection);
@@ -465,7 +465,7 @@ CheckSimpleDecider::thread_connection_added(
 inline
 void
 CheckSimpleDecider::server_connection_added(
-  Identifier server, Identifier connection) throw ()
+  Identifier server, Identifier connection) noexcept
 {
   PoolPolicySimpleStatistics::server_connection_added(server, connection);
   conn_policy_.check_server_connection_added(server, connection);
@@ -474,7 +474,7 @@ CheckSimpleDecider::server_connection_added(
 inline
 void
 CheckSimpleDecider::server_connection_removed(
-  Identifier server, Identifier connection) throw ()
+  Identifier server, Identifier connection) noexcept
 {
   conn_policy_.check_server_connection_removed(server, connection);
   PoolPolicySimpleStatistics::server_connection_removed(server, connection);
@@ -482,7 +482,7 @@ CheckSimpleDecider::server_connection_removed(
 
 inline
 void
-CheckSimpleDecider::thread_added(Identifier thread) throw ()
+CheckSimpleDecider::thread_added(Identifier thread) noexcept
 {
   PoolPolicySimpleStatistics::thread_added(thread);
   thr_policy_.check_thread_added(thread);
@@ -490,7 +490,7 @@ CheckSimpleDecider::thread_added(Identifier thread) throw ()
 
 inline
 void
-CheckSimpleDecider::thread_removed(Identifier thread) throw ()
+CheckSimpleDecider::thread_removed(Identifier thread) noexcept
 {
   thr_policy_.check_thread_removed(thread);
   PoolPolicySimpleStatistics::thread_removed(thread);
@@ -576,13 +576,13 @@ ConnThrScenarios::check_thr_scenario(const Scenario& new_scen) /*throw(eh::Excep
 }
 
 const ConnThrScenarios::ScenariosCompleted&
-ConnThrScenarios::conn_scens_completed() throw()
+ConnThrScenarios::conn_scens_completed() noexcept
 {
   return conn_scens_completed_;
 }
 
 const ConnThrScenarios::ScenariosCompleted&
-ConnThrScenarios::thr_scens_completed() throw()
+ConnThrScenarios::thr_scens_completed() noexcept
 {
   return thr_scens_completed_;
 }

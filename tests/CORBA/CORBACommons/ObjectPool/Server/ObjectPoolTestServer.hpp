@@ -1,6 +1,4 @@
-// @file Server/ObjectPoolTestServer.hpp
-#ifndef CORBA_OBJECT_POOL_TEST_SERVER_HPP
-#define CORBA_OBJECT_POOL_TEST_SERVER_HPP
+#pragma once
 
 #include <cmath>
 #include <eh/Exception.hpp>
@@ -21,23 +19,23 @@ namespace CORBATest
     volatile _Atomic_word counter_;
     std::size_t my_number_;
   public:
-    TestObjectPoolImpl() throw ();
+    TestObjectPoolImpl() noexcept;
 
     virtual ::CORBA::Long
-    square(::CORBA::Long num) throw ();
+    square(::CORBA::Long num) noexcept;
 
     virtual ::CORBA::Long
-    root(::CORBA::Long num) throw ();
+    root(::CORBA::Long num) noexcept;
 
     virtual CORBA::Long
-    get_calling_number() throw ();
+    get_calling_number() noexcept;
 
     virtual void
-    up() throw ();
+    up() noexcept;
 
   protected:
     virtual
-    ~TestObjectPoolImpl() throw ();
+    ~TestObjectPoolImpl() noexcept;
   };
   typedef ReferenceCounting::QualPtr<
     TestObjectPoolImpl> TestObjectPoolImpl_var;
@@ -49,11 +47,11 @@ namespace CORBATest
   {
   public:
     virtual ::CORBA::Long
-    is_base() throw ();
+    is_base() noexcept;
 
   protected:
     virtual
-    ~PoolObjectImpl() throw ();
+    ~PoolObjectImpl() noexcept;
   };
   typedef ReferenceCounting::QualPtr<
     PoolObjectImpl> PoolObjectImpl_var;
@@ -68,7 +66,7 @@ public:
 
   Application() /*throw (eh::Exception)*/;
   virtual
-  ~Application() throw () {}
+  ~Application() noexcept {}
 
   /**
    * Method up shutdown CORBA server and we starting new server
@@ -100,33 +98,33 @@ namespace CORBATest
   //
 
   inline
-  TestObjectPoolImpl::TestObjectPoolImpl() throw () :
+  TestObjectPoolImpl::TestObjectPoolImpl() noexcept :
     counter_(0)
   {
     my_number_ = __gnu_cxx::__exchange_and_add(&stat_counter_, 1);
   }
 
   inline
-  TestObjectPoolImpl::~TestObjectPoolImpl() throw ()
+  TestObjectPoolImpl::~TestObjectPoolImpl() noexcept
   {
   }
 
   inline ::CORBA::Long
-  TestObjectPoolImpl::square(::CORBA::Long num) throw ()
+  TestObjectPoolImpl::square(::CORBA::Long num) noexcept
   {
     __gnu_cxx::__atomic_add(&counter_, 1);
     return num * num;
   }
 
   inline ::CORBA::Long
-  TestObjectPoolImpl::root(::CORBA::Long num) throw ()
+  TestObjectPoolImpl::root(::CORBA::Long num) noexcept
   {
     __gnu_cxx::__atomic_add(&counter_, 1);
     return static_cast<long>(std::sqrt(num));
   }
 
   inline ::CORBA::Long
-  TestObjectPoolImpl::get_calling_number() throw ()
+  TestObjectPoolImpl::get_calling_number() noexcept
   {
     ::CORBA::Long old = counter_;
     counter_ = 0;
@@ -134,7 +132,7 @@ namespace CORBATest
   }
 
   inline void
-  TestObjectPoolImpl::up() throw ()
+  TestObjectPoolImpl::up() noexcept
   {
     try
     {
@@ -158,17 +156,15 @@ namespace CORBATest
   }
 
   inline
-  PoolObjectImpl::~PoolObjectImpl() throw ()
+  PoolObjectImpl::~PoolObjectImpl() noexcept
   {
   }
 
   inline ::CORBA::Long
-  PoolObjectImpl::is_base() throw ()
+  PoolObjectImpl::is_base() noexcept
   {
     return 12345;
   }
 
 
 }
-
-#endif  // CORBA_OBJECT_POOL_TEST_SERVER_HPP

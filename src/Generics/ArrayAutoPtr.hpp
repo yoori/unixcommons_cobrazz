@@ -1,10 +1,4 @@
-/**
- * @file   Generics/ArrayAutoPtr.hpp
- * @author Dmitry Trifilov
- */
-
-#ifndef GENERICS_ARRAYAUTOPTR_HPP
-#define GENERICS_ARRAYAUTOPTR_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -27,7 +21,7 @@ namespace Generics
     /**
      * Constructor
      */
-    ArrayAutoPtr() throw ();
+    ArrayAutoPtr() noexcept;
 
     /**
      * Constructor
@@ -36,23 +30,23 @@ namespace Generics
     explicit
     ArrayAutoPtr(unsigned size) /*throw (eh::Exception)*/;
 
-    ArrayAutoPtr(ArrayAutoPtr&) throw () = delete;
+    ArrayAutoPtr(ArrayAutoPtr&) noexcept = delete;
 
     /**
      * Move constructor
      * Transforms ownership from src to the constructed object
      * @param src former owner of the array
      */
-    ArrayAutoPtr(ArrayAutoPtr&& src) throw ();
+    ArrayAutoPtr(ArrayAutoPtr&& src) noexcept;
 
     /**
      * Destructor
      * Deallocates owned array
      */
-    ~ArrayAutoPtr() throw ();
+    ~ArrayAutoPtr() noexcept;
 
     ArrayAutoPtr&
-    operator =(ArrayAutoPtr& src) throw () = delete;
+    operator =(ArrayAutoPtr& src) noexcept = delete;
 
     /**
      * Assignment operator
@@ -60,14 +54,14 @@ namespace Generics
      * @param src former owner of the array
      */
     ArrayAutoPtr&
-    operator =(ArrayAutoPtr&& src) throw ();
+    operator =(ArrayAutoPtr&& src) noexcept;
 
     /**
      * Accessor for the array
      * @return pointer to stored array
      */
     T*
-    get() const throw ();
+    get() const noexcept;
 
     /**
      * Accessor for element of the array
@@ -75,7 +69,7 @@ namespace Generics
      * @return reference to element
      */
     T&
-    operator [](unsigned index) throw ();
+    operator [](unsigned index) noexcept;
 
     /**
      * Accessor for constant element of the array
@@ -83,14 +77,14 @@ namespace Generics
      * @return constant reference to element
      */
     const T&
-    operator [](unsigned index) const throw ();
+    operator [](unsigned index) const noexcept;
 
     /**
      * Releases ownership
      * @return previously stored pointer to the array
      */
     T*
-    release() throw ();
+    release() noexcept;
 
     /**
      * Releases stored array (if any) and allocated a new one (if size is
@@ -106,21 +100,21 @@ namespace Generics
      * @param ptr new pointer to hold
      */
     void
-    unsafe_reset(T* ptr) throw ();
+    unsafe_reset(T* ptr) noexcept;
 
     /**
      * Never implemented thus usage will lead to error messages.
      */
     template <typename U>
     void
-    unsafe_reset(U*) throw () = delete;
+    unsafe_reset(U*) noexcept = delete;
 
     /**
      * Swaps pointers of the object and src
      * @param src another object to swap pointers with
      */
     void
-    swap(ArrayAutoPtr& src) throw ();
+    swap(ArrayAutoPtr& src) noexcept;
 
   private:
     T* ptr_;
@@ -143,28 +137,28 @@ namespace Generics
 
   template <typename T>
   T*
-  ArrayAutoPtr<T>::get() const throw ()
+  ArrayAutoPtr<T>::get() const noexcept
   {
     return ptr_;
   }
 
   template <typename T>
   T&
-  ArrayAutoPtr<T>::operator [](unsigned index) throw ()
+  ArrayAutoPtr<T>::operator [](unsigned index) noexcept
   {
     return ptr_[index];
   }
 
   template <typename T>
   const T&
-  ArrayAutoPtr<T>::operator [](unsigned index) const throw ()
+  ArrayAutoPtr<T>::operator [](unsigned index) const noexcept
   {
     return ptr_[index];
   }
 
   template <typename T>
   T*
-  ArrayAutoPtr<T>::release() throw ()
+  ArrayAutoPtr<T>::release() noexcept
   {
     T* ptr(ptr_);
     ptr_ = 0;
@@ -174,7 +168,7 @@ namespace Generics
 
   template <typename T>
   void
-  ArrayAutoPtr<T>::unsafe_reset(T* ptr) throw ()
+  ArrayAutoPtr<T>::unsafe_reset(T* ptr) noexcept
   {
     if (ptr_ != ptr)
     {
@@ -204,16 +198,16 @@ namespace Generics
   template <typename T>
   void
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
-  ArrayAutoPtr<T>::swap(ArrayAutoPtr&& src) throw ()
+  ArrayAutoPtr<T>::swap(ArrayAutoPtr&& src) noexcept
 #else
-  ArrayAutoPtr<T>::swap(ArrayAutoPtr& src) throw ()
+  ArrayAutoPtr<T>::swap(ArrayAutoPtr& src) noexcept
 #endif
   {
     std::swap(ptr_, src.ptr_);
   }
 
   template <typename T>
-  ArrayAutoPtr<T>::ArrayAutoPtr() throw ()
+  ArrayAutoPtr<T>::ArrayAutoPtr() noexcept
     : ptr_(0)
   {
   }
@@ -225,14 +219,14 @@ namespace Generics
   }
 
   template <typename T>
-  ArrayAutoPtr<T>::ArrayAutoPtr(ArrayAutoPtr&& src) throw ()
+  ArrayAutoPtr<T>::ArrayAutoPtr(ArrayAutoPtr&& src) noexcept
     : ptr_(src.release())
   {
   }
 
   template <typename T>
   ArrayAutoPtr<T>&
-  ArrayAutoPtr<T>::operator =(ArrayAutoPtr&& src) throw ()
+  ArrayAutoPtr<T>::operator =(ArrayAutoPtr&& src) noexcept
   {
     if (this != &src)
     {
@@ -244,7 +238,7 @@ namespace Generics
 
 
   template <typename T>
-  ArrayAutoPtr<T>::~ArrayAutoPtr() throw ()
+  ArrayAutoPtr<T>::~ArrayAutoPtr() noexcept
   {
     unsafe_reset(0);
   }
@@ -252,7 +246,7 @@ namespace Generics
 
   template <typename T>
   void
-  swap(ArrayAutoPtr<T>& x, ArrayAutoPtr<T>& y) throw ()
+  swap(ArrayAutoPtr<T>& x, ArrayAutoPtr<T>& y) noexcept
   {
     x.swap(y);
   }
@@ -260,18 +254,16 @@ namespace Generics
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T>
   void
-  swap(ArrayAutoPtr<T>&& x, ArrayAutoPtr<T>& y) throw ()
+  swap(ArrayAutoPtr<T>&& x, ArrayAutoPtr<T>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T>
   void
-  swap(ArrayAutoPtr<T>& x, ArrayAutoPtr<T>&& y) throw ()
+  swap(ArrayAutoPtr<T>& x, ArrayAutoPtr<T>&& y) noexcept
   {
     x.swap(y);
   }
 #endif
 }
-
-#endif

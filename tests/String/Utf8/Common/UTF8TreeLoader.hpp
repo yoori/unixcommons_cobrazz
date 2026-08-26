@@ -1,6 +1,5 @@
 // Common/UTF8TreeLoader.hpp
-#ifndef _UTF8_TREE_LOADER_HPP_INCLUDED_
-#define _UTF8_TREE_LOADER_HPP_INCLUDED_
+#pragma once
 
 #include <fstream>
 #include <sstream>
@@ -76,5 +75,3 @@ namespace Utf8Loading
     }
   }
 }
-
-#endif  //_UTF8_TREE_LOADER_HPP_INCLUDED_

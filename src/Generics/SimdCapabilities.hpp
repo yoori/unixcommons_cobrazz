@@ -1,5 +1,4 @@
-#ifndef GENERICS_SIMD_CAPABILITIES_HPP
-#define GENERICS_SIMD_CAPABILITIES_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -17,10 +16,8 @@ namespace Generics::Simd
 
   inline
   bool
-  has(std::uint32_t capabilities) throw ()
+  has(std::uint32_t capabilities) noexcept
   {
     return (CPU_CAPABILITIES & capabilities) == capabilities;
   }
 }
-
-#endif

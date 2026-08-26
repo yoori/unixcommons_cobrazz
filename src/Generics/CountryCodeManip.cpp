@@ -71,7 +71,7 @@ namespace Generics
 {
   inline
   uint32_t
-  CountryCodeMap::get_country_code_(const String::SubString& str) throw ()
+  CountryCodeMap::get_country_code_(const String::SubString& str) noexcept
   {
     uint32_t code = 0;
     const std::size_t LEN = std::min(str.size(), static_cast<size_t>(4));
@@ -108,7 +108,7 @@ namespace Generics
 
   bool
   CountryCodeMap::is_country_code(const String::SubString& code) const
-    throw ()
+    noexcept
   {
     return code.empty() ? false :
       country_map_.find(get_country_code_(code)) != country_map_.end();

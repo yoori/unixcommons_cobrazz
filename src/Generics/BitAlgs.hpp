@@ -1,5 +1,4 @@
-#ifndef GENERICS_BITALGS_HPP
-#define GENERICS_BITALGS_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -15,7 +14,7 @@ namespace Generics
      */
     inline
     unsigned
-    lowest_bit_64(uint64_t n) throw ()
+    lowest_bit_64(uint64_t n) noexcept
     {
       uint64_t r, t;
       __asm__(
@@ -34,7 +33,7 @@ namespace Generics
      */
     inline
     unsigned
-    lowest_bit_32(uint32_t n) throw ()
+    lowest_bit_32(uint32_t n) noexcept
     {
       uint64_t r, t;
       __asm__(
@@ -53,7 +52,7 @@ namespace Generics
      */
     inline
     unsigned
-    highest_bit_64(uint64_t n) throw ()
+    highest_bit_64(uint64_t n) noexcept
     {
       uint64_t r, t;
       __asm__(
@@ -72,7 +71,7 @@ namespace Generics
      */
     inline
     unsigned
-    highest_bit_32(uint32_t n) throw ()
+    highest_bit_32(uint32_t n) noexcept
     {
       uint64_t r, t;
       __asm__(
@@ -91,7 +90,7 @@ namespace Generics
      */
     inline
     uint64_t
-    leave_highest_64(uint64_t n) throw ()
+    leave_highest_64(uint64_t n) noexcept
     {
       uint64_t r, t;
       __asm__(
@@ -105,5 +104,3 @@ namespace Generics
     }
   }
 };
-
-#endif

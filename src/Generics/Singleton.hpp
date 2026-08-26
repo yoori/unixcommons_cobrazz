@@ -1,5 +1,4 @@
-#ifndef GENERICS_SINGLETON_HPP
-#define GENERICS_SINGLETON_HPP
+#pragma once
 
 
 //#define LOUD_COUNTER_BACKTRACE
@@ -52,13 +51,13 @@ namespace Generics
      * @param priority objects with lesser value will be destroyed sooner
      */
     explicit
-    AtExitDestroying(int priority) throw ();
+    AtExitDestroying(int priority) noexcept;
 
     /**
      * Destructor
      */
     virtual
-    ~AtExitDestroying() throw ();
+    ~AtExitDestroying() noexcept;
 
   private:
     /**
@@ -66,7 +65,7 @@ namespace Generics
      */
     static
     void
-    destroy_at_exit_() throw ();
+    destroy_at_exit_() noexcept;
 
     static Sync::PosixMutex mutex_;
     static bool registered_;
@@ -90,14 +89,14 @@ namespace Generics
        * @param object object to destroy at exit
        */
       explicit
-      AtExitDestroyer(Object* object) throw ();
+      AtExitDestroyer(Object* object) noexcept;
 
     protected:
       /**
        * Destructor
        */
       virtual
-      ~AtExitDestroyer() throw ();
+      ~AtExitDestroyer() noexcept;
 
     private:
       Pointer object_;
@@ -111,11 +110,11 @@ namespace Generics
     {
     public:
       explicit
-      AutoPtr(Type* object) throw ();
+      AutoPtr(Type* object) noexcept;
       Type*
-      in() throw ();
+      in() noexcept;
       Type*
-      retn() throw ();
+      retn() noexcept;
     };
 
     /**
@@ -126,11 +125,11 @@ namespace Generics
     {
     public:
       explicit
-      SimplePtr(Type* object) throw ();
+      SimplePtr(Type* object) noexcept;
       Type*
-      in() throw ();
+      in() noexcept;
       Type*
-      retn() throw ();
+      retn() noexcept;
 
     private:
       Type* ptr_;
@@ -187,7 +186,7 @@ namespace Generics
      * Destructor
      * Allows creating of another object of the same type.
      */
-    ~Unique() throw ();
+    ~Unique() noexcept;
 
   private:
     static Sync::PosixMutex mutex_;
@@ -207,17 +206,17 @@ namespace Generics
      * Constructor.
      * Increases the number of objects created.
      */
-    AllDestroyer() throw ();
+    AllDestroyer() noexcept;
     /**
      * Constructor.
      * Increases the number of objects created.
      */
-    AllDestroyer(const AllDestroyer&) throw ();
+    AllDestroyer(const AllDestroyer&) noexcept;
     /**
      * Destructor.
      * Decreases the number of objects created.
      */
-    ~AllDestroyer() throw ();
+    ~AllDestroyer() noexcept;
 
   private:
     struct Info
@@ -232,17 +231,17 @@ namespace Generics
     class LoudCounter : public ReferenceCounting::AtomicImpl
     {
     public:
-      LoudCounter() throw ();
+      LoudCounter() noexcept;
       void
-      increment(Info* info) throw ();
+      increment(Info* info) noexcept;
       void
-      decrement(Info* info) throw ();
+      decrement(Info* info) noexcept;
       void
-      check() throw ();
+      check() noexcept;
 
     private:
       virtual
-      ~LoudCounter() throw ();
+      ~LoudCounter() noexcept;
 
       _Atomic_word counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -260,10 +259,10 @@ namespace Generics
         AtExitDestroying::DP_LOUD_COUNTER> Single;
 
       LoudCounterHolder() /*throw (eh::Exception)*/;
-      ~LoudCounterHolder() throw ();
+      ~LoudCounterHolder() noexcept;
 
       LoudCounter*
-      counter() throw ();
+      counter() noexcept;
 
     private:
       LoudCounter_var counter_;
@@ -280,7 +279,7 @@ namespace Generics
   //
 
   inline
-  AtExitDestroying::~AtExitDestroying() throw ()
+  AtExitDestroying::~AtExitDestroying() noexcept
   {
   }
 
@@ -293,13 +292,13 @@ namespace Generics
 
     template <typename Object, typename Pointer, const int PRIORITY>
     AtExitDestroyer<Object, Pointer, PRIORITY>::AtExitDestroyer(
-      Object* object) throw ()
+      Object* object) noexcept
       : AtExitDestroying(PRIORITY), object_(object)
     {
     }
 
     template <typename Object, typename Pointer, const int PRIORITY>
-    AtExitDestroyer<Object, Pointer, PRIORITY>::~AtExitDestroyer() throw ()
+    AtExitDestroyer<Object, Pointer, PRIORITY>::~AtExitDestroyer() noexcept
     {
     }
 
@@ -309,21 +308,21 @@ namespace Generics
     //
 
     template <typename Type>
-    AutoPtr<Type>::AutoPtr(Type* object) throw ()
+    AutoPtr<Type>::AutoPtr(Type* object) noexcept
       : std::unique_ptr<Type>(object)
     {
     }
 
     template <typename Type>
     Type*
-    AutoPtr<Type>::in() throw ()
+    AutoPtr<Type>::in() noexcept
     {
       return this->get();
     }
 
     template <typename Type>
     Type*
-    AutoPtr<Type>::retn() throw ()
+    AutoPtr<Type>::retn() noexcept
     {
       return this->release();
     }
@@ -334,21 +333,21 @@ namespace Generics
     //
 
     template <typename Type>
-    SimplePtr<Type>::SimplePtr(Type* object) throw ()
+    SimplePtr<Type>::SimplePtr(Type* object) noexcept
       : ptr_(object)
     {
     }
 
     template <typename Type>
     Type*
-    SimplePtr<Type>::in() throw ()
+    SimplePtr<Type>::in() noexcept
     {
       return ptr_;
     }
 
     template <typename Type>
     Type*
-    SimplePtr<Type>::retn() throw ()
+    SimplePtr<Type>::retn() noexcept
     {
       Type* ptr(ptr_);
       ptr_ = 0;
@@ -418,7 +417,7 @@ namespace Generics
   }
 
   template <typename Determinator, typename BaseException>
-  Unique<Determinator, BaseException>::~Unique() throw ()
+  Unique<Determinator, BaseException>::~Unique() noexcept
   {
     Sync::PosixGuard guard(mutex_);
     assert(existing_ == this);
@@ -431,7 +430,7 @@ namespace Generics
   //
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::LoudCounter::LoudCounter() throw ()
+  AllDestroyer<Determinator>::LoudCounter::LoudCounter() noexcept
     : counter_(0)
 #ifdef LOUD_COUNTER_BACKTRACE
       ,
@@ -441,13 +440,13 @@ namespace Generics
   }
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::LoudCounter::~LoudCounter() throw ()
+  AllDestroyer<Determinator>::LoudCounter::~LoudCounter() noexcept
   {
   }
 
   template <typename Determinator>
   void
-  AllDestroyer<Determinator>::LoudCounter::increment(Info* info) throw ()
+  AllDestroyer<Determinator>::LoudCounter::increment(Info* info) noexcept
   {
     ++counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -463,7 +462,7 @@ namespace Generics
 
   template <typename Determinator>
   void
-  AllDestroyer<Determinator>::LoudCounter::decrement(Info* info) throw ()
+  AllDestroyer<Determinator>::LoudCounter::decrement(Info* info) noexcept
   {
     --counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -483,7 +482,7 @@ namespace Generics
 
   template <typename Determinator>
   void
-  AllDestroyer<Determinator>::LoudCounter::check() throw ()
+  AllDestroyer<Determinator>::LoudCounter::check() noexcept
   {
     int counter = static_cast<int>(counter_);
     if (counter)
@@ -526,14 +525,14 @@ namespace Generics
   }
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::LoudCounterHolder::~LoudCounterHolder() throw ()
+  AllDestroyer<Determinator>::LoudCounterHolder::~LoudCounterHolder() noexcept
   {
     counter_->check();
   }
 
   template <typename Determinator>
   typename AllDestroyer<Determinator>::LoudCounter*
-  AllDestroyer<Determinator>::LoudCounterHolder::counter() throw ()
+  AllDestroyer<Determinator>::LoudCounterHolder::counter() noexcept
   {
     return counter_;
   }
@@ -544,7 +543,7 @@ namespace Generics
   //
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::AllDestroyer() throw ()
+  AllDestroyer<Determinator>::AllDestroyer() noexcept
     : counter_(ReferenceCounting::add_ref(
         AllDestroyer<Determinator>::LoudCounterHolder::Single::
           instance().counter()))
@@ -554,17 +553,15 @@ namespace Generics
 
   template <typename Determinator>
   AllDestroyer<Determinator>::AllDestroyer(const AllDestroyer& another)
-    throw ()
+    noexcept
     : counter_(another.counter_)
   {
     counter_->increment(&info_);
   }
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::~AllDestroyer() throw ()
+  AllDestroyer<Determinator>::~AllDestroyer() noexcept
   {
     counter_->decrement(&info_);
   }
 }
-
-#endif

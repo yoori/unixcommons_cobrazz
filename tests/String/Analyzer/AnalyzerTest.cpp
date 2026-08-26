@@ -1,4 +1,3 @@
-// @file AnalyzerTest.cpp
 //
 
 #include <iostream>
@@ -26,20 +25,20 @@ public:
     unsigned long severity = INFO,
     const char* aspect = 0,
     const char* code = 0)
-    throw ();
+    noexcept;
 
   /**
    * @return reference on last reported error
    */
   const std::string&
-  get_last_error() const throw ();
+  get_last_error() const noexcept;
 
   void
-  clear_last_error() throw ();
+  clear_last_error() noexcept;
 
 protected:
   virtual
-  ~TestLogger() throw ();
+  ~TestLogger() noexcept;
 
 private:
   std::string last_error_;
@@ -82,10 +81,10 @@ private:
     /*throw (InvalidTestData, eh::Exception)*/;
 
   void
-  generate_lexeme_(std::string& result) throw ();
+  generate_lexeme_(std::string& result) noexcept;
 
   void
-  generate_separators_(std::string& result) throw ();
+  generate_separators_(std::string& result) noexcept;
 
   /**
    * Check the boundary conditions: empty input, etc
@@ -181,7 +180,7 @@ private:
 //
 // TestLogger class
 //
-TestLogger::~TestLogger() throw ()
+TestLogger::~TestLogger() noexcept
 {
 }
 
@@ -190,20 +189,20 @@ TestLogger::log(const String::SubString& text,
   unsigned long /*severity*/,
   const char* /*aspect*/,
   const char* /*code*/)
-  throw()
+  noexcept
 {
   text.assign_to(last_error_);
   return true;
 }
 
 const std::string&
-TestLogger::get_last_error() const throw ()
+TestLogger::get_last_error() const noexcept
 {
   return last_error_;
 }
 
 void
-TestLogger::clear_last_error() throw ()
+TestLogger::clear_last_error() noexcept
 {
   last_error_.clear();
 }
@@ -460,7 +459,7 @@ Tester::create_negative_mixer_(const CharCategory& cat)
 }
 
 void
-Tester::generate_lexeme_(std::string& result) throw ()
+Tester::generate_lexeme_(std::string& result) noexcept
 {
   result.clear();
   std::size_t len = Generics::safe_rand(1, 10);
@@ -473,7 +472,7 @@ Tester::generate_lexeme_(std::string& result) throw ()
 }
 
 void
-Tester::generate_separators_(std::string& result) throw ()
+Tester::generate_separators_(std::string& result) noexcept
 {
   result.clear();
   std::size_t len = Generics::safe_rand(1, 4);

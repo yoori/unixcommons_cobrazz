@@ -9,11 +9,11 @@ class Echo_i : public POA_Test::Echo
 {
 public:
   virtual void
-  echoString(const Test::AType & message) throw ();
+  echoString(const Test::AType & message) noexcept;
 };
 
 void
-Echo_i::echoString(const Test::AType & message) throw ()
+Echo_i::echoString(const Test::AType & message) noexcept
 {
   std::cout << "Server message sizeof=" << sizeof(::Test::AType)
             << std::endl;
@@ -30,11 +30,11 @@ class OutVal_i : public POA_Test::OutVal
 {
 public:
   virtual void
-  test(Test::B_out value) throw ();
+  test(Test::B_out value) noexcept;
 };
 
 void
-OutVal_i::test(Test::B_out) throw ()
+OutVal_i::test(Test::B_out) noexcept
 {
   // Do not assign anything into value
   std::cout << "Server do test(Test::B_out value) method. sizeof(B)="

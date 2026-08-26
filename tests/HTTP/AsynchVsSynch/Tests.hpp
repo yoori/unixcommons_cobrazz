@@ -1,5 +1,4 @@
-#ifndef _ASYNCH_VS_SYNCH_TEST_TESTS_HPP_
-#define _ASYNCH_VS_SYNCH_TEST_TESTS_HPP_
+#pragma once
 
 #include <ReferenceCounting/Vector.hpp>
 
@@ -40,13 +39,13 @@ public:
       std::vector<HTTP::HttpServer>& servers, bool keep_alive, bool asynch_only)
     /*throw (eh::Exception)*/;
 
-  void execute() throw();
+  void execute() noexcept;
 
-  void synch_process() throw();
+  void synch_process() noexcept;
 
-  void asynch_process() throw();
+  void asynch_process() noexcept;
 
-  static void* send_synch_req(void*) throw();
+  static void* send_synch_req(void*) noexcept;
 
   virtual void print_stat(std::ostream& out) const /*throw(eh::Exception)*/;
   
@@ -58,7 +57,7 @@ protected:
   typedef std::vector<Sync::Semaphore*> Semaphores_;
 
   virtual
-  ~CommonTest() throw ();
+  ~CommonTest() noexcept;
 
   void
   check_error_(char*& error_buf, size_t buf_len) const /*throw(eh::Exception)*/;
@@ -97,5 +96,3 @@ private:
   Sync::Semaphore threads_sem_;
   Sync::Semaphore main_sem_;
 };
-
-#endif

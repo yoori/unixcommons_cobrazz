@@ -1,8 +1,3 @@
-/**
- * @file   CRC.cpp
- * @author Karen Aroutiounov
- */
-
 #include <Generics/CRC.hpp>
 
 

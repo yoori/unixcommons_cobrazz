@@ -21,7 +21,7 @@ Application::Application() /*throw (eh::Exception)*/
 {
 }
 
-Application::~Application() throw ()
+Application::~Application() noexcept
 {
 }
 

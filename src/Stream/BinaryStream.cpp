@@ -1,8 +1,3 @@
-/**
- * @file   Stream/BinaryStream.cpp
- * @author Pavel Gubin <pgubin@ipmce.ru>
- */
-
 #include <Stream/BinaryStream.hpp>
 
 

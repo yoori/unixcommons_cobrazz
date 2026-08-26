@@ -1,5 +1,4 @@
-#ifndef GENERICS_MONOALLOCATOR_HPP
-#define GENERICS_MONOALLOCATOR_HPP
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -492,5 +491,3 @@ namespace Generics
     return !(left == right);
   }
 } // namespace Generics
-
-#endif

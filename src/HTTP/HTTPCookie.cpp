@@ -1,10 +1,3 @@
-/**
- * @file   HTTPCookie.cpp
- * @author Karen Aroutiounov
- *
- * Contains HTTP cookies support classes implementation
- */
-
 #include <HTTP/HTTPCookie.hpp>
 
 #define TRACE_COOKIE 0
@@ -510,7 +503,7 @@ namespace
   {
     const char*
     find_owned(const char* begin, const char* end,
-      unsigned long* octets_length) throw ()
+      unsigned long* octets_length) noexcept
     {
       for (const char* next; begin != end; begin = next)
       {
@@ -540,7 +533,7 @@ namespace HTTP
   // CookieList class
   //
 
-  CookieList::~CookieList() throw ()
+  CookieList::~CookieList() noexcept
   {
   }
 
@@ -675,7 +668,7 @@ namespace HTTP
   {
   }
 
-  CookieDefList::~CookieDefList() throw ()
+  CookieDefList::~CookieDefList() noexcept
   {
   }
 
@@ -735,7 +728,7 @@ namespace HTTP
   // ClientCookieFacility class
   //
 
-  ClientCookieFacility::~ClientCookieFacility() throw ()
+  ClientCookieFacility::~ClientCookieFacility() noexcept
   {
   }
 

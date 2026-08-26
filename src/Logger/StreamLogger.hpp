@@ -1,10 +1,4 @@
-/**
- * @file   StreamLogger.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef LOGGER_STREAM_LOGGER_HPP
-#define LOGGER_STREAM_LOGGER_HPP
+#pragma once
 
 #include <Logger/SimpleLogger.hpp>
 
@@ -24,7 +18,7 @@ namespace Logging
          * Constructor
          */
         Config(std::ostream& output_stream, const Formatter* formatter,
-          size_t preallocated_size) throw ();
+          size_t preallocated_size) noexcept;
 
         std::ostream& output_stream;
         Formatter_var formatter;
@@ -78,7 +72,7 @@ namespace Logging
       Config(std::ostream& output_stream,
         unsigned long log_level = ::Logging::Logger::INFO,
         const Formatter* formatter = 0, size_t preallocated_size = 0)
-        throw ();
+        noexcept;
     };
 
     /**
@@ -104,7 +98,7 @@ namespace Logging
 
       inline
       Config::Config(std::ostream& output_stream,
-        const Formatter* formatter, size_t preallocated_size) throw ()
+        const Formatter* formatter, size_t preallocated_size) noexcept
         : output_stream(output_stream),
           formatter(ReferenceCounting::add_ref(formatter)),
           preallocated_size(preallocated_size)
@@ -131,12 +125,10 @@ namespace Logging
 
     inline
     Config::Config(std::ostream& output_stream, unsigned long log_level,
-      const Formatter* formatter, size_t preallocated_size) throw ()
+      const Formatter* formatter, size_t preallocated_size) noexcept
       : Helper::Config(output_stream, formatter, preallocated_size),
         Simple::Config(log_level)
     {
     }
   }
 }
-
-#endif

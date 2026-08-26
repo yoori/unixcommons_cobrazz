@@ -1,8 +1,3 @@
-/**
- * @file   Utility.cpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- */
-
 #include <sstream>
 #include <string>
 
@@ -51,7 +46,7 @@ namespace XMLUtility
   }
 
   void
-  terminate() throw ()
+  terminate() noexcept
   {
     Guard_ guard(lock_);
 

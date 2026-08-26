@@ -23,7 +23,7 @@ namespace
 namespace HTTP
 {
   bool
-  check_header(const char* name, const char* value) throw ()
+  check_header(const char* name, const char* value) noexcept
   {
     if (!name || !value)
     {
@@ -50,7 +50,7 @@ namespace HTTP
   }
 
   bool
-  check_headers(const HeaderList& headers) throw ()
+  check_headers(const HeaderList& headers) noexcept
   {
     for (HeaderList::const_iterator itor(headers.begin());
       itor != headers.end(); ++itor)

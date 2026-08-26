@@ -72,12 +72,12 @@ CommonTest::CommonTest(Sync::Semaphore& finish_sem, size_t threads_count,
   warning_[0] = '\0';
 }
 
-CommonTest::~CommonTest() throw ()
+CommonTest::~CommonTest() noexcept
 {
 }
 
 void
-CommonTest::execute() throw()
+CommonTest::execute() noexcept
 {
   if (!asynch_only_)
   {
@@ -88,7 +88,7 @@ CommonTest::execute() throw()
 }
 
 void
-CommonTest::synch_process() throw()
+CommonTest::synch_process() noexcept
 {
   Generics::Timer timer;
   timer.start();
@@ -144,7 +144,7 @@ CommonTest::synch_process() throw()
 }
 
 void
-CommonTest::asynch_process() throw()
+CommonTest::asynch_process() noexcept
 {
   try
   {
@@ -180,7 +180,7 @@ CommonTest::asynch_process() throw()
 }
 
 void*
-CommonTest::send_synch_req(void* arg) throw()
+CommonTest::send_synch_req(void* arg) noexcept
 {
   InfoToCallback* info = static_cast<InfoToCallback*>(arg);
   try

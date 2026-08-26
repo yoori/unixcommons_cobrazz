@@ -13,7 +13,7 @@ namespace Sync
   // class Conditional
   //
 
-  Conditional::~Conditional() throw ()
+  Conditional::~Conditional() noexcept
   {
     pthread_cond_destroy(&cond_);
   }
@@ -118,14 +118,14 @@ namespace Sync
   //
 
   ConditionalGuard::ConditionalGuard(Condition& condition)
-    throw ()
+    noexcept
     : PosixGuard(condition), conditional_(condition), mutex_(condition)
   {
   }
 
   ConditionalGuard::ConditionalGuard(Conditional& conditional,
     pthread_mutex_t& mutex)
-    throw ()
+    noexcept
     : PosixGuard(mutex), conditional_(conditional), mutex_(mutex)
   {
   }

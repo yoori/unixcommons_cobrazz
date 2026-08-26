@@ -22,9 +22,9 @@ namespace
     class Find
     {
     public:
-      Find() throw ();
+      Find() noexcept;
       int
-      descriptor() throw ();
+      descriptor() noexcept;
 
     private:
       int elem_, bit_;
@@ -32,21 +32,21 @@ namespace
       friend union FDSet;
     };
 
-    FDSet(bool init = true) throw ();
+    FDSet(bool init = true) noexcept;
     FDSet& operator=(const FDSet&) = default;
 
     fd_set*
-    operator &() throw ();
+    operator &() noexcept;
 
     void
-    find_first(Find& f) throw ();
+    find_first(Find& f) noexcept;
 
     void
-    find_next(Find& f) throw ();
+    find_next(Find& f) noexcept;
 
   private:
     void
-    find_from_(Find& f, unsigned from) throw ();
+    find_from_(Find& f, unsigned from) noexcept;
 
     enum { SIZE = CORBACommons::DESCRIPTORS / 64 };
     uint64_t bits_[SIZE];
@@ -54,19 +54,19 @@ namespace
   };
 
 
-  FDSet::Find::Find() throw ()
+  FDSet::Find::Find() noexcept
     : elem_(0), bit_(-1)
   {
   }
 
   int
-  FDSet::Find::descriptor() throw ()
+  FDSet::Find::descriptor() noexcept
   {
     return elem_ * 64 + bit_;
   }
 
 
-  FDSet::FDSet(bool init) throw ()
+  FDSet::FDSet(bool init) noexcept
   {
     if (init)
     {
@@ -75,19 +75,19 @@ namespace
   }
 
   fd_set*
-  FDSet::operator &() throw ()
+  FDSet::operator &() noexcept
   {
     return &set_;
   }
 
   void
-  FDSet::find_first(Find& f) throw ()
+  FDSet::find_first(Find& f) noexcept
   {
     find_from_(f, 0);
   }
 
   void
-  FDSet::find_next(Find& f) throw ()
+  FDSet::find_next(Find& f) noexcept
   {
     if (f.descriptor() < 0)
     {
@@ -107,7 +107,7 @@ namespace
   }
 
   void
-  FDSet::find_from_(Find& f, unsigned from) throw ()
+  FDSet::find_from_(Find& f, unsigned from) noexcept
   {
     for (unsigned i = from; i < SIZE; i++)
     {
@@ -128,215 +128,215 @@ namespace
   {
   public:
     explicit
-    Reactor(ACE_Timer_Queue* tq) throw ();
+    Reactor(ACE_Timer_Queue* tq) noexcept;
     virtual
-    ~Reactor() throw ();
+    ~Reactor() noexcept;
 
     virtual
     int
     open(size_t, bool = false, ACE_Sig_Handler* = 0, ACE_Timer_Queue* = 0,
-      int = 0, ACE_Reactor_Notify* = 0) throw ();
+      int = 0, ACE_Reactor_Notify* = 0) noexcept;
     virtual
     int
-    current_info(ACE_HANDLE, size_t&) throw ();
+    current_info(ACE_HANDLE, size_t&) noexcept;
     virtual
     int
-    set_sig_handler(ACE_Sig_Handler*) throw ();
+    set_sig_handler(ACE_Sig_Handler*) noexcept;
     virtual
     int
-    timer_queue(ACE_Timer_Queue *) throw ();
+    timer_queue(ACE_Timer_Queue *) noexcept;
     virtual
     ACE_Timer_Queue*
-    timer_queue() const throw ();
+    timer_queue() const noexcept;
     virtual
     int
-    close() throw ();
+    close() noexcept;
     virtual
     int
-    work_pending(const ACE_Time_Value& = ACE_Time_Value::zero) throw ();
+    work_pending(const ACE_Time_Value& = ACE_Time_Value::zero) noexcept;
     virtual
     int
-    handle_events(ACE_Time_Value* max_wait_time = 0) throw ();
+    handle_events(ACE_Time_Value* max_wait_time = 0) noexcept;
     virtual
     int
-    alertable_handle_events(ACE_Time_Value* = 0) throw ();
+    alertable_handle_events(ACE_Time_Value* = 0) noexcept;
     virtual
     int
-    handle_events(ACE_Time_Value&) throw ();
+    handle_events(ACE_Time_Value&) noexcept;
     virtual
     int
-    alertable_handle_events(ACE_Time_Value&) throw ();
+    alertable_handle_events(ACE_Time_Value&) noexcept;
     virtual
     int
-    deactivated() throw ();
+    deactivated() noexcept;
     virtual
     void
-    deactivate(int do_stop) throw ();
+    deactivate(int do_stop) noexcept;
     virtual
     int
     register_handler(ACE_Event_Handler* event_handler,
-      ACE_Reactor_Mask mask) throw ();
+      ACE_Reactor_Mask mask) noexcept;
     virtual
     int
     register_handler(ACE_HANDLE, ACE_Event_Handler*, ACE_Reactor_Mask)
-      throw ();
+      noexcept;
     virtual
     int
     register_handler(ACE_HANDLE, ACE_HANDLE, ACE_Event_Handler*,
-      ACE_Reactor_Mask) throw ();
+      ACE_Reactor_Mask) noexcept;
     virtual
     int
     register_handler(const ACE_Handle_Set&, ACE_Event_Handler*,
-      ACE_Reactor_Mask) throw ();
+      ACE_Reactor_Mask) noexcept;
     virtual
     int
     register_handler(int, ACE_Event_Handler*, ACE_Sig_Action*,
-      ACE_Event_Handler** = 0, ACE_Sig_Action* = 0) throw ();
+      ACE_Event_Handler** = 0, ACE_Sig_Action* = 0) noexcept;
     virtual
     int
     register_handler(const ACE_Sig_Set&, ACE_Event_Handler*,
-      ACE_Sig_Action* = 0) throw ();
+      ACE_Sig_Action* = 0) noexcept;
     virtual
     int
-    remove_handler(ACE_Event_Handler*, ACE_Reactor_Mask) throw ();
+    remove_handler(ACE_Event_Handler*, ACE_Reactor_Mask) noexcept;
     virtual
     int
-    remove_handler(ACE_HANDLE handle, ACE_Reactor_Mask mask) throw ();
+    remove_handler(ACE_HANDLE handle, ACE_Reactor_Mask mask) noexcept;
     virtual
     int
-    remove_handler(const ACE_Handle_Set&, ACE_Reactor_Mask) throw ();
+    remove_handler(const ACE_Handle_Set&, ACE_Reactor_Mask) noexcept;
     virtual
     int
     remove_handler(int, ACE_Sig_Action*, ACE_Sig_Action* = 0, int = -1)
-      throw ();
+      noexcept;
     virtual
     int
-    remove_handler(const ACE_Sig_Set&) throw ();
+    remove_handler(const ACE_Sig_Set&) noexcept;
     virtual
     int
-    suspend_handler(ACE_Event_Handler*) throw ();
+    suspend_handler(ACE_Event_Handler*) noexcept;
     virtual
     int
-    suspend_handler(ACE_HANDLE) throw ();
+    suspend_handler(ACE_HANDLE) noexcept;
     virtual
     int
-    suspend_handler(const ACE_Handle_Set&) throw ();
+    suspend_handler(const ACE_Handle_Set&) noexcept;
     virtual
     int
-    suspend_handlers() throw ();
+    suspend_handlers() noexcept;
     virtual
     int
-    resume_handler(ACE_Event_Handler*) throw ();
+    resume_handler(ACE_Event_Handler*) noexcept;
     virtual
     int
-    resume_handler(ACE_HANDLE handle) throw ();
+    resume_handler(ACE_HANDLE handle) noexcept;
     virtual
     int
-    resume_handler(const ACE_Handle_Set&) throw ();
+    resume_handler(const ACE_Handle_Set&) noexcept;
     virtual
     int
-    resume_handlers() throw ();
+    resume_handlers() noexcept;
     virtual
     int
-    resumable_handler() throw ();
+    resumable_handler() noexcept;
     virtual
     bool
-    uses_event_associations() throw ();
+    uses_event_associations() noexcept;
     virtual
     long
     schedule_timer(ACE_Event_Handler*, const void*,
       const ACE_Time_Value&, const ACE_Time_Value& = ACE_Time_Value::zero)
-      throw ();
+      noexcept;
     virtual
     int
-    reset_timer_interval(long, const ACE_Time_Value&) throw ();
+    reset_timer_interval(long, const ACE_Time_Value&) noexcept;
     virtual
     int
-    cancel_timer(ACE_Event_Handler*, int = 1) throw ();
+    cancel_timer(ACE_Event_Handler*, int = 1) noexcept;
     virtual
     int
-    cancel_timer(long, const void** = 0, int = 1) throw ();
+    cancel_timer(long, const void** = 0, int = 1) noexcept;
     virtual
     int
-    schedule_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) throw ();
+    schedule_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) noexcept;
     virtual
     int
-    schedule_wakeup(ACE_HANDLE, ACE_Reactor_Mask) throw ();
+    schedule_wakeup(ACE_HANDLE, ACE_Reactor_Mask) noexcept;
     virtual
     int
-    cancel_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) throw ();
+    cancel_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) noexcept;
     virtual
     int
-    cancel_wakeup(ACE_HANDLE, ACE_Reactor_Mask) throw ();
+    cancel_wakeup(ACE_HANDLE, ACE_Reactor_Mask) noexcept;
     virtual
     int
     notify(ACE_Event_Handler* event_handler = 0,
       ACE_Reactor_Mask mask = ACE_Event_Handler::EXCEPT_MASK,
-      ACE_Time_Value* max_wait_time = 0) throw ();
+      ACE_Time_Value* max_wait_time = 0) noexcept;
     virtual
     void
-    max_notify_iterations(int) throw ();
+    max_notify_iterations(int) noexcept;
     virtual
     int
-    max_notify_iterations() throw ();
+    max_notify_iterations() noexcept;
     virtual
     int
     purge_pending_notifications(ACE_Event_Handler* = 0,
-      ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK) throw ();
+      ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK) noexcept;
     virtual
     ACE_Event_Handler*
-    find_handler(ACE_HANDLE) throw ();
+    find_handler(ACE_HANDLE) noexcept;
     virtual
     int
-    handler(ACE_HANDLE, ACE_Reactor_Mask, ACE_Event_Handler** = 0) throw ();
+    handler(ACE_HANDLE, ACE_Reactor_Mask, ACE_Event_Handler** = 0) noexcept;
     virtual
     int
-    handler(int, ACE_Event_Handler** = 0) throw ();
+    handler(int, ACE_Event_Handler** = 0) noexcept;
     virtual
     bool
-    initialized() throw ();
+    initialized() noexcept;
     virtual
     size_t
-    size() const throw ();
+    size() const noexcept;
     virtual
     ACE_Lock&
-    lock() throw ();
+    lock() noexcept;
     virtual
     void
-    wakeup_all_threads() throw ();
+    wakeup_all_threads() noexcept;
     virtual
     int
-    owner(ACE_thread_t, ACE_thread_t* = 0) throw ();
+    owner(ACE_thread_t, ACE_thread_t* = 0) noexcept;
     virtual
     int
-    owner(ACE_thread_t*) throw ();
+    owner(ACE_thread_t*) noexcept;
     virtual
     bool
-    restart() throw ();
+    restart() noexcept;
     virtual
     bool
-    restart(bool) throw ();
+    restart(bool) noexcept;
     virtual
     void
-    requeue_position(int) throw ();
+    requeue_position(int) noexcept;
     virtual
     int
-    requeue_position() throw ();
+    requeue_position() noexcept;
     virtual
     int
-    mask_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) throw ();
+    mask_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) noexcept;
     virtual
     int
-    mask_ops(ACE_HANDLE, ACE_Reactor_Mask, int) throw ();
+    mask_ops(ACE_HANDLE, ACE_Reactor_Mask, int) noexcept;
     virtual
     int
-    ready_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) throw ();
+    ready_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) noexcept;
     virtual
     int
-    ready_ops(ACE_HANDLE, ACE_Reactor_Mask, int) throw ();
+    ready_ops(ACE_HANDLE, ACE_Reactor_Mask, int) noexcept;
     virtual
     void
-    dump() const throw ();
+    dump() const noexcept;
 
   private:
     typedef std::map<int, ACE_Event_Handler*, std::less<int>,
@@ -363,7 +363,7 @@ namespace
 
     struct Part
     {
-      Part() throw ();
+      Part() noexcept;
 
       Sync::PosixMutex select;
 
@@ -391,91 +391,91 @@ namespace
 
     static
     unsigned
-    part_(unsigned fd) throw ();
+    part_(unsigned fd) noexcept;
 
     static
     unsigned
-    adapt_fd_for_fdset_(unsigned fd) throw ();
+    adapt_fd_for_fdset_(unsigned fd) noexcept;
   };
 
 
-  Reactor::Part::Part() throw ()
+  Reactor::Part::Part() noexcept
     : in_select(false)
   {
     FD_SET(pipe.read_descriptor(), &wait);
   }
 
 
-  Reactor::Reactor(ACE_Timer_Queue* tq) throw ()
+  Reactor::Reactor(ACE_Timer_Queue* tq) noexcept
     : sem_(0), exit_(false), waiters_(0)
   {
     delete tq;
   }
 
-  Reactor::~Reactor() throw ()
+  Reactor::~Reactor() noexcept
   {
   }
 
   unsigned
-  Reactor::part_(unsigned fd) throw ()
+  Reactor::part_(unsigned fd) noexcept
   {
     return fd & PARTS_MASK;
     //return (fd >> 6) & PARTS_MASK;
   }
 
   unsigned
-  Reactor::adapt_fd_for_fdset_(unsigned fd) throw ()
+  Reactor::adapt_fd_for_fdset_(unsigned fd) noexcept
   {
     return fd; // % (16 * 1024);
   }
 
   int
   Reactor::open(size_t, bool, ACE_Sig_Handler*, ACE_Timer_Queue*, int,
-    ACE_Reactor_Notify*) throw ()
+    ACE_Reactor_Notify*) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::current_info(ACE_HANDLE, size_t&) throw ()
+  Reactor::current_info(ACE_HANDLE, size_t&) noexcept
   {
     abort();
   }
 
   int
-  Reactor::set_sig_handler(ACE_Sig_Handler*) throw ()
+  Reactor::set_sig_handler(ACE_Sig_Handler*) noexcept
   {
     abort();
   }
 
   int
-  Reactor::timer_queue(ACE_Timer_Queue *) throw ()
+  Reactor::timer_queue(ACE_Timer_Queue *) noexcept
   {
     abort();
   }
 
   ACE_Timer_Queue*
-  Reactor::timer_queue() const throw ()
+  Reactor::timer_queue() const noexcept
   {
     return 0;
   }
 
   int
-  Reactor::close() throw ()
+  Reactor::close() noexcept
   {
     return 0;
   }
 
   int
-  Reactor::work_pending(const ACE_Time_Value&) throw ()
+  Reactor::work_pending(const ACE_Time_Value&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::handle_events(ACE_Time_Value* max_wait_time) throw ()
+  Reactor::handle_events(ACE_Time_Value* max_wait_time) noexcept
   {
     (void)max_wait_time;
     assert(!max_wait_time);
@@ -612,34 +612,34 @@ namespace
   }
 
   int
-  Reactor::alertable_handle_events(ACE_Time_Value*) throw ()
+  Reactor::alertable_handle_events(ACE_Time_Value*) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::handle_events(ACE_Time_Value&) throw ()
+  Reactor::handle_events(ACE_Time_Value&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::alertable_handle_events(ACE_Time_Value&) throw ()
+  Reactor::alertable_handle_events(ACE_Time_Value&) noexcept
   {
     abort();
   }
 
   int
-  Reactor::deactivated() throw ()
+  Reactor::deactivated() noexcept
   {
     abort();
     return 0;
   }
 
   void
-  Reactor::deactivate(int) throw ()
+  Reactor::deactivate(int) noexcept
   {
     exit_ = true;
     for (unsigned p = 0; p < CORBACommons::PARTS; p++)
@@ -651,7 +651,7 @@ namespace
 
   int
   Reactor::register_handler(ACE_Event_Handler* event_handler,
-    ACE_Reactor_Mask mask) throw ()
+    ACE_Reactor_Mask mask) noexcept
   {
     // don't register handler on mask == EXCEPT_MASK only
     // remove handler will ignore it
@@ -681,7 +681,7 @@ namespace
 
   int
   Reactor::register_handler(ACE_HANDLE, ACE_Event_Handler*,
-    ACE_Reactor_Mask) throw ()
+    ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
@@ -689,7 +689,7 @@ namespace
 
   int
   Reactor::register_handler(ACE_HANDLE, ACE_HANDLE, ACE_Event_Handler*,
-    ACE_Reactor_Mask) throw ()
+    ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
@@ -697,7 +697,7 @@ namespace
 
   int
   Reactor::register_handler(const ACE_Handle_Set&, ACE_Event_Handler*,
-    ACE_Reactor_Mask) throw ()
+    ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
@@ -705,7 +705,7 @@ namespace
 
   int
   Reactor::register_handler(int, ACE_Event_Handler*, ACE_Sig_Action*,
-    ACE_Event_Handler**, ACE_Sig_Action*) throw ()
+    ACE_Event_Handler**, ACE_Sig_Action*) noexcept
   {
     abort();
     return 0;
@@ -713,7 +713,7 @@ namespace
 
   int
   Reactor::register_handler(const ACE_Sig_Set&, ACE_Event_Handler*,
-    ACE_Sig_Action*) throw ()
+    ACE_Sig_Action*) noexcept
   {
     abort();
     return 0;
@@ -721,14 +721,14 @@ namespace
 
   int
   Reactor::remove_handler(ACE_Event_Handler* eh, ACE_Reactor_Mask mask)
-    throw ()
+    noexcept
   {
     remove_handler(eh->get_handle(), mask);
     return 0;
   }
 
   int
-  Reactor::remove_handler(ACE_HANDLE handle, ACE_Reactor_Mask) throw ()
+  Reactor::remove_handler(ACE_HANDLE handle, ACE_Reactor_Mask) noexcept
   {
     Part& part = parts_[part_(handle)];
 
@@ -749,7 +749,7 @@ namespace
   }
 
   int
-  Reactor::remove_handler(const ACE_Handle_Set&, ACE_Reactor_Mask) throw ()
+  Reactor::remove_handler(const ACE_Handle_Set&, ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
@@ -757,56 +757,56 @@ namespace
 
   int
   Reactor::remove_handler(int, ACE_Sig_Action*, ACE_Sig_Action*, int)
-    throw ()
+    noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::remove_handler(const ACE_Sig_Set&) throw ()
+  Reactor::remove_handler(const ACE_Sig_Set&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::suspend_handler(ACE_Event_Handler*) throw ()
+  Reactor::suspend_handler(ACE_Event_Handler*) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::suspend_handler(ACE_HANDLE) throw ()
+  Reactor::suspend_handler(ACE_HANDLE) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::Reactor::suspend_handler(const ACE_Handle_Set&) throw ()
+  Reactor::Reactor::suspend_handler(const ACE_Handle_Set&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::suspend_handlers() throw ()
+  Reactor::suspend_handlers() noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::resume_handler(ACE_Event_Handler*) throw ()
+  Reactor::resume_handler(ACE_Event_Handler*) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::resume_handler(ACE_HANDLE handle) throw ()
+  Reactor::resume_handler(ACE_HANDLE handle) noexcept
   {
     Part& part = parts_[part_(handle)];
     {
@@ -830,34 +830,34 @@ namespace
   }
 
   int
-  Reactor::resume_handler(const ACE_Handle_Set&) throw ()
+  Reactor::resume_handler(const ACE_Handle_Set&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::resume_handlers() throw ()
+  Reactor::resume_handlers() noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::resumable_handler() throw ()
+  Reactor::resumable_handler() noexcept
   {
     return true;
   }
 
   bool
-  Reactor::uses_event_associations() throw ()
+  Reactor::uses_event_associations() noexcept
   {
     return false;
   }
 
   long
   Reactor::schedule_timer(ACE_Event_Handler*, const void*,
-    const ACE_Time_Value&, const ACE_Time_Value&) throw ()
+    const ACE_Time_Value&, const ACE_Time_Value&) noexcept
   {
     // Expected that will be called only from TAO_Acceptor::handle_accept_error
     errno = EOPNOTSUPP;
@@ -865,48 +865,48 @@ namespace
   }
 
   int
-  Reactor::reset_timer_interval(long, const ACE_Time_Value&) throw ()
+  Reactor::reset_timer_interval(long, const ACE_Time_Value&) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::cancel_timer(ACE_Event_Handler*, int) throw ()
+  Reactor::cancel_timer(ACE_Event_Handler*, int) noexcept
   {
     return 0;
   }
 
   int
-  Reactor::cancel_timer(long, const void**, int) throw ()
-  {
-    abort();
-    return 0;
-  }
-
-  int
-  Reactor::schedule_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) throw ()
+  Reactor::cancel_timer(long, const void**, int) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::schedule_wakeup(ACE_HANDLE, ACE_Reactor_Mask) throw ()
+  Reactor::schedule_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::cancel_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) throw ()
+  Reactor::schedule_wakeup(ACE_HANDLE, ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::cancel_wakeup(ACE_HANDLE, ACE_Reactor_Mask) throw ()
+  Reactor::cancel_wakeup(ACE_Event_Handler*, ACE_Reactor_Mask) noexcept
+  {
+    abort();
+    return 0;
+  }
+
+  int
+  Reactor::cancel_wakeup(ACE_HANDLE, ACE_Reactor_Mask) noexcept
   {
     abort();
     return 0;
@@ -914,7 +914,7 @@ namespace
 
   int
   Reactor::notify(ACE_Event_Handler* event_handler, ACE_Reactor_Mask mask,
-    ACE_Time_Value*) throw ()
+    ACE_Time_Value*) noexcept
   {
     (void)mask;
     assert(mask == ACE_Event_Handler::READ_MASK);
@@ -929,13 +929,13 @@ namespace
   }
 
   void
-  Reactor::max_notify_iterations(int) throw ()
+  Reactor::max_notify_iterations(int) noexcept
   {
     abort();
   }
 
   int
-  Reactor::max_notify_iterations() throw ()
+  Reactor::max_notify_iterations() noexcept
   {
     abort();
     return 0;
@@ -943,14 +943,14 @@ namespace
 
   int
   Reactor::purge_pending_notifications(ACE_Event_Handler*, ACE_Reactor_Mask)
-    throw ()
+    noexcept
   {
     abort();
     return 0;
   }
 
   ACE_Event_Handler*
-  Reactor::find_handler(ACE_HANDLE) throw ()
+  Reactor::find_handler(ACE_HANDLE) noexcept
   {
     abort();
     return 0;
@@ -958,114 +958,114 @@ namespace
 
   int
   Reactor::handler(ACE_HANDLE, ACE_Reactor_Mask, ACE_Event_Handler**)
-    throw ()
+    noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::handler(int, ACE_Event_Handler**) throw ()
+  Reactor::handler(int, ACE_Event_Handler**) noexcept
   {
     abort();
     return 0;
   }
 
   bool
-  Reactor::initialized() throw ()
+  Reactor::initialized() noexcept
   {
     return true;
   }
 
   size_t
-  Reactor::size() const throw ()
+  Reactor::size() const noexcept
   {
     abort();
     return 0;
   }
 
   ACE_Lock&
-  Reactor::lock() throw ()
+  Reactor::lock() noexcept
   {
     abort();
     return *(ACE_Lock*)0;
   }
 
   void
-  Reactor::wakeup_all_threads() throw ()
+  Reactor::wakeup_all_threads() noexcept
   {
     abort();
   }
 
   int
-  Reactor::owner(ACE_thread_t, ACE_thread_t*) throw ()
+  Reactor::owner(ACE_thread_t, ACE_thread_t*) noexcept
   {
     return 0;
   }
 
   int
-  Reactor::owner(ACE_thread_t*) throw ()
+  Reactor::owner(ACE_thread_t*) noexcept
   {
     abort();
     return 0;
   }
 
   bool
-  Reactor::restart() throw ()
+  Reactor::restart() noexcept
   {
     abort();
     return 0;
   }
 
   bool
-  Reactor::restart(bool) throw ()
+  Reactor::restart(bool) noexcept
   {
     abort();
     return 0;
   }
 
   void
-  Reactor::requeue_position(int) throw ()
+  Reactor::requeue_position(int) noexcept
   {
     abort();
   }
 
   int
-  Reactor::requeue_position() throw ()
+  Reactor::requeue_position() noexcept
   {
     abort();
   }
 
   int
-  Reactor::mask_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) throw ()
-  {
-    abort();
-    return 0;
-  }
-
-  int
-  Reactor::mask_ops(ACE_HANDLE, ACE_Reactor_Mask, int) throw ()
+  Reactor::mask_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::ready_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) throw ()
+  Reactor::mask_ops(ACE_HANDLE, ACE_Reactor_Mask, int) noexcept
   {
     abort();
     return 0;
   }
 
   int
-  Reactor::ready_ops(ACE_HANDLE, ACE_Reactor_Mask, int) throw ()
+  Reactor::ready_ops(ACE_Event_Handler*, ACE_Reactor_Mask, int) noexcept
+  {
+    abort();
+    return 0;
+  }
+
+  int
+  Reactor::ready_ops(ACE_HANDLE, ACE_Reactor_Mask, int) noexcept
   {
     abort();
     return 0;
   }
 
   void
-  Reactor::dump() const throw ()
+  Reactor::dump() const noexcept
   {
     abort();
   }
@@ -1074,7 +1074,7 @@ namespace
 namespace CORBACommons
 {
   ACE_Reactor_Impl*
-  create_reactor_impl(ACE_Timer_Queue* tq) throw ()
+  create_reactor_impl(ACE_Timer_Queue* tq) noexcept
   {
     try
     {

@@ -195,7 +195,7 @@ class ResponseCounter
 {
 public:
   void
-  success() throw ()
+  success() noexcept
   {
     counter_.success();
   }
@@ -301,7 +301,7 @@ public:
 
   virtual void
   server_connection_added(Identifier server, Identifier connection)
-    throw ()
+    noexcept
   {
     PoolPolicySimpleDecider::server_connection_added(server, connection);
     __gnu_cxx::__atomic_add(&connections_, 1);
@@ -309,13 +309,13 @@ public:
 
   virtual void
   report_error(Severity /*severity*/, const String::SubString& description,
-    const char* /*error_code*/) throw ()
+    const char* /*error_code*/) noexcept
   {
     errors_.add(description, true);
   }
 protected:
   virtual
-  ~MyPolicy() throw ()
+  ~MyPolicy() noexcept
   {
     std::cout << "Number of connections created: " << connections_ << std::endl;
     std::cout << "Policy errors:" << std::endl;
@@ -331,13 +331,13 @@ class MyCallback :
   public ReferenceCounting::AtomicImpl
 {
 public:
-  MyCallback(Sync::Semaphore& semaphore) throw ()
+  MyCallback(Sync::Semaphore& semaphore) noexcept
     : semaphore_(semaphore)
   {
   }
 
   virtual void
-  on_response(const ResponseInformation& data) throw ()
+  on_response(const ResponseInformation& data) noexcept
   {
     counter_.success();
     checker_(data.method(), data.body());
@@ -345,13 +345,13 @@ public:
 
   virtual void
   on_error(const String::SubString& description,
-    const RequestInformation& /*data*/) throw ()
+    const RequestInformation& /*data*/) noexcept
   {
     counter_.failure(description);
   }
 protected:
   virtual
-  ~MyCallback() throw ()
+  ~MyCallback() noexcept
   {
     counter_.print();
     checker_.print();
@@ -374,7 +374,7 @@ public:
       cb_(ReferenceCounting::add_ref(cb)), type_(type)
   {
   }
-  ~Requester() throw ()
+  ~Requester() noexcept
   {
     std::cout << type_ << std::endl;
     std::cout << "Addition: ";
@@ -385,7 +385,7 @@ public:
   }
 
   void
-  operator ()() throw ()
+  operator ()() noexcept
   {
     for (int i = 0; i < 100; i++)
     {

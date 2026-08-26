@@ -16,22 +16,22 @@ namespace HTTP
     public:
       SyncCallback(Sync::Semaphore& semaphore, int& response_code,
         HeaderList& response_headers, ResponseBody& response_body,
-        std::string& response_error, CaughtException& exception) throw ();
+        std::string& response_error, CaughtException& exception) noexcept;
 
       virtual
       void
-      on_response(const ResponseInformation& data) throw ();
+      on_response(const ResponseInformation& data) noexcept;
 
       virtual
       void
       on_error(
         const String::SubString& description,
         const RequestInformation& data)
-        throw ();
+        noexcept;
 
     protected:
       virtual
-      ~SyncCallback() throw ();
+      ~SyncCallback() noexcept;
 
     private:
       Sync::Semaphore& semaphore_;
@@ -46,19 +46,19 @@ namespace HTTP
     SyncCallback::SyncCallback(Sync::Semaphore& semaphore,
       int& response_code,
       HeaderList& response_headers, ResponseBody& response_body,
-      std::string& response_error, CaughtException& exception) throw ()
+      std::string& response_error, CaughtException& exception) noexcept
       : semaphore_(semaphore), response_code_(response_code),
         response_headers_(response_headers), response_body_(response_body),
         response_error_(response_error), exception_(exception)
     {
     }
 
-    SyncCallback::~SyncCallback() throw ()
+    SyncCallback::~SyncCallback() noexcept
     {
     }
 
     void
-    SyncCallback::on_response(const ResponseInformation& data) throw ()
+    SyncCallback::on_response(const ResponseInformation& data) noexcept
     {
       try
       {
@@ -87,7 +87,7 @@ namespace HTTP
 
     void
     SyncCallback::on_error(const String::SubString& description,
-      const RequestInformation& /*data*/) throw ()
+      const RequestInformation& /*data*/) noexcept
     {
       try
       {

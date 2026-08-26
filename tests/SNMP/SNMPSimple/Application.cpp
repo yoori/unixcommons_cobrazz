@@ -11,7 +11,7 @@ class Processor : public ValuesProcessor
 {
 public:
   explicit
-  Processor(unsigned id) throw ()
+  Processor(unsigned id) noexcept
     : ValuesProcessor(id)
   {
   }

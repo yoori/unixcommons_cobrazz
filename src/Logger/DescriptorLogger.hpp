@@ -1,5 +1,4 @@
-#ifndef LOGGER_DESCRIPTOR_LOGGER_HPP
-#define LOGGER_DESCRIPTOR_LOGGER_HPP
+#pragma once
 
 #include <unistd.h>
 
@@ -21,7 +20,7 @@ namespace Logging
          * Constructor
          */
         Config(const Formatter* formatter, int fd, size_t preallocated_size)
-          throw ();
+          noexcept;
 
         Formatter_var formatter;
         int fd;
@@ -58,20 +57,20 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~Handler() throw ();
+        ~Handler() noexcept;
 
         /**
          * Allows children to pass file descriptor later
          * @param fd File descriptor
          */
         void
-        set_fd_(int fd) throw ();
+        set_fd_(int fd) noexcept;
 
         /**
          * Closes stored file descriptor
          */
         void
-        close_fd_() throw ();
+        close_fd_() noexcept;
 
       private:
         FormatWrapper formatter_;
@@ -94,7 +93,7 @@ namespace Logging
        */
       explicit
       Config(const Formatter* formatter = 0, int fd = -1,
-        size_t preallocated_size = 0) throw ();
+        size_t preallocated_size = 0) noexcept;
     };
 
     /**
@@ -120,7 +119,7 @@ namespace Logging
 
       inline
       Config::Config(const Formatter* formatter, int fd,
-        size_t preallocated_size) throw ()
+        size_t preallocated_size) noexcept
         : formatter(ReferenceCounting::add_ref(formatter)), fd(fd),
           preallocated_size(preallocated_size)
       {
@@ -140,7 +139,7 @@ namespace Logging
 
       inline
       void
-      Handler::close_fd_() throw ()
+      Handler::close_fd_() noexcept
       {
         if (fd_ != -1)
         {
@@ -150,14 +149,14 @@ namespace Logging
       }
 
       inline
-      Handler::~Handler() throw ()
+      Handler::~Handler() noexcept
       {
         close_fd_();
       }
 
       inline
       void
-      Handler::set_fd_(int fd) throw ()
+      Handler::set_fd_(int fd) noexcept
       {
         fd_ = fd;
       }
@@ -170,11 +169,9 @@ namespace Logging
 
     inline
     Config::Config(const Formatter* formatter, int fd,
-      size_t preallocated_size) throw ()
+      size_t preallocated_size) noexcept
       : Helper::Config(formatter, fd, preallocated_size)
     {
     }
   }
 }
-
-#endif

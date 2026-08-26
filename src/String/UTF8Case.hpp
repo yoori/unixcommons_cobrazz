@@ -1,11 +1,4 @@
-/**
- * @file   String/UTF8Case.hpp
- * @author Denis Badikov
- * API for UTF-8 routines
- */
-
-#ifndef STRING_UTF8_CASE_HPP
-#define STRING_UTF8_CASE_HPP
+#pragma once
 
 #include <String/SubString.hpp>
 
@@ -18,16 +11,16 @@ namespace String
     {
     public:
       explicit
-      Iterator(const String::SubString& src) throw ();
+      Iterator(const String::SubString& src) noexcept;
 
       bool
-      exhausted() const throw ();
+      exhausted() const noexcept;
 
       char
-      forward() throw ();
+      forward() noexcept;
 
       void
-      backward(int step) throw ();
+      backward(int step) noexcept;
 
     private:
       const char* current_;
@@ -38,25 +31,25 @@ namespace String
   namespace ToLower
   {
     bool
-    to_lower(Helper::Iterator it, char*& dest, size_t& counter) throw ();
+    to_lower(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
   }
 
   namespace ToUpper
   {
     bool
-    to_upper(Helper::Iterator it, char*& dest, size_t& counter) throw ();
+    to_upper(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
   }
 
   namespace ToUniform
   {
     bool
-    to_uniform(Helper::Iterator it, char*& dest, size_t& counter) throw ();
+    to_uniform(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
   }
 
   namespace ToSimplify
   {
     bool
-    to_simplify(Helper::Iterator it, char*& dest, size_t& counter) throw ();
+    to_simplify(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
   }
 
   /**
@@ -69,7 +62,7 @@ namespace String
 
     static
     bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) throw ();
+    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -82,7 +75,7 @@ namespace String
 
     static
     bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) throw ();
+    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -95,7 +88,7 @@ namespace String
 
     static
     bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) throw ();
+    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -108,7 +101,7 @@ namespace String
 
     static
     bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) throw ();
+    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -121,7 +114,7 @@ namespace String
   template <typename Action>
   bool
   case_change(const String::SubString& src, char*& dest,
-    std::size_t* counter = 0) throw ();
+    std::size_t* counter = 0) noexcept;
 
   /**
    * @param src source UTF-8 string to convert
@@ -145,28 +138,28 @@ namespace String
   namespace Helper
   {
     inline
-    Iterator::Iterator(const String::SubString& src) throw ()
+    Iterator::Iterator(const String::SubString& src) noexcept
       : current_(src.data()), END_(current_ + src.size())
     {
     }
 
     inline
     bool
-    Iterator::exhausted() const throw ()
+    Iterator::exhausted() const noexcept
     {
       return current_ == END_;
     }
 
     inline
     char
-    Iterator::forward() throw ()
+    Iterator::forward() noexcept
     {
       return *current_++;
     }
 
     inline
     void
-    Iterator::backward(int step) throw ()
+    Iterator::backward(int step) noexcept
     {
       current_ -= step;
     }
@@ -174,28 +167,28 @@ namespace String
 
   inline
   bool
-  Lower::doit(Helper::Iterator in, char*& out, size_t& counter) throw ()
+  Lower::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToLower::to_lower(in, out, counter);
   }
 
   inline
   bool
-  Simplify::doit(Helper::Iterator in, char*& out, size_t& counter) throw ()
+  Simplify::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToSimplify::to_simplify(in, out, counter);
   }
 
   inline
   bool
-  Uniform::doit(Helper::Iterator in, char*& out, size_t& counter) throw ()
+  Uniform::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToUniform::to_uniform(in, out, counter);
   }
 
   inline
   bool
-  Upper::doit(Helper::Iterator in, char*& out, size_t& counter) throw ()
+  Upper::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToUpper::to_upper(in, out, counter);
   }
@@ -204,7 +197,7 @@ namespace String
   template <typename Action>
   bool
   case_change(const String::SubString& src, char*& dest, size_t* counter)
-    throw ()
+    noexcept
   {
     size_t dummy;
     return Action::doit(Helper::Iterator(src), dest,
@@ -226,5 +219,3 @@ namespace String
     return result;
   }
 }
-
-#endif

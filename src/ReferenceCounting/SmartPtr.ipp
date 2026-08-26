@@ -32,13 +32,13 @@ namespace ReferenceCounting
 
   inline
   void
-  PolicyThrow::default_constructor() throw ()
+  PolicyThrow::default_constructor() noexcept
   {
   }
 
   inline
   void
-  PolicyThrow::retn() throw ()
+  PolicyThrow::retn() noexcept
   {
   }
 
@@ -64,13 +64,13 @@ namespace ReferenceCounting
 
   inline
   void
-  PolicyAssert::default_constructor() throw ()
+  PolicyAssert::default_constructor() noexcept
   {
   }
 
   inline
   void
-  PolicyAssert::retn() throw ()
+  PolicyAssert::retn() noexcept
   {
   }
 
@@ -106,21 +106,21 @@ namespace ReferenceCounting
   inline
   void
   PolicyChecker::check_policy_(const PolicyThrow* /*policy*/)
-    throw ()
+    noexcept
   {
   }
 
   inline
   void
   PolicyChecker::check_policy_(const PolicyAssert* /*policy*/)
-    throw ()
+    noexcept
   {
   }
 
   inline
   void
   PolicyChecker::check_policy_(const PolicyNotNull* /*policy*/)
-    throw ()
+    noexcept
   {
   }
 }

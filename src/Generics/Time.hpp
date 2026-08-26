@@ -1,13 +1,4 @@
-/**
- * @file   Time.hpp
- * @author Karen Aroutiounov
- * Source for Time and ExtendedTime classes allowing full scale operations
- * on time intervals and divided times respectively. Microseconds granularity
- * is supported.
- */
-
-#ifndef GENERICS_TIME_HPP
-#define GENERICS_TIME_HPP
+#pragma once
 
 #include <time.h>
 #include <sys/time.h>
@@ -112,7 +103,7 @@ namespace Generics
      */
     static
     int
-    compare(const tm& t1, const tm& t2) throw ();
+    compare(const tm& t1, const tm& t2) noexcept;
 
     /**
      * Creates Time object holding current time value
@@ -120,7 +111,7 @@ namespace Generics
      */
     static
     Time
-    get_time_of_day() throw ();
+    get_time_of_day() noexcept;
 
 
   public:
@@ -129,7 +120,7 @@ namespace Generics
      * Initializes structure with zeros.
      */
     constexpr
-    Time() throw ();
+    Time() noexcept;
 
     /**
      * Constructor
@@ -137,7 +128,7 @@ namespace Generics
      */
     explicit
     constexpr
-    Time(const timeval& time) throw ();
+    Time(const timeval& time) noexcept;
 
     /**
      * Constructor
@@ -146,7 +137,7 @@ namespace Generics
      */
     explicit
     constexpr
-    Time(time_t time_sec, suseconds_t usec = 0) throw ();
+    Time(time_t time_sec, suseconds_t usec = 0) noexcept;
 
     /**
      * Constructor
@@ -188,7 +179,7 @@ namespace Generics
      * @param usec microseconds
      */
     void
-    set(time_t time_sec, suseconds_t usec = 0) throw ();
+    set(time_t time_sec, suseconds_t usec = 0) noexcept;
 
 
     /**
@@ -222,13 +213,13 @@ namespace Generics
      */
     constexpr
     Print
-    print() const throw ();
+    print() const noexcept;
 
     /**
      * Inverts sign of the time interval
      */
     void
-    invert_sign() throw ();
+    invert_sign() noexcept;
 
     /**
      * Returns tv_sec * USEC_MAX + tv_usec
@@ -236,7 +227,7 @@ namespace Generics
      */
     constexpr
     long long
-    microseconds() const throw ();
+    microseconds() const noexcept;
 
     /**
      * Returns imprecise double converted value.
@@ -245,21 +236,21 @@ namespace Generics
      */
     constexpr
     double
-    as_double() const throw ();
+    as_double() const noexcept;
 
     /**
      * Packs current value into TIME_PACK_LEN bytes long buffer
      * @param buffer pointer to TIME_PACK_LEN bytes long buffer
      */
     void
-    pack(void* buffer) const throw ();
+    pack(void* buffer) const noexcept;
 
     /**
      * Unpacks current value from TIME_PACK_LEN bytes long buffer
      * @param buffer pointer to TIME_PACK_LEN bytes long buffer
      */
     void
-    unpack(const void* buffer) throw ();
+    unpack(const void* buffer) noexcept;
 
 
     /**
@@ -268,7 +259,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator +=(const Time& time) throw ();
+    operator +=(const Time& time) noexcept;
 
     /**
      * Adds another time interval to the current
@@ -276,7 +267,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator +=(time_t time) throw ();
+    operator +=(time_t time) noexcept;
 
     /**
      * Subtracts another time interval from the current
@@ -284,7 +275,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator -=(const Time& time) throw ();
+    operator -=(const Time& time) noexcept;
 
     /**
      * Subtracts another time interval from the current
@@ -292,7 +283,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator -=(time_t time) throw ();
+    operator -=(time_t time) noexcept;
 
     /**
      * Multiplies current time interval on non-negative integer multiplier
@@ -300,7 +291,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator *=(int multiplier) throw ();
+    operator *=(int multiplier) noexcept;
 
     /**
      * Divides current time interval on non-negative integer divisor
@@ -308,7 +299,7 @@ namespace Generics
      * @return reference to the object
      */
     Time&
-    operator /=(int divisor) throw ();
+    operator /=(int divisor) noexcept;
 
 
 
@@ -388,7 +379,7 @@ namespace Generics
      */
     constexpr
     ExtendedTime(const tm& time, suseconds_t usec, Time::TimeZone tz)
-      throw ();
+      noexcept;
     /**
      * Constructor
      * @param sec seconds from Epoch
@@ -410,7 +401,7 @@ namespace Generics
      * @param usec microseconds
      */
     ExtendedTime(int year, int month, int day, int hour, int min,
-      int sec, suseconds_t usec) throw ();
+      int sec, suseconds_t usec) noexcept;
 
     /**
      * Time conversion operator
@@ -448,7 +439,7 @@ namespace Generics
      * @param time time to copy
      */
     void
-    set_time(const ExtendedTime& time) throw ();
+    set_time(const ExtendedTime& time) noexcept;
 
     /**
      * Gives date part of the current value
@@ -462,7 +453,7 @@ namespace Generics
      * @param time date to copy
      */
     void
-    set_date(const ExtendedTime& time) throw ();
+    set_date(const ExtendedTime& time) noexcept;
 
   protected:
     static const String::AsciiStringManip::Caseless DAYS_[];
@@ -472,10 +463,10 @@ namespace Generics
 
     const char*
     from_str_(const String::SubString& value, const char* format,
-      bool strict) throw ();
+      bool strict) noexcept;
     size_t
     to_str_(char* str, size_t length, const char* format) const
-      throw ();
+      noexcept;
 
     friend class Time;
   };
@@ -486,7 +477,7 @@ namespace Generics
    * @return seconds since epoch
    */
   time_t
-  gm_to_time(const tm& et) throw ();
+  gm_to_time(const tm& et) noexcept;
 
   /**
    * gmtime_r(3) analogue
@@ -494,11 +485,11 @@ namespace Generics
    * @param et resulted split time
    */
   void
-  time_to_gm(time_t time, tm& et) throw ();
+  time_to_gm(time_t time, tm& et) noexcept;
 
   template <typename Hash>
   void
-  hash_add(Hash& hash, const Time& key) throw ();
+  hash_add(Hash& hash, const Time& key) noexcept;
 
   /**
    * Timer allows to calculate time intervals between two points in time
@@ -511,54 +502,54 @@ namespace Generics
     /**
      * Constructor
      */
-    GeneralTimer() throw ();
+    GeneralTimer() noexcept;
 
     /**
      * Mark the first time point
      */
     void
-    start() throw ();
+    start() noexcept;
 
     /**
      * Mark the second time point
      */
     void
-    stop() throw ();
+    stop() noexcept;
 
     /**
      * Mark the second time point and set time to elapsed time
      * @param timeout Will be assigned elapsed time value
      */
     void
-    stop_set(TimeStamp& timeout) throw ();
+    stop_set(TimeStamp& timeout) noexcept;
 
     /**
      * Mark the second time point and add elapsed time to timeout.
      * @param timeout Elapsed time will be added to it
      */
     void
-    stop_add(TimeStamp& timeout) throw ();
+    stop_add(TimeStamp& timeout) noexcept;
 
     /**
      * Start timestamp
      * @return start time stamp
      */
     TimeStamp
-    start_time() const throw ();
+    start_time() const noexcept;
 
     /**
      * Stop timestamp
      * @return start time stamp
      */
     TimeStamp
-    stop_time() const throw ();
+    stop_time() const noexcept;
 
     /**
      * Calculate a difference between the second and the first time points
      * @return time interval
      */
     TimeStamp
-    elapsed_time() const throw ();
+    elapsed_time() const noexcept;
 
   private:
     Clock clock_;
@@ -571,14 +562,14 @@ namespace Generics
   {
   public:
     Time
-    operator ()() const throw ();
+    operator ()() const noexcept;
   };
 
   class ClockCPUUsage
   {
   public:
     Time
-    operator ()() const throw ();
+    operator ()() const noexcept;
   };
 
   /**
@@ -609,12 +600,12 @@ namespace Generics
      * @param timeout Save resulting elapsed time
      */
     explicit
-    TimeMeter(Time& timeout) throw ();
+    TimeMeter(Time& timeout) noexcept;
 
     /**
      * Stop timer and set elapsed time
      */
-    ~TimeMeter() throw ();
+    ~TimeMeter() noexcept;
   private:
     Generics::Time& time_;
   };
@@ -628,56 +619,56 @@ namespace Generics
 // Comparison functions (for Generics::Time class)
 constexpr
 bool
-operator ==(const timeval& tv1, const timeval& tv2) throw ();
+operator ==(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 bool
-operator !=(const timeval& tv1, const timeval& tv2) throw ();
+operator !=(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 bool
-operator <(const timeval& tv1, const timeval& tv2) throw ();
+operator <(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 bool
-operator >(const timeval& tv1, const timeval& tv2) throw ();
+operator >(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 bool
-operator <=(const timeval& tv1, const timeval& tv2) throw ();
+operator <=(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 bool
-operator >=(const timeval& tv1, const timeval& tv2) throw ();
+operator >=(const timeval& tv1, const timeval& tv2) noexcept;
 
 // Arithmetics functions (for Generics::Time class)
 constexpr
 Generics::Time
-operator -(const timeval& time) throw ();
+operator -(const timeval& time) noexcept;
 
 constexpr
 Generics::Time
-operator +(const timeval& tv1, const timeval& tv2) throw ();
+operator +(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 Generics::Time
-operator +(const timeval& tv, time_t time) throw ();
+operator +(const timeval& tv, time_t time) noexcept;
 
 constexpr
 Generics::Time
-operator -(const timeval& tv1, const timeval& tv2) throw ();
+operator -(const timeval& tv1, const timeval& tv2) noexcept;
 
 constexpr
 Generics::Time
-operator -(const timeval& tv, time_t time) throw ();
+operator -(const timeval& tv, time_t time) noexcept;
 
 constexpr
 Generics::Time
-operator *(const timeval& tv, int multiplier) throw ();
+operator *(const timeval& tv, int multiplier) noexcept;
 
 constexpr
 Generics::Time
-operator /(const timeval& tv, int divisor) throw ();
+operator /(const timeval& tv, int divisor) noexcept;
 
 // Stream functions
 std::ostream&
@@ -711,14 +702,14 @@ namespace Generics
   inline
   constexpr
   ExtendedTime::ExtendedTime(const tm& time, suseconds_t usec,
-    Time::TimeZone tz) throw ()
+    Time::TimeZone tz) noexcept
     : tm(time), tm_usec(usec), timezone(tz)
   {
   }
 
   inline
   ExtendedTime::ExtendedTime(int year, int month, int day, int hour,
-    int min, int sec, suseconds_t usec) throw ()
+    int min, int sec, suseconds_t usec) noexcept
   {
     tm_year = year - 1900;
     tm_mon = month - 1;
@@ -796,7 +787,7 @@ namespace Generics
 
   inline
   void
-  ExtendedTime::set_time(const ExtendedTime& time) throw ()
+  ExtendedTime::set_time(const ExtendedTime& time) noexcept
   {
     tm_hour = time.tm_hour;
     tm_min = time.tm_min;
@@ -818,7 +809,7 @@ namespace Generics
 
   inline
   void
-  ExtendedTime::set_date(const ExtendedTime& time) throw ()
+  ExtendedTime::set_date(const ExtendedTime& time) noexcept
   {
     tm_mday = time.tm_mday;
     tm_mon = time.tm_mon;
@@ -832,7 +823,7 @@ namespace Generics
 
   inline
   Time
-  Time::get_time_of_day() throw ()
+  Time::get_time_of_day() noexcept
   {
     Time time;
     gettimeofday(&time, 0);
@@ -841,21 +832,21 @@ namespace Generics
 
   inline
   constexpr
-  Time::Time() throw ()
+  Time::Time() noexcept
     : timeval{0, 0}
   {
   }
 
   inline
   constexpr
-  Time::Time(const timeval& time) throw ()
+  Time::Time(const timeval& time) noexcept
     : timeval(time)
   {
   }
 
   inline
   constexpr
-  Time::Time(time_t time_sec, suseconds_t usec) throw ()
+  Time::Time(time_t time_sec, suseconds_t usec) noexcept
     : timeval{time_sec, usec}
   {
   }
@@ -866,7 +857,7 @@ namespace Generics
 inline
 constexpr
 Generics::Time
-operator -(const timeval& tv) throw ()
+operator -(const timeval& tv) noexcept
 {
   return tv.tv_usec ? Generics::Time(-tv.tv_sec - 1,
     Generics::Time::USEC_MAX - tv.tv_usec) : Generics::Time(-tv.tv_sec, 0);
@@ -875,7 +866,7 @@ operator -(const timeval& tv) throw ()
 inline
 constexpr
 Generics::Time
-abs(const timeval& tv) throw ()
+abs(const timeval& tv) noexcept
 {
   return tv.tv_sec < 0 ? -Generics::Time(tv) : Generics::Time(tv);
 }
@@ -883,7 +874,7 @@ abs(const timeval& tv) throw ()
 inline
 constexpr
 Generics::Time
-operator +(const timeval& tv1, const timeval& tv2) throw ()
+operator +(const timeval& tv1, const timeval& tv2) noexcept
 {
   return tv1.tv_usec + tv2.tv_usec >= Generics::Time::USEC_MAX ?
     Generics::Time(tv1.tv_sec + tv2.tv_sec + 1,
@@ -894,7 +885,7 @@ operator +(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 Generics::Time
-operator +(const timeval& tv, time_t time) throw ()
+operator +(const timeval& tv, time_t time) noexcept
 {
   return Generics::Time(tv.tv_sec + time, tv.tv_usec);
 }
@@ -902,7 +893,7 @@ operator +(const timeval& tv, time_t time) throw ()
 inline
 constexpr
 Generics::Time
-operator -(const timeval& tv1, const timeval& tv2) throw ()
+operator -(const timeval& tv1, const timeval& tv2) noexcept
 {
   return tv1.tv_usec < tv2.tv_usec ?
     Generics::Time(tv1.tv_sec - tv2.tv_sec - 1,
@@ -913,7 +904,7 @@ operator -(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 Generics::Time
-operator -(const timeval& tv, time_t time) throw ()
+operator -(const timeval& tv, time_t time) noexcept
 {
   return Generics::Time(tv.tv_sec - time, tv.tv_usec);
 }
@@ -923,7 +914,7 @@ namespace Helper
   inline
   constexpr
   int
-  abs(int value) throw ()
+  abs(int value) noexcept
   {
     return value < 0 ? -value : value;
   }
@@ -931,7 +922,7 @@ namespace Helper
   inline
   constexpr
   Generics::Time
-  mul(const timeval& tv, int multiplier) throw ()
+  mul(const timeval& tv, int multiplier) noexcept
   {
     return Generics::Time(tv.tv_sec * multiplier +
       static_cast<time_t>(tv.tv_usec) * multiplier /
@@ -943,7 +934,7 @@ namespace Helper
   inline
   constexpr
   Generics::Time
-  div(const timeval& tv, int divisor) throw ()
+  div(const timeval& tv, int divisor) noexcept
   {
     return Generics::Time(tv.tv_sec / divisor,
       static_cast<suseconds_t>((
@@ -955,7 +946,7 @@ namespace Helper
 inline
 constexpr
 Generics::Time
-operator *(const timeval& tv, int multiplier) throw ()
+operator *(const timeval& tv, int multiplier) noexcept
 {
   return (tv.tv_sec < 0) == (multiplier < 0) ?
     Helper::mul(abs(tv), Helper::abs(multiplier)) :
@@ -965,7 +956,7 @@ operator *(const timeval& tv, int multiplier) throw ()
 inline
 constexpr
 Generics::Time
-operator /(const timeval& tv, int divisor) throw ()
+operator /(const timeval& tv, int divisor) noexcept
 {
   return (tv.tv_sec < 0) == (divisor < 0) ?
     Helper::div(abs(tv), Helper::abs(divisor)) :
@@ -981,7 +972,7 @@ namespace Generics
 
   inline
   void
-  Time::set(time_t time_sec, suseconds_t usec) throw ()
+  Time::set(time_t time_sec, suseconds_t usec) noexcept
   {
     tv_sec = time_sec;
     tv_usec = usec;
@@ -1005,7 +996,7 @@ namespace Generics
 
   inline
   int
-  Time::compare(const tm& t1, const tm& t2) throw ()
+  Time::compare(const tm& t1, const tm& t2) noexcept
   {
     int diff = t1.tm_year - t2.tm_year;
 
@@ -1145,7 +1136,7 @@ namespace Generics
   inline
   constexpr
   Time::Print
-  Time::print() const throw ()
+  Time::print() const noexcept
   {
     return tv_sec > 0 ?
       Print{1, tv_sec, tv_usec} :
@@ -1158,7 +1149,7 @@ namespace Generics
 
   inline
   void
-  Time::invert_sign() throw ()
+  Time::invert_sign() noexcept
   {
     *this = -*this;
   }
@@ -1166,7 +1157,7 @@ namespace Generics
   inline
   constexpr
   long long
-  Time::microseconds() const throw ()
+  Time::microseconds() const noexcept
   {
     return tv_sec * static_cast<long long>(USEC_MAX) + tv_usec;
   }
@@ -1174,7 +1165,7 @@ namespace Generics
   inline
   constexpr
   double
-  Time::as_double() const throw ()
+  Time::as_double() const noexcept
   {
     return tv_sec + tv_usec / static_cast<double>(USEC_MAX);
   }
@@ -1205,7 +1196,7 @@ namespace Generics
 
   inline
   void
-  Time::pack(void* buffer) const throw ()
+  Time::pack(void* buffer) const noexcept
   {
     int32_t* buf = static_cast<int32_t*>(buffer);
     buf[0] = static_cast<int32_t>(tv_sec);
@@ -1214,7 +1205,7 @@ namespace Generics
 
   inline
   void
-  Time::unpack(const void* buffer) throw ()
+  Time::unpack(const void* buffer) noexcept
   {
     const int32_t* buf = static_cast<const int32_t*>(buffer);
     set(static_cast<time_t>(buf[0]), static_cast<suseconds_t>(buf[1]));
@@ -1222,14 +1213,14 @@ namespace Generics
 
   inline
   Time&
-  Time::operator +=(const Time& time) throw ()
+  Time::operator +=(const Time& time) noexcept
   {
     return *this = *this + time;
   }
 
   inline
   Time&
-  Time::operator +=(time_t time) throw ()
+  Time::operator +=(time_t time) noexcept
   {
     tv_sec += time;
     return *this;
@@ -1237,14 +1228,14 @@ namespace Generics
 
   inline
   Time&
-  Time::operator -=(const Time& time) throw ()
+  Time::operator -=(const Time& time) noexcept
   {
     return *this = *this - time;
   }
 
   inline
   Time&
-  Time::operator -=(time_t time) throw ()
+  Time::operator -=(time_t time) noexcept
   {
     tv_sec -= time;
     return *this;
@@ -1252,14 +1243,14 @@ namespace Generics
 
   inline
   Time&
-  Time::operator *=(int multiplier) throw ()
+  Time::operator *=(int multiplier) noexcept
   {
     return *this = *this * multiplier;
   }
 
   inline
   Time&
-  Time::operator /=(int divisor) throw ()
+  Time::operator /=(int divisor) noexcept
   {
     return *this = *this / divisor;
   }
@@ -1296,7 +1287,7 @@ namespace Generics
 
   template <typename Hash>
   void
-  hash_add(Hash& hash, const Time& key) throw ()
+  hash_add(Hash& hash, const Time& key) noexcept
   {
     union
     {
@@ -1314,7 +1305,7 @@ namespace Generics
 
   inline
   Time
-  ClockTimeOfDay::operator ()() const throw ()
+  ClockTimeOfDay::operator ()() const noexcept
   {
     return Time::get_time_of_day();
   }
@@ -1325,7 +1316,7 @@ namespace Generics
 
   inline
   Time
-  ClockCPUUsage::operator ()() const throw ()
+  ClockCPUUsage::operator ()() const noexcept
   {
     rusage usage;
     getrusage(RUSAGE_THREAD, &usage);
@@ -1337,14 +1328,14 @@ namespace Generics
   //
 
   template <typename TimeStamp, typename Clock>
-  GeneralTimer<TimeStamp, Clock>::GeneralTimer() throw ()
+  GeneralTimer<TimeStamp, Clock>::GeneralTimer() noexcept
     : started_(false)
   {
   }
 
   template <typename TimeStamp, typename Clock>
   void
-  GeneralTimer<TimeStamp, Clock>::start() throw ()
+  GeneralTimer<TimeStamp, Clock>::start() noexcept
   {
     started_ = true;
     start_ = clock_();
@@ -1352,7 +1343,7 @@ namespace Generics
 
   template <typename TimeStamp, typename Clock>
   void
-  GeneralTimer<TimeStamp, Clock>::stop() throw ()
+  GeneralTimer<TimeStamp, Clock>::stop() noexcept
   {
     Time stop = clock_();
     if (started_)
@@ -1364,28 +1355,28 @@ namespace Generics
 
   template <typename TimeStamp, typename Clock>
   TimeStamp
-  GeneralTimer<TimeStamp, Clock>::start_time() const throw ()
+  GeneralTimer<TimeStamp, Clock>::start_time() const noexcept
   {
     return start_;
   }
 
   template <typename TimeStamp, typename Clock>
   TimeStamp
-  GeneralTimer<TimeStamp, Clock>::stop_time() const throw ()
+  GeneralTimer<TimeStamp, Clock>::stop_time() const noexcept
   {
     return stop_;
   }
 
   template <typename TimeStamp, typename Clock>
   TimeStamp
-  GeneralTimer<TimeStamp, Clock>::elapsed_time() const throw ()
+  GeneralTimer<TimeStamp, Clock>::elapsed_time() const noexcept
   {
     return stop_ - start_;
   }
 
   template <typename TimeStamp, typename Clock>
   void
-  GeneralTimer<TimeStamp, Clock>::stop_set(TimeStamp& timeout) throw ()
+  GeneralTimer<TimeStamp, Clock>::stop_set(TimeStamp& timeout) noexcept
   {
     stop();
     timeout = elapsed_time();
@@ -1393,7 +1384,7 @@ namespace Generics
 
   template <typename TimeStamp, typename Clock>
   void
-  GeneralTimer<TimeStamp, Clock>::stop_add(TimeStamp& timeout) throw ()
+  GeneralTimer<TimeStamp, Clock>::stop_add(TimeStamp& timeout) noexcept
   {
     stop();
     timeout += elapsed_time();
@@ -1404,14 +1395,14 @@ namespace Generics
   //
 
   template <typename Timer, const bool ADDITIVE>
-  TimeMeter<Timer, ADDITIVE>::TimeMeter(Time& time) throw ()
+  TimeMeter<Timer, ADDITIVE>::TimeMeter(Time& time) noexcept
     : time_(time)
   {
     Timer::start();
   }
 
   template <typename Timer, const bool ADDITIVE>
-  TimeMeter<Timer, ADDITIVE>::~TimeMeter() throw ()
+  TimeMeter<Timer, ADDITIVE>::~TimeMeter() noexcept
   {
     if (ADDITIVE)
     {
@@ -1434,7 +1425,7 @@ namespace Generics
 inline
 constexpr
 bool
-operator ==(const timeval& tv1, const timeval& tv2) throw ()
+operator ==(const timeval& tv1, const timeval& tv2) noexcept
 {
   return tv1.tv_sec == tv2.tv_sec && tv1.tv_usec == tv2.tv_usec;
 }
@@ -1442,7 +1433,7 @@ operator ==(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 bool
-operator !=(const timeval& tv1, const timeval& tv2) throw ()
+operator !=(const timeval& tv1, const timeval& tv2) noexcept
 {
   return !(tv1 == tv2);
 }
@@ -1450,7 +1441,7 @@ operator !=(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 bool
-operator <(const timeval& tv1, const timeval& tv2) throw ()
+operator <(const timeval& tv1, const timeval& tv2) noexcept
 {
   return tv1.tv_sec < tv2.tv_sec ||
     (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec < tv2.tv_usec);
@@ -1459,7 +1450,7 @@ operator <(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 bool
-operator >(const timeval& tv1, const timeval& tv2) throw ()
+operator >(const timeval& tv1, const timeval& tv2) noexcept
 {
   return tv2 < tv1;
 }
@@ -1467,7 +1458,7 @@ operator >(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 bool
-operator <=(const timeval& tv1, const timeval& tv2) throw ()
+operator <=(const timeval& tv1, const timeval& tv2) noexcept
 {
   return !(tv2 < tv1);
 }
@@ -1475,9 +1466,7 @@ operator <=(const timeval& tv1, const timeval& tv2) throw ()
 inline
 constexpr
 bool
-operator >=(const timeval& tv1, const timeval& tv2) throw ()
+operator >=(const timeval& tv1, const timeval& tv2) noexcept
 {
   return !(tv1 < tv2);
 }
-
-#endif

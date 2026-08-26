@@ -1,5 +1,3 @@
-// @file PlainStorage/BlockFileAdapter.cpp
-
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -32,7 +30,7 @@ namespace PlainStorage
       BlockFileAdapterContext(int & file_desc_val,
         ReadBlockFileAdapter::FileOffset& file_size_val,
         std::size_t& map_page_size_val,
-        std::size_t block_size_val) throw ();
+        std::size_t block_size_val) noexcept;
 
       int& file_desc;
       ReadBlockFileAdapter::FileOffset& file_size;
@@ -45,7 +43,7 @@ namespace PlainStorage
       ReadBlockFileAdapter::FileOffset& file_size_val,
       std::size_t& map_page_size_val,
       std::size_t block_size_val)
-      throw ()
+      noexcept
       : file_desc(file_desc_val),
         file_size(file_size_val),
         map_page_size(map_page_size_val),
@@ -152,7 +150,7 @@ namespace PlainStorage
   }
 
   ReadBlockFileAdapter::ReadBlockStruct::~ReadBlockStruct()
-    throw ()
+    noexcept
   {
     if (content_)
     {
@@ -209,7 +207,7 @@ namespace PlainStorage
   }
 
   WriteBlockFileAdapter::WriteBlockStruct::~WriteBlockStruct()
-    throw ()
+    noexcept
   {
     if (content_)
     {
@@ -248,7 +246,7 @@ namespace PlainStorage
     SYSTEM_PAGE_SIZE;
 
   ReadBlockFileAdapter::~ReadBlockFileAdapter()
-    throw ()
+    noexcept
   {
     if (file_desc_ != -1)
     {

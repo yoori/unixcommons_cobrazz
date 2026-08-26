@@ -1,5 +1,4 @@
-#ifndef HTTP_HTTP_HPP
-#define HTTP_HTTP_HPP
+#pragma once
 
 #include <HTTP/HttpAsync.hpp>
 #include <HTTP/HttpAsyncPolicies.hpp>
@@ -16,7 +15,7 @@ namespace HTTP
    * @return whether or not header is RFC compliant
    */
   bool
-  check_header(const char* name, const char* value) throw ();
+  check_header(const char* name, const char* value) noexcept;
 
   /**
    * Checks headers for RFC compliance
@@ -24,7 +23,5 @@ namespace HTTP
    * @return true only if every header is RFC compliant
    */
   bool
-  check_headers(const HeaderList& headers) throw ();
+  check_headers(const HeaderList& headers) noexcept;
 }
-
-#endif

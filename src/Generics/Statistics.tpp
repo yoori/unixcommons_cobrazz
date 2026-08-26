@@ -10,7 +10,7 @@ namespace Generics::Statistics
   //
 
   inline
-  Subject::~Subject() throw ()
+  Subject::~Subject() noexcept
   {
   }
 
@@ -20,7 +20,7 @@ namespace Generics::Statistics
   //
 
   inline
-  NullDumpPolicy::~NullDumpPolicy() throw ()
+  NullDumpPolicy::~NullDumpPolicy() noexcept
   {
   }
 
@@ -57,7 +57,7 @@ namespace Generics::Statistics
   }
 
   inline
-  StreamDumpPolicy::~StreamDumpPolicy() throw ()
+  StreamDumpPolicy::~StreamDumpPolicy() noexcept
   {
   }
 
@@ -94,7 +94,7 @@ namespace Generics::Statistics
   }
 
   inline
-  CountBasedDumpPolicy::~CountBasedDumpPolicy() throw ()
+  CountBasedDumpPolicy::~CountBasedDumpPolicy() noexcept
   {
   }
 
@@ -118,7 +118,7 @@ namespace Generics::Statistics
   // DumpRunner class
 
   inline
-  DumpRunner::~DumpRunner() throw ()
+  DumpRunner::~DumpRunner() noexcept
   {
   }
 
@@ -128,13 +128,13 @@ namespace Generics::Statistics
   //
 
   inline
-  NullDumpRunner::NullDumpRunner() throw ()
+  NullDumpRunner::NullDumpRunner() noexcept
     : active_(false)
   {
   }
 
   inline
-  NullDumpRunner::~NullDumpRunner() throw ()
+  NullDumpRunner::~NullDumpRunner() noexcept
   {
   }
 
@@ -204,7 +204,7 @@ namespace Generics::Statistics
   }
 
   inline
-  TaskDumpRunner::~TaskDumpRunner() throw ()
+  TaskDumpRunner::~TaskDumpRunner() noexcept
   {
   }
 
@@ -295,7 +295,7 @@ namespace Generics::Statistics
   //
 
   inline
-  Collection::Item::~Item() throw ()
+  Collection::Item::~Item() noexcept
   {
   }
 
@@ -399,13 +399,13 @@ namespace Generics::Statistics
   }
 
   inline
-  TaskDumpRunner::DumpTask::~DumpTask() throw ()
+  TaskDumpRunner::DumpTask::~DumpTask() noexcept
   {
   }
 
   inline
   void
-  TaskDumpRunner::DumpTask::execute() throw ()
+  TaskDumpRunner::DumpTask::execute() noexcept
   {
     try
     {
@@ -433,28 +433,28 @@ namespace Generics::Statistics
 
   template <typename DataType, typename Policy>
   typename DefaultDataProvider<DataType, Policy>::Policy::Mutex&
-  DefaultDataProvider<DataType, Policy>::mutex() const throw ()
+  DefaultDataProvider<DataType, Policy>::mutex() const noexcept
   {
     return mutex_;
   }
 
   template <typename DataType, typename Policy>
   typename DefaultDataProvider<DataType, Policy>::Data&
-  DefaultDataProvider<DataType, Policy>::get() throw ()
+  DefaultDataProvider<DataType, Policy>::get() noexcept
   {
     return data_;
   }
 
   template <typename DataType, typename Policy>
   const typename DefaultDataProvider<DataType, Policy>::Data&
-  DefaultDataProvider<DataType, Policy>::get() const throw ()
+  DefaultDataProvider<DataType, Policy>::get() const noexcept
   {
     return data_;
   }
 
   template <typename DataType, typename Policy>
   void
-  DefaultDataProvider<DataType, Policy>::set() throw ()
+  DefaultDataProvider<DataType, Policy>::set() noexcept
   {
   }
 
@@ -471,7 +471,7 @@ namespace Generics::Statistics
   }
 
   inline
-  TimedSubject::~TimedSubject() throw ()
+  TimedSubject::~TimedSubject() noexcept
   {
   }
 
@@ -528,7 +528,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  TimedStatSinkTempl<DataProvider>::~TimedStatSinkTempl() throw ()
+  TimedStatSinkTempl<DataProvider>::~TimedStatSinkTempl() noexcept
   {
   }
 
@@ -752,7 +752,7 @@ namespace Generics::Statistics
 
   template <typename DataType>
   DataType
-  MeasurableSubject<DataType>::value() const throw ()
+  MeasurableSubject<DataType>::value() const noexcept
   {
     return value_;
   }
@@ -811,7 +811,7 @@ namespace Generics::Statistics
 
   template <typename DataType, typename DataProvider, typename StatType>
   MeasurableStatSink<DataType, DataProvider, StatType>::
-    ~MeasurableStatSink() throw ()
+    ~MeasurableStatSink() noexcept
   {
   }
 

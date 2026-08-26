@@ -1,5 +1,4 @@
-#ifndef CORBACOMMONS_CORBAREFCOUNTING_HPP
-#define CORBACOMMONS_CORBAREFCOUNTING_HPP
+#pragma once
 
 #include <tao/ORB.h>
 #include <tao/PortableServer/PortableServer.h>
@@ -41,41 +40,41 @@ namespace CORBACommons
       CorbaRefCountImpl() /*throw (eh::Exception)*/;
 
       virtual
-      ~CorbaRefCountImpl() throw ();
+      ~CorbaRefCountImpl() noexcept;
 
 #ifndef NVALGRIND
       CORBA::ULong
-      ref_count_(CORBA::Object* ptr) throw ();
+      ref_count_(CORBA::Object* ptr) noexcept;
 
       CORBA::ULong
-      ref_count_(PortableServer::ServantBase* ptr) throw ();
+      ref_count_(PortableServer::ServantBase* ptr) noexcept;
 
       CORBA::ULong
-      ref_count_(CORBA::ValueFactoryBase* ptr) throw ();
+      ref_count_(CORBA::ValueFactoryBase* ptr) noexcept;
 
       CORBA::ULong
-      ref_count_(CORBA::ValueBase* ptr) throw ();
+      ref_count_(CORBA::ValueBase* ptr) noexcept;
 #endif
 
     public:
       /* CORBA RefCountable */
       virtual
       void
-      _add_ref() throw ();
+      _add_ref() noexcept;
 
       virtual
       void
-      _remove_ref() throw ();
+      _remove_ref() noexcept;
 
     public:
       /* ReferenceCounting::Interface */
       virtual
       void
-      add_ref() const throw ();
+      add_ref() const noexcept;
 
       virtual
       void
-      remove_ref() const throw ();
+      remove_ref() const noexcept;
     };
 
     template <typename Object>
@@ -88,7 +87,7 @@ namespace CORBACommons
       static const char PRINTABLE_NAME[];
     protected:
       virtual
-      ~ServantImpl() throw ();
+      ~ServantImpl() noexcept;
     };
   }
 }
@@ -115,7 +114,7 @@ namespace CORBACommons
 #ifndef NVALGRIND
     template <typename Object>
     CORBA::ULong
-    CorbaRefCountImpl<Object>::ref_count_(CORBA::Object* ptr) throw ()
+    CorbaRefCountImpl<Object>::ref_count_(CORBA::Object* ptr) noexcept
     {
       return ptr->_refcount_value();
     }
@@ -123,7 +122,7 @@ namespace CORBACommons
     template <typename Object>
     CORBA::ULong
     CorbaRefCountImpl<Object>::ref_count_(PortableServer::ServantBase* ptr)
-      throw ()
+      noexcept
     {
       return ptr->_refcount_value();
     }
@@ -131,14 +130,14 @@ namespace CORBACommons
     template <typename Object>
     CORBA::ULong
     CorbaRefCountImpl<Object>::ref_count_(CORBA::ValueFactoryBase* /*ptr*/)
-      throw ()
+      noexcept
     {
       return 0;//ptr->_tao_reference_count_.value();
     }
 
     template <typename Object>
     CORBA::ULong
-    CorbaRefCountImpl<Object>::ref_count_(CORBA::ValueBase* ptr) throw ()
+    CorbaRefCountImpl<Object>::ref_count_(CORBA::ValueBase* ptr) noexcept
     {
       return ptr->_refcount_value();
     }
@@ -146,7 +145,7 @@ namespace CORBACommons
 
     template <typename Object>
     CorbaRefCountImpl<Object>::~CorbaRefCountImpl()
-      throw()
+      noexcept
     {
 #ifndef NVALGRIND
       ::ReferenceCounting::RunningOnValgrind<>::check_ref_count(
@@ -156,7 +155,7 @@ namespace CORBACommons
 
     template <typename Object>
     void
-    CorbaRefCountImpl<Object>::add_ref() const throw ()
+    CorbaRefCountImpl<Object>::add_ref() const noexcept
     {
       try
       {
@@ -169,7 +168,7 @@ namespace CORBACommons
 
     template <typename Object>
     void
-    CorbaRefCountImpl<Object>::remove_ref() const throw ()
+    CorbaRefCountImpl<Object>::remove_ref() const noexcept
     {
       try
       {
@@ -182,14 +181,14 @@ namespace CORBACommons
 
     template <typename Object>
     void
-    CorbaRefCountImpl<Object>::_add_ref() throw ()
+    CorbaRefCountImpl<Object>::_add_ref() noexcept
     {
       add_ref();
     }
 
     template <typename Object>
     void
-    CorbaRefCountImpl<Object>::_remove_ref() throw ()
+    CorbaRefCountImpl<Object>::_remove_ref() noexcept
     {
       remove_ref();
     }
@@ -202,10 +201,8 @@ namespace CORBACommons
     const char ServantImpl<Object>::PRINTABLE_NAME[] = "ServantImpl";
 
     template <typename Object>
-    ServantImpl<Object>::~ServantImpl() throw ()
+    ServantImpl<Object>::~ServantImpl() noexcept
     {
     }
   } /* ReferenceCounting */
 } /* CORBACommons */
-
-#endif

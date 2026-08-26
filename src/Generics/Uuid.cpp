@@ -1,9 +1,3 @@
-/**
-* @file   Uuid.cpp
-* @author Denis Badikov
-* Uuid creator
-*/
-
 #include <Generics/ISAAC.hpp>
 #include <Generics/Time.hpp>
 #include <Generics/Uuid.hpp>
@@ -13,7 +7,7 @@ namespace
 {
   Sync::PosixMutex global_mutex;
   uint8_t
-  random_byte() throw () // Called under mutex
+  random_byte() noexcept // Called under mutex
   {
     static Generics::ISAAC generator;
     return static_cast<uint8_t>(generator.rand() >> 24);
@@ -24,7 +18,7 @@ namespace Generics
 {
   const Uuid::size_type Uuid::DATA_SIZE;
 
-  Uuid::Uuid() throw ()
+  Uuid::Uuid() noexcept
   {
     std::fill(data_, data_ + sizeof(data_), 0);
   }
@@ -95,7 +89,7 @@ namespace Generics
   }
 
   std::ostream&
-  operator <<(std::ostream& ostr, const Uuid& uuid) throw ()
+  operator <<(std::ostream& ostr, const Uuid& uuid) noexcept
   {
     std::ostream::sentry ok(ostr);
     if (ok)
@@ -113,7 +107,7 @@ namespace Generics
   }
 
   std::istream&
-  operator >>(std::istream& istr, Uuid& uuid) throw ()
+  operator >>(std::istream& istr, Uuid& uuid) noexcept
   {
     std::istream::sentry ok(istr);
     if (ok)
@@ -132,7 +126,7 @@ namespace Generics
 
   //random number based
   Uuid
-  Uuid::create_random_based() throw ()
+  Uuid::create_random_based() noexcept
   {
     Uuid result;
 
@@ -281,7 +275,7 @@ namespace Generics
   // SignedUuidProbe class
   //
 
-  SignedUuidProbe::SignedUuidProbe(const Uuid& probe) throw ()
+  SignedUuidProbe::SignedUuidProbe(const Uuid& probe) noexcept
     : probe_(probe, 0, String::SubString())
   {
   }

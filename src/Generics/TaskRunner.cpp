@@ -37,11 +37,11 @@ namespace Generics
       adding_thread_(0)
   {}
 
-  TaskRunner::TaskRunnerJob::~TaskRunnerJob() throw ()
+  TaskRunner::TaskRunnerJob::~TaskRunnerJob() noexcept
   {}
 
   void
-  TaskRunner::TaskRunnerJob::started(unsigned /*threads*/) throw ()
+  TaskRunner::TaskRunnerJob::started(unsigned /*threads*/) noexcept
   {
     //number_of_unused_threads_ = threads;
   }
@@ -151,7 +151,7 @@ namespace Generics
   }
 
   void
-  TaskRunner::TaskRunnerJob::work() throw ()
+  TaskRunner::TaskRunnerJob::work() noexcept
   {
     set_task_runner_thread_name_();
 
@@ -231,7 +231,7 @@ namespace Generics
 
   void
   TaskRunner::TaskRunnerJob::add_thread_i_(ThreadRunner& thread_runner)
-    throw ()
+    noexcept
   {
     {
       Sync::PosixGuard lock(tasks_lock_);
@@ -268,7 +268,7 @@ namespace Generics
   }
 
   void
-  TaskRunner::TaskRunnerJob::terminate() throw ()
+  TaskRunner::TaskRunnerJob::terminate() noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     new_task_.broadcast();
@@ -306,6 +306,6 @@ namespace Generics
     // TODO: start deferred threads
   }
 
-  TaskRunner::~TaskRunner() throw ()
+  TaskRunner::~TaskRunner() noexcept
   {}
 }

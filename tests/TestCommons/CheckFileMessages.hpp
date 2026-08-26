@@ -1,5 +1,4 @@
-#ifndef TESTCOMMONS_CHECKFILEMESSAGES
-#define TESTCOMMONS_CHECKFILEMESSAGES
+#pragma once
 
 #include <vector>
 #include <string>
@@ -36,7 +35,7 @@ namespace TestCommons
 
       bool
       operator ()(const std::string& left, const std::string& right)
-        throw ();
+        noexcept;
 
     private:
       std::string common_;
@@ -49,5 +48,3 @@ namespace TestCommons
     Timestamps timestamps_;
   };
 }
-
-#endif

@@ -1,10 +1,4 @@
-/**
- * @file   SimpleLogger.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef LOGGER_SIMPLE_LOGGER_HPP
-#define LOGGER_SIMPLE_LOGGER_HPP
+#pragma once
 
 #include <iostream>
 #include <signal.h>
@@ -31,7 +25,7 @@ namespace Logging
       explicit
       Config(unsigned long log_level = ::Logging::Logger::INFO,
         Generics::Time::TimeZone time_zone = Generics::Time::TZ_GMT,
-        std::ostream* error_stream = &std::cerr) throw ();
+        std::ostream* error_stream = &std::cerr) noexcept;
 
       unsigned long log_level;
       Generics::Time::TimeZone time_zone;
@@ -61,7 +55,7 @@ namespace Logging
        */
       virtual
       unsigned long
-      log_level() throw ();
+      log_level() noexcept;
 
       /**
        * Sets logger trace level.
@@ -69,7 +63,7 @@ namespace Logging
        */
       virtual
       void
-      log_level(unsigned long value) throw ();
+      log_level(unsigned long value) noexcept;
 
       /**
        * Logs text with severity and aspect specified.
@@ -82,14 +76,14 @@ namespace Logging
       virtual
       bool
       log(const String::SubString& text, unsigned long severity = INFO,
-        const char* aspect = 0, const char* code = 0) throw ();
+        const char* aspect = 0, const char* code = 0) noexcept;
 
     protected:
       /**
        * Destructor
        */
       virtual
-      ~Logger() throw ();
+      ~Logger() noexcept;
 
 
       mutable Sync::PosixMutex lock_;
@@ -123,7 +117,7 @@ namespace Logging
       Formatter(bool log_time = true, bool log_severity = true,
         bool log_aspect = true, bool log_code = true,
         bool log_thread_id = false, bool log_process_id = false)
-        throw ();
+        noexcept;
 
       /**
        * Calculates the size for log record to format
@@ -149,7 +143,7 @@ namespace Logging
 
     protected:
       virtual
-      ~Formatter() throw ();
+      ~Formatter() noexcept;
 
       bool log_time_;
       bool log_severity_;
@@ -184,7 +178,7 @@ namespace Logging
      * Destructor
      */
     virtual
-    ~DerivedLogger() throw ();
+    ~DerivedLogger() noexcept;
   };
 }
 
@@ -203,7 +197,7 @@ namespace Logging
     inline
     Config::Config(unsigned long log_level,
       Generics::Time::TimeZone time_zone, std::ostream* error_stream)
-      throw ()
+      noexcept
       : log_level(log_level), time_zone(time_zone), error_stream(error_stream)
     {
     }
@@ -223,20 +217,20 @@ namespace Logging
     }
 
     inline
-    Logger::~Logger() throw ()
+    Logger::~Logger() noexcept
     {
     }
 
     inline
     unsigned long
-    Logger::log_level() throw ()
+    Logger::log_level() noexcept
     {
       return log_level_;
     }
 
     inline
     void
-    Logger::log_level(unsigned long value) throw ()
+    Logger::log_level(unsigned long value) noexcept
     {
       log_level_ = static_cast<sig_atomic_t>(value);
     }
@@ -248,7 +242,7 @@ namespace Logging
 
     inline
     Formatter::Formatter(bool log_time, bool log_severity, bool log_aspect,
-      bool log_code, bool log_thread_id, bool log_process_id) throw ()
+      bool log_code, bool log_thread_id, bool log_process_id) noexcept
       : log_time_(log_time), log_severity_(log_severity),
         log_aspect_(log_aspect), log_code_(log_code),
         log_thread_id_(log_thread_id), log_process_id_(log_process_id)
@@ -270,9 +264,7 @@ namespace Logging
   }
 
   template <typename Config, typename Handler>
-  DerivedLogger<Config, Handler>::~DerivedLogger() throw ()
+  DerivedLogger<Config, Handler>::~DerivedLogger() noexcept
   {
   }
 }
-
-#endif

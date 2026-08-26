@@ -1,8 +1,7 @@
 // File   : HttpConnection.hpp
 // Author : Pavel Gubin
 
-#ifndef HTTP_CONNECTION_HPP
-#define HTTP_CONNECTION_HPP
+#pragma once
 
 #include <list>
 
@@ -132,5 +131,3 @@ namespace HTTP
     return stream_;
   }
 }
-
-#endif

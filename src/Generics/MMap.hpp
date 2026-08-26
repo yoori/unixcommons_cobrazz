@@ -1,6 +1,4 @@
-// @file Generics/MMap.hpp
-#ifndef GENERICS_MMAP_HPP
-#define GENERICS_MMAP_HPP
+#pragma once
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -47,21 +45,21 @@ namespace Generics
     MMap(void* preferrable_address, std::size_t size)
       /*throw (eh::Exception, Exception)*/;
 
-    ~MMap() throw ();
+    ~MMap() noexcept;
 
     /**
      * @return address of the mapped region
      */
     void*
-    memory() const throw ();
+    memory() const noexcept;
     /**
      * @return size of the mapped region
      */
     size_t
-    length() const throw ();
+    length() const noexcept;
 
   protected:
-    MMap() throw ();
+    MMap() noexcept;
 
     void
     map_(int fd, void* preferrable_address, size_t size, off_t offset,
@@ -114,17 +112,15 @@ namespace Generics
      * Destructor
      * Unmaps file and closes it
      */
-    ~MMapFile() throw ();
+    ~MMapFile() noexcept;
 
     using MMap::memory;
     using MMap::length;
 
     int
-    file_descriptor() const throw ();
+    file_descriptor() const noexcept;
 
   private:
     int fd_;
   };
 }
-
-#endif

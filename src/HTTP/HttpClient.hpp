@@ -1,5 +1,4 @@
-#ifndef HTTP_HTTPCLIENT_HPP
-#define HTTP_HTTPCLIENT_HPP
+#pragma once
 
 #include <Sync/MutexPtr.hpp>
 
@@ -17,5 +16,3 @@ namespace HTTP
   CreateCookieClient(HttpInterface* pool, CookiePoolPtr* cookie)
     /*throw (eh::Exception)*/;
 }
-
-#endif

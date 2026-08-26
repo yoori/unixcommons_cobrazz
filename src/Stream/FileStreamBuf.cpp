@@ -15,7 +15,7 @@ namespace Stream
     // IO class
     //
 
-    IO::~IO() throw ()
+    IO::~IO() noexcept
     {
     }
 
@@ -83,7 +83,7 @@ namespace Stream
       setp(out_buffer_.get(), out_buffer_.get() + BUFFER_SIZE_);
     }
 
-    OutStreamBuf::~OutStreamBuf() throw ()
+    OutStreamBuf::~OutStreamBuf() noexcept
     {
       if (pptr() != pbase())
       {

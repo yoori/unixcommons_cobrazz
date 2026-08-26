@@ -14,7 +14,7 @@ namespace Generics
   AtExitDestroying* AtExitDestroying::lower_priority_head_ = 0;
   bool AtExitDestroying::registered_ = false;
 
-  AtExitDestroying::AtExitDestroying(int priority) throw ()
+  AtExitDestroying::AtExitDestroying(int priority) noexcept
     : priority_(priority)
   {
     Sync::PosixGuard guard(mutex_);
@@ -43,7 +43,7 @@ namespace Generics
   }
 
   void
-  AtExitDestroying::destroy_at_exit_() throw ()
+  AtExitDestroying::destroy_at_exit_() noexcept
   {
     Sync::PosixGuard guard(mutex_);
     for (AtExitDestroying* current_priority = lower_priority_head_;

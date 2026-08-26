@@ -1,8 +1,4 @@
-/**
- * @author Pavel Gubin <pgubin@ipmce.ru>
- */
-#ifndef APACHE_SAMPLE_MODULE_HPP
-#define APACHE_SAMPLE_MODULE_HPP
+#pragma once
 
 #include <ReferenceCounting/ReferenceCounting.hpp>
 
@@ -23,27 +19,25 @@ public:
   static TestModule_var instance;
 
   virtual int
-  handler(request_rec *r) throw ();
+  handler(request_rec *r) noexcept;
   virtual const char*
-  handle_command(const ConfigArgs& args) throw ();
+  handle_command(const ConfigArgs& args) noexcept;
 
   virtual bool
-  will_handle(const char* uri) throw ();
+  will_handle(const char* uri) noexcept;
   virtual int
   handle_request(const Apache::HttpRequest& request,
-    Apache::HttpResponse& response) throw ();
+    Apache::HttpResponse& response) noexcept;
 
   virtual void
-  init() throw ();
+  init() noexcept;
   virtual void
-  shutdown() throw ();
+  shutdown() noexcept;
 
 protected:
   virtual
-  ~TestModule() throw ();
+  ~TestModule() noexcept;
 
 private:
   int test_;
 };
-
-#endif // _SAMPLE_MODULE_HPP_

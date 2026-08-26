@@ -1,8 +1,3 @@
-/**
- * @file   StringManip.cpp
- * @author Karen Aroutiounov <karen@ipmce.ru>
- */
-
 #include <string>
 
 #include <xercesc/util/XMLString.hpp>

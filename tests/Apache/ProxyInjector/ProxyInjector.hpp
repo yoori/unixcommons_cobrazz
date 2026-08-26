@@ -1,8 +1,4 @@
-/**
- * @author Pavel Gubin <pgubin@ipmce.ru>
- */
-#ifndef APACHE_PROXY_INJECTOR_HPP
-#define APACHE_PROXY_INJECTOR_HPP
+#pragma once
 
 #include <ReferenceCounting/ReferenceCounting.hpp>
 
@@ -21,9 +17,9 @@ public:
   class InjectorFilter : public Apache::RequestOutputFilter
   {
   public:
-    InjectorFilter(request_rec* r) throw ();
+    InjectorFilter(request_rec* r) noexcept;
     virtual apr_status_t
-    filter(ap_filter_t* f, apr_bucket_brigade* bb) throw ();
+    filter(ap_filter_t* f, apr_bucket_brigade* bb) noexcept;
 
   private:
     apr_bucket_brigade* bb_;
@@ -33,14 +29,12 @@ public:
   ProxyInjectorModule() /*throw (eh::Exception)*/;
 
   virtual void
-  insert_filter(request_rec* r) throw ();
+  insert_filter(request_rec* r) noexcept;
 
 protected:
   virtual
-  ~ProxyInjectorModule() throw ();
+  ~ProxyInjectorModule() noexcept;
 
 private:
   int test_;
 };
-
-#endif // _PROXY_INJECTOR_HPP_

@@ -1,5 +1,4 @@
-#ifndef JAVA_JAVACOMMONS_JAVACOMMONS_HPP
-#define JAVA_JAVACOMMONS_JAVACOMMONS_HPP
+#pragma once
 
 #include <jni.h>
 
@@ -17,10 +16,10 @@ namespace JavaCommons
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
     StrPtr(JNIEnv* env, jstring jstr) /*throw (Exception)*/;
-    ~StrPtr() throw ();
+    ~StrPtr() noexcept;
 
     const char*
-    c_str() const throw ();
+    c_str() const noexcept;
 
   private:
     JNIEnv* env_;
@@ -44,17 +43,15 @@ namespace JavaCommons
   }
 
   inline
-  StrPtr::~StrPtr() throw ()
+  StrPtr::~StrPtr() noexcept
   {
     env_->ReleaseStringUTFChars(jstr_, str_);
   }
 
   inline
   const char*
-  StrPtr::c_str() const throw ()
+  StrPtr::c_str() const noexcept
   {
     return str_;
   }
 }
-
-#endif

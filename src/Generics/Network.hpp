@@ -1,5 +1,4 @@
-#ifndef GENERICS_NETWORK_HPP
-#define GENERICS_NETWORK_HPP
+#pragma once
 
 #include <list>
 #include <set>
@@ -59,7 +58,7 @@ namespace Generics
       /**
        * Destructor
        */
-      ~LocalInterfaces() throw ();
+      ~LocalInterfaces() noexcept;
 
       /**
        * Copies list of 'const sockaddr_in*' converted by functor into
@@ -105,7 +104,7 @@ namespace Generics
     protected:
       static
       uint32_t
-      ip_address(const sockaddr_in* address) throw ();
+      ip_address(const sockaddr_in* address) noexcept;
 
       typedef std::set<uint32_t> LocalAddresses;
 
@@ -143,5 +142,3 @@ namespace Generics
     }
   }
 }
-
-#endif

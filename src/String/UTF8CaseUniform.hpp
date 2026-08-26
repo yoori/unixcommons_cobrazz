@@ -1,6 +1,4 @@
-// @file String/UTF8CaseUniform.hpp
-#ifndef STRING_UTF8_CASE_UNIFORM_HPP
-#define STRING_UTF8_CASE_UNIFORM_HPP
+#pragma once
 
 #include <String/UTF8Case.hpp>
 #include <String/UTF8Tables.hpp>
@@ -9,7 +7,7 @@
 
 bool
 String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
-  size_t& counter) throw ()
+  size_t& counter) noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -557,5 +555,3 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
   }
   return true;
 }
-
-#endif

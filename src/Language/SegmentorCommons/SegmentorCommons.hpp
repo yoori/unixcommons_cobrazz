@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_SEGMENTOR_COMMONS_SEGMENTORCOMMONS_HPP
-#define LANGUAGE_SEGMENTOR_COMMONS_SEGMENTORCOMMONS_HPP
+#pragma once
 
 #include <string>
 
@@ -40,5 +39,3 @@ namespace Language
     }
   }//namespace Segmentor
 }//namespace Language
-
-#endif

@@ -15,12 +15,12 @@ class A : public ReferenceCounting::AtomicImpl
 {
 public:
   explicit
-  A() throw ()
+  A() noexcept
     : rc_(0), adds_(0)
   {
   }
   void
-  rc(int inc = 1) const throw ()
+  rc(int inc = 1) const noexcept
   {
     rc_ += inc;
     assert(ref_count_ == rc_);
@@ -28,14 +28,14 @@ public:
   }
   virtual
   void
-  add_ref() const throw ()
+  add_ref() const noexcept
   {
     ReferenceCounting::AtomicImpl::add_ref();
     adds_++;
   }
 protected:
   virtual
-  ~A() throw ()
+  ~A() noexcept
   {
     std::cout << adds_ << "\n";
   }
@@ -55,7 +55,7 @@ class B : public A
 {
 protected:
   virtual
-  ~B() throw ()
+  ~B() noexcept
   {
   }
 };

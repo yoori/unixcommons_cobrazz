@@ -13,12 +13,12 @@ ProxyInjectorModule::ProxyInjectorModule() /*throw (eh::Exception)*/
   std::cerr << "In ProxyInjectorModule::ProxyInjectorModule().\n";
 }
 
-ProxyInjectorModule::~ProxyInjectorModule() throw ()
+ProxyInjectorModule::~ProxyInjectorModule() noexcept
 {
 }
 
 void
-ProxyInjectorModule::insert_filter(request_rec* r) throw ()
+ProxyInjectorModule::insert_filter(request_rec* r) noexcept
 {
   try
   {
@@ -33,7 +33,7 @@ ProxyInjectorModule::insert_filter(request_rec* r) throw ()
 // class InjectorFilter
 //
 
-ProxyInjectorModule::InjectorFilter::InjectorFilter(request_rec* r) throw ()
+ProxyInjectorModule::InjectorFilter::InjectorFilter(request_rec* r) noexcept
   : RequestOutputFilter(AP_FTYPE_RESOURCE, r, r->connection),
     bb_(0)
 {
@@ -41,7 +41,7 @@ ProxyInjectorModule::InjectorFilter::InjectorFilter(request_rec* r) throw ()
 
 apr_status_t
 ProxyInjectorModule::InjectorFilter::filter(
-  ap_filter_t* f, apr_bucket_brigade* bb) throw ()
+  ap_filter_t* f, apr_bucket_brigade* bb) noexcept
 {
   request_rec* r = f->r;
 

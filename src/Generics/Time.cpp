@@ -1,7 +1,3 @@
-/**
- * @file   Time.cpp
- * @author Karen Aroutiounov
- */
 #include <eh/Errno.hpp>
 
 #include <Generics/Time.hpp>
@@ -98,7 +94,7 @@ namespace Generics
   };
 
   time_t
-  gm_to_time(const tm& et) throw ()
+  gm_to_time(const tm& et) noexcept
   {
     const long YEARS = et.tm_year - 70;
     return ((YEARS * 365) + (YEARS + 1) / 4 +
@@ -107,7 +103,7 @@ namespace Generics
   }
 
   void
-  time_to_gm(time_t time, tm& et) throw ()
+  time_to_gm(time_t time, tm& et) noexcept
   {
     memset(&et, 0, sizeof(et));
     et.tm_sec = time % 60;
@@ -155,7 +151,7 @@ namespace Generics
   {
     bool
     check_name(const char*& src, size_t& size,
-      const String::AsciiStringManip::Caseless& cl) throw ()
+      const String::AsciiStringManip::Caseless& cl) noexcept
     {
       if (cl.start(String::SubString(src, size)))
       {
@@ -169,7 +165,7 @@ namespace Generics
     bool
     check_names(const char*& src, size_t& size,
       const String::AsciiStringManip::Caseless& cl1,
-      const String::AsciiStringManip::Caseless& cl2) throw ()
+      const String::AsciiStringManip::Caseless& cl2) noexcept
     {
       return check_name(src, size, cl1) || check_name(src, size, cl2);
     }
@@ -177,7 +173,7 @@ namespace Generics
     template <const size_t SIZE, typename T>
     bool
     read_number(const char*& src, size_t& size, T& number, bool strict)
-      throw ()
+      noexcept
     {
       if (!size || !String::AsciiStringManip::NUMBER(*src) ||
         (strict && size < SIZE))
@@ -199,7 +195,7 @@ namespace Generics
 
     bool
     add_str(char*& str, size_t& size, size_t length,
-      const String::SubString& src) throw ()
+      const String::SubString& src) noexcept
     {
       if (size + src.size() > length)
       {
@@ -213,7 +209,7 @@ namespace Generics
 
     template <typename T>
     bool
-    add_num(char*& str, size_t& size, size_t length, T number) throw ()
+    add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[64];
       size_t ns = String::StringManip::int_to_str(number, buf, sizeof(buf));
@@ -222,7 +218,7 @@ namespace Generics
 
     template <const size_t SIZE, typename T>
     bool
-    add_num(char*& str, size_t& size, size_t length, T number) throw ()
+    add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[SIZE];
       size_t i = SIZE;
@@ -274,7 +270,7 @@ namespace Generics
 
   const char*
   ExtendedTime::from_str_(const String::SubString& value,
-    const char* format, bool strict) throw ()
+    const char* format, bool strict) noexcept
   {
     const char* v_str = value.data();
     size_t v_size = value.size();
@@ -438,7 +434,7 @@ namespace Generics
 
   size_t
   ExtendedTime::to_str_(char* str, size_t length, const char* format) const
-    throw ()
+    noexcept
   {
     size_t size = 0;
     for (; *format; format++)

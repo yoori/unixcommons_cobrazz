@@ -1,10 +1,4 @@
-/**
- * @file IPMap.hpp
- * @author Pavel Gubin [pgubin@peopleonpage.com]
- */
-
-#ifndef GEOIP_IPMAP_HPP
-#define GEOIP_IPMAP_HPP
+#pragma once
 
 #include <inttypes.h>
 #include <array>
@@ -38,7 +32,7 @@ namespace GeoIPMapping
     /**
      * Destructor. Removes GeoIP data from memory.
      */
-    ~IPMapBase() throw ();
+    ~IPMapBase() noexcept;
 
   protected:
     GeoIP* geo_ip_;
@@ -181,7 +175,7 @@ namespace GeoIPMapping
     IPMapCity2(const char* file) /*throw (FileNotExists, InvalidFormat)*/;
 
     virtual
-    ~IPMapCity2() throw();
+    ~IPMapCity2() noexcept;
 
     /**
      * Retrieves city location information by IP address.
@@ -262,7 +256,7 @@ namespace GeoIPMapping
     city_location_by_addr_(
       CityLocation& location,
       uint32_t ip)
-      const throw ();
+      const noexcept;
 
     void
     load_(const String::SubString& file)
@@ -286,5 +280,3 @@ namespace GeoIPMapping
     PrefixNode* root_;
   };
 } // namespace GeoIPMapping
-
-#endif

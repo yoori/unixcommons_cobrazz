@@ -1,5 +1,4 @@
-#ifndef LOGGER_PROCESS_LOGGER_HPP
-#define LOGGER_PROCESS_LOGGER_HPP
+#pragma once
 
 #include <Logger/DescriptorLogger.hpp>
 
@@ -19,13 +18,13 @@ namespace Logging
          * Constructor
          */
         Config(const Formatter* formatter, const char* command,
-          bool wait_for_child, size_t preallocated_size) throw ();
+          bool wait_for_child, size_t preallocated_size) noexcept;
         /**
          * Constructor
          */
         Config(const Formatter* formatter, const char* path, char* argv[],
           char* envp[], bool wait_for_child, size_t preallocated_size)
-          throw ();
+          noexcept;
 
         std::string command_path;
         char** argv;
@@ -64,7 +63,7 @@ namespace Logging
          * Destructor
          */
         virtual
-        ~Handler() throw ();
+        ~Handler() noexcept;
 
       private:
         /**
@@ -155,7 +154,7 @@ namespace Logging
 
       inline
       Config::Config(const Formatter* formatter, const char* command,
-        bool wait_for_child, size_t preallocated_size) throw ()
+        bool wait_for_child, size_t preallocated_size) noexcept
         : Descriptor::Helper::Config(formatter, -1, preallocated_size),
           command_path(command), argv(0), envp(0),
           wait_for_child(wait_for_child)
@@ -165,7 +164,7 @@ namespace Logging
       inline
       Config::Config(const Formatter* formatter, const char* path,
         char* argv[], char* envp[], bool wait_for_child,
-        size_t preallocated_size) throw ()
+        size_t preallocated_size) noexcept
         : Descriptor::Helper::Config(formatter, -1, preallocated_size),
           command_path(path), argv(argv), envp(envp),
           wait_for_child(wait_for_child)
@@ -196,5 +195,3 @@ namespace Logging
     }
   }
 }
-
-#endif

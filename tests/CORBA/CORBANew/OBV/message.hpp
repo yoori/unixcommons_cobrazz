@@ -1,5 +1,4 @@
-#ifndef MESSAGE_HPP
-#define MESSAGE_HPP
+#pragma once
 
 class MessageHolder_i :
 #ifdef TESTING_CUSTOM
@@ -118,5 +117,3 @@ MessageHolderFactory::create_for_unmarshal()
 {
   return new MessageHolder_i;
 }
-
-#endif

@@ -1,6 +1,5 @@
 // Generics/CompositeActiveObject.hpp
-#ifndef GENERICS_COMPOSITE_ACTIVE_OBJECT_HPP
-#define GENERICS_COMPOSITE_ACTIVE_OBJECT_HPP
+#pragma once
 
 #include <algorithm>
 #include <deque>
@@ -21,23 +20,23 @@ namespace Generics
   class ActiveObjectHolder
   {
   public:
-    ActiveObjectHolder() throw ();
-    explicit ActiveObjectHolder(RefCountableActiveObject* child) throw ();
-    explicit ActiveObjectHolder(std::shared_ptr<ActiveObject> child) throw ();
-    ActiveObjectHolder(const ActiveObjectHolder& source) throw ();
-    ActiveObjectHolder(ActiveObjectHolder&& source) throw () = default;
+    ActiveObjectHolder() noexcept;
+    explicit ActiveObjectHolder(RefCountableActiveObject* child) noexcept;
+    explicit ActiveObjectHolder(std::shared_ptr<ActiveObject> child) noexcept;
+    ActiveObjectHolder(const ActiveObjectHolder& source) noexcept;
+    ActiveObjectHolder(ActiveObjectHolder&& source) noexcept = default;
 
-    ActiveObjectHolder& operator=(const ActiveObjectHolder& source) throw ();
-    ActiveObjectHolder& operator=(ActiveObjectHolder&& source) throw () = default;
+    ActiveObjectHolder& operator=(const ActiveObjectHolder& source) noexcept;
+    ActiveObjectHolder& operator=(ActiveObjectHolder&& source) noexcept = default;
 
-    ActiveObject* operator->() const throw ();
-    ActiveObject& operator*() const throw ();
+    ActiveObject* operator->() const noexcept;
+    ActiveObject& operator*() const noexcept;
 
-    bool operator<(const ActiveObjectHolder& right) const throw ();
-    bool operator==(const ActiveObjectHolder& right) const throw ();
+    bool operator<(const ActiveObjectHolder& right) const noexcept;
+    bool operator==(const ActiveObjectHolder& right) const noexcept;
 
   private:
-    ActiveObject* get_() const throw ();
+    ActiveObject* get_() const noexcept;
 
   private:
     ActiveObject_var ref_countable_child_;
@@ -78,7 +77,7 @@ namespace Generics
      */
     explicit
     CompositeActiveObjectBase(bool sync_termination = false,
-      bool clear_on_exit = true) throw ();
+      bool clear_on_exit = true) noexcept;
 
     /**
      * Calls clear() for all owned objects
@@ -124,7 +123,7 @@ namespace Generics
      * its completion.
      */
     virtual
-    ~CompositeActiveObjectBase() throw ();
+    ~CompositeActiveObjectBase() noexcept;
 
   protected:
     // SimpleActiveObject interface
@@ -198,11 +197,11 @@ namespace Generics
     explicit
     RefCountableCompositeActiveObject(
       bool sync_termination = false,
-      bool clear_on_exit = true) throw ();
+      bool clear_on_exit = true) noexcept;
 
   protected:
     virtual
-    ~RefCountableCompositeActiveObject() throw () = default;
+    ~RefCountableCompositeActiveObject() noexcept = default;
   };
 
   typedef ReferenceCounting::QualPtr<RefCountableCompositeActiveObject>
@@ -227,10 +226,10 @@ namespace Generics
   protected:
     virtual
     void
-    remove_child_(ActiveObject* child) throw () = 0;
+    remove_child_(ActiveObject* child) noexcept = 0;
 
     virtual
-    ~ActiveObjectChildRemover() throw () = default;
+    ~ActiveObjectChildRemover() noexcept = default;
 
     friend class RemovableActiveObject;
   };
@@ -258,11 +257,11 @@ namespace Generics
 
   protected:
     virtual
-    ~CompositeSetActiveObject() throw () = default;
+    ~CompositeSetActiveObject() noexcept = default;
 
     virtual
     void
-    remove_child_(ActiveObject* child) throw ();
+    remove_child_(ActiveObject* child) noexcept;
   };
   typedef ReferenceCounting::QualPtr<CompositeSetActiveObject>
     CompositeSetActiveObject_var;
@@ -279,19 +278,19 @@ namespace Generics
   {
   public:
     explicit
-    RemovableActiveObject(ActiveObjectChildRemover* owner) throw ();
+    RemovableActiveObject(ActiveObjectChildRemover* owner) noexcept;
 
   protected:
     virtual
-    ~RemovableActiveObject() throw () = default;
+    ~RemovableActiveObject() noexcept = default;
 
     virtual
     void
-    delete_this_() const throw ();
+    delete_this_() const noexcept;
 
     virtual
     void
-    before_remove_child_() throw ();
+    before_remove_child_() noexcept;
 
     ActiveObjectChildRemover_var owner_;
   };
@@ -300,27 +299,27 @@ namespace Generics
 namespace Generics
 {
   inline
-  ActiveObjectHolder::ActiveObjectHolder() throw ()
+  ActiveObjectHolder::ActiveObjectHolder() noexcept
   {
   }
 
   inline
   ActiveObjectHolder::ActiveObjectHolder(
-    RefCountableActiveObject* child) throw ()
+    RefCountableActiveObject* child) noexcept
     : ref_countable_child_(ReferenceCounting::add_ref(child))
   {
   }
 
   inline
   ActiveObjectHolder::ActiveObjectHolder(
-    std::shared_ptr<ActiveObject> child) throw ()
+    std::shared_ptr<ActiveObject> child) noexcept
     : shared_child_(std::move(child))
   {
   }
 
   inline
   ActiveObjectHolder::ActiveObjectHolder(
-    const ActiveObjectHolder& source) throw ()
+    const ActiveObjectHolder& source) noexcept
     : ref_countable_child_(
         source.ref_countable_child_.in() ?
           ReferenceCounting::add_ref(
@@ -333,7 +332,7 @@ namespace Generics
 
   inline
   ActiveObjectHolder&
-  ActiveObjectHolder::operator=(const ActiveObjectHolder& source) throw ()
+  ActiveObjectHolder::operator=(const ActiveObjectHolder& source) noexcept
   {
     if (this != &source)
     {
@@ -349,35 +348,35 @@ namespace Generics
 
   inline
   ActiveObject*
-  ActiveObjectHolder::operator->() const throw ()
+  ActiveObjectHolder::operator->() const noexcept
   {
     return get_();
   }
 
   inline
   ActiveObject&
-  ActiveObjectHolder::operator*() const throw ()
+  ActiveObjectHolder::operator*() const noexcept
   {
     return *get_();
   }
 
   inline
   bool
-  ActiveObjectHolder::operator<(const ActiveObjectHolder& right) const throw ()
+  ActiveObjectHolder::operator<(const ActiveObjectHolder& right) const noexcept
   {
     return get_() < right.get_();
   }
 
   inline
   bool
-  ActiveObjectHolder::operator==(const ActiveObjectHolder& right) const throw ()
+  ActiveObjectHolder::operator==(const ActiveObjectHolder& right) const noexcept
   {
     return get_() == right.get_();
   }
 
   inline
   ActiveObject*
-  ActiveObjectHolder::get_() const throw ()
+  ActiveObjectHolder::get_() const noexcept
   {
     return ref_countable_child_.in() ?
       static_cast<ActiveObject*>(
@@ -388,14 +387,14 @@ namespace Generics
 
   inline
   ActiveObject*
-  get_active_object_(const ActiveObjectHolder& child_holder) throw ()
+  get_active_object_(const ActiveObjectHolder& child_holder) noexcept
   {
     return child_holder.operator->();
   }
 
   inline
   ActiveObject*
-  get_active_object_(ActiveObject* child) throw ()
+  get_active_object_(ActiveObject* child) noexcept
   {
     return child;
   }
@@ -403,14 +402,14 @@ namespace Generics
   template <typename Container, typename FrontIns, typename BackIns>
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
     CompositeActiveObjectBase(bool sync_termination, bool clear_on_exit)
-    throw ()
+    noexcept
     : SYNCHRONOUS_(sync_termination), CLEAR_ON_EXIT_(clear_on_exit)
   {
   }
 
   template <typename Container, typename FrontIns, typename BackIns>
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
-    ~CompositeActiveObjectBase() throw ()
+    ~CompositeActiveObjectBase() noexcept
   {
     if (CLEAR_ON_EXIT_)
     {
@@ -659,5 +658,3 @@ namespace Generics
     }
   }
 }
-
-#endif

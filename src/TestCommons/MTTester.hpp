@@ -1,5 +1,4 @@
-#ifndef CHECKCOMMONS_MTTESTER
-#define CHECKCOMMONS_MTTESTER
+#pragma once
 
 #include <vector>
 
@@ -35,7 +34,7 @@ namespace TestCommons
       /*throw (eh::Exception)*/;
 
     virtual
-    ~MTTasker() throw ();
+    ~MTTasker() noexcept;
 
     void
     enqueue(Generics::Task* task) /*throw (eh::Exception)*/;
@@ -44,7 +43,7 @@ namespace TestCommons
     enqueue_conditionally(Generics::Task* task) /*throw (eh::Exception)*/;
 
     void
-    report_error(const String::SubString& message) throw ();
+    report_error(const String::SubString& message) noexcept;
 
     void
     start(int limit, Sync::Semaphore* semaphore)
@@ -86,11 +85,11 @@ namespace TestCommons
 
       virtual
       void
-      execute() throw ();
+      execute() noexcept;
 
     protected:
       virtual
-      ~FunctorTask() throw ();
+      ~FunctorTask() noexcept;
 
     private:
       Functor functor_;
@@ -137,7 +136,7 @@ namespace TestCommons
   }
 
   inline
-  MTTasker::~MTTasker() throw ()
+  MTTasker::~MTTasker() noexcept
   {
   }
 
@@ -185,7 +184,7 @@ namespace TestCommons
 
   inline
   void
-  MTTasker::report_error(const String::SubString& message) throw ()
+  MTTasker::report_error(const String::SubString& message) noexcept
   {
     callback_->error(message);
   }
@@ -232,13 +231,13 @@ namespace TestCommons
   }
 
   template <typename Functor>
-  MTTester<Functor>::FunctorTask::~FunctorTask() throw ()
+  MTTester<Functor>::FunctorTask::~FunctorTask() noexcept
   {
   }
 
   template <typename Functor>
   void
-  MTTester<Functor>::FunctorTask::execute() throw ()
+  MTTester<Functor>::FunctorTask::execute() noexcept
   {
     try
     {
@@ -344,5 +343,3 @@ namespace TestCommons
     return result;
   }
 }
-
-#endif

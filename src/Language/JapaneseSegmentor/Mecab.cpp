@@ -79,13 +79,13 @@ namespace Language
       }
 
       inline
-      MecabSegmentor::MecabTagger_::~MecabTagger_() throw ()
+      MecabSegmentor::MecabTagger_::~MecabTagger_() noexcept
       {
       }
 
       inline
       bool
-      MecabSegmentor::MecabTagger_::empty() const throw ()
+      MecabSegmentor::MecabTagger_::empty() const noexcept
       {
         return tagger_.get() == 0;
       }
@@ -242,7 +242,7 @@ namespace Language
         }
       }
 
-      MecabSegmentor::~MecabSegmentor() throw ()
+      MecabSegmentor::~MecabSegmentor() noexcept
       {
       }
 
@@ -341,7 +341,7 @@ namespace Language
 
       bool
       MecabSegmentor::is_valid_utf8_(const char* str, size_t str_len) const
-        throw ()
+        noexcept
       {
         bool valid_utf8 = true;
         unsigned long count = 0;
@@ -370,7 +370,7 @@ namespace Language
       {
       }
 
-      MecabSegmentor::~MecabSegmentor() throw ()
+      MecabSegmentor::~MecabSegmentor() noexcept
       {
       }
 

@@ -1,6 +1,4 @@
-// @file Common/UTF8CategoryPrint.hpp
-#ifndef _STRING_UTF8CATEGORY_PRINT_HPP_
-#define _STRING_UTF8CATEGORY_PRINT_HPP_
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -25,7 +23,7 @@ namespace String
      * empty
      */
     virtual
-    ~Utf8CategoryPrintable() throw ();
+    ~Utf8CategoryPrintable() noexcept;
 
     /**
      * Print internal N-arc tree of Utf8Category to C++ structs.
@@ -40,12 +38,12 @@ namespace String
       /*throw (eh::Exception)*/;
 
     virtual const UnicodeProperty::Node*
-    modificator() throw ();
+    modificator() noexcept;
 
     class FinishObjectsPool;
 
     virtual FinishObjectsPool*
-    get_pool() const throw ();
+    get_pool() const noexcept;
 
     /**
      * Don't necessary use duplication objects as tree endings.
@@ -70,7 +68,7 @@ namespace String
       print_to_cpp() const /*throw (eh::Exception)*/;
 
       virtual
-      ~FinishObjectsPool() throw () {}
+      ~FinishObjectsPool() noexcept {}
     };
 
   private:
@@ -93,19 +91,19 @@ namespace String
        * @param len - forecast length of output.
        * if output exceed 70 positions, we carry to new line.
        */
-      FormatGuard_(size_t len) throw ();
+      FormatGuard_(size_t len) noexcept;
       /**
        * Renew stored number of filled positions.
        */
-      ~FormatGuard_() throw ();
+      ~FormatGuard_() noexcept;
       /**
        * Clearance internal state to zero out position.
        */
       static void
-      reset() throw ();
+      reset() noexcept;
     private:
       static std::size_t
-      current_length_(std::size_t add, bool reset = false) throw ();
+      current_length_(std::size_t add, bool reset = false) noexcept;
 
       std::size_t additional_length_;
     };
@@ -117,11 +115,11 @@ namespace String
     struct NamespaceDecorator_
     {
       NamespaceDecorator_() /*throw (eh::Exception)*/;
-      ~NamespaceDecorator_() throw ();
+      ~NamespaceDecorator_() noexcept;
     };
 
     unsigned
-    get_size_() throw ();
+    get_size_() noexcept;
 
     /**
      * Recursively round the
@@ -158,7 +156,7 @@ namespace String
       /*throw (eh::Exception)*/;
 
     virtual
-    ~Utf8CategoryExtendedPrintable() throw ();
+    ~Utf8CategoryExtendedPrintable() noexcept;
 
     virtual void
     print_finish_leaf(UnicodeProperty::TreeLeaf leaf,
@@ -169,10 +167,10 @@ namespace String
     print_finishers_to_cpp() /*throw (eh::Exception)*/;
 
     virtual const UnicodeProperty::Node*
-    modificator() throw ();
+    modificator() noexcept;
 
     virtual FinishObjectsPool*
-    get_pool() const throw ();
+    get_pool() const noexcept;
 
     class FinishDataObjectsPool : public FinishObjectsPool
     {
@@ -181,7 +179,7 @@ namespace String
         /*throw (eh::Exception)*/;
 
       virtual
-      ~FinishDataObjectsPool() throw ();
+      ~FinishDataObjectsPool() noexcept;
 
       /**
        * @param try put into pool, if already exist there - then
@@ -201,10 +199,10 @@ namespace String
       struct TreeLeaf
       {
         bool
-        operator <(const TreeLeaf& rhs) const throw ();
+        operator <(const TreeLeaf& rhs) const noexcept;
 
         static bool
-        compare(const TreeLeaf& left, const TreeLeaf& right) throw ();
+        compare(const TreeLeaf& left, const TreeLeaf& right) noexcept;
 
         unsigned char raw_data[64];
         std::size_t name_val;
@@ -302,22 +300,7 @@ namespace String
   Utf8CategoryPrintable::print_to_cpp(const char* name)
     /*throw (eh::Exception)*/
   {
-    std::cout << "// @file String/UTF8Is";
-    {
-      const char* p = strchr(name, '_');
-      if (p)
-      {
-        std::cout << String::AsciiStringManip::to_upper(p[1]) << p + 2 <<
-          String::AsciiStringManip::to_upper(*name);
-        std::cout.write(name + 1, p - name - 1);
-      }
-      else
-      {
-        std::cout << String::AsciiStringManip::to_upper(*name) << name + 1;
-      }
-    }
-    std::cout << ".cpp\n" <<
-      "#include <String/UTF8IsProperty.hpp>\n" << std::endl;
+    std::cout << "#include <String/UTF8IsProperty.hpp>\n" << std::endl;
     NamespaceDecorator_ guard;
     memory_used_ = 0;
     memset(current_symbol_, 0, sizeof(current_symbol_));
@@ -337,18 +320,18 @@ namespace String
   // Utf8CategoryPrintable class
   //
 
-  Utf8CategoryPrintable::~Utf8CategoryPrintable() throw ()
+  Utf8CategoryPrintable::~Utf8CategoryPrintable() noexcept
   {
   }
 
   const UnicodeProperty::Node*
-  Utf8CategoryPrintable::modificator() throw ()
+  Utf8CategoryPrintable::modificator() noexcept
   {
     return &UnicodeProperty::TREE_STOP;
   }
 
   Utf8CategoryPrintable::FinishObjectsPool*
-  Utf8CategoryPrintable::get_pool() const throw ()
+  Utf8CategoryPrintable::get_pool() const noexcept
   {
     return pool_.get();
   }
@@ -388,18 +371,18 @@ namespace String
   }
 
   const UnicodeProperty::Node*
-  Utf8CategoryExtendedPrintable::modificator() throw ()
+  Utf8CategoryExtendedPrintable::modificator() noexcept
   {
     return &*ALL_TREE_STOP;
   }
 
   Utf8CategoryPrintable::FinishObjectsPool*
-  Utf8CategoryExtendedPrintable::get_pool() const throw ()
+  Utf8CategoryExtendedPrintable::get_pool() const noexcept
   {
     return data_objects_pool_.get();
   }
 
-  Utf8CategoryExtendedPrintable::~Utf8CategoryExtendedPrintable() throw ()
+  Utf8CategoryExtendedPrintable::~Utf8CategoryExtendedPrintable() noexcept
   {
   }
 
@@ -451,7 +434,7 @@ namespace String
   }
 
   Utf8CategoryExtendedPrintable::FinishDataObjectsPool::
-    ~FinishDataObjectsPool() throw ()
+    ~FinishDataObjectsPool() noexcept
   {
   }
 
@@ -548,14 +531,14 @@ namespace String
 
   bool
   Utf8CategoryExtendedPrintable::FinishDataObjectsPool::TreeLeaf::
-    operator <(const TreeLeaf& rhs) const throw ()
+    operator <(const TreeLeaf& rhs) const noexcept
   {
     return memcmp(raw_data, rhs.raw_data, sizeof(raw_data)) < 0;
   }
 
   bool
   Utf8CategoryExtendedPrintable::FinishDataObjectsPool::TreeLeaf::
-    compare(const TreeLeaf& left, const TreeLeaf& right) throw ()
+    compare(const TreeLeaf& left, const TreeLeaf& right) noexcept
   {
     return left.name_val < right.name_val;
   }
@@ -565,7 +548,7 @@ namespace String
   //
 
   inline
-  Utf8CategoryPrintable::FormatGuard_::FormatGuard_(size_t len) throw ()
+  Utf8CategoryPrintable::FormatGuard_::FormatGuard_(size_t len) noexcept
     : additional_length_(len)
   {
     if (current_length_(0) + additional_length_ > 70)
@@ -576,13 +559,13 @@ namespace String
   }
 
   inline
-  Utf8CategoryPrintable::FormatGuard_::~FormatGuard_() throw ()
+  Utf8CategoryPrintable::FormatGuard_::~FormatGuard_() noexcept
   {
     current_length_(additional_length_);
   }
 
   inline void
-  Utf8CategoryPrintable::FormatGuard_::reset() throw ()
+  Utf8CategoryPrintable::FormatGuard_::reset() noexcept
   {
     current_length_(0, true);
   }
@@ -590,7 +573,7 @@ namespace String
   inline std::size_t
   Utf8CategoryPrintable::FormatGuard_::current_length_(std::size_t add,
                                                        bool reset)// = false
-    throw ()
+    noexcept
   {
     static size_t len = 0;
     if (reset)
@@ -617,7 +600,7 @@ namespace String
 
   inline
   Utf8CategoryPrintable::NamespaceDecorator_::~NamespaceDecorator_()
-    throw ()
+    noexcept
   {
     std::cout
       << "\n  } // namespace UnicodeProperty\n} // namespace String"
@@ -632,7 +615,7 @@ namespace String
   std::size_t Utf8CategoryPrintable::memory_used_ = 0;
 
   inline unsigned
-  Utf8CategoryPrintable::get_size_() throw ()
+  Utf8CategoryPrintable::get_size_() noexcept
   {
     return UTF8Handler::get_octet_count(*current_symbol_);
   }
@@ -777,5 +760,3 @@ namespace String
     return true;
   }
 } // namespace String
-
-#endif  // _STRING_UTF8CATEGORY_PRINT_HPP_

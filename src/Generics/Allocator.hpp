@@ -1,7 +1,6 @@
 // Allocator.hpp
 
-#ifndef GENERICS_ALLOCATOR_HPP
-#define GENERICS_ALLOCATOR_HPP
+#pragma once
 
 #include <iostream>
 #include <list>
@@ -65,7 +64,7 @@ namespace Generics
        */
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw () = 0;
+      deallocate(Pointer ptr, size_t size) noexcept = 0;
 
       /**
        * Approximated cached memory size.
@@ -95,7 +94,7 @@ namespace Generics
        * protected destructor because reference counting.
        */
       virtual
-      ~Base() throw () = 0;
+      ~Base() noexcept = 0;
       
       /**
        * Align number to 2^mask number
@@ -104,7 +103,7 @@ namespace Generics
        */ 
       static
       void
-      align_(size_t& number, size_t mask) throw ();
+      align_(size_t& number, size_t mask) noexcept;
     
     private:
       /// Application level default allocator object.
@@ -122,7 +121,7 @@ namespace Generics
       static const size_t DEF_ALIGN = 10;
 
       explicit
-      Default(size_t align_code = DEF_ALIGN) throw ();
+      Default(size_t align_code = DEF_ALIGN) noexcept;
 
       /**
        * Align request size bytes according to MASK_
@@ -141,14 +140,14 @@ namespace Generics
        */
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
     protected:
       /**
        * Destructor
        */
       virtual
-      ~Default() throw ();
+      ~Default() noexcept;
 
     private:
       const size_t MASK_;
@@ -181,7 +180,7 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
       virtual
       size_t
@@ -193,7 +192,7 @@ namespace Generics
 
     protected:
       virtual
-      ~VarSizeList() throw ();
+      ~VarSizeList() noexcept;
 
     private:
       typedef std::pair<size_t, Pointer> MemoryBlock;
@@ -206,7 +205,7 @@ namespace Generics
        */
       static
       void
-      memory_block_delete_(MemoryBlock& mb) throw ();
+      memory_block_delete_(MemoryBlock& mb) noexcept;
 
       /// MASK_ + 1 is multiple power of 2
       const size_t MASK_;
@@ -240,7 +239,7 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
       virtual
       size_t
@@ -252,7 +251,7 @@ namespace Generics
 
     protected:
       virtual
-      ~ConstSizeArray() throw ();
+      ~ConstSizeArray() noexcept;
 
     private:
       const size_t MAX_BLOCKS_COUNT_;
@@ -328,7 +327,7 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
       virtual
       size_t
@@ -340,7 +339,7 @@ namespace Generics
 
     protected:
       virtual
-      ~Universal() throw ();
+      ~Universal() noexcept;
 
     private:
       const size_t DEFAULT_THRESHOLD_LOW_;
@@ -365,7 +364,7 @@ namespace Generics
        * @return allocator suitable for manage size memory block.
        */
       Base_var
-      get_allocator_(size_t size) throw ();
+      get_allocator_(size_t size) noexcept;
     };
 
     /**
@@ -382,7 +381,7 @@ namespace Generics
 
       explicit
       Align(size_t ptr_align_code = DEF_PTR_ALIGN,
-        size_t align_code = DEF_ALIGN) throw ();
+        size_t align_code = DEF_ALIGN) noexcept;
 
       /**
        * Align request size bytes according to MASK_
@@ -401,14 +400,14 @@ namespace Generics
        */
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
     protected:
       /**
        * Destructor
        */
       virtual
-      ~Align() throw () = default;
+      ~Align() noexcept = default;
 
     private:
       const size_t ALIGN_;
@@ -427,7 +426,7 @@ namespace Generics
 
       virtual
       void
-      deallocate(Pointer ptr, size_t size) throw ();
+      deallocate(Pointer ptr, size_t size) noexcept;
 
       static
       Base*
@@ -437,14 +436,14 @@ namespace Generics
     protected:
       virtual
       void
-      delete_this_() const throw ();
+      delete_this_() const noexcept;
 
     private:
       explicit
       Template(Allocator& allocator) /*throw (eh::Exception)*/;
 
       virtual
-      ~Template() throw ();
+      ~Template() noexcept;
 
     private:
       Allocator allocator_;
@@ -464,7 +463,7 @@ namespace Generics
     }
 
     template <typename Allocator>
-    Template<Allocator>::~Template() throw ()
+    Template<Allocator>::~Template() noexcept
     {
     }
 
@@ -497,7 +496,7 @@ namespace Generics
     template <typename Allocator>
     void
     Template<Allocator>::deallocate(
-      Pointer ptr, size_t size) throw ()
+      Pointer ptr, size_t size) noexcept
     {
       allocator_.deallocate(
         static_cast<typename std::allocator_traits<Allocator>::pointer>(ptr), size);
@@ -505,7 +504,7 @@ namespace Generics
 
     template <typename Allocator>
     void
-    Template<Allocator>::delete_this_() const throw ()
+    Template<Allocator>::delete_this_() const noexcept
     {
       Allocator allocator(allocator_);
       this->~Template();
@@ -526,5 +525,3 @@ namespace Generics
     }
   }
 }
-
-#endif

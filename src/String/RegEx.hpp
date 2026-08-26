@@ -1,9 +1,4 @@
-/**
- * @file   String/RegEx.hpp
- * @author Ivan Vigasin
- */
-#ifndef STRING_REGEX_HPP
-#define STRING_REGEX_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -116,7 +111,7 @@ namespace String
      * Destructor
      * Decreases compiled regexp reference count and deletes if appropriate
      */
-    ~RegEx() throw ();
+    ~RegEx() noexcept;
 
     /**
      * Assignment operator
@@ -195,19 +190,19 @@ namespace String
      */
     bool
     match(const String::SubString& subject, int options = 0) const
-      throw ();
+      noexcept;
 
     bool
     match(const String::SubString& subject, MatchContext& match_context,
       int options = 0) const
-      throw ();
+      noexcept;
 
     /**
      * Compiled regular expression
      * @return original regular expression
      */
     String::SubString
-    expression() const throw ();
+    expression() const noexcept;
 
 
   private:
@@ -215,13 +210,13 @@ namespace String
      * Provides data members initialization
      */
     void
-    init_() throw ();
+    init_() noexcept;
 
     /**
      * Provides data members clearance
      */
     void
-    clear_() throw ();
+    clear_() noexcept;
 
     Generics::Allocator::SmartBase_var allocator_;
     char* expr_;
@@ -266,7 +261,7 @@ namespace String
 
   inline
   void
-  RegEx::init_() throw ()
+  RegEx::init_() noexcept
   {
     expr_ = 0;
     expr_len_ = 0;
@@ -277,7 +272,7 @@ namespace String
 
   inline
   void
-  RegEx::clear_() throw ()
+  RegEx::clear_() noexcept
   {
     if (expr_)
     {
@@ -312,7 +307,7 @@ namespace String
   }
 
   inline
-  RegEx::~RegEx() throw ()
+  RegEx::~RegEx() noexcept
   {
     clear_();
   }
@@ -333,7 +328,7 @@ namespace String
 
   inline
   String::SubString
-  RegEx::expression() const throw ()
+  RegEx::expression() const noexcept
   {
     return SubString(expr_, expr_len_);
   }
@@ -354,5 +349,3 @@ namespace String
   {
   }
 }
-
-#endif

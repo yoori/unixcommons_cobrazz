@@ -1,5 +1,3 @@
-// @file Client/ObjectPoolTestClient.cpp
-
 #include <iostream>
 
 #include <Generics/AppUtils.hpp>
@@ -126,10 +124,10 @@ private:
 
   struct PoolIterator
   {
-    PoolIterator(Pool& pool_ref) throw ();
+    PoolIterator(Pool& pool_ref) noexcept;
 
     void
-    operator ()() throw ();
+    operator ()() noexcept;
   private:
     Pool& pool_;
   };
@@ -170,14 +168,14 @@ OPTester<PoolType>::OPTester(
 
 template <typename PoolType>
 OPTester<PoolType>::PoolIterator::PoolIterator(Pool& pool_ref)
-  throw ()
+  noexcept
   : pool_(pool_ref)
 {
 }
 
 template <typename PoolType>
 void
-OPTester<PoolType>::PoolIterator::operator ()() throw ()
+OPTester<PoolType>::PoolIterator::operator ()() noexcept
 {
   unsigned key = Generics::safe_rand(30);
   pool_iteration_(pool_, false, key > 20 ? Pool::SPECIAL_KEY : key);
@@ -621,7 +619,7 @@ void
 check_no_good_reference(
   const CorbaClientAdapter_var& corba_client_adapter,
   const char* url)
-  throw ()
+  noexcept
 {
   typedef CORBACommons::ObjectPool<CORBATest::PoolObject,
     ObjectPoolRefConfiguration> Pool;
@@ -849,7 +847,7 @@ switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
 }
 
 int
-main(int argc, char** argv) throw ()
+main(int argc, char** argv) noexcept
 {
   try
   {

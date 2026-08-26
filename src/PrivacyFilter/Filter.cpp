@@ -18,20 +18,20 @@ namespace
   class Filter
   {
   public:
-    Filter() throw ();
+    Filter() noexcept;
 
     bool
-    filter() const throw ();
+    filter() const noexcept;
 
   private:
     bool
-    check_file(const char* file) throw ();
+    check_file(const char* file) noexcept;
 
     bool filter_;
   };
 
 
-  Filter::Filter() throw ()
+  Filter::Filter() noexcept
     : filter_(true)
   {
     check_file(getenv("loglevel_control")) ||
@@ -40,13 +40,13 @@ namespace
 
   inline
   bool
-  Filter::filter() const throw ()
+  Filter::filter() const noexcept
   {
     return filter_;
   }
 
   bool
-  Filter::check_file(const char* file) throw ()
+  Filter::check_file(const char* file) noexcept
   {
     if (!file)
     {
@@ -89,14 +89,14 @@ namespace
 namespace PrivacyFilter
 {
   bool
-  filter() throw ()
+  filter() noexcept
   {
     return global_filter.filter();
   }
 
   const char*
   filter(const char* original_message, const char* replace_message)
-    throw ()
+    noexcept
   {
     return global_filter.filter() ? replace_message : original_message;
   }
@@ -104,7 +104,7 @@ namespace PrivacyFilter
   const String::SubString&
   filter(const String::SubString& original_message,
     const String::SubString& replace_message)
-    throw ()
+    noexcept
   {
     return global_filter.filter() ? replace_message : original_message;
   }

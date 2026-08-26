@@ -1,5 +1,4 @@
-#ifndef GENERICS_METRICS_PROVIDER_HPP
-#define GENERICS_METRICS_PROVIDER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,5 +23,3 @@ namespace Generics
     ~MetricsProvider() noexcept = default;
   };
 }
-
-#endif

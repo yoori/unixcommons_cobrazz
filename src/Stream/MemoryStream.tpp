@@ -15,14 +15,14 @@ namespace Stream
 
     template <typename Elem, typename Traits>
     typename InputMemoryBuffer<Elem, Traits>::ConstPointer
-    InputMemoryBuffer<Elem, Traits>::data() const throw ()
+    InputMemoryBuffer<Elem, Traits>::data() const noexcept
     {
       return this->gptr();
     }
 
     template <typename Elem, typename Traits>
     typename InputMemoryBuffer<Elem, Traits>::Size
-    InputMemoryBuffer<Elem, Traits>::size() const throw ()
+    InputMemoryBuffer<Elem, Traits>::size() const noexcept
     {
       return this->egptr() - this->gptr();
     }
@@ -82,7 +82,7 @@ namespace Stream
 
     template <typename Elem, typename Traits>
     typename InputMemoryBuffer<Elem, Traits>::Int
-    InputMemoryBuffer<Elem, Traits>::underflow() throw ()
+    InputMemoryBuffer<Elem, Traits>::underflow() noexcept
     {
       return this->gptr() < this->egptr() ? *(this->gptr()) : Traits::eof();
     }
@@ -110,7 +110,7 @@ namespace Stream
     template <typename Elem, typename Traits, typename Allocator,
       typename AllocatorInitializer>
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      ~OutputMemoryBuffer() throw ()
+      ~OutputMemoryBuffer() noexcept
     {
       allocator_.deallocate(this->pbase(), this->epptr() - this->pbase());
       this->setp(0, 0);
@@ -121,7 +121,7 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::ConstPointer
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      data() const throw ()
+      data() const noexcept
     {
       return this->pbase();
     }
@@ -131,7 +131,7 @@ namespace Stream
     typename OutputMemoryBuffer<Elem, Traits, Allocator,
       AllocatorInitializer>::Size
     OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      size() const throw ()
+      size() const noexcept
     {
       return this->pptr() - this->pbase();
     }
@@ -307,14 +307,14 @@ namespace Stream
 
     template <typename Buffer>
     Buffer*
-    MemoryBufferHolder<Buffer>::buffer() throw ()
+    MemoryBufferHolder<Buffer>::buffer() noexcept
     {
       return &buffer_;
     }
 
     template <typename Buffer>
     const Buffer*
-    MemoryBufferHolder<Buffer>::buffer() const throw ()
+    MemoryBufferHolder<Buffer>::buffer() const noexcept
     {
       return &buffer_;
     }
@@ -382,7 +382,7 @@ namespace Stream
 
       template <typename Elem, const size_t SIZE, typename Buffer,
         typename BufferInitializer>
-      Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple() throw ()
+      Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple() noexcept
         : allocated_(false)
       {
         buffer_[SIZE - 1] = '\0';
@@ -391,7 +391,7 @@ namespace Stream
       template <typename Elem, const size_t SIZE, typename Buffer,
         typename BufferInitializer>
       Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple(
-        BufferInitializer buffer_initializer) throw ()
+        BufferInitializer buffer_initializer) noexcept
         : buffer_(buffer_initializer), allocated_(false)
       {
         buffer_[SIZE - 1] = '\0';
@@ -401,7 +401,7 @@ namespace Stream
         typename BufferInitializer>
       typename Simple<Elem, SIZE, Buffer, BufferInitializer>::Pointer
       Simple<Elem, SIZE, Buffer, BufferInitializer>::allocate(
-        Size size, const void*) throw ()
+        Size size, const void*) noexcept
       {
         if (allocated_ || size >= SIZE)
         {
@@ -416,7 +416,7 @@ namespace Stream
       void
       Simple<Elem, SIZE, Buffer, BufferInitializer>::deallocate(
         Pointer ptr, Size size)
-        throw ()
+        noexcept
       {
         if (!allocated_ || ptr != buffer_ || size >= SIZE)
         {
@@ -432,12 +432,12 @@ namespace Stream
 
       template <typename Elem, const size_t SIZE, typename Initializer>
       ArrayBuffer<Elem, SIZE, Initializer>::ArrayBuffer(
-        Initializer /*initializer*/) throw ()
+        Initializer /*initializer*/) noexcept
       {
       }
 
       template <typename Elem, const size_t SIZE, typename Initializer>
-      ArrayBuffer<Elem, SIZE, Initializer>::operator Elem*() throw ()
+      ArrayBuffer<Elem, SIZE, Initializer>::operator Elem*() noexcept
       {
         return buffer_;
       }
@@ -448,7 +448,7 @@ namespace Stream
       //
 
       template <typename Elem, const size_t SIZE>
-      SimpleBuffer<Elem, SIZE>::SimpleBuffer(Elem* buffer) throw ()
+      SimpleBuffer<Elem, SIZE>::SimpleBuffer(Elem* buffer) noexcept
         : Simple<Elem, SIZE, Elem*>(buffer)
       {
       }
@@ -460,7 +460,7 @@ namespace Stream
 
       template <typename Elem, const size_t SIZE>
       SimpleStack<Elem, SIZE>::SimpleStack(size_t /*allocator_initializer*/)
-        throw ()
+        noexcept
       {
       }
     }
@@ -472,14 +472,14 @@ namespace Stream
   //
 
   template <const size_t SIZE>
-  Buffer<SIZE>::Buffer(char* buffer) throw ()
+  Buffer<SIZE>::Buffer(char* buffer) noexcept
     : MemoryStream::OutputMemoryStream<char, std::char_traits<char>,
         Allocator, Allocator, SIZE - 1>(SIZE - 1, Allocator(buffer))
   {
   }
 
   template <const size_t SIZE>
-  Buffer<SIZE>::~Buffer() throw ()
+  Buffer<SIZE>::~Buffer() noexcept
   {
     *this << '\0';
   }
@@ -489,7 +489,7 @@ namespace eh
 {
   template <typename Tag, typename Base>
   Composite<Tag, Base>::Composite(const Stream::Error& stream,
-    const char* code) throw ()
+    const char* code) noexcept
   {
     const String::SubString& substr = stream.str();
     Base::init_(substr.data(), substr.size(), code);

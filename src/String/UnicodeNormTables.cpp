@@ -1,6 +1,3 @@
-// @file String/UnicodeNormTables.cpp
-// @author Denis Badikov
-
 #include <String/UnicodeNormalizer.hpp>
 
 

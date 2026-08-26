@@ -1,6 +1,4 @@
-// @file PlainStorage/Map.hpp
-#ifndef PLAINSTORAGE_MAP_HPP
-#define PLAINSTORAGE_MAP_HPP
+#pragma once
 
 #include <memory>
 #include <map>
@@ -26,9 +24,9 @@ namespace PlainStorage
   {
   protected:
     typedef PlainWriter PlainActor;
-    Write(PlainActor* plain_actor) throw ();
+    Write(PlainActor* plain_actor) noexcept;
 
-    ~Write() throw ();
+    ~Write() noexcept;
 
     PlainActor* plain_actor_;
 
@@ -56,9 +54,9 @@ namespace PlainStorage
   {
   protected:
     typedef PlainReader PlainActor;
-    Read(PlainActor* plain_actor) throw ();
+    Read(PlainActor* plain_actor) noexcept;
 
-    ~Read() throw ();
+    ~Read() noexcept;
 
     PlainActor* plain_actor_;
   };
@@ -80,7 +78,7 @@ namespace PlainStorage
      * transaction
      */
     unsigned long
-    size() const throw ();
+    size() const noexcept;
 
     /**
      * Reads the data provided by PlainWriter at the creation of the
@@ -104,7 +102,7 @@ namespace PlainStorage
      * Do unlock at PlainWriter
      */
     virtual
-    ~PlainTransaction() throw ();
+    ~PlainTransaction() noexcept;
   };
 
   typedef PlainTransaction<Read> PlainReadOnlyTransaction;
@@ -152,7 +150,7 @@ namespace PlainStorage
      * @return The size of the data that PlainReader able to read
      */
     unsigned long
-    size() const throw ();
+    size() const noexcept;
 
     /**
      * Thread-Safe version of read_i_() Perform reading data from file to
@@ -179,31 +177,31 @@ namespace PlainStorage
      * return index of first Data block that store data.
      */
     BlockIndex
-    index() const throw ();
+    index() const noexcept;
 
   protected:
     /**
      * Empty virtual destructor
      */
     virtual
-    ~PlainReader() throw ();
+    ~PlainReader() noexcept;
 
     /**
      * Without thread sync
      * @return The size of the data that PlainReader able to read
      */
     unsigned long
-    size_i_() const throw ();
+    size_i_() const noexcept;
 
     unsigned long
     read_i_(void* buf, unsigned long buf_size) const
       /*throw (eh::Exception, ReadFailed)*/;
 
     void
-    read_lock_() throw ();
+    read_lock_() noexcept;
 
     void
-    unlock_() throw ();
+    unlock_() noexcept;
 
     typedef Sync::PosixRWLock Mutex_;
     typedef Sync::PosixRGuard ReadGuard_;
@@ -268,7 +266,7 @@ namespace PlainStorage
      * Empty virtual destructor
      */
     virtual
-    ~PlainWriter() throw ();
+    ~PlainWriter() noexcept;
 
     /**
      * Thread-unsafe. Perform write Data of specified size.
@@ -286,7 +284,7 @@ namespace PlainStorage
       /*throw (eh::Exception, WriteFailed)*/;
 
     void
-    write_lock_() throw ();
+    write_lock_() noexcept;
 
     WriteBlockFileAdapter* write_block_file_adapter_;
     BaseBlockAllocator* block_allocator_;
@@ -315,7 +313,7 @@ namespace PlainStorage
     public DefaultReadIndexAccessor<Key>
   {
   public:
-    DefaultWriteIndexAccessor() throw ();
+    DefaultWriteIndexAccessor() noexcept;
 
     /**
      * @param in Key to calculate his size
@@ -379,7 +377,7 @@ namespace PlainStorage
        * Virtual empty destructor
        */
       virtual
-      ~IndexLoadCallback() throw ();
+      ~IndexLoadCallback() noexcept;
     };
 
     /// Type of field in some headers of file data structures
@@ -397,10 +395,10 @@ namespace PlainStorage
       static const std::size_t SIZE = sizeof(FieldType);
 
       FieldType&
-      value() throw ();
+      value() noexcept;
 
       FieldType
-      value() const throw ();
+      value() const noexcept;
 
     private:
       FieldType data_;
@@ -425,16 +423,16 @@ namespace PlainStorage
       static const std::size_t FILE_HEADER_SIZE = sizeof(FileHeaderBody);
 
       FieldType&
-      allocator_index() throw ();
+      allocator_index() noexcept;
 
       FieldType
-      allocator_index() const throw ();
+      allocator_index() const noexcept;
 
       FieldType&
-      first_index_block() throw ();
+      first_index_block() noexcept;
 
       FieldType
-      first_index_block() const throw ();
+      first_index_block() const noexcept;
     };
     /**
      * Auxiliary class need to more comfortable work with key service
@@ -465,34 +463,34 @@ namespace PlainStorage
       };
 
       FieldType&
-      key_size() throw ();
+      key_size() noexcept;
 
       FieldType
-      key_size() const throw ();
+      key_size() const noexcept;
 
       /**
        * @return sizeof of data of the key (sizeof(body))
        */
       unsigned long
-      get_key_body_size() const throw ();
+      get_key_body_size() const noexcept;
 
       FieldType&
-      data_block_index() throw ();
+      data_block_index() noexcept;
 
       FieldType
-      data_block_index() const throw ();
+      data_block_index() const noexcept;
 
       FieldType&
-      mark() throw ();
+      mark() noexcept;
 
       FieldType
-      mark() const throw ();
+      mark() const noexcept;
 
       void*
-      key_value() throw ();
+      key_value() noexcept;
 
       const void*
-      key_value() const throw ();
+      key_value() const noexcept;
     };
 
   };
@@ -689,7 +687,7 @@ namespace PlainStorage
      * Virtual empty destructor
      */
     virtual
-    ~BaseBlockAllocator() throw ();
+    ~BaseBlockAllocator() noexcept;
   };
 
   /**
@@ -716,7 +714,7 @@ namespace PlainStorage
      * Do sync (correct header)
      */
     virtual
-    ~DefaultBlockAllocator() throw ();
+    ~DefaultBlockAllocator() noexcept;
 
     /**
      * Allocate with caching, just a few instead of one. Note: remember that
@@ -743,7 +741,7 @@ namespace PlainStorage
      * Description
      */
     void
-    sync_() throw ();
+    sync_() noexcept;
 
     typedef Sync::PosixRWLock Mutex_;
     typedef Sync::PosixRGuard ReadGuard_;
@@ -823,7 +821,7 @@ namespace PlainStorage
        * @param plain_writer will reference to Writer to be the second
        * member of a pair
        */
-      NodeValueType(const Key& key, SecondType plain_writer) throw ();
+      NodeValueType(const Key& key, SecondType plain_writer) noexcept;
 
       const Key& first;
       SecondType second;
@@ -843,7 +841,7 @@ namespace PlainStorage
       /**
        * Default constructor
        */
-      MapBaseIterator() throw ();
+      MapBaseIterator() noexcept;
 
       /**
        * Constructor resolve reference on value if possible
@@ -853,7 +851,7 @@ namespace PlainStorage
        */
       MapBaseIterator(
         const typename IndexContainer::iterator& it,
-        IndexContainer* container_ref) throw ();
+        IndexContainer* container_ref) noexcept;
 
     protected:
       void
@@ -868,7 +866,7 @@ namespace PlainStorage
        * @param right The iterator to be assigned to this
        */
       void
-      set_(const MapBaseIterator& right) throw ();
+      set_(const MapBaseIterator& right) noexcept;
 
       typename IndexContainer::iterator it_;
       /// Container pointer is need to check bounds and throw OutOfRange()
@@ -891,10 +889,10 @@ namespace PlainStorage
       struct ReturnedMediator : private Reference
       {
         ReturnedMediator(const Key& key, PlainWriter_var& plain_writer)
-          throw ();
+          noexcept;
 
         Reference*
-        operator ->() throw ();
+        operator ->() noexcept;
       };
 
     public:
@@ -904,32 +902,32 @@ namespace PlainStorage
       /**
        * Default constructor calls base default constructor
        */
-      BiDiIterator() throw ();
+      BiDiIterator() noexcept;
 
       /**
        * Constructor calls base constructor with parameters
        */
       BiDiIterator(const typename IndexContainer::iterator& it,
-        IndexContainer& container) throw ();
+        IndexContainer& container) noexcept;
 
       /**
        * copy constructor for iterator and constructor from iterator for
        * const_iterator
        */
-      BiDiIterator(const iterator& it) throw ();
+      BiDiIterator(const iterator& it) noexcept;
 
       /**
        * @return Returns the element that a BiDiIterator addresses
        */
       Reference
-      operator *() const throw ();
+      operator *() const noexcept;
 
       /**
        * @return Returns a special mediator object that return pointer to Reference.
        * This pointer used to get value of BiDiIterator
        */
       ReturnedMediator
-      operator ->() const throw ();
+      operator ->() const noexcept;
 
       /**
        * Increments the BiDiIterator to the next element
@@ -968,7 +966,7 @@ namespace PlainStorage
        * equal to the iterator on right side of the operator, otherwise false
        */
       bool
-      operator ==(const BiDiIterator& right) const throw ();
+      operator ==(const BiDiIterator& right) const noexcept;
 
       /**
        * Tests if the iterator on the left side of the operator is not equal
@@ -979,7 +977,7 @@ namespace PlainStorage
        * are equal
        */
       bool
-      operator !=(const BiDiIterator& right) const throw ();
+      operator !=(const BiDiIterator& right) const noexcept;
 
       /**
        * Assign some iterator to this
@@ -987,7 +985,7 @@ namespace PlainStorage
        * @return The reference on self
        */
       BiDiIterator&
-      operator =(const iterator& it) throw ();
+      operator =(const iterator& it) noexcept;
     };
 
     typedef BiDiIterator<reference> iterator;
@@ -998,7 +996,7 @@ namespace PlainStorage
     /**
      * Map default constructor, nothing to do
      */
-    Map() throw ();
+    Map() noexcept;
 
     /**
      * Construct Map and load data from file
@@ -1013,7 +1011,7 @@ namespace PlainStorage
      * Destructor call close()
      */
     virtual
-    ~Map() throw ();
+    ~Map() noexcept;
 
     // associative container interface
     /**
@@ -1022,7 +1020,7 @@ namespace PlainStorage
      * in the Map or the location succeeding an empty Map
      */
     iterator
-    begin() throw ();
+    begin() noexcept;
 
     /**
      * Returns an const iterator that addresses the first element in the Map
@@ -1030,7 +1028,7 @@ namespace PlainStorage
      * in the Map or the location succeeding an empty Map
      */
     const_iterator
-    begin() const throw ();
+    begin() const noexcept;
 
     /**
      * Returns an iterator that addresses the location succeeding the last
@@ -1040,7 +1038,7 @@ namespace PlainStorage
      * Map::end() == Map::begin()
      */
     iterator
-    end() throw ();
+    end() noexcept;
 
     /**
      * Returns an const iterator that addresses the location succeeding the
@@ -1050,7 +1048,7 @@ namespace PlainStorage
      * Map::end() == Map::begin()
      */
     const_iterator
-    end() const throw ();
+    end() const noexcept;
 
     /**
      * Returns an iterator addressing the location of an element in a Map
@@ -1061,7 +1059,7 @@ namespace PlainStorage
      * if no match is found for the key
      */
     iterator
-    find(const Key& key) throw ();
+    find(const Key& key) noexcept;
 
     /**
      * Returns an const iterator addressing the location of an element
@@ -1072,7 +1070,7 @@ namespace PlainStorage
      * if no match is found for the key
      */
     const_iterator
-    find(const Key& key) const throw ();
+    find(const Key& key) const noexcept;
 
     /**
      * Removes an element in a Map that match a specified key.
@@ -1144,7 +1142,7 @@ namespace PlainStorage
      * @return The current length of the Map
      */
     std::size_t
-    size() const throw ();
+    size() const noexcept;
 
     /**
      * Open file filename. This method is not thread-safe.
@@ -1259,5 +1257,3 @@ namespace PlainStorage
 
 #include <PlainStorage/Map.tpp>
 #include <PlainStorage/DefaultSyncIndexStrategy.tpp>
-
-#endif // PLAINSTORAGE_MAP_HPP

@@ -1,10 +1,4 @@
-/**
- * @file   Rand.hpp
- * @author Anna Ignatenkova
- */
-
-#ifndef GENERICS_RAND_HPP
-#define GENERICS_RAND_HPP
+#pragma once
 
 #include <cstdlib>
 #include <cstdint>
@@ -18,10 +12,10 @@ namespace Generics
    * @return random number in [0..RAND_MAX] range
    */
   uint32_t
-  safe_rand() throw ();
+  safe_rand() noexcept;
 
   uint32_t
-  unsafe_rand() throw ();
+  unsafe_rand() noexcept;
 
   /**
    * Give uniform distribution in range [0..max_boundary-1].
@@ -32,7 +26,7 @@ namespace Generics
    */
   inline
   uint32_t
-  safe_rand(uint32_t max_boundary) throw ()
+  safe_rand(uint32_t max_boundary) noexcept
   {
     return static_cast<uint32_t>(static_cast<double>(max_boundary) *
       safe_rand() / 2147483648.0);
@@ -40,7 +34,7 @@ namespace Generics
 
   inline
   uint32_t
-  unsafe_rand(uint32_t max_boundary) throw ()
+  unsafe_rand(uint32_t max_boundary) noexcept
   {
     return static_cast<uint32_t>(static_cast<double>(max_boundary) *
       unsafe_rand() / (static_cast<double>(RAND_MAX) + 1.0));
@@ -56,14 +50,14 @@ namespace Generics
    */
   inline
   uint32_t
-  safe_rand(uint32_t min_boundary, uint32_t max_boundary) throw ()
+  safe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
   {
     return min_boundary + safe_rand(max_boundary - min_boundary + 1);
   }
 
   inline
   uint32_t
-  unsafe_rand(uint32_t min_boundary, uint32_t max_boundary) throw ()
+  unsafe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
   {
     return min_boundary + unsafe_rand(max_boundary - min_boundary + 1);
   }
@@ -80,7 +74,7 @@ namespace Generics
    */
   inline
   uint32_t
-  safe_integral_rand(uint8_t bits_number) throw ()
+  safe_integral_rand(uint8_t bits_number) noexcept
   {
     return safe_rand() >> (31 - bits_number);
   }
@@ -90,10 +84,8 @@ namespace Generics
    */
   inline
   int
-  four_digits_rand() throw ()
+  four_digits_rand() noexcept
   {
     return safe_rand(1000, 9999);
   }
 }
-
-#endif

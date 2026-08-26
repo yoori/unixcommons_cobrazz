@@ -1,5 +1,4 @@
-#ifndef POLYGLOT_DICTIONARYLOADER_HPP
-#define POLYGLOT_DICTIONARYLOADER_HPP
+#pragma once
 
 #include <string>
 #include <list>
@@ -17,7 +16,7 @@ namespace Polyglot
 #ifdef POLYGLOT_USE_BF
       /*throw (eh::Exception)*/;
 #else
-      throw ();
+      noexcept;
 #endif
 
     unsigned long id;
@@ -35,7 +34,7 @@ namespace Polyglot
   {
     struct Suffix
     {
-      Suffix(unsigned long length_val, long freq_val) throw ();
+      Suffix(unsigned long length_val, long freq_val) noexcept;
 
       unsigned long length;
       long freq;
@@ -66,7 +65,7 @@ namespace Polyglot
    */
   struct DictionaryTraits
   {
-    DictionaryTraits() throw ();
+    DictionaryTraits() noexcept;
 
     unsigned long count_el;
     long min_el;
@@ -91,7 +90,7 @@ namespace Polyglot
     typedef DictionaryNode Node;
 
     const DictionaryTraits&
-    traits() const throw ();
+    traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -109,7 +108,7 @@ namespace Polyglot
     typedef SuffixDictionaryNode Node;
 
     const DictionaryTraits&
-    traits() const throw ();
+    traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -127,7 +126,7 @@ namespace Polyglot
     typedef DictionaryNodeWithNorm Node;
 
     const DictionaryTraits&
-    traits() const throw ();
+    traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -199,7 +198,7 @@ namespace Polyglot
 #ifdef POLYGLOT_USE_BF
     /*throw (eh::Exception)*/
 #else
-    throw ()
+    noexcept
 #endif
     : id(id_val), freq(freq_val)
   {
@@ -212,7 +211,7 @@ namespace Polyglot
 
   inline
   SuffixDictionaryNode::Suffix::Suffix(
-    unsigned long length_val, long freq_val) throw ()
+    unsigned long length_val, long freq_val) noexcept
     : length(length_val), freq(freq_val)
   {
   }
@@ -235,7 +234,7 @@ namespace Polyglot
   //
 
   inline
-  DictionaryTraits::DictionaryTraits() throw ()
+  DictionaryTraits::DictionaryTraits() noexcept
     : count_el(0), min_el(0xFFFFFFFF), max_el(0), sum_el(0),
       bi_count_el(0), bi_min_el(0xFFFFFFFF), bi_max_el(0), bi_sum_el(0)
   {
@@ -248,7 +247,7 @@ namespace Polyglot
 
   inline
   const DictionaryTraits&
-  Dictionary::traits() const throw ()
+  Dictionary::traits() const noexcept
   {
     return traits_;
   }
@@ -260,7 +259,7 @@ namespace Polyglot
 
   inline
   const DictionaryTraits&
-  DictionaryWithNorm::traits() const throw ()
+  DictionaryWithNorm::traits() const noexcept
   {
     return traits_;
   }
@@ -272,10 +271,8 @@ namespace Polyglot
 
   inline
   const DictionaryTraits&
-  SuffixDictionary::traits() const throw ()
+  SuffixDictionary::traits() const noexcept
   {
     return traits_;
   }
 }
-
-#endif

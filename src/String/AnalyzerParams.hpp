@@ -1,10 +1,4 @@
-/**
- * @file   String/AnalyzerParams.hpp
- * @author Anna Ignatenkova
- */
-
-#ifndef STRING_ANALYZER_PARAMS_HPP
-#define STRING_ANALYZER_PARAMS_HPP
+#pragma once
 
 #include <String/AsciiStringManip.hpp>
 
@@ -25,37 +19,37 @@ namespace String
       /**
        * Construct object in non-initialized state
        */
-      CharPair() throw ();
+      CharPair() noexcept;
       /**
        * Construct (single, single) pair
        * @param single Value for (single,single) pair
        */
-      CharPair(char single) throw ();
+      CharPair(char single) noexcept;
       /**
        * Construct (first, second) pair
        * @param first first char value in pair of 
        * @param second second value in pair of characters
        */
-      CharPair(char first, char second) throw ();
+      CharPair(char first, char second) noexcept;
 
       /**
        * Because this method needs does not use std::pair
        * @return true if object was initialized
        */
       bool
-      initialized() const throw ();
+      initialized() const noexcept;
 
       /**
       * @return first character of pair
       */
       char
-      first() const throw ();
+      first() const noexcept;
 
       /**
        * @return second character of pair
        */
       char
-      second() const throw ();
+      second() const noexcept;
 
     private:
       bool initialized_;
@@ -69,7 +63,7 @@ namespace String
        * Default constructor
        * Initializes with no symbols in set
        */
-      CharSet() throw ();
+      CharSet() noexcept;
 
       template <typename... T>
       CharSet(T... data) /*throw (eh::Exception)*/;
@@ -89,7 +83,7 @@ namespace String
        * Constructor initialize all integral types fields with zero and
        * default constructors for other fields.
        */
-      AnalyzerParams() throw ();
+      AnalyzerParams() noexcept;
 
       /**
        * Symbol which will be used for inserting such special
@@ -293,40 +287,40 @@ namespace String
     //
 
     inline
-    CharPair::CharPair() throw ()
+    CharPair::CharPair() noexcept
       : initialized_(false)
     {
     }
 
     inline
-    CharPair::CharPair(char single) throw ()
+    CharPair::CharPair(char single) noexcept
       : initialized_(true), first_(single), second_(single)
     {
     }
 
     inline
-    CharPair::CharPair(char first, char second) throw ()
+    CharPair::CharPair(char first, char second) noexcept
       : initialized_(true), first_(first), second_(second)
     {
     }
 
     inline
     bool
-    CharPair::initialized() const throw ()
+    CharPair::initialized() const noexcept
     {
       return initialized_;
     }
 
     inline
     char
-    CharPair::first() const throw ()
+    CharPair::first() const noexcept
     {
       return first_;
     }
 
     inline
     char
-    CharPair::second() const throw ()
+    CharPair::second() const noexcept
     {
       return second_;
     }
@@ -337,7 +331,7 @@ namespace String
     //
 
     inline
-    CharSet::CharSet() throw ()
+    CharSet::CharSet() noexcept
       : AsciiStringManip::CharCategory(static_cast<const char*>(0))
     {
     }
@@ -349,4 +343,3 @@ namespace String
     }
   } // namespace SequenceAnalyzer
 }
-#endif

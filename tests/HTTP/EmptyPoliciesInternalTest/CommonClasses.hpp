@@ -1,5 +1,4 @@
-#ifndef _EMPTY_POLICIES_INTERNAL_TEST_COMMON_CLASSES_HPP_
-#define _EMPTY_POLICIES_INTERNAL_TEST_COMMON_CLASSES_HPP_
+#pragma once
 
 #include <HTTP/HttpTestCommons/CommonClasses.hpp>
 #include <Generics/Time.hpp>
@@ -21,18 +20,18 @@ public:
 
   virtual void print_errors(std::ostream& out) /*throw(eh::Exception)*/ = 0;
 
-  virtual void execute() throw();
+  virtual void execute() noexcept;
 
 protected:
 
   virtual
-  ~PoliciesTestInterface() throw ();
+  ~PoliciesTestInterface() noexcept;
 
-  virtual void exec_init_() throw() = 0;
+  virtual void exec_init_() noexcept = 0;
 
-  virtual void exec_main_() throw() = 0;
+  virtual void exec_main_() noexcept = 0;
 
-  virtual void exec_finish_() throw() = 0;
+  virtual void exec_finish_() noexcept = 0;
 
   Sync::Semaphore& finish_sem_;
 };
@@ -66,19 +65,19 @@ public:
     StateHistory* next;
 
     StateHistory(ObjectType new_type, int new_result,
-      StateInfo::States new_state, const Generics::Time& new_time) throw();
+      StateInfo::States new_state, const Generics::Time& new_time) noexcept;
     StateHistory(const StateHistory& src) /*throw(eh::Exception)*/;
 
-    ~StateHistory() throw();
+    ~StateHistory() noexcept;
 
-    bool operator== (const StateHistory& src) const throw();
+    bool operator== (const StateHistory& src) const noexcept;
   };
 
   typedef std::map<Identifier, StateHistory> Histories;
   typedef std::list<std::pair<Identifier, StateHistory> > CompletedHistories;
 
 
-  CheckSimpleEmptyCommons(unsigned int closure_delay_value) throw();
+  CheckSimpleEmptyCommons(unsigned int closure_delay_value) noexcept;
 
   static void print_state_history(const char* prefix, const void* addr,
     const StateHistory& obj, std::ostream& out) /*throw(eh::Exception)*/;
@@ -93,7 +92,7 @@ protected:
   static Sync::PosixMutex dump_mutex_;
 
 
-  virtual ~CheckSimpleEmptyCommons() throw();
+  virtual ~CheckSimpleEmptyCommons() noexcept;
 
   virtual void dynamic_states_checker_(const char* prefix, const void* addr,
     const StateHistory* prev_n_now, std::ostream& error) /*throw (eh::Exception)*/;
@@ -111,19 +110,19 @@ class CheckSimpleEmptyThread: public HTTP::PoolPolicySimpleEmptyThread,
 {
 public:
 
-  CheckSimpleEmptyThread(unsigned short closure_delay = 0) throw();
+  CheckSimpleEmptyThread(unsigned short closure_delay = 0) noexcept;
 
   //Is not protected by mutex!
   virtual int
-  when_close_thread(Identifier thread) throw();
+  when_close_thread(Identifier thread) noexcept;
 
   //Is not protected by mutex!
   const CompletedHistories&
-  get_thr_history() throw();
+  get_thr_history() noexcept;
 
 protected:
 
-  virtual ~CheckSimpleEmptyThread() throw();
+  virtual ~CheckSimpleEmptyThread() noexcept;
 
   //Is not protected by mutex!
   StateInfo::States
@@ -132,19 +131,19 @@ protected:
   //Is not protected by mutex!
   virtual void
   check_thread_connection_added(Identifier thread, Identifier connection)
-    throw ();
+    noexcept;
 
   //Is not protected by mutex!
   virtual void
-  check_choose_thread(Identifier thread) throw ();
+  check_choose_thread(Identifier thread) noexcept;
 
   //Is not protected by mutex!
   virtual void
-  check_thread_added(Identifier thread) throw ();
+  check_thread_added(Identifier thread) noexcept;
 
   //Is not protected by mutex!
   virtual void
-  check_thread_removed(Identifier thread) throw ();
+  check_thread_removed(Identifier thread) noexcept;
 
 
   friend class CheckSimpleStatistics;
@@ -156,19 +155,19 @@ class CheckSimpleEmptyConnection: public HTTP::PoolPolicySimpleEmptyConnection,
 {
 public:
 
-  CheckSimpleEmptyConnection(unsigned short closure_delay = 0) throw();
+  CheckSimpleEmptyConnection(unsigned short closure_delay = 0) noexcept;
 
   //Is not protected by mutex!
   virtual int
-  when_close_connection(Identifier connection) throw();
+  when_close_connection(Identifier connection) noexcept;
 
   //Is not protected by mutex!
   const CompletedHistories&
-  get_conn_history() throw();
+  get_conn_history() noexcept;
 
 protected:
 
-  virtual ~CheckSimpleEmptyConnection() throw();
+  virtual ~CheckSimpleEmptyConnection() noexcept;
   
   StateInfo::States
   get_connection_state(Identifier connection) /*throw(eh::Exception)*/;
@@ -176,22 +175,22 @@ protected:
   //Is not protected by mutex!
   virtual void
   check_connection_request_added(Identifier connection, Identifier request)
-    throw ();
+    noexcept;
 
   //Is not protected by mutex!
   virtual void
   check_choose_connection(Identifier connection, Identifier server,
-    Identifier request) throw ();
+    Identifier request) noexcept;
 
   //Is not protected by mutex!
   virtual void
   check_server_connection_added(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
   //Is not protected by mutex!
   virtual void
   check_server_connection_removed(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
 
   friend class CheckSimpleStatistics;
@@ -207,32 +206,32 @@ public:
     /*throw (eh::Exception)*/;
 
   virtual Identifier
-  choose_thread() throw ();
+  choose_thread() noexcept;
 
   virtual Identifier
-  choose_connection(Identifier server, Identifier request) throw ();
+  choose_connection(Identifier server, Identifier request) noexcept;
 
   virtual void
   connection_request_added(Identifier server, Identifier connection,
-    Identifier request) throw ();
+    Identifier request) noexcept;
 
   virtual void
   thread_connection_added(Identifier thread, Identifier connection)
-    throw ();
+    noexcept;
 
   virtual void
   server_connection_added(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
   virtual void
   server_connection_removed(Identifier server, Identifier connection)
-    throw ();
+    noexcept;
 
   virtual void
-  thread_added(Identifier thread) throw ();
+  thread_added(Identifier thread) noexcept;
 
   virtual void
-  thread_removed(Identifier thread) throw ();
+  thread_removed(Identifier thread) noexcept;
 
 private:
 
@@ -264,9 +263,9 @@ public:
 
   bool check_thr_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/;
 
-  const ScenariosCompleted& conn_scens_completed() throw();
+  const ScenariosCompleted& conn_scens_completed() noexcept;
 
-  const ScenariosCompleted& thr_scens_completed() throw();
+  const ScenariosCompleted& thr_scens_completed() noexcept;
 
   bool all_completed(std::ostringstream& log) /*throw(eh::Exception)*/;
 
@@ -280,5 +279,3 @@ private:
   ScenariosCompleted thr_scens_completed_;
   ScenariosCompleted conn_scens_completed_;
 };
-
-#endif

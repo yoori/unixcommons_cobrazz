@@ -1,11 +1,4 @@
-/**
- * @file   ProbeObj/Application.hpp
- * @author Karen Aroutiounov [karen@peopleonpage.com]
- * Declares class which tests and shutdowns CORBA servers
- */
-
-#ifndef CORBA_PROBE_OBJ_APPLICATION_HPP
-#define CORBA_PROBE_OBJ_APPLICATION_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 
@@ -68,5 +61,3 @@ private:
   Logging::Logger_var logger_;
   CORBACommons::CorbaClientAdapter_var adapter_;
 };
-
-#endif

@@ -1,8 +1,3 @@
-/**
- * @file   SimpleLogger.cpp
- * @author Karen Aroutiounov
- */
-
 #include <iostream>
 
 #include <unistd.h>
@@ -32,13 +27,13 @@ namespace
   public:
     Buffer(char* buf, size_t length) /*throw (eh::Exception)*/;
     char*
-    get() const throw ();
+    get() const noexcept;
     size_t
-    size() const throw ();
+    size() const noexcept;
     void
-    advance(size_t length) throw ();
+    advance(size_t length) noexcept;
     void
-    advance() throw ();
+    advance() noexcept;
 
   private:
     int size_;
@@ -58,21 +53,21 @@ namespace
 
   inline
   char*
-  Buffer::get() const throw ()
+  Buffer::get() const noexcept
   {
     return size_ > 0 ? buff_ptr_: 0;
   }
 
   inline
   size_t
-  Buffer::size() const throw ()
+  Buffer::size() const noexcept
   {
     return size_;
   }
 
   inline
   void
-  Buffer::advance(size_t length) throw ()
+  Buffer::advance(size_t length) noexcept
   {
     if (size_ > 0)
     {
@@ -83,7 +78,7 @@ namespace
 
   inline
   void
-  Buffer::advance() throw ()
+  Buffer::advance() noexcept
   {
     advance(size_ > 0 ? strlen(buff_ptr_) : 0);
   }
@@ -99,7 +94,7 @@ namespace Logging
 
     bool
     Logger::log(const String::SubString& text, unsigned long severity,
-      const char* aspect, const char* code) throw ()
+      const char* aspect, const char* code) noexcept
     {
       try
       {
@@ -153,7 +148,7 @@ namespace Logging
     // Formatter class
     //
 
-    Formatter::~Formatter() throw ()
+    Formatter::~Formatter() noexcept
     {
     }
 

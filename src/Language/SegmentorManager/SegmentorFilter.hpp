@@ -1,5 +1,4 @@
-#ifndef LANGUAGE_SEGMENTORMANAGER_SEGMENTORFILTER_HPP
-#define LANGUAGE_SEGMENTORMANAGER_SEGMENTORFILTER_HPP
+#pragma once
 
 #include <String/StringManip.hpp>
 #include <String/UTF8Category.hpp>
@@ -21,7 +20,7 @@ namespace Language
     {
     public:
       FilterSegmentor(const SegmentorInterface* segmentor,
-        const Category& filter) throw ();
+        const Category& filter) noexcept;
 
       virtual
       void
@@ -35,7 +34,7 @@ namespace Language
 
     protected:
       virtual
-      ~FilterSegmentor() throw ();
+      ~FilterSegmentor() noexcept;
 
     private:
       const SegmentorInterface_var SEGMENTOR_;
@@ -61,7 +60,7 @@ namespace Language
 
     protected:
       virtual
-      ~AutomaticFilterSegmentor() throw ();
+      ~AutomaticFilterSegmentor() noexcept;
     };
   }
 }
@@ -77,14 +76,14 @@ namespace Language
     template <typename Category>
     FilterSegmentor<Category>::FilterSegmentor(
       const SegmentorInterface* segmentor,
-      const Category& filter) throw ()
+      const Category& filter) noexcept
       : SEGMENTOR_(ReferenceCounting::add_ref(segmentor)),
         FILTER_(filter)
     {
     }
 
     template <typename Category>
-    FilterSegmentor<Category>::~FilterSegmentor() throw ()
+    FilterSegmentor<Category>::~FilterSegmentor() noexcept
     {
     }
 
@@ -266,10 +265,8 @@ namespace Language
 
     template <typename Segmentor, typename CategoryWrapper>
     AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      ~AutomaticFilterSegmentor() throw ()
+      ~AutomaticFilterSegmentor() noexcept
     {
     }
   }
 }
-
-#endif

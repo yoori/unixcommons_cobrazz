@@ -1,8 +1,3 @@
-/**
- * @file   Scheduler.cpp
- * @author Karen Aroutiounov
- */
-
 #include <Generics/Scheduler.hpp>
 #include <Generics/Function.hpp>
 
@@ -25,12 +20,12 @@ namespace Generics
   {
   }
 
-  Planner::PlannerJob::~PlannerJob() throw ()
+  Planner::PlannerJob::~PlannerJob() noexcept
   {
   }
 
   void
-  Planner::PlannerJob::terminate() throw ()
+  Planner::PlannerJob::terminate() noexcept
   {
     have_new_events_ = true;
     new_event_in_schedule_.signal(); // wake the working thread
@@ -131,7 +126,7 @@ namespace Generics
   }
 
   void
-  Planner::PlannerJob::work() throw ()
+  Planner::PlannerJob::work() noexcept
   {
     trace_message(FNB, "entering");
 
@@ -286,7 +281,7 @@ namespace Generics
   }
 
   void
-  Planner::PlannerJob::clear() throw ()
+  Planner::PlannerJob::clear() noexcept
   {
     Sync::PosixGuard guard(mutex());
     messages_.clear();
@@ -307,7 +302,7 @@ namespace Generics
   {
   }
 
-  Planner::~Planner() throw ()
+  Planner::~Planner() noexcept
   {
   }
 }

@@ -293,31 +293,31 @@ class Aggregator :
 public:
   virtual void
   on_data_ready(int fd, std::size_t fd_index,
-    const char* str, std::size_t size) throw ();
+    const char* str, std::size_t size) noexcept;
 
   virtual void
   report_error(Severity severity, const String::SubString& description,
-    const char* error_code = 0) throw ();
+    const char* error_code = 0) noexcept;
 
   std::string
   buffer(int index) /*throw (eh::Exception)*/;
 
 protected:
   virtual
-  ~Aggregator() throw ();
+  ~Aggregator() noexcept;
 
 private:
   std::map<int, std::string> buffers_;
 };
 typedef ReferenceCounting::QualPtr<Aggregator> Aggregator_var;
 
-Aggregator::~Aggregator() throw ()
+Aggregator::~Aggregator() noexcept
 {
 }
 
 void
 Aggregator::on_data_ready(int /*fd*/, std::size_t fd_index,
-  const char* str, std::size_t size) throw ()
+  const char* str, std::size_t size) noexcept
 {
   buffers_[fd_index].append(str, size);
 }
@@ -325,7 +325,7 @@ Aggregator::on_data_ready(int /*fd*/, std::size_t fd_index,
 void
 Aggregator::report_error(Severity /*severity*/,
   const String::SubString& description,
-  const char* /*error_code*/) throw ()
+  const char* /*error_code*/) noexcept
 {
   std::cerr << description << std::endl;
 }
@@ -371,7 +371,7 @@ pipes_test() /*throw (eh::Exception)*/
   pipe_test("/bin/no_such_file", 0, 0, "", "", "execvp failed for");
 }
 
-MTAdapter::MTAdapter(const char* progname) throw ()
+MTAdapter::MTAdapter(const char* progname) noexcept
   : progname(progname)
 {
 }
@@ -385,7 +385,7 @@ MTAdapter::operator ()() /*throw (eh::Exception)*/
 
 
 MPAdapter::MPAdapter(const char* progname, int threads, time_t interval,
-  int limit) throw ()
+  int limit) noexcept
   : progname(progname), threads(threads), interval(interval), limit(limit)
 {
 }
@@ -454,7 +454,7 @@ TestTasker::TestTasker() /*throw (eh::Exception)*/
 {
 }
 
-TestTasker::~TestTasker() throw ()
+TestTasker::~TestTasker() noexcept
 {
 }
 
@@ -485,7 +485,7 @@ TestTasker::spawn_descriptors_(Descriptors& read_descriptors,
 // class Writer
 //
 
-Writer::Writer(Descriptors& dscs, const char* msg) throw ()
+Writer::Writer(Descriptors& dscs, const char* msg) noexcept
   : write_pipes_(dscs),
     MSG_(msg),
     multiplexor_(0)
@@ -512,7 +512,7 @@ Writer::operator()() /*throw (eh::Exception)*/
 }
 
 void
-Writer::reset() throw ()
+Writer::reset() noexcept
 {
   multiplexor_ = 0;
 }
@@ -522,7 +522,7 @@ Writer::reset() throw ()
 //
 
 DescriptorListenerCallbackTester::DescriptorListenerCallbackTester()
-  throw ()
+  noexcept
   : close_counter_(0),
     checking_descriptor_(0),
     full_lines_test_(0)
@@ -532,7 +532,7 @@ DescriptorListenerCallbackTester::DescriptorListenerCallbackTester()
 void
 DescriptorListenerCallbackTester::on_data_ready(
   int fd, std::size_t /*fd_index*/, const char* str,
-  std::size_t size) throw ()
+  std::size_t size) noexcept
 {
   {
     Sync::PosixGuard lock(mutex_);
@@ -567,14 +567,14 @@ DescriptorListenerCallbackTester::on_data_ready(
 
 void
 DescriptorListenerCallbackTester::on_closed(int fd, std::size_t /*fd_index*/,
-  int error) throw ()
+  int error) noexcept
 {
   __gnu_cxx::__atomic_add(&close_counter_, 1);
   std::cout << "on_closed: " << error << " fd=" << fd << std::endl;
 }
 
 void
-DescriptorListenerCallbackTester::on_all_closed() throw ()
+DescriptorListenerCallbackTester::on_all_closed() noexcept
 {
   std::cout << "Deactivation by callback.." << std::endl;
   Generics::ActiveDescriptorListenerCallback::on_all_closed();
@@ -584,13 +584,13 @@ DescriptorListenerCallbackTester::on_all_closed() throw ()
 void
 DescriptorListenerCallbackTester::report_error(Severity /*severity*/,
   const String::SubString& /*description*/,
-  const char* /*error_code*/) throw ()
+  const char* /*error_code*/) noexcept
 {
   std::cerr << "on_error: " << std::endl;
 }
 
 std::size_t
-DescriptorListenerCallbackTester::get_and_reset_closed() throw ()
+DescriptorListenerCallbackTester::get_and_reset_closed() noexcept
 {
   std::size_t old = close_counter_;
   close_counter_ = 0;
@@ -598,13 +598,13 @@ DescriptorListenerCallbackTester::get_and_reset_closed() throw ()
 }
 
 std::string
-DescriptorListenerCallbackTester::received_data() const throw ()
+DescriptorListenerCallbackTester::received_data() const noexcept
 {
   return ready_data_;
 }
 
 void
-DescriptorListenerCallbackTester::reset() throw ()
+DescriptorListenerCallbackTester::reset() noexcept
 {
   ready_data_.clear();
   close_counter_ = 0;
@@ -613,11 +613,11 @@ DescriptorListenerCallbackTester::reset() throw ()
 }
 
 void
-DescriptorListenerCallbackTester::set_full_lines_test(bool new_value) throw ()
+DescriptorListenerCallbackTester::set_full_lines_test(bool new_value) noexcept
 {
   full_lines_test_ = new_value;
 }
 
-DescriptorListenerCallbackTester::~DescriptorListenerCallbackTester() throw ()
+DescriptorListenerCallbackTester::~DescriptorListenerCallbackTester() noexcept
 {
 }

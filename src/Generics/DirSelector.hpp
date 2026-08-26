@@ -1,5 +1,4 @@
-#ifndef GENERICS_DIRSELECTOR_HPP
-#define GENERICS_DIRSELECTOR_HPP
+#pragma once
 
 #include <dirent.h>
 #include <fnmatch.h>
@@ -98,7 +97,7 @@ namespace Generics
        * to the functor
        */
       FunctorWrapper(Functor& predicate, bool file_name_only, bool result)
-        throw ();
+        noexcept;
 
       /**
        * Executes user-specified functor
@@ -127,7 +126,7 @@ namespace Generics
     template <typename Functor>
     FunctorWrapper<Functor>
     wrap_functor(Functor& functor,
-      bool file_name_only = false, bool result = true) throw ();
+      bool file_name_only = false, bool result = true) noexcept;
 
     /**
      * Helper function returning file name from the full path
@@ -135,7 +134,7 @@ namespace Generics
      * @return file name part of the path
      */
     const char*
-    file_name(const char* full_path) throw ();
+    file_name(const char* full_path) noexcept;
 
     /**
      * Default handler for opendir(2) fail
@@ -239,7 +238,7 @@ namespace Generics
        */
       explicit
       ListCreator(Iterator iterator)
-        throw ();
+        noexcept;
 
       /*
        * Adds another full file name to the container
@@ -287,7 +286,7 @@ namespace Generics
 
     inline
     const char*
-    file_name(const char* full_path) throw ()
+    file_name(const char* full_path) noexcept
     {
       const char* ptr = strrchr(full_path, '/');
       return ptr ? ptr + 1 : full_path;
@@ -297,7 +296,7 @@ namespace Generics
     inline
     FunctorWrapper<Functor>::FunctorWrapper(
       Functor& functor, bool file_name_only, bool result)
-      throw ()
+      noexcept
       : functor_(functor), file_name_only_(file_name_only),
         result_(result)
     {
@@ -316,7 +315,7 @@ namespace Generics
     template <typename Functor>
     FunctorWrapper<Functor>
     wrap_functor(Functor& functor,
-      bool file_name_only, bool result) throw ()
+      bool file_name_only, bool result) noexcept
     {
       return FunctorWrapper<Functor>(functor, file_name_only, result);
     }
@@ -346,24 +345,24 @@ namespace Generics
       class DirPtr : private Uncopyable
       {
       public:
-        DirPtr(const char* path) throw ();
-        ~DirPtr() throw ();
+        DirPtr(const char* path) noexcept;
+        ~DirPtr() noexcept;
 
         DIR*
-        get() const throw ();
+        get() const noexcept;
 
       private:
         DIR* dir;
       };
 
       inline
-      DirPtr::DirPtr(const char* path) throw ()
+      DirPtr::DirPtr(const char* path) noexcept
       {
         dir = opendir(path);
       }
 
       inline
-      DirPtr::~DirPtr() throw ()
+      DirPtr::~DirPtr() noexcept
       {
         if (dir)
         {
@@ -373,7 +372,7 @@ namespace Generics
 
       inline
       DIR*
-      DirPtr::get() const throw ()
+      DirPtr::get() const noexcept
       {
         return dir;
       }
@@ -507,7 +506,7 @@ namespace Generics
      * ListCreator class
      */
     template <typename Iterator>
-    ListCreator<Iterator>::ListCreator(Iterator iterator) throw ()
+    ListCreator<Iterator>::ListCreator(Iterator iterator) noexcept
       : iterator_(iterator)
     {
     }
@@ -531,5 +530,3 @@ namespace Generics
     }
   }
 }
-
-#endif

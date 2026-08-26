@@ -15,7 +15,7 @@ namespace Generics
   {
     bool
     memory_status(unsigned long& vsize, unsigned long& rss)
-      throw ()
+      noexcept
     {
       char buf[1024];
       {
@@ -48,7 +48,7 @@ namespace Generics
 
     void
     backtrace(char* buf, size_t size, size_t from, size_t to)
-      throw ()
+      noexcept
     {
       if (!size)
       {

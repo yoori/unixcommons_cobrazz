@@ -1,5 +1,4 @@
-#ifndef CORBA_CORBACOMMONS_STATSIMPL_HPP
-#define CORBA_CORBACOMMONS_STATSIMPL_HPP
+#pragma once
 
 #include <CORBACommons/Stats_s.hpp>
 
@@ -49,7 +48,7 @@ namespace CORBACommons
     {
     public:
       explicit
-      AnyConverter(CORBA::Any& any) throw ();
+      AnyConverter(CORBA::Any& any) noexcept;
 
       template <typename Type>
       void
@@ -75,7 +74,7 @@ namespace CORBACommons
     {
     public:
       explicit
-      AllConverter(StatsValueSeq& seq) throw ();
+      AllConverter(StatsValueSeq& seq) noexcept;
 
       void
       operator ()(size_t size) /*throw (eh::Exception)*/;
@@ -97,7 +96,7 @@ namespace CORBACommons
   {
   public:
     explicit
-    ProcessStatsGen(Values* stats) throw ();
+    ProcessStatsGen(Values* stats) noexcept;
 
     virtual
     StatsValueSeq*
@@ -106,14 +105,14 @@ namespace CORBACommons
         CORBACommons::ProcessStatsControl::ImplementationException)*/;
 
     Values&
-    stats() throw ();
+    stats() noexcept;
 
   protected:
     /**
      * Destructor
      */
     virtual
-    ~ProcessStatsGen() throw () = default;
+    ~ProcessStatsGen() noexcept = default;
 
   private:
     ::ReferenceCounting::FixedPtr<Values> stats_;
@@ -136,7 +135,7 @@ namespace CORBACommons
   //
 
   inline
-  ValuesConverter::AnyConverter::AnyConverter(CORBA::Any& any) throw ()
+  ValuesConverter::AnyConverter::AnyConverter(CORBA::Any& any) noexcept
     : any_(any)
   {
   }
@@ -181,7 +180,7 @@ namespace CORBACommons
   //
 
   inline
-  ValuesConverter::AllConverter::AllConverter(StatsValueSeq& seq) throw ()
+  ValuesConverter::AllConverter::AllConverter(StatsValueSeq& seq) noexcept
     : seq_(seq), index_(0)
   {
   }
@@ -273,14 +272,14 @@ namespace CORBACommons
   //
 
   template <typename Values>
-  ProcessStatsGen<Values>::ProcessStatsGen(Values* stats) throw ()
+  ProcessStatsGen<Values>::ProcessStatsGen(Values* stats) noexcept
     : stats_(::ReferenceCounting::add_ref(stats))
   {
   }
 
   template <typename Values>
   Values&
-  ProcessStatsGen<Values>::stats() throw ()
+  ProcessStatsGen<Values>::stats() noexcept
   {
     return *stats_;
   }
@@ -294,5 +293,3 @@ namespace CORBACommons
     return ValuesConverter::get_stats(*stats_);
   }
 }
-
-#endif

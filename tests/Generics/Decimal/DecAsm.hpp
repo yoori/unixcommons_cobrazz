@@ -1,11 +1,10 @@
-#ifndef DECASM_HPP
-#define DECASM_HPP
+#pragma once
 
 static const uint64_t MAX64 = static_cast<uint64_t>(-1);
 
 template <const uint64_t BASE>
 uint64_t
-add64(uint64_t a, uint64_t b, uint64_t& l) throw ()
+add64(uint64_t a, uint64_t b, uint64_t& l) noexcept
 {
 #ifdef __x86_64__
   uint64_t rh, rl;
@@ -38,7 +37,7 @@ add64(uint64_t a, uint64_t b, uint64_t& l) throw ()
 
 template <const uint64_t BASE>
 void
-sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) throw ()
+sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) noexcept
 {
   if (l > lo)
   {
@@ -53,7 +52,7 @@ sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) throw ()
 }
 
 void
-subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) throw ()
+subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) noexcept
 {
   assert(h > sh || (h == sh && l >= sl));
   if (l >= sl)
@@ -69,7 +68,7 @@ subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) throw ()
 }
 
 void
-mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) throw ()
+mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) noexcept
 {
   static const uint64_t MASK = static_cast<uint32_t>(-1);
   l = (a & MASK) * (b & MASK);
@@ -91,7 +90,7 @@ mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) throw ()
 }
 
 void
-divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) throw ()
+divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) noexcept
 {
   assert(h < d);
   q = 0;
@@ -109,7 +108,7 @@ divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) throw ()
 
 template <const uint64_t BASE>
 void
-mul64(uint64_t a, uint64_t b, uint64_t& l, uint64_t& h) throw ()
+mul64(uint64_t a, uint64_t b, uint64_t& l, uint64_t& h) noexcept
 {
 #ifdef __x86_64__
   uint64_t rh, rl;
@@ -205,5 +204,3 @@ div64_unsafe(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r)
   divq(h, l, d, q, r);
 #endif
 }
-
-#endif

@@ -1,10 +1,4 @@
-/**
- * @file   SyncPolicy.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef SYNC_SYNC_POLICY_HPP
-#define SYNC_SYNC_POLICY_HPP
+#pragma once
 
 #include <Sync/PosixLock.hpp>
 
@@ -31,5 +25,3 @@ namespace Sync
       PosixThreadRW;
   }
 }
-
-#endif

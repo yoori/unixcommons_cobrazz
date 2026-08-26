@@ -33,7 +33,7 @@ private:
   public:
     DECLARE_EXCEPTION(CORBAException, eh::DescriptiveException);
 
-    PublicAdaptor(Test& test) throw ();
+    PublicAdaptor(Test& test) noexcept;
     void
     operator ()() /*throw (eh::Exception, CORBAException)*/;
 
@@ -108,7 +108,7 @@ private:
 };
 
 
-Test::PublicAdaptor::PublicAdaptor(Test& test) throw ()
+Test::PublicAdaptor::PublicAdaptor(Test& test) noexcept
   : test_(test)
 {
 }

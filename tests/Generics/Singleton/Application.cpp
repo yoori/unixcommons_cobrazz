@@ -9,16 +9,16 @@
 
 struct Simple
 {
-  Simple() throw ();
-  ~Simple() throw ();
+  Simple() noexcept;
+  ~Simple() noexcept;
 };
 
-Simple::Simple() throw ()
+Simple::Simple() noexcept
 {
   std::cout << "Simple::Simple()" << std::endl;
 }
 
-Simple::~Simple() throw ()
+Simple::~Simple() noexcept
 {
   std::cout << "Simple::~Simple()" << std::endl;
 }
@@ -26,18 +26,18 @@ Simple::~Simple() throw ()
 class RC : public ReferenceCounting::AtomicImpl
 {
 public:
-  RC() throw ();
+  RC() noexcept;
 
 protected:
-  ~RC() throw ();
+  ~RC() noexcept;
 };
 
-RC::RC() throw ()
+RC::RC() noexcept
 {
   std::cout << "RC::RC()" << std::endl;
 }
 
-RC::~RC() throw ()
+RC::~RC() noexcept
 {
   std::cout << "RC::~RC()" << std::endl;
 }
@@ -47,7 +47,7 @@ class ActiveContainer
 public:
   ActiveContainer(const char* kind = "singleton") /*throw (eh::Exception)*/;
   virtual
-  ~ActiveContainer() throw ();
+  ~ActiveContainer() noexcept;
 
 private:
   class Callback :
@@ -57,19 +57,19 @@ private:
   public:
     virtual void
     report_error(Severity severity, const String::SubString& description,
-      const char* error_code = 0) throw ();
+      const char* error_code = 0) noexcept;
 
     virtual
     void
-    on_start() throw ();
+    on_start() noexcept;
 
     virtual
     void
-    on_stop() throw ();
+    on_stop() noexcept;
 
   protected:
     virtual
-    ~Callback() throw ();
+    ~Callback() noexcept;
   };
   const char* const KIND_;
   Generics::Planner_var active_object_;
@@ -84,7 +84,7 @@ ActiveContainer::ActiveContainer(const char* kind) /*throw (eh::Exception)*/
   active_object_->activate_object();
 }
 
-ActiveContainer::~ActiveContainer() throw ()
+ActiveContainer::~ActiveContainer() noexcept
 {
   std::cout << "ActiveContainer::~ActiveContainer() " << KIND_ << std::endl;
   active_object_->deactivate_object();
@@ -92,13 +92,13 @@ ActiveContainer::~ActiveContainer() throw ()
 }
 
 void
-ActiveContainer::Callback::on_start() throw ()
+ActiveContainer::Callback::on_start() noexcept
 {
   std::cout << "Started thread " << pthread_self() << std::endl;
 }
 
 void
-ActiveContainer::Callback::on_stop() throw ()
+ActiveContainer::Callback::on_stop() noexcept
 {
   std::cout << "Stopping thread " << pthread_self() << std::endl;
 }
@@ -106,11 +106,11 @@ ActiveContainer::Callback::on_stop() throw ()
 void
 ActiveContainer::Callback::report_error(Severity /*severity*/,
   const String::SubString& /*description*/,
-  const char* /*error_code*/) throw ()
+  const char* /*error_code*/) noexcept
 {
 }
 
-ActiveContainer::Callback::~Callback() throw ()
+ActiveContainer::Callback::~Callback() noexcept
 {
 }
 

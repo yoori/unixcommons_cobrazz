@@ -3,7 +3,7 @@
 namespace TestCommons
 {
   inline
-  Counter::Counter() throw ()
+  Counter::Counter() noexcept
     : success_(0), failure_(0)
   {
   }
@@ -28,28 +28,28 @@ namespace TestCommons
 
   inline
   void
-  Counter::success() throw ()
+  Counter::success() noexcept
   {
     ++success_;
   }
 
   inline
   void
-  Counter::failure() throw ()
+  Counter::failure() noexcept
   {
     ++failure_;
   }
 
   inline
   int
-  Counter::succeeded() const throw ()
+  Counter::succeeded() const noexcept
   {
     return success_;
   }
 
   inline
   int
-  Counter::failed() const throw ()
+  Counter::failed() const noexcept
   {
     return failure_;
   }

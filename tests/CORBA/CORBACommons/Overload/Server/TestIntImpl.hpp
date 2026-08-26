@@ -1,5 +1,4 @@
-#ifndef CORBA_COMMONS_TEST_INT_IMPL_HPP
-#define CORBA_COMMONS_TEST_INT_IMPL_HPP
+#pragma once
 
 #include <eh/Exception.hpp>
 #include <Sync/PosixLock.hpp>
@@ -20,29 +19,29 @@ namespace CORBATest
     struct Callback
     {
       virtual
-      ~Callback() throw ()
+      ~Callback() noexcept
       {
       }
       virtual void
-      error(const char*) throw () = 0;
+      error(const char*) noexcept = 0;
     };
 
-    TestIntImpl(int seq3 = 3000, int seq2 = 15, int size = 1000) throw ();
+    TestIntImpl(int seq3 = 3000, int seq2 = 15, int size = 1000) noexcept;
 
     virtual
-    ~TestIntImpl() throw ();
+    ~TestIntImpl() noexcept;
 
     virtual void
-    test(const OctetSeq& in_seq) throw ();
+    test(const OctetSeq& in_seq) noexcept;
 
     virtual void
-    oneway_test(const OctetSeq& in_seq) throw ();
+    oneway_test(const OctetSeq& in_seq) noexcept;
 
     virtual Seq3*
     memory_test() /*throw (eh::Exception)*/;
 
     virtual void
-    print_memory(CORBA::Boolean full) throw ();
+    print_memory(CORBA::Boolean full) noexcept;
 
     volatile _Atomic_word received_requests;
 
@@ -53,5 +52,3 @@ namespace CORBATest
 
   typedef ReferenceCounting::QualPtr<TestIntImpl> TestIntImpl_var;
 }
-
-#endif

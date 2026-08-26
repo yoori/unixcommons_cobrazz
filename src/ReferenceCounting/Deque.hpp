@@ -1,5 +1,4 @@
-#ifndef REFERENCECOUNTING_DEQUE_HPP
-#define REFERENCECOUNTING_DEQUE_HPP
+#pragma once
 
 #include <deque>
 
@@ -54,19 +53,19 @@ namespace ReferenceCounting
     using Base::erase;
     using Base::clear;
 
-    Deque() throw ();
+    Deque() noexcept;
     Deque(size_type n) /*throw (eh::Exception)*/;
     Deque(size_type n, value_type& x) /*throw (eh::Exception)*/;
     Deque(Deque& d) /*throw (eh::Exception)*/;
     Deque(const Deque&) = delete;
-    Deque(Deque&& d) throw ();
+    Deque(Deque&& d) noexcept;
     template <typename InputIterator>
     Deque(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
     Deque&
     operator =(Deque& d) /*throw (eh::Exception)*/;
     Deque&
-    operator =(Deque&& d) throw ();
+    operator =(Deque&& d) noexcept;
 
     void
     assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
@@ -102,10 +101,10 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
     void
-    swap(Deque&& d) throw ();
+    swap(Deque&& d) noexcept;
 #else
     void
-    swap(Deque& d) throw ();
+    swap(Deque& d) noexcept;
 #endif
 
   private:
@@ -117,7 +116,7 @@ namespace ReferenceCounting
 namespace ReferenceCounting
 {
   template <typename T, typename Allocator>
-  Deque<T, Allocator>::Deque() throw ()
+  Deque<T, Allocator>::Deque() noexcept
   {
   }
 
@@ -143,7 +142,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  Deque<T, Allocator>::Deque(Deque&& d) throw ()
+  Deque<T, Allocator>::Deque(Deque&& d) noexcept
     : Base(std::move(d))
   {
   }
@@ -166,7 +165,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   Deque<T, Allocator>&
-  Deque<T, Allocator>::operator =(Deque&& d) throw ()
+  Deque<T, Allocator>::operator =(Deque&& d) noexcept
   {
     Base::operator =(std::move(d));
     return *this;
@@ -348,14 +347,14 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  Deque<T, Allocator>::swap(Deque&& d) throw ()
+  Deque<T, Allocator>::swap(Deque&& d) noexcept
   {
     Base::swap(std::move(d));
   }
 #else
   template <typename T, typename Allocator>
   void
-  Deque<T, Allocator>::swap(Deque& d) throw ()
+  Deque<T, Allocator>::swap(Deque& d) noexcept
   {
     Base::swap(d);
   }
@@ -380,7 +379,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   void
-  swap(Deque<T, Allocator>& x, Deque<T, Allocator>& y) throw ()
+  swap(Deque<T, Allocator>& x, Deque<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
@@ -388,18 +387,16 @@ namespace ReferenceCounting
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
   void
-  swap(Deque<T, Allocator>&& x, Deque<T, Allocator>& y) throw ()
+  swap(Deque<T, Allocator>&& x, Deque<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
   void
-  swap(Deque<T, Allocator>& x, Deque<T, Allocator>&& y) throw ()
+  swap(Deque<T, Allocator>& x, Deque<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }
 #endif
 }
-
-#endif

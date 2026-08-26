@@ -1,8 +1,3 @@
-/**
- * @file   Statistics.cpp
- * @author Karen Aroutiounov
- */
-
 #include <Generics/Statistics.hpp>
 
 
@@ -27,7 +22,7 @@ namespace Generics
     {
     }
 
-    Collection::~Collection() throw ()
+    Collection::~Collection() noexcept
     {
       items_.clear();
     }

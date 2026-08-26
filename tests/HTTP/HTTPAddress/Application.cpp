@@ -25,9 +25,9 @@ struct HTTPAddressInfo
 class HTTPAddressTest
 {
 public:
-  HTTPAddressTest() throw ();
+  HTTPAddressTest() noexcept;
   int
-  main(int argc, char** argv) throw ();
+  main(int argc, char** argv) noexcept;
 
 private:
   void
@@ -109,7 +109,7 @@ const HTTPAddressInfo HTTPAddressTest::test_cases[]=
     false, "", "a.com", 0, "/", "", "" },
 };
 
-HTTPAddressTest::HTTPAddressTest() throw ()
+HTTPAddressTest::HTTPAddressTest() noexcept
   : strict_(false)
 {
 }
@@ -313,7 +313,7 @@ HTTPAddressTest::run_tests(bool strct) /*throw (eh::Exception)*/
 
 
 int
-HTTPAddressTest::main(int argc, char** argv) throw ()
+HTTPAddressTest::main(int argc, char** argv) noexcept
 {
   int ret_value = 0;
   try

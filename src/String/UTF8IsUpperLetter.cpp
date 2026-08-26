@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
 // Static N-arc tree definition for is_letter_upper property
 
-// @file String/UTF8IsUpperLetter.cpp
 #include <String/UTF8IsProperty.hpp>
 
 

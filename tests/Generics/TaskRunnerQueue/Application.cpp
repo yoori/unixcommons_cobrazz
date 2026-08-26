@@ -8,11 +8,11 @@ const Generics::Time TINFINITY(Generics::Time::get_time_of_day() + 100000);
 class TestTask1s : public Generics::TaskImpl
 {
   virtual void
-  execute() throw ();
+  execute() noexcept;
 };
 
 void
-TestTask1s::execute() throw ()
+TestTask1s::execute() noexcept
 {
   sleep(1);
   std::cout << "task1s done" << std::endl;

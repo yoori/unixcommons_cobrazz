@@ -10,11 +10,11 @@ using namespace Generics;
 class TestEmptyTask : public Generics::TaskImpl
 {
   virtual void
-  execute() throw ();
+  execute() noexcept;
 };
 
 void
-TestEmptyTask::execute() throw ()
+TestEmptyTask::execute() noexcept
 {
   // empty task
 }
@@ -30,7 +30,7 @@ struct TasksSpreader
   operator()() /*throw (eh::Exception)*/;
 
   std::size_t
-  get_count() const throw ();
+  get_count() const noexcept;
 
 private:
   Generics::TaskRunner_var task_runner_;
@@ -57,7 +57,7 @@ TasksSpreader::operator()() /*throw (eh::Exception)*/
 }
 
 std::size_t
-TasksSpreader::get_count() const throw ()
+TasksSpreader::get_count() const noexcept
 {
   return tasks_counter_;
 }

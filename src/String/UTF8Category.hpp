@@ -1,6 +1,4 @@
-// @file String/UTF8Category.hpp
-#ifndef STRING_UTF8_CATEGORY_HPP
-#define STRING_UTF8_CATEGORY_HPP
+#pragma once
 
 #include <String/UTF8NArcTree.hpp>
 
@@ -88,14 +86,14 @@ namespace String
     /**
      * Destructor
      */
-    ~Utf8Category() throw ();
+    ~Utf8Category() noexcept;
 
     /**
      * Swaps this and passed category content in a safe way
      * @param category another object to swap content with
      */
     void
-    swap(Utf8Category& category) throw ();
+    swap(Utf8Category& category) noexcept;
 
     /**
      * Checks if a symbol is in the set
@@ -103,7 +101,7 @@ namespace String
      * @return Presence of the symbol in the set
      */
     bool
-    is_owned(const char* str) const throw ();
+    is_owned(const char* str) const noexcept;
 
     /**
      * Functor-compatible way to call is_owned
@@ -111,7 +109,7 @@ namespace String
      * @return The same as in is_owned
      */
     bool
-    operator ()(const char* str) const throw ();
+    operator ()(const char* str) const noexcept;
 
     /**
      * Finds the first symbol in the string which belongs to the set
@@ -122,7 +120,7 @@ namespace String
      * pseudo-UTF-8 symbol
      */
     const char*
-    find_owned(const char* str, unsigned long* octets = 0) const throw ();
+    find_owned(const char* str, unsigned long* octets = 0) const noexcept;
 
     /**
      * Finds the first symbol in the string which belongs to the set
@@ -135,7 +133,7 @@ namespace String
      */
     const char*
     find_owned(const char* begin, const char* end,
-      unsigned long* octets = 0) const throw ();
+      unsigned long* octets = 0) const noexcept;
 
     /**
      * Finds the first symbol in the string which doesn't belong to the set
@@ -147,7 +145,7 @@ namespace String
      */
     const char*
     find_nonowned(const char* str, unsigned long* octets = 0) const
-      throw ();
+      noexcept;
 
     /**
      * Finds the first symbol in the string which does not belong to the set
@@ -160,7 +158,7 @@ namespace String
      */
     const char*
     find_nonowned(const char* begin, const char* end,
-      unsigned long* octets = 0) const throw ();
+      unsigned long* octets = 0) const noexcept;
 
     /**
      * Finds the last symbol in the string which belongs to the set
@@ -174,7 +172,7 @@ namespace String
      */
     const char*
     rfind_owned(const char* pos, const char* start,
-      unsigned long* octets = 0) const throw ();
+      unsigned long* octets = 0) const noexcept;
 
     /**
      * Finds the last symbol in the string which does not belong to the set
@@ -188,7 +186,7 @@ namespace String
      */
     const char*
     rfind_nonowned(const char* pos, const char* start,
-      unsigned long* octets = 0) const throw ();
+      unsigned long* octets = 0) const noexcept;
 
   protected:
     /**
@@ -197,14 +195,14 @@ namespace String
      * Utf8Category.
      */
     const UnicodeProperty::TreeStartNode&
-    get_container_() const throw ();
+    get_container_() const noexcept;
 
   private:
     void
-    clear_() throw ();
+    clear_() noexcept;
 
     void
-    clear_(const UnicodeProperty::Node* node, unsigned long depth) throw ();
+    clear_(const UnicodeProperty::Node* node, unsigned long depth) noexcept;
 
     void
     init_(const Utf8Set::Utf8Chars& chars) /*throw (eh::Exception)*/;
@@ -254,24 +252,22 @@ namespace String
 
   inline
   bool
-  Utf8Category::is_owned(const char* str) const throw ()
+  Utf8Category::is_owned(const char* str) const noexcept
   {
     return UnicodeProperty::belong(get_container_(), str);
   }
 
   inline
   bool
-  Utf8Category::operator ()(const char* str) const throw ()
+  Utf8Category::operator ()(const char* str) const noexcept
   {
     return is_owned(str);
   }
 
   inline
   const UnicodeProperty::TreeStartNode&
-  Utf8Category::get_container_() const throw ()
+  Utf8Category::get_container_() const noexcept
   {
     return nodes_;
   }
 }
-
-#endif

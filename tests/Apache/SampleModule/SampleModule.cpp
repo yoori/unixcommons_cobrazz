@@ -15,19 +15,19 @@ TestModule::TestModule() /*throw (eh::Exception)*/
   add_directive("TestTake12", OR_OPTIONS, TAKE12, "TestTake12");
 }
 
-TestModule::~TestModule() throw ()
+TestModule::~TestModule() noexcept
 {
 }
 
 int
-TestModule::handler(request_rec* r) throw ()
+TestModule::handler(request_rec* r) noexcept
 {
   ap_rprintf(r, "You requested %s", r->uri);
   return OK;
 }
 
 const char*
-TestModule::handle_command(const ConfigArgs& args) throw ()
+TestModule::handle_command(const ConfigArgs& args) noexcept
 {
   try
   {
@@ -101,14 +101,14 @@ TestModule::handle_command(const ConfigArgs& args) throw ()
 }
 
 bool
-TestModule::will_handle(const char*) throw ()
+TestModule::will_handle(const char*) noexcept
 {
   return true;
 }
 
 int
 TestModule::handle_request(const Apache::HttpRequest& request,
-  Apache::HttpResponse& response) throw ()
+  Apache::HttpResponse& response) noexcept
 {
   try
   {
@@ -139,7 +139,7 @@ TestModule::handle_request(const Apache::HttpRequest& request,
 }
 
 void
-TestModule::init() throw ()
+TestModule::init() noexcept
 {
   try
   {
@@ -151,7 +151,7 @@ TestModule::init() throw ()
 }
 
 void
-TestModule::shutdown() throw ()
+TestModule::shutdown() noexcept
 {
   try
   {

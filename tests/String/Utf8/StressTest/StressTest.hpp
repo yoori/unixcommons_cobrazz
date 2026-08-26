@@ -1,3 +1,5 @@
+#pragma once
+
 namespace
 {
   std::string root_path;
@@ -70,4 +72,3 @@ namespace
   };
 
 } // namespace
-

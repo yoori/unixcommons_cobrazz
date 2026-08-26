@@ -1,10 +1,4 @@
-/**
- * @file   CORBACommons/ObjectPool.hpp
- * @author Ivan Vigasin <ivan@ocslab.com>
- */
-
-#ifndef CORBA_COMMONS_OBJECT_POOL_HPP
-#define CORBA_COMMONS_OBJECT_POOL_HPP
+#pragma once
 
 #include <deque>
 //#include <cassert>
@@ -36,23 +30,23 @@ namespace CORBACommons
     typedef ObjectPlainVar _obj_type;
 
     template <typename... Args>
-    ObjectPlainVar(Args... data) throw ();
+    ObjectPlainVar(Args... data) noexcept;
 
     T*
-    operator ->() throw ();
+    operator ->() noexcept;
     T&
-    operator *() throw ();
+    operator *() noexcept;
     T
-    _retn() throw ();
+    _retn() noexcept;
     bool
-    operator ==(const ObjectPlainVar& p) const throw ();
+    operator ==(const ObjectPlainVar& p) const noexcept;
 
     static
     T
-    _nil() throw ();
+    _nil() noexcept;
     static
     T
-    _duplicate(ObjectPlainVar& ref) throw ();
+    _duplicate(ObjectPlainVar& ref) noexcept;
 
   private:
     T data_;
@@ -86,25 +80,25 @@ namespace CORBACommons
   public:
     typedef typename ObjectPoolType::Object Object;
 
-    ~ObjectHandler() throw ();
+    ~ObjectHandler() noexcept;
 
     ObjectHandler&
     operator =(ObjectHandler&& src) /*throw (eh::Exception)*/;
 
     Object&
-    operator *() throw ();
+    operator *() noexcept;
 
     const Object&
-    operator *() const throw ();
+    operator *() const noexcept;
 
     Object*
-    operator ->() throw ();
+    operator ->() noexcept;
 
     const Object*
-    operator ->() const throw ();
+    operator ->() const noexcept;
 
     void
-    release() throw ();
+    release() noexcept;
 
     /**
      * Release object to pool and set his state to bad.
@@ -113,15 +107,15 @@ namespace CORBACommons
      */
     void
     release_bad(const String::SubString& dsc = String::SubString())
-      throw ();
+      noexcept;
 
-    ObjectHandler(ObjectHandler&& src) throw ();
+    ObjectHandler(ObjectHandler&& src) noexcept;
 
   protected:
-    ObjectHandler() throw ();
+    ObjectHandler() noexcept;
     template <typename D>
     ObjectHandler(D&& p_object, ObjectPoolType* pool)
-      throw ();
+      noexcept;
 
   private:
     typename ObjectPoolType::ObjectRef p_object_;
@@ -146,7 +140,7 @@ namespace CORBACommons
      */
     template <typename Conf, typename Pool>
     Pool*
-    do_resolve(Conf* ptr, Pool* dummy) throw ();
+    do_resolve(Conf* ptr, Pool* dummy) noexcept;
 
     /**
      * Call to try DOWN cast
@@ -155,7 +149,7 @@ namespace CORBACommons
      */
     template <typename Conf, typename Pool>
     Pool*
-    do_resolve(Conf* ptr, ...) throw ();
+    do_resolve(Conf* ptr, ...) noexcept;
   }
 
 
@@ -167,13 +161,13 @@ namespace CORBACommons
   {
     typedef Ref ObjectRef;
 
-    ObjectPoolConfiguration() throw ();
+    ObjectPoolConfiguration() noexcept;
 
     struct RefAndNumber
     {
       explicit
-      RefAndNumber(T* ior, int count = 0) throw ();
-      RefAndNumber(const T& ior, int count = 0) throw ();
+      RefAndNumber(T* ior, int count = 0) noexcept;
+      RefAndNumber(const T& ior, int count = 0) noexcept;
 
       ObjectRef ior;
       int count;
@@ -183,7 +177,7 @@ namespace CORBACommons
     {
       template <typename Pool>
       Pool*
-      resolve(const ObjectRef& ref) throw ();
+      resolve(const ObjectRef& ref) noexcept;
     };
 
     typedef std::deque<RefAndNumber> References;
@@ -205,14 +199,14 @@ namespace CORBACommons
   public:
     explicit
     ObjectPoolRefConfiguration(
-      const CorbaClientAdapter* corba_client_adapter) throw ();
+      const CorbaClientAdapter* corba_client_adapter) noexcept;
 
     struct Resolver
     {
       DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
       explicit
-      Resolver(const CorbaClientAdapter* corba_client_adapter) throw ();
+      Resolver(const CorbaClientAdapter* corba_client_adapter) noexcept;
 
       template <typename Pool>
       Pool*
@@ -315,7 +309,7 @@ namespace CORBACommons
 
     struct ConnData
     {
-      ConnData(typename Conf::ObjectRef object_ref, int use_max) throw ();
+      ConnData(typename Conf::ObjectRef object_ref, int use_max) noexcept;
 
       Sync::PosixMutex obj_lock;
       typename Conf::ObjectRef object_ref;
@@ -338,12 +332,12 @@ namespace CORBACommons
     Objects objects_;
 
     ConnData&
-    get_conndata_(ObjectRef& t) throw ();
+    get_conndata_(ObjectRef& t) noexcept;
 
     void
     release_object_(ConnData& conn_data,
       const String::SubString& bad_dsc)
-      throw ();
+      noexcept;
 
     /**
      * @param object object to be released
@@ -353,7 +347,7 @@ namespace CORBACommons
     void
     release_object_(ObjectRef& object,
       const String::SubString& bad_dsc = String::SubString())
-      throw ();
+      noexcept;
 
     typedef Sync::PosixMutex Mutex;
     typedef Sync::PosixGuard Guard;
@@ -381,7 +375,7 @@ namespace CORBACommons
   {
   public:
     explicit
-    ChoosePolicy(ObjectPool& pool) throw ();
+    ChoosePolicy(ObjectPool& pool) noexcept;
 
     virtual
     ConnData&
@@ -395,7 +389,7 @@ namespace CORBACommons
      * @return true if conn is good
      */
     bool
-    soft_suitable(const ConnData& conn) const throw ();
+    soft_suitable(const ConnData& conn) const noexcept;
 
     /**
      * Get parameters of usage
@@ -404,7 +398,7 @@ namespace CORBACommons
      * @return true if conn is good
      */
     bool
-    usable(const ConnData& conn, bool& busy) const throw ();
+    usable(const ConnData& conn, bool& busy) const noexcept;
 
     /**
      * Find next (in cycle) soft usable object
@@ -427,7 +421,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~ChoosePolicy() throw () = default;
+    ~ChoosePolicy() noexcept = default;
 
     ObjectPool& pool_;
   };
@@ -446,7 +440,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~LoopPolicy() throw () = default;
+    ~LoopPolicy() noexcept = default;
 
     typename Objects::iterator last_object_;
   };
@@ -469,11 +463,11 @@ namespace CORBACommons
      * @return true, if object can be return as valid
      */
     bool
-    hard_suitable(const ConnData& conn) const throw ();
+    hard_suitable(const ConnData& conn) const noexcept;
 
   protected:
     virtual
-    ~SwitchOnBadPolicy() throw () = default;
+    ~SwitchOnBadPolicy() noexcept = default;
   };
 
   template <class T, class Conf, class TVar, const bool RERESOLVE>
@@ -490,7 +484,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~RandPolicy() throw () = default;
+    ~RandPolicy() noexcept = default;
   };
 
   template <class T, class Conf, class TVar, const bool RERESOLVE>
@@ -507,7 +501,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~PersistentPolicy() throw () = default;
+    ~PersistentPolicy() noexcept = default;
   };
 
   template <class T, class Conf, class TVar, const bool RERESOLVE>
@@ -524,7 +518,7 @@ namespace CORBACommons
 
   protected:
     virtual
-    ~PrecisePolicy() throw () = default;
+    ~PrecisePolicy() noexcept = default;
   };
 
 } // namespace ObjectPool
@@ -541,28 +535,28 @@ namespace CORBACommons
 
   template <typename T>
   template <typename... Args>
-  ObjectPlainVar<T>::ObjectPlainVar(Args... data) throw ()
+  ObjectPlainVar<T>::ObjectPlainVar(Args... data) noexcept
     : data_(std::forward<Args>(data)...)
   {
   }
 
   template <typename T>
   T*
-  ObjectPlainVar<T>::operator ->() throw ()
+  ObjectPlainVar<T>::operator ->() noexcept
   {
     return &data_;
   }
 
   template <typename T>
   T&
-  ObjectPlainVar<T>::operator *() throw ()
+  ObjectPlainVar<T>::operator *() noexcept
   {
     return data_;
   }
 
   template <typename T>
   T
-  ObjectPlainVar<T>::_retn() throw ()
+  ObjectPlainVar<T>::_retn() noexcept
   {
     T tmp(std::move(data_));
     data_ = _nil();
@@ -571,21 +565,21 @@ namespace CORBACommons
 
   template <typename T>
   bool
-  ObjectPlainVar<T>::operator ==(const ObjectPlainVar& p) const throw ()
+  ObjectPlainVar<T>::operator ==(const ObjectPlainVar& p) const noexcept
   {
     return data_ == p.data_;
   }
 
   template <typename T>
   T
-  ObjectPlainVar<T>::_nil() throw ()
+  ObjectPlainVar<T>::_nil() noexcept
   {
     return T();
   }
 
   template <typename T>
   T
-  ObjectPlainVar<T>::_duplicate(ObjectPlainVar& ptr) throw ()
+  ObjectPlainVar<T>::_duplicate(ObjectPlainVar& ptr) noexcept
   {
     return *ptr;
   }
@@ -596,7 +590,7 @@ namespace CORBACommons
   //
 
   template <class ObjectPool>
-  ObjectHandler<ObjectPool>::ObjectHandler() throw ()
+  ObjectHandler<ObjectPool>::ObjectHandler() noexcept
     : p_object_(), pool_()
   {
   }
@@ -605,21 +599,21 @@ namespace CORBACommons
   template <typename D>
   ObjectHandler<ObjectPool>::ObjectHandler(
     D&& p_object, ObjectPool* pool)
-    throw ()
+    noexcept
     : p_object_(std::forward<D>(p_object)), pool_(pool)
   {
   }
 
   template <class ObjectPool>
   ObjectHandler<ObjectPool>::ObjectHandler(
-    ObjectHandler&& src) throw ()
+    ObjectHandler&& src) noexcept
     : p_object_(src.p_object_._retn()), pool_(src.pool_)
   {
     src.pool_ = 0;
   }
 
   template <class ObjectPool>
-  ObjectHandler<ObjectPool>::~ObjectHandler() throw ()
+  ObjectHandler<ObjectPool>::~ObjectHandler() noexcept
   {
     release();
   }
@@ -643,35 +637,35 @@ namespace CORBACommons
 
   template <class ObjectPool>
   typename ObjectPool::Object&
-  ObjectHandler<ObjectPool>::operator *() throw ()
+  ObjectHandler<ObjectPool>::operator *() noexcept
   {
     return *p_object_;
   }
 
   template <class ObjectPool>
   const typename ObjectPool::Object&
-  ObjectHandler<ObjectPool>::operator *() const throw ()
+  ObjectHandler<ObjectPool>::operator *() const noexcept
   {
     return *p_object_;
   }
 
   template <class ObjectPool>
   typename ObjectPool::Object*
-  ObjectHandler<ObjectPool>::operator ->() throw ()
+  ObjectHandler<ObjectPool>::operator ->() noexcept
   {
     return p_object_;
   }
 
   template <class ObjectPool>
   const typename ObjectPool::Object*
-  ObjectHandler<ObjectPool>::operator ->() const throw ()
+  ObjectHandler<ObjectPool>::operator ->() const noexcept
   {
     return p_object_;
   }
 
   template <class ObjectPool>
   void
-  ObjectHandler<ObjectPool>::release() throw ()
+  ObjectHandler<ObjectPool>::release() noexcept
   {
     if (pool_)
     {
@@ -684,7 +678,7 @@ namespace CORBACommons
   template <class ObjectPool>
   void
   ObjectHandler<ObjectPool>::release_bad(const String::SubString& dsc)
-    throw ()
+    noexcept
   {
     if (pool_)
     {
@@ -699,14 +693,14 @@ namespace CORBACommons
   {
     template <typename Conf, typename Pool>
     Pool*
-    do_resolve(Conf* ptr, Pool*) throw ()
+    do_resolve(Conf* ptr, Pool*) noexcept
     {
       return Pool::_duplicate(ptr);
     }
 
     template <typename Conf, typename Pool>
     Pool*
-    do_resolve(Conf* ptr, ...) throw ()
+    do_resolve(Conf* ptr, ...) noexcept
     {
       return Pool::_narrow(ptr);
     }
@@ -720,14 +714,14 @@ namespace CORBACommons
   template <class T, typename Ref>
   ObjectPoolConfiguration<T, Ref>::RefAndNumber::RefAndNumber(
     T* ior, int count)
-    throw ()
+    noexcept
     : ior(T::_duplicate(ior)), count(count)
   {
   }
 
   template <class T, typename Ref>
   ObjectPoolConfiguration<T, Ref>::RefAndNumber::RefAndNumber(
-    const T& ior, int count) throw ()
+    const T& ior, int count) noexcept
     : ior(ior), count(count)
   {
   }
@@ -741,7 +735,7 @@ namespace CORBACommons
   template <typename Pool>
   Pool*
   ObjectPoolConfiguration<T, Ref>::Resolver::resolve(const ObjectRef& ref)
-    throw ()
+    noexcept
   {
     return ResolveHelper::do_resolve<T, Pool>(ref.in(), ref.in());
   }
@@ -752,7 +746,7 @@ namespace CORBACommons
   //
 
   template <class T, typename Ref>
-  ObjectPoolConfiguration<T, Ref>::ObjectPoolConfiguration() throw ()
+  ObjectPoolConfiguration<T, Ref>::ObjectPoolConfiguration() noexcept
     : object_once(true), all_bad_no_wait(false)
   {
   }
@@ -764,7 +758,7 @@ namespace CORBACommons
 
   inline
   ObjectPoolRefConfiguration::ObjectPoolRefConfiguration(
-    const CorbaClientAdapter* corba_client_adapter) throw ()
+    const CorbaClientAdapter* corba_client_adapter) noexcept
     : resolver(corba_client_adapter)
   {
   }
@@ -777,7 +771,7 @@ namespace CORBACommons
   inline
   ObjectPoolRefConfiguration::Resolver::Resolver(
     const CorbaClientAdapter* corba_client_adapter)
-    throw ()
+    noexcept
     : corba_client_adapter_(
         ::ReferenceCounting::add_ref(corba_client_adapter))
   {
@@ -820,7 +814,7 @@ namespace CORBACommons
 
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   ObjectPool<T, Conf, TVar, RERESOLVE>::ChoosePolicy::ChoosePolicy(
-    ObjectPool& pool) throw ()
+    ObjectPool& pool) noexcept
     : pool_(pool)
   {
   }
@@ -828,7 +822,7 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   bool
   ObjectPool<T, Conf, TVar, RERESOLVE>::ChoosePolicy::usable(
-    const ConnData& conn, bool& busy) const throw ()
+    const ConnData& conn, bool& busy) const noexcept
   {
     busy = (conn.use_max && conn.use_count >= conn.use_max) ||
       conn.give_once == GO_FIRST;
@@ -838,7 +832,7 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   bool
   ObjectPool<T, Conf, TVar, RERESOLVE>::ChoosePolicy::soft_suitable(
-    const ConnData& conn) const throw ()
+    const ConnData& conn) const noexcept
   {
     bool busy;
     return usable(conn, busy) && !busy;
@@ -919,7 +913,7 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   bool
   ObjectPool<T, Conf, TVar, RERESOLVE>::SwitchOnBadPolicy::hard_suitable(
-    const ConnData& conn) const throw ()
+    const ConnData& conn) const noexcept
   {
     return ChoosePolicy::soft_suitable(conn) && !conn.made_good;
   }
@@ -1008,7 +1002,7 @@ namespace CORBACommons
 
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   ObjectPool<T, Conf, TVar, RERESOLVE>::ConnData::ConnData(
-    typename Conf::ObjectRef object_ref, int use_max) throw ()
+    typename Conf::ObjectRef object_ref, int use_max) noexcept
     : obj_lock(), object_ref(object_ref), object(TVar::_obj_type::_nil()),
       resolve(false), is_bad(false), badness_description(),
       made_good(false), use_count(0), use_max(use_max), give_once(GO_OTHERS)
@@ -1307,7 +1301,7 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   typename ObjectPool<T, Conf, TVar, RERESOLVE>::ConnData&
   ObjectPool<T, Conf, TVar, RERESOLVE>::get_conndata_(ObjectRef& t)
-    throw ()
+    noexcept
   {
     typename Objects::iterator iter = objects_.begin();
     for (; iter != objects_.end(); ++iter)
@@ -1325,7 +1319,7 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   void
   ObjectPool<T, Conf, TVar, RERESOLVE>::release_object_(ConnData& conn_data,
-    const String::SubString& dsc) throw ()
+    const String::SubString& dsc) noexcept
   {
     conn_data.use_count--;
     if (dsc.size())
@@ -1351,11 +1345,9 @@ namespace CORBACommons
   template <class T, class Conf, class TVar, const bool RERESOLVE>
   void
   ObjectPool<T, Conf, TVar, RERESOLVE>::release_object_(ObjectRef& object,
-    const String::SubString& dsc) throw ()
+    const String::SubString& dsc) noexcept
   {
     Guard guard(lock_);
     release_object_(get_conndata_(object), dsc);
   }
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef CHECKCOMMONS_ACTIVEOBJECTCALLBACK_HPP
-#define CHECKCOMMONS_ACTIVEOBJECTCALLBACK_HPP
+#pragma once
 
 #include <Logger/ActiveObjectCallback.hpp>
 #include <Logger/StreamLogger.hpp>
@@ -9,7 +8,7 @@ namespace TestCommons
   struct LoggerHolder
   {
     explicit
-    LoggerHolder(Logging::Logger* logger) throw ();
+    LoggerHolder(Logging::Logger* logger) noexcept;
 
     Logging::FLogger_var logger;
   };
@@ -26,7 +25,7 @@ namespace TestCommons
 
   protected:
     virtual
-    ~ActiveObjectCallbackStreamImpl() throw ();
+    ~ActiveObjectCallbackStreamImpl() noexcept;
   };
 }
 
@@ -37,7 +36,7 @@ namespace TestCommons
   //
 
   inline
-  LoggerHolder::LoggerHolder(Logging::Logger* logger) throw ()
+  LoggerHolder::LoggerHolder(Logging::Logger* logger) noexcept
     : logger(ReferenceCounting::add_ref(logger))
   {
   }
@@ -59,11 +58,7 @@ namespace TestCommons
   }
 
   inline
-  ActiveObjectCallbackStreamImpl::~ActiveObjectCallbackStreamImpl() throw ()
+  ActiveObjectCallbackStreamImpl::~ActiveObjectCallbackStreamImpl() noexcept
   {
   }
 }
-
-#endif
-
-

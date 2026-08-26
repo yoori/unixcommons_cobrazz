@@ -210,7 +210,7 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
 }
 
 Waiter::Waiter(Generics::RefCountableCompositeActiveObject* active_object,
-  bool add_child) throw ()
+  bool add_child) noexcept
   : ACTIVE_OBJECT_(ReferenceCounting::add_ref(active_object)),
     ADD_CHILD_(add_child), order_(0)
 {

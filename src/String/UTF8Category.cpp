@@ -133,7 +133,7 @@ namespace String
     init_(chars);
   }
 
-  Utf8Category::~Utf8Category() throw ()
+  Utf8Category::~Utf8Category() noexcept
   {
     if (need_cleaning_)
     {
@@ -142,7 +142,7 @@ namespace String
   }
 
   void
-  Utf8Category::swap(Utf8Category& category) throw ()
+  Utf8Category::swap(Utf8Category& category) noexcept
   {
     char buf[sizeof(nodes_)];
 
@@ -156,7 +156,7 @@ namespace String
 
   const char*
   Utf8Category::find_owned(const char* str, unsigned long* octets) const
-    throw ()
+    noexcept
   {
     for (;;)
     {
@@ -198,7 +198,7 @@ namespace String
 
   const char*
   Utf8Category::find_owned(const char* begin, const char* end,
-    unsigned long* octets) const throw ()
+    unsigned long* octets) const noexcept
   {
     while (begin < end)
     {
@@ -232,7 +232,7 @@ namespace String
 
   const char*
   Utf8Category::find_nonowned(const char* str, unsigned long* octets) const
-    throw ()
+    noexcept
   {
     for (;;)
     {
@@ -274,7 +274,7 @@ namespace String
 
   const char*
   Utf8Category::find_nonowned(const char* begin, const char* end,
-    unsigned long* octets) const throw ()
+    unsigned long* octets) const noexcept
   {
     while (begin < end)
     {
@@ -308,7 +308,7 @@ namespace String
 
   const char*
   Utf8Category::rfind_owned(const char* pos, const char* start,
-    unsigned long* octets) const throw ()
+    unsigned long* octets) const noexcept
   {
     const char* last_review = pos;
     const char* current = pos;
@@ -340,7 +340,7 @@ namespace String
 
   const char*
   Utf8Category::rfind_nonowned(const char* pos, const char* start,
-    unsigned long* octets) const throw ()
+    unsigned long* octets) const noexcept
   {
     const char* last_review = pos;
     const char* current = pos;
@@ -371,7 +371,7 @@ namespace String
   }
 
   void
-  Utf8Category::clear_() throw ()
+  Utf8Category::clear_() noexcept
   {
     for (int i = 0; i < 256; i++)
     {
@@ -385,7 +385,7 @@ namespace String
 
   void
   Utf8Category::clear_(const UnicodeProperty::Node* node,
-    unsigned long depth) throw ()
+    unsigned long depth) noexcept
   {
     if (!node || node == &UnicodeProperty::TREE_STOP)
     {

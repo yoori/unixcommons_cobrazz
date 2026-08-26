@@ -14,7 +14,7 @@ namespace HTTP::HttpInternals
   // ServerInterface class
   //
 
-  ServerInterface::~ServerInterface() throw ()
+  ServerInterface::~ServerInterface() noexcept
   {
   }
 
@@ -23,7 +23,7 @@ namespace HTTP::HttpInternals
   // ConnServInterface class
   //
 
-  ConnServInterface::~ConnServInterface() throw ()
+  ConnServInterface::~ConnServInterface() noexcept
   {
   }
 
@@ -32,7 +32,7 @@ namespace HTTP::HttpInternals
   // ConnThreadInterface class
   //
 
-  ConnThreadInterface::~ConnThreadInterface() throw ()
+  ConnThreadInterface::~ConnThreadInterface() noexcept
   {
   }
 
@@ -41,7 +41,7 @@ namespace HTTP::HttpInternals
   // ThrPoolThrInterface class
   //
 
-  ThrPoolThrInterface::~ThrPoolThrInterface() throw ()
+  ThrPoolThrInterface::~ThrPoolThrInterface() noexcept
   {
   }
 
@@ -50,7 +50,7 @@ namespace HTTP::HttpInternals
   // RequestsTransfererInterface class
   //
 
-  RequestsTransfererInterface::~RequestsTransfererInterface() throw ()
+  RequestsTransfererInterface::~RequestsTransfererInterface() noexcept
   {
   }
 
@@ -71,12 +71,12 @@ namespace HTTP::HttpInternals
     requests_.splice(requests_.end(), std::move(requests));
   }
 
-  RequestsTransferer::~RequestsTransferer() throw ()
+  RequestsTransferer::~RequestsTransferer() noexcept
   {
   }
 
   void
-  RequestsTransferer::execute() throw ()
+  RequestsTransferer::execute() noexcept
   {
     if (request_)
     {
@@ -117,7 +117,7 @@ namespace HTTP::HttpInternals
     evtimer_set(&try_close_event_, try_close_callback_, this);
   }
 
-  Connection::~Connection() throw ()
+  Connection::~Connection() noexcept
   {
     try
     {
@@ -185,7 +185,7 @@ namespace HTTP::HttpInternals
   }
 
   bool
-  Connection::deactivate() throw ()
+  Connection::deactivate() noexcept
   {
     try
     {
@@ -225,7 +225,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Connection::process_request_(Request_var& request) throw ()
+  Connection::process_request_(Request_var& request) noexcept
   {
     try
     {
@@ -314,7 +314,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Connection::process_close() throw ()
+  Connection::process_close() noexcept
   {
     process_partial_close_();
 
@@ -339,7 +339,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Connection::process_partial_close_() throw ()
+  Connection::process_partial_close_() noexcept
   {
     terminating_ = true;
     serv_interf_->exclude_connection(this);
@@ -358,13 +358,13 @@ namespace HTTP::HttpInternals
 
   void
   Connection::close_callback_(int /*fd*/, short /*type*/, void* arg)
-    throw ()
+    noexcept
   {
     static_cast<Connection*>(arg)->process_close();
   }
 
   void
-  Connection::process_response_(evhttp_request* req) throw ()
+  Connection::process_response_(evhttp_request* req) noexcept
   {
     if (!req)
     {
@@ -466,19 +466,19 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Connection::response_callback_(evhttp_request* req, void* arg) throw ()
+  Connection::response_callback_(evhttp_request* req, void* arg) noexcept
   {
     static_cast<Connection*>(arg)->process_response_(req);
   }
 
   void
-  Connection::try_close_callback_(int, short, void* arg) throw ()
+  Connection::try_close_callback_(int, short, void* arg) noexcept
   {
     static_cast<Connection*>(arg)->try_close_();
   }
 
   void
-  Connection::try_close_() throw ()
+  Connection::try_close_() noexcept
   {
     if (evtimer_pending(&try_close_event_, 0))
     {
@@ -503,7 +503,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Connection::check_try_close() throw ()
+  Connection::check_try_close() noexcept
   {
     try
     {
@@ -549,7 +549,7 @@ namespace HTTP::HttpInternals
     event_base_set(base_, &try_close_event_);
   }
 
-  EventThread::~EventThread() throw ()
+  EventThread::~EventThread() noexcept
   {
     //TODO: ASSERT: Thread is not active here
 
@@ -557,7 +557,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  EventThread::thread_proc_() throw ()
+  EventThread::thread_proc_() noexcept
   {
     event_base_dispatch(base_);
 
@@ -571,7 +571,7 @@ namespace HTTP::HttpInternals
   }
 
   void*
-  EventThread::thread_proc_(void* arg) throw ()
+  EventThread::thread_proc_(void* arg) noexcept
   {
     static_cast<EventThread*>(arg)->thread_proc_();
     return 0;
@@ -586,7 +586,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  EventThread::deactivate() throw ()
+  EventThread::deactivate() noexcept
   {
     queue_.quit();
     pthread_join(thread_pid_, 0);
@@ -594,7 +594,7 @@ namespace HTTP::HttpInternals
 
   void
   EventThread::process_connection_(Connection_var& connection)
-    throw ()
+    noexcept
   {
     try
     {
@@ -633,7 +633,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  EventThread::process_quit_() throw ()
+  EventThread::process_quit_() noexcept
   {
     if (event_base_loopexit(base_, 0) == -1)
     {
@@ -644,13 +644,13 @@ namespace HTTP::HttpInternals
   }
 
   PoolPolicy_var
-  EventThread::policy() throw ()
+  EventThread::policy() noexcept
   {
     return policy_;
   }
 
   void
-  EventThread::exclude_connection(Connection* connection) throw ()
+  EventThread::exclude_connection(Connection* connection) noexcept
   {
     Connections::iterator itor(connections_.find(connection));
     if (itor != connections_.end())
@@ -667,19 +667,19 @@ namespace HTTP::HttpInternals
   }
 
   event_base*
-  EventThread::get_base() throw ()
+  EventThread::get_base() noexcept
   {
     return base_;
   }
 
   void
-  EventThread::try_close_callback_(int, short, void* arg) throw ()
+  EventThread::try_close_callback_(int, short, void* arg) noexcept
   {
     static_cast<EventThread*>(arg)->try_close_();
   }
 
   void
-  EventThread::try_close_() throw ()
+  EventThread::try_close_() noexcept
   {
     if (evtimer_pending(&try_close_event_, 0))
     {
@@ -705,7 +705,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  EventThread::execute() throw ()
+  EventThread::execute() noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -718,7 +718,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  EventThread::check_try_close() throw ()
+  EventThread::check_try_close() noexcept
   {
     try
     {
@@ -744,7 +744,7 @@ namespace HTTP::HttpInternals
   {
   }
 
-  EventThreadPool::~EventThreadPool() throw ()
+  EventThreadPool::~EventThreadPool() noexcept
   {
     assert(!active_);
   }
@@ -887,7 +887,7 @@ namespace HTTP::HttpInternals
 
   bool
   EventThreadPool::exclude_thread_from_choice_list(EventThread* thread)
-    throw ()
+    noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -923,7 +923,7 @@ namespace HTTP::HttpInternals
   }
 
   bool
-  EventThreadPool::exclude_thread_from_pool(EventThread* thread) throw ()
+  EventThreadPool::exclude_thread_from_pool(EventThread* thread) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -959,7 +959,7 @@ namespace HTTP::HttpInternals
   {
   }
 
-  Server::~Server() throw ()
+  Server::~Server() noexcept
   {
     assert(connections_.empty());
   }
@@ -1031,7 +1031,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Server::deactivate() throw ()
+  Server::deactivate() noexcept
   {
     deactivating_ = true;
     bool wait_for_connections;
@@ -1056,7 +1056,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Server::deactivate_connection_(Connection* connection) throw ()
+  Server::deactivate_connection_(Connection* connection) noexcept
   {
     if (!connection->deactivate())
     {
@@ -1071,13 +1071,13 @@ namespace HTTP::HttpInternals
   }
 
   PoolPolicy_var
-  Server::policy() throw ()
+  Server::policy() noexcept
   {
     return policy_;
   }
 
   void
-  Server::exclude_connection(Connection* connection) throw ()
+  Server::exclude_connection(Connection* connection) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -1097,7 +1097,7 @@ namespace HTTP::HttpInternals
 
   void
   Server::add_task_on_error_(Request* req,
-    const String::SubString& error) throw ()
+    const String::SubString& error) noexcept
   {
     policy_->server_request_removed(this, req);
     try
@@ -1116,7 +1116,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Server::add_task_on_response(Request* req) throw ()
+  Server::add_task_on_response(Request* req) noexcept
   {
     policy_->server_request_removed(this, req);
     try
@@ -1135,7 +1135,7 @@ namespace HTTP::HttpInternals
 
   void
   Server::transf_requests_(const String::SubString& error,
-    Request* request, Requests& requests) throw ()
+    Request* request, Requests& requests) noexcept
   {
     try
     {
@@ -1178,14 +1178,14 @@ namespace HTTP::HttpInternals
 
   void
   Server::transf_unused_requests(Requests& requests,
-    const String::SubString& error) throw ()
+    const String::SubString& error) noexcept
   {
     transf_requests_(error, 0, requests);
   }
 
   void
   Server::transf_failed_request(Request* request,
-    const String::SubString& error) throw ()
+    const String::SubString& error) noexcept
   {
     Requests requests;
     transf_requests_(error, request, requests);
@@ -1193,7 +1193,7 @@ namespace HTTP::HttpInternals
 
   void
   Server::process_requests(Requests& requests,
-    const String::SubString& error) throw ()
+    const String::SubString& error) noexcept
   {
     switch (policy_->requests_failed(this))
     {
@@ -1241,7 +1241,7 @@ namespace HTTP::HttpInternals
 
   void
   Server::process_request(Request* request,
-    const String::SubString& error) throw ()
+    const String::SubString& error) noexcept
   {
     switch (policy_->request_failed(this, request))
     {
@@ -1296,7 +1296,7 @@ namespace HTTP::HttpInternals
     policy_->request_constructing();
   }
 
-  Request::~Request() throw ()
+  Request::~Request() noexcept
   {
     if (response_data_)
     {
@@ -1307,13 +1307,13 @@ namespace HTTP::HttpInternals
   }
 
   const HttpServer&
-  Request::address() const throw ()
+  Request::address() const noexcept
   {
     return address_;
   }
 
   void
-  Request::quick_on_response() throw ()
+  Request::quick_on_response() noexcept
   {
     if (callback_)
     {
@@ -1322,7 +1322,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Request::quick_on_error(const String::SubString& description) throw ()
+  Request::quick_on_error(const String::SubString& description) noexcept
   {
     if (callback_)
     {
@@ -1332,19 +1332,19 @@ namespace HTTP::HttpInternals
 
 
   const char*
-  Request::http_request() const throw ()
+  Request::http_request() const noexcept
   {
     return http_request_.c_str();
   }
 
   const HeaderList&
-  Request::headers() const throw ()
+  Request::headers() const noexcept
   {
     return headers_;
   }
 
   void
-  Request::set_response(evhttp_request* response_data) throw ()
+  Request::set_response(evhttp_request* response_data) noexcept
   {
     response_data_ = response_data;
     evkeyvalq* input_headers = evhttp_request_get_input_headers(response_data_);
@@ -1364,7 +1364,7 @@ namespace HTTP::HttpInternals
   }
 
   int
-  Request::response_code() const throw ()
+  Request::response_code() const noexcept
   {
     if (response_data_)
     {
@@ -1375,13 +1375,13 @@ namespace HTTP::HttpInternals
   }
 
   const HeaderList&
-  Request::response_headers() const throw ()
+  Request::response_headers() const noexcept
   {
     return response_headers_;
   }
 
   String::SubString
-  Request::body() const throw ()
+  Request::body() const noexcept
   {
     if (response_data_)
     {
@@ -1394,13 +1394,13 @@ namespace HTTP::HttpInternals
   }
 
   HttpMethod
-  Request::method() const throw ()
+  Request::method() const noexcept
   {
     return method_;
   }
 
   evhttp_cmd_type
-  Request::evhttp_method() const throw ()
+  Request::evhttp_method() const noexcept
   {
     switch (method_)
     {
@@ -1429,7 +1429,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  Request::execute() throw ()
+  Request::execute() noexcept
   {
     if (callback_)
     {
@@ -1445,7 +1445,7 @@ namespace HTTP::HttpInternals
   }
 
   String::SubString
-  Request::req_body() throw ()
+  Request::req_body() noexcept
   {
     return String::SubString(&body_[0], body_.size());
   }
@@ -1456,13 +1456,13 @@ namespace HTTP::HttpInternals
   //
 
   Informer::Informer(ServerInterface* server_interface,
-    Sync::Semaphore& semaphore) throw ()
+    Sync::Semaphore& semaphore) noexcept
     : server_interface_(server_interface), semaphore_(semaphore)
   {
     server_interface->add_ref();
   }
 
-  Informer::~Informer() throw ()
+  Informer::~Informer() noexcept
   {
     semaphore_.release();
   }
@@ -1494,7 +1494,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  HttpAsyncPool::~HttpAsyncPool() throw ()
+  HttpAsyncPool::~HttpAsyncPool() noexcept
   {
   }
 
@@ -1593,7 +1593,7 @@ namespace HTTP::HttpInternals
   }
 
   void
-  HttpAsyncPool::remove_by_address(const HttpServer& address) throw ()
+  HttpAsyncPool::remove_by_address(const HttpServer& address) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -1607,7 +1607,7 @@ namespace HTTP::HttpInternals
   }
 
   PoolPolicy_var
-  HttpAsyncPool::policy() throw ()
+  HttpAsyncPool::policy() noexcept
   {
     return policy_;
   }
@@ -1680,7 +1680,7 @@ namespace HTTP
   // PoolPolicy class
   //
 
-  PoolPolicy::~PoolPolicy() throw ()
+  PoolPolicy::~PoolPolicy() noexcept
   {
   }
 

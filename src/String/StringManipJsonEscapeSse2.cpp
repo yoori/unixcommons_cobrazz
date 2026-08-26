@@ -5,7 +5,7 @@
 namespace String::StringManip::JsonEscape
 {
   const char*
-  find_non_json_sse2(const char* cur, const char* end) throw ()
+  find_non_json_sse2(const char* cur, const char* end) noexcept
   {
     if (end - cur >= 16)
     {

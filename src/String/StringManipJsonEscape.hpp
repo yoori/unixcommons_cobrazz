@@ -1,5 +1,4 @@
-#ifndef STRING_STRING_MANIP_JSON_ESCAPE_HPP
-#define STRING_STRING_MANIP_JSON_ESCAPE_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -18,13 +17,13 @@ namespace String::StringManip::JsonEscape
   };
 
   bool
-  simd_level_available(SimdLevel level) throw ();
+  simd_level_available(SimdLevel level) noexcept;
 
   SimdLevel
-  default_simd_level() throw ();
+  default_simd_level() noexcept;
 
   const char*
-  simd_level_name(SimdLevel level) throw ();
+  simd_level_name(SimdLevel level) noexcept;
 
   void
   json_escape_append(
@@ -34,14 +33,14 @@ namespace String::StringManip::JsonEscape
 
   inline
   bool
-  is_non_json_char(char ch) throw ()
+  is_non_json_char(char ch) noexcept
   {
     return static_cast<unsigned char>(ch) < 0x20 || ch == '"' || ch == '\\';
   }
 
   inline
   const char*
-  find_non_json_scalar(const char* cur, const char* end) throw ()
+  find_non_json_scalar(const char* cur, const char* end) noexcept
   {
     for (; cur != end; ++cur)
     {
@@ -55,17 +54,15 @@ namespace String::StringManip::JsonEscape
   }
 
   const char*
-  find_non_json_sse2(const char* cur, const char* end) throw ();
+  find_non_json_sse2(const char* cur, const char* end) noexcept;
 
 #if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX2)
   const char*
-  find_non_json_avx2(const char* cur, const char* end) throw ();
+  find_non_json_avx2(const char* cur, const char* end) noexcept;
 #endif
 
 #if defined(STRING_MANIP_JSON_ESCAPE_HAS_AVX512BW)
   const char*
-  find_non_json_avx512bw(const char* cur, const char* end) throw ();
+  find_non_json_avx512bw(const char* cur, const char* end) noexcept;
 #endif
 }
-
-#endif

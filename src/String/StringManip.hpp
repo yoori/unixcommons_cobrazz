@@ -1,10 +1,4 @@
-/**
- * @file String/StringManip.hpp
- * @author Karen Aroutiounov
- */
-
-#ifndef STRING_STRINGMANIP_HPP
-#define STRING_STRINGMANIP_HPP
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -29,17 +23,17 @@ namespace String
      * Constructor
      * @param fmt Takes "printf style" format string and arguments
      */
-    Fmt(const char* fmt, ...) throw ()
+    Fmt(const char* fmt, ...) noexcept
        __attribute__((format(printf, 2, 3)));
     /**
      * Destructor free memory if needed
      */
-    ~Fmt() throw ();
+    ~Fmt() noexcept;
 
     /**
      * @return implicitly formats string to const char*
      */
-    operator const char*() const throw ();
+    operator const char*() const noexcept;
 
   private:
     char* text_;
@@ -70,7 +64,7 @@ namespace String
      * @return length of src string
      */
     size_t
-    strlcpy(char* dst, const char* src, size_t size) throw ();
+    strlcpy(char* dst, const char* src, size_t size) noexcept;
 
     /**
      * The strlcat() function concatenate strings.  It is designed to be safer,
@@ -101,7 +95,7 @@ namespace String
      * destination buffer
      */
     size_t
-    strlcat(char* dst, const char* src, size_t size) throw ();
+    strlcat(char* dst, const char* src, size_t size) noexcept;
 
     /**
      * Encodes data with base64 algorithm using '+', '/' and '='
@@ -157,7 +151,7 @@ namespace String
     constexpr
     size_t
     base64mod_encoded_size(size_t original_size, bool padding = true)
-      throw ();
+      noexcept;
 
     /**
      * Calculates maximal size of data after base64 decoding
@@ -167,7 +161,7 @@ namespace String
      */
     constexpr
     size_t
-    base64mod_max_decoded_size(size_t original_size) throw ();
+    base64mod_max_decoded_size(size_t original_size) noexcept;
 
     /**
      * Calculates number of bits may be hid
@@ -176,7 +170,7 @@ namespace String
      */
     constexpr
     size_t
-    base64mod_fill_size(size_t original_size) throw ();
+    base64mod_fill_size(size_t original_size) noexcept;
 
     /**
      * Encodes data according to MIME rules (using %XX form)
@@ -398,7 +392,7 @@ namespace String
      */
     bool
     utf8_substr(const String::SubString& src, size_t max_octets,
-      String::SubString& dst) throw ();
+      String::SubString& dst) noexcept;
 
     /**
      * Removes characters defined in a set of symbols
@@ -410,7 +404,7 @@ namespace String
     void
     trim(SubString& str, const AsciiStringManip::CharCategory& trim_set =
       AsciiStringManip::SPACE)
-      throw ();
+      noexcept;
 
     /**
      * Removes characters defined in a set of symbols
@@ -438,7 +432,7 @@ namespace String
     trim_ret(SubString str,
       const AsciiStringManip::CharCategory& trim_set =
         AsciiStringManip::SPACE)
-      throw ();
+      noexcept;
 
     /**
      * Finds and replaces all sequences of symbols from Utf8Category
@@ -472,7 +466,7 @@ namespace String
        * @param valid symbols to be replaced with
        */
       Translit(const char* invalid, const char* valid)
-        throw ();
+        noexcept;
 
       /**
        * Translating function
@@ -498,7 +492,7 @@ namespace String
        */
       void
       translit(char* str) const
-        throw ();
+        noexcept;
 
       /**
        * Translating function, in place translation
@@ -507,7 +501,7 @@ namespace String
        */
       void
       translit(char* str, size_t size) const
-        throw ();
+        noexcept;
 
     private:
       char replacement_[256];
@@ -548,7 +542,7 @@ namespace String
      * @return file name without directories prefix
      */
     const char*
-    base_name(const char* path) throw ();
+    base_name(const char* path) noexcept;
 
     /**
      * Converts integer value into string
@@ -560,7 +554,7 @@ namespace String
      */
     template <typename Integer>
     size_t
-    int_to_str(Integer value, char* str, size_t size) throw ();
+    int_to_str(Integer value, char* str, size_t size) noexcept;
 
     /**
      * Wrapper for int_to_str function having buffer inside
@@ -575,18 +569,18 @@ namespace String
        */
       template <typename Integer>
       explicit
-      IntToStr(Integer value) throw ();
+      IntToStr(Integer value) noexcept;
 
       /**
        * Returns reference to the internal buffer
        */
       SubString
-      str() const throw ();
+      str() const noexcept;
 
       /**
        * Returns reference to the internal buffer
        */
-      operator SubString() const throw ();
+      operator SubString() const noexcept;
 
     private:
       size_t length_;
@@ -601,15 +595,15 @@ namespace String
      */
     template <typename Integer>
     bool
-    str_to_int(const String::SubString& str, Integer& value) throw ();
+    str_to_int(const String::SubString& str, Integer& value) noexcept;
 
     template <typename Integer>
     bool
-    str_to_int(std::string_view str, Integer& value) throw ();
+    str_to_int(std::string_view str, Integer& value) noexcept;
 
     template <typename Integer>
     bool
-    str_to_int(const std::string& str, Integer& value) throw ();
+    str_to_int(const std::string& str, Integer& value) noexcept;
 
     /**
      * InverseCategory transposes owned() and derived
@@ -639,7 +633,7 @@ namespace String
        */
       template <typename Character>
       bool
-      is_owned(Character ch) const throw ();
+      is_owned(Character ch) const noexcept;
 
       /**
        * Functor-compatible way to call is_owned
@@ -647,7 +641,7 @@ namespace String
        */
       template <typename Character>
       bool
-      operator ()(Character ch) const throw ();
+      operator ()(Character ch) const noexcept;
 
       /**
        * Finds the first symbol in the string which DOES NOT belong to
@@ -661,7 +655,7 @@ namespace String
        */
       const char*
       find_owned(const char* begin, const char* end,
-        unsigned long* octets = 0) const throw ();
+        unsigned long* octets = 0) const noexcept;
 
       /**
        * Finds the first symbol in the string which DOES belong to
@@ -675,7 +669,7 @@ namespace String
        */
       const char*
       find_nonowned(const char* begin, const char* end,
-        unsigned long* octets = 0) const throw ();
+        unsigned long* octets = 0) const noexcept;
 
       /**
        * Finds the last symbol in the string which does not belong to the
@@ -690,7 +684,7 @@ namespace String
        */
       const char*
       rfind_owned(const char* pos, const char* start,
-        unsigned long* octets = 0) const throw ();
+        unsigned long* octets = 0) const noexcept;
 
       /**
        * Finds the last symbol in the string which belongs to the
@@ -705,12 +699,12 @@ namespace String
        */
       const char*
       rfind_nonowned(const char* pos, const char* start,
-        unsigned long* octets = 0) const throw ();
+        unsigned long* octets = 0) const noexcept;
     };
 
     void
     concat(char* buffer, size_t size)
-      throw ();
+      noexcept;
 
     /**
      * Safely concatenates several strings to the string buffer.
@@ -722,7 +716,7 @@ namespace String
     template <typename First, typename... Args>
     void
     concat(char* buffer, size_t size, First f, Args... args)
-      throw ();
+      noexcept;
 
     /**
      * Encodes data into hex string
@@ -753,5 +747,3 @@ namespace String
 #include <String/StringManip.tpp>
 
 #include <String/Tokenizer.hpp>
-
-#endif

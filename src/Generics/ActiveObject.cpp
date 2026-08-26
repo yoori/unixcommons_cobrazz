@@ -21,7 +21,7 @@ namespace Generics
   // SimpleActiveObject class
   //
 
-  SimpleActiveObject::~SimpleActiveObject() throw ()
+  SimpleActiveObject::~SimpleActiveObject() noexcept
   {
     if (state_ != AS_NOT_ACTIVE)
     {
@@ -143,7 +143,7 @@ namespace Generics
     }
   }
 
-  ActiveObjectCommonImpl::~ActiveObjectCommonImpl() throw ()
+  ActiveObjectCommonImpl::~ActiveObjectCommonImpl() noexcept
   {
     try
     {

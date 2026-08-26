@@ -1,10 +1,4 @@
-/**
- * @file   String/UTF8Handler.hpp
- * @author Dmitry Trifilov
- */
-
-#ifndef STRING_UTF8_HANDLER_HPP
-#define STRING_UTF8_HANDLER_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -29,7 +23,7 @@ namespace String
      */
     bool
     is_correct_utf8_sequence(const char* src,
-      unsigned long& octets_count) throw ();
+      unsigned long& octets_count) noexcept;
 
     /**
      * Iteratively checks each symbol in the string to be UTF8-valid one.
@@ -37,31 +31,31 @@ namespace String
      * @return pointer to invalid symbol or 0
      */
     const char*
-    is_correct_utf8_string(const char* str) throw ();
+    is_correct_utf8_string(const char* str) noexcept;
 
     unsigned long
-    get_octet_count(char ch) throw ();
+    get_octet_count(char ch) noexcept;
 
     bool
     utf8_char_to_wchar(const char* src, unsigned long octets_count,
-      wchar_t& dest) throw ();
+      wchar_t& dest) noexcept;
 
     bool
     wchar_to_utf8(const wchar_t* src, char* dest_buff,
-      unsigned long& dest_octets_count) throw ();
+      unsigned long& dest_octets_count) noexcept;
 
     bool
     wchar_to_utf8_char(wchar_t src, char* dest_buff,
-      unsigned long& dest_octets_count) throw ();
+      unsigned long& dest_octets_count) noexcept;
 
     bool
     ulong_to_utf8_char(unsigned long ul4wc, char* dest_buff,
-      unsigned long& dest_octets_count) throw ();
+      unsigned long& dest_octets_count) noexcept;
 
     bool
     distance_to_sequence_beginning(const char* src,
       unsigned long& octets_count, unsigned long& distance,
-      const char* limit = 0) throw ();
+      const char* limit = 0) noexcept;
   }
 }
 
@@ -75,7 +69,7 @@ namespace String
     inline
     bool
     is_correct_utf8_sequence(const char* src, unsigned long& octets_count)
-      throw ()
+      noexcept
     {
       const unsigned char B1 = src[0];
 
@@ -166,7 +160,7 @@ namespace String
 
     inline
     const char*
-    is_correct_utf8_string(const char* str) throw ()
+    is_correct_utf8_string(const char* str) noexcept
     {
       for (unsigned long octets_count; *str; str += octets_count)
       {
@@ -199,7 +193,7 @@ namespace String
 
     inline
     unsigned long
-    get_octet_count(char ch) throw ()
+    get_octet_count(char ch) noexcept
     {
       return TRAILING_BYTES_FOR_UTF8[static_cast<uint8_t>(ch)];
     }
@@ -210,7 +204,7 @@ namespace String
     inline
     bool
     utf8_char_to_wchar(const char* src, unsigned long octets_count,
-      wchar_t& dest) throw ()
+      wchar_t& dest) noexcept
     {
       bool result = src && (octets_count && octets_count <= 6);
 
@@ -242,7 +236,7 @@ namespace String
     inline
     bool
     wchar_to_utf8_char(wchar_t src, char* dest_buff,
-      unsigned long& dest_octets_count) throw ()
+      unsigned long& dest_octets_count) noexcept
     {
       bool result = true;
       unsigned long ul4wc = static_cast<unsigned long>(src);
@@ -305,7 +299,7 @@ namespace String
     inline
     bool
     ulong_to_utf8_char(unsigned long ul4wc, char* dest_buff,
-      unsigned long& dest_octets_count) throw ()
+      unsigned long& dest_octets_count) noexcept
     {
       bool result(true);
       if (ul4wc < 0x80)
@@ -365,7 +359,7 @@ namespace String
     bool
     distance_to_sequence_beginning(const char* src,
       unsigned long& octets_count, unsigned long& distance,
-      const char* limit) throw ()
+      const char* limit) noexcept
     {
       if (!(static_cast<unsigned char>(*src) & 0x80))
       {
@@ -397,5 +391,3 @@ namespace String
     }
   }
 }
-
-#endif
