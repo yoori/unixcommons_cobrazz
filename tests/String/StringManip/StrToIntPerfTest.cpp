@@ -323,6 +323,46 @@ namespace
     }
   }
 
+  void
+  verify_uint32_fast_path()
+  {
+    const StringManipParser current_parser;
+    const LegacyParser reference_parser;
+    verify_value<std::uint32_t>(
+      current_parser, "12345678", true, 12'345'678U);
+    verify_value<std::uint32_t>(
+      current_parser, "+12345678", true, 12'345'678U);
+    verify_value<std::uint32_t>(
+      current_parser, "123456789", true, 123'456'789U);
+    verify_value<std::uint32_t>(
+      current_parser, "+123456789", true, 123'456'789U);
+
+    for (const std::size_t size : {std::size_t(8), std::size_t(9)})
+    {
+      for (std::size_t position = 0; position < size; ++position)
+      {
+        for (unsigned int byte = 0; byte <= 255; ++byte)
+        {
+          std::string input(size, '0');
+          input[position] = static_cast<char>(byte);
+
+          std::uint32_t current_value = 0;
+          std::uint32_t reference_value = 0;
+          const bool current_success =
+            current_parser(input, current_value);
+          const bool reference_success =
+            reference_parser(input, reference_value);
+          if (current_success != reference_success ||
+            (current_success && current_value != reference_value))
+          {
+            throw std::runtime_error(
+              "uint32 fast-path verification failed");
+          }
+        }
+      }
+    }
+  }
+
   template <typename IntegerType>
   void
   verify_equivalence()
@@ -550,6 +590,7 @@ main(int argc, char** argv)
     verify_parser(StringManipParser());
     verify_parser(FromCharsParser());
     verify_bool_parser();
+    verify_uint32_fast_path();
     verify_equivalence<std::uint8_t>();
     verify_equivalence<std::int8_t>();
     verify_equivalence<std::uint32_t>();
@@ -557,11 +598,11 @@ main(int argc, char** argv)
     verify_equivalence<std::uint64_t>();
     verify_equivalence<std::int64_t>();
 
-    run_dataset<std::uint64_t>(
+    run_dataset<std::uint32_t>(
       "unsigned/small (1-3 digits)",
       make_small_unsigned_values(options.values),
       options.iterations);
-    run_dataset<std::uint64_t>(
+    run_dataset<std::uint32_t>(
       "unsigned/RBC-like (7-9 digits)",
       make_rbc_unsigned_values(options.values),
       options.iterations);
