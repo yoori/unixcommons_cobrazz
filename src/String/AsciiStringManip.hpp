@@ -3,6 +3,7 @@
 #define ASCII_STRING_MANIP_HPP
 
 #include <algorithm>
+#include <cstring>
 #include <functional>
 #include <limits>
 //#include <limits.h>
@@ -280,20 +281,45 @@ namespace String
     // Quick access classes for different Categories
     typedef Category::Category<Category::CharTable> CharCategory;
     template <const char SYMBOL>
-    struct Char1Category :
-      public Category::Category<Category::Char1<SYMBOL> >
+    struct Char1Category: public Category::Category<Category::Char1<SYMBOL> >
+    {};
+
+    template <>
+    struct Char1Category<'\t'>: public Category::Category<Category::Char1<'\t'> >
     {
+      using Base = String::AsciiStringManip::Category::Category<
+        String::AsciiStringManip::Category::Char1<'\t'> >;
+      using Base::find_owned;
+
+      const char*
+      find_owned(
+        const char* begin,
+        const char* end,
+        unsigned long* octets_length = 0) const throw ()
+      {
+        const char* result = static_cast<const char*>(std::memchr(begin, '\t', end - begin));
+        if (!result)
+        {
+          return end;
+        }
+
+        if (octets_length)
+        {
+          *octets_length = 1;
+        }
+        return result;
+      }
     };
+
     template <const char SYMBOL1, const char SYMBOL2>
     struct Char2Category :
       public Category::Category<Category::Char2<SYMBOL1, SYMBOL2> >
-    {
-    };
+    {};
+
     template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
     struct Char3Category :
       public Category::Category<Category::Char3<SYMBOL1, SYMBOL2, SYMBOL3> >
-    {
-    };
+    {};
 
     /// Small and capital Latin letters.
     extern const CharCategory ALPHA;
@@ -442,476 +468,473 @@ namespace String
   }
 }
 
-namespace String
+namespace String::AsciiStringManip
 {
-  namespace AsciiStringManip
+  /**
+   * Contain names of tables, need for effective data manipulation
+   */
+  namespace Tables
   {
-    /**
-     * Contain names of tables, need for effective data manipulation
-     */
-    namespace Tables
+    /// Table convert ASCII (0-127) data to lower latin letters
+    extern const char ASCII_TOLOWER_TABLE[256];
+    /// Table convert ASCII (0-127) data to upper latin letters
+    extern const char ASCII_TOUPPER_TABLE[256];
+  }
+
+  inline
+  void
+  flatten(std::string& dest, const String::SubString& str,
+    const SubString& replacement, const CharCategory& to_replace)
+    /*throw (eh::Exception)*/
+  {
+    const char* const REPL_DATA = replacement.data();
+    const size_t REPL_SIZE = replacement.size();
+    const char* const REPL_END = REPL_DATA + REPL_SIZE;
+    dest.resize(str.size() * (REPL_SIZE ? REPL_SIZE : 1));
+    char* out = &dest[0];
+    const char* current;
+
+    for (const char* first = str.begin(), * const LAST = str.end();
+      first != LAST;)
     {
-      /// Table convert ASCII (0-127) data to lower latin letters
-      extern const char ASCII_TOLOWER_TABLE[256];
-      /// Table convert ASCII (0-127) data to upper latin letters
-      extern const char ASCII_TOUPPER_TABLE[256];
+      current = to_replace.find_owned(first, LAST);
+      // last if haven't spaces
+      // copy text before space
+      out = std::copy(first, current, out);
+
+      if (current == LAST)
+      {
+        break;
+      }
+      out = std::copy(REPL_DATA, REPL_END, out);
+      first = to_replace.find_nonowned(current, LAST);
+    }
+    dest.resize(out - &dest[0]);
+  }
+
+  inline
+  char
+  to_lower(char ch) throw ()
+  {
+    return Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(ch)];
+  }
+
+  inline
+  char
+  to_upper(char ch) throw ()
+  {
+    return Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(ch)];
+  }
+
+  template <typename Iterator>
+  inline
+  void
+  to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
+  {
+    for (; first != last; ++first)
+    {
+      *first =
+        Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*first)];
+    }
+  }
+
+  template <typename Iterator>
+  inline
+  void
+  to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
+  {
+    for (; first != last; ++first)
+    {
+      *first =
+        Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(*first)];
+    }
+  }
+
+  inline
+  void
+  to_lower(std::string& dest) throw ()
+  {
+    if (!dest.empty())
+    {
+      char* data = &dest[0];
+      to_lower(data, data + dest.size());
+    }
+  }
+
+  inline
+  void
+  to_upper(std::string& dest) throw ()
+  {
+    if (!dest.empty())
+    {
+      char* data = &dest[0];
+      to_upper(data, data + dest.size());
+    }
+  }
+
+  inline
+  Caseless::Caseless(const char* str) throw ()
+    : str(str)
+  {
+  }
+
+  inline
+  Caseless::Caseless(const SubString& str) throw ()
+    : str(str)
+  {
+  }
+
+  inline
+  int
+  Caseless::compare(const SubString& str) const throw ()
+  {
+    const char* str1 = this->str.data();
+    const char* str2 = str.data();
+    size_t len1 = this->str.size();
+    size_t len2 = str.size();
+    size_t len = std::min(len1, len2);
+    if (str1 != str2 && len)
+    {
+      while (len--)
+      {
+        int result = static_cast<int>(Tables::ASCII_TOLOWER_TABLE[
+          static_cast<uint8_t>(*str1++)]) -
+          Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str2++)];
+        if (result)
+        {
+          return result;
+        }
+      }
     }
 
-    inline
-    void
-    flatten(std::string& dest, const String::SubString& str,
-      const SubString& replacement, const CharCategory& to_replace)
-      /*throw (eh::Exception)*/
+    return len1 != len2 ? len1 < len2 ? -1 : 1 : 0;
+  }
+
+  inline
+  bool
+  Caseless::equal(const SubString& str) const throw ()
+  {
+    const char* str1 = str.data();
+    const char* str2 = this->str.data();
+    size_t len = str.size();
+    if (len != this->str.size())
     {
-      const char* const REPL_DATA = replacement.data();
-      const size_t REPL_SIZE = replacement.size();
-      const char* const REPL_END = REPL_DATA + REPL_SIZE;
-      dest.resize(str.size() * (REPL_SIZE ? REPL_SIZE : 1));
-      char* out = &dest[0];
-      const char* current;
+      return false;
+    }
+    if (str1 == str2 || !len)
+    {
+      return true;
+    }
 
-      for (const char* first = str.begin(), * const LAST = str.end();
-        first != LAST;)
+    while (Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str1++)] ==
+      Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str2++)])
+    {
+      if (!--len)
       {
-        current = to_replace.find_owned(first, LAST);
-        // last if haven't spaces
-        // copy text before space
-        out = std::copy(first, current, out);
+        return true;
+      }
+    }
 
-        if (current == LAST)
+    return false;
+  }
+
+  inline
+  bool
+  Caseless::start(const SubString& str) const throw ()
+  {
+    return equal(str.substr(0, this->str.size()));
+  }
+
+  inline
+  bool
+  operator ==(const SubString& str, const Caseless& cl)
+    throw ()
+  {
+    return cl.equal(str);
+  }
+
+  inline
+  bool
+  operator ==(const Caseless& cl, const SubString& str)
+    throw ()
+  {
+    return str == cl;
+  }
+
+  inline
+  bool
+  operator !=(const SubString& str, const Caseless& cl)
+    throw ()
+  {
+    return !(str == cl);
+  }
+
+  inline
+  bool
+  operator !=(const Caseless& cl, const SubString& str)
+    throw ()
+  {
+    return str != cl;
+  }
+
+  namespace Category
+  {
+    //
+    // Category class
+    //
+
+    template <typename Predicate>
+    Category<Predicate>::Category() /*throw (eh::Exception)*/
+    {
+    }
+
+    template <typename Predicate>
+    template <typename... T>
+    Category<Predicate>::Category(T... data) /*throw (eh::Exception)*/
+      : Predicate(std::forward<T>(data)...)
+    {
+    }
+
+    template <typename Predicate>
+    inline
+    bool
+    Category<Predicate>::is_owned(char ch) const throw ()
+    {
+      return Predicate::operator ()(ch);
+    }
+
+    template <typename Predicate>
+    bool
+    Category<Predicate>::empty() const throw ()
+    {
+      for (char ch = std::numeric_limits<char>::min(); ; ch++)
+      {
+        if (is_owned(ch))
+        {
+          return false;
+        }
+        if (ch == std::numeric_limits<char>::max())
         {
           break;
         }
-        out = std::copy(REPL_DATA, REPL_END, out);
-        first = to_replace.find_nonowned(current, LAST);
       }
-      dest.resize(out - &dest[0]);
+      return true;
     }
 
+    template <typename Predicate>
     inline
-    char
-    to_lower(char ch) throw ()
+    const char*
+    Category<Predicate>::find_owned(const char* str) const throw ()
     {
-      return Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(ch)];
-    }
-
-    inline
-    char
-    to_upper(char ch) throw ()
-    {
-      return Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(ch)];
-    }
-
-    template <typename Iterator>
-    inline
-    void
-    to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
-    {
-      for (; first != last; ++first)
+      for (char ch; (ch = *str) != '\0'; str++)
       {
-        *first =
-          Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*first)];
-      }
-    }
-
-    template <typename Iterator>
-    inline
-    void
-    to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
-    {
-      for (; first != last; ++first)
-      {
-        *first =
-          Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(*first)];
-      }
-    }
-
-    inline
-    void
-    to_lower(std::string& dest) throw ()
-    {
-      if (!dest.empty())
-      {
-        char* data = &dest[0];
-        to_lower(data, data + dest.size());
-      }
-    }
-
-    inline
-    void
-    to_upper(std::string& dest) throw ()
-    {
-      if (!dest.empty())
-      {
-        char* data = &dest[0];
-        to_upper(data, data + dest.size());
-      }
-    }
-
-    inline
-    Caseless::Caseless(const char* str) throw ()
-      : str(str)
-    {
-    }
-
-    inline
-    Caseless::Caseless(const SubString& str) throw ()
-      : str(str)
-    {
-    }
-
-    inline
-    int
-    Caseless::compare(const SubString& str) const throw ()
-    {
-      const char* str1 = this->str.data();
-      const char* str2 = str.data();
-      size_t len1 = this->str.size();
-      size_t len2 = str.size();
-      size_t len = std::min(len1, len2);
-      if (str1 != str2 && len)
-      {
-        while (len--)
+        if (is_owned(ch))
         {
-          int result = static_cast<int>(Tables::ASCII_TOLOWER_TABLE[
-            static_cast<uint8_t>(*str1++)]) -
-            Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str2++)];
-          if (result)
+          return str;
+        }
+      }
+      return is_owned('\0') ? str : 0;
+    }
+
+    template <typename Predicate>
+    inline
+    const char*
+    Category<Predicate>::find_owned(const char* str, const char* end,
+      unsigned long* octets_length) const throw ()
+    {
+      for (; str != end; ++str)
+      {
+        if (is_owned(*str))
+        {
+          if (octets_length)
           {
-            return result;
+            *octets_length = 1;
           }
+
+          return str;
         }
       }
-
-      return len1 != len2 ? len1 < len2 ? -1 : 1 : 0;
+      return end;
     }
 
+    template <typename Predicate>
     inline
-    bool
-    Caseless::equal(const SubString& str) const throw ()
-    {
-      const char* str1 = str.data();
-      const char* str2 = this->str.data();
-      size_t len = str.size();
-      if (len != this->str.size())
-      {
-        return false;
-      }
-      if (str1 == str2 || !len)
-      {
-        return true;
-      }
-
-      while (Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str1++)] ==
-        Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str2++)])
-      {
-        if (!--len)
-        {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    inline
-    bool
-    Caseless::start(const SubString& str) const throw ()
-    {
-      return equal(str.substr(0, this->str.size()));
-    }
-
-    inline
-    bool
-    operator ==(const SubString& str, const Caseless& cl)
+    const char*
+    Category<Predicate>::find_nonowned(const char* str) const
       throw ()
     {
-      return cl.equal(str);
+      for (char ch; (ch = *str) != '\0'; str++)
+      {
+        if (!is_owned(ch))
+        {
+          return str;
+        }
+      }
+      return !is_owned('\0') ? str : 0;
+    }
+
+    template <typename Predicate>
+    inline
+    const char*
+    Category<Predicate>::find_nonowned(const char* str,
+      const char* end) const
+      throw ()
+    {
+      for (; str != end; ++str)
+      {
+        if (!is_owned(*str))
+        {
+          return str;
+        }
+      }
+      return end;
+    }
+
+    template <typename Predicate>
+    inline
+    const char*
+    Category<Predicate>::rfind_owned(const char* pos,
+      const char* start) const
+      throw ()
+    {
+      const char* const NOT_FOUND = pos;
+      while (start != pos)
+      {
+        if (is_owned(*--pos))
+        {
+          return pos;
+        }
+      }
+      return NOT_FOUND;
+    }
+
+    template <typename Predicate>
+    inline
+    const char*
+    Category<Predicate>::rfind_nonowned(const char* pos,
+      const char* start) const
+      throw ()
+    {
+      const char* const NOT_FOUND = pos;
+      while (start != pos)
+      {
+        if (!is_owned(*--pos))
+        {
+          return pos;
+        }
+      }
+      return NOT_FOUND;
+    }
+
+
+    //
+    // CharTable class
+    //
+
+    inline
+    CharTable::CharTable() throw ()
+    {
+    }
+
+    template <typename Predicate>
+    CharTable::CharTable(Predicate predicate) throw ()
+    {
+      for (int i = 0; i < 256; i++)
+      {
+        table_[i] = predicate(i);
+      }
     }
 
     inline
     bool
-    operator ==(const Caseless& cl, const SubString& str)
-      throw ()
+    CharTable::operator ()(char ch) const throw ()
     {
-      return str == cl;
+      return table_[static_cast<uint8_t>(ch)];
     }
 
+
+    //
+    // Char1 class
+    //
+
+    template <const char SYMBOL>
     inline
     bool
-    operator !=(const SubString& str, const Caseless& cl)
-      throw ()
+    Char1<SYMBOL>::operator ()(char ch) const throw ()
     {
-      return !(str == cl);
+      return ch == SYMBOL;
     }
 
+
+    //
+    // Char2 class
+    //
+
+    template <const char SYMBOL1, const char SYMBOL2>
     inline
     bool
-    operator !=(const Caseless& cl, const SubString& str)
-      throw ()
+    Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const throw ()
     {
-      return str != cl;
+      return ch == SYMBOL1 || ch == SYMBOL2;
     }
 
-    namespace Category
-    {
-      //
-      // Category class
-      //
 
-      template <typename Predicate>
-      Category<Predicate>::Category() /*throw (eh::Exception)*/
-      {
-      }
+    //
+    // Char3 class
+    //
 
-      template <typename Predicate>
-      template <typename... T>
-      Category<Predicate>::Category(T... data) /*throw (eh::Exception)*/
-        : Predicate(std::forward<T>(data)...)
-      {
-      }
-
-      template <typename Predicate>
-      inline
-      bool
-      Category<Predicate>::is_owned(char ch) const throw ()
-      {
-        return Predicate::operator ()(ch);
-      }
-
-      template <typename Predicate>
-      bool
-      Category<Predicate>::empty() const throw ()
-      {
-        for (char ch = std::numeric_limits<char>::min(); ; ch++)
-        {
-          if (is_owned(ch))
-          {
-            return false;
-          }
-          if (ch == std::numeric_limits<char>::max())
-          {
-            break;
-          }
-        }
-        return true;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::find_owned(const char* str) const throw ()
-      {
-        for (char ch; (ch = *str) != '\0'; str++)
-        {
-          if (is_owned(ch))
-          {
-            return str;
-          }
-        }
-        return is_owned('\0') ? str : 0;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::find_owned(const char* str, const char* end,
-        unsigned long* octets_length) const throw ()
-      {
-        for (; str != end; ++str)
-        {
-          if (is_owned(*str))
-          {
-            if (octets_length)
-            {
-              *octets_length = 1;
-            }
-
-            return str;
-          }
-        }
-        return end;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::find_nonowned(const char* str) const
-        throw ()
-      {
-        for (char ch; (ch = *str) != '\0'; str++)
-        {
-          if (!is_owned(ch))
-          {
-            return str;
-          }
-        }
-        return !is_owned('\0') ? str : 0;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::find_nonowned(const char* str,
-        const char* end) const
-        throw ()
-      {
-        for (; str != end; ++str)
-        {
-          if (!is_owned(*str))
-          {
-            return str;
-          }
-        }
-        return end;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::rfind_owned(const char* pos,
-        const char* start) const
-        throw ()
-      {
-        const char* const NOT_FOUND = pos;
-        while (start != pos)
-        {
-          if (is_owned(*--pos))
-          {
-            return pos;
-          }
-        }
-        return NOT_FOUND;
-      }
-
-      template <typename Predicate>
-      inline
-      const char*
-      Category<Predicate>::rfind_nonowned(const char* pos,
-        const char* start) const
-        throw ()
-      {
-        const char* const NOT_FOUND = pos;
-        while (start != pos)
-        {
-          if (!is_owned(*--pos))
-          {
-            return pos;
-          }
-        }
-        return NOT_FOUND;
-      }
-
-
-      //
-      // CharTable class
-      //
-
-      inline
-      CharTable::CharTable() throw ()
-      {
-      }
-
-      template <typename Predicate>
-      CharTable::CharTable(Predicate predicate) throw ()
-      {
-        for (int i = 0; i < 256; i++)
-        {
-          table_[i] = predicate(i);
-        }
-      }
-
-      inline
-      bool
-      CharTable::operator ()(char ch) const throw ()
-      {
-        return table_[static_cast<uint8_t>(ch)];
-      }
-
-
-      //
-      // Char1 class
-      //
-
-      template <const char SYMBOL>
-      inline
-      bool
-      Char1<SYMBOL>::operator ()(char ch) const throw ()
-      {
-        return ch == SYMBOL;
-      }
-
-
-      //
-      // Char2 class
-      //
-
-      template <const char SYMBOL1, const char SYMBOL2>
-      inline
-      bool
-      Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const throw ()
-      {
-        return ch == SYMBOL1 || ch == SYMBOL2;
-      }
-
-
-      //
-      // Char3 class
-      //
-
-      template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
-      inline
-      bool
-      Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const throw ()
-      {
-        return ch == SYMBOL1 || ch == SYMBOL2 || ch == SYMBOL3;
-      }
-    }
-
+    template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
     inline
-    char
-    convert(unsigned char ch) throw ()
+    bool
+    Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const throw ()
     {
-      return static_cast<const char&>(ch);
+      return ch == SYMBOL1 || ch == SYMBOL2 || ch == SYMBOL3;
     }
+  }
 
-    inline
-    unsigned char
-    hex_to_int(char ch) throw ()
+  inline
+  char
+  convert(unsigned char ch) throw ()
+  {
+    return static_cast<const char&>(ch);
+  }
+
+  inline
+  unsigned char
+  hex_to_int(char ch) throw ()
+  {
+    return ch <= '9' ? ch - '0' : (ch & 0x0F) + 9;
+  }
+
+  inline
+  char
+  hex_to_char(char major, char minor) throw ()
+  {
+    return convert((hex_to_int(major) << 4) | hex_to_int(minor));
+  }
+
+  template <typename Integer>
+  inline
+  void
+  hex_to_integer(const char* data, Integer& value) throw ()
+  {
+    assert(!std::numeric_limits<Integer>::is_signed);
+    value = 0;
+    for (size_t i = 0; i < sizeof(Integer) * 8; i += 8)
     {
-      return ch <= '9' ? ch - '0' : (ch & 0x0F) + 9;
+      value |= static_cast<Integer>(hex_to_int(*data++)) << (i + 4);
+      value |= static_cast<Integer>(hex_to_int(*data++)) << i;
     }
+  }
 
-    inline
-    char
-    hex_to_char(char major, char minor) throw ()
+  inline
+  void
+  hex_to_buf(const SubString& data, char* buf) throw ()
+  {
+    assert(!(data.size() & 1));
+    for (size_t i = 0; i < data.size(); i += 2)
     {
-      return convert((hex_to_int(major) << 4) | hex_to_int(minor));
-    }
-
-    template <typename Integer>
-    inline
-    void
-    hex_to_integer(const char* data, Integer& value) throw ()
-    {
-      assert(!std::numeric_limits<Integer>::is_signed);
-      value = 0;
-      for (size_t i = 0; i < sizeof(Integer) * 8; i += 8)
-      {
-        value |= static_cast<Integer>(hex_to_int(*data++)) << (i + 4);
-        value |= static_cast<Integer>(hex_to_int(*data++)) << i;
-      }
-    }
-
-    inline
-    void
-    hex_to_buf(const SubString& data, char* buf) throw ()
-    {
-      assert(!(data.size() & 1));
-      for (size_t i = 0; i < data.size(); i += 2)
-      {
-        *buf++ = hex_to_char(data[i], data[i + 1]);
-      }
+      *buf++ = hex_to_char(data[i], data[i + 1]);
     }
   }
 }

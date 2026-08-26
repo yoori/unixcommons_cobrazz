@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <cstddef>
 #include <limits>
+#include <type_traits>
 
 
 namespace String
@@ -84,67 +86,119 @@ namespace String
         std::numeric_limits<Integer>::is_signed>::convert(value, str);
     }
 
+    namespace StrToIntHelper
+    {
+      template <typename Integer>
+      struct Unsigned
+      {
+        typedef typename std::make_unsigned<Integer>::type Type;
+      };
+
+      template <>
+      struct Unsigned<bool>
+      {
+        typedef unsigned char Type;
+      };
+    }
+
     template <typename Integer>
     bool
     str_to_int(const String::SubString& str, Integer& value) throw ()
     {
-      const char* src = str.begin();
-      const char* const END = str.end();
-      if (src == END)
+      static_assert(
+        std::numeric_limits<Integer>::is_integer,
+        "Integer is not an integer type");
+
+      typedef typename StrToIntHelper::Unsigned<Integer>::Type Unsigned;
+
+      const char* current = str.begin();
+      const char* const end = str.end();
+      if (current == end)
       {
         return false;
       }
+
       bool negative = false;
-      switch (*src)
+      if (*current == '-')
       {
-      case '-':
         if (!std::numeric_limits<Integer>::is_signed)
         {
           return false;
         }
         negative = true;
-        /* fall through */
-      case '+':
-        if (++src == END)
+        ++current;
+      }
+      else if (*current == '+')
+      {
+        ++current;
+      }
+
+      if (current == end)
+      {
+        return false;
+      }
+
+      value = 0;
+
+      constexpr std::ptrdiff_t SAFE_DIGITS = std::numeric_limits<Unsigned>::digits10;
+      const char* const safe_end = end - current < SAFE_DIGITS ? end : current + SAFE_DIGITS;
+
+      Unsigned magnitude = 0;
+      for (; current != safe_end; ++current)
+      {
+        const unsigned int digit =
+          static_cast<unsigned char>(*current) - static_cast<unsigned char>('0');
+        if (digit > 9)
         {
           return false;
         }
+        magnitude = magnitude * 10 + digit;
       }
-      value = 0;
-      const Integer LIMIT = std::numeric_limits<Integer>::max() / 10;
-      if (negative)
+
+      constexpr Unsigned MAX_VALUE = std::numeric_limits<Unsigned>::max();
+      constexpr Unsigned MAX_VALUE_DIV_10 = MAX_VALUE / 10;
+      constexpr unsigned int MAX_VALUE_MOD_10 = MAX_VALUE % 10;
+      for (; current != end; ++current)
       {
-        do
+        const unsigned int digit =
+          static_cast<unsigned char>(*current) - static_cast<unsigned char>('0');
+        if (digit > 9 ||
+          magnitude > MAX_VALUE_DIV_10 ||
+          (magnitude == MAX_VALUE_DIV_10 && digit > MAX_VALUE_MOD_10))
         {
-          unsigned char ch = static_cast<unsigned char>(*src) -
-            static_cast<unsigned char>('0');
-          if (ch > 9 || value < -LIMIT || (value == -LIMIT &&
-            ch > static_cast<unsigned char>(
-              -(std::numeric_limits<Integer>::min() + LIMIT * 10))))
-          {
-            return false;
-          }
-          value = value * static_cast<Integer>(10) -
-            static_cast<Integer>(ch);
+          return false;
         }
-        while (++src != END);
+        magnitude = magnitude * 10 + digit;
+      }
+
+      if constexpr (std::numeric_limits<Integer>::is_signed)
+      {
+        constexpr Unsigned POSITIVE_LIMIT = static_cast<Unsigned>(std::numeric_limits<Integer>::max());
+        constexpr Unsigned NEGATIVE_LIMIT = POSITIVE_LIMIT + 1;
+        const Unsigned limit = negative ? NEGATIVE_LIMIT : POSITIVE_LIMIT;
+        if (magnitude > limit)
+        {
+          return false;
+        }
+
+        if (negative)
+        {
+          value = magnitude == NEGATIVE_LIMIT ? std::numeric_limits<Integer>::min() :
+            -static_cast<Integer>(magnitude);
+        }
+        else
+        {
+          value = static_cast<Integer>(magnitude);
+        }
       }
       else
       {
-        do
+        constexpr Unsigned LIMIT = static_cast<Unsigned>(std::numeric_limits<Integer>::max());
+        if (magnitude > LIMIT)
         {
-          unsigned char ch = static_cast<unsigned char>(*src) -
-            static_cast<unsigned char>('0');
-          if (ch > 9 || value > LIMIT || (value == LIMIT &&
-            ch > static_cast<unsigned char>(
-              std::numeric_limits<Integer>::max() - LIMIT * 10)))
-          {
-            return false;
-          }
-          value = value * static_cast<Integer>(10) +
-            static_cast<Integer>(ch);
+          return false;
         }
-        while (++src != END);
+        value = static_cast<Integer>(magnitude);
       }
 
       return true;
