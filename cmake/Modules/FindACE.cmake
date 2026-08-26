@@ -45,7 +45,6 @@ if(ACE_LIBRARY_RELEASE)
   list(APPEND ACE_LIBRARY optimized ${ACE_LIBRARY_RELEASE})
 endif()
 
-
 # Set ACE_FOUND honoring the QUIET and REQUIRED arguments
 find_package_handle_standard_args(ACE DEFAULT_MSG ACE_LIBRARY_RELEASE ACE_INCLUDE_DIR)
 
@@ -67,7 +66,6 @@ if(ACE_FOUND)
       INTERFACE_INCLUDE_DIRECTORIES "${ACE_INCLUDE_DIR}"
     )
   endif()
-
 
   if(ACE_SSL_LIBRARY AND NOT TARGET ACE::SSL)
     add_library(ACE::SSL UNKNOWN IMPORTED)

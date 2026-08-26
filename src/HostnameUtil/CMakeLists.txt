@@ -2,4 +2,7 @@ add_executable(HostnameUtil
   HostnameUtil.cpp
 )
 
-target_link_libraries(HostnameUtil Generics)
+target_link_libraries(HostnameUtil
+  PRIVATE
+    Generics
+)

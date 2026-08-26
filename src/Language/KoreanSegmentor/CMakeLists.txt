@@ -4,11 +4,9 @@ add_library(${proj}  SHARED
   Klt.cpp
   Moran.cpp
 
-
 )
 
-target_link_libraries(${proj} Generics)
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
-
-
+target_link_libraries(${proj}
+  PRIVATE
+    Generics
+)

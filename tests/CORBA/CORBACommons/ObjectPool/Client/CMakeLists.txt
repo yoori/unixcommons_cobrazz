@@ -1,7 +1,4 @@
-#cmake_minimum_required (VERSION 2.6)
-
 set(proj "CORBAObjectPoolTestClient")
-
 
 add_executable(${proj}
 ObjectPoolTestClient.cpp
@@ -9,8 +6,6 @@ ObjectPoolTestClient.cpp
 
 target_link_libraries(${proj}
   PRIVATE
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     CORBAConfigParser
     Generics

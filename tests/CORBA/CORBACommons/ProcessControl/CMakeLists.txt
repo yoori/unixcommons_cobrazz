@@ -1,7 +1,4 @@
-#cmake_minimum_required (VERSION 2.6)
-
 set(proj "TestProcessControl")
-
 
 add_executable(${proj}
 Application.cpp
@@ -10,8 +7,6 @@ Application.cpp
 target_link_libraries(${proj}
   PRIVATE
     TAO::IORTable
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     Generics
     ProcessControlIDL

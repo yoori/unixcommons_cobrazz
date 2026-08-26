@@ -1,16 +1,17 @@
 add_library(HttpJavaFunctions SHARED
   HttpJavaFunctions.cpp
-  HttpJavaFunctions.cpp
 )
 
 target_include_directories(HttpJavaFunctions
-  PRIVATE ${JAVA_INCLUDE_DIRECTORIES}
+  PRIVATE
+    ${JNI_INCLUDE_DIRS}
 )
 
 target_link_libraries(HttpJavaFunctions
-  Generics
-  HTTP
-  BLogic
-  GenericSegmentor
-  Polyglot
+  PRIVATE
+    Generics
+    HTTP
+    BLogic
+    GenericSegmentor
+    Polyglot
 )

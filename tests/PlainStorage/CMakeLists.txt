@@ -1,6 +1,2 @@
-#cmake_minimum_required (VERSION 2.6)
-ADD_SUBDIRECTORY(BlockFileAdapter)
-ADD_SUBDIRECTORY(Map)
-
-
-
+add_subdirectory(BlockFileAdapter)
+add_subdirectory(Map)

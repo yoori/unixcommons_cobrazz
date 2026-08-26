@@ -1,16 +1,23 @@
-#cmake_minimum_required (VERSION 2.6)
-
 set(proj "TestDynAny")
 
 add_idl(echoIDL echo.idl ${IDL_DIRECTORY}/tests/DynAny)
 
-add_definitions (-DORB_NAME=\"\")
 add_executable(${proj}
-test.cpp
+  test.cpp
 )
 
-target_link_libraries(${proj} CORBACommons echoIDL CORBAConfigParser
-    )
-add_test(NAME ${proj}
-         COMMAND ${proj})
+target_compile_definitions(${proj}
+  PRIVATE
+    ORB_NAME=""
+)
 
+target_link_libraries(${proj}
+  PRIVATE
+    CORBACommons
+    echoIDL
+    CORBAConfigParser
+)
+add_test(
+  NAME ${proj}
+  COMMAND ${proj}
+)

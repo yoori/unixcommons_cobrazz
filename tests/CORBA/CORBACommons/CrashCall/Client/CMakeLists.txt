@@ -1,6 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
-
-
 include_directories( ${IDL_DIRECTORY}  . )
 
 set(proj "CORBACrashCallClient")
@@ -11,11 +8,8 @@ Application.cpp
 
 add_dependencies(${proj} TestCrashIDL)
 
-
 target_link_libraries(${proj}
   PRIVATE
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     CORBAConfigParser
     Generics
@@ -23,7 +17,6 @@ target_link_libraries(${proj}
     ProcessControlIDL
     TestCrashIDL
 )
-
 
 add_test(NAME ${proj}
          COMMAND ${proj})

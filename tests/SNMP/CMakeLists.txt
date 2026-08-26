@@ -1,3 +1,1 @@
-ADD_SUBDIRECTORY(SNMPSimple)
-
-
+add_subdirectory(SNMPSimple)

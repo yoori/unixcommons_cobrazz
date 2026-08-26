@@ -13,8 +13,8 @@ add_library(${proj}  SHARED
 
 )
 
-
-target_link_libraries(${proj} PRIVATE Generics pthread)
-
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})
+target_link_libraries(${proj}
+  PRIVATE
+    Generics
+    Threads::Threads
+)

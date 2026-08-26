@@ -1,4 +1,3 @@
-
 set(proj "TestSStream")
 
 add_executable(${proj}
@@ -7,9 +6,12 @@ Application.cpp
 
 )
 
-
-target_link_libraries(${proj} Generics Logger Sync)
-
+target_link_libraries(${proj}
+  PRIVATE
+    Generics
+    Logger
+    Sync
+)
 
 add_test(NAME ${proj}
          COMMAND ${proj})

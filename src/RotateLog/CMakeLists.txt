@@ -2,4 +2,8 @@ add_executable(RotateLog
   RotateLog.cpp
 )
 
-target_link_libraries(RotateLog Generics Logger)
+target_link_libraries(RotateLog
+  PRIVATE
+    Generics
+    Logger
+)

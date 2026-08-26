@@ -1,28 +1,15 @@
-#cmake_minimum_required (VERSION 2.6)
-
-
-#include_directories(   /usr/include/apr-1       )
-
 set(proj "TestMTTester")
 
 add_executable(${proj}
 Application.cpp
 
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
-#add_library(PreloadACE  SHARED
-#PreloadACE.cpp
-#)
-
-#link_directories()
-
-
-
-target_link_libraries(${proj} Generics Logger Sync)
-
+target_link_libraries(${proj}
+  PRIVATE
+    Generics
+    Logger
+    Sync
+)
 
 add_test(NAME ${proj}
          COMMAND ${proj})

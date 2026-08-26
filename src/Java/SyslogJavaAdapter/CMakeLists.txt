@@ -3,5 +3,6 @@ add_library(SyslogJavaAdapter SHARED
 )
 
 target_include_directories(SyslogJavaAdapter
-  PRIVATE ${JAVA_INCLUDE_DIRECTORIES}
+  PRIVATE
+    ${JNI_INCLUDE_DIRS}
 )

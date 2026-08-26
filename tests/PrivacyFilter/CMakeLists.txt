@@ -1,3 +1,1 @@
-ADD_SUBDIRECTORY(Filter)
-
-
+add_subdirectory(Filter)

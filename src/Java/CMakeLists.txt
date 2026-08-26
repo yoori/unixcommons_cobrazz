@@ -1,8 +1,5 @@
-
-
 include_directories(JavaCommons .)
 
-ADD_SUBDIRECTORY(HttpJavaFunctions)
-ADD_SUBDIRECTORY(JavaCommons)
-ADD_SUBDIRECTORY(SyslogJavaAdapter)
-
+add_subdirectory(HttpJavaFunctions)
+add_subdirectory(JavaCommons)
+add_subdirectory(SyslogJavaAdapter)

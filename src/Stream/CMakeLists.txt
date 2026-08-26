@@ -11,7 +11,6 @@ target_link_libraries(${proj}
   PUBLIC
     ACE::ACE
   PRIVATE
-    z
-    bz2
+    ZLIB::ZLIB
+    BZip2::BZip2
 )
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

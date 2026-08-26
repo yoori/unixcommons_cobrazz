@@ -1,4 +1,4 @@
-set (proj "HTTP")
+set(proj "HTTP")
 
 add_library(${proj} SHARED
   Http.cpp
@@ -19,5 +19,5 @@ target_link_libraries(${proj}
     ACE::ACE
   PRIVATE
     Stream
-    event
+    Event::Event
 )

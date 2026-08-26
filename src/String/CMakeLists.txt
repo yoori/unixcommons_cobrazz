@@ -28,5 +28,3 @@ add_library(${proj}  SHARED
 #  UTF8IsTitleLetter.cpp
 
 )
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

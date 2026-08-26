@@ -1,3 +1,1 @@
-#ADD_SUBDIRECTORY(MetricsHTTPProviderTest)
-#ADD_SUBDIRECTORY(MetricsRaii)
-#ADD_SUBDIRECTORY(BidStats)
+

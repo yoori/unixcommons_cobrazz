@@ -4,8 +4,6 @@ add_executable(ProbeObj
 
 target_link_libraries(ProbeObj
   PRIVATE
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     CORBAConfigParser
     Generics

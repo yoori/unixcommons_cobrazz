@@ -59,17 +59,15 @@ add_library(${proj} SHARED
 
 target_link_libraries(${proj}
   PUBLIC
-  crypto
-
+    Boost::headers
+    OpenSSL::Crypto
   PRIVATE
-  Sync
-  pthread
-  ev
-  pcre2-8
-  dl
-  Iconv::Iconv
-  Boost::headers
-  #String
+    Sync
+    Threads::Threads
+    EV::EV
+    PkgConfig::PCRE2
+    ${CMAKE_DL_LIBS}
+    Iconv::Iconv
 )
 
 set(string_manip_json_escape_x86 OFF)
@@ -125,5 +123,3 @@ if(string_manip_json_escape_x86)
       STRING_MANIP_JSON_ESCAPE_HAS_AVX512BW)
   endif()
 endif()
-
-#install(TARGETS ${proj} DESTINATION ${INSTALL_LIB})

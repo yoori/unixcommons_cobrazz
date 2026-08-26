@@ -1,5 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
-
 set(proj "TestCrashServer")
 
 add_idl(TestCrashIDL TestCrash.idl ${IDL_DIRECTORY}/tests/CrashCall)
@@ -10,8 +8,6 @@ Application.cpp
 
 target_link_libraries(${proj}
   PRIVATE
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     CORBAConfigParser
     Generics

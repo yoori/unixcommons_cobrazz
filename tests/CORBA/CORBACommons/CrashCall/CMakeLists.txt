@@ -1,7 +1,2 @@
-
-
-ADD_SUBDIRECTORY(Client)
-ADD_SUBDIRECTORY(Server)
-
-
-
+add_subdirectory(Client)
+add_subdirectory(Server)

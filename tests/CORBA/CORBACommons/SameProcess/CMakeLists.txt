@@ -8,8 +8,6 @@ add_executable(${proj}
 
 target_link_libraries(${proj}
   PRIVATE
-    TAO::PortableServer
-    TAO::Valuetype
     CORBACommons
     CORBAConfigParser
     Generics

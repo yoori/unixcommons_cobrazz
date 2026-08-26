@@ -1,4 +1,3 @@
-ADD_SUBDIRECTORY(CORBACommons)
-#ADD_SUBDIRECTORY(CORBANew)
-ADD_SUBDIRECTORY(Data)
-
+add_subdirectory(CORBACommons)
+#add_subdirectory(CORBANew)
+add_subdirectory(Data)

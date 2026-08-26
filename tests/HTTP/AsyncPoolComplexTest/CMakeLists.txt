@@ -1,8 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
-
-
-#include_directories(   /usr/include/apr-1       )
-
 set(proj "TestHttpPoolComplex")
 
 add_executable(${proj}
@@ -10,22 +5,15 @@ add_executable(${proj}
   CommonClasses.cpp
   Tests.cpp
 
-
 )
-#add_library(ApacheModule  SHARED
-#Module.cpp
-
-#)
-#add_library(PreloadACE  SHARED
-#PreloadACE.cpp
-#)
-
-#link_directories()
-
-
-
-target_link_libraries(${proj} Generics Logger Sync HTTP HttpTestCommons)
-
+target_link_libraries(${proj}
+  PRIVATE
+    Generics
+    Logger
+    Sync
+    HTTP
+    HttpTestCommons
+)
 
 add_test(NAME ${proj}
          COMMAND ${proj})
