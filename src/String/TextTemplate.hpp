@@ -38,10 +38,9 @@ namespace String
        * @param value if false return key name if has value to supply.
        * @return whether key was processed or not
        */
-      virtual
-      bool
-      get_argument(const ::String::SubString& key, std::string& result,
-        bool value = true) const /*throw (eh::Exception)*/ = 0;
+      virtual bool
+      get_argument(const ::String::SubString& key, std::string& result, bool value = true) const
+        /*throw (eh::Exception)*/ = 0;
     };
 
 

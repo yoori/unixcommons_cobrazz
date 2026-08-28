@@ -205,10 +205,8 @@ namespace
     static constexpr bool SUPPORTED = false;
 #endif
 
-    static bool parse_eight_digits(
-      const char* data,
-      std::size_t size,
-      std::uint32_t& value) noexcept
+    static bool parse_eight_digits(const char* data, std::size_t size, std::uint32_t& value)
+      noexcept
     {
       std::uint64_t digits = 0x3030303030303030ULL;
       std::memcpy(reinterpret_cast<char*>(&digits) + sizeof(digits) - size, data, size);
@@ -456,8 +454,7 @@ namespace
 
         if constexpr (Size == 10)
         {
-          const std::uint64_t result =
-            static_cast<std::uint64_t>(high) * 100'000'000U + low;
+          const std::uint64_t result = static_cast<std::uint64_t>(high) * 100'000'000U + low;
           if (result > std::numeric_limits<std::uint32_t>::max())
           {
             return false;
@@ -801,20 +798,14 @@ namespace
     verify_value<std::uint32_t>(current_parser, "123456789", true, 123'456'789U);
     verify_value<std::uint32_t>(current_parser, "+123456789", true, 123'456'789U);
     verify_value<std::uint32_t>(
-      current_parser,
-      "4294967295",
-      true,
-      std::numeric_limits<std::uint32_t>::max());
+      current_parser, "4294967295", true, std::numeric_limits<std::uint32_t>::max());
     verify_value<std::uint32_t>(current_parser, "4294967296", false);
     for (std::size_t prefix_size = 1; prefix_size <= 24; ++prefix_size)
     {
       std::string input(prefix_size, '0');
       input += "4294967295";
       verify_value<std::uint32_t>(
-        current_parser,
-        input,
-        true,
-        std::numeric_limits<std::uint32_t>::max());
+        current_parser, input, true, std::numeric_limits<std::uint32_t>::max());
 
       input[prefix_size - 1] = '1';
       verify_value<std::uint32_t>(current_parser, input, false);
@@ -823,10 +814,7 @@ namespace
     }
     verify_value<std::uint32_t>(current_parser, "00000000004294967296", false);
     verify_value<std::uint32_t>(
-      uint32_chunk_swar_parser,
-      "4294967295",
-      true,
-      std::numeric_limits<std::uint32_t>::max());
+      uint32_chunk_swar_parser, "4294967295", true, std::numeric_limits<std::uint32_t>::max());
     verify_value<std::uint32_t>(uint32_chunk_swar_parser, "4294967296", false);
     verify_value<std::uint32_t>(
       jump_table_parser, "4294967295", true, std::numeric_limits<std::uint32_t>::max());
@@ -866,8 +854,7 @@ namespace
             constexpr_swar_success != reference_success ||
             (constexpr_swar_success && constexpr_swar_value != reference_value) ||
             uint32_chunk_swar_success != reference_success ||
-            (uint32_chunk_swar_success &&
-              uint32_chunk_swar_value != reference_value) ||
+            (uint32_chunk_swar_success && uint32_chunk_swar_value != reference_value) ||
             jump_table_success != reference_success ||
             (jump_table_success && jump_table_value != reference_value) ||
             binary_success != reference_success ||
@@ -1115,11 +1102,8 @@ namespace
 
   template <typename IntegerType>
   void
-  run_dataset(
-    std::string_view name,
-    const std::vector<std::string>& inputs,
-    std::size_t iterations,
-    bool include_uint32_candidates = true)
+  run_dataset(std::string_view name, const std::vector<std::string>& inputs,
+    std::size_t iterations, bool include_uint32_candidates = true)
   {
     static_cast<void>(include_uint32_candidates);
 
@@ -1144,35 +1128,15 @@ namespace
       if (include_uint32_candidates)
       {
         print_measurement<IntegerType>(
-          "runtime memcpy SWAR",
-          PaddedSwarUint32Parser(),
-          inputs,
-          iterations,
-          checksum);
+          "runtime memcpy SWAR", PaddedSwarUint32Parser(), inputs, iterations, checksum);
         print_measurement<IntegerType>(
-          "constexpr memcpy SWAR",
-          ConstexprPaddedSwarUint32Parser(),
-          inputs,
-          iterations,
-          checksum);
+          "constexpr memcpy SWAR", ConstexprPaddedSwarUint32Parser(), inputs, iterations, checksum);
         print_measurement<IntegerType>(
-          "composed/switch",
-          Uint32ChunkSwarParser(),
-          inputs,
-          iterations,
-          checksum);
+          "composed/switch", Uint32ChunkSwarParser(), inputs, iterations, checksum);
         print_measurement<IntegerType>(
-          "composed/jump table",
-          Uint32JumpTableParser(),
-          inputs,
-          iterations,
-          checksum);
+          "composed/jump table", Uint32JumpTableParser(), inputs, iterations, checksum);
         print_measurement<IntegerType>(
-          "composed/binary",
-          Uint32BinaryParser(),
-          inputs,
-          iterations,
-          checksum);
+          "composed/binary", Uint32BinaryParser(), inputs, iterations, checksum);
       }
     }
     print_measurement<IntegerType>(
@@ -1218,15 +1182,11 @@ main(int argc, char** argv)
     {
       const std::string name = "unsigned/uint32 (" + std::to_string(digits) + " digits)";
       run_dataset<std::uint32_t>(
-        name,
-        make_uint32_values(options.values, digits),
-        options.iterations);
+        name, make_uint32_values(options.values, digits), options.iterations);
     }
     run_dataset<std::uint32_t>(
-      "unsigned/uint32 (long leading zeros)",
-      make_long_uint32_values(options.values),
-      options.iterations,
-      false);
+      "unsigned/uint32 (long leading zeros)", make_long_uint32_values(options.values),
+      options.iterations, false);
     run_dataset<std::uint64_t>(
       "unsigned/full-width",
       make_full_unsigned_values(options.values),

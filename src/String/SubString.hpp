@@ -138,8 +138,7 @@ namespace String
    * types.
    */
   template <typename CharType,
-    typename Traits = CharTraits<
-      typename ::std::remove_const<CharType>::type>,
+    typename Traits = CharTraits<typename ::std::remove_const<CharType>::type>,
     typename Checker = CheckerRough<CharType> >
   class BasicSubString
   {
@@ -148,18 +147,17 @@ namespace String
     typedef typename Checker::LogicError LogicError;
 
     // typedefs
-    typedef size_t SizeType;
-    typedef ptrdiff_t DifferenceType;
+    using SizeType = size_t;
+    using DifferenceType = ptrdiff_t;
     typedef CharType* Pointer;
     typedef const CharType* ConstPointer;
     typedef CharType& Reference;
     typedef const CharType& ConstReference;
     typedef CharType ValueType;
-    typedef typename ::std::remove_const<ValueType>::type
-      BasicStringValueType;
-    typedef ::std::basic_string<BasicStringValueType> BasicString;
-    typedef ::std::reverse_iterator<ConstPointer> ConstReverseIterator;
-    typedef ::std::reverse_iterator<Pointer> ReverseIterator;
+    using BasicStringValueType = typename ::std::remove_const<ValueType>::type;
+    using BasicString = ::std::basic_string<BasicStringValueType>;
+    using ConstReverseIterator = ::std::reverse_iterator<ConstPointer>;
+    using ReverseIterator = ::std::reverse_iterator<Pointer>;
     static const SizeType NPOS = BasicString::npos;
 
     // Constructors
@@ -171,8 +169,7 @@ namespace String
      */
     template <typename BasicStringTraits, typename Allocator>
     BasicSubString(
-      const ::std::basic_string<BasicStringValueType, BasicStringTraits,
-        Allocator>& str)
+      const ::std::basic_string<BasicStringValueType, BasicStringTraits, Allocator>& str)
       /*throw (eh::Exception)*/;
 
     /**
@@ -770,8 +767,8 @@ namespace String
      */
     template <typename BasicStringTraits, typename Allocator>
     BasicSubString&
-    operator =(const ::std::basic_string<BasicStringValueType,
-      BasicStringTraits, Allocator>& str) /*throw (eh::Exception)*/;
+    operator =(const ::std::basic_string<BasicStringValueType, BasicStringTraits, Allocator>& str)
+      /*throw (eh::Exception)*/;
 
     /**
      * Provides a const reference to the character with a specified

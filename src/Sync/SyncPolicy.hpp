@@ -17,11 +17,10 @@ namespace Sync
       typedef AdoptedWriteGuard WriteGuard;
     };
 
-    typedef PolicyAdapter<::Sync::PosixMutex, ::Sync::PosixGuard, ::Sync::PosixGuard>
-      PosixThread;
-    typedef PolicyAdapter<::Sync::PosixSpinLock, ::Sync::PosixSpinGuard, ::Sync::PosixSpinGuard>
-      PosixSpinThread;
-    typedef PolicyAdapter<::Sync::PosixRWLock, ::Sync::PosixRGuard, ::Sync::PosixWGuard>
-      PosixThreadRW;
+    using PosixThread = PolicyAdapter<::Sync::PosixMutex, ::Sync::PosixGuard, ::Sync::PosixGuard>;
+    using PosixSpinThread = PolicyAdapter<
+      ::Sync::PosixSpinLock, ::Sync::PosixSpinGuard, ::Sync::PosixSpinGuard>;
+    using PosixThreadRW =
+      PolicyAdapter<::Sync::PosixRWLock, ::Sync::PosixRGuard, ::Sync::PosixWGuard>;
   }
 }

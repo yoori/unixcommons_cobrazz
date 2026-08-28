@@ -226,8 +226,7 @@ namespace Generics
     }
 
     template <typename Mix>
-    inline void
-    Aggregator<Mix>::add(const void* key, std::size_t len) noexcept
+    inline void Aggregator<Mix>::add(const void* key, std::size_t len) noexcept
     {
       if (!len)
       {
@@ -275,8 +274,7 @@ namespace Generics
     }
 
     template <typename Mix>
-    inline std::size_t
-    Aggregator<Mix>::finalize() noexcept
+    inline std::size_t Aggregator<Mix>::finalize() noexcept
     {
       return mix_(count_, tail_, size_);
     }

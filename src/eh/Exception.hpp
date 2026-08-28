@@ -21,7 +21,7 @@ namespace Stream
 namespace eh
 {
   /** The standard library exception. */
-  typedef ::std::exception Exception;
+  using Exception = ::std::exception;
 
   /**
    * A descriptive exception.
@@ -60,9 +60,7 @@ namespace eh
      * @param description The message to be associated with the exception.
      * @param code Additional code associated with the message.
      */
-    explicit
-    DescriptiveException(const ::std::string& description,
-      const char* code = 0) noexcept;
+    explicit DescriptiveException(const ::std::string& description, const char* code = 0) noexcept;
 
     /** Copy initialization constructor. */
     DescriptiveException(const DescriptiveException& exception) noexcept;
@@ -143,9 +141,7 @@ namespace eh
      * @param description The message to be associated with the exception.
      * @param code Additional code associated with the message.
      */
-    explicit
-    Composite(const ::std::string& description, const char* code = 0)
-      noexcept;
+    explicit Composite(const ::std::string& description, const char* code = 0) noexcept;
 
     /**
      * Parametric constructor.
@@ -209,8 +205,7 @@ namespace eh
   }
 
   inline
-  DescriptiveException::DescriptiveException(const ::std::string& description,
-    const char* code)
+  DescriptiveException::DescriptiveException(const ::std::string& description, const char* code)
     noexcept
   {
     init_(description.data(), description.size(), code);
@@ -327,8 +322,7 @@ namespace eh
   }
 
   template <typename Tag, typename Base>
-  Composite<Tag, Base>::Composite(const ::std::string& description,
-    const char* code) noexcept
+  Composite<Tag, Base>::Composite(const ::std::string& description, const char* code) noexcept
   {
     Base::init_(description.data(), description.size(), code);
   }

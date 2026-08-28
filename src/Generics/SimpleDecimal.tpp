@@ -110,8 +110,7 @@ namespace Generics
 
   template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename StringType>
-  void
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(const StringType& str)
+  void SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(const StringType& str)
     /*throw (Overflow, NotNumber)*/
   {
     std::ios_base::iostate iostate(std::ios_base::goodbit);

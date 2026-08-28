@@ -81,8 +81,9 @@ namespace String::StringManip
       return 0;
     }
 
-    return IntToStrHelper::IntToStrSign<Integer, std::numeric_limits<Integer>::is_signed>::convert(
-      value, str);
+    using Converter =
+      IntToStrHelper::IntToStrSign<Integer, std::numeric_limits<Integer>::is_signed>;
+    return Converter::convert(value, str);
   }
 
   namespace StrToIntHelper
@@ -266,11 +267,8 @@ namespace String::StringManip
     }
 
     template <typename Integer>
-    inline bool str_to_int_generic(
-      const char* current,
-      const char* end,
-      [[maybe_unused]] bool negative,
-      Integer& value) noexcept
+    inline bool str_to_int_generic(const char* current, const char* end,
+      [[maybe_unused]] bool negative, Integer& value) noexcept
     {
       using UnsignedType = typename Unsigned<Integer>::Type;
 

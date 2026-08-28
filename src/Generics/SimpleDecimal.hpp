@@ -415,7 +415,7 @@ namespace Generics
      * @param str string of decimal number in format [+|-][abcd[.[efg]]]
      * @exception Overflow if passed string is bigger value
      * @exception NotNumber if passed string contains not digits
-    */
+     */
     template <typename StringType>
     void construct_(const StringType& str) /*throw (Overflow, NotNumber)*/;
 
