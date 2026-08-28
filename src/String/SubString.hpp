@@ -11,7 +11,7 @@
 namespace String
 {
   template <typename CharType>
-  struct CharTraits : public std::char_traits<CharType>
+  struct CharTraits : public ::std::char_traits<CharType>
   {
     static
     int
@@ -139,7 +139,7 @@ namespace String
    */
   template <typename CharType,
     typename Traits = CharTraits<
-      typename std::remove_const<CharType>::type>,
+      typename ::std::remove_const<CharType>::type>,
     typename Checker = CheckerRough<CharType> >
   class BasicSubString
   {
@@ -148,18 +148,18 @@ namespace String
     typedef typename Checker::LogicError LogicError;
 
     // typedefs
-    typedef std::size_t SizeType;
-    typedef std::ptrdiff_t DifferenceType;
+    typedef size_t SizeType;
+    typedef ptrdiff_t DifferenceType;
     typedef CharType* Pointer;
     typedef const CharType* ConstPointer;
     typedef CharType& Reference;
     typedef const CharType& ConstReference;
     typedef CharType ValueType;
-    typedef typename std::remove_const<ValueType>::type
+    typedef typename ::std::remove_const<ValueType>::type
       BasicStringValueType;
-    typedef std::basic_string<BasicStringValueType> BasicString;
-    typedef std::reverse_iterator<ConstPointer> ConstReverseIterator;
-    typedef std::reverse_iterator<Pointer> ReverseIterator;
+    typedef ::std::basic_string<BasicStringValueType> BasicString;
+    typedef ::std::reverse_iterator<ConstPointer> ConstReverseIterator;
+    typedef ::std::reverse_iterator<Pointer> ReverseIterator;
     static const SizeType NPOS = BasicString::npos;
 
     // Constructors
@@ -171,7 +171,7 @@ namespace String
      */
     template <typename BasicStringTraits, typename Allocator>
     BasicSubString(
-      const std::basic_string<BasicStringValueType, BasicStringTraits,
+      const ::std::basic_string<BasicStringValueType, BasicStringTraits,
         Allocator>& str)
       /*throw (eh::Exception)*/;
 
@@ -222,7 +222,7 @@ namespace String
      * Constructor to avoid error code BasicSubString(nullptr, 12345),
      * it leads to the compile error
      */
-    BasicSubString(std::nullptr_t, SizeType) = delete;
+    BasicSubString(::std::nullptr_t, SizeType) = delete;
 
     /**
      * Get pointer to the content of a SubString as an array of characters.
@@ -770,7 +770,7 @@ namespace String
      */
     template <typename BasicStringTraits, typename Allocator>
     BasicSubString&
-    operator =(const std::basic_string<BasicStringValueType,
+    operator =(const ::std::basic_string<BasicStringValueType,
       BasicStringTraits, Allocator>& str) /*throw (eh::Exception)*/;
 
     /**

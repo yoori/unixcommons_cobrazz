@@ -40,7 +40,7 @@ namespace String
        */
       virtual
       bool
-      get_argument(const SubString& key, std::string& result,
+      get_argument(const ::String::SubString& key, std::string& result,
         bool value = true) const /*throw (eh::Exception)*/ = 0;
     };
 
@@ -71,7 +71,7 @@ namespace String
        * @exception eh::Exception std::exception.
        */
       explicit
-      Basic(const SubString& str,
+      Basic(const ::String::SubString& str,
         const SubString& start_lexeme = DEFAULT_LEXEME,
         const SubString& end_lexeme = DEFAULT_LEXEME)
         /*throw (InvalidTemplate, TextTemplException, eh::Exception)*/;

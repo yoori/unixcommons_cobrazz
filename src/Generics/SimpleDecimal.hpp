@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 #include <String/SubString.hpp>
 
 #include <Generics/CommonDecimal.hpp>
@@ -75,6 +77,10 @@ namespace Generics
      */
     explicit
     SimpleDecimal(const String::SubString& str) /*throw (Overflow, NotNumber)*/;
+
+    explicit SimpleDecimal(std::string_view str) /*throw (Overflow, NotNumber)*/;
+
+    explicit SimpleDecimal(const char* str) /*throw (Overflow, NotNumber)*/;
 
     /**
      * Construct from general. Firstly converted to string.
@@ -409,10 +415,9 @@ namespace Generics
      * @param str string of decimal number in format [+|-][abcd[.[efg]]]
      * @exception Overflow if passed string is bigger value
      * @exception NotNumber if passed string contains not digits
-     */
-    void
-    construct_(const String::SubString& str)
-      /*throw (Overflow, NotNumber)*/;
+    */
+    template <typename StringType>
+    void construct_(const StringType& str) /*throw (Overflow, NotNumber)*/;
 
     /**
      * Do division of decimals

@@ -295,7 +295,7 @@ namespace String
         const char* end,
         unsigned long* octets_length = 0) const noexcept
       {
-        const char* result = static_cast<const char*>(std::memchr(begin, '\t', end - begin));
+        const char* result = static_cast<const char*>(memchr(begin, '\t', end - begin));
         if (!result)
         {
           return end;

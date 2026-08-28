@@ -21,7 +21,7 @@ namespace Stream
 namespace eh
 {
   /** The standard library exception. */
-  typedef std::exception Exception;
+  typedef ::std::exception Exception;
 
   /**
    * A descriptive exception.
@@ -61,7 +61,7 @@ namespace eh
      * @param code Additional code associated with the message.
      */
     explicit
-    DescriptiveException(const std::string& description,
+    DescriptiveException(const ::std::string& description,
       const char* code = 0) noexcept;
 
     /** Copy initialization constructor. */
@@ -144,7 +144,7 @@ namespace eh
      * @param code Additional code associated with the message.
      */
     explicit
-    Composite(const std::string& description, const char* code = 0)
+    Composite(const ::std::string& description, const char* code = 0)
       noexcept;
 
     /**
@@ -209,7 +209,7 @@ namespace eh
   }
 
   inline
-  DescriptiveException::DescriptiveException(const std::string& description,
+  DescriptiveException::DescriptiveException(const ::std::string& description,
     const char* code)
     noexcept
   {
@@ -219,8 +219,8 @@ namespace eh
   inline
   DescriptiveException::~DescriptiveException() noexcept
   {
-    std::fill(description_, description_ + sizeof(description_), 0);
-    std::fill(code_, code_ + sizeof(code_), 0);
+    ::std::fill(description_, description_ + sizeof(description_), 0);
+    ::std::fill(code_, code_ + sizeof(code_), 0);
   }
 
   inline
@@ -294,7 +294,7 @@ namespace eh
       {
         size = DESC_EXCEPTION_BUFFER_SIZE - 1;
       }
-      std::copy(description, description + size, description_);
+      ::std::copy(description, description + size, description_);
     }
     description_[size] = '\0';
 
@@ -327,7 +327,7 @@ namespace eh
   }
 
   template <typename Tag, typename Base>
-  Composite<Tag, Base>::Composite(const std::string& description,
+  Composite<Tag, Base>::Composite(const ::std::string& description,
     const char* code) noexcept
   {
     Base::init_(description.data(), description.size(), code);

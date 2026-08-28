@@ -19,7 +19,7 @@ namespace Generics
    * @param PRIVATE_KEY whether the key is private or public
    */
   template <const bool PRIVATE_KEY>
-  class RSAKey : private Uncopyable
+  class RSAKey : private ::Generics::Uncopyable
   {
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);

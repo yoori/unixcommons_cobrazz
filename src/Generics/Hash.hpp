@@ -64,14 +64,11 @@ namespace Generics
     public:
       typedef typename Mix::Calc Calc;
 
-      explicit
-      Aggregator(Calc seed = 0) noexcept;
+      explicit Aggregator(Calc seed = 0) noexcept;
 
-      void
-      add(const void* key, std::size_t len) noexcept;
+      inline void add(const void* key, std::size_t len) noexcept __attribute__((always_inline));
 
-      std::size_t
-      finalize () noexcept;
+      inline std::size_t finalize () noexcept __attribute__((always_inline));
 
     private:
       std::size_t count_;
@@ -229,7 +226,7 @@ namespace Generics
     }
 
     template <typename Mix>
-    void
+    inline void
     Aggregator<Mix>::add(const void* key, std::size_t len) noexcept
     {
       if (!len)
@@ -278,7 +275,7 @@ namespace Generics
     }
 
     template <typename Mix>
-    std::size_t
+    inline std::size_t
     Aggregator<Mix>::finalize() noexcept
     {
       return mix_(count_, tail_, size_);

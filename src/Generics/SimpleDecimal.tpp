@@ -108,11 +108,11 @@ namespace Generics
     }
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  template <typename StringType>
   void
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(
-    const String::SubString& str) /*throw (Overflow, NotNumber)*/
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(const StringType& str)
+    /*throw (Overflow, NotNumber)*/
   {
     std::ios_base::iostate iostate(std::ios_base::goodbit);
     const char* result =
@@ -170,6 +170,20 @@ namespace Generics
     const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     const String::SubString& str) /*throw (Overflow, NotNumber)*/
+  {
+    construct_(str);
+  }
+
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(const char* str)
+    /*throw (Overflow, NotNumber)*/
+  {
+    construct_(std::string_view(str));
+  }
+
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(std::string_view str)
+    /*throw (Overflow, NotNumber)*/
   {
     construct_(str);
   }
@@ -800,7 +814,7 @@ namespace Generics
       const SimpleDecimal& d1, const SimpleDecimal& d2) /*throw (Overflow)*/
   {
     Stream::Error ostr;
-    ostr << Generics::FunctionHelper::get_function_name(func) <<
+    ostr << ::Generics::FunctionHelper::get_function_name(func) <<
       "(): overflow " << when << " " << d1 << " and " << d2 << " (over " <<
       static_cast<typename Parent::CalcType>(MAX_INTEGER_) <<
       " by absolute value)";
