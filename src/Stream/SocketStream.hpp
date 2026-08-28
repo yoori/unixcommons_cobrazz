@@ -24,7 +24,7 @@ namespace Stream
      * Constructor
      * @param sock_stream Socked prepared to do system calls recv or send
      * @param mode Binary mask with need modes: send, receive data.
-     * @param send_timeout Do not use 
+     * @param send_timeout Do not use
      * @param recv_timeout Time to do system call recv()
      */
     explicit
@@ -36,28 +36,22 @@ namespace Stream
     /**
      * Empty virtual destructor
      */
-    virtual
-    ~SocketStreambuf();
+    virtual ~SocketStreambuf();
 
     /**
      * Continuously increasing the counter of received bytes
-     * @return The number of received bytes 
+     * @return The number of received bytes
      */
-    size_t
-    bytes_received() const noexcept;
+    size_t bytes_received() const noexcept;
 
   protected:
     //
     // read functions
     //
 
-    virtual
-    std::streamsize
-    showmanyc();
+    virtual std::streamsize showmanyc();
 
-    virtual
-    int_type
-    underflow();
+    virtual int_type underflow();
 
     // virtual
     // std::streamsize
@@ -96,7 +90,7 @@ namespace Stream
 
   /**
    * Stream with std::istream interface able to read data from
-   * socket and buffering it 
+   * socket and buffering it
    */
   class SocketInStream :
     public std::basic_istream<char, std::char_traits<char> >
@@ -107,16 +101,13 @@ namespace Stream
      * @param sock_stream Socket ready to do system call recv()
      * @param recv_timeout Time to do system call recv()
      */
-    explicit
-    SocketInStream(ACE_SOCK_Stream& sock_stream,
-      const Generics::Time* recv_timeout = 0);
+    explicit SocketInStream(ACE_SOCK_Stream& sock_stream, const Generics::Time* recv_timeout = 0);
 
     /**
      * Continuously increasing the counter of received bytes
-     * @return The number of receved bytes 
+     * @return The number of receved bytes
      */
-    size_t
-    bytes_received() const noexcept;
+    size_t bytes_received() const noexcept;
 
   protected:
     SocketStreambuf buf_;
@@ -133,8 +124,7 @@ namespace Stream
   // SocketStreambuf class
   //
 
-  size_t
-  SocketStreambuf::bytes_received() const noexcept
+  size_t SocketStreambuf::bytes_received() const noexcept
   {
     return bytes_received_;
   }
@@ -143,8 +133,7 @@ namespace Stream
   // SocketInStream class
   //
 
-  size_t
-  SocketInStream::bytes_received() const noexcept
+  size_t SocketInStream::bytes_received() const noexcept
   {
     return buf_.bytes_received();
   }

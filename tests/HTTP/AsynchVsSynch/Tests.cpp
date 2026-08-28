@@ -16,12 +16,10 @@ namespace
 // General constants
 //
 
-const std::string ECHO_GET_STRING =
-  "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
+const std::string ECHO_GET_STRING = "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
   "body&glbfcap=0&referer=act.com";
-const std::string ECHO_POST_STRING =
-  "login=Petya%20Vasechkin&password=qq";
+const std::string ECHO_POST_STRING = "login=Petya%20Vasechkin&password=qq";
 
 //
 // CommonTest
@@ -76,8 +74,7 @@ CommonTest::~CommonTest() noexcept
 {
 }
 
-void
-CommonTest::execute() noexcept
+void CommonTest::execute() noexcept
 {
   if (!asynch_only_)
   {
@@ -87,8 +84,7 @@ CommonTest::execute() noexcept
   finish_sem_.release();
 }
 
-void
-CommonTest::synch_process() noexcept
+void CommonTest::synch_process() noexcept
 {
   Generics::Timer timer;
   timer.start();
@@ -143,8 +139,7 @@ CommonTest::synch_process() noexcept
   synch_timer_ = timer;
 }
 
-void
-CommonTest::asynch_process() noexcept
+void CommonTest::asynch_process() noexcept
 {
   try
   {
@@ -173,14 +168,12 @@ CommonTest::asynch_process() noexcept
   catch (const eh::Exception& e)
   {
     Stream::Stack<C_BUFFER_SIZE> ostr;
-    ostr << "CommonTest::asynch_process(0): eh::Exception caught: "
-      << e.what();
+    ostr << "CommonTest::asynch_process(0): eh::Exception caught: " << e.what();
     policy_->error(ostr.str());
   }
 }
 
-void*
-CommonTest::send_synch_req(void* arg) noexcept
+void* CommonTest::send_synch_req(void* arg) noexcept
 {
   InfoToCallback* info = static_cast<InfoToCallback*>(arg);
   try
@@ -195,8 +188,7 @@ CommonTest::send_synch_req(void* arg) noexcept
     }
     else if ((info->type & 0x01) == C_POST_TYPE)
     {
-      body = new HTTP_Connection::HttpBody(
-        ECHO_POST_STRING.c_str(), ECHO_POST_STRING.length());
+      body = new HTTP_Connection::HttpBody( ECHO_POST_STRING.c_str(), ECHO_POST_STRING.length());
       method = HTTP_Connection::HM_Post;
     }
 
@@ -225,8 +217,7 @@ CommonTest::send_synch_req(void* arg) noexcept
   catch(const eh::Exception& e)
   {
     Stream::Stack<C_BUFFER_SIZE> ostr;
-    ostr << "CommonTest::send_synch_req(1): eh::Exception caught: "
-      << e.what();
+    ostr << "CommonTest::send_synch_req(1): eh::Exception caught: " << e.what();
     const String::SubString& error = ostr.str();
     std::cerr << error << std::endl;
     info->policy->error(error);
@@ -239,9 +230,7 @@ CommonTest::send_synch_req(void* arg) noexcept
   return 0;
 }
 
-inline
-void
-CommonTest::mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/
+inline void CommonTest::mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/
 {
   const int MT_TESTER_TASKS = 1;
   const int MT_TESTER_TMOUT = 0;
@@ -253,8 +242,7 @@ CommonTest::mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/
   size_t servs_ind = 0;
   for (size_t i = 0; i < units_count_; ++i)
   {
-    HTTP::PoolPolicy_var loc_policy(new SimplePolicy(conns_per_serv_count_,
-                                                     conns_per_thr_count_));
+    HTTP::PoolPolicy_var loc_policy(new SimplePolicy(conns_per_serv_count_, conns_per_thr_count_));
 
     if (i < pools_count_)
     {
@@ -290,9 +278,7 @@ CommonTest::mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/
   }
 }
 
-inline
-void
-CommonTest::check_error_(char*& error_buf, size_t buf_len) const
+inline void CommonTest::check_error_(char*& error_buf, size_t buf_len) const
   /*throw(eh::Exception)*/
 {
   size_t buf_ptr = 0;
@@ -314,8 +300,7 @@ CommonTest::check_error_(char*& error_buf, size_t buf_len) const
 
       std::ostringstream ostr;
       callbacks_[i]->print_stat(ostr);
-      String::StringManip::strlcpy(error_buf + buf_ptr,
-        ostr.str().c_str(), buf_len - buf_ptr);
+      String::StringManip::strlcpy(error_buf + buf_ptr, ostr.str().c_str(), buf_len - buf_ptr);
       buf_ptr = strlen(error_buf);
       if (buf_ptr >= buf_len)
       {
@@ -325,16 +310,12 @@ CommonTest::check_error_(char*& error_buf, size_t buf_len) const
   }
 }
 
-inline
-void
-CommonTest::activation_() /*throw (eh::Exception)*/
+inline void CommonTest::activation_() /*throw (eh::Exception)*/
 {
   tests_runner_->activate_object();
 }
 
-inline
-void
-CommonTest::deactivation_() /*throw (eh::Exception)*/
+inline void CommonTest::deactivation_() /*throw (eh::Exception)*/
 {
   size_t i = 0;
 
@@ -352,18 +333,13 @@ CommonTest::deactivation_() /*throw (eh::Exception)*/
   tests_runner_->wait_object();
 }
 
-void
-CommonTest::print_stat(std::ostream& out) const /*throw(eh::Exception)*/
+void CommonTest::print_stat(std::ostream& out) const /*throw(eh::Exception)*/
 {
-  out << "::CommonTest::\n  Parameters:"
-      << "\nKeep-Alive: " << (keep_alive_? "On": "Off")
-      << "\nAsynchPools: " << pools_count_
-      << "\nTesters: " << units_count_
-      << "\nThreads: " << threads_count_
-      << "\nRequests: " << requests_count_
+  out << "::CommonTest::\n  Parameters:" << "\nKeep-Alive: " << (keep_alive_? "On": "Off")
+      << "\nAsynchPools: " << pools_count_ << "\nTesters: " << units_count_
+      << "\nThreads: " << threads_count_ << "\nRequests: " << requests_count_
       << "\nConnections per server: " << conns_per_serv_count_
-      << "\nConnections per thread: " << conns_per_thr_count_
-      << "\n  Results:";
+      << "\nConnections per thread: " << conns_per_thr_count_ << "\n  Results:";
 
   if (!asynch_only_)
   {
@@ -382,8 +358,7 @@ CommonTest::print_stat(std::ostream& out) const /*throw(eh::Exception)*/
   out << '\n';
 }
 
-const std::string
-CommonTest::additional_http_query() /*throw (eh::Exception)*/
+const std::string CommonTest::additional_http_query() /*throw (eh::Exception)*/
 {
   try
   {
@@ -412,8 +387,7 @@ CommonTest::TestSuite::TestSuite(TestSuite&& other)
 {
 }
 
-CommonTest::TestSuite&
-CommonTest::TestSuite::operator =(TestSuite&& other)
+CommonTest::TestSuite& CommonTest::TestSuite::operator =(TestSuite&& other)
 {
   requester = std::move(other.requester);
   tester = std::move(other.tester);

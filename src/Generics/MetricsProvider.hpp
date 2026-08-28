@@ -12,14 +12,12 @@ namespace Generics
   class MetricsProvider : public ReferenceCounting::AtomicImpl
   {
   public:
-    typedef boost::variant<double, long, std::string> Value;
-    typedef std::vector<std::pair<std::string, Value> > MetricArray;
+    using Value = boost::variant<double, long, std::string>;
+    using MetricArray = std::vector<std::pair<std::string, Value> >;
 
-    virtual MetricArray
-    get_values() = 0;
+    virtual MetricArray get_values() = 0;
 
   protected:
-    virtual
-    ~MetricsProvider() noexcept = default;
+    virtual ~MetricsProvider() noexcept = default;
   };
 }

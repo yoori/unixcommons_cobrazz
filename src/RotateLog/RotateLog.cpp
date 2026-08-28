@@ -20,12 +20,10 @@ namespace
   public:
     Config() noexcept;
 
-    void
-    parse(int argc, char* argv[])
+    void parse(int argc, char* argv[])
       /*throw (Exception, eh::Exception)*/;
 
-    void
-    parse_descriptors(const char* descriptors)
+    void parse_descriptors(const char* descriptors)
       /*throw (Exception, eh::Exception)*/;
 
     bool file_set;
@@ -49,14 +47,10 @@ namespace
     public ReferenceCounting::AtomicImpl
   {
   public:
-    virtual
-    size_t
-    required_size(const Logging::LogRecord& record) const
+    virtual size_t required_size(const Logging::LogRecord& record) const
       /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    bool
-    format(const Logging::LogRecord& record, char* buf, size_t size) const
+    virtual bool format(const Logging::LogRecord& record, char* buf, size_t size) const
       /*throw (Exception, eh::Exception)*/;
   };
 
@@ -75,13 +69,10 @@ namespace
       const char* error_code = 0) noexcept;
 
     virtual
-    void
-    on_data_ready(int fd, std::size_t fd_index, const char* str,
-      std::size_t size) noexcept;
+    void on_data_ready(int fd, std::size_t fd_index, const char* str, std::size_t size) noexcept;
 
   protected:
-    virtual
-    ~ListenerCallback() noexcept;
+    virtual ~ListenerCallback() noexcept;
 
   private:
     Logging::FLogger_var logger_;
@@ -97,8 +88,7 @@ namespace
   {
   }
 
-  void
-  Config::parse_descriptors(const char* str) /*throw (eh::Exception, Exception)*/
+  void Config::parse_descriptors(const char* str) /*throw (eh::Exception, Exception)*/
   {
     if (!str)
     {
@@ -107,12 +97,10 @@ namespace
 
     Stream::Parser istr(str, strlen(str));
 
-    for (int descriptor; (istr >> descriptor);
-      descriptors.push_back(descriptor));
+    for (int descriptor; (istr >> descriptor); descriptors.push_back(descriptor));
   }
 
-  void
-  Config::parse(int argc, char* argv[])
+  void Config::parse(int argc, char* argv[])
     /*throw (Exception, eh::Exception)*/
   {
     for (argc--, argv++; argc > 0; argc--, argv++)
@@ -136,16 +124,19 @@ namespace
               size = atoi(*argv);
               break;
             }
+
             if (!strcmp(option, "time"))
             {
               time = atoi(*argv);
               break;
             }
+
             if (!strcmp(option, "severity"))
             {
               severity = static_cast<Logging::Logger::Severity>(atoi(*argv));
               break;
             }
+
             if (!strcmp(option, "cron"))
             {
               if (sscanf(*argv, "%10d:%10d:%10d", &hour, &minute, &second) < 2)
@@ -155,11 +146,13 @@ namespace
               when_set = true;
               break;
             }
+
             if (!strcmp(option, "descriptors"))
             {
               parse_descriptors(*argv);
               break;
             }
+
             if (!strcmp(option, "daemon"))
             {
               pid_file = *argv;
@@ -202,8 +195,7 @@ namespace
   }
 
 
-  size_t
-  PassThroughFormatter::required_size(const Logging::LogRecord& record) const
+  size_t PassThroughFormatter::required_size(const Logging::LogRecord& record) const
     /*throw (Exception, eh::Exception)*/
   {
     return record.text.size() + 2;
@@ -224,18 +216,13 @@ namespace
     return true;
   }
 
-  void
-  usage() /*throw (eh::Exception)*/
+  void usage() /*throw (eh::Exception)*/
   {
-    std::cerr << "Usage:" << std::endl <<
-      "RotateLog <log_file> " <<
-      "[--size <rotate_size>] " <<
-      "[--time <rotate_time> [--cron <when>] ] "
-      "[-l]" << std::endl <<
-      "[--descriptors <descriptors> [-f] "
+    std::cerr << "Usage:" << std::endl << "RotateLog <log_file> " <<
+      "[--size <rotate_size>] " << "[--time <rotate_time> [--cron <when>] ] "
+      "[-l]" << std::endl << "[--descriptors <descriptors> [-f] "
       "[--severity <log messages severity>] ]" << std::endl <<
-      "[--daemon <pid file>]" << std::endl <<
-      "\t<log_file>    file name prefix" << std::endl <<
+      "[--daemon <pid file>]" << std::endl << "\t<log_file>    file name prefix" << std::endl <<
       "\t<rotate_size> maximum file size (megabytes)" << std::endl <<
       "\t<rotate_time> maximum file write time (minutes)" << std::endl <<
       "\t<when>        when to start file write time " <<
@@ -248,8 +235,7 @@ namespace
       "\t<severity>    severity number for log messages, "
       "see Logging::Logger::Severity enum, default = INFO" << std::endl <<
       "\t<pid file>    file to write pid into "
-      "(no descriptors are closed)" << std::endl <<
-      std::endl <<
+      "(no descriptors are closed)" << std::endl << std::endl <<
       "\tROTATELOG_DESCRIPTORS environment variable the same as "
       "<descriptors>" << std::endl;
   }
@@ -299,8 +285,7 @@ namespace
         used_severity_, String::SubString(), String::SubString(),
         Generics::Time::get_time_of_day(), Generics::Time::TZ_GMT };
       char formatted[32768];
-      assert(non_stdin_formatter_->required_size(record) <=
-        sizeof(formatted));
+      assert(non_stdin_formatter_->required_size(record) <= sizeof(formatted));
       non_stdin_formatter_->format(record, formatted, sizeof(formatted));
       logger_->log(String::SubString(formatted));
     }
@@ -308,8 +293,7 @@ namespace
 }
 
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 try
 {
   Config config;
@@ -340,8 +324,7 @@ try
     {
       if (config.when_set)
       {
-        Generics::ExtendedTime start(2000, 1, 1,
-          config.hour, config.minute, config.second, 0);
+        Generics::ExtendedTime start(2000, 1, 1, config.hour, config.minute, config.second, 0);
         policies.push_back(Logging::File::Policies::Policy_var(
           new Logging::File::Policies::AlignedTimeSpanPolicy(
             start, Generics::Time::ONE_MINUTE * config.time)));
@@ -357,12 +340,10 @@ try
     Logging::File::Config file_config(config.file_name.c_str(), policies,
       Logging::Logger::TRACE,
       Logging::Formatter_var(new PassThroughFormatter));
-    file_config.time_zone =
-      config.local_tz ? Generics::Time::TZ_LOCAL : Generics::Time::TZ_GMT;
+    file_config.time_zone = config.local_tz ? Generics::Time::TZ_LOCAL : Generics::Time::TZ_GMT;
     file_config.error_stream = 0;
 
-    Logging::FLogger_var logger(
-      new Logging::File::Logger(std::move(file_config)));
+    Logging::FLogger_var logger( new Logging::File::Logger(std::move(file_config)));
     Logging::Formatter_var formatter(
       config.format_descriptors ? new Logging::Simple::Formatter : 0);
     callback = new ListenerCallback(logger, formatter, config.severity);
@@ -378,11 +359,9 @@ try
     {
       Generics::DevNull dn;
 
-      if (dup2(dn.fd(), STDOUT_FILENO) < 0 ||
-        dup2(dn.fd(), STDERR_FILENO) < 0)
+      if (dup2(dn.fd(), STDOUT_FILENO) < 0 || dup2(dn.fd(), STDERR_FILENO) < 0)
       {
-        eh::throw_errno_exception<Exception>(
-          "Failed to redirect stdout & stderr to /dev/null");
+        eh::throw_errno_exception<Exception>( "Failed to redirect stdout & stderr to /dev/null");
       }
     }
 

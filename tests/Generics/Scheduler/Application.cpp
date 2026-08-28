@@ -34,14 +34,12 @@ namespace Generics
         processed_events_(0)
   {
     srand(time(0));
-    callback_ = new TestCommons::ActiveObjectCallbackStreamImpl(
-      std::cerr, "Schedule");
+    callback_ = new TestCommons::ActiveObjectCallbackStreamImpl( std::cerr, "Schedule");
 //    preschedule_stat_ = new Statistics::Timed();
 //    schedule_stat_ = new Statistics::Timed();
   }
 
-  void
-  Application::init(int& /*argc*/, char** /*argv*/)
+  void Application::init(int& /*argc*/, char** /*argv*/)
     /*throw (Exception, eh::Exception)*/
   {
     Write_Guard_ guard(lock_);
@@ -63,13 +61,9 @@ namespace Generics
       Statistics::DumpPolicy_var dump_policy(
         new Statistics::CountBasedDumpPolicy(std::cout, 100000));
 
-      statistics_->add("Preschedule",
-                       new Statistics::TimedStatSink(),
-                       dump_policy.in());
+      statistics_->add("Preschedule", new Statistics::TimedStatSink(), dump_policy.in());
 
-      statistics_->add("Schedule",
-                       new Statistics::TimedStatSink(),
-                       dump_policy.in());
+      statistics_->add("Schedule", new Statistics::TimedStatSink(), dump_policy.in());
     }
     catch(const Statistics::Collection::Exception& e)
     {
@@ -81,23 +75,20 @@ namespace Generics
     catch(const eh::Exception& e)
     {
       Stream::Error ostr;
-      ostr << "Application::init: eh::Exception caught. Description:" <<
-        std::endl << e.what();
+      ostr << "Application::init: eh::Exception caught. Description:" << std::endl << e.what();
 
       throw Exception(ostr);
     }
 
     std::cout << "Messages scheduled: " << message_count_ << std::endl <<
       "Max scheduled time: " << Generics::Time(max_sceduling_time_) <<
-      std::endl << "Min scheduled time: " <<
-      Generics::Time(min_sceduling_time_) << std::endl;
+      std::endl << "Min scheduled time: " << Generics::Time(min_sceduling_time_) << std::endl;
   }
 
   /**
    * Schedule continuous creation strategy
    */
-  void
-  Application::ScheduleMaker(TimeGenerator tg)
+  void Application::ScheduleMaker(TimeGenerator tg)
     /*throw (Planner::Exception, eh::Exception)*/
   {
     start_time_ = Generics::Time::get_time_of_day();
@@ -139,9 +130,7 @@ namespace Generics
   /**
    * Schedule creation strategy breaks with sleeps
    */
-  inline
-  void
-  sleep_msc(unsigned int msec) noexcept
+  inline void sleep_msc(unsigned int msec) noexcept
   {
     timespec ts;
     ts.tv_sec = msec / 1000;
@@ -150,8 +139,7 @@ namespace Generics
     nanosleep(&ts, 0);
   }
 
-  void
-  Application::SchedulePortionMaker(TimeGenerator tg)
+  void Application::SchedulePortionMaker(TimeGenerator tg)
     /*throw (Planner::Exception, eh::Exception)*/
   {
     start_time_ = Generics::Time::get_time_of_day();
@@ -194,8 +182,7 @@ namespace Generics
   /**
    * Special simple schedule scenario that emulate UCS97 situation
    */
-  void
-  Application::ScheduleMakerUCS97(TimeGenerator)
+  void Application::ScheduleMakerUCS97(TimeGenerator)
     /*throw (Planner::Exception, eh::Exception)*/
   {
     start_time_ = Generics::Time::get_time_of_day();
@@ -218,9 +205,7 @@ namespace Generics
       }
       TimedMessage_var message(new TimedMessage(this, tm_event));
       scheduled_events_.insert(tm_event);
-      scheduler_->schedule(
-        message->scheduling_time(Generics::Time::get_time_of_day()),
-        tm_event);
+      scheduler_->schedule( message->scheduling_time(Generics::Time::get_time_of_day()), tm_event);
       sleep(1);   // <-- Trouble UCS-97 reason
       tm_event = start_time_ + 2;
       if (tm_event > stop_message_time_)
@@ -230,14 +215,11 @@ namespace Generics
       // will test 2 simultaneous events, insert one with same time.
       TimedMessage_var message2(new TimedMessage(this, tm_event));
       scheduled_events_.insert(tm_event);
-      scheduler_->schedule(
-        message2->scheduling_time(Generics::Time::get_time_of_day()),
-        tm_event);
+      scheduler_->schedule( message2->scheduling_time(Generics::Time::get_time_of_day()), tm_event);
     }
   }
 
-  void
-  Application::run(Scenarist make_schedule, TimeGenerator tg)
+  void Application::run(Scenarist make_schedule, TimeGenerator tg)
     /*throw (InvalidOperationOrder, Exception, eh::Exception)*/
   {
     if (scheduler_.in() == 0)
@@ -281,31 +263,26 @@ namespace Generics
     catch(const eh::Exception& e)
     {
       Stream::Error ostr;
-      ostr << "Application::run: eh::Exception caught. Description:" <<
-        std::endl << e.what();
+      ostr << "Application::run: eh::Exception caught. Description:" << std::endl << e.what();
       throw Exception(ostr);
     }
 
     print_results();
   }
 
-  void
-  Application::StopMessage::deliver()
+  void Application::StopMessage::deliver()
     /*throw (eh::Exception)*/
   {
     app_->stop();
   }
 
-  void
-  Application::TimedMessage::deliver()
+  void Application::TimedMessage::deliver()
     /*throw (eh::Exception)*/
   {
     app_->deliver_message(this);
   }
 
-  void
-  Application::deliver_message(Application::TimedMessage* timed_message)
-    noexcept
+  void Application::deliver_message(Application::TimedMessage* timed_message) noexcept
   {
 #ifdef TRACE
     {
@@ -340,14 +317,11 @@ namespace Generics
         {
           std::cerr << "Not first event!" << std::endl;
           std::size_t i = 0;
-          for (Schedule::iterator cit = scheduled_events_.begin();
-            cit != it;
-            ++cit, ++i)
+          for (Schedule::iterator cit = scheduled_events_.begin(); cit != it; ++cit, ++i)
           {
             std::cerr << i << "=" << *cit << std::endl;
           }
-          std::cerr << "it=" << *it << "\tmessage_time="
-                    << msg_time << std::endl;
+          std::cerr << "it=" << *it << "\tmessage_time=" << msg_time << std::endl;
 
         }
 
@@ -358,8 +332,7 @@ namespace Generics
         }
         else
         {
-          std::cerr << "Improperly scheduled events occurred"
-                    << std::endl;
+          std::cerr << "Improperly scheduled events occurred" << std::endl;
           return;
         }
       }
@@ -398,8 +371,7 @@ namespace Generics
       {
         timer.stop();
 
-        Generics::Statistics::StatSink_var stat(
-          statistics_->get("Preschedule"));
+        Generics::Statistics::StatSink_var stat( statistics_->get("Preschedule"));
 
         stat->consider(Statistics::TimedSubject(timer.elapsed_time()));
       }
@@ -415,8 +387,7 @@ namespace Generics
       {
         timer.stop();
 
-        Generics::Statistics::StatSink_var stat(
-          statistics_->get("Schedule"));
+        Generics::Statistics::StatSink_var stat( statistics_->get("Schedule"));
 
         stat->consider(Statistics::TimedSubject(timer.elapsed_time()));
       }
@@ -463,8 +434,7 @@ namespace Generics
               (deviation_stat_size_ - 1) : slot]++;
   }
 
-  void
-  Application::stop() /*throw (Exception, eh::Exception)*/
+  void Application::stop() /*throw (Exception, eh::Exception)*/
   {
 #ifdef TRACE
     {
@@ -487,8 +457,7 @@ namespace Generics
     catch(const eh::Exception& e)
     {
       Stream::Error ostr;
-      ostr << "Application::stop: eh::Exception caught. Description:" <<
-        std::endl << e.what();
+      ostr << "Application::stop: eh::Exception caught. Description:" << std::endl << e.what();
       throw Exception(ostr);
     }
 #ifdef TRACE
@@ -502,8 +471,7 @@ namespace Generics
    * This function must give random FUTURE timestamp.
    * Minimum is monotonic increasing
    */
-  Generics::Time
-  Application::rand_time() const /*throw (eh::Exception)*/
+  Generics::Time Application::rand_time() const /*throw (eh::Exception)*/
   {
     Read_Guard_ guard(lock_);
 
@@ -520,8 +488,7 @@ namespace Generics
     std::size_t current_msc = time.tv_usec;
     if (tm != max_sceduling_time_)
     { // randomizing microseconds
-      current_msc +=
-        static_cast<std::size_t>((Time::USEC_MAX - current_msc) *
+      current_msc += static_cast<std::size_t>((Time::USEC_MAX - current_msc) *
                                  static_cast<double>(rand()) / RAND_MAX);
     }
 
@@ -532,8 +499,7 @@ namespace Generics
    * This function give random time from some interval
    * We will check what happen with past events into schedule.
    */
-  Generics::Time
-  Application::full_random_time() const /*throw (eh::Exception)*/
+  Generics::Time Application::full_random_time() const /*throw (eh::Exception)*/
   {
     Read_Guard_ guard(lock_);
 
@@ -558,8 +524,7 @@ namespace Generics
     return Time(time.tv_sec + tm, current_msc);
   }
 
-  Generics::Time
-  Application::compact_time_series() const /*throw (eh::Exception)*/
+  Generics::Time Application::compact_time_series() const /*throw (eh::Exception)*/
   {
     Read_Guard_ guard(lock_);
 
@@ -569,9 +534,7 @@ namespace Generics
     return time;
   }
 
-  bool
-  Application::is_test_successfull_(std::string& error_description) const
-    noexcept
+  bool Application::is_test_successfull_(std::string& error_description) const noexcept
   {
     error_description.clear();
     Generics::Time epsilon(0, 500000);
@@ -580,30 +543,29 @@ namespace Generics
       error_description = "Failed because has undelivered events";
       return false;
     }
+
     if (message_count_ != MAX_EVENTS_ON_TEST && max_gap_ > epsilon)
     {
       if (max_gap_planed_moment_ < max_gap_schedule_moment_ && // overdue AND
           // but right away
           max_gap_moment_ - max_gap_schedule_moment_ < epsilon)
-     {
-          return true;
-     }
-     std::ostringstream ostr;
-     ostr << "Failed because maximum overdue for event >= "
-       << epsilon << ". But we are awaiting <";
-     error_description = ostr.str();
-     return false;
+      {
+        return true;
+      }
+      std::ostringstream ostr;
+      ostr << "Failed because maximum overdue for event >= " << epsilon
+        << ". But we are awaiting <";
+      error_description = ostr.str();
+      return false;
     }
     return true;
   }
 
-  void
-  Application::print_results() /*throw (eh::Exception)*/
+  void Application::print_results() /*throw (eh::Exception)*/
   {
     std::cout << "*** Test Results ***" << std::endl << std::endl;
 
-    if (start_time_ == Generics::Time::ZERO
-        || stop_time_ == Generics::Time::ZERO)
+    if (start_time_ == Generics::Time::ZERO || stop_time_ == Generics::Time::ZERO)
     {
       std::cerr << "Test failed" << std::endl;
       return;
@@ -611,25 +573,21 @@ namespace Generics
 
     Generics::Time real_execution_time = stop_time_ - start_time_;
 
-    std::cout << "Execution time: " << real_execution_time << std::endl <<
-      std::endl;
+    std::cout << "Execution time: " << real_execution_time << std::endl << std::endl;
 
     std::string possible_err_dsc;
-    (is_test_successfull_(possible_err_dsc) ? std::cout : std::cerr)
-      << possible_err_dsc
+    (is_test_successfull_(possible_err_dsc) ? std::cout : std::cerr) << possible_err_dsc
       << "\nUndelivered events: " << scheduled_events_.size() << std::endl
       << "Processed events: " << processed_events_ << std::endl
       << "Maximum gap " << max_gap_ << std::endl
       << "Maximum gap planned time " << max_gap_planed_moment_
       << "\nMaximum gap scheduling time " << max_gap_schedule_moment_
-      << "\nMaximum gap processing moment " << max_gap_moment_
-      << std::endl;
+      << "\nMaximum gap processing moment " << max_gap_moment_ << std::endl;
     statistics_->dump(std::cout);
 
     long bound = deviation_stat_size_ - 1;
 
-    for (; bound >= 0 && !negative_deviation_[bound] &&
-          !positive_deviation_[bound]; bound--);
+    for (; bound >= 0 && !negative_deviation_[bound] && !positive_deviation_[bound]; bound--);
 
     bound++;
 
@@ -653,19 +611,16 @@ namespace Generics
           std::cout << (i + 1) * deviation_grid_ << "   ";
         }
 
-        std::cout << positive_deviation_[i] << "  " <<
-          negative_deviation_[i] << std::endl;
+        std::cout << positive_deviation_[i] << "  " << negative_deviation_[i] << std::endl;
       }
 
     }
   }
-  void
-  Application::set_test_execution_time(const int nt) noexcept
+  void Application::set_test_execution_time(const int nt) noexcept
   {
     execution_time_ = Generics::Time(nt);
   }
-  void
-  Application::set_message_count(unsigned long new_value) noexcept
+  void Application::set_message_count(unsigned long new_value) noexcept
   {
     message_count_ = new_value;
   }
@@ -673,8 +628,7 @@ namespace Generics
 } // namespace Generics
 
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   using namespace Generics;
 
@@ -687,57 +641,45 @@ main(int argc, char** argv)
 
     std::cout << std::endl << STR << "\t\tUCS 97" << std::endl;
     app.init(argc, argv);
-    app.run(&Application::ScheduleMakerUCS97,
-      &Application::rand_time);
+    app.run(&Application::ScheduleMakerUCS97, &Application::rand_time);
 
     // General reason of UCS-97 breaking scheduling.
     // Check it with portion scheduling scenario.
-    std::cout << std::endl << STR << "\t\tGENERAL PORTION SCHEDULER"
-              << std::endl;
+    std::cout << std::endl << STR << "\t\tGENERAL PORTION SCHEDULER" << std::endl;
     app.init(argc, argv);
-    app.run(&Application::SchedulePortionMaker,
-      &Application::rand_time);
+    app.run(&Application::SchedulePortionMaker, &Application::rand_time);
 
     // General reason of UCS-97 breaking scheduling.
     // Check it with portion scheduling scenario.
-    std::cout << std::endl << STR << "\t\tPERFORMANCE SCHEDULER TEST"
-              << std::endl;
+    std::cout << std::endl << STR << "\t\tPERFORMANCE SCHEDULER TEST" << std::endl;
     app.init(argc, argv);
     app.set_message_count(MAX_EVENTS_ON_TEST);
-    app.run(&Application::SchedulePortionMaker,
-      &Application::rand_time);
+    app.run(&Application::SchedulePortionMaker, &Application::rand_time);
     std::cout << "\t\tREGRESSION TEST FINISHED" << std::endl;
     app.set_message_count(100);
 
     // Additional tests
 
     int times_for_all_checks[] = {0, 1};
-    for (std::size_t i = 0; i < sizeof(times_for_all_checks)/sizeof(int);
-      ++i)
+    for (std::size_t i = 0; i < sizeof(times_for_all_checks)/sizeof(int); ++i)
     {
       app.set_test_execution_time(times_for_all_checks[i]);
       std::cout << std::endl << STR << times_for_all_checks[i]
-                << " seconds" << std::endl
-                << "\t\tRAND_TIME START" << std::endl;
+                << " seconds" << std::endl << "\t\tRAND_TIME START" << std::endl;
       app.init(argc, argv);
-      app.run(&Application::SchedulePortionMaker,
-              &Application::rand_time);
+      app.run(&Application::SchedulePortionMaker, &Application::rand_time);
 
       //
       std::cout << std::endl << STR << times_for_all_checks[i]
-                << " seconds" << std::endl
-        << "\t\tFULL_RANDOM_TIME START" << std::endl;
+                << " seconds" << std::endl << "\t\tFULL_RANDOM_TIME START" << std::endl;
       app.init(argc, argv);
-      app.run(&Application::ScheduleMaker,
-              &Application::full_random_time);
+      app.run(&Application::ScheduleMaker, &Application::full_random_time);
 
       //
       std::cout << std::endl << STR << times_for_all_checks[i]
-                << " seconds" << std::endl
-                << "\t\tCOMPACT_TIME_SERIES START" << std::endl;
+                << " seconds" << std::endl << "\t\tCOMPACT_TIME_SERIES START" << std::endl;
       app.init(argc, argv);
-      app.run(&Application::ScheduleMaker,
-              &Application::compact_time_series);
+      app.run(&Application::ScheduleMaker, &Application::compact_time_series);
     }
 
     int times[] = {2, 6, 30};
@@ -747,8 +689,7 @@ main(int argc, char** argv)
                 << " seconds" << std::endl;
       app.set_test_execution_time(times[i]);
       app.init(argc, argv);
-      app.run(&Application::ScheduleMaker,
-              &Application::rand_time);
+      app.run(&Application::ScheduleMaker, &Application::rand_time);
     }
 
   }

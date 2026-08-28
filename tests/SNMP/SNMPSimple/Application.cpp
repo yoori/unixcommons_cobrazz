@@ -6,18 +6,16 @@
 #include <Logger/StreamLogger.hpp>
 
 
-typedef SNMPAgentX::ValuesProcessor<Generics::Values> ValuesProcessor;
+using ValuesProcessor = SNMPAgentX::ValuesProcessor<Generics::Values>;
 class Processor : public ValuesProcessor
 {
 public:
-  explicit
-  Processor(unsigned id) noexcept
+  explicit Processor(unsigned id) noexcept
     : ValuesProcessor(id)
   {
   }
 
-  void
-  register_ids(SNMPAgentX::GenericSNMPAgent* agent) const
+  void register_ids(SNMPAgentX::GenericSNMPAgent* agent) const
     /*throw (eh::Exception)*/
   {
     ValuesProcessor::register_ids(agent);
@@ -31,6 +29,7 @@ public:
     {
       std::cerr << "Failed to find SeqTable\n";
     }
+
     if (const SNMPAgentX::GenericSNMPAgent::RootInfo* root =
       agent->get_rootinfo("Seq2Table.Seq2Entry.Index1"))
     {
@@ -57,20 +56,17 @@ public:
 #else
     std::cout << size << " " << info.name.text() << std::endl;
 #endif
-    return ValuesProcessor::process_variable(
-      variable, info, size, ids, values);
+    return ValuesProcessor::process_variable( variable, info, size, ids, values);
   }
 };
-typedef SNMPAgentX::SNMPStatsGen<Generics::Values, Processor> SNMPStatsImpl;
-typedef ReferenceCounting::FixedPtr<SNMPStatsImpl> FSNMPStatsImpl_var;
+using SNMPStatsImpl = SNMPAgentX::SNMPStatsGen<Generics::Values, Processor>;
+using FSNMPStatsImpl_var = ReferenceCounting::FixedPtr<SNMPStatsImpl>;
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
     srand(time(0));
     Generics::Values_var stats(new Generics::Values);
     unsigned long pid = getpid();
@@ -80,8 +76,7 @@ main(int argc, char* argv[])
     {
       stats->set("Random", static_cast<long>(rand() % 21 - 10));
     }
-    static const char* NODES[6] =
-    {
+    static const char* NODES[6] = {
       "Node1",
       "Node2",
       "Node3",
@@ -131,7 +126,7 @@ main(int argc, char* argv[])
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "main(): " << e.what() << std::endl;    
+    std::cerr << "main(): " << e.what() << std::endl;
   }
   catch (...)
   {

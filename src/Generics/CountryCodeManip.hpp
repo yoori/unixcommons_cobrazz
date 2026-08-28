@@ -26,8 +26,7 @@ namespace Generics
      * ISO3166 extensions or ISO3166 triple country codes.
      * return false if don't comply or str is nul.
      */
-    bool
-    is_country_code(const String::SubString& code) const noexcept;
+    bool is_country_code(const String::SubString& code) const noexcept;
 
   private:
     /**
@@ -36,12 +35,9 @@ namespace Generics
      * Different architectures give different numbers. (Byte order).
      * @return number that encoded in str.
      */
-    static
-    uint32_t
-    get_country_code_(const String::SubString& str) noexcept;
+    static uint32_t get_country_code_(const String::SubString& str) noexcept;
 
-    typedef Generics::GnuHashSet<NumericHashAdapter<uint32_t> >
-      CountryMap_;
+    using CountryMap_ = Generics::GnuHashSet<NumericHashAdapter<uint32_t> >;
     CountryMap_ country_map_;
   };
 }

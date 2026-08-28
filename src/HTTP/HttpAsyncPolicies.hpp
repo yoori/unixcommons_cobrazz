@@ -20,96 +20,52 @@ namespace HTTP
   class PoolPolicySimpleStatistics : public virtual PoolPolicyStatistics
   {
   public:
-    virtual
-    void
-    server_added(Identifier server) noexcept;
+    virtual void server_added(Identifier server) noexcept;
 
-    virtual
-    void
-    server_removed(Identifier server) noexcept;
+    virtual void server_removed(Identifier server) noexcept;
 
-    virtual
-    void
-    server_connection_added(Identifier server, Identifier connection)
-      noexcept;
+    virtual void server_connection_added(Identifier server, Identifier connection) noexcept;
 
-    virtual
-    void
-    server_connection_removed(Identifier server, Identifier connection)
-      noexcept;
+    virtual void server_connection_removed(Identifier server, Identifier connection) noexcept;
 
 
-    virtual
-    void
-    thread_added(Identifier thread) noexcept;
+    virtual void thread_added(Identifier thread) noexcept;
 
-    virtual
-    void
-    thread_removed(Identifier thread) noexcept;
+    virtual void thread_removed(Identifier thread) noexcept;
 
-    virtual
-    void
-    thread_connection_added(Identifier thread, Identifier connection)
-      noexcept;
+    virtual void thread_connection_added(Identifier thread, Identifier connection) noexcept;
 
-    virtual
-    void
-    thread_connection_removed(Identifier thread, Identifier connection)
-      noexcept;
+    virtual void thread_connection_removed(Identifier thread, Identifier connection) noexcept;
 
 
     virtual
     void
-    connection_request_added(Identifier server, Identifier connection,
-      Identifier request) noexcept;
+    connection_request_added(Identifier server, Identifier connection, Identifier request) noexcept;
 
-    virtual
-    void
-    connection_request_removed(Identifier connection, Identifier request)
-      noexcept;
+    virtual void connection_request_removed(Identifier connection, Identifier request) noexcept;
 
-    virtual
-    void
-    server_request_added(Identifier server, Identifier request)
-      noexcept;
+    virtual void server_request_added(Identifier server, Identifier request) noexcept;
 
-    virtual
-    void
-    server_request_removed(Identifier server, Identifier request)
-      noexcept;
+    virtual void server_request_removed(Identifier server, Identifier request) noexcept;
 
   protected:
-    virtual
-    void
-    server_added_i(Identifier server) /*throw (eh::Exception)*/;
+    virtual void server_added_i(Identifier server) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    server_removed_i(Identifier server) /*throw (eh::Exception)*/;
+    virtual void server_removed_i(Identifier server) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    server_connection_added_i(Identifier server, Identifier connection)
+    virtual void server_connection_added_i(Identifier server, Identifier connection)
       /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    server_connection_removed_i(Identifier server, Identifier connection)
+    virtual void server_connection_removed_i(Identifier server, Identifier connection)
       /*throw (eh::Exception)*/;
 
 
-    virtual
-    void
-    thread_removed_i(Identifier thread) /*throw (eh::Exception)*/;
+    virtual void thread_removed_i(Identifier thread) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    thread_connection_added_i(Identifier thread, Identifier connection)
+    virtual void thread_connection_added_i(Identifier thread, Identifier connection)
       /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    thread_connection_removed_i(Identifier thread, Identifier connection)
+    virtual void thread_connection_removed_i(Identifier thread, Identifier connection)
       /*throw (eh::Exception)*/;
 
 
@@ -118,9 +74,7 @@ namespace HTTP
     connection_request_added_i(Identifier server, Identifier connection,
       Identifier request) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    connection_request_removed_i(Identifier connection, Identifier request)
+    virtual void connection_request_removed_i(Identifier connection, Identifier request)
       /*throw (eh::Exception)*/;
 
   protected:
@@ -155,7 +109,7 @@ namespace HTTP
       Connection() noexcept;
       Connection(Identifier server) noexcept;
     };
-    typedef std::map<Identifier, Connection> Connections;
+    using Connections = std::map<Identifier, Connection>;
 
     struct Thread : public SimpleStat
     {
@@ -163,22 +117,18 @@ namespace HTTP
 
       Thread() noexcept;
     };
-    typedef std::map<Identifier, Thread> Threads;
+    using Threads = std::map<Identifier, Thread>;
 
-    typedef std::map<Identifier, Connections::iterator> ConnectionPtrs;
-    typedef std::map<Identifier, ConnectionPtrs> Servers;
+    using ConnectionPtrs = std::map<Identifier, Connections::iterator>;
+    using Servers = std::map<Identifier, ConnectionPtrs>;
 
-    virtual
-    ~PoolPolicySimpleStatistics() noexcept;
+    virtual ~PoolPolicySimpleStatistics() noexcept;
 
-    const Servers&
-    get_servers_() const noexcept;
+    const Servers& get_servers_() const noexcept;
 
-    const Threads&
-    get_threads_() const noexcept;
+    const Threads& get_threads_() const noexcept;
 
-    const Connections&
-    get_connections_() const noexcept;
+    const Connections& get_connections_() const noexcept;
 
   private:
     Servers servers_;
@@ -195,21 +145,13 @@ namespace HTTP
     public virtual PoolPolicySimpleStatistics
   {
   public:
-    virtual
-    void
-    server_request_added(Identifier server, Identifier request) noexcept;
+    virtual void server_request_added(Identifier server, Identifier request) noexcept;
 
-    virtual
-    void
-    server_request_removed(Identifier server, Identifier request) noexcept;
+    virtual void server_request_removed(Identifier server, Identifier request) noexcept;
 
-    virtual
-    void
-    server_added_i(Identifier server) /*throw (eh::Exception)*/;
+    virtual void server_added_i(Identifier server) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    server_removed_i(Identifier server) /*throw (eh::Exception)*/;
+    virtual void server_removed_i(Identifier server) /*throw (eh::Exception)*/;
 
     virtual
     void
@@ -217,11 +159,10 @@ namespace HTTP
       Identifier request) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~PoolPolicyAdvancedStatistics() noexcept;
+    virtual ~PoolPolicyAdvancedStatistics() noexcept;
 
-    typedef std::map<Identifier, int> Requests;
-    typedef std::map<Identifier, Requests> ServerRequests;
+    using Requests = std::map<Identifier, int>;
+    using ServerRequests = std::map<Identifier, Requests>;
 
     ServerRequests server_requests_;
   };
@@ -236,25 +177,16 @@ namespace HTTP
     public virtual PoolPolicyDecider
   {
   public:
-    PoolPolicySimpleDecider(unsigned connections_per_server,
-      unsigned connections_per_threads)
+    PoolPolicySimpleDecider(unsigned connections_per_server, unsigned connections_per_threads)
       /*throw (eh::Exception)*/;
 
-    virtual
-    Identifier
-    choose_thread() noexcept;
+    virtual Identifier choose_thread() noexcept;
 
-    virtual
-    Identifier
-    choose_connection(Identifier server, Identifier request) noexcept;
+    virtual Identifier choose_connection(Identifier server, Identifier request) noexcept;
 
-    virtual
-    RequestPolicy
-    request_failed(Identifier server, Identifier request) noexcept;
+    virtual RequestPolicy request_failed(Identifier server, Identifier request) noexcept;
 
-    virtual
-    RequestPolicy
-    requests_failed(Identifier server) noexcept;
+    virtual RequestPolicy requests_failed(Identifier server) noexcept;
 
   private:
     const unsigned CONNECTIONS_PER_SERVER_;
@@ -271,20 +203,14 @@ namespace HTTP
     public virtual PoolPolicyEmptyThread
   {
   public:
-    PoolPolicySimpleEmptyThread(time_t closure_delay = 3)
-      noexcept;
+    PoolPolicySimpleEmptyThread(time_t closure_delay = 3) noexcept;
 
-    virtual
-    int
-    when_close_thread(Identifier thread) noexcept;
+    virtual int when_close_thread(Identifier thread) noexcept;
 
   protected:
-    virtual
-    ~PoolPolicySimpleEmptyThread() noexcept;
+    virtual ~PoolPolicySimpleEmptyThread() noexcept;
 
-    int
-    process_active_(Threads::const_iterator& cur_thr,
-      const Threads&) /*throw (eh::Exception)*/;
+    int process_active_(Threads::const_iterator& cur_thr, const Threads&) /*throw (eh::Exception)*/;
 
     int
     process_closure_awaiting_(Threads::const_iterator& cur_thr,
@@ -306,16 +232,12 @@ namespace HTTP
     public virtual PoolPolicyEmptyConnection
   {
   public:
-    PoolPolicySimpleEmptyConnection(time_t closure_delay = 3)
-      noexcept;
+    PoolPolicySimpleEmptyConnection(time_t closure_delay = 3) noexcept;
 
-    virtual
-    int
-    when_close_connection(Identifier connection) noexcept;
+    virtual int when_close_connection(Identifier connection) noexcept;
 
   protected:
-    virtual
-    ~PoolPolicySimpleEmptyConnection() noexcept;
+    virtual ~PoolPolicySimpleEmptyConnection() noexcept;
 
     int
     process_active_(Connections::const_iterator& conn_it,
@@ -339,17 +261,12 @@ namespace HTTP
   class PoolPolicySimpleRequests : public virtual PoolPolicyRequests
   {
   public:
-    virtual
-    void
-    request_constructing() /*throw (eh::Exception)*/;
+    virtual void request_constructing() /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    request_destroying() noexcept;
+    virtual void request_destroying() noexcept;
 
   protected:
-    virtual
-    ~PoolPolicySimpleRequests() noexcept;
+    virtual ~PoolPolicySimpleRequests() noexcept;
   };
 
 
@@ -362,17 +279,12 @@ namespace HTTP
   public:
     PoolPolicyWaitRequests(unsigned requests) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    request_constructing() /*throw (eh::Exception)*/;
+    virtual void request_constructing() /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    request_destroying() noexcept;
+    virtual void request_destroying() noexcept;
 
   protected:
-    virtual
-    ~PoolPolicyWaitRequests() noexcept;
+    virtual ~PoolPolicyWaitRequests() noexcept;
 
   private:
     Sync::Semaphore semaphore_;
@@ -390,17 +302,12 @@ namespace HTTP
 
     PoolPolicyThrowRequests(unsigned requests) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    request_constructing() /*throw (eh::Exception)*/;
+    virtual void request_constructing() /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    request_destroying() noexcept;
+    virtual void request_destroying() noexcept;
 
   protected:
-    virtual
-    ~PoolPolicyThrowRequests() noexcept;
+    virtual ~PoolPolicyThrowRequests() noexcept;
 
   private:
     volatile _Atomic_word requests_;
@@ -416,13 +323,10 @@ namespace HTTP
   public:
     PoolPolicySimpleTimeout(const time_t timeout = 0) noexcept;
 
-    virtual
-    int
-    expiration_timeout(Identifier connection) noexcept;
+    virtual int expiration_timeout(Identifier connection) noexcept;
 
   protected:
-    virtual
-    ~PoolPolicySimpleTimeout() noexcept;
+    virtual ~PoolPolicySimpleTimeout() noexcept;
 
   private:
     const time_t TIMEOUT_;

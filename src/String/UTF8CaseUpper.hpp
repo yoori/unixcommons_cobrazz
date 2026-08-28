@@ -5,9 +5,7 @@
 #include <String/UTF8Handler.hpp>
 
 
-bool
-String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
-  noexcept
+bool String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter) noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -28,8 +26,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
         {
           return false;
         }
-        const unsigned char SLOT_NUMBER =
-          FIRST - static_cast<unsigned char>(0xC2);
+        const unsigned char SLOT_NUMBER = FIRST - static_cast<unsigned char>(0xC2);
         if (SLOT_NUMBER > 20)
         {
           *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -37,8 +34,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
           continue;
         }
 
-        const CodeUnit2Bytes& MODIFIED =
-          TABLE_2[SLOT_NUMBER][SECOND & 0x3F];
+        const CodeUnit2Bytes& MODIFIED = TABLE_2[SLOT_NUMBER][SECOND & 0x3F];
         if (MODIFIED[0] == 0)
         {
           // SPECIAL
@@ -65,13 +61,14 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
             *dest++ = '\x49';
             continue;
           }
+
           if (FIRST == 0xC5)
           {
             *dest++ = '\x53';
             continue;
           }
-          if (FIRST == 0xCA || (SECOND >= 0x9C && SECOND <= 0xA6) ||
-            SECOND == 0xAC)
+
+          if (FIRST == 0xCA || (SECOND >= 0x9C && SECOND <= 0xA6) || SECOND == 0xAC)
           {
             *dest++ = '\xEA';
             *dest++ = '\x9E';
@@ -115,8 +112,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
         {
         case 0xE1:
           {
-            const CodeUnit4Bytes& MODIFIED =
-              TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
+            const CodeUnit4Bytes& MODIFIED = TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -132,16 +128,15 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
           }
         case 0xE2:
           {
-            const CodeUnit2Bytes& MODIFIED =
-              TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
-            if (SECOND == 0xB4 &&
-              (THIRD < 0xA6 || THIRD == 0xA7 || THIRD == 0xAD))
+            const CodeUnit2Bytes& MODIFIED = TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
+            if (SECOND == 0xB4 && (THIRD < 0xA6 || THIRD == 0xA7 || THIRD == 0xAD))
             {
               *dest++ = '\xE1';
               *dest++ = MODIFIED[0];
               *dest++ = MODIFIED[1];
               continue;
             }
+
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -158,12 +153,10 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
           }
         case 0xEA:
           {
-            const unsigned char SLOT_NUMBER =
-              SECOND - static_cast<unsigned char>(0x99);
+            const unsigned char SLOT_NUMBER = SECOND - static_cast<unsigned char>(0x99);
             if (SLOT_NUMBER < 6)
             {
-              const CodeUnit2Bytes& MODIFIED =
-                TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
+              const CodeUnit2Bytes& MODIFIED = TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
               *dest++ = reinterpret_cast<const char&>(FIRST);
               *dest++ = MODIFIED[0];
               *dest++ = MODIFIED[1];
@@ -182,6 +175,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
                     *dest++ = reinterpret_cast<const char&>(THIRD) - 0x10;
                     continue;
                   }
+
                   if (THIRD == 0x93)
                   {
                     *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -217,6 +211,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
           {
             return false;
           }
+
           if (SECOND == 0xBD && THIRD >= 0x81 && THIRD <= 0x9A)
           {
             *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -247,6 +242,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
         {
           return false;
         }
+
         if ((THIRD & 0xC0) != 0x80)
         {
           return false;
@@ -315,6 +311,7 @@ String::ToUpper::to_upper(Helper::Iterator it, char*& dest, size_t& counter)
                 }
               }
             }
+
             if (SECOND < 0x90 || SECOND > 0xBF)
             {
               return false;

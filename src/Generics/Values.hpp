@@ -17,14 +17,14 @@ namespace CORBACommons
   class ValuesConverter;
 }
 
+namespace Generics::ValuesHelper
+{
+  template <typename ParamValue>
+  struct StoredMember;
+}
+
 namespace Generics
 {
-  namespace ValuesHelper
-  {
-    template <typename ParamValue>
-    struct StoredMember;
-  }
-
 
   /**
    * Thread-safe associative container for data of types of
@@ -40,19 +40,18 @@ namespace Generics
     DECLARE_EXCEPTION(KeyNotFound, Exception);
 
   public:
-    typedef StringHashAdapter Key;
+    using Key = StringHashAdapter;
 
-    typedef long SignedInt;
-    typedef unsigned long UnsignedInt;
-    typedef double Floating;
-    typedef std::string String;
+    using SignedInt = long;
+    using UnsignedInt = unsigned long;
+    using Floating = double;
+    using String = std::string;
 
     /**
      * Constructor
      * @param table_size initial size for underlying hash
      */
-    explicit
-    Values(size_t table_size = 0) /*throw (eh::Exception)*/;
+    explicit Values(size_t table_size = 0) /*throw (eh::Exception)*/;
 
     /**
      * Getter
@@ -60,8 +59,7 @@ namespace Generics
      * @return value associated with the key (if any)
      */
     template <typename Type>
-    Type
-    get(const Key& key) const
+    Type get(const Key& key) const
       /*throw (eh::Exception, KeyNotFound, InvalidType)*/;
 
     /**
@@ -71,8 +69,7 @@ namespace Generics
      * @return if the operation has been completed successfully or not
      */
     template <typename Type>
-    bool
-    get(const Key& key, Type& value) const
+    bool get(const Key& key, Type& value) const
       /*throw (eh::Exception, InvalidType)*/;
 
     /**
@@ -81,8 +78,7 @@ namespace Generics
      * @param value initial value for the record
      */
     template <typename Type>
-    void
-    set(const Key& key, const Type& value) /*throw (eh::Exception)*/;
+    void set(const Key& key, const Type& value) /*throw (eh::Exception)*/;
 
     /**
      * Adds a value to the existing record
@@ -90,8 +86,7 @@ namespace Generics
      * @param value additional value for the record
      */
     template <typename Type>
-    void
-    add(const Key& key, const Type& value)
+    void add(const Key& key, const Type& value)
       /*throw (eh::Exception, KeyNotFound, InvalidType)*/;
 
     /**
@@ -101,8 +96,7 @@ namespace Generics
      * @param value increasing/setting value
      */
     template <typename Type>
-    void
-    add_or_set(const Key& key, const Type& value)
+    void add_or_set(const Key& key, const Type& value)
       /*throw (eh::Exception, InvalidType)*/;
 
     /**
@@ -113,8 +107,7 @@ namespace Generics
      * @param functor functor to apply if the record exists
      */
     template <typename Functor, typename Type>
-    void
-    func_or_set(const Key& key, const Type& value, Functor functor)
+    void func_or_set(const Key& key, const Type& value, Functor functor)
       /*throw (eh::Exception, InvalidType)*/;
 
     /**
@@ -124,8 +117,7 @@ namespace Generics
      * @param object object to serialize and store
      */
     template <typename T>
-    bool
-    set_as_string(const Key& key, const T& object) /*throw (eh::Exception)*/;
+    bool set_as_string(const Key& key, const T& object) /*throw (eh::Exception)*/;
 
     /**
      * Generalized getter.
@@ -136,8 +128,7 @@ namespace Generics
      * @return if input stream has been processed fully and without errors
      */
     template <typename T>
-    bool
-    get_as_string(const Key& key, T& object) const
+    bool get_as_string(const Key& key, T& object) const
       /*throw (eh::Exception, KeyNotFound)*/;
 
     /**
@@ -145,20 +136,17 @@ namespace Generics
      * @param functor functor to call for each value
      */
     template <typename Functor>
-    void
-    enumerate_all(Functor& functor) const /*throw (eh::Exception)*/;
+    void enumerate_all(Functor& functor) const /*throw (eh::Exception)*/;
 
     /**
      * Locks the current object and swaps its content with the supplied one.
      * The supplied object is not locked.
      * @param values object to swap content with
      */
-    void
-    swap(Values& values) /*throw (eh::Exception)*/;
+    void swap(Values& values) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~Values() noexcept = default;
+    virtual ~Values() noexcept = default;
 
   protected:
     /**
@@ -167,8 +155,7 @@ namespace Generics
      * @return value associated with the key (if any) or 0
      */
     template <typename Type>
-    typename ValuesHelper::StoredMember<Type>::Type*
-    get_(const Key& key) const
+    typename ValuesHelper::StoredMember<Type>::Type* get_(const Key& key) const
       /*throw (eh::Exception, InvalidType)*/;
 
     /**
@@ -178,8 +165,7 @@ namespace Generics
      * @param value initial value for the record
      */
     template <typename Type>
-    void
-    set_(const Key& key, const Type& value) /*throw (eh::Exception)*/;
+    void set_(const Key& key, const Type& value) /*throw (eh::Exception)*/;
 
     /**
      * Unsafe modifier
@@ -199,8 +185,7 @@ namespace Generics
      * Unsafe swap
      * @param values object to swap content with
      */
-    void
-    swap_(Values& values) /*throw (eh::Exception)*/;
+    void swap_(Values& values) /*throw (eh::Exception)*/;
 
   protected:
     enum StoredType
@@ -225,7 +210,7 @@ namespace Generics
       String string;
     };
 
-    typedef GnuHashTable<Key, StoredValue> Data;
+    using Data = GnuHashTable<Key, StoredValue>;
 
 
     template <typename Type>
@@ -233,9 +218,7 @@ namespace Generics
     set_(StoredValue& data, const Type& value) /*throw (eh::Exception)*/;
 
     template <typename Functor>
-    static
-    void
-    enumerate_one_(const Data::value_type& one, Functor& functor)
+    static void enumerate_one_(const Data::value_type& one, Functor& functor)
       /*throw (eh::Exception)*/;
 
   protected:
@@ -244,88 +227,88 @@ namespace Generics
     Data data_;
 
     template <typename ParamValue>
-    friend struct ValuesHelper::StoredMember; 
+    friend struct ValuesHelper::StoredMember;
 
     friend class CORBACommons::ValuesConverter;
   };
-  typedef ReferenceCounting::QualPtr<Values> Values_var;
+  using Values_var = ReferenceCounting::QualPtr<Values>;
 
-  namespace ValuesHelper
+}
+
+namespace Generics::ValuesHelper
+{
+  template <>
+  struct StoredMember<Values::SignedInt>
   {
-    template <>
-    struct StoredMember<Values::SignedInt>
-    {
-      static const Values::StoredType TYPE = Values::ST_SIGNEDINT;
-      typedef Values::SignedInt Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+    static const Values::StoredType TYPE = Values::ST_SIGNEDINT;
+    using Type = Values::SignedInt;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <>
-    struct StoredMember<Values::UnsignedInt>
-    {
-      static const Values::StoredType TYPE = Values::ST_UNSIGNEDINT;
-      typedef Values::UnsignedInt Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <>
+  struct StoredMember<Values::UnsignedInt>
+  {
+    static const Values::StoredType TYPE = Values::ST_UNSIGNEDINT;
+    using Type = Values::UnsignedInt;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <>
-    struct StoredMember<Values::Floating>
-    {
-      static const Values::StoredType TYPE = Values::ST_FLOATING;
-      typedef Values::Floating Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <>
+  struct StoredMember<Values::Floating>
+  {
+    static const Values::StoredType TYPE = Values::ST_FLOATING;
+    using Type = Values::Floating;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <>
-    struct StoredMember<Values::String>
-    {
-      static const Values::StoredType TYPE = Values::ST_STRING;
-      typedef Values::String Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <>
+  struct StoredMember<Values::String>
+  {
+    static const Values::StoredType TYPE = Values::ST_STRING;
+    using Type = Values::String;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <>
-    struct StoredMember<char*>
-    {
-      static const Values::StoredType TYPE = Values::ST_STRING;
-      typedef Values::String Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <>
+  struct StoredMember<char*>
+  {
+    static const Values::StoredType TYPE = Values::ST_STRING;
+    using Type = Values::String;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <>
-    struct StoredMember<const char*>
-    {
-      static const Values::StoredType TYPE = Values::ST_STRING;
-      typedef Values::String Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <>
+  struct StoredMember<const char*>
+  {
+    static const Values::StoredType TYPE = Values::ST_STRING;
+    using Type = Values::String;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <const size_t SIZE>
-    struct StoredMember<char [SIZE]>
-    {
-      static const Values::StoredType TYPE = Values::ST_STRING;
-      typedef Values::String Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <const size_t SIZE>
+  struct StoredMember<char [SIZE]>
+  {
+    static const Values::StoredType TYPE = Values::ST_STRING;
+    using Type = Values::String;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <const size_t SIZE>
-    struct StoredMember<const char [SIZE]>
-    {
-      static const Values::StoredType TYPE = Values::ST_STRING;
-      typedef Values::String Type;
-      static Type Values::StoredValue::* const MEMBER;
-    };
+  template <const size_t SIZE>
+  struct StoredMember<const char [SIZE]>
+  {
+    static const Values::StoredType TYPE = Values::ST_STRING;
+    using Type = Values::String;
+    static Type Values::StoredValue::* const MEMBER;
+  };
 
-    template <const size_t SIZE>
-    Values::String
-    Values::StoredValue::* const StoredMember<char [SIZE]>::MEMBER =
-      &Values::StoredValue::string;
+  template <const size_t SIZE>
+  Values::String
+  Values::StoredValue::* const StoredMember<char [SIZE]>::MEMBER = &Values::StoredValue::string;
 
-    template <const size_t SIZE>
-    Values::String
-    Values::StoredValue::* const StoredMember<const char [SIZE]>::MEMBER =
-      &Values::StoredValue::string;
-  }
+  template <const size_t SIZE>
+  Values::String
+  Values::StoredValue::* const StoredMember<const char [SIZE]>::MEMBER =
+    &Values::StoredValue::string;
 }
 
 //
@@ -347,6 +330,7 @@ namespace Generics
     {
       return 0;
     }
+
     if (ValuesHelper::StoredMember<Type>::TYPE != itor->second.type)
     {
       Stream::Error ostr;
@@ -368,8 +352,7 @@ namespace Generics
   }
 
   template <typename Type>
-  void
-  Values::set_(const Key& key, const Type& value) /*throw (eh::Exception)*/
+  void Values::set_(const Key& key, const Type& value) /*throw (eh::Exception)*/
   {
     set_(data_[key], value);
   }
@@ -379,8 +362,7 @@ namespace Generics
   Values::func_or_set_(const Key& key, const Type& value,
     Functor functor) /*throw (eh::Exception, InvalidType)*/
   {
-    typename ValuesHelper::StoredMember<Type>::Type* member =
-      get_<Type>(key);
+    typename ValuesHelper::StoredMember<Type>::Type* member = get_<Type>(key);
     if (member)
     {
       *member = functor(value, *member);
@@ -393,34 +375,28 @@ namespace Generics
   }
 
   template <typename Functor>
-  void
-  Values::enumerate_one_(const Data::value_type& one, Functor& functor)
+  void Values::enumerate_one_(const Data::value_type& one, Functor& functor)
     /*throw (eh::Exception)*/
   {
     switch (one.second.type)
     {
     case ST_SIGNEDINT:
-      functor(one.first, one.second.*
-        Generics::ValuesHelper::StoredMember<SignedInt>::MEMBER);
+      functor(one.first, one.second.* Generics::ValuesHelper::StoredMember<SignedInt>::MEMBER);
       break;
     case ST_UNSIGNEDINT:
-      functor(one.first, one.second.*
-        Generics::ValuesHelper::StoredMember<UnsignedInt>::MEMBER);
+      functor(one.first, one.second.* Generics::ValuesHelper::StoredMember<UnsignedInt>::MEMBER);
       break;
     case ST_FLOATING:
-      functor(one.first, one.second.*
-        Generics::ValuesHelper::StoredMember<Floating>::MEMBER);
+      functor(one.first, one.second.* Generics::ValuesHelper::StoredMember<Floating>::MEMBER);
       break;
     case ST_STRING:
-      functor(one.first, one.second.*
-        Generics::ValuesHelper::StoredMember<String>::MEMBER);
+      functor(one.first, one.second.* Generics::ValuesHelper::StoredMember<String>::MEMBER);
       break;
     }
   }
 
   template <typename Type>
-  Type
-  Values::get(const Key& key) const
+  Type Values::get(const Key& key) const
     /*throw (eh::Exception, KeyNotFound, InvalidType)*/
   {
     for (;;)
@@ -443,8 +419,7 @@ namespace Generics
   }
 
   template <typename Type>
-  bool
-  Values::get(const Key& key, Type& value) const
+  bool Values::get(const Key& key, Type& value) const
     /*throw (eh::Exception, InvalidType)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -453,22 +428,19 @@ namespace Generics
   }
 
   template <typename Type>
-  void
-  Values::set(const Key& key, const Type& value) /*throw (eh::Exception)*/
+  void Values::set(const Key& key, const Type& value) /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
     set_(key, value);
   }
 
   template <typename Type>
-  void
-  Values::add(const Key& key, const Type& value)
+  void Values::add(const Key& key, const Type& value)
     /*throw (eh::Exception, KeyNotFound, InvalidType)*/
   {
     {
       Sync::PosixGuard guard(mutex_);
-      if (typename ValuesHelper::StoredMember<Type>::Type* member =
-        get_<Type>(key))
+      if (typename ValuesHelper::StoredMember<Type>::Type* member = get_<Type>(key))
       {
         *member = *member + value;
         return;
@@ -480,18 +452,15 @@ namespace Generics
   }
 
   template <typename Type>
-  void
-  Values::add_or_set(const Key& key, const Type& value)
+  void Values::add_or_set(const Key& key, const Type& value)
     /*throw (eh::Exception, InvalidType)*/
   {
     Sync::PosixGuard guard(mutex_);
-    func_or_set_(key, value,
-      std::plus<typename ValuesHelper::StoredMember<Type>::Type>());
+    func_or_set_(key, value, std::plus<typename ValuesHelper::StoredMember<Type>::Type>());
   }
 
   template <typename Functor, typename Type>
-  void
-  Values::func_or_set(const Key& key, const Type& value, Functor functor)
+  void Values::func_or_set(const Key& key, const Type& value, Functor functor)
     /*throw (eh::Exception, InvalidType)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -499,8 +468,7 @@ namespace Generics
   }
 
   template <typename T>
-  bool
-  Values::set_as_string(const Key& key, const T& object)
+  bool Values::set_as_string(const Key& key, const T& object)
     /*throw (eh::Exception)*/
   {
     Stream::Dynamic ostr(4096);
@@ -510,8 +478,7 @@ namespace Generics
   }
 
   template <typename T>
-  bool
-  Values::get_as_string(const Key& key, T& object) const
+  bool Values::get_as_string(const Key& key, T& object) const
     /*throw (eh::Exception, KeyNotFound)*/
   {
     const std::string& str = get<String>(key);
@@ -521,13 +488,11 @@ namespace Generics
   }
 
   template <typename Functor>
-  void
-  Values::enumerate_all(Functor& functor) const /*throw (eh::Exception)*/
+  void Values::enumerate_all(Functor& functor) const /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
     functor(data_.size());
-    for (Data::const_iterator itor(data_.begin());
-      itor != data_.end(); ++itor)
+    for (Data::const_iterator itor(data_.begin()); itor != data_.end(); ++itor)
     {
       enumerate_one_(*itor, functor);
     }

@@ -1,8 +1,7 @@
 #include <iostream>
 #include "echo.hpp"
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   CORBA::ORB_ptr orb = CORBA::ORB_init(argc, argv, ORB_NAME);
 

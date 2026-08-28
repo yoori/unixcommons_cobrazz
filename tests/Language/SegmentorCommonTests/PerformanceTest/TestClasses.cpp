@@ -11,8 +11,7 @@
 // class CheckSegmentResult
 //
 
-CheckSegmentResult::CheckSegmentResult(const Segmentors& segms_map,
-    bool check_transforms)
+CheckSegmentResult::CheckSegmentResult(const Segmentors& segms_map, bool check_transforms)
   : segmentors_stats_vect_(segms_map.size()),
     segmentors_vect_(segms_map),
     segmentations_count_(0),
@@ -21,15 +20,12 @@ CheckSegmentResult::CheckSegmentResult(const Segmentors& segms_map,
 {
 }
 
-inline
-bool
-CheckSegmentResult::is_space_(const char ch) noexcept
+inline bool CheckSegmentResult::is_space_(const char ch) noexcept
 {
   return ch == ' ';
 }
 
-void
-CheckSegmentResult::check(const char* phrase, size_t phrase_len)
+void CheckSegmentResult::check(const char* phrase, size_t phrase_len)
 {
   if (!phrase || *phrase == '\0' || !phrase_len)
   {
@@ -88,8 +84,7 @@ CheckSegmentResult::check(const char* phrase, size_t phrase_len)
       else
       {
         std::string src(phrase, phrase_len);
-        std::string::size_type src_spaces_count =
-          std::count_if(src.begin(), src.end(), is_space_);
+        std::string::size_type src_spaces_count = std::count_if(src.begin(), src.end(), is_space_);
         std::string::size_type res_spaces_count =
           std::count_if(result.begin(), result.end(), is_space_);
 
@@ -117,6 +112,7 @@ CheckSegmentResult::check(const char* phrase, size_t phrase_len)
                 Transform(src.c_str(), result.c_str()));
             }
           }
+
           if (partially_dropped)
           {
             ++segmentors_stats_vect_[i].partially_dropped_count;
@@ -136,8 +132,7 @@ CheckSegmentResult::check(const char* phrase, size_t phrase_len)
   ++segmentations_count_;
 }
 
-void
-CheckSegmentResult::dump(std::ostream& out)
+void CheckSegmentResult::dump(std::ostream& out)
 {
   for (size_t i = 0; i < segmentors_vect_.size(); ++i)
   {
@@ -149,8 +144,7 @@ CheckSegmentResult::dump(std::ostream& out)
     out << "\nSegmentor id: " << segmentors_vect_[i].in()
         << ". Total processings: " << segmentations_count_
         << " (ave sequences len: " << average_seqs_length_
-        << ")\nsegmented w/o partially dropping: "
-          << segmentors_stats_vect_[i].segmented_count
+        << ")\nsegmented w/o partially dropping: " << segmentors_stats_vect_[i].segmented_count
         << "\nsegmented with partially dropping: "
           << segmentors_stats_vect_[i].segmented_dropped_count
         << "\npartially dropped w/o segmenting: "
@@ -159,8 +153,7 @@ CheckSegmentResult::dump(std::ostream& out)
         << "\nexceptions thrown: " << segmentors_stats_vect_[i].exceptions_count
         << "\nTotal processing time: " << segmentors_stats_vect_[i].processing_time
         << ", average: " << (!segmentations_count_ ? Generics::Time::ZERO :
-          segmentors_stats_vect_[i].processing_time / segmentations_count_)
-        << '\n';
+          segmentors_stats_vect_[i].processing_time / segmentations_count_) << '\n';
   }
 }
 
@@ -211,18 +204,15 @@ CheckSegmentResult::flush_segmentor_stats(
   }
 
   std::cerr << "CheckSegmentResult::flush_segmentor_stats(): segmentor (id: "
-            << id <<  ") was not found."
-            << std::endl;
+            << id <<  ") was not found." << std::endl;
 }
 
-size_t
-CheckSegmentResult::get_segmentations_count() const noexcept
+size_t CheckSegmentResult::get_segmentations_count() const noexcept
 {
   return segmentations_count_;
 }
 
-double
-CheckSegmentResult::get_average_seqs_length() const noexcept
+double CheckSegmentResult::get_average_seqs_length() const noexcept
 {
   return average_seqs_length_;
 }
@@ -281,8 +271,7 @@ CommonFunctor::CommonFunctor(const Segmentors& segms_map):
 {
 }
 
-void
-CommonFunctor::fix_results_(CheckSegmentResult& checker) const
+void CommonFunctor::fix_results_(CheckSegmentResult& checker) const
 {
   Sync::PosixGuard guard(lock_);
 
@@ -294,8 +283,7 @@ CommonFunctor::fix_results_(CheckSegmentResult& checker) const
       continue;
     }
 
-    checker.flush_segmentor_stats(
-      stats_[i], segms_map_[i].in(), CheckSegmentResult::ADD);
+    checker.flush_segmentor_stats( stats_[i], segms_map_[i].in(), CheckSegmentResult::ADD);
   }
 
   segmentations_count_ += checker.get_segmentations_count();
@@ -319,8 +307,7 @@ CommonFunctor::find_segmentor_stats(
   return 0;
 }
 
-void
-CommonFunctor::dump(std::ostream& out)
+void CommonFunctor::dump(std::ostream& out)
 {
   for (size_t i = 0; i < segms_map_.size(); ++i)
   {
@@ -332,31 +319,25 @@ CommonFunctor::dump(std::ostream& out)
     out << "\nSegmentor id: " << segms_map_[i].in()
         << ". Total processings: " << segmentations_count_
         << " (ave sequences len: " << average_seqs_length_
-        << ")\nsegmented w/o partially dropping: "
-          << stats_[i].segmented_count
-        << "\nsegmented with partially dropping: "
-          << stats_[i].segmented_dropped_count
-        << "\npartially dropped w/o segmenting: "
-          << stats_[i].partially_dropped_count
+        << ")\nsegmented w/o partially dropping: " << stats_[i].segmented_count
+        << "\nsegmented with partially dropping: " << stats_[i].segmented_dropped_count
+        << "\npartially dropped w/o segmenting: " << stats_[i].partially_dropped_count
         << "\nfully dropped: " << stats_[i].dropped_count
         << "\nexceptions thrown: " << stats_[i].exceptions_count
         << "\nTotal processing time: " << stats_[i].processing_time
         << ", average: " << (!segmentations_count_ ?
           Generics::Time::ZERO :
-          stats_[i].processing_time / segmentations_count_)
-        << '\n';
+          stats_[i].processing_time / segmentations_count_) << '\n';
   }
 }
 
 
-size_t
-CommonFunctor::get_segmentations_count() const noexcept
+size_t CommonFunctor::get_segmentations_count() const noexcept
 {
   return segmentations_count_;
 }
 
-double
-CommonFunctor::get_average_seqs_length() const noexcept
+double CommonFunctor::get_average_seqs_length() const noexcept
 {
   return average_seqs_length_;
 }
@@ -381,8 +362,7 @@ RandomUtf8SegmentFunctor::RandomUtf8SegmentFunctor(const Segmentors& segms_map,
 {
 }
 
-void
-RandomUtf8SegmentFunctor::operator()() const
+void RandomUtf8SegmentFunctor::operator()() const
 {
   try
   {
@@ -400,8 +380,7 @@ RandomUtf8SegmentFunctor::operator()() const
       }
       catch (const eh::Exception& e)
       {
-        std::cerr << "RandomUtf8SegmentFunctor::operator(): "
-                  << std::string(ptr, real_len)
+        std::cerr << "RandomUtf8SegmentFunctor::operator(): " << std::string(ptr, real_len)
                   << " failed: " << e.what() << std::endl;
       }
     }
@@ -410,8 +389,7 @@ RandomUtf8SegmentFunctor::operator()() const
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "RandomUtf8SegmentFunctor::operator() failed: "
-              << e.what() << std::endl;
+    std::cerr << "RandomUtf8SegmentFunctor::operator() failed: " << e.what() << std::endl;
   }
 }
 
@@ -429,8 +407,7 @@ ParseStdIn::ParseStdIn(const Segmentors& segms_map, bool check_transforms)
 {
 }
 
-void
-ParseStdIn::operator()() const
+void ParseStdIn::operator()() const
 {
   try
   {
@@ -446,9 +423,7 @@ ParseStdIn::operator()() const
       }
       catch (const eh::Exception& e)
       {
-        std::cerr << "ParseStdIn::operator(): "
-                  << new_word
-                  << " failed: " << e.what() << std::endl;
+        std::cerr << "ParseStdIn::operator(): " << new_word << " failed: " << e.what() << std::endl;
       }
     }
     while (!std::cin.bad() && !std::cin.fail());
@@ -457,8 +432,7 @@ ParseStdIn::operator()() const
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "ParseStdIn::operator() failed: "
-              << e.what() << std::endl;
+    std::cerr << "ParseStdIn::operator() failed: " << e.what() << std::endl;
   }
 }
 
@@ -478,8 +452,7 @@ RandomAsciiSegmentFunctor::RandomAsciiSegmentFunctor(const Segmentors& segms_map
   sequences_len_ = sequences_len;
 }
 
-void
-RandomAsciiSegmentFunctor::operator()() const
+void RandomAsciiSegmentFunctor::operator()() const
 {
   try
   {
@@ -490,16 +463,14 @@ RandomAsciiSegmentFunctor::operator()() const
 
     for (int i = 0; i < it_count_; ++i)
     {
-      SegmentorTestCommons::AsciiGenerator::gen_rand_ascii_sequence(
-        ptr, sequences_len_);
+      SegmentorTestCommons::AsciiGenerator::gen_rand_ascii_sequence( ptr, sequences_len_);
 
       try {
         checker->check(ptr, sequences_len_);
       }
       catch (const eh::Exception& e)
       {
-        std::cerr << "RandomAsciiSegmentFunctor::operator(): "
-                  << std::string(ptr, sequences_len_)
+        std::cerr << "RandomAsciiSegmentFunctor::operator(): " << std::string(ptr, sequences_len_)
                   << " failed: " << e.what() << std::endl;
       }
     }
@@ -508,8 +479,7 @@ RandomAsciiSegmentFunctor::operator()() const
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "RandomAsciiSegmentFunctor::operator() failed: "
-              << e.what() << std::endl;
+    std::cerr << "RandomAsciiSegmentFunctor::operator() failed: " << e.what() << std::endl;
   }
 }
 
@@ -531,8 +501,7 @@ ParseFile::ParseFile(const char* file_name, const Segmentors& segms_map,
 {
 }
 
-void
-ParseFile::operator()() const
+void ParseFile::operator()() const
 {
   int cur_iteration = max_iteration_number_;
   try
@@ -570,12 +539,10 @@ ParseFile::operator()() const
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "ParseFile::operator() failed: "
-              << e.what() << std::endl;
+    std::cerr << "ParseFile::operator() failed: " << e.what() << std::endl;
   }
 }
 
 ParseFile::~ParseFile() noexcept
 {
 }
-

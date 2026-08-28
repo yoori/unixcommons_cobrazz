@@ -30,18 +30,18 @@ namespace
   DECLARE_EXCEPTION(TestException, eh::DescriptiveException);
 
   // Standard for non-zero canonical classes
-  typedef std::vector<wchar_t> Mapping;
-  typedef std::map<wchar_t, Mapping> Map;
+  using Mapping = std::vector<wchar_t>;
+  using Map = std::map<wchar_t, Mapping>;
   Map standard;
 
-  typedef std::map<wchar_t, uint8_t> CanonicalMap;
+  using CanonicalMap = std::map<wchar_t, uint8_t>;
   CanonicalMap std_canonical_map;
 
-  typedef std::vector<wchar_t> CanonicalSet;
+  using CanonicalSet = std::vector<wchar_t>;
   CanonicalSet std_canonical_set;
 
-  typedef std::pair<wchar_t, wchar_t> ComposeArgument;
-  typedef std::map<ComposeArgument, wchar_t> ComposeMap;
+  using ComposeArgument = std::pair<wchar_t, wchar_t>;
+  using ComposeMap = std::map<ComposeArgument, wchar_t>;
   ComposeMap std_compose_map;
 
   struct TestInfoRecord
@@ -52,13 +52,12 @@ namespace
     std::wstring NFKC;
     std::wstring NFKD;
   };
-  typedef std::deque<TestInfoRecord> ConformanceData;
+  using ConformanceData = std::deque<TestInfoRecord>;
   ConformanceData std_conformance_data_part0;
   ConformanceData std_conformance_data_part1;
   ConformanceData std_conformance_data_part2;
 
-  void
-  print(const std::wstring& wstr) /*throw (eh::Exception)*/
+  void print(const std::wstring& wstr) /*throw (eh::Exception)*/
   {
     std::cerr << std::hex;
     for (std::size_t j = 0; j < wstr.size(); ++j)
@@ -73,8 +72,7 @@ namespace
   public:
     DataLoader() /*throw (eh::Exception)*/;
 
-    static void
-    open_file(std::ifstream& ifs, const char* name)
+    static void open_file(std::ifstream& ifs, const char* name)
       /*throw (eh::Exception)*/;
   } data_loader;
 
@@ -107,8 +105,7 @@ namespace
       standard[key] = mapping;
     }
     ifs.close();
-    std::cout << "Loaded " << standard.size() << " mapped elements."
-      << std::endl;
+    std::cout << "Loaded " << standard.size() << " mapped elements." << std::endl;
 
     open_file(ifs, "CodeUnitCombiner.txt");
 
@@ -130,8 +127,7 @@ namespace
       std_canonical_set.push_back(key);
     }
     ifs.close();
-    std::cout << "Loaded " << std_canonical_map.size()
-      << " combiners." << std::endl;
+    std::cout << "Loaded " << std_canonical_map.size() << " combiners." << std::endl;
 
     open_file(ifs, "CanonicalReverseMapping.txt");
 
@@ -160,10 +156,8 @@ namespace
     open_file(ifs, "NormalizationTest.txt");
 
     // Loading standard canonical classes
-    const AsciiStringManip::CharCategory USEFULL(
-      AsciiStringManip::HEX_NUMBER, "@");
-    ConformanceData* parts[3] =
-    {
+    const AsciiStringManip::CharCategory USEFULL( AsciiStringManip::HEX_NUMBER, "@");
+    ConformanceData* parts[3] = {
       &std_conformance_data_part0,
       &std_conformance_data_part1,
       &std_conformance_data_part2
@@ -180,6 +174,7 @@ namespace
       {
         continue;
       }
+
       if (line[0] == '@')
       {
         current_part = parts[current_part_index++];
@@ -190,8 +185,7 @@ namespace
       unsigned long one = 0;
       char divider;
       TestInfoRecord record;
-      std::wstring* fields[] =
-      {
+      std::wstring* fields[] = {
         &record.input, &record.NFC, &record.NFD, &record.NFKC, &record.NFKD
       };
 
@@ -212,20 +206,17 @@ namespace
     }
     ifs.close();
     std::cout << "Loaded " << std_conformance_data_part0.size()
-      << " + " << std_conformance_data_part1.size()
-      << " + " << std_conformance_data_part2.size()
+      << " + " << std_conformance_data_part1.size() << " + " << std_conformance_data_part2.size()
       << " conformance normalization test." << std::endl;
   }
 
-  void
-  DataLoader::open_file(std::ifstream& ifs, const char* name)
+  void DataLoader::open_file(std::ifstream& ifs, const char* name)
     /*throw (eh::Exception)*/
   {
     // load standard result to do code check
     char* ev = getenv("TEST_TOP_SRC_DIR");
     std::string root_path = ev ? ev : "../../../..";
-    root_path +=
-      "/tests/String/UnicodeNormalizer/Data/";
+    root_path += "/tests/String/UnicodeNormalizer/Data/";
     root_path += name; //"DecompositionMapRFC3491.txt";
 
     ifs.open(root_path.c_str());
@@ -239,8 +230,7 @@ namespace
 
   // Alternative - compressed data for get_combining_class
   // function. Memory less but slower than used in String library.
-  const uint64_t MASKS[195] =
-  {
+  const uint64_t MASKS[195] = {
     0x0000000000000000LL, 0x0000000000000000LL, 0x0000000000000000LL,
     0x0000000000000000LL, 0x0000000000000000LL, 0x0000000000000000LL,
     0x0000000000000000LL, 0x0000000000000000LL, 0x0000000000000000LL,
@@ -308,14 +298,14 @@ namespace
     0x0000FC0000000000LL, 0x0000000000000000LL, 0x0000000006000000LL,
   };
 
-  inline bool
-  get_NZ_canonical_class(wchar_t wch) noexcept
+  inline bool get_NZ_canonical_class(wchar_t wch) noexcept
   {
     if (wch < 0x30C0)
     {
       // long long MASK[195] contain info about first 12480 characters
       return (static_cast<uint64_t>(1) << (wch & 0x3F)) & MASKS[wch >> 6];
     }
+
     if (wch > 0x1D1AD)
     {
       return 0;
@@ -323,8 +313,7 @@ namespace
     return (*COMBINING_CLASS_INDEX[wch >> 8])[wch & 0xFF] != 0;
   }
 
-  const WSubString SAMPLES[] =
-  {
+  const WSubString SAMPLES[] = {
     WSubString(L"Madsen", 6),
     WSubString(L"", static_cast<size_t>(0)),
     WSubString(L"", 1),
@@ -332,8 +321,7 @@ namespace
     WSubString(L"A", 2),
     WSubString(L"Йёлжик", 6),
     WSubString(L"높였다", 3),
-    WSubString(
-      L"\xAA8C5\x317\x5FBEC\x346\x2AF73\x302\x1F44\x334\x6AEAB\x1D16F", 10),
+    WSubString( L"\xAA8C5\x317\x5FBEC\x346\x2AF73\x302\x1F44\x334\x6AEAB\x1D16F", 10),
     WSubString(L"\x41\x1806\x31A\x20D4\xFE21\x32D\xF7B", 7),
     WSubString(L"\x41\x200D\x340\x32C\x655\x742\x5BF\xB725A\xB725A", 9),
     WSubString(L"\x1F44\x334\x6AEAB\x1D16F", 4),
@@ -372,8 +360,7 @@ namespace
 
 }
 
-void
-do_decomposition_test() /*throw (eh::Exception)*/
+void do_decomposition_test() /*throw (eh::Exception)*/
 {
   wchar_t result_buf[64];
   memset(result_buf, 0, sizeof(result_buf));
@@ -387,15 +374,15 @@ do_decomposition_test() /*throw (eh::Exception)*/
     {
       continue;
     }
+
     if (standard.find(wch) != standard.end())
     {
       const Mapping& mapping = standard[wch];
-      if (wmemcmp(&mapping[0], result_buf, mapping.size()) ||
-        result_buf[mapping.size()])
+      if (wmemcmp(&mapping[0], result_buf, mapping.size()) || result_buf[mapping.size()])
       {
-        std::cerr << "Test fail: 1, wch=" << wch << ", result="
-          << result_buf[0] << std::endl;
+        std::cerr << "Test fail: 1, wch=" << wch << ", result=" << result_buf[0] << std::endl;
       }
+
       if (mapping.empty() && *result_buf)
       {
         std::cerr << "Test fail: 2, wch=" << wch << std::endl;
@@ -412,8 +399,7 @@ do_decomposition_test() /*throw (eh::Exception)*/
   }
 }
 
-void
-print_hangul_decomposition() /*throw (eh::Exception)*/
+void print_hangul_decomposition() /*throw (eh::Exception)*/
 {
   wchar_t result_buf[64];
   Stream::FlagsSaver flags_saver(std::cout);
@@ -431,8 +417,7 @@ print_hangul_decomposition() /*throw (eh::Exception)*/
   }
 }
 
-void
-do_get_canonical_test() /*throw (eh::Exception)*/
+void do_get_canonical_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_get_canonical_test(): ";
   for (wchar_t wch = 0; wch <= 0x10FFFD; ++wch)
@@ -442,8 +427,7 @@ do_get_canonical_test() /*throw (eh::Exception)*/
       if (get_canonical_class(wch) != std_canonical_map[wch])
       {
         std::cerr << FUN << "failed, wch=" << wch <<
-          ", get_canonical(wch)=" << get_canonical_class(wch)
-          << std::endl;
+          ", get_canonical(wch)=" << get_canonical_class(wch) << std::endl;
       }
     }
     else
@@ -451,8 +435,7 @@ do_get_canonical_test() /*throw (eh::Exception)*/
       if (get_canonical_class(wch) != 0)
       {
         std::cerr << FUN << "failed, wch=" << wch <<
-          ", get_canonical(wch) != 0, but = " << get_canonical_class(wch)
-          << std::endl;
+          ", get_canonical(wch) != 0, but = " << get_canonical_class(wch) << std::endl;
       }
     }
   }
@@ -461,8 +444,7 @@ do_get_canonical_test() /*throw (eh::Exception)*/
 /**
  * Get some properties of starters and combiners decomposition
  */
-void
-do_test_properties() /*throw (eh::Exception)*/
+void do_test_properties() /*throw (eh::Exception)*/
 {
   wchar_t result[64];
   std::cout << std::hex << std::uppercase;
@@ -475,6 +457,7 @@ do_test_properties() /*throw (eh::Exception)*/
 //      std::cout << "Decomposition started from !=0 combining class, wch = "
 //      << wch << std::endl;
     }
+
     if (wch != *result)
     {
       bool have_starter = false;
@@ -485,6 +468,7 @@ do_test_properties() /*throw (eh::Exception)*/
           have_starter = true;
         }
       }
+
       if (!have_starter)
       {
         std::cout << "wch=" << wch << ", do not have starter" << std::endl;
@@ -497,8 +481,7 @@ do_test_properties() /*throw (eh::Exception)*/
     /*wchar_t* end = */decompose(wch, result);
     if (get_canonical_class(wch) == 0 && get_canonical_class(*result) != 0)
     {
-      std::cout << "Starter decomposed doesn't started from zero " << wch
-        << std::endl;
+      std::cout << "Starter decomposed doesn't started from zero " << wch << std::endl;
     }
   }
   for (UnicodeSymbol sym(L'\0'); sym < UnicodeSymbol::MAX_CODE_UNIT; ++sym)
@@ -506,11 +489,9 @@ do_test_properties() /*throw (eh::Exception)*/
     wchar_t wch = sym;
     result[0] = 0;
     wchar_t* end = decompose(wch, result);
-    if (end != result && get_canonical_class(wch) != 0 &&
-      get_canonical_class(*result) == 0)
+    if (end != result && get_canonical_class(wch) != 0 && get_canonical_class(*result) == 0)
     {
-      std::cout << "Combine decomposed started from started " << wch
-        << std::endl;
+      std::cout << "Combine decomposed started from started " << wch << std::endl;
     }
 
     if (get_canonical_class(wch) != 0)
@@ -523,6 +504,7 @@ do_test_properties() /*throw (eh::Exception)*/
           have_starter = true;
         }
       }
+
       if (have_starter)
       {
         std::cout << "wch=" << wch << ", have starter" << std::endl;
@@ -531,8 +513,7 @@ do_test_properties() /*throw (eh::Exception)*/
   }
 }
 
-bool
-is_ordered(const WSubString& sample, wchar_t* result, wchar_t* endof_result)
+bool is_ordered(const WSubString& sample, wchar_t* result, wchar_t* endof_result)
   /*throw (eh::Exception)*/
 {
   unsigned int previous_class = 0, current_class;
@@ -562,8 +543,7 @@ is_ordered(const WSubString& sample, wchar_t* result, wchar_t* endof_result)
   return true;
 }
 
-void
-do_canonical_order_test() /*throw (eh::Exception)*/
+void do_canonical_order_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_canonical_order_test(): ";
   wchar_t result[2048];
@@ -571,8 +551,7 @@ do_canonical_order_test() /*throw (eh::Exception)*/
 
   for (std::size_t i = 0; i < sizeof(SAMPLES) / sizeof(SAMPLES[0]); ++i)
   {
-    wchar_t* endof_result =
-      normalize(SAMPLES[i].begin(), SAMPLES[i].end(), result);
+    wchar_t* endof_result = normalize(SAMPLES[i].begin(), SAMPLES[i].end(), result);
     is_ordered(SAMPLES[i], result, endof_result);
   }
   std::cout << FUN << "Text corpus checked" << std::endl;
@@ -587,19 +566,16 @@ do_canonical_order_test() /*throw (eh::Exception)*/
         Generics::safe_rand(0, std_canonical_set.size() - 1)) :
           static_cast<wchar_t>(UnicodeSymbol::random());
     }
-    wchar_t* endof_result =
-      normalize(sample, sample + sizeof(sample) / sizeof(wchar_t), result);
+    wchar_t* endof_result = normalize(sample, sample + sizeof(sample) / sizeof(wchar_t), result);
     if (endof_result)
     {
-      is_ordered(WSubString(sample, sizeof(sample) / sizeof(sample[0])),
-        result, endof_result);
+      is_ordered(WSubString(sample, sizeof(sample) / sizeof(sample[0])), result, endof_result);
     }
   }
   std::cout << FUN << "complete" << std::endl;
 }
 
-void
-do_canonical_perf_test() /*throw (eh::Exception)*/
+void do_canonical_perf_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_canonical_perf_test(): ";
   std::cout << FUN << "started.." << std::endl;
@@ -637,8 +613,7 @@ do_canonical_perf_test() /*throw (eh::Exception)*/
     }
   }
   timer.stop();
-  std::cout << FUN << "Compressed function: " << timer.elapsed_time()
-    << std::endl;
+  std::cout << FUN << "Compressed function: " << timer.elapsed_time() << std::endl;
   timer.start();
   for (std::size_t j = 0; j < MEASURE_COUNT; ++j)
   {
@@ -648,13 +623,11 @@ do_canonical_perf_test() /*throw (eh::Exception)*/
     }
   }
   timer.stop();
-  std::cout << FUN << "Full function: " << timer.elapsed_time()
-    << std::endl;
+  std::cout << FUN << "Full function: " << timer.elapsed_time() << std::endl;
 
 }
 
-unsigned short
-hash(wchar_t starter, wchar_t combiner) noexcept
+unsigned short hash(wchar_t starter, wchar_t combiner) noexcept
 {
   // 0..5, 16..20, 22..24
   // combiner 31..16, starter 15..0
@@ -667,11 +640,10 @@ hash(wchar_t starter, wchar_t combiner) noexcept
   return combiner | ((starter & 0x1FF ) << 5); // 0..5, 16..20,   1F = 0011111     5
 }
 
-void
-do_hash_test() /*throw (eh::Exception)*/
+void do_hash_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_hash_test(): ";
-  typedef std::set<unsigned short> UniqCheck;
+  using UniqCheck = std::set<unsigned short>;
   UniqCheck uset;
 
   for (ComposeMap::const_iterator cit = std_compose_map.begin();
@@ -684,19 +656,16 @@ do_hash_test() /*throw (eh::Exception)*/
     << ", points into mapping=" << std_compose_map.size() << std::endl;
 }
 
-inline bool
-is_composed(wchar_t* first, wchar_t* last, wchar_t* next)
+inline bool is_composed(wchar_t* first, wchar_t* last, wchar_t* next)
 {
   return next <= last && first + 1 == next;
 }
 
-void
-do_composition_test() /*throw (eh::Exception)*/
+void do_composition_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_composition_test(): ";
   wchar_t buf[2] = {L'\x003C', L'\x0338'};
-  std::cout << std::hex << std::uppercase << FUN << "started"
-    << std::endl;
+  std::cout << std::hex << std::uppercase << FUN << "started" << std::endl;
 
   // alone test
   std::cout << buf[0] << " " << buf[1] << std::endl;
@@ -737,14 +706,11 @@ do_composition_test() /*throw (eh::Exception)*/
           // exclude Hangul, from checking
           continue;
         }
-        ComposeMap::iterator cit =
-          std_compose_map.find(ComposeArgument(wch, comb));
+        ComposeMap::iterator cit = std_compose_map.find(ComposeArgument(wch, comb));
         if (cit == std_compose_map.end())
         {
-          std::cerr << FUN << "calculated composite not found in standard"
-            << std::endl;
-          std::cerr << std::hex << std::uppercase
-            << "starter=" << wch << ", combiner=" << comb
+          std::cerr << FUN << "calculated composite not found in standard" << std::endl;
+          std::cerr << std::hex << std::uppercase << "starter=" << wch << ", combiner=" << comb
             << ", result=" << *buf << std::endl;
         }
         else
@@ -755,10 +721,10 @@ do_composition_test() /*throw (eh::Exception)*/
       }
     }
   }
+
   if (counter != std_compose_map.size())
   {
-    std::cerr << FUN << "not all standard composite calculated, only "
-      << counter << std::endl;
+    std::cerr << FUN << "not all standard composite calculated, only " << counter << std::endl;
 /*    for (ComposeMap::iterator it = std_compose_map.begin();
         it != std_compose_map.end(); ++it)
     {
@@ -771,8 +737,7 @@ do_composition_test() /*throw (eh::Exception)*/
   }
 }
 
-void
-do_composition_string_test() /*throw (eh::Exception)*/
+void do_composition_string_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_composition_string_test(): ";
   std::cout << FUN << "started" << std::endl;
@@ -793,9 +758,7 @@ do_composition_string_test() /*throw (eh::Exception)*/
   // put all composable pairs into wstr
   // then compose wstr, and await for corresponding result
   // for each pair.
-  for (ComposeMap::iterator it = std_compose_map.begin();
-    it != std_compose_map.end();
-    ++it)
+  for (ComposeMap::iterator it = std_compose_map.begin(); it != std_compose_map.end(); ++it)
   {
     standard[counter / 2] = it->second;
     wstr[counter++] = it->first.first;
@@ -808,8 +771,7 @@ do_composition_string_test() /*throw (eh::Exception)*/
     if (standard[i] != wstr[i])
     {
       std::cerr << std::hex << "Not standard composite at " << i
-        << "position\nAwaiting " << standard[i] << ", really "
-        << wstr[i] << std::endl;
+        << "position\nAwaiting " << standard[i] << ", really " << wstr[i] << std::endl;
       break;
     }
   }
@@ -817,8 +779,7 @@ do_composition_string_test() /*throw (eh::Exception)*/
   std::cout << FUN << "done" << std::endl;
 }
 
-std::wstring
-fold_normalize(const std::wstring& wstr) /*throw (eh::Exception)*/
+std::wstring fold_normalize(const std::wstring& wstr) /*throw (eh::Exception)*/
 {
   std::string utf8;
   StringManip::wchar_to_utf8(wstr.c_str(), utf8);
@@ -828,14 +789,12 @@ fold_normalize(const std::wstring& wstr) /*throw (eh::Exception)*/
 }
 
 #if 0
-void
-do_full_test() /*throw (eh::Exception)*/
+void do_full_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_full_test(): ";
   std::cout << FUN << "started" << std::endl;
 
-  wchar_t wstr[10000] =
-  {
+  wchar_t wstr[10000] = {
     0x0F73, //0x0CCB, //0x323,// 0x323
   };
 
@@ -856,8 +815,7 @@ do_full_test() /*throw (eh::Exception)*/
 
   std::size_t fails_counter = 0;
 
-  ConformanceData* parts[3] =
-  {
+  ConformanceData* parts[3] = {
     &std_conformance_data_part0,
     &std_conformance_data_part1,
     &std_conformance_data_part2
@@ -866,17 +824,14 @@ do_full_test() /*throw (eh::Exception)*/
   for (std::size_t j = 0; j < 3; ++j)
   {
     std::cout << "Part " << j << " is testing..." << std::endl;
-    for (ConformanceData::const_iterator cit = parts[j]->begin();
-      cit != parts[j]->end(); ++cit)
+    for (ConformanceData::const_iterator cit = parts[j]->begin(); cit != parts[j]->end(); ++cit)
     {
-      lower_and_normalize(cit->input.data(),
-        cit->input.data() + cit->input.size(), result);
+      lower_and_normalize(cit->input.data(), cit->input.data() + cit->input.size(), result);
       //    case_change<Uniform>
       if (result != fold_normalize(cit->NFKC))
       {
         std::cerr << "\nNon conformed realization: s1="
-          << result.size() << ", s2=" << cit->NFKC.size()
-          << ", input=";
+          << result.size() << ", s2=" << cit->NFKC.size() << ", input=";
         print(cit->input);
         std::cerr << std::endl << "result=";
         print(result);
@@ -895,8 +850,7 @@ do_full_test() /*throw (eh::Exception)*/
 }
 #endif
 
-int
-main()
+int main()
 {
   try
   {
@@ -911,8 +865,7 @@ main()
     //do_full_test();
 //    do_test_properties();
 
-    std::size_t total_memory =
-      sizeof(MAPPING_INDEX_0000_33FE) +
+    std::size_t total_memory = sizeof(MAPPING_INDEX_0000_33FE) +
       sizeof(MAPPING_BODY_0000_33FE) +
       sizeof(MAPPING_INDEX_F800_FFFF) +
       sizeof(MAPPING_BODY_F800_FFFF) +
@@ -938,8 +891,7 @@ main()
   return 0;
 }
 #else
-int
-main()
+int main()
 {
   return 0;
 }

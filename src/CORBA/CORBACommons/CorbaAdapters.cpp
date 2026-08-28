@@ -19,16 +19,14 @@ namespace
 
   struct ORBIdGenerator
   {
-    const char*
-    generate(const char* prefix, std::string& id) /*throw (eh::Exception)*/
+    const char* generate(const char* prefix, std::string& id) /*throw (eh::Exception)*/
     {
       WriteGuard_ lock(lock_);
 
       NameCountMap::iterator it = name_count_map_.find(prefix);
       if (it == name_count_map_.end())
       {
-        it = name_count_map_.insert(
-          std::make_pair(std::string(prefix), 0)).first;
+        it = name_count_map_.insert( std::make_pair(std::string(prefix), 0)).first;
       }
 
       Stream::Stack<1024> ostr;
@@ -38,9 +36,9 @@ namespace
       return id.c_str();
     }
 
-    typedef std::map<std::string, unsigned int> NameCountMap;
-    typedef Sync::PosixMutex Mutex_;
-    typedef Sync::PosixGuard WriteGuard_;
+    using NameCountMap = std::map<std::string, unsigned int>;
+    using Mutex_ = Sync::PosixMutex;
+    using WriteGuard_ = Sync::PosixGuard;
 
     Mutex_ lock_;
     NameCountMap name_count_map_;
@@ -73,62 +71,39 @@ namespace
   public:
     BIOEnhancer() /*throw (eh::Exception)*/;
 
-    const BIO_METHOD*
-    intercept_bio_meth() const;
+    const BIO_METHOD* intercept_bio_meth() const;
 
   private:
-    static
-    int
-    write(BIO*, const char*, int) noexcept;
+    static int write(BIO*, const char*, int) noexcept;
 
-    static
-    int
-    read(BIO*, char*, int) noexcept;
+    static int read(BIO*, char*, int) noexcept;
 
-    static
-    int
-    puts(BIO*, const char*) noexcept;
+    static int puts(BIO*, const char*) noexcept;
 
-    static
-    int
-    gets(BIO*, char*, int) noexcept;
+    static int gets(BIO*, char*, int) noexcept;
 
-    static
-    long
-    ctrl(BIO*, int, long, void*) noexcept;
+    static long ctrl(BIO*, int, long, void*) noexcept;
 
-    static
-    int
-    create(BIO*) noexcept;
+    static int create(BIO*) noexcept;
 
-    static
-    int
-    destroy(BIO*) noexcept;
+    static int destroy(BIO*) noexcept;
 
-    static
-    long
-    callback_ctrl(BIO*, int, bio_info_cb*) noexcept;
+    static long callback_ctrl(BIO*, int, bio_info_cb*) noexcept;
 
     class DataFile : private Generics::Uncopyable
     {
     public:
-      explicit
-      DataFile(void* original_ptr) /*throw (eh::Exception)*/;
+      explicit DataFile(void* original_ptr) /*throw (eh::Exception)*/;
 
-      bool
-      is_initialized() const noexcept;
+      bool is_initialized() const noexcept;
 
-      void
-      original_pointer(void* original_ptr) noexcept;
+      void original_pointer(void* original_ptr) noexcept;
 
-      void*
-      original_pointer() const noexcept;
+      void* original_pointer() const noexcept;
 
-      void
-      assign(const char* data) /*throw (eh::Exception)*/;
+      void assign(const char* data) /*throw (eh::Exception)*/;
 
-      int
-      gets(char* buf, int size) noexcept;
+      int gets(char* buf, int size) noexcept;
 
     private:
       void* original_ptr_;
@@ -139,13 +114,11 @@ namespace
     class StorageGuard : private Generics::Uncopyable
     {
     public:
-      explicit
-      StorageGuard(BIO* bio) noexcept;
+      explicit StorageGuard(BIO* bio) noexcept;
 
       ~StorageGuard() noexcept;
 
-      DataFile*
-      operator ->() noexcept;
+      DataFile* operator ->() noexcept;
 
     private:
       BIO* bio_;
@@ -163,40 +136,34 @@ namespace
   {
   }
 
-  bool
-  BIOEnhancer::DataFile::is_initialized() const noexcept
+  bool BIOEnhancer::DataFile::is_initialized() const noexcept
   {
     return !data_.empty();
   }
 
-  void
-  BIOEnhancer::DataFile::original_pointer(void* original_ptr) noexcept
+  void BIOEnhancer::DataFile::original_pointer(void* original_ptr) noexcept
   {
     original_ptr_ = original_ptr;
   }
 
-  void*
-  BIOEnhancer::DataFile::original_pointer() const noexcept
+  void* BIOEnhancer::DataFile::original_pointer() const noexcept
   {
     return original_ptr_;
   }
 
-  void
-  BIOEnhancer::DataFile::assign(const char* key) /*throw (eh::Exception)*/
+  void BIOEnhancer::DataFile::assign(const char* key) /*throw (eh::Exception)*/
   {
     String::StringManip::mime_url_decode(String::SubString(key + 1), data_);
   }
 
-  int
-  BIOEnhancer::DataFile::gets(char* buf, int size) noexcept
+  int BIOEnhancer::DataFile::gets(char* buf, int size) noexcept
   {
     if (size <= 0)
     {
       return 0;
     }
     char* ptr = buf;
-    while (--size > 0 && position_ < data_.size() &&
-      (*ptr++ = data_[position_++]) != '\n');
+    while (--size > 0 && position_ < data_.size() && (*ptr++ = data_[position_++]) != '\n');
     *ptr = '\0';
     return ptr - buf;
   }
@@ -214,8 +181,7 @@ namespace
     BIO_set_data(bio_, data_file_);
   }
 
-  BIOEnhancer::DataFile*
-  BIOEnhancer::StorageGuard::operator ->() noexcept
+  BIOEnhancer::DataFile* BIOEnhancer::StorageGuard::operator ->() noexcept
   {
     return data_file_;
   }
@@ -239,49 +205,44 @@ namespace
     intercept_bio_meth_ = intercept_bio_meth;
   }
 
-  const BIO_METHOD*
-  BIOEnhancer::intercept_bio_meth() const
+  const BIO_METHOD* BIOEnhancer::intercept_bio_meth() const
   {
     return intercept_bio_meth_;
   }
 
-  int
-  BIOEnhancer::write(BIO* bio, const char* buf, int size) noexcept
+  int BIOEnhancer::write(BIO* bio, const char* buf, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_write(original_)(bio, buf, size);
   }
 
-  int
-  BIOEnhancer::read(BIO* bio, char* buf, int size) noexcept
+  int BIOEnhancer::read(BIO* bio, char* buf, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_read(original_)(bio, buf, size);
   }
 
-  int
-  BIOEnhancer::puts(BIO* bio, const char* str) noexcept
+  int BIOEnhancer::puts(BIO* bio, const char* str) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? 0 : BIO_meth_get_puts(original_)(bio, str);
   }
 
-  int
-  BIOEnhancer::gets(BIO* bio, char* str, int size) noexcept
+  int BIOEnhancer::gets(BIO* bio, char* str, int size) noexcept
   {
     StorageGuard guard(bio);
     return guard->is_initialized() ? guard->gets(str, size) :
       BIO_meth_get_gets(original_)(bio, str, size);
   }
 
-  long
-  BIOEnhancer::ctrl(BIO* bio, int command, long arg1, void* arg2) noexcept
+  long BIOEnhancer::ctrl(BIO* bio, int command, long arg1, void* arg2) noexcept
   {
     StorageGuard guard(bio);
     if (guard->is_initialized())
     {
       return 0;
     }
+
     if (command == BIO_C_SET_FILENAME && arg1 == (BIO_CLOSE | BIO_FP_READ) &&
       arg2 && *static_cast<const char*>(arg2) == ':')
     {
@@ -299,8 +260,7 @@ namespace
     return BIO_meth_get_ctrl(original_)(bio, command, arg1, arg2);
   }
 
-  int
-  BIOEnhancer::create(BIO* bio) noexcept
+  int BIOEnhancer::create(BIO* bio) noexcept
   {
     if (!BIO_meth_get_create(original_)(bio))
     {
@@ -318,8 +278,7 @@ namespace
     return 1;
   }
 
-  int
-  BIOEnhancer::destroy(BIO* bio) noexcept
+  int BIOEnhancer::destroy(BIO* bio) noexcept
   {
     int res;
     {
@@ -381,8 +340,7 @@ namespace CORBACommons
     }
     else
     {
-      properties.emplace_back("static Resource_Factory "
-        "\"-ORBProtocolFactory IIOP_Factory\"");
+      properties.emplace_back("static Resource_Factory " "\"-ORBProtocolFactory IIOP_Factory\"");
     }
   }
 
@@ -405,13 +363,12 @@ namespace CORBACommons
         COMP_METHOD* cm = COMP_zlib();
         if (!cm || COMP_get_type(cm) == NID_undef)
         {
-          throw Exception("create_secure_properties(): "
-            "SSL does not support zlib");
+          throw Exception("create_secure_properties(): " "SSL does not support zlib");
         }
+
         if (SSL_COMP_add_compression_method(255, cm))
         {
-          throw Exception("create_secure_properties(): "
-            "Failed to set zlib support for SSL");
+          throw Exception("create_secure_properties(): " "Failed to set zlib support for SSL");
         }
         zlib_enabled = true;
       }
@@ -424,15 +381,12 @@ namespace CORBACommons
         TAO_LIB("TAO_SSLIOP")
         ":_make_TAO_SSLIOP_Protocol_Factory() "
         "\"-SSLAuthenticate SERVER_AND_CLIENT -SSLPrivateKey PEM:" <<
-        secure_connection_config.private_key <<
-        " -SSLCertificate PEM:" <<
-        secure_connection_config.own_certificate <<
-        "\"";
+        secure_connection_config.private_key << " -SSLCertificate PEM:" <<
+        secure_connection_config.own_certificate << "\"";
       properties.emplace_back(ostr.str().str());
     }
     properties.emplace_back("-ORBSvcConfDirective");
-    properties.emplace_back("static Resource_Factory "
-      "\"-ORBProtocolFactory SSLIOP_Factory\"");
+    properties.emplace_back("static Resource_Factory " "\"-ORBProtocolFactory SSLIOP_Factory\"");
   }
 
   int
@@ -441,8 +395,7 @@ namespace CORBACommons
     SimpleORBProperties& simple_properties) /*throw (eh::Exception)*/
   {
     simple_properties.reserve(properties.size() + 1);
-    for (ORBProperties::const_iterator itor =
-      properties.begin(); itor != properties.end(); ++itor)
+    for (ORBProperties::const_iterator itor = properties.begin(); itor != properties.end(); ++itor)
     {
       simple_properties.push_back(const_cast<char*>(itor->c_str()));
     }
@@ -450,9 +403,7 @@ namespace CORBACommons
     return properties.size();
   }
 
-  void
-  PropertiesHandling::print_properties(const ORBProperties& properties,
-    std::ostream& ostr)
+  void PropertiesHandling::print_properties(const ORBProperties& properties, std::ostream& ostr)
     /*throw (eh::Exception)*/
   {
     for (CORBACommons::ORBProperties::const_iterator itor(properties.begin());
@@ -470,16 +421,14 @@ namespace CORBACommons
   Sync::PosixMutex OrbCreator::mutex_;
   std::string OrbCreator::password_;
 
-  void
-  OrbCreator::load_trusted_ca_(void* ctx, const char* file)
+  void OrbCreator::load_trusted_ca_(void* ctx, const char* file)
     /*throw (Exception, eh::Exception)*/
   {
     // It's a copy of X509_load_cert_crl_file but it uses
     // BIO_new(BIO_s_file()) and BIO_read_filename(in, file) instead of
     // BIO_new_file(file, "r")
 
-    X509_LOOKUP* lookup = X509_STORE_add_lookup(
-      static_cast<X509_STORE*>(ctx), X509_LOOKUP_file());
+    X509_LOOKUP* lookup = X509_STORE_add_lookup( static_cast<X509_STORE*>(ctx), X509_LOOKUP_file());
     if (!lookup)
     {
       Stream::Error ostr;
@@ -488,7 +437,7 @@ namespace CORBACommons
     }
 
     BIO* in = BIO_new(bio_enhancer.intercept_bio_meth());
-    
+
     if (!in || BIO_read_filename(in, file) <= 0)
     {
       if (in)
@@ -504,8 +453,7 @@ namespace CORBACommons
     if (!inf)
     {
       Stream::Error ostr;
-      ostr << FNS << "Failed to find useful information in file '" <<
-        file << "'";
+      ostr << FNS << "Failed to find useful information in file '" << file << "'";
       throw Exception(ostr);
     }
     for (int i = 0; i < sk_X509_INFO_num(inf); i++)
@@ -515,6 +463,7 @@ namespace CORBACommons
       {
         X509_STORE_add_cert(X509_LOOKUP_get_store(lookup), itmp->x509);
       }
+
       if (itmp->crl)
       {
         X509_STORE_add_crl(X509_LOOKUP_get_store(lookup), itmp->crl);
@@ -541,7 +490,7 @@ namespace CORBACommons
     {
       SSL_CTX* ctx = ACE_SSL_Context::instance()->context();
       load_trusted_ca_(
-        SSL_CTX_get_cert_store(ctx), 
+        SSL_CTX_get_cert_store(ctx),
         secure_connection_config->peer_certificate_authority);
       password_ = secure_connection_config->pass_phrase;
       SSL_CTX_set_default_passwd_cb(ctx, pem_password_callback_);
@@ -564,8 +513,7 @@ namespace CORBACommons
       }
 
       Stream::Error ostr;
-      ostr << FNS << "Failed to create orb " << orb_id <<
-        " with parameters '";
+      ostr << FNS << "Failed to create orb " << orb_id << " with parameters '";
       PropertiesHandling::print_properties(properties, ostr);
       ostr << "'";
       throw Exception(ostr);
@@ -574,14 +522,11 @@ namespace CORBACommons
     if (timeout != Generics::Time::ZERO)
     {
       CORBA::PolicyManager_var policy_manager =
-        CORBA::PolicyManager::_narrow(
-          orb->resolve_initial_references("ORBPolicyManager"));
+        CORBA::PolicyManager::_narrow( orb->resolve_initial_references("ORBPolicyManager"));
       CORBA::Any timeout_as_any;
-      timeout_as_any <<= TimeBase::TimeT(
-        (timeout * Generics::Time::USEC_MAX).tv_sec * 10);
+      timeout_as_any <<= TimeBase::TimeT( (timeout * Generics::Time::USEC_MAX).tv_sec * 10);
       CORBA::Policy_var policy =
-        orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE,
-          timeout_as_any);
+        orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE, timeout_as_any);
       CORBA::PolicyList policy_list(1);
       policy_list.length(1);
       policy_list[0] = policy;
@@ -591,42 +536,40 @@ namespace CORBACommons
     return orb._retn();
   }
 
-  int
-  OrbCreator::pem_password_callback_(char* buf, int size, int, void*)
-    noexcept
+  int OrbCreator::pem_password_callback_(char* buf, int size, int, void*) noexcept
   {
     return String::StringManip::strlcpy(buf, password_.c_str(), size);
   }
 
-  namespace SSLData
+}
+
+namespace CORBACommons::SSLData
+{
+  std::string load(const char* filename) /*throw (eh::Exception, FileError)*/
   {
-    std::string
-    load(const char* filename) /*throw (eh::Exception, FileError)*/
+    int file = open(filename, O_RDONLY);
+    if (file < 0)
     {
-      int file = open(filename, O_RDONLY);
-      if (file < 0)
-      {
-        eh::throw_errno_exception<FileError>(FNE,
-          "Failed to open '", filename, "'");
-      }
-
-      char buf[16384];
-      ssize_t got = ::read(file, buf, sizeof(buf) - 1);
-      int error = errno;
-      close(file);
-      if (got < 0)
-      {
-        eh::throw_errno_exception<FileError>(error, FNE,
-          "Failed to read '", filename, "'");
-      }
-
-      std::string encoded;
-      String::StringManip::mime_url_encode(
-        String::SubString(buf, got), encoded);
-      return std::string(":") + encoded;
+      eh::throw_errno_exception<FileError>(FNE, "Failed to open '", filename, "'");
     }
-  }
 
+    char buf[16384];
+    ssize_t got = ::read(file, buf, sizeof(buf) - 1);
+    int error = errno;
+    close(file);
+    if (got < 0)
+    {
+      eh::throw_errno_exception<FileError>(error, FNE, "Failed to read '", filename, "'");
+    }
+
+    std::string encoded;
+    String::StringManip::mime_url_encode( String::SubString(buf, got), encoded);
+    return std::string(":") + encoded;
+  }
+}
+
+namespace CORBACommons
+{
 
   //
   // SecureConnectionConfig class
@@ -653,15 +596,13 @@ namespace CORBACommons
     catch (const CORBA::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't store file '" << key_file <<
-        "' with secure key: " << ex;
+      ostr << FNS << "Can't store file '" << key_file << "' with secure key: " << ex;
       throw Exception(ostr);
     }
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't load file '" << key_file <<
-        "' with secure key: " << ex.what();
+      ostr << FNS << "Can't load file '" << key_file << "' with secure key: " << ex.what();
       throw Exception(ostr);
     }
 
@@ -674,22 +615,19 @@ namespace CORBACommons
     catch (const CORBA::SystemException& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't store file '" << certificate_file <<
-        "' with certificate: " << ex;
+      ostr << FNS << "Can't store file '" << certificate_file << "' with certificate: " << ex;
       throw Exception(ostr);
     }
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't load file '" << certificate_file <<
-        "' with certificate: " << ex.what();
+      ostr << FNS << "Can't load file '" << certificate_file << "' with certificate: " << ex.what();
       throw Exception(ostr);
     }
 
     try
     {
-      peer_certificate_authority <<
-        SSLData::load(certificate_authority_file);
+      peer_certificate_authority << SSLData::load(certificate_authority_file);
     }
     catch (const CORBA::SystemException& ex)
     {

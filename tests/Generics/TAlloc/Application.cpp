@@ -38,10 +38,9 @@ const int OPS = 1000;
 template <typename Elem, typename Alloc>
 struct Test1
 {
-  void
-  operator ()() const /*throw (eh::Exception)*/
+  void operator ()() const /*throw (eh::Exception)*/
   {
-    typedef std::list<Elem, Alloc> List;
+    using List = std::list<Elem, Alloc>;
     TYPE(List) l;
 
     for (int i = 0; i < CYCLES; i++)
@@ -54,10 +53,9 @@ struct Test1
 template <typename Elem, typename Alloc>
 struct Test2
 {
-  void
-  operator ()() const /*throw (eh::Exception)*/
+  void operator ()() const /*throw (eh::Exception)*/
   {
-    typedef std::list<Elem, Alloc> List;
+    using List = std::list<Elem, Alloc>;
     TYPE(List) l;
 
     for (int i = 0; i < CYCLES; i++)
@@ -74,11 +72,10 @@ struct Test2
 template <typename Elem, typename Alloc>
 struct Test3
 {
-  void
-  operator ()() const /*throw (eh::Exception)*/
+  void operator ()() const /*throw (eh::Exception)*/
   {
-    typedef Generics::GnuHashTable<Generics::NumericHashAdapter<int>,
-      Elem, Alloc> Hash;
+    using Hash = Generics::GnuHashTable<Generics::NumericHashAdapter<int>,
+      Elem, Alloc>;
     Hash h;
 
     for (int i = 0; i < CYCLES; i++)
@@ -91,11 +88,9 @@ struct Test3
 template <typename Elem, typename Alloc>
 struct Test4
 {
-  void
-  operator ()() const /*throw (eh::Exception)*/
+  void operator ()() const /*throw (eh::Exception)*/
   {
-    typedef Generics::GnuHashSet<Generics::NumericHashAdapter<int>, Alloc>
-      Hash;
+    using Hash = Generics::GnuHashSet<Generics::NumericHashAdapter<int>, Alloc>;
     Hash h;
 
     for (int i = 0; i < CYCLES; i++)
@@ -120,12 +115,10 @@ struct Elem3
   uint64_t data[4];
 };
 
-template <template <typename, typename> class Test, typename Elem,
-  typename Alloc>
-void
-test1(const char* description) /*throw (eh::Exception)*/
+template <template <typename, typename> class Test, typename Elem, typename Alloc>
+void test1(const char* description) /*throw (eh::Exception)*/
 {
-  typedef Test<Elem, Alloc> Functor;
+  using Functor = Test<Elem, Alloc>;
 
   std::cout << "  " << description << "... " << std::flush;
   Generics::Timer timer;
@@ -137,42 +130,30 @@ test1(const char* description) /*throw (eh::Exception)*/
 }
 
 template <template <typename, typename> class Test, typename Elem>
-void
-test2(const char* description) /*throw (eh::Exception)*/
+void test2(const char* description) /*throw (eh::Exception)*/
 {
   std::cout << " " << description << "\n";
 #ifndef TA
-  test1<Test, Elem, std::allocator<Elem> >(
-    "std            ");
-  test1<Test, Elem, Generics::TAlloc::AllocOnly<Elem, 64, true> >(
-    "AllocOnly    64");
-  test1<Test, Elem, Generics::TAlloc::AllocOnly<Elem, 1024, true> >(
-    "AllocOnly  1024");
-  test1<Test, Elem, Generics::TAlloc::Aggregated<Elem, 64, true> >(
-    "Aggregated   64");
-  test1<Test, Elem, Generics::TAlloc::Aggregated<Elem, 1024, true> >(
-    "Aggregated 1024");
+  test1<Test, Elem, std::allocator<Elem> >( "std            ");
+  test1<Test, Elem, Generics::TAlloc::AllocOnly<Elem, 64, true> >( "AllocOnly    64");
+  test1<Test, Elem, Generics::TAlloc::AllocOnly<Elem, 1024, true> >( "AllocOnly  1024");
+  test1<Test, Elem, Generics::TAlloc::Aggregated<Elem, 64, true> >( "Aggregated   64");
+  test1<Test, Elem, Generics::TAlloc::Aggregated<Elem, 1024, true> >( "Aggregated 1024");
 #if 0
-  test1<Test, Elem, Generics::TAlloc::GlobalPool<Elem, 64> >(
-    "GlobalPool   64");
-  test1<Test, Elem, Generics::TAlloc::GlobalPool<Elem, 1024> >(
-    "GlobalPool 1024");
+  test1<Test, Elem, Generics::TAlloc::GlobalPool<Elem, 64> >( "GlobalPool   64");
+  test1<Test, Elem, Generics::TAlloc::GlobalPool<Elem, 1024> >( "GlobalPool 1024");
 #endif
-  test1<Test, Elem, Generics::TAlloc::ThreadPool<Elem, 64, true> >(
-    "ThreadPool   64");
-  test1<Test, Elem, Generics::TAlloc::ThreadPool<Elem, 1024, true> >(
-    "ThreadPool 1024");
+  test1<Test, Elem, Generics::TAlloc::ThreadPool<Elem, 64, true> >( "ThreadPool   64");
+  test1<Test, Elem, Generics::TAlloc::ThreadPool<Elem, 1024, true> >( "ThreadPool 1024");
 #else
   test1<Test, Elem,
-    AdServer::UserInfoSvcs::PagedBufferAllocator<Elem, 8192> >(
-    "PagedBuffer8192");
+    AdServer::UserInfoSvcs::PagedBufferAllocator<Elem, 8192> >( "PagedBuffer8192");
 #endif
   std::cout << "\n";
 }
 
 template <template <typename, typename> class Test>
-void
-test3(const char* description) /*throw (eh::Exception)*/
+void test3(const char* description) /*throw (eh::Exception)*/
 {
   std::cout << description << std::endl;
   test2<Test, Elem1>("8");
@@ -180,8 +161,7 @@ test3(const char* description) /*throw (eh::Exception)*/
   test2<Test, Elem3>("32");
 }
 
-int
-main()
+int main()
 {
   try
   {

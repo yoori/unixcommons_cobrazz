@@ -30,20 +30,17 @@ public:
   /**
    * @return reference on last reported error
    */
-  const std::string&
-  get_last_error() const noexcept;
+  const std::string& get_last_error() const noexcept;
 
-  void
-  clear_last_error() noexcept;
+  void clear_last_error() noexcept;
 
 protected:
-  virtual
-  ~TestLogger() noexcept;
+  virtual ~TestLogger() noexcept;
 
 private:
   std::string last_error_;
 };
-typedef ReferenceCounting::QualPtr<TestLogger> TestLogger_var;
+using TestLogger_var = ReferenceCounting::QualPtr<TestLogger>;
 
 class Tester
 {
@@ -59,38 +56,31 @@ public:
 
   Tester() /*throw (InvalidTestData, eh::Exception)*/;
 
-  void
-  do_test() /*throw (eh::Exception)*/;
+  void do_test() /*throw (eh::Exception)*/;
 
   /**
    * Check range abilities a-d deploy into a b c d
    */
-  void
-  do_complex_test()
+  void do_complex_test()
     /*throw (eh::Exception)*/;
 
 private:
-  typedef std::vector<char> CharactersSet;
+  using CharactersSet = std::vector<char>;
 
-  static CharactersSet
-  create_mixer_(const CharCategory& cat)
+  static CharactersSet create_mixer_(const CharCategory& cat)
     /*throw (InvalidTestData, eh::Exception)*/;
 
-  static CharactersSet
-  create_negative_mixer_(const CharCategory& cat)
+  static CharactersSet create_negative_mixer_(const CharCategory& cat)
     /*throw (InvalidTestData, eh::Exception)*/;
 
-  void
-  generate_lexeme_(std::string& result) noexcept;
+  void generate_lexeme_(std::string& result) noexcept;
 
-  void
-  generate_separators_(std::string& result) noexcept;
+  void generate_separators_(std::string& result) noexcept;
 
   /**
    * Check the boundary conditions: empty input, etc
    */
-  void
-  unit_test_extremal()
+  void unit_test_extremal()
     /*throw (eh::Exception)*/;
 
   /**
@@ -105,58 +95,50 @@ private:
    * 6. shield_map = \\ -> 'regular', \t -> 'regular', input \'irregular'
    * 7. shield_map = \\ -> 'regular', \t -> 'regular', input \\
    */
-  void
-  unit_test_shield()
+  void unit_test_shield()
     /*throw (eh::Exception)*/;
 
   /**
    * Check random lexeme, separators sequences.
    * And ignore_successive_separators flag.
    */
-  void
-  unit_test_separator()
+  void unit_test_separator()
     /*throw (eh::Exception)*/;
 
   /**
    * Check Noncritical exception behavior
    */
-  void
-  unit_test_exceptions()
+  void unit_test_exceptions()
     /*throw (eh::Exception)*/;
 
   /**
    * Check ignoring irregular symbols when allow_ignored_symbs=true
    * and omissions of it if allow_ignored_symbs=false.
    */
-  void
-  unit_test_regular()
+  void unit_test_regular()
     /*throw (eh::Exception)*/;
 
   /**
    * Check repeat abilities `repeat`{3} deploy into repeat repeat repeat
    */
-  void
-  unit_test_repeat()
+  void unit_test_repeat()
     /*throw (eh::Exception)*/;
 
   /**
    * Check range abilities a-d deploy into a b c d
    */
-  void
-  unit_test_range()
+  void unit_test_range()
     /*throw (eh::Exception)*/;
 
   /**
    * Check padding abilities
    */
-  void
-  unit_test_padding()
+  void unit_test_padding()
     /*throw (eh::Exception)*/;
 
 private:
 
-  static void
-  print_(const std::string& lex)
+  static void print_(const std::string& lex)
     /*throw (eh::Exception)*/;
 
   TestLogger_var logger_;
@@ -171,7 +153,7 @@ private:
 
   AnalyzerParams params_;
 
-  typedef std::list<std::string> Result;
+  using Result = std::list<std::string>;
   Result result_;
 
 };
@@ -195,14 +177,12 @@ TestLogger::log(const String::SubString& text,
   return true;
 }
 
-const std::string&
-TestLogger::get_last_error() const noexcept
+const std::string& TestLogger::get_last_error() const noexcept
 {
   return last_error_;
 }
 
-void
-TestLogger::clear_last_error() noexcept
+void TestLogger::clear_last_error() noexcept
 {
   last_error_.clear();
 }
@@ -212,8 +192,7 @@ TestLogger::clear_last_error() noexcept
 // Test body below
 //
 
-int
-main()
+int main()
 {
   try
   {
@@ -240,8 +219,7 @@ main()
 //////////////////////////////////////////////////////////////////////////
 // Implementations
 
-void
-init_params(AnalyzerParams& params)
+void init_params(AnalyzerParams& params)
   /*throw (eh::Exception)*/
 {
   params.shield_symbol = '\\'; //The '\' symbol
@@ -278,15 +256,12 @@ init_params(AnalyzerParams& params)
 }
 
 
-void
-init_complex_test_params(AnalyzerParams& params)
+void init_complex_test_params(AnalyzerParams& params)
   /*throw (eh::Exception)*/
 {
   params.shield_symbol = '\\'; //The '\' symbol
-  params.shield_map.insert(
-    std::pair<char, std::string>('%', "BAD%TEXT"));
-  params.shield_map.insert(
-    std::pair<char, std::string>('\\', std::string()));
+  params.shield_map.insert( std::pair<char, std::string>('%', "BAD%TEXT"));
+  params.shield_map.insert( std::pair<char, std::string>('\\', std::string()));
 
   // Set separators ", \n\r\t"
   params.main_separators = CharSet(", \n\r\t");
@@ -339,8 +314,7 @@ Tester::Tester() /*throw (InvalidTestData, eh::Exception)*/
   init_params(params_);
 }
 
-void
-Tester::do_test() /*throw (eh::Exception)*/
+void Tester::do_test() /*throw (eh::Exception)*/
 {
   unit_test_extremal();
   unit_test_shield();
@@ -352,8 +326,7 @@ Tester::do_test() /*throw (eh::Exception)*/
   unit_test_padding();
 }
 
-void
-Tester::do_complex_test()
+void Tester::do_complex_test()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "complex test_analyzer(): ";
@@ -375,7 +348,7 @@ Tester::do_complex_test()
   Stream::Parser istr("lexeme, [0-1], [1-1], "
     "`r`{1}[1-2][[0, 1-2,[3-4, [[5-6], [7-8, 9]]]]], \\\\, `[1-3]`{3}, "
     "c[1[[1-3]{2}, 15, text, \\%]]{1}{1}{1}");
-  typedef std::list<std::string> Result;
+  using Result = std::list<std::string>;
   Result result;
   analyzer.process_char_sequence(istr, result);
 
@@ -418,8 +391,7 @@ Tester::do_complex_test()
   }
 }
 
-Tester::CharactersSet
-Tester::create_mixer_(const CharCategory& cat)
+Tester::CharactersSet Tester::create_mixer_(const CharCategory& cat)
   /*throw (InvalidTestData, eh::Exception)*/
 {
   CharactersSet mixer;
@@ -431,6 +403,7 @@ Tester::create_mixer_(const CharCategory& cat)
       mixer.push_back(ch);
     }
   }
+
   if (mixer.empty())
   {
     throw InvalidTestData("Empty characters subset");
@@ -438,8 +411,7 @@ Tester::create_mixer_(const CharCategory& cat)
   return mixer;
 }
 
-Tester::CharactersSet
-Tester::create_negative_mixer_(const CharCategory& cat)
+Tester::CharactersSet Tester::create_negative_mixer_(const CharCategory& cat)
   /*throw (InvalidTestData, eh::Exception)*/
 {
   CharactersSet mixer;
@@ -451,6 +423,7 @@ Tester::create_negative_mixer_(const CharCategory& cat)
       mixer.push_back(ch);
     }
   }
+
   if (mixer.size() == 256)
   {
     throw InvalidTestData("Empty negative characters subset");
@@ -458,8 +431,7 @@ Tester::create_negative_mixer_(const CharCategory& cat)
   return mixer;
 }
 
-void
-Tester::generate_lexeme_(std::string& result) noexcept
+void Tester::generate_lexeme_(std::string& result) noexcept
 {
   result.clear();
   std::size_t len = Generics::safe_rand(1, 10);
@@ -471,8 +443,7 @@ Tester::generate_lexeme_(std::string& result) noexcept
   }
 }
 
-void
-Tester::generate_separators_(std::string& result) noexcept
+void Tester::generate_separators_(std::string& result) noexcept
 {
   result.clear();
   std::size_t len = Generics::safe_rand(1, 4);
@@ -484,8 +455,7 @@ Tester::generate_separators_(std::string& result) noexcept
   }
 }
 
-void
-Tester::unit_test_extremal()
+void Tester::unit_test_extremal()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_extremal(): ";
@@ -497,10 +467,10 @@ Tester::unit_test_extremal()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
-    std::cerr << FUN << "case 1 failed, result size=" << result_.size()
-      << std::endl;
+    std::cerr << FUN << "case 1 failed, result size=" << result_.size() << std::endl;
     result_.clear();
   }
 
@@ -508,10 +478,10 @@ Tester::unit_test_extremal()
     Stream::Parser istr("");
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
-    std::cerr << FUN << "case 2 failed, result size=" << result_.size()
-      << std::endl;
+    std::cerr << FUN << "case 2 failed, result size=" << result_.size() << std::endl;
     result_.clear();
   }
 
@@ -519,16 +489,15 @@ Tester::unit_test_extremal()
     Stream::Parser istr("\0");
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
-    std::cerr << FUN << "case 3 failed, result size=" << result_.size()
-      << std::endl;
+    std::cerr << FUN << "case 3 failed, result size=" << result_.size() << std::endl;
     result_.clear();
   }
 }
 
-void
-Tester::unit_test_shield()
+void Tester::unit_test_shield()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_shield(): ";
@@ -545,6 +514,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     std::cerr << FUN << "case 1 failed" << std::endl;
@@ -558,6 +528,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())  // empty results!
   {
     // current time return one empty string.
@@ -572,6 +543,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     // current time return one empty string.
@@ -584,10 +556,8 @@ Tester::unit_test_shield()
     throw InvalidTestData("Not enough regular symbols");
   }
 
-  params_.shield_map.insert(
-    std::pair<char, std::string>(regulars_mixer_[0], "tab"));
-  params_.shield_map.insert(
-    std::pair<char, std::string>(regulars_mixer_[1], "second"));
+  params_.shield_map.insert( std::pair<char, std::string>(regulars_mixer_[0], "tab"));
+  params_.shield_map.insert( std::pair<char, std::string>(regulars_mixer_[1], "second"));
   Analyzer analyzer_filled(params_, last_error_callback_);
 
   input = '\\';
@@ -597,6 +567,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer_filled.process_char_sequence(istr, result_);
   }
+
   if (result_.size() != 1 || result_.front() != "tab")
   {
     // current time return one empty string.
@@ -611,6 +582,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer_filled.process_char_sequence(istr, result_);
   }
+
   if (result_.size() != 1 || result_.front() != "second")
   {
     // current time return one empty string.
@@ -625,6 +597,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer_filled.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     // current time return one empty string.
@@ -639,6 +612,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer_filled.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     // current time return one empty string.
@@ -652,6 +626,7 @@ Tester::unit_test_shield()
     result_.clear();
     analyzer_filled.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     // present time, return one empty string.
@@ -660,8 +635,7 @@ Tester::unit_test_shield()
   }
 }
 
-void
-Tester::unit_test_separator()
+void Tester::unit_test_separator()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_separator(): ";
@@ -702,6 +676,7 @@ Tester::unit_test_separator()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result)
   {
     std::cerr << FUN << "case 1 failed" << std::endl;
@@ -718,6 +693,7 @@ Tester::unit_test_separator()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result_count_separators)
   {
     std::cerr << FUN << "case 2 failed" << std::endl;
@@ -730,8 +706,7 @@ Tester::unit_test_separator()
   params_.ignore_successive_separators = false;
 }
 
-void
-Tester::unit_test_exceptions()
+void Tester::unit_test_exceptions()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_exceptions(): ";
@@ -750,15 +725,12 @@ Tester::unit_test_exceptions()
     {
       logger_->clear_last_error();
       analyzer.process_char_sequence(istr, result_);
-      if (!params_.regular_symbs.is_owned(ch) &&
-        !params_.main_separators.is_owned(ch))
+      if (!params_.regular_symbs.is_owned(ch) && !params_.main_separators.is_owned(ch))
       {
         if (logger_->get_last_error().empty())
         {
           std::cerr << FUN << "Error information should have been put "
-            "by callback call, ch=" << ch << ", ascii code="
-            << static_cast<int>(ch)
-            << std::endl;
+            "by callback call, ch=" << ch << ", ascii code=" << static_cast<int>(ch) << std::endl;
         }
       }
     }
@@ -770,8 +742,7 @@ Tester::unit_test_exceptions()
 
 }
 
-void
-Tester::unit_test_regular()
+void Tester::unit_test_regular()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_regular(): ";
@@ -792,11 +763,9 @@ Tester::unit_test_regular()
     }
     catch (const eh::Exception& e)
     {
-      ((ch == params_.shield_symbol ||
-        ch == params_.retry_part_symb.first()) ?
+      ((ch == params_.shield_symbol || ch == params_.retry_part_symb.first()) ?
         std::cout : std::cerr) << FUN << "Character " << ch << ", code: "
-        << std::hex << static_cast<unsigned>(ch) << std::dec
-        << ". Exception: " << e.what()
+        << std::hex << static_cast<unsigned>(ch) << std::dec << ". Exception: " << e.what()
         << std::endl;
       continue;
     }
@@ -814,8 +783,7 @@ Tester::unit_test_regular()
     {
       if (!result_.empty())
       {
-        std::cerr << FUN << "case 2 failed, irregular character "
-          << buffer << ", code="
+        std::cerr << FUN << "case 2 failed, irregular character " << buffer << ", code="
           << std::hex << static_cast<unsigned>(ch) << std::dec
           << " present in output=" << result_.front() << std::endl;
       }
@@ -823,8 +791,7 @@ Tester::unit_test_regular()
   }
 
   Analyzer analyzer_ignorable(params_, last_error_callback_);
-  params_.ignored_symbs =
-    CharSet(params_.ignored_symbs, CharSet("!\"#$%&'()*+"));
+  params_.ignored_symbs = CharSet(params_.ignored_symbs, CharSet("!\"#$%&'()*+"));
   for (char ch = '!'; ch != '+'; ++ch)
   {
     buffer[0] = ch;
@@ -837,6 +804,7 @@ Tester::unit_test_regular()
       std::cerr << FUN << "Error information should have been put "
         "by callback call" << std::endl;
     }
+
     if (!result_.empty())
     {
       std::cerr << FUN << "case 3 failed, ignored character code="
@@ -847,8 +815,7 @@ Tester::unit_test_regular()
   params_.allow_ignored_symbs = false;
 }
 
-void
-Tester::unit_test_repeat()
+void Tester::unit_test_repeat()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_repeat(): ";
@@ -868,6 +835,7 @@ Tester::unit_test_repeat()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result)
   {
     std::cerr << FUN << "case 1 failed, results is:\n";
@@ -882,6 +850,7 @@ Tester::unit_test_repeat()
     result_.clear();
     analyzer2.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result)
   {
     std::cerr << FUN << "case 2 failed, results is:\n";
@@ -895,6 +864,7 @@ Tester::unit_test_repeat()
     result_.clear();
     analyzer3.process_char_sequence(istr, result_);
   }
+
   if (!result_.empty())
   {
     std::cerr << FUN << "case 3 failed, results is:\n";
@@ -902,8 +872,7 @@ Tester::unit_test_repeat()
   }
 }
 
-void
-Tester::unit_test_range()
+void Tester::unit_test_range()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_range(): ";
@@ -931,6 +900,7 @@ Tester::unit_test_range()
     Stream::Parser istr("[1-4]");
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result)
   {
     std::cerr << FUN << "case 1 failed, results is:\n";
@@ -943,6 +913,7 @@ Tester::unit_test_range()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_.size() != 1 && result_.front() != "1")
   {
     std::cerr << FUN << "case 2 failed, results is:\n";
@@ -963,8 +934,7 @@ Tester::unit_test_range()
   }
 }
 
-void
-Tester::unit_test_padding()
+void Tester::unit_test_padding()
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "unit_test_padding(): ";
@@ -1001,6 +971,7 @@ Tester::unit_test_padding()
     result_.clear();
     analyzer.process_char_sequence(istr, result_);
   }
+
   if (result_ != awaiting_result)
   {
     std::cerr << FUN << "case 1 failed, results is:\n";
@@ -1008,8 +979,7 @@ Tester::unit_test_padding()
   }
 }
 
-void
-Tester::print_(const std::string& lex)
+void Tester::print_(const std::string& lex)
   /*throw (eh::Exception)*/
 {
   std::cerr << "len=" << lex.size() <<", lex: " << lex << std::endl;

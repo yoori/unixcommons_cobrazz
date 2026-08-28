@@ -54,8 +54,7 @@ struct Stat
   {
   }
 
-  void
-  update(const Generics::Time& time) noexcept
+  void update(const Generics::Time& time) noexcept
   {
     total_time += time;
     max_time = max_time < time ? time : max_time;
@@ -63,8 +62,7 @@ struct Stat
     calls++;
   }
 
-  Generics::Time
-  avg_time() noexcept
+  Generics::Time avg_time() noexcept
   {
     if (calls > 0)
     {
@@ -79,45 +77,39 @@ struct Stat
 
 Stat test_stat;
 
-void
-usage() /*throw (eh::Exception)*/
+void usage() /*throw (eh::Exception)*/
 {
-  std::cerr <<
-    "TestProcessLogger utility to test Logging::ProcessLogger class " << std::endl <<
-    "functionality from Generics library" << std::endl <<
-    "Usage: TestProcessLogger [options]" << std::endl <<
-    "  -h           Show this help." << std::endl <<
-    "  -c count     Count of log writes. Default " << config.count << "." << std::endl <<
-    "  -m message   Log message. Default 'a' 120 times." << std::endl <<
-    "  -s sleep     Sleep time between writes, seconds. Default " << config.sleep << "." << std::endl <<
-    "  -p path      Process for output. Default " << config.process << "." << std::endl <<
-    "  -L path      log file" << std::endl <<
-    "  -S size      either size limited" << std::endl <<
-    "  -T time      or rotate interval specified" << std::endl <<
-    std::endl;
+  std::cerr << "TestProcessLogger utility to test Logging::ProcessLogger class " << std::endl
+            << "functionality from Generics library" << std::endl
+            << "Usage: TestProcessLogger [options]" << std::endl
+            << "  -h           Show this help." << std::endl
+            << "  -c count     Count of log writes. Default " << config.count << "." << std::endl
+            << "  -m message   Log message. Default 'a' 120 times." << std::endl
+            << "  -s sleep     Sleep time between writes, seconds. Default " << config.sleep << "."
+            << std::endl
+            << "  -p path      Process for output. Default " << config.process << "." << std::endl
+            << "  -L path      log file" << std::endl
+            << "  -S size      either size limited" << std::endl
+            << "  -T time      or rotate interval specified" << std::endl << std::endl;
 }
 
-void
-print_stat()
+void print_stat()
 {
   std::cout << "Test result:" << std::endl <<
                "  log calls made : " << test_stat.calls << std::endl <<
                "  total time     : " << test_stat.total_time << std::endl <<
                "  average time   : " << test_stat.avg_time() << std::endl <<
                "  max time       : " << test_stat.max_time << std::endl <<
-               "  min time       : " << test_stat.min_time << std::endl <<
-               std::endl;
+               "  min time       : " << test_stat.min_time << std::endl << std::endl;
 }
 
-void
-sigterm_handler(int sig)
+void sigterm_handler(int sig)
 {
   config.count = 0;
   signal(sig, SIG_DFL);
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   signal(SIGINT, sigterm_handler);
 
@@ -173,8 +165,7 @@ main(int argc, char* argv[])
       break;
 
     default:
-      std::cerr << "Unexpected getopt result " << opt <<
-                   " (" << (char)opt << ")" << std::endl;
+      std::cerr << "Unexpected getopt result " << opt << " (" << (char)opt << ")" << std::endl;
       return -1;
     }
   }
@@ -203,6 +194,7 @@ main(int argc, char* argv[])
           argv.push_back("--size");
           argv.push_back(size);
         }
+
         if (config.time)
         {
           snprintf(time, sizeof(time), "%i", config.time);
@@ -216,8 +208,7 @@ main(int argc, char* argv[])
       }
       else
       {
-        logger = new Process::Logger(
-          Process::Config(config.process.c_str()));
+        logger = new Process::Logger( Process::Config(config.process.c_str()));
       }
     }
 
@@ -254,6 +245,7 @@ main(int argc, char* argv[])
         sleep(config.sleep);
       }
     }
+
     if (!config.count)
     {
       std::cerr << "Aborted by user" << std::endl;

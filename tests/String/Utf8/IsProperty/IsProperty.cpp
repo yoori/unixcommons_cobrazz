@@ -18,7 +18,7 @@ DECLARE_EXCEPTION(TestException, eh::DescriptiveException);
 using namespace String;
 using namespace UnicodeProperty;
 
-typedef bool (*IsFunction)(const char*);
+using IsFunction = bool (*)(const char*);
 
 struct PropertyDescription
 {
@@ -27,8 +27,7 @@ struct PropertyDescription
   CODE_UNIT_PROPERTY mask_value;
 };
 
-const PropertyDescription PROPERTIES[] =
-{
+const PropertyDescription PROPERTIES[] = {
   { "space", String::is_space, CUP_SPACE },
   { "digit", String::is_digit, CUP_DIGIT },
   { "letter", String::is_letter, CUP_LETTER },
@@ -41,15 +40,14 @@ struct TestAllProperties : public AllProperties
 {
   TestAllProperties(const AllProperties& val) noexcept;
 
-  uint8_t
-  value() const noexcept;
+  uint8_t value() const noexcept;
 };
 
 const int NUMBER_OF_PROPERTIES = sizeof(PROPERTIES) / sizeof(*PROPERTIES);
 
 struct DynamicTrees
 {
-  typedef std::set<UnicodeSymbol> Utf8PropertiesDictionary;
+  using Utf8PropertiesDictionary = std::set<UnicodeSymbol>;
 
   struct IsProperty
   {
@@ -57,30 +55,26 @@ struct DynamicTrees
     String::Utf8Set::Utf8Chars chars;
     std::unique_ptr<String::Utf8Category> category;
 
-    void
-    insert(const UnicodeSymbol& first, const UnicodeSymbol& second)
+    void insert(const UnicodeSymbol& first, const UnicodeSymbol& second)
       /*throw (eh::Exception)*/;
   };
 
   IsProperty properties[NUMBER_OF_PROPERTIES];
   IsProperty all_properties;
-  typedef std::map<UnicodeSymbol, uint8_t> SymbolProperties;
+  using SymbolProperties = std::map<UnicodeSymbol, uint8_t>;
   SymbolProperties add_info;
 
   DynamicTrees() /*throw (eh::Exception)*/;
 
-  void
-  load_data(const char* filename, IsProperty& tree)
+  void load_data(const char* filename, IsProperty& tree)
     /*throw (eh::Exception)*/;
 
-  void
-  generate_all_properties_map() /*throw (eh::Exception)*/;
+  void generate_all_properties_map() /*throw (eh::Exception)*/;
 
   /**
    * Fill add_info
    */
-  void
-  load_extended_data() /*throw (eh::Exception)*/;
+  void load_extended_data() /*throw (eh::Exception)*/;
 
 };
 
@@ -92,20 +86,16 @@ public:
 
   TestContext() noexcept;
 
-  void
-  check_reference(const char* name, bool result)
+  void check_reference(const char* name, bool result)
     /*throw (eh::Exception)*/;
 
   void
-  property_check(const DynamicTrees::IsProperty& property,
-    IsFunction is_property, const char* name)
+  property_check(const DynamicTrees::IsProperty& property, IsFunction is_property, const char* name)
     /*throw (eh::Exception)*/;
 
-  void
-  set_all_checks_mode(bool new_value) noexcept;
+  void set_all_checks_mode(bool new_value) noexcept;
 
-  void
-  set_symbol(const UnicodeSymbol& new_symbol) noexcept;
+  void set_symbol(const UnicodeSymbol& new_symbol) noexcept;
 private:
   UnicodeSymbol symbol_;
   std::string operation_;
@@ -114,8 +104,7 @@ private:
   bool reference_value_;
 } test_context;
 
-const std::string&
-get_root_path() /*throw (eh::Exception)*/;
+const std::string& get_root_path() /*throw (eh::Exception)*/;
 
 //////////////////////////////////////////////////////////////////////////
 //  Implementations
@@ -126,14 +115,12 @@ TestAllProperties::TestAllProperties(const AllProperties& val) noexcept
 {
 }
 
-uint8_t
-TestAllProperties::value() const noexcept
+uint8_t TestAllProperties::value() const noexcept
 {
   return cumulative_value_;
 }
 
-const std::string&
-get_root_path() /*throw (eh::Exception)*/
+const std::string& get_root_path() /*throw (eh::Exception)*/
 {
   static std::string root_path;
   if (root_path.empty())
@@ -150,8 +137,7 @@ TestContext::TestContext() noexcept : do_all_checks_(false)
 {
 }
 
-void
-TestContext::check_reference(const char* name, bool result)
+void TestContext::check_reference(const char* name, bool result)
   /*throw (eh::Exception)*/
 {
   if (result != reference_value_)
@@ -175,8 +161,7 @@ TestContext::property_check(const DynamicTrees::IsProperty& property,
 
   reference_value_ = is_property(symbol_.c_str());
 
-  check_reference(RESULT_ON_STATIC_TREE,
-    property.set.find(symbol_) != property.set.end());
+  check_reference(RESULT_ON_STATIC_TREE, property.set.find(symbol_) != property.set.end());
 
   if (do_all_checks_)
   {
@@ -184,18 +169,15 @@ TestContext::property_check(const DynamicTrees::IsProperty& property,
       property.chars.belongs(String::Utf8Set::get_char(symbol_.c_str())));
   }
 
-  check_reference(RESULT_ON_CATEGORY,
-    property.category->is_owned(symbol_.c_str()));
+  check_reference(RESULT_ON_CATEGORY, property.category->is_owned(symbol_.c_str()));
 }
 
-void
-TestContext::set_all_checks_mode(bool new_value) noexcept
+void TestContext::set_all_checks_mode(bool new_value) noexcept
 {
   do_all_checks_ = new_value;
 }
 
-void
-TestContext::set_symbol(const UnicodeSymbol& new_symbol) noexcept
+void TestContext::set_symbol(const UnicodeSymbol& new_symbol) noexcept
 {
   symbol_ = new_symbol;
 }
@@ -212,8 +194,7 @@ DynamicTrees::IsProperty::insert(const UnicodeSymbol& first,
   set.insert(second);
 }
 
-void
-DynamicTrees::load_data(const char* filename, IsProperty& property)
+void DynamicTrees::load_data(const char* filename, IsProperty& property)
   /*throw (eh::Exception)*/
 {
   Utf8Loading::load_properties(filename, property);
@@ -221,19 +202,16 @@ DynamicTrees::load_data(const char* filename, IsProperty& property)
   property.category.reset(new String::Utf8Category(property.chars));
 }
 
-void
-DynamicTrees::load_extended_data() /*throw (eh::Exception)*/
+void DynamicTrees::load_extended_data() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < NUMBER_OF_PROPERTIES; ++i)
   {
     all_properties.chars.add(properties[i].chars);
   }
-  all_properties.category.reset(
-    new String::Utf8Category(all_properties.chars));
+  all_properties.category.reset( new String::Utf8Category(all_properties.chars));
 
   const UnicodeSymbol LAST("\xF4\x8F\xBF\xBF");
-  for (UnicodeSymbol symbol(L'\0');
-    symbol <= LAST; ++symbol)
+  for (UnicodeSymbol symbol(L'\0'); symbol <= LAST; ++symbol)
   {
     if (!all_properties.category->is_owned(symbol.c_str()))
     {
@@ -256,19 +234,16 @@ DynamicTrees::DynamicTrees() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < NUMBER_OF_PROPERTIES; ++i)
   {
-    load_data((get_root_path() + "/" + PROPERTIES[i].type + ".txt").c_str(),
-      properties[i]);
+    load_data((get_root_path() + "/" + PROPERTIES[i].type + ".txt").c_str(), properties[i]);
   }
 }
 
-void
-is_subsets_test() /*throw (TestException, eh::Exception)*/
+void is_subsets_test() /*throw (TestException, eh::Exception)*/
 {
   using namespace String;
 
   const UnicodeSymbol LAST("\xF4\x8F\xBF\xBF");
-  for (UnicodeSymbol symbol(L'\0');
-     symbol <= LAST; ++symbol)
+  for (UnicodeSymbol symbol(L'\0'); symbol <= LAST; ++symbol)
   {
     test_context.set_symbol(symbol);
     uint8_t all_properties = 0;
@@ -286,16 +261,14 @@ is_subsets_test() /*throw (TestException, eh::Exception)*/
     // and check get_properties function
     if (val.value() != all_properties)
     {
-      std::cerr << "Symbol: " << symbol <<
-        ", String::is_* = " << std::hex <<
+      std::cerr << "Symbol: " << symbol << ", String::is_* = " << std::hex <<
         static_cast<int>(all_properties) << ", String::all_properties = " <<
         std::hex << static_cast<int>(val.value()) << std::endl;
     }
   }
 }
 
-void
-generate_source() /*throw (eh::Exception)*/
+void generate_source() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < NUMBER_OF_PROPERTIES; i++)
   {
@@ -310,8 +283,7 @@ generate_source() /*throw (eh::Exception)*/
   }
 }
 
-void
-generate_all_properties_source() /*throw (eh::Exception)*/
+void generate_all_properties_source() /*throw (eh::Exception)*/
 {
   const char* type = "all_properties";
 
@@ -323,8 +295,7 @@ generate_all_properties_source() /*throw (eh::Exception)*/
   printable_category.print_finishers_to_cpp();
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {

@@ -13,8 +13,7 @@ namespace PlainStorage
   // PlainReader class
   //
 
-  unsigned long
-  PlainReader::read_i_(void* buf, unsigned long buf_size) const
+  unsigned long PlainReader::read_i_(void* buf, unsigned long buf_size) const
     /*throw (eh::Exception, ReadFailed)*/
   {
     if (data_size_ > buf_size)
@@ -35,17 +34,13 @@ namespace PlainStorage
         {
           /* assert */
           Stream::Error ostr;
-          ostr << "In reading exceed buffer. "
-            << "Buffer size: " << buf_size
-            << ", data size: " << data_size_
-            << ", buffer offset: " << buf_offset
-            << ", current block size: " << read_cur->size()
-            << ".";
+          ostr << "In reading exceed buffer. " << "Buffer size: " << buf_size
+            << ", data size: " << data_size_ << ", buffer offset: " << buf_offset
+            << ", current block size: " << read_cur->size() << ".";
           throw BufferExhausted(ostr);
         }
 
-        memcpy(static_cast<char*>(buf) + buf_offset,
-               read_cur->read_content(), read_cur->size());
+        memcpy(static_cast<char*>(buf) + buf_offset, read_cur->read_content(), read_cur->size());
 
         buf_offset += read_cur->size();
 
@@ -66,8 +61,7 @@ namespace PlainStorage
   // PlainWriter class
   //
 
-  void
-  PlainWriter::write_i_(const void* buf, unsigned long size)
+  void PlainWriter::write_i_(const void* buf, unsigned long size)
     /*throw (eh::Exception, WriteFailed)*/
   {
     try
@@ -102,8 +96,7 @@ namespace PlainStorage
             {
               // Write more data that can be stored in exists blocks
               // allocate new block and insert into end of chain of Data blocks
-              BlockIndex new_block =
-                block_allocator_->allocate();
+              BlockIndex new_block = block_allocator_->allocate();
 
               write_cur->next_index(new_block);
 
@@ -155,30 +148,24 @@ namespace PlainStorage
     : write_block_file_adapter_(write_block_file_adapter),
       first_free_block_(0)
   {
-    block_allocator_description_ =
-      write_block_file_adapter_->get_block(first_description_block);
+    block_allocator_description_ = write_block_file_adapter_->get_block(first_description_block);
 
     first_free_block_ = static_cast<ConstAllocatorIndex*>(
       block_allocator_description_->content())->value();
   }
 
-  DefaultBlockAllocator::~DefaultBlockAllocator()
-    noexcept
+  DefaultBlockAllocator::~DefaultBlockAllocator() noexcept
   {
     sync_();
   }
 
-  void
-  DefaultBlockAllocator::sync_()
-    noexcept
+  void DefaultBlockAllocator::sync_() noexcept
   {
-    static_cast<AllocatorIndex*>(
-      block_allocator_description_->content())->value() =
+    static_cast<AllocatorIndex*>( block_allocator_description_->content())->value() =
       first_free_block_;
   }
 
-  BlockIndex
-  DefaultBlockAllocator::allocate()
+  BlockIndex DefaultBlockAllocator::allocate()
     /*throw (eh::Exception, AllocationFailed)*/
   {
     const std::size_t ALLOCATE_PORTION = 10;
@@ -189,8 +176,7 @@ namespace PlainStorage
       if (first_free_block_ == 0)
       {
         // resizing of file
-        BlockIndex max_block_index =
-          write_block_file_adapter_->max_block_index();
+        BlockIndex max_block_index = write_block_file_adapter_->max_block_index();
 
         WriteBlockFileAdapter::WriteBlockStruct_var
           last_block = write_block_file_adapter_->get_block(
@@ -200,14 +186,11 @@ namespace PlainStorage
         last_block->next_index(0);
 
         WriteBlockFileAdapter::WriteBlockStruct_var
-          cur_block = write_block_file_adapter_->get_block(
-            max_block_index);
+          cur_block = write_block_file_adapter_->get_block( max_block_index);
 
         first_free_block_ = cur_block->index();
 
-        for (BlockIndex i = max_block_index;
-             i < max_block_index + ALLOCATE_PORTION;
-             ++i)
+        for (BlockIndex i = max_block_index; i < max_block_index + ALLOCATE_PORTION; ++i)
         {
           cur_block->size(0);
           cur_block->next_index(i + 1);
@@ -233,14 +216,12 @@ namespace PlainStorage
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't allocate block. Caught eh::Exception: " <<
-        ex.what();
+      ostr << FNS << "Can't allocate block. Caught eh::Exception: " << ex.what();
       throw AllocationFailed(ostr);
     }
   }
 
-  void
-  DefaultBlockAllocator::deallocate(BlockIndex block_to_free)
+  void DefaultBlockAllocator::deallocate(BlockIndex block_to_free)
     /*throw (eh::Exception, DeallocationFailed)*/
   {
     try
@@ -261,8 +242,7 @@ namespace PlainStorage
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't deallocate block. Caught eh::Exception: " <<
-        ex.what();
+      ostr << FNS << "Can't deallocate block. Caught eh::Exception: " << ex.what();
       throw DeallocationFailed(ostr);
     }
   }

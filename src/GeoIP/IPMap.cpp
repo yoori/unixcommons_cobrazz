@@ -28,28 +28,20 @@ namespace
     Regions()
       /*throw (eh::Exception)*/;
 
-    ~Regions()
-      noexcept;
+    ~Regions() noexcept;
 
-    void
-    region(const char* country, const char* region_code,
-      String::SubString& region) const
+    void region(const char* country, const char* region_code, String::SubString& region) const
       noexcept;
 
   private:
-    uint32_t
-    hash_(const char* country, const char* region_code) const
-      noexcept;
+    uint32_t hash_(const char* country, const char* region_code) const noexcept;
 
-    using AllRegions =
-      Generics::GnuHashTable<Generics::NumericHashAdapter<uint32_t>, std::string>;
+    using AllRegions = Generics::GnuHashTable<Generics::NumericHashAdapter<uint32_t>, std::string>;
 
     AllRegions regions_;
   };
 
-  uint32_t
-  Regions::hash_(const char* country, const char* region_code) const
-    noexcept
+  uint32_t Regions::hash_(const char* country, const char* region_code) const noexcept
   {
     if (!country[0] || !country[1] || country[2] ||
       !region_code[0] || !region_code[1] || region_code[2])
@@ -74,8 +66,8 @@ namespace
       {
         continue;
       }
-      if (line[2] != ',' || line[5] != ',' ||
-        line[6] != '"' || line[line.size() - 1] != '"')
+
+      if (line[2] != ',' || line[5] != ',' || line[6] != '"' || line[line.size() - 1] != '"')
       {
         continue;
       }
@@ -100,8 +92,7 @@ namespace
   }
 
   void
-  Regions::region(const char* country, const char* region_code,
-    String::SubString& region) const
+  Regions::region(const char* country, const char* region_code, String::SubString& region) const
     noexcept
   {
     uint32_t hash = hash_(country, region_code);
@@ -122,8 +113,7 @@ namespace
   const Regions regions;
 
 
-  unsigned long
-  ip_to_ipv4(const char* ip) noexcept
+  unsigned long ip_to_ipv4(const char* ip) noexcept
   {
     for (const char* p = ip; *p; p++)
     {
@@ -134,6 +124,7 @@ namespace
         {
           return 0;
         }
+
         if (!addr.s6_addr32[0])
         {
           if (!addr.s6_addr32[1] && addr.s6_addr32[2] == 0xFFFF0000ul)
@@ -215,8 +206,7 @@ namespace GeoIPMapping
   {
   }
 
-  std::string
-  IPMap::country_code_by_addr(uint32_t ip, bool net_byte_order)
+  std::string IPMap::country_code_by_addr(uint32_t ip, bool net_byte_order)
     /*throw (Exception, eh::Exception)*/
   {
     struct in_addr addr;
@@ -248,8 +238,7 @@ namespace GeoIPMapping
     return code;
   }
 
-  std::string
-  IPMap::country_code_by_addr(const char* ip, bool no_throw)
+  std::string IPMap::country_code_by_addr(const char* ip, bool no_throw)
     /*throw (Exception, eh::Exception)*/
   {
     if (!ip)
@@ -279,8 +268,7 @@ namespace GeoIPMapping
     return code;
   }
 
-  std::string
-  IPMap::country_code3_by_addr(const char* ip)
+  std::string IPMap::country_code3_by_addr(const char* ip)
     /*throw (Exception, eh::Exception)*/
   {
     if (!ip)
@@ -303,8 +291,7 @@ namespace GeoIPMapping
     return code;
   }
 
-  std::string
-  IPMap::country_name_by_addr(const char* ip)
+  std::string IPMap::country_name_by_addr(const char* ip)
     /*throw (Exception, eh::Exception)*/
   {
     if (!ip)
@@ -400,6 +387,7 @@ namespace GeoIPMapping
       {
         location.region.clear();
       }
+
       if (iprec->city)
       {
         location.city = iprec->city;
@@ -425,47 +413,38 @@ namespace GeoIPMapping
   //
   // IPMapCity2 class
   //
-  std::size_t
-  IPMapCity2::estimate_arena_size_(const char* filename) noexcept
+  std::size_t IPMapCity2::estimate_arena_size_(const char* filename) noexcept
   {
-    const char* const path =
-      filename ? filename : "/usr/share/GeoIP/ipv4.csv";
+    const char* const path = filename ? filename : "/usr/share/GeoIP/ipv4.csv";
 
     std::ifstream istr(path, std::ios::binary | std::ios::ate);
-    if(!istr.is_open())
+    if (!istr.is_open())
     {
       return 64 * 1024;
     }
 
     const auto size = istr.tellg();
-    if(size <= 0)
+    if (size <= 0)
     {
       return 64 * 1024;
     }
 
-    return std::max<std::size_t>(
-      64 * 1024,
-      static_cast<std::size_t>(size) * 4);
+    return std::max<std::size_t>( 64 * 1024, static_cast<std::size_t>(size) * 4);
   }
 
-  uint8_t
-  IPMapCity2::get_byte_(uint32_t ip, unsigned int byte_index) noexcept
+  uint8_t IPMapCity2::get_byte_(uint32_t ip, unsigned int byte_index) noexcept
   {
     return static_cast<uint8_t>(ip >> (24 - byte_index * 8));
   }
 
   uint8_t
-  IPMapCity2::get_masked_byte_(
-    uint32_t ip,
-    unsigned int byte_index,
-    unsigned int bits) noexcept
+  IPMapCity2::get_masked_byte_( uint32_t ip, unsigned int byte_index, unsigned int bits) noexcept
   {
     const uint8_t byte = get_byte_(ip, byte_index);
     return static_cast<uint8_t>(byte & (0xFFu << (8 - bits)));
   }
 
-  IPMapCity2::PrefixNode&
-  IPMapCity2::add_node_()
+  IPMapCity2::PrefixNode& IPMapCity2::add_node_()
   {
     return nodes_.emplace_back(&arena_);
   }
@@ -479,9 +458,7 @@ namespace GeoIPMapping
   {
     root_ = &add_node_();
 
-    load_(filename ?
-      String::SubString(filename) :
-      String::SubString("/usr/share/GeoIP/ipv4.csv"));
+    load_(filename ? String::SubString(filename) : String::SubString("/usr/share/GeoIP/ipv4.csv"));
   }
 
   IPMapCity2::~IPMapCity2() noexcept
@@ -522,46 +499,40 @@ namespace GeoIPMapping
 
     return city_location_by_addr_(location, ipv4);
   }
-  
-  bool
-  IPMapCity2::city_location_by_addr_(
-    CityLocation& location,
-    uint32_t ip)
-    const noexcept
+
+  bool IPMapCity2::city_location_by_addr_( CityLocation& location, uint32_t ip) const noexcept
   {
     const PrefixNode* node = root_;
     const CityLocationHolder* best_location = nullptr;
 
-    for(unsigned int byte_index = 0; node && byte_index < 4; ++byte_index)
+    for (unsigned int byte_index = 0; node && byte_index < 4; ++byte_index)
     {
-      if(node->full_location)
+      if (node->full_location)
       {
         best_location = node->full_location;
       }
 
-      for(unsigned int bits = 7; bits >= 1; --bits)
+      for (unsigned int bits = 7; bits >= 1; --bits)
       {
         const auto partial_it =
-          node->partial_locations[bits - 1].find(
-            get_masked_byte_(ip, byte_index, bits));
-        if(partial_it != node->partial_locations[bits - 1].end())
+          node->partial_locations[bits - 1].find( get_masked_byte_(ip, byte_index, bits));
+        if (partial_it != node->partial_locations[bits - 1].end())
         {
           best_location = partial_it->second;
           break;
         }
       }
 
-      const auto child_it =
-        node->children.find(get_byte_(ip, byte_index));
+      const auto child_it = node->children.find(get_byte_(ip, byte_index));
       node = child_it != node->children.end() ? child_it->second : nullptr;
     }
 
-    if(node && node->full_location)
+    if (node && node->full_location)
     {
       best_location = node->full_location;
     }
 
-    if(best_location)
+    if (best_location)
     {
       location.country_code = best_location->country_code;
       location.region = best_location->region;
@@ -572,31 +543,30 @@ namespace GeoIPMapping
     return false;
   }
 
-  void
-  IPMapCity2::load_(const String::SubString& file)
+  void IPMapCity2::load_(const String::SubString& file)
     /*throw(FileNotExists, InvalidFormat)*/
   {
     static const char* FUN = "IPMapCity2::load_()";
 
     std::ifstream istr(file.str().c_str());
-    if(!istr.is_open())
+    if (!istr.is_open())
     {
       throw FileNotExists("");
     }
 
     std::string line_holder;
-    while(!istr.eof())
+    while (!istr.eof())
     {
       std::getline(istr, line_holder);
 
-      if(line_holder.empty())
+      if (line_holder.empty())
       {
         continue;
       }
 
       String::SubString line(line_holder);
       const auto ip_mask_end = line.find(',');
-      if(ip_mask_end == String::SubString::NPOS)
+      if (ip_mask_end == String::SubString::NPOS)
       {
         continue;
       }
@@ -606,15 +576,14 @@ namespace GeoIPMapping
 
       unsigned char ip_bits;
       uint32_t ip_mask;
-      if(!parse_ip_mask_(ip_bits, ip_mask, ip_mask_str) ||
-        (ip_bits > 32))
+      if (!parse_ip_mask_(ip_bits, ip_mask, ip_mask_str) || (ip_bits > 32))
       {
         Stream::Error ostr;
         ostr << FUN << ": can't parse ip mask '" << ip_mask_str << "'";
         throw InvalidFormat(ostr);
       }
 
-      if(city_loc_str.size() > 1 &&
+      if (city_loc_str.size() > 1 &&
         *city_loc_str.begin() == '"' &&
         *city_loc_str.rbegin() == '"')
       {
@@ -622,7 +591,7 @@ namespace GeoIPMapping
       }
 
       CityLocationHolder& city_location = locations_.emplace_back(&arena_);
-      if(!parse_city_location_(city_location, city_loc_str))
+      if (!parse_city_location_(city_location, city_loc_str))
       {
         Stream::Error ostr;
         ostr << FUN << ": can't parse city location";
@@ -633,18 +602,18 @@ namespace GeoIPMapping
       const unsigned int full_bytes = ip_bits / 8;
       const unsigned int remainder_bits = ip_bits % 8;
 
-      for(unsigned int byte_index = 0; byte_index < full_bytes; ++byte_index)
+      for (unsigned int byte_index = 0; byte_index < full_bytes; ++byte_index)
       {
         const uint8_t key = get_byte_(ip_mask, byte_index);
         auto [it, inserted] = node->children.emplace(key, nullptr);
-        if(inserted)
+        if (inserted)
         {
           it->second = &add_node_();
         }
         node = it->second;
       }
 
-      if(remainder_bits == 0)
+      if (remainder_bits == 0)
       {
         node->full_location = &city_location;
       }
@@ -670,7 +639,7 @@ namespace GeoIPMapping
     mask = 0;
     mask = ip_to_ipv4(ip_str.str().c_str());
 
-    if(!mask)
+    if (!mask)
     {
       return false;
     }
@@ -678,7 +647,7 @@ namespace GeoIPMapping
     String::SubString bits_str;
     splitter.get_token(bits_str);
 
-    if(!String::StringManip::str_to_int(bits_str, bits))
+    if (!String::StringManip::str_to_int(bits_str, bits))
     {
       return false;
     }
@@ -693,20 +662,23 @@ namespace GeoIPMapping
   {
     String::SubString::SizeType country_end = city_loc_str.find('/');
 
-    if(country_end != String::SubString::NPOS)
+    if (country_end != String::SubString::NPOS)
     {
       city_location.country_code.assign(city_loc_str.data(), country_end);
 
       String::SubString::SizeType region_end = city_loc_str.find('/', country_end + 1);
 
-      if(region_end != String::SubString::NPOS)
+      if (region_end != String::SubString::NPOS)
       {
-        city_location.region.assign(city_loc_str.data() + country_end + 1, region_end - (country_end + 1));
-        city_location.city.assign(city_loc_str.data() + region_end + 1, city_loc_str.size() - (region_end + 1));
+        city_location.region.assign(
+          city_loc_str.data() + country_end + 1, region_end - (country_end + 1));
+        city_location.city.assign(
+          city_loc_str.data() + region_end + 1, city_loc_str.size() - (region_end + 1));
       }
       else
       {
-        city_location.region.assign(city_loc_str.data() + country_end + 1, city_loc_str.size() - (country_end + 1));
+        city_location.region.assign(
+          city_loc_str.data() + country_end + 1, city_loc_str.size() - (country_end + 1));
       }
     }
     else

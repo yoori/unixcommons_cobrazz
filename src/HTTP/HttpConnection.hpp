@@ -35,34 +35,25 @@ namespace HTTP
     public:
       unsigned int status;
 
-      StatusException(const char* description, unsigned int status)
-        noexcept;
-      StatusException(const std::string& description, unsigned int status)
-        noexcept;
-      StatusException(const Stream::Error& ostr, unsigned int status)
-        noexcept;
+      StatusException(const char* description, unsigned int status) noexcept;
+      StatusException(const std::string& description, unsigned int status) noexcept;
+      StatusException(const Stream::Error& ostr, unsigned int status) noexcept;
     };
 
-    typedef ACE_Message_Block HttpBody;
+    using HttpBody = ACE_Message_Block;
 
   public:
     explicit
-    HTTP_Connection(const HTTPAddress& url,
-      const char* proxy = 0) /*throw (eh::Exception)*/;
-    virtual
-    ~HTTP_Connection() noexcept;
+    HTTP_Connection(const HTTPAddress& url, const char* proxy = 0) /*throw (eh::Exception)*/;
+    virtual ~HTTP_Connection() noexcept;
 
-    ACE_SOCK_Stream&
-    stream() noexcept;
+    ACE_SOCK_Stream& stream() noexcept;
 
     void
-    connect(const Generics::Time* connect_timeout = 0,
-      const ACE_Addr& local_ip = ACE_Addr::sap_any)
+    connect(const Generics::Time* connect_timeout = 0, const ACE_Addr& local_ip = ACE_Addr::sap_any)
       /*throw (eh::Exception, Exception)*/;
 
-    void
-    connect(const Generics::Time* connect_timeout,
-      const ACE_Addr& local_ip, ACE_Addr& addr)
+    void connect(const Generics::Time* connect_timeout, const ACE_Addr& local_ip, ACE_Addr& addr)
       /*throw (eh::Exception, Exception)*/;
 
 
@@ -124,9 +115,7 @@ namespace HTTP
   // HTTP_Connection class
   //
 
-  inline
-  ACE_SOCK_Stream&
-  HTTP_Connection::stream() noexcept
+  inline ACE_SOCK_Stream& HTTP_Connection::stream() noexcept
   {
     return stream_;
   }

@@ -6,8 +6,7 @@
 
 namespace
 {
-  const char ISO3166[][3] =
-  {
+  const char ISO3166[][3] = {
     "AF", "AX", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR", "AM",
     "AW", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ",
     "BM", "BT", "BO", "BA", "BW", "BV", "BR", "IO", "BN", "BG", "BF", "BI",
@@ -32,14 +31,12 @@ namespace
   };
 
   // Fields "GG", "IM", "JE" duplicate ISO3166
-  const char ISO3166_EX[][3] =
-  {
+  const char ISO3166_EX[][3] = {
     "AC", "CP", "DG", "EA", "EU", "FX", "IC", "TA", "UK", "GG", "IM", "JE",
     "CS", "NT", "SF", "SU", "TP", "YU", "ZR"
   };
 
-  const char ISO3166_3[][4] =
-  {
+  const char ISO3166_3[][4] = {
     "AFG", "ALB", "DZA", "ASM", "AND", "AGO", "AIA", "ATA", "ATG", "ARG",
     "ARM", "ABW", "AUS", "AUT", "AZE", "BHS", "BHR", "BGD", "BRB", "BLR",
     "BEL", "BLZ", "BEN", "BMU", "BTN", "BOL", "BIH", "BWA", "BVT", "BRA",
@@ -69,9 +66,7 @@ namespace
 
 namespace Generics
 {
-  inline
-  uint32_t
-  CountryCodeMap::get_country_code_(const String::SubString& str) noexcept
+  inline uint32_t CountryCodeMap::get_country_code_(const String::SubString& str) noexcept
   {
     uint32_t code = 0;
     const std::size_t LEN = std::min(str.size(), static_cast<size_t>(4));
@@ -92,8 +87,7 @@ namespace Generics
         String::SubString(ISO3166[i], sizeof(ISO3166[i]) - 1)));
     }
 
-    for (std::size_t i = 0;
-      i < sizeof(ISO3166_EX) / sizeof(ISO3166_EX[0]); i++)
+    for (std::size_t i = 0; i < sizeof(ISO3166_EX) / sizeof(ISO3166_EX[0]); i++)
     {
       country_map_.insert(get_country_code_(
         String::SubString(ISO3166_EX[i], sizeof(ISO3166_EX[i]) - 1)));
@@ -106,9 +100,7 @@ namespace Generics
     }
   }
 
-  bool
-  CountryCodeMap::is_country_code(const String::SubString& code) const
-    noexcept
+  bool CountryCodeMap::is_country_code(const String::SubString& code) const noexcept
   {
     return code.empty() ? false :
       country_map_.find(get_country_code_(code)) != country_map_.end();

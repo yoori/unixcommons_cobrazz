@@ -8,12 +8,11 @@
 
 
 namespace Generics
-{  
+{
   template <class Key>
   struct HashFunForHashAdapter
   {
-    size_t
-    operator()(const Key& value) const /*throw (eh::Exception)*/;
+    size_t operator()(const Key& value) const /*throw (eh::Exception)*/;
   };
 
   template <class Key, class Value,
@@ -25,45 +24,37 @@ namespace Generics
       typename std::allocator_traits<Alloc>::template rebind_alloc<std::pair<const Key, Value>>>
   {
   private:
-    typedef std::unordered_map<Key, Value, HashFunForHashAdapter<Key>,
+    using Parent = std::unordered_map<Key, Value, HashFunForHashAdapter<Key>,
       EqualKey,
-      typename std::allocator_traits<Alloc>::template rebind_alloc<std::pair<const Key, Value> >>
-      Parent;
+      typename std::allocator_traits<Alloc>::template rebind_alloc<std::pair<const Key, Value> >>;
 
   public:
-    typedef size_t size_type;
-    typedef Value data_type;
+    using size_type = size_t;
+    using data_type = Value;
 
     GnuHashTable(size_t table_size = 0) /*throw (eh::Exception)*/;
 
-    size_type
-    table_size() const noexcept;
+    size_type table_size() const noexcept;
 
-    void
-    table_size(const size_t&) noexcept;
-    void
-    optimize() noexcept;
+    void table_size(const size_t&) noexcept;
+    void optimize() noexcept;
 
-    bool
-    operator ==(const GnuHashTable& table) const noexcept;
+    bool operator ==(const GnuHashTable& table) const noexcept;
   };
 
-  template <class Key, class Alloc = std::allocator<Key>,
-    class EqualKey = std::equal_to<Key> >
+  template <class Key, class Alloc = std::allocator<Key>, class EqualKey = std::equal_to<Key> >
   class GnuHashSet :
     public std::unordered_set<Key, HashFunForHashAdapter<Key>,
       EqualKey, typename std::allocator_traits<Alloc>::template rebind_alloc<Key>>
   {
   public:
-    typedef std::unordered_set<Key, HashFunForHashAdapter<Key>,
-      EqualKey, typename std::allocator_traits<Alloc>::template rebind_alloc<Key>>
-      Parent;
+    using Parent = std::unordered_set<Key, HashFunForHashAdapter<Key>,
+      EqualKey, typename std::allocator_traits<Alloc>::template rebind_alloc<Key>>;
 
-    typedef Key key_type;
-    typedef size_t size_type;
+    using key_type = Key;
+    using size_type = size_t;
 
-    bool
-    operator ==(const GnuHashSet& set) const noexcept;
+    bool operator ==(const GnuHashSet& set) const noexcept;
   };
 }
 
@@ -78,8 +69,7 @@ namespace Generics
   //
 
   template <class Key>
-  size_t
-  HashFunForHashAdapter<Key>::operator()(const Key& value) const
+  size_t HashFunForHashAdapter<Key>::operator()(const Key& value) const
     /*throw (eh::Exception)*/
   {
     return static_cast<size_t>(value.hash());
@@ -104,30 +94,25 @@ namespace Generics
   }
 
   template <class Key, class Value, class Alloc, class EqualKey>
-  void
-  GnuHashTable<Key, Value, Alloc, EqualKey>::optimize() noexcept
+  void GnuHashTable<Key, Value, Alloc, EqualKey>::optimize() noexcept
   {
   }
 
   template <class Key, class Value, class Alloc, class EqualKey>
-  void
-  GnuHashTable<Key, Value, Alloc, EqualKey>::table_size(
-    const size_t& new_size) noexcept
+  void GnuHashTable<Key, Value, Alloc, EqualKey>::table_size( const size_t& new_size) noexcept
   {
     Parent::resize(new_size);
   }
 
   template <class Key, class Value, class Alloc, class EqualKey>
   bool
-  GnuHashTable<Key, Value, Alloc, EqualKey>::operator ==(
-    const GnuHashTable& table) const noexcept
+  GnuHashTable<Key, Value, Alloc, EqualKey>::operator ==( const GnuHashTable& table) const noexcept
   {
     if (this->size() != table.size())
     {
       return false;
     }
-    for (typename Parent::const_iterator itor(this->begin());
-      itor != this->end(); ++itor)
+    for (typename Parent::const_iterator itor(this->begin()); itor != this->end(); ++itor)
     {
       typename Parent::const_iterator found(table.find(itor->first));
       if (found == table.end() || !(itor->second == found->second))
@@ -143,16 +128,13 @@ namespace Generics
   //
 
   template <class Key, class Alloc, class EqualKey>
-  bool
-  GnuHashSet<Key, Alloc, EqualKey>::operator ==(const GnuHashSet& set) const
-    noexcept
+  bool GnuHashSet<Key, Alloc, EqualKey>::operator ==(const GnuHashSet& set) const noexcept
   {
     if (this->size() != set.size())
     {
       return false;
     }
-    for (typename Parent::const_iterator itor(this->begin());
-      itor != this->end(); ++itor)
+    for (typename Parent::const_iterator itor(this->begin()); itor != this->end(); ++itor)
     {
       if (set.find(itor->first) == set.end())
       {

@@ -2,8 +2,7 @@
 #include <UServerUtils/GRPCServer.hpp>
 
 
-int
-main() noexcept
+int main() noexcept
 {
   try
   {
@@ -35,4 +34,3 @@ main() noexcept
 
   return -1;
 }
-

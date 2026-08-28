@@ -16,12 +16,10 @@ namespace HTTP::HttpInternals
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::register_event(event_base& base)
+  void SignalQueue<Object, Data>::register_event(event_base& base)
     /*throw (eh::Exception, Exception)*/
   {
-    event_set(&pipe_read_, pipe_.read_descriptor(), EV_READ | EV_PERSIST,
-      read_callback_, this);
+    event_set(&pipe_read_, pipe_.read_descriptor(), EV_READ | EV_PERSIST, read_callback_, this);
     event_base_set(&base, &pipe_read_);
     if (event_add(&pipe_read_, 0) == -1)
     {
@@ -33,8 +31,7 @@ namespace HTTP::HttpInternals
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::add(Data& data)
+  void SignalQueue<Object, Data>::add(Data& data)
     /*throw (eh::Exception, SyscallFailure)*/
   {
     bool empty;
@@ -52,22 +49,19 @@ namespace HTTP::HttpInternals
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::quit() /*throw (SyscallFailure)*/
+  void SignalQueue<Object, Data>::quit() /*throw (SyscallFailure)*/
   {
     signal(RT_QUIT);
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::check() /*throw (SyscallFailure)*/
+  void SignalQueue<Object, Data>::check() /*throw (SyscallFailure)*/
   {
     signal(RT_CHECK);
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::flush() /*throw (eh::Exception)*/
+  void SignalQueue<Object, Data>::flush() /*throw (eh::Exception)*/
   {
     remove_event_();
 
@@ -75,26 +69,24 @@ namespace HTTP::HttpInternals
     {
       Data data;
       {
-	Sync::PosixGuard guard(mutex_);
-	if (queue_.empty())
-	{
-	  break;
-	}
-	data = queue_.front();
-	queue_.pop_front();
+  Sync::PosixGuard guard(mutex_);
+  if (queue_.empty())
+  {
+    break;
+  }
+  data = queue_.front();
+  queue_.pop_front();
       }
       (object_.*data_callback_)(data);
     }
 
-    for (unsigned char data[256];
-      pipe_.read(data, sizeof(data)) == sizeof(data);)
+    for (unsigned char data[256]; pipe_.read(data, sizeof(data)) == sizeof(data);)
     {
     }
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::handle_read_() noexcept
+  void SignalQueue<Object, Data>::handle_read_() noexcept
   {
     bool states[RT_LAST];
     std::fill(states, states + RT_LAST, false);
@@ -106,26 +98,27 @@ namespace HTTP::HttpInternals
       switch (res)
       {
       case -1:
-	if (errno == EAGAIN)
-	{
-	  break;
-	}
-	[[fallthrough]];
+  if (errno == EAGAIN)
+  {
+    break;
+  }
+  [[fallthrough]];
       case 0:
-	states[RT_QUIT] = true;
-	break;
+  states[RT_QUIT] = true;
+  break;
 
       default:
-	const bool cont = res == sizeof(data);
-	for (unsigned char* ptr = data; res--; ptr++)
-	{
-	  states[*ptr] = true;
-	}
-	if (cont)
-	{
-	  continue;
-	}
-	break;
+  const bool cont = res == sizeof(data);
+  for (unsigned char* ptr = data; res--; ptr++)
+  {
+    states[*ptr] = true;
+  }
+
+  if (cont)
+  {
+    continue;
+  }
+  break;
       }
       break;
     }
@@ -134,17 +127,17 @@ namespace HTTP::HttpInternals
     {
       for (;;)
       {
-	Data data;
-	{
-	  Sync::PosixGuard guard(mutex_);
-	  if (queue_.empty())
-	  {
-	    break;
-	  }
-	  data = queue_.front();
-	  queue_.pop_front();
-	}
-	(object_.*data_callback_)(data);
+  Data data;
+  {
+    Sync::PosixGuard guard(mutex_);
+    if (queue_.empty())
+    {
+      break;
+    }
+    data = queue_.front();
+    queue_.pop_front();
+  }
+  (object_.*data_callback_)(data);
       }
     }
 
@@ -156,23 +149,20 @@ namespace HTTP::HttpInternals
     {
       if (states[RT_CHECK])
       {
-	(object_.*check_callback_)();
+  (object_.*check_callback_)();
       }
     }
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::read_callback_(
-    int /*fd*/, short /*type*/, void* arg) noexcept
+  void SignalQueue<Object, Data>::read_callback_( int /*fd*/, short /*type*/, void* arg) noexcept
   {
     static_cast<SignalQueue<Object, Data>*>(arg)->handle_read_();
   }
 
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::signal(unsigned char data)
+  void SignalQueue<Object, Data>::signal(unsigned char data)
     /*throw (SyscallFailure)*/
   {
     for (;;)
@@ -181,33 +171,31 @@ namespace HTTP::HttpInternals
       switch (res)
       {
       case -1:
-	eh::throw_errno_exception<SyscallFailure>(FNE, "send");
-	[[fallthrough]];
+  eh::throw_errno_exception<SyscallFailure>(FNE, "send");
+  [[fallthrough]];
       case 0:
-	{
-	  Stream::Error ostr;
-	  ostr << FNS << "send error: connection closed";
-	  throw SyscallFailure(ostr);
-	}
+  {
+    Stream::Error ostr;
+    ostr << FNS << "send error: connection closed";
+    throw SyscallFailure(ostr);
+  }
 
       default:
-	break;
+  break;
       }
       break;
     }
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::terminate_() noexcept
+  void SignalQueue<Object, Data>::terminate_() noexcept
   {
     remove_event_();
     (object_.*quit_callback_)();
   }
 
   template <typename Object, typename Data>
-  void
-  SignalQueue<Object, Data>::remove_event_() noexcept
+  void SignalQueue<Object, Data>::remove_event_() noexcept
   {
     if (!removed_)
     {

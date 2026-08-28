@@ -28,8 +28,7 @@ namespace
  */
 namespace
 {
-  int
-  read_int(const String::SubString& str)
+  int read_int(const String::SubString& str)
   {
     int value;
     return String::StringManip::str_to_int(str, value) ? value : 0;
@@ -110,8 +109,7 @@ namespace
 
       // invalid line
       Stream::Error ostr;
-      ostr << FNS << "can't parse dictionary line '" << str <<
-        "': incorrect parts number";
+      ostr << FNS << "can't parse dictionary line '" << str << "': incorrect parts number";
       throw Polyglot::DictionaryLoader::InvalidParameter(ostr);
     }
 
@@ -187,8 +185,7 @@ namespace
 
       // invalid line
       Stream::Error ostr;
-      ostr << FNS << "can't parse dictionary line '" << str <<
-        "': incorrect parts number";
+      ostr << FNS << "can't parse dictionary line '" << str << "': incorrect parts number";
       throw Polyglot::DictionaryLoader::InvalidParameter(ostr);
     }
 
@@ -213,32 +210,27 @@ namespace
     unsigned long freq = 0;
   };
 
-  typedef Generics::GnuHashTable<
-    Generics::NumericHashAdapter<unsigned long>, Word> IdWordMap;
+  using IdWordMap = Generics::GnuHashTable<
+    Generics::NumericHashAdapter<unsigned long>, Word>;
 }
 
 namespace Polyglot
 {
-  void
-  DictionaryLoader::load(const char* dict_base_path, Dictionary& out_dict)
+  void DictionaryLoader::load(const char* dict_base_path, Dictionary& out_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     load((std::string(dict_base_path) + "s-dict").c_str(),
       (std::string(dict_base_path) + "bi-dict").c_str(), out_dict);
   }
 
-  void
-  DictionaryLoader::load(const char* dict_base_path,
-    DictionaryWithNorm& out_dict)
+  void DictionaryLoader::load(const char* dict_base_path, DictionaryWithNorm& out_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     load((std::string(dict_base_path) + "sn-dict").c_str(),
       (std::string(dict_base_path) + "bi-dict").c_str(), out_dict);
   }
 
-  void
-  DictionaryLoader::load(const char* dict_file, const char* bi_dict_file,
-    Dictionary& out_dict)
+  void DictionaryLoader::load(const char* dict_file, const char* bi_dict_file, Dictionary& out_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     try
@@ -278,9 +270,7 @@ namespace Polyglot
     }
   }
 
-  void
-  DictionaryLoader::load(std::istream& dict, std::istream& /*bi_dict*/,
-    Dictionary& out_dict)
+  void DictionaryLoader::load(std::istream& dict, std::istream& /*bi_dict*/, Dictionary& out_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     std::string line;
@@ -384,8 +374,7 @@ namespace Polyglot
         throw InvalidParameter(ostr);
       }
 
-      Dictionary::Iterator res_it = out_dict.find(
-        it1->second.begin(), it1->second.end());
+      Dictionary::Iterator res_it = out_dict.find( it1->second.begin(), it1->second.end());
 
       if (res_it == out_dict.end() || !res_it.is_element())
       {
@@ -435,14 +424,12 @@ namespace Polyglot
       out_dict.traits_.sum_el += freq;
       ++out_dict.traits_.count_el;
 
-      out_dict.insert(std::make_pair(word,
-        DictionaryNodeWithNorm(id, freq, norm_word.c_str())));
+      out_dict.insert(std::make_pair(word, DictionaryNodeWithNorm(id, freq, norm_word.c_str())));
     }
   }
 
   void
-  DictionaryLoader::load_suffixes(const char* dict_base_path,
-    SuffixDictionary& out_suffix_dict)
+  DictionaryLoader::load_suffixes(const char* dict_base_path, SuffixDictionary& out_suffix_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     std::string suffix_dict_file(std::string(dict_base_path) + "suffix-dict");
@@ -456,15 +443,12 @@ namespace Polyglot
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't open suffix dictionary '" << suffix_dict_file <<
-        "': " << ex.what();
+      ostr << FNS << "Can't open suffix dictionary '" << suffix_dict_file << "': " << ex.what();
       throw InvalidParameter(ostr);
     }
   }
 
-  void
-  DictionaryLoader::load_suffixes(std::istream& suffix_dict,
-    SuffixDictionary& out_dict)
+  void DictionaryLoader::load_suffixes(std::istream& suffix_dict, SuffixDictionary& out_dict)
     /*throw (eh::Exception, InvalidParameter)*/
   {
     std::string line;
@@ -486,8 +470,7 @@ namespace Polyglot
       result_dict_traits.sum_el += freq;
       ++result_dict_traits.count_el;
 
-      SuffixDictionary::iterator it =
-        out_dict.find(suffix.begin(), suffix.end());
+      SuffixDictionary::iterator it = out_dict.find(suffix.begin(), suffix.end());
       if (it != out_dict.end())
       {
         it->second.suffixes.emplace_back(len, freq);

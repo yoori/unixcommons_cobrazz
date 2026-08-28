@@ -33,8 +33,7 @@ namespace Generics
      * @param allocator Memory allocator will be using for allocation,
      * if not specified using special default allocator.
      */
-    explicit
-    MemBuf(Allocator::Base* allocator = 0) noexcept;
+    explicit MemBuf(Allocator::Base* allocator = 0) noexcept;
 
     /**
      * Construct memory buffer and mark all size bytes as used.
@@ -42,8 +41,7 @@ namespace Generics
      * @param allocator Memory allocator will be using for allocation,
      * if not specified using special default allocator.
      */
-    explicit
-    MemBuf(std::size_t size, Allocator::Base* allocator = 0)
+    explicit MemBuf(std::size_t size, Allocator::Base* allocator = 0)
       /*throw (OutOfMemory)*/;
 
     /**
@@ -77,8 +75,7 @@ namespace Generics
      * @param allocator Memory allocator will be using for allocation,
      * if not specified using special default allocator.
      */
-    MemBuf(const void* ptr, std::size_t size,
-      Allocator::Base* allocator = 0)
+    MemBuf(const void* ptr, std::size_t size, Allocator::Base* allocator = 0)
       /*throw (RangeError, OutOfMemory)*/;
 
     /**
@@ -90,50 +87,43 @@ namespace Generics
     /**
      * @return true if buffer size used by user is zero.
      */
-    bool
-    empty() const noexcept;
+    bool empty() const noexcept;
 
     /**
      * Free allocated memory, set logical size and capacity
      * to zero.
      */
-    void
-    clear() noexcept;
+    void clear() noexcept;
 
     /**
      * @return buffer size used by user.
      */
-    std::size_t
-    size() const noexcept;
+    std::size_t size() const noexcept;
 
     /**
      * @return really allocated memory by this MemBuf object.
      */
-    std::size_t
-    capacity() const noexcept;
+    std::size_t capacity() const noexcept;
 
     /**
      * @param offset from begin of user data in bytes
      * @return pointer on user data.
      */
-    void*
-    data(std::size_t offset = 0) noexcept;
+    void* data(std::size_t offset = 0) noexcept;
 
     /**
      * @param offset from begin of user data in bytes
      * @return pointer on user data.
      * Constant version.
      */
-    const void*
-    data(std::size_t offset = 0) const noexcept;
+    const void* data(std::size_t offset = 0) const noexcept;
 
     /**
      * @param offset from begin of user data in bytes
      * @return pointer on user data.
      */
     template <typename DataType>
-    DataType*
-    get(std::size_t offset = 0) noexcept;
+    DataType* get(std::size_t offset = 0) noexcept;
 
     /**
      * @param offset from begin of user data in bytes
@@ -141,16 +131,14 @@ namespace Generics
      * Constant version.
      */
     template <typename DataType>
-    const DataType*
-    get(std::size_t offset = 0) const noexcept;
+    const DataType* get(std::size_t offset = 0) const noexcept;
 
     /**
      * Assigns new content for the buffer.
      * @param ptr pointer to data for MemBuf.
      * @param size bytes should copy from ptr source.
      */
-    void
-    assign(const void* ptr, std::size_t size)
+    void assign(const void* ptr, std::size_t size)
       /*throw (eh::Exception, OutOfMemory)*/;
 
     /**
@@ -159,8 +147,7 @@ namespace Generics
      * @param size in bytes of new memory buffer.
      * Set capacity and user size to parameter value.
      */
-    void
-    alloc(std::size_t size) /*throw (eh::Exception, OutOfMemory)*/;
+    void alloc(std::size_t size) /*throw (eh::Exception, OutOfMemory)*/;
 
     /**
      * Modifying logical buffer size.
@@ -168,35 +155,30 @@ namespace Generics
      * @param size must be less than or equal to MemBuf capacity.
      * Throw RangeError, if you exceed really allocate memory.
      */
-    void
-    resize(std::size_t size) /*throw (RangeError)*/;
+    void resize(std::size_t size) /*throw (RangeError)*/;
 
     /**
      * swap between this object and the other
      * @param right object
      */
-    void
-    swap(MemBuf& right) noexcept;
+    void swap(MemBuf& right) noexcept;
 
     /**
      * Assignment operator is prohibited.
      */
-    MemBuf&
-    operator =(MemBuf& right) noexcept = delete;
+    MemBuf& operator =(MemBuf& right) noexcept = delete;
 
     /**
      * Move operator. Calls swap().
      * @param right buffer will move to this object
      * @return reference to this object
      */
-    MemBuf&
-    operator =(MemBuf&& right) noexcept;
+    MemBuf& operator =(MemBuf&& right) noexcept;
 
     /**
      * @return pointer to memory allocator
      */
-    Allocator::Base_var
-    get_allocator() noexcept;
+    Allocator::Base_var get_allocator() noexcept;
 
   private:
     mutable Allocator::Base_var allocator_;
@@ -219,15 +201,13 @@ namespace Generics
      * Constructor
      */
     template <typename... T>
-    explicit
-    MemBufTmpl(T... data) /*throw (eh::Exception)*/;
+    explicit MemBufTmpl(T... data) /*throw (eh::Exception)*/;
 
     /**
      * Aggregated MemBuf
      * @return aggregated MemBuf
      */
-    MemBuf&
-    membuf() noexcept;
+    MemBuf& membuf() noexcept;
 
   private:
     MemBuf mem_buf_;
@@ -247,38 +227,33 @@ namespace Generics
      * Constructor
      */
     template <typename... T>
-    explicit
-    SmartTmplMemBuf(T... data) /*throw (eh::Exception)*/;
+    explicit SmartTmplMemBuf(T... data) /*throw (eh::Exception)*/;
 
     /**
      * Aggregated MemBuf
      * @return aggregated MemBuf
      */
-    MemBuf&
-    membuf() noexcept;
+    MemBuf& membuf() noexcept;
 
     /**
      * Aggregated MemBuf
      * @return aggregated MemBuf
      */
-    const MemBuf&
-    membuf() const noexcept;
+    const MemBuf& membuf() const noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~SmartTmplMemBuf() noexcept = default;
+    virtual ~SmartTmplMemBuf() noexcept = default;
 
   private:
     MemBuf mem_buf_;
   };
-  typedef SmartTmplMemBuf<MemBuf> SmartMemBuf;
-  typedef SmartTmplMemBuf<const MemBuf> ConstSmartMemBuf;
-  typedef ReferenceCounting::QualPtr<SmartMemBuf> SmartMemBuf_var;
-  typedef ReferenceCounting::ConstPtr<ConstSmartMemBuf>
-    ConstSmartMemBuf_var;
+  using SmartMemBuf = SmartTmplMemBuf<MemBuf>;
+  using ConstSmartMemBuf = SmartTmplMemBuf<const MemBuf>;
+  using SmartMemBuf_var = ReferenceCounting::QualPtr<SmartMemBuf>;
+  using ConstSmartMemBuf_var = ReferenceCounting::ConstPtr<ConstSmartMemBuf>;
 
   /**
    * SmartMemBuf with predefined allocator value.
@@ -291,12 +266,10 @@ namespace Generics
      * Constructor
      */
     template <typename... T>
-    explicit
-    SmartMemBufTmpl(T... data) /*throw (eh::Exception)*/;
+    explicit SmartMemBufTmpl(T... data) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~SmartMemBufTmpl() noexcept = default;
+    virtual ~SmartMemBufTmpl() noexcept = default;
   };
 
   /**
@@ -305,8 +278,7 @@ namespace Generics
    */
   struct ConstSmartMemBufSize
   {
-    std::size_t
-    operator()(ConstSmartMemBuf* smb) const noexcept;
+    std::size_t operator()(ConstSmartMemBuf* smb) const noexcept;
   };
 
 
@@ -315,8 +287,7 @@ namespace Generics
    * to newly created ConstSmartMemBuf disallowing any future modification
    * of the buffer. Thread safe.
    */
-  ConstSmartMemBuf_var
-  transfer_membuf(SmartMemBuf* ptr) /*throw (eh::Exception)*/;
+  ConstSmartMemBuf_var transfer_membuf(SmartMemBuf* ptr) /*throw (eh::Exception)*/;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -328,58 +299,44 @@ namespace Generics
   //
   // MemBuf class
   //
-  inline
-  bool
-  MemBuf::empty() const noexcept
+  inline bool MemBuf::empty() const noexcept
   {
     return !size_;
   }
 
-  inline
-  void*
-  MemBuf::data(std::size_t offset) noexcept
+  inline void* MemBuf::data(std::size_t offset) noexcept
   {
     return static_cast<unsigned char*>(ptr_) + offset + DEV_MEMBUF_BOUNDS;
   }
 
-  inline
-  const void*
-  MemBuf::data(std::size_t offset) const noexcept
+  inline const void* MemBuf::data(std::size_t offset) const noexcept
   {
     return static_cast<unsigned char*>(ptr_) + offset + DEV_MEMBUF_BOUNDS;
   }
 
   template <typename DataType>
-  DataType*
-  MemBuf::get(std::size_t offset) noexcept
+  DataType* MemBuf::get(std::size_t offset) noexcept
   {
     return static_cast<DataType*>(data(offset));
   }
 
   template <typename DataType>
-  const DataType*
-  MemBuf::get(std::size_t offset) const noexcept
+  const DataType* MemBuf::get(std::size_t offset) const noexcept
   {
     return static_cast<const DataType*>(data(offset));
   }
 
-  inline
-  std::size_t
-  MemBuf::size() const noexcept
+  inline std::size_t MemBuf::size() const noexcept
   {
     return size_;
   }
 
-  inline
-  std::size_t
-  MemBuf::capacity() const noexcept
+  inline std::size_t MemBuf::capacity() const noexcept
   {
     return capacity_ - 2 * DEV_MEMBUF_BOUNDS;
   }
 
-  inline
-  Allocator::Base_var
-  MemBuf::get_allocator() noexcept
+  inline Allocator::Base_var MemBuf::get_allocator() noexcept
   {
     return allocator_;
   }
@@ -396,8 +353,7 @@ namespace Generics
   }
 
   template <typename AllocatorValue>
-  MemBuf&
-  MemBufTmpl<AllocatorValue>::membuf() noexcept
+  MemBuf& MemBufTmpl<AllocatorValue>::membuf() noexcept
   {
     return mem_buf_;
   }
@@ -414,15 +370,13 @@ namespace Generics
   }
 
   template <typename MemBuf>
-  MemBuf&
-  SmartTmplMemBuf<MemBuf>::membuf() noexcept
+  MemBuf& SmartTmplMemBuf<MemBuf>::membuf() noexcept
   {
     return mem_buf_;
   }
 
   template <typename MemBuf>
-  const MemBuf&
-  SmartTmplMemBuf<MemBuf>::membuf() const noexcept
+  const MemBuf& SmartTmplMemBuf<MemBuf>::membuf() const noexcept
   {
     return mem_buf_;
   }
@@ -435,8 +389,7 @@ namespace Generics
   template <typename... T>
   SmartMemBufTmpl<MemBuf, AllocatorValue>::SmartMemBufTmpl(T... data)
     /*throw (eh::Exception)*/
-    : SmartTmplMemBuf<MemBuf>(std::forward<T>(data)...,
-      AllocatorValue::ALLOCATOR)
+    : SmartTmplMemBuf<MemBuf>(std::forward<T>(data)..., AllocatorValue::ALLOCATOR)
   {
   }
 
@@ -444,9 +397,7 @@ namespace Generics
   //
   // ConstSmartMemBufSize class
   //
-  inline
-  std::size_t
-  ConstSmartMemBufSize::operator()(ConstSmartMemBuf* smb) const noexcept
+  inline std::size_t ConstSmartMemBufSize::operator()(ConstSmartMemBuf* smb) const noexcept
   {
     return smb->membuf().size();
   }

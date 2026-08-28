@@ -24,9 +24,7 @@ namespace CORBACommons
      * @return CORBA sequence of stored values
      */
     template <typename Values>
-    static
-    StatsValueSeq*
-    get_stats(Values& values)
+    static StatsValueSeq* get_stats(Values& values)
       /*throw (CORBA::Exception,
         CORBACommons::ProcessStatsControl::ImplementationException)*/;
 
@@ -37,9 +35,7 @@ namespace CORBACommons
      * @return value associated with the key (if any)
      */
     template <typename Values>
-    static
-    CORBA::Any_ptr
-    get_any(Values& values, const Generics::Values::Key& key)
+    static CORBA::Any_ptr get_any(Values& values, const Generics::Values::Key& key)
       /*throw (eh::Exception, CORBA::Exception,
         Generics::Values::KeyNotFound)*/;
 
@@ -47,23 +43,17 @@ namespace CORBACommons
     class AnyConverter : private Generics::Uncopyable
     {
     public:
-      explicit
-      AnyConverter(CORBA::Any& any) noexcept;
+      explicit AnyConverter(CORBA::Any& any) noexcept;
 
       template <typename Type>
-      void
-      operator ()(const Generics::Values::Key& key, const Type& value)
+      void operator ()(const Generics::Values::Key& key, const Type& value)
         /*throw (eh::Exception)*/;
 
       template <typename T>
-      static
-      void
-      put_any(CORBA::Any& any, T value)
+      static void put_any(CORBA::Any& any, T value)
         /*throw (eh::Exception, CORBA::Exception)*/;
 
-      static
-      void
-      put_any(CORBA::Any& any, const Generics::Values::String& value)
+      static void put_any(CORBA::Any& any, const Generics::Values::String& value)
         /*throw (eh::Exception, CORBA::Exception)*/;
 
     private:
@@ -73,15 +63,12 @@ namespace CORBACommons
     class AllConverter : private Generics::Uncopyable
     {
     public:
-      explicit
-      AllConverter(StatsValueSeq& seq) noexcept;
+      explicit AllConverter(StatsValueSeq& seq) noexcept;
 
-      void
-      operator ()(size_t size) /*throw (eh::Exception)*/;
+      void operator ()(size_t size) /*throw (eh::Exception)*/;
 
       template <typename Type>
-      void
-      operator ()(const Generics::Values::Key& key, const Type& value)
+      void operator ()(const Generics::Values::Key& key, const Type& value)
         /*throw (eh::Exception)*/;
 
     private:
@@ -95,33 +82,28 @@ namespace CORBACommons
     public virtual POA_CORBACommons::ProcessStatsControl
   {
   public:
-    explicit
-    ProcessStatsGen(Values* stats) noexcept;
+    explicit ProcessStatsGen(Values* stats) noexcept;
 
-    virtual
-    StatsValueSeq*
-    get_stats()
+    virtual StatsValueSeq* get_stats()
       /*throw (CORBA::Exception,
         CORBACommons::ProcessStatsControl::ImplementationException)*/;
 
-    Values&
-    stats() noexcept;
+    Values& stats() noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~ProcessStatsGen() noexcept = default;
+    virtual ~ProcessStatsGen() noexcept = default;
 
   private:
     ::ReferenceCounting::FixedPtr<Values> stats_;
   };
 
-  typedef ProcessStatsGen<Generics::Values> ProcessStatsImpl;
+  using ProcessStatsImpl = ProcessStatsGen<Generics::Values>;
 
-  typedef PortableServer::Servant_var<POA_CORBACommons::ProcessStatsControl>
-    POA_ProcessStatsControl_var;
+  using POA_ProcessStatsControl_var =
+    PortableServer::Servant_var<POA_CORBACommons::ProcessStatsControl>;
 }
 
 //
@@ -134,15 +116,13 @@ namespace CORBACommons
   // ValuesConverter::AnyConverter class
   //
 
-  inline
-  ValuesConverter::AnyConverter::AnyConverter(CORBA::Any& any) noexcept
+  inline ValuesConverter::AnyConverter::AnyConverter(CORBA::Any& any) noexcept
     : any_(any)
   {
   }
 
   template <typename T>
-  void
-  ValuesConverter::AnyConverter::put_any(CORBA::Any& any, T value)
+  void ValuesConverter::AnyConverter::put_any(CORBA::Any& any, T value)
     /*throw (eh::Exception, CORBA::Exception)*/
   {
     any <<= value;
@@ -150,16 +130,14 @@ namespace CORBACommons
 
   inline
   void
-  ValuesConverter::AnyConverter::put_any(CORBA::Any& any,
-    const Generics::Values::String& value)
+  ValuesConverter::AnyConverter::put_any(CORBA::Any& any, const Generics::Values::String& value)
     /*throw (eh::Exception, CORBA::Exception)*/
   {
     any <<= value.c_str();
   }
 
   template <typename Type>
-  void
-  ValuesConverter::AnyConverter::operator ()(const Generics::Values::Key&,
+  void ValuesConverter::AnyConverter::operator ()(const Generics::Values::Key&,
     const Type& value) /*throw (eh::Exception)*/
   {
     try
@@ -179,15 +157,12 @@ namespace CORBACommons
   // ValuesConverter::AllConverter class
   //
 
-  inline
-  ValuesConverter::AllConverter::AllConverter(StatsValueSeq& seq) noexcept
+  inline ValuesConverter::AllConverter::AllConverter(StatsValueSeq& seq) noexcept
     : seq_(seq), index_(0)
   {
   }
 
-  inline
-  void
-  ValuesConverter::AllConverter::operator ()(size_t size)
+  inline void ValuesConverter::AllConverter::operator ()(size_t size)
     /*throw (eh::Exception)*/
   {
     try
@@ -202,8 +177,7 @@ namespace CORBACommons
 
   template <typename Type>
   void
-  ValuesConverter::AllConverter::operator ()(
-    const Generics::Values::Key& key, const Type& value)
+  ValuesConverter::AllConverter::operator ()( const Generics::Values::Key& key, const Type& value)
     /*throw (eh::Exception)*/
   {
     try
@@ -224,8 +198,7 @@ namespace CORBACommons
   //
 
   template <typename Values>
-  StatsValueSeq*
-  ValuesConverter::get_stats(Values& values)
+  StatsValueSeq* ValuesConverter::get_stats(Values& values)
     /*throw (CORBA::Exception,
       CORBACommons::ProcessStatsControl::ImplementationException)*/
   {
@@ -243,9 +216,7 @@ namespace CORBACommons
   }
 
   template <typename Values>
-  CORBA::Any_ptr
-  ValuesConverter::get_any(Values& values,
-    const Generics::Values::Key& key)
+  CORBA::Any_ptr ValuesConverter::get_any(Values& values, const Generics::Values::Key& key)
     /*throw (eh::Exception, CORBA::Exception, Generics::Values::KeyNotFound)*/
   {
     {
@@ -278,15 +249,13 @@ namespace CORBACommons
   }
 
   template <typename Values>
-  Values&
-  ProcessStatsGen<Values>::stats() noexcept
+  Values& ProcessStatsGen<Values>::stats() noexcept
   {
     return *stats_;
   }
 
   template <typename Values>
-  StatsValueSeq*
-  ProcessStatsGen<Values>::get_stats()
+  StatsValueSeq* ProcessStatsGen<Values>::get_stats()
     /*throw (CORBA::Exception,
       CORBACommons::ProcessStatsControl::ImplementationException)*/
   {

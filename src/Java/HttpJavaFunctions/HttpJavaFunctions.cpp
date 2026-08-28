@@ -23,8 +23,7 @@ namespace
       std::string normalized;
       {
         JavaCommons::StrPtr original(env, keyword);
-        Language::Trigger::normalize(String::SubString(original.c_str()),
-          normalized, segmentor);
+        Language::Trigger::normalize(String::SubString(original.c_str()), normalized, segmentor);
       }
       return env->NewStringUTF(normalized.c_str());
     }
@@ -36,13 +35,11 @@ namespace
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize(
-  JNIEnv* env, jclass /*cls*/)
+Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize( JNIEnv* env, jclass /*cls*/)
 {
   try
   {
-    polyglot = new Language::Segmentor::NormalizePolyglotSegmentor(
-      "/opt/oix/polyglot/dict/");
+    polyglot = new Language::Segmentor::NormalizePolyglotSegmentor( "/opt/oix/polyglot/dict/");
     //nlpir = new Language::Segmentor::Chineese::NlpirSegmentor;
   }
   catch (const eh::Exception& ex)
@@ -89,8 +86,7 @@ Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeChineseKeyw
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_foros_util_unixcommons_UnixCommonsTools_initialize(
-  JNIEnv* env, jclass cls)
+Java_com_foros_util_unixcommons_UnixCommonsTools_initialize( JNIEnv* env, jclass cls)
 {
   return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize(env, cls);
 }
@@ -106,7 +102,8 @@ JNIEXPORT jstring JNICALL
 Java_com_foros_util_unixcommons_UnixCommonsTools_normalizeKeyword(
   JNIEnv* env, jobject object, jstring keyword)
 {
-  return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeKeyword(env, object, keyword);
+  return Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeKeyword(
+    env, object, keyword);
 }
 
 JNIEXPORT jboolean JNICALL

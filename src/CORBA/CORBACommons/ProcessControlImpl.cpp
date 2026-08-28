@@ -29,8 +29,7 @@ namespace CORBACommons
   {
   }
 
-  void
-  SimpleOrbShutdowner::shutdown(bool type) noexcept
+  void SimpleOrbShutdowner::shutdown(bool type) noexcept
   {
     if (!CORBA::is_nil(orb_))
     {
@@ -71,14 +70,12 @@ namespace CORBACommons
     job_->wake(false);
   }
 
-  void
-  ProcessControlImpl::wait() /*throw (eh::Exception)*/
+  void ProcessControlImpl::wait() /*throw (eh::Exception)*/
   {
     thread_runner_.wait_for_completion();
   }
 
-  void
-  ProcessControlImpl::shutdown(CORBA::Boolean wait_for_completion)
+  void ProcessControlImpl::shutdown(CORBA::Boolean wait_for_completion)
     /*throw (CORBA::SystemException)*/
   {
     try
@@ -107,8 +104,7 @@ namespace CORBACommons
   // ProcessControlImpl::ShutdownJob class
   //
 
-  ProcessControlImpl::ShutdownJob::ShutdownJob(
-    OrbShutdowner_var& shutdowner) noexcept
+  ProcessControlImpl::ShutdownJob::ShutdownJob( OrbShutdowner_var& shutdowner) noexcept
     : shutdowner_(shutdowner), sem_(0)
   {
   }
@@ -117,8 +113,7 @@ namespace CORBACommons
   {
   }
 
-  void
-  ProcessControlImpl::ShutdownJob::work() noexcept
+  void ProcessControlImpl::ShutdownJob::work() noexcept
   {
     sem_.acquire();
     if (shutdown_ && shutdowner_)
@@ -127,8 +122,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  ProcessControlImpl::ShutdownJob::wake(bool shutdown) noexcept
+  void ProcessControlImpl::ShutdownJob::wake(bool shutdown) noexcept
   {
     shutdown_ = shutdown;
     sem_.release();

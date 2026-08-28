@@ -24,8 +24,7 @@ public:
 
 protected:
 
-  virtual
-  ~PoliciesTestInterface() noexcept;
+  virtual ~PoliciesTestInterface() noexcept;
 
   virtual void exec_init_() noexcept = 0;
 
@@ -36,7 +35,7 @@ protected:
   Sync::Semaphore& finish_sem_;
 };
 
-typedef ReferenceCounting::QualPtr<PoliciesTestInterface> PoliciesTestInterface_var;
+using PoliciesTestInterface_var = ReferenceCounting::QualPtr<PoliciesTestInterface>;
 
 //
 // Check policies classes
@@ -49,7 +48,7 @@ class CheckSimpleEmptyCommons: public virtual HTTP::PoolPolicySimpleStatistics
 {
 public:
 
-  typedef HTTP::PoolPolicySimpleStatistics::StateInfo StateInfo;
+  using StateInfo = HTTP::PoolPolicySimpleStatistics::StateInfo;
 
   enum ObjectType{
     OT_CONNECTION,
@@ -73,8 +72,8 @@ public:
     bool operator== (const StateHistory& src) const noexcept;
   };
 
-  typedef std::map<Identifier, StateHistory> Histories;
-  typedef std::list<std::pair<Identifier, StateHistory> > CompletedHistories;
+  using Histories = std::map<Identifier, StateHistory>;
+  using CompletedHistories = std::list<std::pair<Identifier, StateHistory> >;
 
 
   CheckSimpleEmptyCommons(unsigned int closure_delay_value) noexcept;
@@ -113,37 +112,29 @@ public:
   CheckSimpleEmptyThread(unsigned short closure_delay = 0) noexcept;
 
   //Is not protected by mutex!
-  virtual int
-  when_close_thread(Identifier thread) noexcept;
+  virtual int when_close_thread(Identifier thread) noexcept;
 
   //Is not protected by mutex!
-  const CompletedHistories&
-  get_thr_history() noexcept;
+  const CompletedHistories& get_thr_history() noexcept;
 
 protected:
 
   virtual ~CheckSimpleEmptyThread() noexcept;
 
   //Is not protected by mutex!
-  StateInfo::States
-  get_thread_state(Identifier thread) /*throw(eh::Exception)*/;
+  StateInfo::States get_thread_state(Identifier thread) /*throw(eh::Exception)*/;
 
   //Is not protected by mutex!
-  virtual void
-  check_thread_connection_added(Identifier thread, Identifier connection)
-    noexcept;
+  virtual void check_thread_connection_added(Identifier thread, Identifier connection) noexcept;
 
   //Is not protected by mutex!
-  virtual void
-  check_choose_thread(Identifier thread) noexcept;
+  virtual void check_choose_thread(Identifier thread) noexcept;
 
   //Is not protected by mutex!
-  virtual void
-  check_thread_added(Identifier thread) noexcept;
+  virtual void check_thread_added(Identifier thread) noexcept;
 
   //Is not protected by mutex!
-  virtual void
-  check_thread_removed(Identifier thread) noexcept;
+  virtual void check_thread_removed(Identifier thread) noexcept;
 
 
   friend class CheckSimpleStatistics;
@@ -158,39 +149,29 @@ public:
   CheckSimpleEmptyConnection(unsigned short closure_delay = 0) noexcept;
 
   //Is not protected by mutex!
-  virtual int
-  when_close_connection(Identifier connection) noexcept;
+  virtual int when_close_connection(Identifier connection) noexcept;
 
   //Is not protected by mutex!
-  const CompletedHistories&
-  get_conn_history() noexcept;
+  const CompletedHistories& get_conn_history() noexcept;
 
 protected:
 
   virtual ~CheckSimpleEmptyConnection() noexcept;
-  
-  StateInfo::States
-  get_connection_state(Identifier connection) /*throw(eh::Exception)*/;
+
+  StateInfo::States get_connection_state(Identifier connection) /*throw(eh::Exception)*/;
+
+  //Is not protected by mutex!
+  virtual void check_connection_request_added(Identifier connection, Identifier request) noexcept;
 
   //Is not protected by mutex!
   virtual void
-  check_connection_request_added(Identifier connection, Identifier request)
-    noexcept;
+  check_choose_connection(Identifier connection, Identifier server, Identifier request) noexcept;
 
   //Is not protected by mutex!
-  virtual void
-  check_choose_connection(Identifier connection, Identifier server,
-    Identifier request) noexcept;
+  virtual void check_server_connection_added(Identifier server, Identifier connection) noexcept;
 
   //Is not protected by mutex!
-  virtual void
-  check_server_connection_added(Identifier server, Identifier connection)
-    noexcept;
-
-  //Is not protected by mutex!
-  virtual void
-  check_server_connection_removed(Identifier server, Identifier connection)
-    noexcept;
+  virtual void check_server_connection_removed(Identifier server, Identifier connection) noexcept;
 
 
   friend class CheckSimpleStatistics;
@@ -205,33 +186,22 @@ public:
     CheckSimpleEmptyConnection& conn_policy, CheckSimpleEmptyThread& thr_policy)
     /*throw (eh::Exception)*/;
 
-  virtual Identifier
-  choose_thread() noexcept;
+  virtual Identifier choose_thread() noexcept;
 
-  virtual Identifier
-  choose_connection(Identifier server, Identifier request) noexcept;
+  virtual Identifier choose_connection(Identifier server, Identifier request) noexcept;
 
   virtual void
-  connection_request_added(Identifier server, Identifier connection,
-    Identifier request) noexcept;
+  connection_request_added(Identifier server, Identifier connection, Identifier request) noexcept;
 
-  virtual void
-  thread_connection_added(Identifier thread, Identifier connection)
-    noexcept;
+  virtual void thread_connection_added(Identifier thread, Identifier connection) noexcept;
 
-  virtual void
-  server_connection_added(Identifier server, Identifier connection)
-    noexcept;
+  virtual void server_connection_added(Identifier server, Identifier connection) noexcept;
 
-  virtual void
-  server_connection_removed(Identifier server, Identifier connection)
-    noexcept;
+  virtual void server_connection_removed(Identifier server, Identifier connection) noexcept;
 
-  virtual void
-  thread_added(Identifier thread) noexcept;
+  virtual void thread_added(Identifier thread) noexcept;
 
-  virtual void
-  thread_removed(Identifier thread) noexcept;
+  virtual void thread_removed(Identifier thread) noexcept;
 
 private:
 
@@ -247,10 +217,10 @@ class ConnThrScenarios
 {
 public:
 
-  typedef CheckSimpleEmptyCommons::StateHistory Scenario;
-  typedef std::pair<int, CheckSimpleEmptyCommons::StateInfo::States> ScenarioArrayElem;
-  typedef std::vector<Scenario> Scenarios;
-  typedef std::vector<char> ScenariosCompleted;
+  using Scenario = CheckSimpleEmptyCommons::StateHistory;
+  using ScenarioArrayElem = std::pair<int, CheckSimpleEmptyCommons::StateInfo::States>;
+  using Scenarios = std::vector<Scenario>;
+  using ScenariosCompleted = std::vector<char>;
 
   ConnThrScenarios() /*throw(eh::Exception)*/;
 

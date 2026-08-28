@@ -26,29 +26,22 @@ namespace ReferenceCounting
   class Interface
   {
   public:
-    virtual
-    void
-    add_ref() const noexcept = 0;
+    virtual void add_ref() const noexcept = 0;
 
-    virtual
-    void
-    remove_ref() const noexcept = 0;
+    virtual void remove_ref() const noexcept = 0;
 
   protected:
     Interface() noexcept;
     Interface(const volatile Interface& iface) noexcept;
 
-    virtual
-    ~Interface() noexcept;
+    virtual ~Interface() noexcept;
 
   private:
-    void
-    operator =(const volatile Interface& iface) noexcept;
+    void operator =(const volatile Interface& iface) noexcept;
   };
 
   template <typename Type>
-  Type*
-  add_ref(Type* ptr) noexcept;
+  Type* add_ref(Type* ptr) noexcept;
 
 #ifndef NVALGRIND
   template <const int C = 0>
@@ -56,16 +49,12 @@ namespace ReferenceCounting
   {
   public:
     template <typename RefCount>
-    static
-    void
-    check_ref_count(const RefCount& ref_count) noexcept;
+    static void check_ref_count(const RefCount& ref_count) noexcept;
 
   private:
     static const int FLAG_;
 
-    static
-    int
-    running_on_valgrind() noexcept;
+    static int running_on_valgrind() noexcept;
   };
 #endif
 }
@@ -76,26 +65,21 @@ namespace ReferenceCounting
   // Interface class
   //
 
-  inline
-  Interface::Interface() noexcept
+  inline Interface::Interface() noexcept
   {
   }
 
-  inline
-  Interface::Interface(const volatile Interface& /*iface*/) noexcept
+  inline Interface::Interface(const volatile Interface& /*iface*/) noexcept
   {
   }
 
-  inline
-  Interface::~Interface() noexcept
+  inline Interface::~Interface() noexcept
   {
   }
 
 
   template <typename Type>
-  inline
-  Type*
-  add_ref (Type* ptr) noexcept
+  inline Type* add_ref (Type* ptr) noexcept
   {
     if (ptr)
     {
@@ -111,8 +95,7 @@ namespace ReferenceCounting
   //
 
   template <const int C>
-  int
-  RunningOnValgrind<C>::running_on_valgrind() noexcept
+  int RunningOnValgrind<C>::running_on_valgrind() noexcept
   {
     int flag = RUNNING_ON_VALGRIND;
     return flag;
@@ -120,8 +103,7 @@ namespace ReferenceCounting
 
   template <const int C>
   template <typename RefCount>
-  void
-  RunningOnValgrind<C>::check_ref_count(const RefCount& ref_count) noexcept
+  void RunningOnValgrind<C>::check_ref_count(const RefCount& ref_count) noexcept
   {
     if (ref_count && FLAG_)
     {

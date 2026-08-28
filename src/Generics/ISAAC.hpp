@@ -35,43 +35,37 @@ namespace Generics
      * Constructor
      * @param value initial seed number
      */
-    explicit
-    ISAAC(const uint32_t value) noexcept;
+    explicit ISAAC(const uint32_t value) noexcept;
 
     /**
      * Constructor
      * @param value pointer to data for initial seed (256 elements)
      */
-    explicit
-    ISAAC(const uint32_t* value) noexcept;
+    explicit ISAAC(const uint32_t* value) noexcept;
 
     /**
      * Initializes object
      * Uses /dev/urandom for initialization
      */
-    void
-    seed() noexcept;
+    void seed() noexcept;
 
     /**
      * Initializes object
      * @param value initial seed number
      */
-    void
-    seed(uint32_t value) noexcept;
+    void seed(uint32_t value) noexcept;
 
     /**
      * Initializes object
      * @param value pointer to data for initial seed (256 elements)
      */
-    void
-    seed(const uint32_t* value) noexcept;
+    void seed(const uint32_t* value) noexcept;
 
     /**
      * Creates next random number in the sequence
      * @return random number in [0..2^32-1] range
      */
-    uint32_t
-    rand() noexcept;
+    uint32_t rand() noexcept;
 
   protected:
     /**
@@ -79,11 +73,9 @@ namespace Generics
      * @param value initial seed number
      * @param use_rand use random_ data or not
      */
-    void
-    initialize_(uint32_t value, bool use_rand) noexcept;
+    void initialize_(uint32_t value, bool use_rand) noexcept;
 
-    void
-    reinit_() noexcept;
+    void reinit_() noexcept;
 
   private:
     static
@@ -105,27 +97,22 @@ namespace Generics
 
 namespace Generics
 {
-  inline
-  ISAAC::ISAAC() noexcept
+  inline ISAAC::ISAAC() noexcept
   {
     seed();
   }
 
-  inline
-  ISAAC::ISAAC(const uint32_t value) noexcept
+  inline ISAAC::ISAAC(const uint32_t value) noexcept
   {
     seed(value);
   }
 
-  inline
-  ISAAC::ISAAC(const uint32_t* value) noexcept
+  inline ISAAC::ISAAC(const uint32_t* value) noexcept
   {
     seed(value);
   }
 
-  inline
-  uint32_t
-  ISAAC::rand() noexcept
+  inline uint32_t ISAAC::rand() noexcept
   {
     if (!left_)
     {
@@ -149,9 +136,7 @@ namespace Generics
     *r++ = b = mm[(y >> 10) & 0xFF] + x;
   }
 
-  inline
-  void
-  ISAAC::reinit_() noexcept
+  inline void ISAAC::reinit_() noexcept
   {
     uint32_t a = aa_;
     uint32_t b = bb_ + ++cc_;
@@ -184,9 +169,7 @@ namespace Generics
     next_ = random_;
   }
 
-  inline
-  void
-  ISAAC::seed() noexcept
+  inline void ISAAC::seed() noexcept
   {
     int urandom = open("/dev/urandom", O_RDONLY);
     if (urandom >= 0)
@@ -213,17 +196,13 @@ namespace Generics
     seed(static_cast<const uint32_t*>(0));
   }
 
-  inline
-  void
-  ISAAC::seed(uint32_t value) noexcept
+  inline void ISAAC::seed(uint32_t value) noexcept
   {
     initialize_(value, false);
     reinit_();
   }
 
-  inline
-  void
-  ISAAC::seed(const uint32_t* value) noexcept
+  inline void ISAAC::seed(const uint32_t* value) noexcept
   {
     if (value)
     {
@@ -232,9 +211,7 @@ namespace Generics
     initialize_(0x9E3779B9u, true);
   }
 
-  inline
-  void
-  ISAAC::initialize_(uint32_t value, bool use_rand) noexcept
+  inline void ISAAC::initialize_(uint32_t value, bool use_rand) noexcept
   {
     class Mixer
     {
@@ -244,8 +221,7 @@ namespace Generics
         std::fill(data_, data_ + 8, value);
       }
 
-      void
-      mix() noexcept
+      void mix() noexcept
       {
         data_[0] ^= data_[1] << 11;
         data_[3] += data_[0];
@@ -273,8 +249,7 @@ namespace Generics
         data_[0] += data_[1];
       }
 
-      void
-      add(const uint32_t* source) noexcept
+      void add(const uint32_t* source) noexcept
       {
         for (int i = 0; i < 8; i++)
         {
@@ -282,8 +257,7 @@ namespace Generics
         }
       }
 
-      void
-      copy_to(uint32_t* target) const noexcept
+      void copy_to(uint32_t* target) const noexcept
       {
         std::copy(data_, data_ + 8, target);
       }

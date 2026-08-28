@@ -10,7 +10,6 @@
 
 namespace CORBATest
 {
-
   class TestObjectPoolImpl :
     public CORBACommons::ReferenceCounting::ServantImpl<
       POA_CORBATest::TestObjectPool>
@@ -21,24 +20,19 @@ namespace CORBATest
   public:
     TestObjectPoolImpl() noexcept;
 
-    virtual ::CORBA::Long
-    square(::CORBA::Long num) noexcept;
+    virtual ::CORBA::Long square(::CORBA::Long num) noexcept;
 
-    virtual ::CORBA::Long
-    root(::CORBA::Long num) noexcept;
+    virtual ::CORBA::Long root(::CORBA::Long num) noexcept;
 
-    virtual CORBA::Long
-    get_calling_number() noexcept;
+    virtual CORBA::Long get_calling_number() noexcept;
 
-    virtual void
-    up() noexcept;
+    virtual void up() noexcept;
 
   protected:
-    virtual
-    ~TestObjectPoolImpl() noexcept;
+    virtual ~TestObjectPoolImpl() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<
-    TestObjectPoolImpl> TestObjectPoolImpl_var;
+  using TestObjectPoolImpl_var = ReferenceCounting::QualPtr<
+    TestObjectPoolImpl>;
 
 
   class PoolObjectImpl :
@@ -46,15 +40,13 @@ namespace CORBATest
       POA_CORBATest::PoolObject>
   {
   public:
-    virtual ::CORBA::Long
-    is_base() noexcept;
+    virtual ::CORBA::Long is_base() noexcept;
 
   protected:
-    virtual
-    ~PoolObjectImpl() noexcept;
+    virtual ~PoolObjectImpl() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<
-    PoolObjectImpl> PoolObjectImpl_var;
+  using PoolObjectImpl_var = ReferenceCounting::QualPtr<
+    PoolObjectImpl>;
 
 }
 
@@ -65,25 +57,22 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
   Application() /*throw (eh::Exception)*/;
-  virtual
-  ~Application() noexcept {}
+  virtual ~Application() noexcept {}
 
   /**
    * Method up shutdown CORBA server and we starting new server
    * for the second time, but with with Cuatro object already.
    * @param after_up true if server should support Cuatro object
    */
-  void
-  run(int argc, char* argv[], std::size_t before_up = 1)
+  void run(int argc, char* argv[], std::size_t before_up = 1)
     /*throw (Exception, eh::Exception)*/;
 
-  void
-  create_names(std::size_t port, std::size_t count = 3)
+  void create_names(std::size_t port, std::size_t count = 3)
     /*throw (eh::Exception)*/;
 
   static CORBACommons::OrbShutdowner_var shuter;
 private:
-  typedef std::vector<std::string> ObjectNames;
+  using ObjectNames = std::vector<std::string>;
   ObjectNames servants;
 };
 
@@ -97,42 +86,36 @@ namespace CORBATest
   // TestObjectPoolImpl class
   //
 
-  inline
-  TestObjectPoolImpl::TestObjectPoolImpl() noexcept :
+  inline TestObjectPoolImpl::TestObjectPoolImpl() noexcept :
     counter_(0)
   {
     my_number_ = __gnu_cxx::__exchange_and_add(&stat_counter_, 1);
   }
 
-  inline
-  TestObjectPoolImpl::~TestObjectPoolImpl() noexcept
+  inline TestObjectPoolImpl::~TestObjectPoolImpl() noexcept
   {
   }
 
-  inline ::CORBA::Long
-  TestObjectPoolImpl::square(::CORBA::Long num) noexcept
+  inline ::CORBA::Long TestObjectPoolImpl::square(::CORBA::Long num) noexcept
   {
     __gnu_cxx::__atomic_add(&counter_, 1);
     return num * num;
   }
 
-  inline ::CORBA::Long
-  TestObjectPoolImpl::root(::CORBA::Long num) noexcept
+  inline ::CORBA::Long TestObjectPoolImpl::root(::CORBA::Long num) noexcept
   {
     __gnu_cxx::__atomic_add(&counter_, 1);
     return static_cast<long>(std::sqrt(num));
   }
 
-  inline ::CORBA::Long
-  TestObjectPoolImpl::get_calling_number() noexcept
+  inline ::CORBA::Long TestObjectPoolImpl::get_calling_number() noexcept
   {
     ::CORBA::Long old = counter_;
     counter_ = 0;
     return old;
   }
 
-  inline void
-  TestObjectPoolImpl::up() noexcept
+  inline void TestObjectPoolImpl::up() noexcept
   {
     try
     {
@@ -155,13 +138,11 @@ namespace CORBATest
     }
   }
 
-  inline
-  PoolObjectImpl::~PoolObjectImpl() noexcept
+  inline PoolObjectImpl::~PoolObjectImpl() noexcept
   {
   }
 
-  inline ::CORBA::Long
-  PoolObjectImpl::is_base() noexcept
+  inline ::CORBA::Long PoolObjectImpl::is_base() noexcept
   {
     return 12345;
   }

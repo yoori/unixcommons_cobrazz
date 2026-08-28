@@ -6,27 +6,24 @@
 
 namespace Generics
 {
-  typedef size_t IncHashValue;
+  using IncHashValue = size_t;
 
   template <typename CharType>
   struct IncHash
   {
-    IncHashValue
-    operator()() const noexcept;
-    IncHashValue
-    operator()(IncHashValue hash, CharType hash_inc) const noexcept;
+    IncHashValue operator()() const noexcept;
+    IncHashValue operator()(IncHashValue hash, CharType hash_inc) const noexcept;
   };
 
-  template <typename CharType, typename ElementType,
-    typename IncHashType = IncHash<CharType> >
+  template <typename CharType, typename ElementType, typename IncHashType = IncHash<CharType> >
   class IncHashTable
   {
   private:
-    typedef IncHashValue Hash;
+    using Hash = IncHashValue;
 
   public:
-    typedef IncHashTable<CharType, ElementType, IncHashType> Container;
-    typedef std::basic_string<CharType> Word;
+    using Container = IncHashTable<CharType, ElementType, IncHashType>;
+    using Word = std::basic_string<CharType>;
 
   public:
     class WordHashAdapter
@@ -36,21 +33,16 @@ namespace Generics
       WordHashAdapter(const Word& word) /*throw (eh::Exception)*/;
       WordHashAdapter(const Word& word, Hash hash_val) /*throw (eh::Exception)*/;
 
-      void
-      append(const CharType& key_char) /*throw (eh::Exception)*/;
+      void append(const CharType& key_char) /*throw (eh::Exception)*/;
 
-      Word&
-      value() noexcept;
-      const Word&
-      value() const noexcept;
+      Word& value() noexcept;
+      const Word& value() const noexcept;
 
       operator Word&() noexcept;
       operator const Word&() const noexcept;
 
-      Hash
-      hash() const noexcept;
-      bool
-      operator ==(const WordHashAdapter& right) const noexcept;
+      Hash hash() const noexcept;
+      bool operator ==(const WordHashAdapter& right) const noexcept;
 
     private:
       IncHashType inc_hash_op_;
@@ -59,15 +51,15 @@ namespace Generics
     };
 
   private:
-    typedef Generics::GnuHashTable<WordHashAdapter, ElementType> MainTable;
-    typedef Generics::GnuHashSet<Generics::NumericHashAdapter<Hash> > InterTable;
+    using MainTable = Generics::GnuHashTable<WordHashAdapter, ElementType>;
+    using InterTable = Generics::GnuHashSet<Generics::NumericHashAdapter<Hash> >;
 
   public:
-    typedef WordHashAdapter key_type;
-    typedef ElementType mapped_type;
-    typedef typename MainTable::value_type value_type;
-    typedef typename MainTable::const_iterator const_iterator;
-    typedef typename MainTable::iterator iterator;
+    using key_type = WordHashAdapter;
+    using mapped_type = ElementType;
+    using value_type = typename MainTable::value_type;
+    using const_iterator = typename MainTable::const_iterator;
+    using iterator = typename MainTable::iterator;
 
     struct ConstFinder
     {
@@ -77,10 +69,8 @@ namespace Generics
       ConstFinder(const Container* cont) /*throw (eh::Exception)*/;
 
     public:
-      bool
-      find(const CharType& key_char) /*throw (eh::Exception)*/;
-      const ElementType*
-      element() const noexcept;
+      bool find(const CharType& key_char) /*throw (eh::Exception)*/;
+      const ElementType* element() const noexcept;
 
     private:
       const Container* cont_;
@@ -88,36 +78,25 @@ namespace Generics
       typename MainTable::const_iterator main_table_it_;
     };
 
-    const_iterator
-    begin() const;
-    const_iterator
-    end() const;
-    iterator
-    begin();
-    iterator
-    end();
+    const_iterator begin() const;
+    const_iterator end() const;
+    iterator begin();
+    iterator end();
 
-    ConstFinder
-    finder() const;
-    const_iterator
-    find(const Word& key) const;
-    const_iterator
-    find(const WordHashAdapter& key) const;
-    iterator
-    find(const Word& key);
-    iterator
-    find(const WordHashAdapter& key);
+    ConstFinder finder() const;
+    const_iterator find(const Word& key) const;
+    const_iterator find(const WordHashAdapter& key) const;
+    iterator find(const Word& key);
+    iterator find(const WordHashAdapter& key);
 
     std::pair<const_iterator, bool>
     insert(const value_type& val);
 
     template <typename IteratorType>
-    const_iterator
-    find(const IteratorType& val_begin, const IteratorType& val_end) const;
+    const_iterator find(const IteratorType& val_begin, const IteratorType& val_end) const;
 
     template <typename IteratorType>
-    iterator
-    find(const IteratorType& val_begin, const IteratorType& val_end);
+    iterator find(const IteratorType& val_begin, const IteratorType& val_end);
 
   private:
     MainTable main_table_;
@@ -132,16 +111,13 @@ namespace Generics
   //
 
   template <typename CharType>
-  IncHashValue
-  IncHash<CharType>::operator()() const noexcept
+  IncHashValue IncHash<CharType>::operator()() const noexcept
   {
     return 0;
   }
 
   template <typename CharType>
-  IncHashValue
-  IncHash<CharType>::operator()(IncHashValue hash, CharType hash_inc) const
-    noexcept
+  IncHashValue IncHash<CharType>::operator()(IncHashValue hash, CharType hash_inc) const noexcept
   {
     return Generics::CRC::quick(hash, &hash_inc, sizeof(hash_inc));
   }
@@ -167,8 +143,7 @@ namespace Generics
     word_hash_adapter_.append(key_char);
     main_table_it_ = cont_->main_table_.find(word_hash_adapter_);
 
-    return cont_->inter_table_.find(word_hash_adapter_.hash()) !=
-      cont_->inter_table_.end();
+    return cont_->inter_table_.find(word_hash_adapter_.hash()) != cont_->inter_table_.end();
   }
 
   template <typename CharType, typename ElementType, typename IncHashType>
@@ -198,8 +173,7 @@ namespace Generics
     : word_(word)
   {
     hash_ = inc_hash_op_();
-    for (typename Word::const_iterator it = word.begin();
-      it != word.end(); ++it)
+    for (typename Word::const_iterator it = word.begin(); it != word.end(); ++it)
     {
       hash_ = inc_hash_op_(hash_, *it);
     }
@@ -255,8 +229,8 @@ namespace Generics
 
   template <typename CharType, typename ElementType, typename IncHashType>
   IncHashTable<CharType, ElementType, IncHashType>::
-    WordHashAdapter::operator const typename IncHashTable<CharType, ElementType, IncHashType>::Word&()
-    const noexcept
+    WordHashAdapter::operator const typename IncHashTable<
+      CharType, ElementType, IncHashType>::Word&() const noexcept
   {
     return word_;
   }
@@ -311,32 +285,28 @@ namespace Generics
 
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::const_iterator
-  IncHashTable<CharType, ElementType, IncHashType>::find(
-    const Word& key) const
+  IncHashTable<CharType, ElementType, IncHashType>::find( const Word& key) const
   {
     return main_table_.find(WordHashAdapter(key));
   }
 
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::const_iterator
-  IncHashTable<CharType, ElementType, IncHashType>::find(
-    const WordHashAdapter& key_adapter) const
+  IncHashTable<CharType, ElementType, IncHashType>::find( const WordHashAdapter& key_adapter) const
   {
     return main_table_.find(key_adapter);
   }
 
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::iterator
-  IncHashTable<CharType, ElementType, IncHashType>::find(
-    const Word& key)
+  IncHashTable<CharType, ElementType, IncHashType>::find( const Word& key)
   {
     return main_table_.find(WordHashAdapter(key));
   }
 
   template <typename CharType, typename ElementType, typename IncHashType>
   typename IncHashTable<CharType, ElementType, IncHashType>::iterator
-  IncHashTable<CharType, ElementType, IncHashType>::find(
-    const WordHashAdapter& key_adapter)
+  IncHashTable<CharType, ElementType, IncHashType>::find( const WordHashAdapter& key_adapter)
   {
     return main_table_.find(key_adapter);
   }
@@ -344,9 +314,7 @@ namespace Generics
   template <typename CharType, typename ElementType, typename IncHashType>
   std::pair<
     typename IncHashTable<CharType, ElementType, IncHashType>::const_iterator,
-    bool>
-  IncHashTable<CharType, ElementType, IncHashType>::insert(
-    const value_type& val)
+    bool> IncHashTable<CharType, ElementType, IncHashType>::insert( const value_type& val)
   {
     IncHashType hash_op;
     Hash hash_cur = hash_op();
@@ -355,8 +323,7 @@ namespace Generics
     {
       const Word& word = val.first.value();
       typename Word::const_iterator pre_end_it = --word.end();
-      for (typename Word::const_iterator it = word.begin();
-        it != pre_end_it; ++it)
+      for (typename Word::const_iterator it = word.begin(); it != pre_end_it; ++it)
       {
         hash_cur = hash_op(hash_cur, *it);
         inter_table_.insert(hash_cur);

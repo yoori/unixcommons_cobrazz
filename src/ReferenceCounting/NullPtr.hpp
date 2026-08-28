@@ -11,18 +11,13 @@ namespace ReferenceCounting
     template <typename T, typename D>
     operator D T::*() const noexcept;
     operator bool() const noexcept;
-    bool
-    operator ==(const NullPtr&) const noexcept;
-    bool
-    operator !=(const NullPtr&) const noexcept;
+    bool operator ==(const NullPtr&) const noexcept;
+    bool operator !=(const NullPtr&) const noexcept;
 
     NullPtr() noexcept = delete;
-    void
-    operator &() noexcept = delete;
-    void
-    operator =(NullPtr&) noexcept = delete;
-    void
-    operator =(NullPtr&&) noexcept = delete;
+    void operator &() noexcept = delete;
+    void operator =(NullPtr&) noexcept = delete;
+    void operator =(NullPtr&&) noexcept = delete;
   };
 }
 
@@ -30,11 +25,10 @@ static const ReferenceCounting::NullPtr nullptr(nullptr);
 
 namespace std
 {
-  typedef decltype(nullptr) nullptr_t;
+  using nullptr_t = decltype(nullptr);
 
   template <typename T>
-  typename add_rvalue_reference<T>::type
-  declval() noexcept;
+  typename add_rvalue_reference<T>::type declval() noexcept;
 }
 
 
@@ -52,22 +46,17 @@ namespace ReferenceCounting
     return 0;
   }
 
-  inline
-  NullPtr::operator bool() const noexcept
+  inline NullPtr::operator bool() const noexcept
   {
     return false;
   }
 
-  inline
-  bool
-  NullPtr::operator ==(const NullPtr&) const noexcept
+  inline bool NullPtr::operator ==(const NullPtr&) const noexcept
   {
     return true;
   }
 
-  inline
-  bool
-  NullPtr::operator !=(const NullPtr&) const noexcept
+  inline bool NullPtr::operator !=(const NullPtr&) const noexcept
   {
     return false;
   }

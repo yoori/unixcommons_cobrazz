@@ -12,22 +12,17 @@ class Application
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-  int
-  run(int argc, char* argv[]) /*throw (eh::Exception)*/;
+  int run(int argc, char* argv[]) /*throw (eh::Exception)*/;
 
 private:
-  void
-  usage_() /*throw (eh::Exception)*/;
+  void usage_() /*throw (eh::Exception)*/;
 
-  typedef bool (*CaseChange)(const String::SubString& src, std::string& dst,
-    std::size_t* counter);
+  using CaseChange = bool (*)(const String::SubString& src, std::string& dst, std::size_t* counter);
 
   template <typename Convert>
-  CaseChange
-  get_case_change() noexcept;
+  CaseChange get_case_change() noexcept;
 
-  void
-  convert_(std::istream& istr, CaseChange case_change)
+  void convert_(std::istream& istr, CaseChange case_change)
     /*throw (eh::Exception)*/;
 
   Generics::AppUtils::CheckOption help_;
@@ -42,8 +37,7 @@ private:
 // Application class
 //
 
-void
-Application::usage_() /*throw (eh::Exception)*/
+void Application::usage_() /*throw (eh::Exception)*/
 {
   std::cout << "Usage:\n"
     "CaseUtil [--help | -h] [--uniform | --upper | --lower | --simplify] "
@@ -58,22 +52,19 @@ Application::usage_() /*throw (eh::Exception)*/
 }
 
 template <typename Convert>
-Application::CaseChange
-Application::get_case_change() noexcept
+Application::CaseChange Application::get_case_change() noexcept
 {
   return String::case_change<Convert, std::char_traits<char>,
     std::allocator<char> >;
 }
 
-int
-Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
+int Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
 {
   try
   {
     Generics::AppUtils::Args args(1);
 
-    args.add(Generics::AppUtils::equal_name("help") ||
-      Generics::AppUtils::short_name("h"), help_);
+    args.add(Generics::AppUtils::equal_name("help") || Generics::AppUtils::short_name("h"), help_);
     args.add(Generics::AppUtils::equal_name("uniform"), uniform_);
     args.add(Generics::AppUtils::equal_name("upper"), upper_);
     args.add(Generics::AppUtils::equal_name("lower"), lower_);
@@ -134,8 +125,7 @@ Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
   return -1;
 }
 
-void
-Application::convert_(std::istream& istr, CaseChange case_change)
+void Application::convert_(std::istream& istr, CaseChange case_change)
   /*throw (eh::Exception)*/
 {
   std::string src;
@@ -158,8 +148,7 @@ Application::convert_(std::istream& istr, CaseChange case_change)
   }
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {

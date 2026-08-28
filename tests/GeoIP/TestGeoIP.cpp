@@ -5,8 +5,7 @@
 
 using namespace GeoIPMapping;
 
-int
-main(void)
+int main(void)
 {
 #if 0
 #if 0
@@ -18,9 +17,7 @@ main(void)
   try
   {
     std::cout << "Test IP: '0.0.0.0'\n";
-    std::cout << "Code: "
-              << ipm.country_code_by_addr("0.0.0.0").c_str()
-              << std::endl;
+    std::cout << "Code: " << ipm.country_code_by_addr("0.0.0.0").c_str() << std::endl;
 
     std::cerr << "Unexpected behaviour" << std::endl;
   }
@@ -32,9 +29,7 @@ main(void)
   try
   {
     std::cout << "\nTest IP: '193.124.163.144'\n";
-    std::cout << "Code3: "
-              << ipm.country_code3_by_addr("193.124.163.144").c_str()
-              << std::endl;
+    std::cout << "Code3: " << ipm.country_code3_by_addr("193.124.163.144").c_str() << std::endl;
   }
   catch(const IPMap::Exception& e)
   {
@@ -44,9 +39,7 @@ main(void)
   try
   {
     std::cout << "\nTest IP: '193.124.163.144'\n";
-    std::cout << "Name: "
-              << ipm.country_name_by_addr("193.124.163.144").c_str()
-              << std::endl;
+    std::cout << "Name: " << ipm.country_name_by_addr("193.124.163.144").c_str() << std::endl;
   }
   catch(const IPMap::Exception& e)
   {
@@ -62,8 +55,7 @@ main(void)
 
   try
   {
-    const char* addrs[] =
-    {
+    const char* addrs[] = {
       "193.124.163.144",
       "::FFFF:193.124.163.144",
       "00::FFFF:193.124.163.144",
@@ -88,8 +80,7 @@ main(void)
   {
     IPMapCity::CityLocation loc;
     std::cout << "\nTest IP: '2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d'\n";
-    city_map.city_location_by_addr(
-      "2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d", loc);
+    city_map.city_location_by_addr( "2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d", loc);
     std::cout << "Country code: " << loc.country_code << " Region: " <<
       loc.region << " City: " << loc.city << std::endl;
 

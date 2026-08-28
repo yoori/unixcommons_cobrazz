@@ -7,35 +7,28 @@
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  inline void append(std::string& target, const String::SubString& str)
+    /*throw (eh::Exception)*/
   {
-    inline
-    void
-    append(std::string& target, const String::SubString& str)
-      /*throw (eh::Exception)*/
+    if (!str.empty())
     {
-      if (!str.empty())
+      if (!target.empty() && *target.rbegin() != ' ' &&
+        *str.begin() != ' ')
       {
-        if (!target.empty() && *target.rbegin() != ' ' &&
-          *str.begin() != ' ')
-        {
-          target += ' ';
-        }
-        str.append_to(target);
+        target += ' ';
       }
+      str.append_to(target);
     }
+  }
 
-    inline
-    void
-    append(WordsList& target, const String::SubString& str)
-      /*throw (eh::Exception)*/
+  inline void append(WordsList& target, const String::SubString& str)
+    /*throw (eh::Exception)*/
+  {
+    if (!str.empty())
     {
-      if (!str.empty())
-      {
-        target.push_back(str.str());
-      }
+      target.push_back(str.str());
     }
-  }//namespace Segmentor
-}//namespace Language
+  }
+}

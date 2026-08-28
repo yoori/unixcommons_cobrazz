@@ -27,8 +27,7 @@ namespace Generics
   {
   }
 
-  void
-  CompositeSetActiveObject::remove_child_(ActiveObject* child) noexcept
+  void CompositeSetActiveObject::remove_child_(ActiveObject* child) noexcept
   {
     Sync::PosixGuard guard(cond_);
     this->child_objects_.erase(child);
@@ -39,27 +38,23 @@ namespace Generics
   // RemovableActiveObject class
   //
 
-  RemovableActiveObject::RemovableActiveObject(
-    ActiveObjectChildRemover* owner) noexcept
+  RemovableActiveObject::RemovableActiveObject( ActiveObjectChildRemover* owner) noexcept
     : owner_(ReferenceCounting::add_ref(owner))
   {
   }
 
-  void
-  RemovableActiveObject::delete_this_() const noexcept
+  void RemovableActiveObject::delete_this_() const noexcept
   {
     if (owner_)
     {
-      RemovableActiveObject* ths =
-        const_cast<RemovableActiveObject*>(this);
+      RemovableActiveObject* ths = const_cast<RemovableActiveObject*>(this);
       ths->before_remove_child_();
       ths->owner_->remove_child_(ths);
     }
     AtomicImpl::delete_this_();
   }
 
-  void
-  RemovableActiveObject::before_remove_child_() noexcept
+  void RemovableActiveObject::before_remove_child_() noexcept
   {
   }
 }

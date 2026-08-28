@@ -21,10 +21,10 @@ namespace Generics
     public ReferenceCounting::AtomicImpl
   {
   public:
-    typedef TaskExecutor::Exception Exception;
-    typedef TaskExecutor::Overflow Overflow;
-    typedef TaskExecutor::NotActive NotActive;
-    typedef ActiveObject::InvalidArgument InvalidArgument;
+    using Exception = TaskExecutor::Exception;
+    using Overflow = TaskExecutor::Overflow;
+    using NotActive = TaskExecutor::NotActive;
+    using InvalidArgument = ActiveObject::InvalidArgument;
 
     /**
      * Constructor
@@ -32,9 +32,7 @@ namespace Generics
      * @param threads_number number of working threads
      * @param stack_size their stack sizes
      */
-    TaskPool(ActiveObjectCallback* callback,
-      unsigned threads_number,
-      size_t stack_size = 0)
+    TaskPool(ActiveObjectCallback* callback, unsigned threads_number, size_t stack_size = 0)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
     /**
@@ -45,32 +43,25 @@ namespace Generics
      * If you put limitations on the size of the queue, and it's full,
      * method waits for the release up to timeout
      */
-    void
-    enqueue_task(Task* task, const Time* timeout = 0)
+    void enqueue_task(Task* task, const Time* timeout = 0)
       /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
-    virtual
-    void
-    deactivate_object() noexcept;
+    virtual void deactivate_object() noexcept;
 
     /**
      * Returns number of tasks recently being enqueued
      * This number does not have much meaning in MT environment
      * @return number of tasks enqueued
      */
-    unsigned
-    task_count() const noexcept;
+    unsigned task_count() const noexcept;
 
     /**
      * Clear task queue
      */
-    virtual
-    void
-    clear() /*throw (eh::Exception)*/;
+    virtual void clear() /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~TaskPool() noexcept;
+    virtual ~TaskPool() noexcept;
 
   private:
     class TaskQueueProcessor;
@@ -82,24 +73,19 @@ namespace Generics
     public:
       TaskQueue() noexcept;
 
-      void
-      enqueue_task(Task* task, const Time* timeout)
+      void enqueue_task(Task* task, const Time* timeout)
         /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
-      void
-      terminate() noexcept;
+      void terminate() noexcept;
 
-      virtual
-      void
-      clear() /*throw (eh::Exception)*/;
+      virtual void clear() /*throw (eh::Exception)*/;
 
     protected:
-      virtual
-      ~TaskQueue() noexcept
+      virtual ~TaskQueue() noexcept
       {}
 
     protected:
-      typedef ReferenceCounting::Deque<Task_var> Tasks;
+      using Tasks = ReferenceCounting::Deque<Task_var>;
 
     protected:
       mutable Sync::PosixMutex tasks_lock_;
@@ -108,7 +94,7 @@ namespace Generics
       unsigned waiting_threads_;
     };
 
-    typedef ReferenceCounting::QualPtr<TaskQueue> TaskQueue_var;
+    using TaskQueue_var = ReferenceCounting::QualPtr<TaskQueue>;
 
     class TaskQueueProcessor: public ActiveObjectCommonImpl
     {
@@ -116,22 +102,15 @@ namespace Generics
       class Job : public ActiveObjectCommonImpl::SingleJob
       {
       public:
-        Job(
-          ActiveObjectCallback* callback,
-          TaskQueue* task_queue)
+        Job( ActiveObjectCallback* callback, TaskQueue* task_queue)
           /*throw (eh::Exception)*/;
 
-        virtual
-        void
-        work() noexcept;
+        virtual void work() noexcept;
 
-        virtual
-        void
-        terminate() noexcept;
+        virtual void terminate() noexcept;
 
       protected:
-        virtual
-        ~Job() noexcept;
+        virtual ~Job() noexcept;
 
       protected:
         TaskQueue_var task_queue_;
@@ -145,10 +124,10 @@ namespace Generics
         noexcept;
 
     protected:
-      typedef ReferenceCounting::QualPtr<Job> Job_var;
+      using Job_var = ReferenceCounting::QualPtr<Job>;
     };
 
-    typedef std::vector<TaskQueue_var> TaskQueueArray;
+    using TaskQueueArray = std::vector<TaskQueue_var>;
 
   private:
     TaskQueueArray task_queues_;
@@ -160,6 +139,6 @@ namespace Generics
     */
   };
 
-  typedef ReferenceCounting::QualPtr<TaskPool> TaskPool_var;
-  typedef ReferenceCounting::FixedPtr<TaskPool> FixedTaskPool_var;
+  using TaskPool_var = ReferenceCounting::QualPtr<TaskPool>;
+  using FixedTaskPool_var = ReferenceCounting::FixedPtr<TaskPool>;
 }

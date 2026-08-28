@@ -16,19 +16,19 @@ namespace ReferenceCounting
   class Vector : protected std::vector<T, Allocator>
   {
   public:
-    typedef std::vector<T, Allocator> Base;
+    using Base = std::vector<T, Allocator>;
 
-    typedef typename Base::value_type value_type;
-    typedef typename Base::pointer pointer;
-    typedef typename Base::const_pointer const_pointer;
-    typedef typename Base::reference reference;
-    typedef typename Base::const_reference const_reference;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
-    typedef typename Base::size_type size_type;
-    typedef typename Base::difference_type difference_type;
+    using value_type = typename Base::value_type;
+    using pointer = typename Base::pointer;
+    using const_pointer = typename Base::const_pointer;
+    using reference = typename Base::reference;
+    using const_reference = typename Base::const_reference;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
+    using size_type = typename Base::size_type;
+    using difference_type = typename Base::difference_type;
 
     using Base::begin;
     using Base::end;
@@ -54,8 +54,7 @@ namespace ReferenceCounting
     using Base::clear;
 
     Vector() noexcept;
-    explicit
-    Vector(size_type n) /*throw (eh::Exception)*/;
+    explicit Vector(size_type n) /*throw (eh::Exception)*/;
     Vector(size_type n, value_type& x) /*throw (eh::Exception)*/;
     Vector(Vector& v) /*throw (eh::Exception)*/;
     Vector(const Vector&) = delete;
@@ -63,50 +62,35 @@ namespace ReferenceCounting
     template <typename InputIterator>
     Vector(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    Vector&
-    operator =(Vector& v) /*throw (eh::Exception)*/;
-    Vector&
-    operator =(Vector&& v) noexcept;
+    Vector& operator =(Vector& v) /*throw (eh::Exception)*/;
+    Vector& operator =(Vector&& v) noexcept;
 
-    void
-    assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
+    void assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
+    void assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    void
-    resize(size_type n) /*throw (eh::Exception)*/;
-    void
-    resize(size_type n, value_type& v) /*throw (eh::Exception)*/;
+    void resize(size_type n) /*throw (eh::Exception)*/;
+    void resize(size_type n, value_type& v) /*throw (eh::Exception)*/;
 
-    void
-    push_back(value_type& x) /*throw (eh::Exception)*/;
-    void
-    push_back(value_type&& x) /*throw (eh::Exception)*/;
+    void push_back(value_type& x) /*throw (eh::Exception)*/;
+    void push_back(value_type&& x) /*throw (eh::Exception)*/;
 
-    iterator
-    insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
-    iterator
-    insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
-    void
-    insert(iterator position, size_type n, value_type& x)
+    iterator insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
+    void insert(iterator position, size_type n, value_type& x)
       /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    insert(iterator position, InputIterator first, InputIterator last)
+    void insert(iterator position, InputIterator first, InputIterator last)
       /*throw (eh::Exception)*/;
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
-    void
-    swap(Vector&& v) noexcept;
+    void swap(Vector&& v) noexcept;
 #else
-    void
-    swap(Vector& v) noexcept;
+    void swap(Vector& v) noexcept;
 #endif
 
   private:
-    size_type
-    resize_(size_type n) /*throw (eh::Exception)*/;
+    size_type resize_(size_type n) /*throw (eh::Exception)*/;
   };
 }
 
@@ -168,8 +152,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::assign(size_type n, value_type& x)
+  void Vector<T, Allocator>::assign(size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     n = resize_(n);
@@ -185,8 +168,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   template <typename InputIterator>
-  void
-  Vector<T, Allocator>::assign(InputIterator first, InputIterator last)
+  void Vector<T, Allocator>::assign(InputIterator first, InputIterator last)
     /*throw (eh::Exception)*/
   {
     size_type n = std::distance(first, last);
@@ -204,8 +186,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::resize(size_type n) /*throw (eh::Exception)*/
+  void Vector<T, Allocator>::resize(size_type n) /*throw (eh::Exception)*/
   {
     for (n = resize_(n); n--;)
     {
@@ -214,8 +195,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::resize(size_type n, value_type& x)
+  void Vector<T, Allocator>::resize(size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     for (n = resize_(n); n--;)
@@ -225,15 +205,13 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
+  void Vector<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
   {
     Base::emplace_back(x);
   }
 
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
+  void Vector<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
   {
     emplace_back(std::move(x));
   }
@@ -329,15 +307,13 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::swap(Vector&& v) noexcept
+  void Vector<T, Allocator>::swap(Vector&& v) noexcept
   {
     Base::swap(std::move(v));
   }
 #else
   template <typename T, typename Allocator>
-  void
-  Vector<T, Allocator>::swap(Vector& v) noexcept
+  void Vector<T, Allocator>::swap(Vector& v) noexcept
   {
     Base::swap(v);
   }
@@ -362,23 +338,20 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Allocator>
-  void
-  swap(Vector<T, Allocator>& x, Vector<T, Allocator>& y) noexcept
+  void swap(Vector<T, Allocator>& x, Vector<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  swap(Vector<T, Allocator>&& x, Vector<T, Allocator>& y) noexcept
+  void swap(Vector<T, Allocator>&& x, Vector<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
-  void
-  swap(Vector<T, Allocator>& x, Vector<T, Allocator>&& y) noexcept
+  void swap(Vector<T, Allocator>& x, Vector<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

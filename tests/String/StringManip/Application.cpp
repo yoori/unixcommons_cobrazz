@@ -14,121 +14,108 @@
 
 #include <Generics/Rand.hpp>
 
-namespace String
+namespace String::Test
 {
-  namespace Test
+  struct test_case
   {
-    struct test_case
-    {
-      const char* test_str;
-      std::string trim_result;
-    };
+    const char* test_str;
+    std::string trim_result;
+  };
 
-    DECLARE_EXCEPTION(InvalidArguments, eh::DescriptiveException);
-    class StringManipTest
-    {
-    public:
+  DECLARE_EXCEPTION(InvalidArguments, eh::DescriptiveException);
+  class StringManipTest
+  {
+  public:
 
-      StringManipTest(int argc, char* argv[]) /*throw(InvalidArguments)*/;
+    StringManipTest(int argc, char* argv[]) /*throw(InvalidArguments)*/;
 
-      int run() noexcept;
-    private:
-      typedef std::string StdString;
-      typedef std::vector<StdString> Strings;
+    int run() noexcept;
+  private:
+    using StdString = std::string;
+    using Strings = std::vector<StdString>;
 
-      Strings test_strs_;
-      bool interactive_;
+    Strings test_strs_;
+    bool interactive_;
 
-      static test_case test_cases[];
-    };
-  }
+    static test_case test_cases[];
+  };
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Implementation 
+// Implementation
 //////////////////////////////////////////////////////////////////////////
 
-namespace String
+namespace String::Test
 {
-  namespace Test
+  test_case StringManipTest::test_cases[] = {
+    {"test string 1", "test string 1"},
+    {" test string 2", "test string 2"},
+    {"test string 3 ", "test string 3"},
+    {" test string 4", "test string 4"},
+    {0, ""},
+    {"  ", ""}
+  };
+
+  StringManipTest::StringManipTest(int argc, char* argv[])
+    /*throw(InvalidArguments)*/
   {
-    test_case StringManipTest::test_cases[] =
+    if (argc>1) //interactive
     {
-      {"test string 1", "test string 1"},
-      {" test string 2", "test string 2"},
-      {"test string 3 ", "test string 3"},
-      {" test string 4", "test string 4"},
-      {0, ""},
-      {"  ", ""}
-    };
-
-    StringManipTest::StringManipTest(int argc, char* argv[])
-      /*throw(InvalidArguments)*/
-    {
-      if(argc>1) //interactive
+      interactive_ = true;
+      for (int i=1;i<argc;i++)
       {
-        interactive_ = true;
-        for(int i=1;i<argc;i++)
-        {
-          test_strs_.push_back(argv[i]);
-        }
+        test_strs_.push_back(argv[i]);
       }
-      else
+    }
+    else
+    {
+      interactive_ = false;
+      for (size_t i=0; i<sizeof(test_cases)/sizeof(test_cases[0]);i++)
       {
-        interactive_ = false;
-        for(size_t i=0; i<sizeof(test_cases)/sizeof(test_cases[0]);i++)
+        if (test_cases[i].test_str)
         {
-          if(test_cases[i].test_str)
-          {
-            test_strs_.push_back(test_cases[i].test_str);
-          }
-          else
-          {
-            test_strs_.resize(test_strs_.size() + 1);
-          }
+          test_strs_.push_back(test_cases[i].test_str);
+        }
+        else
+        {
+          test_strs_.resize(test_strs_.size() + 1);
         }
       }
     }
+  }
 
-    int StringManipTest::run() noexcept
+  int StringManipTest::run() noexcept
+  {
+    if (interactive_)
     {
-      if(interactive_)
+      for (Strings::iterator i = test_strs_.begin(); i!= test_strs_.end(); ++i)
       {
-        for(Strings::iterator i = test_strs_.begin();
-          i!= test_strs_.end();
-          ++i)
-        {
-          std::cout << " trim '" << *i << "' '";
-          String::StringManip::trim(*i, *i);
-          std::cout << *i << "'" << std::endl;
-        }
+        std::cout << " trim '" << *i << "' '";
+        String::StringManip::trim(*i, *i);
+        std::cout << *i << "'" << std::endl;
       }
-      else
-      {
-        size_t j = 0;
-        for(Strings::iterator i = test_strs_.begin();
-          i!= test_strs_.end();
-          ++i, j++)
-        {
-          String::StringManip::trim(*i, *i);
-          if(*i != test_cases[j].trim_result)
-          {
-            std::cerr << "error checking Generics::StringManip::trim: '"
-              << test_cases[j].test_str << "' expected '"  
-              << test_cases[j].trim_result << "' got '"
-              << *i << "'" << std::endl;
-            return 1;
-          }
-        }
-      }
-      return 0;
     }
+    else
+    {
+      size_t j = 0;
+      for (Strings::iterator i = test_strs_.begin(); i!= test_strs_.end(); ++i, j++)
+      {
+        String::StringManip::trim(*i, *i);
+        if (*i != test_cases[j].trim_result)
+        {
+          std::cerr << "error checking Generics::StringManip::trim: '"
+            << test_cases[j].test_str << "' expected '" << test_cases[j].trim_result << "' got '"
+            << *i << "'" << std::endl;
+          return 1;
+        }
+      }
+    }
+    return 0;
   }
 }
 //////////////////////////////////////////////////////////////////////////
 
-void
-str_append(std::string& str, int size, const char* chars, int length)
+void str_append(std::string& str, int size, const char* chars, int length)
   /*throw (eh::Exception)*/
 {
   while (size-- > 0)
@@ -138,15 +125,13 @@ str_append(std::string& str, int size, const char* chars, int length)
   }
 }
 
-void
-str_append(std::string& str, int size, const char* chars)
+void str_append(std::string& str, int size, const char* chars)
   /*throw (eh::Exception)*/
 {
   str_append(str, size, chars, strlen(chars));
 }
 
-void
-generate_string(std::string& str) /*throw (eh::Exception)*/
+void generate_string(std::string& str) /*throw (eh::Exception)*/
 {
   str_append(str, rand() % 16, " \t");
   str_append(str, rand() % 128, "acbnp439hf1-34djc,12394i 1293ier1923ie =23ie ");
@@ -154,8 +139,7 @@ generate_string(std::string& str) /*throw (eh::Exception)*/
   //std::cout << "Generated '" << str << "'\n";
 }
 
-void
-create_string(std::string& str) /*throw (eh::Exception)*/
+void create_string(std::string& str) /*throw (eh::Exception)*/
 {
   for (size_t length = rand() % 128; length--;)
   {
@@ -163,8 +147,7 @@ create_string(std::string& str) /*throw (eh::Exception)*/
   }
 }
 
-void
-test_trim_string(const std::string& str) /*throw (eh::Exception)*/
+void test_trim_string(const std::string& str) /*throw (eh::Exception)*/
 {
   std::string trimmed1, trimmed2(str);
   String::StringManip::trim(str, trimmed1);
@@ -186,21 +169,16 @@ test_trim_string(const std::string& str) /*throw (eh::Exception)*/
       last = i;
     }
   }
-  std::string expected(first == std::string::npos ? "" :
-    str.substr(first, last - first + 1));
-  if ((first == std::string::npos &&
-      (!trimmed1.empty() || !trimmed2.empty())) ||
-      (first != std::string::npos &&
-      trimmed1 != expected) || trimmed2 != expected)
+  std::string expected(first == std::string::npos ? "" : str.substr(first, last - first + 1));
+  if ((first == std::string::npos && (!trimmed1.empty() || !trimmed2.empty())) ||
+      (first != std::string::npos && trimmed1 != expected) || trimmed2 != expected)
   {
     std::cerr << "Error in trim function: '" << str << "' => '" <<
-      trimmed1 << "' and '" << trimmed2 << "' (expected '" <<
-      expected << "')\n";
+      trimmed1 << "' and '" << trimmed2 << "' (expected '" << expected << "')\n";
   }
 }
 
-void
-test_trim(void) /*throw (eh::Exception)*/
+void test_trim(void) /*throw (eh::Exception)*/
 {
   test_trim_string("");
   test_trim_string(" \t \t\t ");
@@ -212,38 +190,35 @@ test_trim(void) /*throw (eh::Exception)*/
   }
 }
 
-void
-charcheck_error(const char* where, char ch) /*throw (eh::Exception)*/
+void charcheck_error(const char* where, char ch) /*throw (eh::Exception)*/
 {
-  std::cerr << "Error in " << where << " character '" <<
-    ch << "'" << std::endl;
+  std::cerr << "Error in " << where << " character '" << ch << "'" << std::endl;
 }
 
-void
-test_charcheck() /*throw (eh::Exception)*/
+void test_charcheck() /*throw (eh::Exception)*/
 {
   String::AsciiStringManip::CharCategory all("\001-\177", true);
   String::AsciiStringManip::CharCategory none("");
 
   for (char ch = 0; ch < 127; ch++)
   {
-    if (String::AsciiStringManip::ALPHA.is_owned(ch) !=
-      ((ch >= 'A' && ch <= 'Z') ||
+    if (String::AsciiStringManip::ALPHA.is_owned(ch) != ((ch >= 'A' && ch <= 'Z') ||
         (ch >= 'a' && ch <= 'z')))
     {
       charcheck_error("ALPHA", ch);
     }
-    if (String::AsciiStringManip::ALPHA_NUM.is_owned(ch) !=
-      ((ch >= 'A' && ch <= 'Z') ||
-        (ch >= 'a' && ch <= 'z') ||
-        (ch >= '0' && ch <= '9')))
+
+    if (String::AsciiStringManip::ALPHA_NUM.is_owned(ch) != ((ch >= 'A' && ch <= 'Z') ||
+        (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
     {
       charcheck_error("ALPHA_NUM", ch);
     }
+
     if (!all.is_owned(ch))
     {
       charcheck_error("all", ch);
     }
+
     if (none.is_owned(ch))
     {
       charcheck_error("none", ch);
@@ -256,18 +231,15 @@ struct Token
   std::string token;
   char separator;
 };
-typedef std::list<Token> Tokens;
+using Tokens = std::list<Token>;
 
-bool
-operator ==(const Token& token1, const Token& token2)
+bool operator ==(const Token& token1, const Token& token2)
 {
-  return token1.separator == token2.separator &&
-    token1.token == token2.token;
+  return token1.separator == token2.separator && token1.token == token2.token;
 }
 
 template <typename T1, typename T2>
-bool
-is_equal(T1 b1, T1 e1, T2 b2, T2 e2)
+bool is_equal(T1 b1, T1 e1, T2 b2, T2 e2)
 {
   for (; b1 != e1 && b2 != e2; ++b1, ++b2)
   {
@@ -279,21 +251,18 @@ is_equal(T1 b1, T1 e1, T2 b2, T2 e2)
   return b1 == e1 && b2 == e2;
 }
 
-char
-get_separator(const char*, char ch) noexcept
+char get_separator(const char*, char ch) noexcept
 {
   return ch;
 }
 
-char
-get_separator(const char* end, const char* str) noexcept
+char get_separator(const char* end, const char* str) noexcept
 {
   return str == end ? '\0' : *str;
 }
 
 template <typename Tokenizer>
-bool
-get_token(Tokenizer& tokenizer, std::string& result)
+bool get_token(Tokenizer& tokenizer, std::string& result)
   /*throw (eh::Exception)*/
 {
   String::SubString token;
@@ -306,8 +275,7 @@ get_token(Tokenizer& tokenizer, std::string& result)
 }
 
 template <typename Tokenizer>
-void
-create_tokens(Tokenizer& tokenizer, const char* end, Tokens& tokens)
+void create_tokens(Tokenizer& tokenizer, const char* end, Tokens& tokens)
   /*throw (eh::Exception)*/
 {
   std::string token;
@@ -319,22 +287,19 @@ create_tokens(Tokenizer& tokenizer, const char* end, Tokens& tokens)
   }
 }
 
-void
-append_delims(std::string& str, bool at_least_one = false)
+void append_delims(std::string& str, bool at_least_one = false)
   /*throw (eh::Exception)*/
 {
   str_append(str, rand() % 5 + at_least_one, " \t\n");
 }
 
-void
-append_normal(std::string& str) /*throw (eh::Exception)*/
+void append_normal(std::string& str) /*throw (eh::Exception)*/
 {
   str_append(str, rand() % 20 + 15, "30mi23-09t356=1.v1=43-r.,v1-E");
 }
 
 template <typename T>
-std::string
-create_string(T b, T e)
+std::string create_string(T b, T e)
 {
   std::ostringstream ostr;
 
@@ -354,8 +319,7 @@ create_string(T b, T e)
 }
 
 template <typename T>
-void
-out_tokens(T b, T e)
+void out_tokens(T b, T e)
 {
   for (; b != e; ++b)
   {
@@ -393,8 +357,7 @@ test_tokens(const String::SubString& str, const Tokens& tokens,
   return true;
 }
 
-bool
-test_tokens(const Tokens& tokens) /*throw (eh::Exception)*/
+bool test_tokens(const Tokens& tokens) /*throw (eh::Exception)*/
 {
   static const String::AsciiStringManip::CharCategory DELIM(" \t\n");
 
@@ -416,8 +379,7 @@ test_tokens(const Tokens& tokens) /*throw (eh::Exception)*/
   return true;
 }
 
-void
-create_random_tokens(Tokens& tokens) /*throw (eh::Exception)*/
+void create_random_tokens(Tokens& tokens) /*throw (eh::Exception)*/
 {
   for (int i = 50; i >= 0; i--)
   {
@@ -437,8 +399,7 @@ create_random_tokens(Tokens& tokens) /*throw (eh::Exception)*/
   }
 }
 
-void
-test_tokenizer() /*throw (eh::Exception)*/
+void test_tokenizer() /*throw (eh::Exception)*/
 {
   {
     Tokens tokens;
@@ -458,8 +419,7 @@ test_tokenizer() /*throw (eh::Exception)*/
   }
 }
 
-int
-string_manip_test(int argc, char** argv) noexcept
+int string_manip_test(int argc, char** argv) noexcept
 {
   try
   {
@@ -468,16 +428,14 @@ string_manip_test(int argc, char** argv) noexcept
   }
   catch(const String::Test::InvalidArguments& e)
   {
-    std::cerr << "Caught InvalidArguments exception. Description: "
-      << e.what() << std::endl;
+    std::cerr << "Caught InvalidArguments exception. Description: " << e.what() << std::endl;
     return 1;
   }
 }
 
 
 template <const bool PADDING>
-void
-test_base64()
+void test_base64()
 {
   char all_chars[256];
   for (int i = 0; i < 256; i++)
@@ -493,19 +451,16 @@ test_base64()
     try
     {
       std::string encoded;
-      String::StringManip::base64mod_encode(encoded, original.data(),
-        original.size(), PADDING);
+      String::StringManip::base64mod_encode(encoded, original.data(), original.size(), PADDING);
 
       {
         std::string decoded;
-        String::StringManip::base64mod_decode(decoded, encoded,
-          PADDING);
+        String::StringManip::base64mod_decode(decoded, encoded, PADDING);
 
         if (decoded != original)
         {
           std::cerr << "Failed to encode/decode base64 '" << original <<
-            "', got '" << decoded << "', encoded '" << encoded << "'" <<
-            std::endl;
+            "', got '" << decoded << "', encoded '" << encoded << "'" << std::endl;
         }
       }
 
@@ -533,16 +488,14 @@ test_base64()
     }
     catch (const eh::Exception& ex)
     {
-      std::cerr << "test_base64(): Problem with '" << original << "': " <<
-        ex.what() << std::endl;
+      std::cerr << "test_base64(): Problem with '" << original << "': " << ex.what() << std::endl;
     }
   }
 
   {
     String::SubString src("ABCDEFGHIJKLMNOPQRSTUVWXYZ\xFE\xEF\xFF");
     std::string dst;
-    String::StringManip::base64_encode(dst, src.data(), src.size(),
-      PADDING);
+    String::StringManip::base64_encode(dst, src.data(), src.size(), PADDING);
     String::SubString tst("QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVr+7/8=");
     if (dst != tst.substr(0, tst.size() - 1 + PADDING))
     {
@@ -559,8 +512,7 @@ test_base64()
       uint8_t data = Generics::safe_rand() &
         ((1 << String::StringManip::base64mod_fill_size(src.size())) - 1);
       std::string enc;
-      String::StringManip::base64mod_encode(enc, src.data(), src.size(),
-        PADDING, data);
+      String::StringManip::base64mod_encode(enc, src.data(), src.size(), PADDING, data);
       std::string dec;
       uint8_t got = 0;
       try
@@ -583,8 +535,7 @@ test_base64()
         String::StringManip::base64mod_decode(dec, enc, PADDING, &got);
         if (got != data)
         {
-          std::cerr << "base64mod_decode faild with wrong fill" <<
-            std::endl;
+          std::cerr << "base64mod_decode faild with wrong fill" << std::endl;
         }
       }
       catch (const String::StringManip::InvalidFormatException&)
@@ -595,14 +546,11 @@ test_base64()
   }
 }
 
-void
-test_js_encode() /*throw (eh::Exception)*/
+void test_js_encode() /*throw (eh::Exception)*/
 {
-  const char SRC[] =
-    "\xE2\xE2\x80\xE2\x80\xA7\xE2\x80\xA8\x80\xA9\xE2\x80\xA9"
+  const char SRC[] = "\xE2\xE2\x80\xE2\x80\xA7\xE2\x80\xA8\x80\xA9\xE2\x80\xA9"
     "abcd\xE2\x80\xA8\xE2\x80\xA8\xE2";
-  const char DST[] =
-    "\xE2\xE2\x80\xE2\x80\xA7\\u2028\x80\xA9\\u2029"
+  const char DST[] = "\xE2\xE2\x80\xE2\x80\xA7\\u2028\x80\xA9\\u2029"
     "abcd\\u2028\\u2028\xE2";
   try
   {
@@ -629,14 +577,12 @@ test_js_encode() /*throw (eh::Exception)*/
     }
     catch (const eh::Exception& ex)
     {
-      std::cerr << "test_js_code(): Problems with '" << str << "': " <<
-        ex.what() << std::endl;
+      std::cerr << "test_js_code(): Problems with '" << str << "': " << ex.what() << std::endl;
     }
   }
 }
 
-void
-test_json_encode() /*throw (eh::Exception)*/
+void test_json_encode() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 100; i++)
   {
@@ -649,14 +595,12 @@ test_json_encode() /*throw (eh::Exception)*/
     }
     catch (const eh::Exception& ex)
     {
-      std::cerr << "test_json_code(): Problems with '" << str << "': " <<
-        ex.what() << std::endl;
+      std::cerr << "test_json_code(): Problems with '" << str << "': " << ex.what() << std::endl;
     }
   }
 }
 
-void
-test_js_unicode_encode() /*throw (eh::Exception)*/
+void test_js_unicode_encode() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 100; i++)
   {
@@ -683,8 +627,7 @@ test_js_unicode_encode() /*throw (eh::Exception)*/
   }
 }
 
-void
-test_xml()
+void test_xml()
 {
   char chars[126];
   for (int i = 0; i < 126; i++)
@@ -709,15 +652,13 @@ test_xml()
         if (decoded != original)
         {
           std::cerr << "Failed to encode/decode xml '" << original <<
-            "', got '" << decoded << "', encoded '" << encoded << "'" <<
-            std::endl;
+            "', got '" << decoded << "', encoded '" << encoded << "'" << std::endl;
         }
       }
     }
     catch (const eh::Exception& ex)
     {
-      std::cerr << "test_xml(): Problem with '" << original << "': " <<
-        ex.what() << std::endl;
+      std::cerr << "test_xml(): Problem with '" << original << "': " << ex.what() << std::endl;
     }
   }
 }
@@ -728,19 +669,16 @@ test_csv_encode(const char* input, const char* expected,
 {
   std::string encoded;
   String::StringManip::csv_encode(input, encoded, separator);
-  if(encoded != expected)
+  if (encoded != expected)
   {
     std::cerr << "Failed to encode <<" << input <<">> csv string, "
-      << "expected: " << expected << " , "
-      << "got: " << encoded
-      << std::endl;
+      << "expected: " << expected << " , " << "got: " << encoded << std::endl;
     return false;
   }
   return true;
 }
 
-void
-test_csv_encode() /*throw (eh::Exception)*/
+void test_csv_encode() /*throw (eh::Exception)*/
 {
   static struct TestCase
   {
@@ -780,11 +718,9 @@ test_csv_encode() /*throw (eh::Exception)*/
 class TestFlattenCaseGenerator
 {
 public:
-  void
-  generate() /*throw (eh::Exception)*/;
+  void generate() /*throw (eh::Exception)*/;
 
-  void
-  check() /*throw (eh::Exception)*/;
+  void check() /*throw (eh::Exception)*/;
 
   static void
   checking(const std::string& res,
@@ -796,8 +732,7 @@ private:
   std::string standard_;
 };
 
-void
-TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
+void TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
 {
   standard_.clear();
   input_.clear();
@@ -816,7 +751,7 @@ TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
     else
     {
       String::UnicodeSymbol put_it;
-      do 
+      do
       {
         put_it = String::UnicodeSymbol::random();
       }
@@ -828,17 +763,14 @@ TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
   }
 }
 
-void
-TestFlattenCaseGenerator::check() /*throw (eh::Exception)*/
+void TestFlattenCaseGenerator::check() /*throw (eh::Exception)*/
 {
   std::string dest;
   String::StringManip::flatten(dest, input_);
   if (dest != standard_)
   {
-    std::cerr << "flatten functional doesn't work: input="
-      << input_ << std::endl
-      << "result=" << dest << std::endl << "standard="
-      << standard_ << std::endl;
+    std::cerr << "flatten functional doesn't work: input=" << input_ << std::endl
+      << "result=" << dest << std::endl << "standard=" << standard_ << std::endl;
   }
 }
 
@@ -850,15 +782,12 @@ TestFlattenCaseGenerator::checking(const std::string& res,
 {
   if (res != standard)
   {
-    std::cerr << "flatten functional trouble:\n"
-      << "Source: " << src << std::endl
-      << "Result: " << res << std::endl
-      << "Standard: " << standard << std::endl;
+    std::cerr << "flatten functional trouble:\n" << "Source: " << src << std::endl
+      << "Result: " << res << std::endl << "Standard: " << standard << std::endl;
   }
 }
 
-void
-check_flatten() /*throw (eh::Exception)*/
+void check_flatten() /*throw (eh::Exception)*/
 {
   using namespace String::Test;
 
@@ -896,18 +825,15 @@ check_flatten() /*throw (eh::Exception)*/
   String::StringManip::flatten(dest, src1);
   TestFlattenCaseGenerator::checking(dest, src1, "A \xD7\x9B. ");
 
-  std::string src2("Test\xC2\xA0\xE1\x9A\x80\xE3\x80\x80\xE2\x80\x87 AAB"
-    "   \t  _Rpl\t  . ");
-  String::StringManip::flatten(
-    dest, src2, String::SubString("R", 1));
+  std::string src2("Test\xC2\xA0\xE1\x9A\x80\xE3\x80\x80\xE2\x80\x87 AAB" "   \t  _Rpl\t  . ");
+  String::StringManip::flatten( dest, src2, String::SubString("R", 1));
   TestFlattenCaseGenerator::checking(dest, src2, "TestRAABR_RplR.R");
 
   String::StringManip::flatten(dest, src2);
   TestFlattenCaseGenerator::checking(dest, src2, "Test AAB _Rpl . ");
 }
 
-void
-check_random_flatten() /*throw (eh::Exception)*/
+void check_random_flatten() /*throw (eh::Exception)*/
 {
   TestFlattenCaseGenerator checker;
   std::cout << "check_random_flatten start" << std::endl;
@@ -918,11 +844,9 @@ check_random_flatten() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_mark() /*throw (eh::Exception)*/
+void check_mark() /*throw (eh::Exception)*/
 {
-  const char* SRCS[] = 
-  {
+  const char* SRCS[] = {
     "^.$|()[]*+?{}\\",
     "mmm^.$|()[]*+?{}",
     "^.$|()[]*+?{}mmm",
@@ -931,8 +855,7 @@ check_mark() /*throw (eh::Exception)*/
     "mmm",
     ""
   };
-  const char* STANDARDS[] =
-  {
+  const char* STANDARDS[] = {
     "m^m.m$m|m(m)m[m]m*m+m?m{m}m\\",
     "mmmm^m.m$m|m(m)m[m]m*m+m?m{m}",
     "m^m.m$m|m(m)m[m]m*m+m?m{m}mmm",
@@ -945,8 +868,7 @@ check_mark() /*throw (eh::Exception)*/
 
   for (std::size_t i = 0; i < sizeof(SRCS) / sizeof(SRCS[0]); ++i)
   {
-    String::StringManip::mark(SRCS[i], result,
-      String::AsciiStringManip::REGEX_META, 'm');
+    String::StringManip::mark(SRCS[i], result, String::AsciiStringManip::REGEX_META, 'm');
     if (result != STANDARDS[i])
     {
       std::cerr << "Marker trouble: result=" << result << "\nstandard="
@@ -955,11 +877,9 @@ check_mark() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_replace() /*throw (eh::Exception)*/
+void check_replace() /*throw (eh::Exception)*/
 {
-  const char* data[][2] =
-  {
+  const char* data[][2] = {
     { "", "" },
     { "a", "a" },
     { "#", "#" },
@@ -989,8 +909,7 @@ check_replace() /*throw (eh::Exception)*/
 }
 
 template <typename Integer>
-void
-test_str_to_int(const char* type) /*throw (eh::Exception)*/
+void test_str_to_int(const char* type) /*throw (eh::Exception)*/
 {
   for (Integer i = std::numeric_limits<Integer>::min();;)
   {
@@ -999,9 +918,9 @@ test_str_to_int(const char* type) /*throw (eh::Exception)*/
     Integer j;
     if (!String::StringManip::str_to_int(ostr.str(), j) || j != i)
     {
-      std::cerr << "str_to_int failed with " <<
-        type << " " << i << std::endl;
+      std::cerr << "str_to_int failed with " << type << " " << i << std::endl;
     }
+
     if (i == std::numeric_limits<Integer>::max())
     {
       break;
@@ -1018,8 +937,7 @@ test_str_to_int(const char* type) /*throw (eh::Exception)*/
       ostr << j;
       if (String::StringManip::str_to_int(ostr.str(), k))
       {
-        std::cerr << "str_to_int not failed with " <<
-          type << " " << j << std::endl; 
+        std::cerr << "str_to_int not failed with " << type << " " << j << std::endl;
       }
     }
     {
@@ -1028,15 +946,13 @@ test_str_to_int(const char* type) /*throw (eh::Exception)*/
       ostr << j;
       if (String::StringManip::str_to_int(ostr.str(), k))
       {
-        std::cerr << "str_to_int not failed with " <<
-          type << " " << j << std::endl; 
+        std::cerr << "str_to_int not failed with " << type << " " << j << std::endl;
       }
     }
   }
 }
 
-void
-test_str_to_int() /*throw (eh::Exception)*/
+void test_str_to_int() /*throw (eh::Exception)*/
 {
   //test_str_to_int<bool>("bool");
   test_str_to_int<short>("short");
@@ -1048,8 +964,7 @@ const struct
   const char* src;
   size_t octets;
   const char* dst;
-} UTF8_SUBSTR[] =
-{
+} UTF8_SUBSTR[] = {
   { "abc", 10, "abc" },
   { "abc", 0, "" },
   { "abc", 1, "a" },
@@ -1077,8 +992,7 @@ const struct
   { 0, 0, 0 }
 };
 
-void
-test_utf8_substr() /*throw (eh::Exception)*/
+void test_utf8_substr() /*throw (eh::Exception)*/
 {
   for (size_t i = 0; UTF8_SUBSTR[i].src; i++)
   {
@@ -1096,23 +1010,20 @@ test_utf8_substr() /*throw (eh::Exception)*/
       }
       else
       {
-        std::cerr << FNS << i << " got '" << dst << "' but not error " <<
-          std::endl;
+        std::cerr << FNS << i << " got '" << dst << "' but not error " << std::endl;
       }
     }
     else
     {
       if (UTF8_SUBSTR[i].dst)
       {
-        std::cerr << FNS << i << " got error but not '" <<
-          UTF8_SUBSTR[i].dst << "'" << std::endl;
+        std::cerr << FNS << i << " got error but not '" << UTF8_SUBSTR[i].dst << "'" << std::endl;
       }
     }
   }
 }
 
-void
-test_hex() /*throw (eh::Exception)*/
+void test_hex() /*throw (eh::Exception)*/
 {
   struct Hex
   {
@@ -1122,8 +1033,7 @@ test_hex() /*throw (eh::Exception)*/
     const char* skip;
   };
 
-  static const Hex hex[] =
-  {
+  static const Hex hex[] = {
     { "", 0, "", "" },
     { "\x0F", 1, "0F", "F" },
     { "\xFE", 1, "FE", "FE" },
@@ -1153,30 +1063,27 @@ test_hex() /*throw (eh::Exception)*/
     }
 
     Generics::ArrayByte data;
-    size_t size = String::StringManip::hex_decode(
-      String::SubString(h.noskip), data, false);
+    size_t size = String::StringManip::hex_decode( String::SubString(h.noskip), data, false);
     if (size != h.size || memcmp(data.get(), h.data, size))
     {
       std::cerr << "Failed hex_decode(noskip, false)" << std::endl;
     }
     data.reset(0);
-    size = String::StringManip::hex_decode(
-      String::SubString(h.noskip), data, true);
+    size = String::StringManip::hex_decode( String::SubString(h.noskip), data, true);
     if (size != h.size || memcmp(data.get(), h.data, size))
     {
       std::cerr << "Failed hex_decode(noskip, true)" << std::endl;
     }
+
     if (*h.data)
     {
       data.reset(0);
       try
       {
-        size = String::StringManip::hex_decode(
-          String::SubString(h.skip), data, false);
+        size = String::StringManip::hex_decode( String::SubString(h.skip), data, false);
         if (*h.noskip == '0')
         {
-          std::cerr << "Errorneously succeded hex_decode(skip, false)" <<
-            std::endl;
+          std::cerr << "Errorneously succeded hex_decode(skip, false)" << std::endl;
         }
         else
         {
@@ -1190,13 +1097,11 @@ test_hex() /*throw (eh::Exception)*/
       {
         if (*h.noskip != '0')
         {
-          std::cerr << "Errorneously failed hex_decode(skip, false)" <<
-            std::endl;
+          std::cerr << "Errorneously failed hex_decode(skip, false)" << std::endl;
         }
       }
       data.reset(0);
-      size = String::StringManip::hex_decode(
-        String::SubString(h.skip), data, true);
+      size = String::StringManip::hex_decode( String::SubString(h.skip), data, true);
       if (size != h.size || memcmp(data.get(), h.data, size))
       {
         std::cerr << "Failed hex_decode(skip, true) " << std::endl;
@@ -1205,13 +1110,12 @@ test_hex() /*throw (eh::Exception)*/
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   return 0;
 
   srand(time(0));
-  
+
   try
   {
     std::cout << "StringManip test started.." << std::endl;

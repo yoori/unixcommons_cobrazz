@@ -11,12 +11,10 @@ namespace Logging
   {
   }
 
-  unsigned long
-  DistributorLogger::log_level() noexcept
+  unsigned long DistributorLogger::log_level() noexcept
   {
     unsigned long level = 0;
-    for (Loggers::iterator it(loggers_.begin());
-      it != loggers_.end(); ++it)
+    for (Loggers::iterator it(loggers_.begin()); it != loggers_.end(); ++it)
     {
       unsigned long value = (*it)->log_level();
       if (value > level)
@@ -27,11 +25,9 @@ namespace Logging
     return level;
   }
 
-  void
-  DistributorLogger::log_level(unsigned long value) noexcept
+  void DistributorLogger::log_level(unsigned long value) noexcept
   {
-    for (Loggers::iterator it(loggers_.begin());
-      it != loggers_.end(); ++it)
+    for (Loggers::iterator it(loggers_.begin()); it != loggers_.end(); ++it)
     {
       (*it)->log_level(value);
     }
@@ -42,8 +38,7 @@ namespace Logging
     unsigned long severity, const char* aspect, const char* code) noexcept
   {
     bool result = false;
-    for (Loggers::iterator it(loggers_.begin());
-      it != loggers_.end(); ++it)
+    for (Loggers::iterator it(loggers_.begin()); it != loggers_.end(); ++it)
     {
       if ((*it)->log(text, severity, aspect, code))
       {
@@ -64,8 +59,7 @@ namespace Logging
   {
   }
 
-  SeveritySelectorLogger::SeveritySelectorLogger(
-    unsigned long high, Logger* logger) noexcept
+  SeveritySelectorLogger::SeveritySelectorLogger( unsigned long high, Logger* logger) noexcept
     : SimpleLoggerHolder(logger), low_(0), high_(high)
   {
   }
@@ -74,8 +68,7 @@ namespace Logging
   {
   }
 
-  unsigned long
-  SeveritySelectorLogger::log_level() noexcept
+  unsigned long SeveritySelectorLogger::log_level() noexcept
   {
     unsigned long level = SimpleLoggerHolder::log_level();
     return level > high_ ? high_ : level;

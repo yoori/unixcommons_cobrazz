@@ -4,8 +4,7 @@
 
 using String::RegEx;
 
-int
-main()
+int main()
 {
   try
   {
@@ -57,6 +56,7 @@ main()
       {
         std::cerr << "Failed to find" << std::endl;
       }
+
       if (result.size() != 2)
       {
         std::cerr << "Invalid search result" << std::endl;
@@ -76,8 +76,7 @@ main()
     }
 
     {
-      Generics::Allocator::Base_var alloc(
-        new Generics::Allocator::Universal);
+      Generics::Allocator::Base_var alloc( new Generics::Allocator::Universal);
 
       const String::SubString REGEXP("");
       const String::SubString SUBJECT("123");
@@ -91,9 +90,8 @@ main()
     }
 
     {
-      typedef std::allocator<char> Allocator;
-      Generics::Allocator::Base_var alloc(
-        Generics::Allocator::Template<Allocator>::allocator());
+      using Allocator = std::allocator<char>;
+      Generics::Allocator::Base_var alloc( Generics::Allocator::Template<Allocator>::allocator());
 
       const String::SubString REGEXP("b(.)");
       const String::SubString SUBJECT("abcabc");

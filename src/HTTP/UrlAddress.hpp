@@ -77,15 +77,13 @@ namespace HTTP
     /**
      * Resets data members to have default values
      */
-    void
-    clear() noexcept;
+    void clear() noexcept;
 
     /**
      * Splits URL into its parts, parts are stored in data members.
      * @param url URL to split
      */
-    void
-    split_url(const String::SubString& url)
+    void split_url(const String::SubString& url)
       /*throw (eh::Exception)*/;
   };
 
@@ -107,8 +105,7 @@ namespace HTTP
      * Constructor
      * Splits the supplied URL and verifies it.
      */
-    explicit
-    URLAddress(const String::SubString& url)
+    explicit URLAddress(const String::SubString& url)
       /*throw (eh::Exception, InvalidURL)*/;
 
     /**
@@ -140,98 +137,83 @@ namespace HTTP
     /**
      * Destructor
      */
-    virtual
-    ~URLAddress() noexcept;
+    virtual ~URLAddress() noexcept;
 
     /**
      * Assignment operator
      * @param another source URL object
      * @return reference to the object
      */
-    URLAddress&
-    operator =(const URLAddress& another) /*throw (eh::Exception)*/;
+    URLAddress& operator =(const URLAddress& another) /*throw (eh::Exception)*/;
 
-    URLAddress&
-    operator =(URLAddress&& another) /*throw (eh::Exception)*/;
+    URLAddress& operator =(URLAddress&& another) /*throw (eh::Exception)*/;
 
     /**
      * Assigns new URL to object
      * @param value new URL to be assigned to object
      */
-    void
-    url(const String::SubString& value)
+    void url(const String::SubString& value)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
-    void
-    url(std::string_view value)
+    void url(std::string_view value)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
-    void
-    url(const std::string& value)
+    void url(const std::string& value)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
     /**
      * Full URL stored
      * @return full URL
      */
-    const std::string&
-    url() const noexcept;
+    const std::string& url() const noexcept;
 
     /**
      * Scheme part of the URL
      * @return scheme part
      */
-    const String::SubString&
-    scheme() const noexcept;
+    const String::SubString& scheme() const noexcept;
 
     /**
      * Authority part of the URL
      * @return authority part
      */
-    const String::SubString&
-    authority() const noexcept;
+    const String::SubString& authority() const noexcept;
 
     /**
      * Path part of the URL
      * @return path part
      */
-    const String::SubString&
-    path() const noexcept;
+    const String::SubString& path() const noexcept;
 
     /**
      * Query part of the URL
      * @return query part
      */
-    const String::SubString&
-    query() const noexcept;
+    const String::SubString& query() const noexcept;
 
     /**
      * Fragment part of the URL
      * @return fragment part
      */
-    const String::SubString&
-    fragment() const noexcept;
+    const String::SubString& fragment() const noexcept;
 
     /**
      * Userinfo part of the URL
      * @return userinfo part
      */
-    const String::SubString&
-    userinfo() const noexcept;
+    const String::SubString& userinfo() const noexcept;
 
     /**
      * Host part of the URL
      * @return host part
      */
-    const String::SubString&
-    host() const noexcept;
+    const String::SubString& host() const noexcept;
 
     /**
      * Port part of the URL
      * @return port part
      */
-    const String::SubString&
-    port() const noexcept;
+    const String::SubString& port() const noexcept;
 
 
     /**
@@ -240,35 +222,26 @@ namespace HTTP
      * @param url URL to use
      * @return an object of the corresponding class
      */
-    static
-    URLAddress*
-    create_address(const String::SubString& url)
+    static URLAddress* create_address(const String::SubString& url)
       /*throw (InvalidURL, Exception, eh::Exception)*/;
 
   protected:
-    virtual
-    void
-    assign_(const String::SubString& url)
+    virtual void assign_(const String::SubString& url)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
     /**
      * Assembly URL from url parts and save it to url_
      * parts will set according new url_ value.
      */
-    void
-    assign_url_parts_(const UrlParts& parts, bool check)
+    void assign_url_parts_(const UrlParts& parts, bool check)
       /*throw (eh::Exception, InvalidURL)*/;
 
-    void
-    url_without_check_(const String::SubString& url)
+    void url_without_check_(const String::SubString& url)
       /*throw (eh::Exception)*/;
 
-    void
-    move_from_(URLAddress&& another) /*throw (eh::Exception)*/;
+    void move_from_(URLAddress&& another) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    specific_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
+    virtual void specific_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
 
     std::string url_;
     ExtendedUrlParts parts_;
@@ -286,8 +259,7 @@ namespace HTTP
      * Splits HTTP URL supplied and verifies it.
      * @param url HTTP URL
      */
-    explicit
-    HTTPAddress(const String::SubString& url = String::SubString())
+    explicit HTTPAddress(const String::SubString& url = String::SubString())
       /*throw (InvalidURL, eh::Exception)*/;
 
     /**
@@ -316,38 +288,32 @@ namespace HTTP
 
     HTTPAddress(HTTPAddress&& another) /*throw (eh::Exception)*/;
 
-    HTTPAddress&
-    operator =(const HTTPAddress& another) = default;
+    HTTPAddress& operator =(const HTTPAddress& another) = default;
 
-    HTTPAddress&
-    operator =(HTTPAddress&& another) /*throw (eh::Exception)*/;
+    HTTPAddress& operator =(HTTPAddress&& another) /*throw (eh::Exception)*/;
 
     /**
      * Destructor
      */
-    virtual
-    ~HTTPAddress() noexcept = default;
+    virtual ~HTTPAddress() noexcept = default;
 
     /**
      * Port number of the HTTP URL
      * @return port number
      */
-    unsigned short
-    port_number() const noexcept;
+    unsigned short port_number() const noexcept;
 
     /**
      * If HTTP URL uses secure scheme
      * @return whether secure or not
      */
-    bool
-    secure() const noexcept;
+    bool secure() const noexcept;
 
     /**
      * If the port is default for the scheme
      * @return whether default port or not
      */
-    bool
-    is_default_port() const noexcept;
+    bool is_default_port() const noexcept;
 
     /**
      * Returns URL combined of the selected parts of the original URL
@@ -355,8 +321,7 @@ namespace HTTP
      * @param str string to place result to
      * @return reference to str
      */
-    const std::string&
-    get_view(unsigned long flags, std::string& str) const
+    const std::string& get_view(unsigned long flags, std::string& str) const
       /*throw (eh::Exception)*/;
 
     enum VW_FLAGS
@@ -376,17 +341,12 @@ namespace HTTP
     };
 
   protected:
-    HTTPAddress(const String::SubString& url,
-      bool strict_url)
+    HTTPAddress(const String::SubString& url, bool strict_url)
       /*throw (InvalidURL, eh::Exception)*/;
 
-    static
-    int
-    get_default_port_(bool secure) noexcept;
+    static int get_default_port_(bool secure) noexcept;
 
-    virtual
-    void
-    assign_(const String::SubString& url)
+    virtual void assign_(const String::SubString& url)
       /*throw (eh::Exception, Exception, InvalidURL)*/;
 
     void
@@ -395,13 +355,9 @@ namespace HTTP
       const String::SubString& path, const String::SubString& query,
       const String::SubString& fragment) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    specific_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
+    virtual void specific_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
 
-    virtual
-    bool
-    additional_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
+    virtual bool additional_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
 
     bool strict_;
     unsigned short port_number_;
@@ -424,16 +380,13 @@ namespace HTTP
      * Converts host name with punicode if required.
      * @param url HTTP URL
      */
-    explicit
-    BrowserAddress(const String::SubString& url = String::SubString())
+    explicit BrowserAddress(const String::SubString& url = String::SubString())
       /*throw (InvalidURL, eh::Exception)*/;
 
-    explicit
-    BrowserAddress(std::string_view url)
+    explicit BrowserAddress(std::string_view url)
       /*throw (InvalidURL, eh::Exception)*/;
 
-    explicit
-    BrowserAddress(const std::string& url)
+    explicit BrowserAddress(const std::string& url)
       /*throw (InvalidURL, eh::Exception)*/;
 
     /**
@@ -462,32 +415,25 @@ namespace HTTP
 
     BrowserAddress(BrowserAddress&& another) /*throw (eh::Exception)*/;
 
-    BrowserAddress&
-    operator =(const BrowserAddress& another) = default;
+    BrowserAddress& operator =(const BrowserAddress& another) = default;
 
-    BrowserAddress&
-    operator =(BrowserAddress&& another) /*throw (eh::Exception)*/;
+    BrowserAddress& operator =(BrowserAddress&& another) /*throw (eh::Exception)*/;
 
     /**
      * Destructor
      */
-    virtual
-    ~BrowserAddress() noexcept = default;
+    virtual ~BrowserAddress() noexcept = default;
 
     /**
      * Unicode host part of the URL
      * @return unicode host part
      */
-    String::SubString
-    unicode_host() const noexcept;
+    String::SubString unicode_host() const noexcept;
 
   protected:
-    virtual
-    bool
-    additional_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
+    virtual bool additional_checks_() /*throw (InvalidURL, Exception, eh::Exception)*/;
 
-    void
-    process_host_(const String::SubString& host)
+    void process_host_(const String::SubString& host)
       /*throw (InvalidURL, eh::Exception)*/;
 
     std::string decoded_host_;
@@ -508,8 +454,7 @@ namespace HTTP
      * @param error error message if URL is not valid
      * @return if supplied URL parts are valid
      */
-    bool
-    operator ()(const String::SubString& url, const UrlParts& parts,
+    bool operator ()(const String::SubString& url, const UrlParts& parts,
       std::string& error) /*throw (eh::Exception)*/;
   };
 
@@ -524,8 +469,7 @@ namespace HTTP
      * @param url URL to check for validness
      * @return if supplied URL is valid
      */
-    bool
-    operator ()(const String::SubString& url) /*throw (eh::Exception)*/;
+    bool operator ()(const String::SubString& url) /*throw (eh::Exception)*/;
   };
 
   /**
@@ -537,8 +481,7 @@ namespace HTTP
     /**
      * Destructor
      */
-    virtual
-    ~HTTPChecker() noexcept;
+    virtual ~HTTPChecker() noexcept;
 
     /**
      * Checks HTTP URL for validness
@@ -547,8 +490,7 @@ namespace HTTP
      * @param strict if prefix http:// or https:// is required
      * @return if supplied HTTP URL is valid
      */
-    bool
-    operator ()(const String::SubString& url, std::string* error = 0,
+    bool operator ()(const String::SubString& url, std::string* error = 0,
       bool strict = true) /*throw (eh::Exception)*/;
 
   protected:
@@ -567,8 +509,7 @@ namespace HTTP
     /**
      * Destructor
      */
-    virtual
-    ~BrowserChecker() noexcept = default;
+    virtual ~BrowserChecker() noexcept = default;
 
     /**
      * Checks HTTP URL for validness
@@ -576,8 +517,7 @@ namespace HTTP
      * @param error error message if URL is not valid
      * @return if supplied HTTP URL is valid
      */
-    bool
-    operator ()(const String::SubString& url, std::string* error = 0)
+    bool operator ()(const String::SubString& url, std::string* error = 0)
       /*throw (eh::Exception)*/;
 
   protected:
@@ -595,8 +535,7 @@ namespace HTTP
    * @param url url to convert
    * @return normalized url
    */
-  std::string
-  normalize_http_address(const String::SubString& url)
+  std::string normalize_http_address(const String::SubString& url)
     /*throw (eh::Exception)*/;
 
   /**
@@ -604,8 +543,7 @@ namespace HTTP
    * @param url url to convert
    * @return keywords from url
    */
-  std::string
-  keywords_from_http_address(const String::SubString& url)
+  std::string keywords_from_http_address(const String::SubString& url)
     /*throw (eh::Exception)*/;
 }
 
@@ -619,8 +557,7 @@ namespace HTTP
   // UrlParts class
   //
 
-  inline
-  UrlParts::UrlParts() noexcept
+  inline UrlParts::UrlParts() noexcept
     : has_scheme(false), has_userinfo(false), has_host(false),
       has_port(false), has_path(false), has_query(false),
       has_fragment(false)
@@ -632,70 +569,51 @@ namespace HTTP
   // URLAddress class
   //
 
-  inline
-  URLAddress::~URLAddress() noexcept
+  inline URLAddress::~URLAddress() noexcept
   {
   }
 
-  inline
-  const std::string&
-  URLAddress::url() const noexcept
+  inline const std::string& URLAddress::url() const noexcept
   {
     return url_;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::scheme() const noexcept
+  inline const String::SubString& URLAddress::scheme() const noexcept
   {
     return parts_.scheme;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::authority() const noexcept
+  inline const String::SubString& URLAddress::authority() const noexcept
   {
     return parts_.authority;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::path() const noexcept
+  inline const String::SubString& URLAddress::path() const noexcept
   {
     return parts_.path;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::query() const noexcept
+  inline const String::SubString& URLAddress::query() const noexcept
   {
     return parts_.query;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::fragment() const noexcept
+  inline const String::SubString& URLAddress::fragment() const noexcept
   {
     return parts_.fragment;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::userinfo() const noexcept
+  inline const String::SubString& URLAddress::userinfo() const noexcept
   {
     return parts_.userinfo;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::host() const noexcept
+  inline const String::SubString& URLAddress::host() const noexcept
   {
     return parts_.host;
   }
 
-  inline
-  const String::SubString&
-  URLAddress::port() const noexcept
+  inline const String::SubString& URLAddress::port() const noexcept
   {
     return parts_.port;
   }
@@ -705,23 +623,17 @@ namespace HTTP
   // HTTPAddress class
   //
 
-  inline
-  unsigned short
-  HTTPAddress::port_number() const noexcept
+  inline unsigned short HTTPAddress::port_number() const noexcept
   {
     return port_number_;
   }
 
-  inline
-  bool
-  HTTPAddress::secure() const noexcept
+  inline bool HTTPAddress::secure() const noexcept
   {
     return secure_;
   }
 
-  inline
-  bool
-  HTTPAddress::is_default_port() const noexcept
+  inline bool HTTPAddress::is_default_port() const noexcept
   {
     return default_port_;
   }
@@ -731,9 +643,7 @@ namespace HTTP
   // BrowserAddress
   //
 
-  inline
-  String::SubString
-  BrowserAddress::unicode_host() const noexcept
+  inline String::SubString BrowserAddress::unicode_host() const noexcept
   {
     return decoded_host_;
   }
@@ -743,8 +653,7 @@ namespace HTTP
   // HTTPChecker class
   //
 
-  inline
-  HTTPChecker::~HTTPChecker() noexcept
+  inline HTTPChecker::~HTTPChecker() noexcept
   {
   }
 }

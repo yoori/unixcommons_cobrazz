@@ -14,11 +14,8 @@
 #endif
 
 
-namespace Generics
+namespace Generics::HashHelper
 {
-  namespace HashHelper
-  {
-    const std::size_t Murmur64::MULTIPLIER_;
-    const std::size_t Murmur64::R_;
-  }
+  const std::size_t Murmur64::MULTIPLIER_;
+  const std::size_t Murmur64::R_;
 }

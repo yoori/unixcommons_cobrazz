@@ -1,471 +1,450 @@
-namespace Stream
+namespace Stream::MemoryStream
 {
-  namespace MemoryStream
+  //
+  // InputMemoryBuffer class
+  //
+
+  template <typename Elem, typename Traits>
+  InputMemoryBuffer<Elem, Traits>::InputMemoryBuffer(Pointer ptr,
+    Size size) /*throw (eh::Exception)*/
   {
-    //
-    // InputMemoryBuffer class
-    //
+    this->setg(ptr, ptr, ptr + size);
+  }
 
-    template <typename Elem, typename Traits>
-    InputMemoryBuffer<Elem, Traits>::InputMemoryBuffer(Pointer ptr,
-      Size size) /*throw (eh::Exception)*/
+  template <typename Elem, typename Traits>
+  typename InputMemoryBuffer<Elem, Traits>::ConstPointer
+  InputMemoryBuffer<Elem, Traits>::data() const noexcept
+  {
+    return this->gptr();
+  }
+
+  template <typename Elem, typename Traits>
+  typename InputMemoryBuffer<Elem, Traits>::Size
+  InputMemoryBuffer<Elem, Traits>::size() const noexcept
+  {
+    return this->egptr() - this->gptr();
+  }
+
+  template <typename Elem, typename Traits>
+  typename InputMemoryBuffer<Elem, Traits>::Position
+  InputMemoryBuffer<Elem, Traits>::seekoff(Offset off,
+    std::ios_base::seekdir way, std::ios_base::openmode which)
+    /*throw (eh::Exception)*/
+  {
+    if (which != std::ios_base::in)
     {
-      this->setg(ptr, ptr, ptr + size);
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits>
-    typename InputMemoryBuffer<Elem, Traits>::ConstPointer
-    InputMemoryBuffer<Elem, Traits>::data() const noexcept
+    Position pos(off);
+
+    switch (way)
     {
-      return this->gptr();
+    case std::ios_base::beg:
+      break;
+
+    case std::ios_base::cur:
+      pos += this->gptr() - this->eback();
+      break;
+
+    case std::ios_base::end:
+      pos = this->egptr() - this->eback() + pos;
+      break;
+
+    default:
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits>
-    typename InputMemoryBuffer<Elem, Traits>::Size
-    InputMemoryBuffer<Elem, Traits>::size() const noexcept
+    return seekpos(pos, which);
+  }
+
+  template <typename Elem, typename Traits>
+  typename InputMemoryBuffer<Elem, Traits>::Position
+  InputMemoryBuffer<Elem, Traits>::seekpos(Position pos,
+    std::ios_base::openmode which) /*throw (eh::Exception)*/
+  {
+    if (which != std::ios_base::in)
     {
-      return this->egptr() - this->gptr();
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits>
-    typename InputMemoryBuffer<Elem, Traits>::Position
-    InputMemoryBuffer<Elem, Traits>::seekoff(Offset off,
-      std::ios_base::seekdir way, std::ios_base::openmode which)
-      /*throw (eh::Exception)*/
+    Offset offset(pos);
+
+    if (offset < 0 || offset > this->egptr() - this->eback())
     {
-      if (which != std::ios_base::in)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      Position pos(off);
-
-      switch (way)
-      {
-      case std::ios_base::beg:
-        break;
-
-      case std::ios_base::cur:
-        pos += this->gptr() - this->eback();
-        break;
-
-      case std::ios_base::end:
-        pos = this->egptr() - this->eback() + pos;
-        break;
-
-      default:
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      return seekpos(pos, which);
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits>
-    typename InputMemoryBuffer<Elem, Traits>::Position
-    InputMemoryBuffer<Elem, Traits>::seekpos(Position pos,
-      std::ios_base::openmode which) /*throw (eh::Exception)*/
+    return pos;
+  }
+
+  template <typename Elem, typename Traits>
+  typename InputMemoryBuffer<Elem, Traits>::Int
+  InputMemoryBuffer<Elem, Traits>::underflow() noexcept
+  {
+    return this->gptr() < this->egptr() ? *(this->gptr()) : Traits::eof();
+  }
+
+
+  //
+  // OutputMemoryBuffer class
+  //
+
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    OutputMemoryBuffer(Size initial_size,
+    const AllocatorInitializer& allocator_initializer) /*throw (eh::Exception)*/
+    : allocator_(allocator_initializer), max_offset_(0)
+  {
+    Pointer ptr = 0;
+    if (initial_size > 0)
     {
-      if (which != std::ios_base::in)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
+      ptr = allocator_.allocate(initial_size);
+    }
+    this->setp(ptr, ptr + initial_size);
+  }
 
-      Offset offset(pos);
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    ~OutputMemoryBuffer() noexcept
+  {
+    allocator_.deallocate(this->pbase(), this->epptr() - this->pbase());
+    this->setp(0, 0);
+  }
 
-      if (offset < 0 || offset > this->egptr() - this->eback())
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  typename OutputMemoryBuffer<Elem, Traits, Allocator,
+    AllocatorInitializer>::ConstPointer
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    data() const noexcept
+  {
+    return this->pbase();
+  }
 
-      return pos;
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  typename OutputMemoryBuffer<Elem, Traits, Allocator,
+    AllocatorInitializer>::Size
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    size() const noexcept
+  {
+    return this->pptr() - this->pbase();
+  }
+
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  typename OutputMemoryBuffer<Elem, Traits, Allocator,
+    AllocatorInitializer>::Position
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    seekoff(Offset off, std::ios_base::seekdir way,
+    std::ios_base::openmode which) /*throw (eh::Exception)*/
+  {
+    if (which != std::ios_base::out)
+    {
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits>
-    typename InputMemoryBuffer<Elem, Traits>::Int
-    InputMemoryBuffer<Elem, Traits>::underflow() noexcept
+    Offset current = this->pptr() - this->pbase();
+    if (current > max_offset_)
     {
-      return this->gptr() < this->egptr() ? *(this->gptr()) : Traits::eof();
+      max_offset_ = current;
     }
 
+    Position pos(off);
 
-    //
-    // OutputMemoryBuffer class
-    //
-
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      OutputMemoryBuffer(Size initial_size,
-      const AllocatorInitializer& allocator_initializer) /*throw (eh::Exception)*/
-      : allocator_(allocator_initializer), max_offset_(0)
+    switch (way)
     {
-      Pointer ptr = 0;
-      if (initial_size > 0)
-      {
-        ptr = allocator_.allocate(initial_size);
-      }
-      this->setp(ptr, ptr + initial_size);
+    case std::ios_base::beg:
+      break;
+
+    case std::ios_base::cur:
+      pos += current;
+      break;
+
+    case std::ios_base::end:
+      pos = max_offset_ + pos;
+      break;
+
+    default:
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      ~OutputMemoryBuffer() noexcept
+    return seekpos(pos, which);
+  }
+
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  typename OutputMemoryBuffer<Elem, Traits, Allocator,
+    AllocatorInitializer>::Position
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    seekpos(Position pos, std::ios_base::openmode which)
+    /*throw (eh::Exception)*/
+  {
+    if (which != std::ios_base::out)
     {
-      allocator_.deallocate(this->pbase(), this->epptr() - this->pbase());
-      this->setp(0, 0);
+      return Position(Offset(-1)); // Standard requirements
     }
 
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::ConstPointer
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      data() const noexcept
+    Offset current = this->pptr() - this->pbase();
+    if (current > max_offset_)
     {
-      return this->pbase();
+      max_offset_ = current;
     }
 
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Size
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      size() const noexcept
+    Offset offset(pos);
+    if (offset < 0 || offset > max_offset_)
     {
-      return this->pptr() - this->pbase();
+      return Position(Offset(-1)); // Standard requirements
     }
+    this->setp(this->pbase(), this->epptr());
+    this->pbump(offset);
 
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Position
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      seekoff(Offset off, std::ios_base::seekdir way,
-      std::ios_base::openmode which) /*throw (eh::Exception)*/
+    return pos;
+  }
+
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  bool
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    extend() /*throw (eh::Exception)*/
+  {
+    Size old_size = this->epptr() - this->pbase();
+    Offset offset = this->pptr() - this->pbase();
+
+    Size new_size = 4096;
+    while (new_size <= old_size)
     {
-      if (which != std::ios_base::out)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      Offset current = this->pptr() - this->pbase();
-      if (current > max_offset_)
-      {
-        max_offset_ = current;
-      }
-
-      Position pos(off);
-
-      switch (way)
-      {
-      case std::ios_base::beg:
-        break;
-
-      case std::ios_base::cur:
-        pos += current;
-        break;
-
-      case std::ios_base::end:
-        pos = max_offset_ + pos;
-        break;
-
-      default:
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      return seekpos(pos, which);
-    }
-
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Position
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      seekpos(Position pos, std::ios_base::openmode which)
-      /*throw (eh::Exception)*/
-    {
-      if (which != std::ios_base::out)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-
-      Offset current = this->pptr() - this->pbase();
-      if (current > max_offset_)
-      {
-        max_offset_ = current;
-      }
-
-      Offset offset(pos);
-      if (offset < 0 || offset > max_offset_)
-      {
-        return Position(Offset(-1)); // Standard requirements
-      }
-      this->setp(this->pbase(), this->epptr());
-      this->pbump(offset);
-
-      return pos;
-    }
-
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    bool
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      extend() /*throw (eh::Exception)*/
-    {
-      Size old_size = this->epptr() - this->pbase();
-      Offset offset = this->pptr() - this->pbase();
-
-      Size new_size = 4096;
-      while (new_size <= old_size)
-      {
-        new_size <<= 1;
-        if (!new_size)
-        {
-          return false;
-        }
-      }
-
-      Pointer ptr = allocator_.allocate(new_size);
-      if (!ptr)
+      new_size <<= 1;
+      if (!new_size)
       {
         return false;
       }
-
-      if (old_size > 0)
-      {
-        Traits::copy(ptr, this->pbase(), old_size);
-        allocator_.deallocate(this->pbase(), old_size);
-      }
-
-      this->setp(ptr, ptr + new_size);
-      this->pbump(offset);
-      return true;
     }
 
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer>
-    typename OutputMemoryBuffer<Elem, Traits, Allocator,
-      AllocatorInitializer>::Int
-    OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
-      overflow(Int c) /*throw (eh::Exception)*/
+    Pointer ptr = allocator_.allocate(new_size);
+    if (!ptr)
     {
-      if (!extend() || Traits::eq_int_type(c, Traits::eof()))
-      {
-        return Traits::eof();
-      }
-
-      *this->pptr() = c;
-      this->pbump(1);
-      return c;
+      return false;
     }
 
-
-    //
-    // MemoryBufferHolder class
-    //
-
-    template <typename Buffer>
-    MemoryBufferHolder<Buffer>::MemoryBufferHolder() /*throw (eh::Exception)*/
+    if (old_size > 0)
     {
+      Traits::copy(ptr, this->pbase(), old_size);
+      allocator_.deallocate(this->pbase(), old_size);
     }
 
-    template <typename Buffer>
-    template <typename T>
-    MemoryBufferHolder<Buffer>::MemoryBufferHolder(T arg)
-      /*throw (eh::Exception)*/
-      : buffer_(arg)
-    {
-    }
-
-    template <typename Buffer>
-    template <typename T1, typename T2>
-    MemoryBufferHolder<Buffer>::MemoryBufferHolder(T1 arg1, T2 arg2)
-      /*throw (eh::Exception)*/
-      : buffer_(arg1, arg2)
-    {
-    }
-
-    template <typename Buffer>
-    typename MemoryBufferHolder<Buffer>::SubString
-    MemoryBufferHolder<Buffer>::str() const /*throw (eh::Exception)*/
-    {
-      return SubString(this->buffer()->data(),
-        this->buffer()->size());
-    }
-
-    template <typename Buffer>
-    template <typename Traits, typename Checker>
-    String::BasicSubString<const typename MemoryBufferHolder<Buffer>::Elem,
-      Traits, Checker>
-    MemoryBufferHolder<Buffer>::str() const /*throw (eh::Exception)*/
-    {
-      return String::BasicSubString<const Elem, Traits, Checker>(
-        this->buffer()->data(),
-        this->buffer()->size());
-    }
-
-    template <typename Buffer>
-    Buffer*
-    MemoryBufferHolder<Buffer>::buffer() noexcept
-    {
-      return &buffer_;
-    }
-
-    template <typename Buffer>
-    const Buffer*
-    MemoryBufferHolder<Buffer>::buffer() const noexcept
-    {
-      return &buffer_;
-    }
-
-
-    //
-    // InputMemoryStream class
-    //
-
-    template <typename Elem, typename Traits>
-    InputMemoryStream<Elem, Traits>::InputMemoryStream(ConstPointer data)
-      /*throw (eh::Exception)*/
-      : Holder(const_cast<Pointer>(data), Traits::length(data)),
-        Stream(this->buffer())
-    {
-    }
-
-    template <typename Elem, typename Traits>
-    InputMemoryStream<Elem, Traits>::InputMemoryStream(
-      ConstPointer data, Size size) /*throw (eh::Exception)*/
-      : Holder(const_cast<Pointer>(data), size), Stream(this->buffer())
-    {
-    }
-
-    template <typename Elem, typename Traits>
-    template <typename Char, typename STraits, typename Checker>
-    InputMemoryStream<Elem, Traits>::InputMemoryStream(
-      const String::BasicSubString< Char, STraits, Checker>& str)
-      /*throw (eh::Exception)*/
-      : Holder(const_cast<Pointer>(str.data()), str.size()),
-        Stream(this->buffer())
-    {
-    }
-
-    template <typename Elem, typename Traits>
-    template <typename Char, typename STraits, typename Alloc>
-    InputMemoryStream<Elem, Traits>::InputMemoryStream(
-      const std::basic_string< Char, STraits, Alloc>& str)
-      /*throw (eh::Exception)*/
-      : Holder(const_cast<Pointer>(str.data()), str.size()),
-        Stream(this->buffer())
-    {
-    }
-
-
-    //
-    // OutputMemoryStream class
-    //
-
-    template <typename Elem, typename Traits, typename Allocator,
-      typename AllocatorInitializer, const size_t SIZE>
-    OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
-      OutputMemoryStream(typename Allocator::size_type initial_size,
-        const AllocatorInitializer& allocator_initializer)
-      /*throw (eh::Exception)*/
-      : Holder(initial_size, allocator_initializer), Stream(this->buffer())
-    {
-    }
-
-    namespace Allocator
-    {
-      //
-      // Simple class
-      //
-
-      template <typename Elem, const size_t SIZE, typename Buffer,
-        typename BufferInitializer>
-      Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple() noexcept
-        : allocated_(false)
-      {
-        buffer_[SIZE - 1] = '\0';
-      }
-
-      template <typename Elem, const size_t SIZE, typename Buffer,
-        typename BufferInitializer>
-      Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple(
-        BufferInitializer buffer_initializer) noexcept
-        : buffer_(buffer_initializer), allocated_(false)
-      {
-        buffer_[SIZE - 1] = '\0';
-      }
-
-      template <typename Elem, const size_t SIZE, typename Buffer,
-        typename BufferInitializer>
-      typename Simple<Elem, SIZE, Buffer, BufferInitializer>::Pointer
-      Simple<Elem, SIZE, Buffer, BufferInitializer>::allocate(
-        Size size, const void*) noexcept
-      {
-        if (allocated_ || size >= SIZE)
-        {
-          return 0;
-        }
-        allocated_ = true;
-        return buffer_;
-      }
-
-      template <typename Elem, const size_t SIZE, typename Buffer,
-        typename BufferInitializer>
-      void
-      Simple<Elem, SIZE, Buffer, BufferInitializer>::deallocate(
-        Pointer ptr, Size size)
-        noexcept
-      {
-        if (!allocated_ || ptr != buffer_ || size >= SIZE)
-        {
-          return;
-        }
-        allocated_ = false;
-      }
-
-
-      //
-      // ArrayBuffer class
-      //
-
-      template <typename Elem, const size_t SIZE, typename Initializer>
-      ArrayBuffer<Elem, SIZE, Initializer>::ArrayBuffer(
-        Initializer /*initializer*/) noexcept
-      {
-      }
-
-      template <typename Elem, const size_t SIZE, typename Initializer>
-      ArrayBuffer<Elem, SIZE, Initializer>::operator Elem*() noexcept
-      {
-        return buffer_;
-      }
-
-
-      //
-      // SimpleBuffer class
-      //
-
-      template <typename Elem, const size_t SIZE>
-      SimpleBuffer<Elem, SIZE>::SimpleBuffer(Elem* buffer) noexcept
-        : Simple<Elem, SIZE, Elem*>(buffer)
-      {
-      }
-
-
-      //
-      // SimpleStack class
-      //
-
-      template <typename Elem, const size_t SIZE>
-      SimpleStack<Elem, SIZE>::SimpleStack(size_t /*allocator_initializer*/)
-        noexcept
-      {
-      }
-    }
+    this->setp(ptr, ptr + new_size);
+    this->pbump(offset);
+    return true;
   }
 
+  template <typename Elem, typename Traits, typename Allocator, typename AllocatorInitializer>
+  typename OutputMemoryBuffer<Elem, Traits, Allocator,
+    AllocatorInitializer>::Int
+  OutputMemoryBuffer<Elem, Traits, Allocator, AllocatorInitializer>::
+    overflow(Int c) /*throw (eh::Exception)*/
+  {
+    if (!extend() || Traits::eq_int_type(c, Traits::eof()))
+    {
+      return Traits::eof();
+    }
+
+    *this->pptr() = c;
+    this->pbump(1);
+    return c;
+  }
+
+
+  //
+  // MemoryBufferHolder class
+  //
+
+  template <typename Buffer>
+  MemoryBufferHolder<Buffer>::MemoryBufferHolder() /*throw (eh::Exception)*/
+  {
+  }
+
+  template <typename Buffer>
+  template <typename T>
+  MemoryBufferHolder<Buffer>::MemoryBufferHolder(T arg)
+    /*throw (eh::Exception)*/
+    : buffer_(arg)
+  {
+  }
+
+  template <typename Buffer>
+  template <typename T1, typename T2>
+  MemoryBufferHolder<Buffer>::MemoryBufferHolder(T1 arg1, T2 arg2)
+    /*throw (eh::Exception)*/
+    : buffer_(arg1, arg2)
+  {
+  }
+
+  template <typename Buffer>
+  typename MemoryBufferHolder<Buffer>::SubString
+  MemoryBufferHolder<Buffer>::str() const /*throw (eh::Exception)*/
+  {
+    return SubString(this->buffer()->data(), this->buffer()->size());
+  }
+
+  template <typename Buffer>
+  template <typename Traits, typename Checker>
+  String::BasicSubString<const typename MemoryBufferHolder<Buffer>::Elem,
+    Traits, Checker>
+  MemoryBufferHolder<Buffer>::str() const /*throw (eh::Exception)*/
+  {
+    return String::BasicSubString<const Elem, Traits, Checker>(
+      this->buffer()->data(),
+      this->buffer()->size());
+  }
+
+  template <typename Buffer>
+  Buffer* MemoryBufferHolder<Buffer>::buffer() noexcept
+  {
+    return &buffer_;
+  }
+
+  template <typename Buffer>
+  const Buffer* MemoryBufferHolder<Buffer>::buffer() const noexcept
+  {
+    return &buffer_;
+  }
+
+
+  //
+  // InputMemoryStream class
+  //
+
+  template <typename Elem, typename Traits>
+  InputMemoryStream<Elem, Traits>::InputMemoryStream(ConstPointer data)
+    /*throw (eh::Exception)*/
+    : Holder(const_cast<Pointer>(data), Traits::length(data)),
+      Stream(this->buffer())
+  {
+  }
+
+  template <typename Elem, typename Traits>
+  InputMemoryStream<Elem, Traits>::InputMemoryStream(
+    ConstPointer data, Size size) /*throw (eh::Exception)*/
+    : Holder(const_cast<Pointer>(data), size), Stream(this->buffer())
+  {
+  }
+
+  template <typename Elem, typename Traits>
+  template <typename Char, typename STraits, typename Checker>
+  InputMemoryStream<Elem, Traits>::InputMemoryStream(
+    const String::BasicSubString< Char, STraits, Checker>& str)
+    /*throw (eh::Exception)*/
+    : Holder(const_cast<Pointer>(str.data()), str.size()),
+      Stream(this->buffer())
+  {
+  }
+
+  template <typename Elem, typename Traits>
+  template <typename Char, typename STraits, typename Alloc>
+  InputMemoryStream<Elem, Traits>::InputMemoryStream(
+    const std::basic_string< Char, STraits, Alloc>& str)
+    /*throw (eh::Exception)*/
+    : Holder(const_cast<Pointer>(str.data()), str.size()),
+      Stream(this->buffer())
+  {
+  }
+
+
+  //
+  // OutputMemoryStream class
+  //
+
+  template <typename Elem, typename Traits, typename Allocator,
+    typename AllocatorInitializer, const size_t SIZE>
+  OutputMemoryStream<Elem, Traits, Allocator, AllocatorInitializer, SIZE>::
+    OutputMemoryStream(typename Allocator::size_type initial_size,
+      const AllocatorInitializer& allocator_initializer)
+    /*throw (eh::Exception)*/
+    : Holder(initial_size, allocator_initializer), Stream(this->buffer())
+  {
+  }
+
+  namespace Allocator
+  {
+    //
+    // Simple class
+    //
+
+    template <typename Elem, const size_t SIZE, typename Buffer, typename BufferInitializer>
+    Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple() noexcept
+      : allocated_(false)
+    {
+      buffer_[SIZE - 1] = '\0';
+    }
+
+    template <typename Elem, const size_t SIZE, typename Buffer, typename BufferInitializer>
+    Simple<Elem, SIZE, Buffer, BufferInitializer>::Simple(
+      BufferInitializer buffer_initializer) noexcept
+      : buffer_(buffer_initializer), allocated_(false)
+    {
+      buffer_[SIZE - 1] = '\0';
+    }
+
+    template <typename Elem, const size_t SIZE, typename Buffer, typename BufferInitializer>
+    typename Simple<Elem, SIZE, Buffer, BufferInitializer>::Pointer
+    Simple<Elem, SIZE, Buffer, BufferInitializer>::allocate( Size size, const void*) noexcept
+    {
+      if (allocated_ || size >= SIZE)
+      {
+        return 0;
+      }
+      allocated_ = true;
+      return buffer_;
+    }
+
+    template <typename Elem, const size_t SIZE, typename Buffer, typename BufferInitializer>
+    void Simple<Elem, SIZE, Buffer, BufferInitializer>::deallocate( Pointer ptr, Size size) noexcept
+    {
+      if (!allocated_ || ptr != buffer_ || size >= SIZE)
+      {
+        return;
+      }
+      allocated_ = false;
+    }
+
+
+    //
+    // ArrayBuffer class
+    //
+
+    template <typename Elem, const size_t SIZE, typename Initializer>
+    ArrayBuffer<Elem, SIZE, Initializer>::ArrayBuffer( Initializer /*initializer*/) noexcept
+    {
+    }
+
+    template <typename Elem, const size_t SIZE, typename Initializer>
+    ArrayBuffer<Elem, SIZE, Initializer>::operator Elem*() noexcept
+    {
+      return buffer_;
+    }
+
+
+    //
+    // SimpleBuffer class
+    //
+
+    template <typename Elem, const size_t SIZE>
+    SimpleBuffer<Elem, SIZE>::SimpleBuffer(Elem* buffer) noexcept
+      : Simple<Elem, SIZE, Elem*>(buffer)
+    {
+    }
+
+
+    //
+    // SimpleStack class
+    //
+
+    template <typename Elem, const size_t SIZE>
+    SimpleStack<Elem, SIZE>::SimpleStack(size_t /*allocator_initializer*/) noexcept
+    {
+    }
+  }
+}
+
+namespace Stream
+{
 
   //
   // Buffer class
@@ -488,8 +467,7 @@ namespace Stream
 namespace eh
 {
   template <typename Tag, typename Base>
-  Composite<Tag, Base>::Composite(const Stream::Error& stream,
-    const char* code) noexcept
+  Composite<Tag, Base>::Composite(const Stream::Error& stream, const char* code) noexcept
   {
     const String::SubString& substr = stream.str();
     Base::init_(substr.data(), substr.size(), code);

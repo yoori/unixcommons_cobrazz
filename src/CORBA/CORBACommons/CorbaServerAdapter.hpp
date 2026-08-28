@@ -14,8 +14,8 @@
 
 namespace CORBACommons
 {
-  typedef std::set<std::string> ObjectsExternalNames;
-  typedef std::map<std::string, ObjectsExternalNames> EndpointObjectTable;
+  using ObjectsExternalNames = std::set<std::string>;
+  using EndpointObjectTable = std::map<std::string, ObjectsExternalNames>;
 
   /**X
    * EndpointConfig
@@ -30,13 +30,12 @@ namespace CORBACommons
 
     EndpointObjectTable objects;
 
-    int
-    bind_port() const noexcept;
+    int bind_port() const noexcept;
 
     static const int BIND_PORT_OFFSET;
   };
 
-  typedef std::vector<EndpointConfig> EndpointConfigs;
+  using EndpointConfigs = std::vector<EndpointConfig>;
 
 
   /**X CorbaConfig */
@@ -70,19 +69,16 @@ namespace CORBACommons
     CorbaServerAdapter(const CorbaConfig& corba_config,
       Logging::Logger* logger = 0) /*throw (eh::Exception)*/;
 
-    void
-    add_binding(const char* name, PortableServer::ServantBase* servant)
+    void add_binding(const char* name, PortableServer::ServantBase* servant)
       /*throw (eh::Exception, Exception)*/;
 
     void
     register_value_factory(const char* type_name,
       CORBA::ValueFactoryBase* factory) /*throw (eh::Exception, Exception)*/;
 
-    void
-    run() /*throw (eh::Exception, Exception)*/;
+    void run() /*throw (eh::Exception, Exception)*/;
 
-    OrbShutdowner_var
-    shutdowner() noexcept;
+    OrbShutdowner_var shutdowner() noexcept;
 
 
     struct ThreadsUsage
@@ -92,25 +88,17 @@ namespace CORBACommons
       unsigned working;
     };
 
-    void
-    get_threads_usage(ThreadsUsage& usage) /*throw (eh::Exception)*/;
+    void get_threads_usage(ThreadsUsage& usage) /*throw (eh::Exception)*/;
 
 
   protected:
-    virtual
-    ~CorbaServerAdapter() noexcept;
+    virtual ~CorbaServerAdapter() noexcept;
 
-    virtual
-    void
-    activate_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void activate_object_() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    void
-    deactivate_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void deactivate_object_() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    void
-    wait_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void wait_object_() /*throw (Exception, eh::Exception)*/;
 
     class EndpointAddress
     {
@@ -120,17 +108,13 @@ namespace CORBACommons
       EndpointAddress(const char* host, unsigned long port)
         /*throw (eh::Exception)*/;
 
-      const char*
-      host() noexcept;
+      const char* host() noexcept;
 
-      const char*
-      ip() noexcept;
+      const char* ip() noexcept;
 
-      unsigned long
-      port() noexcept;
+      unsigned long port() noexcept;
 
-      bool
-      operator <(const EndpointAddress& address) const noexcept;
+      bool operator <(const EndpointAddress& address) const noexcept;
 
     private:
       std::string host_;
@@ -139,16 +123,15 @@ namespace CORBACommons
     };
 
     class Locator;
-    typedef ::ReferenceCounting::FixedPtr<Locator> Locator_var;
+    using Locator_var = ::ReferenceCounting::FixedPtr<Locator>;
 
     class POACreator;
 
     class Endpoint : public ::ReferenceCounting::AtomicImpl
     {
     public:
-      typedef std::map<std::pair<EndpointAddress, std::string>,
-        std::pair<PortableServer::POA_var, PortableServer::ObjectId_var> >
-        ObjectIdTable;
+      using ObjectIdTable = std::map<std::pair<EndpointAddress, std::string>,
+        std::pair<PortableServer::POA_var, PortableServer::ObjectId_var> >;
 
       Endpoint(POACreator& poa_creator, Locator* locator,
         const char* host, int port, int bind_port,
@@ -157,15 +140,12 @@ namespace CORBACommons
         const char* orb_id)
         /*throw (eh::Exception)*/;
 
-      void
-      add_binding(const char* name, PortableServer::ServantBase* servant)
+      void add_binding(const char* name, PortableServer::ServantBase* servant)
         /*throw (eh::Exception, Exception)*/;
 
-      void
-      activate() noexcept;
+      void activate() noexcept;
 
-      const ObjectIdTable&
-      bound_objects() const noexcept;
+      const ObjectIdTable& bound_objects() const noexcept;
 
     protected:
       struct BindPoint
@@ -175,11 +155,10 @@ namespace CORBACommons
         CORBA::OctetSeq_var poa_id;
         EndpointAddress address;
       };
-      typedef std::vector<BindPoint> BindPoints;
+      using BindPoints = std::vector<BindPoint>;
 
 
-      virtual
-      ~Endpoint() noexcept;
+      virtual ~Endpoint() noexcept;
 
       const ObjectsExternalNames&
       find_name_(const char* name) const /*throw (eh::Exception, Exception)*/;
@@ -202,27 +181,24 @@ namespace CORBACommons
 
       ObjectIdTable bound_objects_;
     };
-    typedef ::ReferenceCounting::QualPtr<Endpoint> Endpoint_var;
+    using Endpoint_var = ::ReferenceCounting::QualPtr<Endpoint>;
 
-    typedef ::ReferenceCounting::Vector<Endpoint_var> Endpoints;
-    typedef ::ReferenceCounting::Map<std::string, Endpoints>
-      ObjectEndpointsMap;
+    using Endpoints = ::ReferenceCounting::Vector<Endpoint_var>;
+    using ObjectEndpointsMap = ::ReferenceCounting::Map<std::string, Endpoints>;
 
     struct Orb
     {
-      explicit
-      Orb(CORBA::ORB_var orb = CORBA::ORB_var()) noexcept;
+      explicit Orb(CORBA::ORB_var orb = CORBA::ORB_var()) noexcept;
 
       CORBA::ORB_var orb;
       unsigned waiters;
       unsigned threads_left;
       bool expanding;
     };
-    typedef std::vector<Orb> Orbs;
+    using Orbs = std::vector<Orb>;
 
   protected:
-    void
-    init_env_() /*throw (eh::Exception, Exception)*/;
+    void init_env_() /*throw (eh::Exception, Exception)*/;
 
     void
     create_orb_(const SecureConnectionConfig& secure_config,
@@ -238,13 +214,10 @@ namespace CORBACommons
       const EndpointConfigs& endpoints) /*throw (eh::Exception)*/;
 
     template <typename T>
-    T*
-    resolve_initial_reference_(CORBA::ORB_ptr orb, const char* obj_name)
+    T* resolve_initial_reference_(CORBA::ORB_ptr orb, const char* obj_name)
       /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    shutdown(bool type) noexcept;
+    virtual void shutdown(bool type) noexcept;
 
 
   protected:
@@ -266,8 +239,7 @@ namespace CORBACommons
     std::thread run_thread_;
     std::exception_ptr run_exception_;
   };
-  typedef ::ReferenceCounting::QualPtr<CorbaServerAdapter>
-    CorbaServerAdapter_var;
+  using CorbaServerAdapter_var = ::ReferenceCounting::QualPtr<CorbaServerAdapter>;
 }
 
 namespace CORBACommons
@@ -276,8 +248,7 @@ namespace CORBACommons
   // CorbaConfig class
   //
 
-  inline
-  CorbaConfig::CorbaConfig() /*throw (eh::Exception)*/
+  inline CorbaConfig::CorbaConfig() /*throw (eh::Exception)*/
     : thread_pool(1), min_threads(0), normal_threads(0), stack_size(0),
       orb_per_endpoint(true), custom_reactor(true)
   {
@@ -288,38 +259,30 @@ namespace CORBACommons
   // CorbaServerAdapter::EndpointAddress class
   //
 
-  inline
-  CorbaServerAdapter::EndpointAddress::EndpointAddress()
+  inline CorbaServerAdapter::EndpointAddress::EndpointAddress()
     /*throw (eh::Exception)*/
     : port_(0)
   {
   }
 
-  inline
-  const char*
-  CorbaServerAdapter::EndpointAddress::host() noexcept
+  inline const char* CorbaServerAdapter::EndpointAddress::host() noexcept
   {
     return host_.c_str();
   }
 
-  inline
-  const char*
-  CorbaServerAdapter::EndpointAddress::ip() noexcept
+  inline const char* CorbaServerAdapter::EndpointAddress::ip() noexcept
   {
     return ip_.c_str();
   }
 
-  inline
-  unsigned long
-  CorbaServerAdapter::EndpointAddress::port() noexcept
+  inline unsigned long CorbaServerAdapter::EndpointAddress::port() noexcept
   {
     return port_;
   }
 
   inline
   bool
-  CorbaServerAdapter::EndpointAddress::operator <(
-    const EndpointAddress& address) const noexcept
+  CorbaServerAdapter::EndpointAddress::operator <( const EndpointAddress& address) const noexcept
   {
     return ip_ == address.ip_ ? port_ < address.port_ :
       ip_ < address.ip_;

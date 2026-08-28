@@ -24,26 +24,18 @@ namespace
     std::size_t values = 4096;
   };
 
-  std::size_t
-  parse_size(std::string_view value, std::string_view option)
+  std::size_t parse_size(std::string_view value, std::string_view option)
   {
     std::size_t result = 0;
-    const auto parsed = std::from_chars(
-      value.data(),
-      value.data() + value.size(),
-      result);
-    if (parsed.ec != std::errc() ||
-      parsed.ptr != value.data() + value.size() ||
-      result == 0)
+    const auto parsed = std::from_chars( value.data(), value.data() + value.size(), result);
+    if (parsed.ec != std::errc() || parsed.ptr != value.data() + value.size() || result == 0)
     {
-      throw std::invalid_argument(
-        std::string(option) + " requires a positive integer");
+      throw std::invalid_argument( std::string(option) + " requires a positive integer");
     }
     return result;
   }
 
-  Options
-  parse_options(int argc, char** argv)
+  Options parse_options(int argc, char** argv)
   {
     Options options;
     for (int index = 1; index < argc; ++index)
@@ -51,22 +43,19 @@ namespace
       const std::string_view argument(argv[index]);
       if (argument == "--help")
       {
-        std::cout
-          << "Usage: " << argv[0]
+        std::cout << "Usage: " << argv[0]
           << " [--iterations N] [--values N]\n";
         std::exit(0);
       }
 
       if (argument != "--iterations" && argument != "--values")
       {
-        throw std::invalid_argument(
-          "unknown option: " + std::string(argument));
+        throw std::invalid_argument( "unknown option: " + std::string(argument));
       }
 
       if (++index == argc)
       {
-        throw std::invalid_argument(
-          std::string(argument) + " requires a value");
+        throw std::invalid_argument( std::string(argument) + " requires a value");
       }
 
       const std::size_t parsed = parse_size(argv[index], argument);
@@ -85,8 +74,7 @@ namespace
   struct StringManipParser
   {
     template <typename IntegerType>
-    bool
-    operator()(std::string_view input, IntegerType& value) const noexcept
+    bool operator()(std::string_view input, IntegerType& value) const noexcept
     {
       return String::StringManip::str_to_int(input, value);
     }
@@ -95,8 +83,7 @@ namespace
   struct LegacyParser
   {
     template <typename IntegerType>
-    bool
-    operator()(std::string_view input, IntegerType& value) const noexcept
+    bool operator()(std::string_view input, IntegerType& value) const noexcept
     {
       const char* current = input.data();
       const char* const end = current + input.size();
@@ -128,13 +115,9 @@ namespace
       {
         do
         {
-          const unsigned char digit =
-            static_cast<unsigned char>(*current) -
+          const unsigned char digit = static_cast<unsigned char>(*current) -
             static_cast<unsigned char>('0');
-          if (digit > 9 ||
-            value < -limit ||
-            (value == -limit &&
-              digit > static_cast<unsigned char>(
+          if (digit > 9 || value < -limit || (value == -limit && digit > static_cast<unsigned char>(
                 -(std::numeric_limits<IntegerType>::min() + limit * 10))))
           {
             return false;
@@ -148,13 +131,9 @@ namespace
       {
         do
         {
-          const unsigned char digit =
-            static_cast<unsigned char>(*current) -
+          const unsigned char digit = static_cast<unsigned char>(*current) -
             static_cast<unsigned char>('0');
-          if (digit > 9 ||
-            value > limit ||
-            (value == limit &&
-              digit > static_cast<unsigned char>(
+          if (digit > 9 || value > limit || (value == limit && digit > static_cast<unsigned char>(
                 std::numeric_limits<IntegerType>::max() - limit * 10)))
           {
             return false;
@@ -171,8 +150,7 @@ namespace
   struct FromCharsParser
   {
     template <typename IntegerType>
-    bool
-    operator()(std::string_view input, IntegerType& value) const noexcept
+    bool operator()(std::string_view input, IntegerType& value) const noexcept
     {
       if (input.empty())
       {
@@ -429,8 +407,7 @@ namespace
         constexpr std::size_t PrefixSize = Size - 4;
         std::uint32_t high = 0;
         std::uint32_t low = 0;
-        if (!parse_scalar<PrefixSize>(data, high) ||
-          !parse_digits<4>(data + PrefixSize, low))
+        if (!parse_scalar<PrefixSize>(data, high) || !parse_digits<4>(data + PrefixSize, low))
         {
           return false;
         }
@@ -526,8 +503,7 @@ namespace
   {
     using Parser = bool (*)(const char*, std::uint32_t&) noexcept;
 
-    static constexpr std::array<Parser, 10> PARSERS =
-    {
+    static constexpr std::array<Parser, 10> PARSERS = {
       &parse_uint32<1>,
       &parse_uint32<2>,
       &parse_uint32<3>,
@@ -660,17 +636,14 @@ namespace
   {
     IntegerType value = 0;
     const bool success = parser(input, value);
-    if (success != expected_success ||
-      (success && value != expected_value))
+    if (success != expected_success || (success && value != expected_value))
     {
-      throw std::runtime_error(
-        "unexpected result for '" + std::string(input) + "'");
+      throw std::runtime_error( "unexpected result for '" + std::string(input) + "'");
     }
   }
 
   template <typename IntegerType, typename ParserType>
-  void
-  verify_parser(const ParserType& parser)
+  void verify_parser(const ParserType& parser)
   {
     const IntegerType min_value = std::numeric_limits<IntegerType>::min();
     const IntegerType max_value = std::numeric_limits<IntegerType>::max();
@@ -709,8 +682,7 @@ namespace
       verify_value<IntegerType>(parser, "-0", false);
     }
 
-    std::vector<std::string> invalid_values =
-    {
+    std::vector<std::string> invalid_values = {
       "",
       "+",
       "-",
@@ -738,8 +710,7 @@ namespace
   }
 
   template <typename ParserType>
-  void
-  verify_parser(const ParserType& parser)
+  void verify_parser(const ParserType& parser)
   {
     verify_parser<std::uint64_t>(parser);
     verify_parser<std::int64_t>(parser);
@@ -748,27 +719,17 @@ namespace
       number <= std::numeric_limits<std::int16_t>::max(); ++number)
     {
       const std::string input = std::to_string(number);
-      verify_value<std::int16_t>(
-        parser,
-        input,
-        true,
-        static_cast<std::int16_t>(number));
+      verify_value<std::int16_t>( parser, input, true, static_cast<std::int16_t>(number));
     }
 
-    for (std::uint32_t number = 0;
-      number <= std::numeric_limits<std::uint16_t>::max(); ++number)
+    for (std::uint32_t number = 0; number <= std::numeric_limits<std::uint16_t>::max(); ++number)
     {
       const std::string input = std::to_string(number);
-      verify_value<std::uint16_t>(
-        parser,
-        input,
-        true,
-        static_cast<std::uint16_t>(number));
+      verify_value<std::uint16_t>( parser, input, true, static_cast<std::uint16_t>(number));
     }
   }
 
-  void
-  verify_bool_parser()
+  void verify_bool_parser()
   {
     bool value = false;
     if (!String::StringManip::str_to_int(std::string_view("0"), value) || value ||
@@ -781,8 +742,7 @@ namespace
     }
   }
 
-  void
-  verify_uint32_fast_path()
+  void verify_uint32_fast_path()
   {
     const StringManipParser current_parser;
     const PaddedSwarUint32Parser padded_swar_parser;
@@ -868,8 +828,7 @@ namespace
   }
 
   template <typename IntegerType>
-  void
-  verify_equivalence()
+  void verify_equivalence()
   {
     constexpr char ALPHABET[] = "0123456789+-x ";
     constexpr std::size_t CASE_COUNT = 100000;
@@ -890,17 +849,14 @@ namespace
       IntegerType current_value = 0;
       const bool legacy_success = LegacyParser()(input, legacy_value);
       const bool current_success = StringManipParser()(input, current_value);
-      if (legacy_success != current_success ||
-        (legacy_success && legacy_value != current_value))
+      if (legacy_success != current_success || (legacy_success && legacy_value != current_value))
       {
-        throw std::runtime_error(
-          "legacy equivalence failed for '" + input + "'");
+        throw std::runtime_error( "legacy equivalence failed for '" + input + "'");
       }
     }
   }
 
-  std::vector<std::string>
-  make_small_unsigned_values(std::size_t count)
+  std::vector<std::string> make_small_unsigned_values(std::size_t count)
   {
     std::vector<std::string> values;
     values.reserve(count);
@@ -960,8 +916,7 @@ namespace
     return values;
   }
 
-  std::vector<std::string>
-  make_rbc_unsigned_values(std::size_t count)
+  std::vector<std::string> make_rbc_unsigned_values(std::size_t count)
   {
     std::vector<std::string> values;
     values.reserve(count);
@@ -975,8 +930,7 @@ namespace
     return values;
   }
 
-  std::vector<std::string>
-  make_full_unsigned_values(std::size_t count)
+  std::vector<std::string> make_full_unsigned_values(std::size_t count)
   {
     std::vector<std::string> values;
     values.reserve(count);
@@ -994,8 +948,7 @@ namespace
     return values;
   }
 
-  std::vector<std::string>
-  make_mixed_signed_values(std::size_t count)
+  std::vector<std::string> make_mixed_signed_values(std::size_t count)
   {
     std::vector<std::string> values;
     values.reserve(count);
@@ -1018,8 +971,7 @@ namespace
     return values;
   }
 
-  std::vector<std::string>
-  make_full_signed_values(std::size_t count)
+  std::vector<std::string> make_full_signed_values(std::size_t count)
   {
     std::vector<std::string> values;
     values.reserve(count);
@@ -1049,10 +1001,7 @@ namespace
 
   template <typename IntegerType, typename ParserType>
   Measurement
-  measure(
-    const ParserType& parser,
-    const std::vector<std::string>& inputs,
-    std::size_t iterations)
+  measure( const ParserType& parser, const std::vector<std::string>& inputs, std::size_t iterations)
   {
     using UnsignedType = std::make_unsigned_t<IntegerType>;
 
@@ -1090,10 +1039,8 @@ namespace
       throw std::runtime_error("benchmark checksum mismatch");
     }
 
-    const double count =
-      static_cast<double>(inputs.size()) * static_cast<double>(iterations);
-    std::cout
-      << "  " << std::left << std::setw(28) << name << std::right
+    const double count = static_cast<double>(inputs.size()) * static_cast<double>(iterations);
+    std::cout << "  " << std::left << std::setw(28) << name << std::right
       << std::fixed << std::setprecision(3)
       << std::setw(10) << result.seconds * 1e9 / count << " ns/value"
       << std::setw(12) << count / result.seconds / 1e6 << " M/s\n";
@@ -1107,9 +1054,7 @@ namespace
   {
     static_cast<void>(include_uint32_candidates);
 
-    std::cout
-      << name << ": values=" << inputs.size()
-      << ", iterations=" << iterations << '\n';
+    std::cout << name << ": values=" << inputs.size() << ", iterations=" << iterations << '\n';
 
     const std::uint64_t checksum = print_measurement<IntegerType>(
       "legacy str_to_int",
@@ -1148,8 +1093,7 @@ namespace
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {

@@ -20,7 +20,7 @@ struct Config
 Config config;
 
 //////////////////////////////////////////////////////////////////////////
-// Implementations 
+// Implementations
 
 Config::Config() noexcept
   : count(20),
@@ -30,8 +30,7 @@ Config::Config() noexcept
 {
 }
 
-int
-main(int /*argc*/, char* /*argv*/[])
+int main(int /*argc*/, char* /*argv*/[])
 {
   try
   {
@@ -53,8 +52,7 @@ main(int /*argc*/, char* /*argv*/[])
     Generics::Statistics::Collection_var statistics;
     statistics = new Statistics::Collection(stat_runner.in());
     const char STAT_NAME[] = "SyslogHandler";
-    statistics->add(STAT_NAME,
-      new Statistics::TimedStatSink(), stat_policy.in());
+    statistics->add(STAT_NAME, new Statistics::TimedStatSink(), stat_policy.in());
     Generics::Statistics::StatSink_var stat;
     stat = statistics->get(STAT_NAME);
 
@@ -65,8 +63,7 @@ main(int /*argc*/, char* /*argv*/[])
 
       Generics::Timer timer;
       timer.start();
-      bool res = logger->log(ostr.str(), Logger::NOTICE, "Aspect=TestApp",
-        "code=code");
+      bool res = logger->log(ostr.str(), Logger::NOTICE, "Aspect=TestApp", "code=code");
       timer.stop();
 
       stat->consider(Statistics::TimedSubject(timer.elapsed_time()));
@@ -78,6 +75,7 @@ main(int /*argc*/, char* /*argv*/[])
       }
 
     }
+
     if (!config.count)
     {
       std::cerr << "Aborted by user" << std::endl;

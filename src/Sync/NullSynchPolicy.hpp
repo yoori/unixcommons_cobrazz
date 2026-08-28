@@ -8,38 +8,30 @@
 #include <Generics/Uncopyable.hpp>
 
 
-namespace Sync
+namespace Sync::Policy
 {
-  namespace Policy
+  class NullMutex : private Generics::Uncopyable
   {
-    class NullMutex : private Generics::Uncopyable
-    {
-    };
+  };
 
-    class NullGuard : private Generics::Uncopyable
-    {
-    public:
-      explicit
-      NullGuard(NullMutex&) noexcept;
-    };
+  class NullGuard : private Generics::Uncopyable
+  {
+  public:
+    explicit NullGuard(NullMutex&) noexcept;
+  };
 
-    struct Null
-    {
-      typedef NullMutex Mutex;
-      typedef NullGuard ReadGuard;
-      typedef NullGuard WriteGuard;
-    };
-  }
+  struct Null
+  {
+    using Mutex = NullMutex;
+    using ReadGuard = NullGuard;
+    using WriteGuard = NullGuard;
+  };
 }
 
 
-namespace Sync
+namespace Sync::Policy
 {
-  namespace Policy
+  inline NullGuard::NullGuard (NullMutex&) noexcept
   {
-    inline
-    NullGuard::NullGuard (NullMutex&) noexcept
-    {
-    }
   }
 }

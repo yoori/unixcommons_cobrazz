@@ -10,17 +10,15 @@ const unsigned int THREADS_COUNT = 20;
 const unsigned int POOLS_COUNT = 1;
 const unsigned int UNITS_COUNT = 1;
 
-const int KEEP_ALIVE_SERV_PORT[] =
-{
+const int KEEP_ALIVE_SERV_PORT[] = {
   ApachePorts::get_port(34),
   ApachePorts::get_port(35),
 };
-const int NON_KEEP_ALIVE_SERV_PORT[] =
-{
+const int NON_KEEP_ALIVE_SERV_PORT[] = {
   ApachePorts::get_port(32),
   ApachePorts::get_port(33),
 };
-            
+
 const char NOTIFICATION_MSG[] = "///////////////////////////////////////////////\n"
                                 " TO KNOW MORE ABOUT SCENARIOS RUN WITH \"help\""
                                 "\n///////////////////////////////////////////////";
@@ -30,23 +28,19 @@ const int hostname_res = gethostname(hostname, sizeof(hostname));
 
 void usage()
 {
-  std::cout << '\n' << BasicsTest01::scenario_descr()
-            << '\n' << BasicsTest02::scenario_descr()
-            << '\n' << BasicsTest03::scenario_descr()
-            << '\n' << BasicsTest04::scenario_descr()
-            << '\n' << RandomLoadingTest::scenario_descr()
-            << '\n' << std::endl;
+  std::cout << '\n' << BasicsTest01::scenario_descr() << '\n' << BasicsTest02::scenario_descr()
+            << '\n' << BasicsTest03::scenario_descr() << '\n' << BasicsTest04::scenario_descr()
+            << '\n' << RandomLoadingTest::scenario_descr() << '\n' << std::endl;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
     rlimit limit;
-    if(getrlimit(RLIMIT_NOFILE, &limit) == 0)
+    if (getrlimit(RLIMIT_NOFILE, &limit) == 0)
     {
-      limit.rlim_cur = limit.rlim_max;  
+      limit.rlim_cur = limit.rlim_max;
       setrlimit(RLIMIT_NOFILE, &limit);
     }
 
@@ -69,29 +63,23 @@ main(int argc, char* argv[])
     tests_runner->activate_object();
 
     Sync::Semaphore finish_sem(0);
-    typedef ReferenceCounting::List<PoliciesTestInterface_var> Tests;
+    using Tests = ReferenceCounting::List<PoliciesTestInterface_var>;
     Tests tests;
 
-    if (POOLS_COUNT > UNITS_COUNT ||
-        THREADS_COUNT <= UNITS_COUNT)
+    if (POOLS_COUNT > UNITS_COUNT || THREADS_COUNT <= UNITS_COUNT)
     {
       return -1;
     }
 
-    tests.push_back(PoliciesTestInterface_var(
-      new BasicsTest01(finish_sem, servers)));
+    tests.push_back(PoliciesTestInterface_var( new BasicsTest01(finish_sem, servers)));
     tests_runner->enqueue_task(tests.back());
-    tests.push_back(PoliciesTestInterface_var(
-      new BasicsTest02(finish_sem, servers)));
+    tests.push_back(PoliciesTestInterface_var( new BasicsTest02(finish_sem, servers)));
     tests_runner->enqueue_task(tests.back());
-    tests.push_back(PoliciesTestInterface_var(
-      new BasicsTest03(finish_sem, servers)));
+    tests.push_back(PoliciesTestInterface_var( new BasicsTest03(finish_sem, servers)));
     tests_runner->enqueue_task(tests.back());
-    tests.push_back(PoliciesTestInterface_var(
-      new BasicsTest04(finish_sem, servers)));
+    tests.push_back(PoliciesTestInterface_var( new BasicsTest04(finish_sem, servers)));
     tests_runner->enqueue_task(tests.back());
-    tests.push_back(PoliciesTestInterface_var(
-      new RandomLoadingTest(finish_sem, servers)));
+    tests.push_back(PoliciesTestInterface_var( new RandomLoadingTest(finish_sem, servers)));
     tests_runner->enqueue_task(tests.back());
 
     size_t tests_count = tests.size();
@@ -115,8 +103,7 @@ main(int argc, char* argv[])
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "[ERROR]: main(2). eh::Exception caught: " <<
-      e.what() << std::endl;
+    std::cerr << "[ERROR]: main(2). eh::Exception caught: " << e.what() << std::endl;
 
     return -1;
   }

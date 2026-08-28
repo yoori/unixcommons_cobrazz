@@ -83,8 +83,7 @@ public:
     bool make_oneway_test = true)
   {
     std::string prefix = "Call delay ";
-    test(test_int, time, ctx, &CORBATest::TestInt::test,
-      (prefix + type + " twoway").c_str());
+    test(test_int, time, ctx, &CORBATest::TestInt::test, (prefix + type + " twoway").c_str());
     if (make_oneway_test && !ctx.only_twoway.enabled())
     {
       test(test_int, time, ctx, &CORBATest::TestInt::oneway_test,
@@ -93,20 +92,17 @@ public:
   }
 
 private:
-  typedef void (CORBATest::TestInt::* Func)(const CORBATest::OctetSeq&);
+  using Func = void (CORBATest::TestInt::* )(const CORBATest::OctetSeq&);
 
   ClientFunctor(CORBATest::TestInt_ptr test_int, Func func, const char* name,
     const TestContext& ctx)
     : test_int_(CORBATest::TestInt::_duplicate(test_int)), func_(func),
       context_(ctx)
   {
-    Generics::Statistics::DumpRunner_var stat_runner(
-      new Generics::Statistics::NullDumpRunner);
-    Generics::Statistics::DumpPolicy_var stat_policy(
-      new Generics::Statistics::NullDumpPolicy);
+    Generics::Statistics::DumpRunner_var stat_runner( new Generics::Statistics::NullDumpRunner);
+    Generics::Statistics::DumpPolicy_var stat_policy( new Generics::Statistics::NullDumpPolicy);
     statistics_ = new Generics::Statistics::Collection(stat_runner.in());
-    statistics_->add(name,
-      new Generics::Statistics::TimedStatSink(), stat_policy.in());
+    statistics_->add(name, new Generics::Statistics::TimedStatSink(), stat_policy.in());
     stat_ = statistics_->get(name);
   }
 
@@ -116,11 +112,9 @@ private:
   }
 
 public:
-  void
-  operator()()
+  void operator()()
   {
-    const unsigned int PARAM_LEN =
-      Generics::safe_rand(*context_.low_bound,
+    const unsigned int PARAM_LEN = Generics::safe_rand(*context_.low_bound,
         *context_.low_bound + *context_.random_size);
     CORBATest::OctetSeq param;
     param.length(PARAM_LEN);
@@ -148,20 +142,17 @@ public:
       }
       else
       {
-        std::cerr << FNS << "CORBA::COMM_FAILURE: " << ex.minor() <<
-          " " << ex << std::endl;
+        std::cerr << FNS << "CORBA::COMM_FAILURE: " << ex.minor() << " " << ex << std::endl;
         context_.pstat->cfo += 1;
       }
     }
     catch (const CORBA::SystemException& ex)
     {
-      std::cerr << FNS << "Unexpected CORBA::SystemException: " <<
-        ex << std::endl;
+      std::cerr << FNS << "Unexpected CORBA::SystemException: " << ex << std::endl;
     }
     timer.stop();
- 
-    stat_->consider(Generics::Statistics::TimedSubject(
-      timer.elapsed_time()));
+
+    stat_->consider(Generics::Statistics::TimedSubject( timer.elapsed_time()));
   }
 
 private:
@@ -189,25 +180,20 @@ public:
   ExtendedCorbaClientAdapter(const CORBACommons::CorbaClientConfig& config,
     Logging::Logger* logger) noexcept;
 
-  void
-  orbs_run() /*throw (eh::Exception)*/;
+  void orbs_run() /*throw (eh::Exception)*/;
 
-  void
-  orbs_shutdown() /*throw (eh::Exception)*/;
+  void orbs_shutdown() /*throw (eh::Exception)*/;
 
 protected:
-  virtual
-  ~ExtendedCorbaClientAdapter() noexcept;
+  virtual ~ExtendedCorbaClientAdapter() noexcept;
 
 private:
-  static void*
-  thread_func_(void* arg) noexcept;
+  static void* thread_func_(void* arg) noexcept;
 
-  typedef std::list<pthread_t> Threads;
+  using Threads = std::list<pthread_t>;
   Threads threads_;
 };
-typedef ReferenceCounting::QualPtr<ExtendedCorbaClientAdapter>
-  ExtendedCorbaClientAdapter_var;
+using ExtendedCorbaClientAdapter_var = ReferenceCounting::QualPtr<ExtendedCorbaClientAdapter>;
 
 ExtendedCorbaClientAdapter::ExtendedCorbaClientAdapter(
   const CORBACommons::CorbaClientConfig& config, Logging::Logger* logger)
@@ -220,12 +206,10 @@ ExtendedCorbaClientAdapter::~ExtendedCorbaClientAdapter() noexcept
 {
 }
 
-void
-ExtendedCorbaClientAdapter::orbs_run() /*throw (eh::Exception)*/
+void ExtendedCorbaClientAdapter::orbs_run() /*throw (eh::Exception)*/
 {
   const Orbs::OrbsHolder& orbs = OrbsSingleton::instance().get_orbs();
-  for (Orbs::OrbsHolder::const_iterator itor(orbs.begin());
-    itor != orbs.end(); ++itor)
+  for (Orbs::OrbsHolder::const_iterator itor(orbs.begin()); itor != orbs.end(); ++itor)
   {
     pthread_t thread;
     pthread_create(&thread, 0, thread_func_, itor->second.in());
@@ -233,12 +217,10 @@ ExtendedCorbaClientAdapter::orbs_run() /*throw (eh::Exception)*/
   }
 }
 
-void
-ExtendedCorbaClientAdapter::orbs_shutdown() /*throw (eh::Exception)*/
+void ExtendedCorbaClientAdapter::orbs_shutdown() /*throw (eh::Exception)*/
 {
   const Orbs::OrbsHolder& orbs = OrbsSingleton::instance().get_orbs();
-  for (Orbs::OrbsHolder::const_iterator itor(orbs.begin());
-    itor != orbs.end(); ++itor)
+  for (Orbs::OrbsHolder::const_iterator itor(orbs.begin()); itor != orbs.end(); ++itor)
   {
     itor->second->shutdown();
     pthread_join(threads_.front(), 0);
@@ -246,15 +228,13 @@ ExtendedCorbaClientAdapter::orbs_shutdown() /*throw (eh::Exception)*/
   }
 }
 
-void*
-ExtendedCorbaClientAdapter::thread_func_(void* arg) noexcept
+void* ExtendedCorbaClientAdapter::thread_func_(void* arg) noexcept
 {
   static_cast<CORBA::ORB_ptr>(arg)->run();
   return 0;
 }
 
-void
-Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
+void Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
 {
   try
   {
@@ -279,61 +259,47 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
       new CORBACommons::CorbaClientAdapter(config, logger));
 #endif
 
-    CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_url(
-      corba_client_adapter);
+    CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_url( corba_client_adapter);
     CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_secure_url(
       corba_client_adapter, "server.key:adserver:server.der;ce.der");
-    Generics::AppUtils::Option<unsigned long> opt_time(
-      DEFAULT_NORMAL_TEST_TIME);
-    Generics::AppUtils::Option<unsigned long> opt_secure_time(
-      DEFAULT_SECURE_TEST_TIME);
+    Generics::AppUtils::Option<unsigned long> opt_time( DEFAULT_NORMAL_TEST_TIME);
+    Generics::AppUtils::Option<unsigned long> opt_secure_time( DEFAULT_SECURE_TEST_TIME);
 
     TestContext context;
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("url") ||
-      Generics::AppUtils::short_name("u"),
+      Generics::AppUtils::equal_name("url") || Generics::AppUtils::short_name("u"),
       opt_url);
     args.add(
-      Generics::AppUtils::equal_name("secure-url") ||
-      Generics::AppUtils::short_name("su"),
+      Generics::AppUtils::equal_name("secure-url") || Generics::AppUtils::short_name("su"),
       opt_secure_url);
     args.add(
-      Generics::AppUtils::equal_name("time") ||
-      Generics::AppUtils::short_name("t"),
+      Generics::AppUtils::equal_name("time") || Generics::AppUtils::short_name("t"),
       opt_time);
     args.add(
-      Generics::AppUtils::equal_name("secure-time") ||
-      Generics::AppUtils::short_name("st"),
+      Generics::AppUtils::equal_name("secure-time") || Generics::AppUtils::short_name("st"),
       opt_secure_time);
     args.add(
-      Generics::AppUtils::equal_name("threads") ||
-      Generics::AppUtils::short_name("thr"),
+      Generics::AppUtils::equal_name("threads") || Generics::AppUtils::short_name("thr"),
       context.threads_amount);
     args.add(
-      Generics::AppUtils::equal_name("simul-task") ||
-      Generics::AppUtils::short_name("s"),
+      Generics::AppUtils::equal_name("simul-task") || Generics::AppUtils::short_name("s"),
       context.sim_task_amount);
     args.add(
-      Generics::AppUtils::equal_name("limit-task") ||
-      Generics::AppUtils::short_name("l"),
+      Generics::AppUtils::equal_name("limit-task") || Generics::AppUtils::short_name("l"),
       context.task_limit);
     args.add(
-      Generics::AppUtils::equal_name("low-bound") ||
-      Generics::AppUtils::short_name("lb"),
+      Generics::AppUtils::equal_name("low-bound") || Generics::AppUtils::short_name("lb"),
       context.low_bound);
     args.add(
-      Generics::AppUtils::equal_name("random-size") ||
-      Generics::AppUtils::short_name("rs"),
+      Generics::AppUtils::equal_name("random-size") || Generics::AppUtils::short_name("rs"),
       context.random_size);
     args.add(
-      Generics::AppUtils::equal_name("only-twoway") ||
-      Generics::AppUtils::short_name("ot"),
+      Generics::AppUtils::equal_name("only-twoway") || Generics::AppUtils::short_name("ot"),
       context.only_twoway);
     args.add(
-      Generics::AppUtils::equal_name("lock-file") ||
-      Generics::AppUtils::short_name("lf"),
+      Generics::AppUtils::equal_name("lock-file") || Generics::AppUtils::short_name("lf"),
       context.lock_file);
 
     args.parse(argc - 1, argv + 1);
@@ -393,24 +359,20 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
     {
       Stream::Error ostr;
       ostr << "Timeouts: " << context.pstat->timeouts << "\n" <<
-        "Comm failures: " << context.pstat->cf_54410306 << " " <<
-        context.pstat->cfo << "\n";
-      write((context.lock_file.installed() ? 2 : 1),
-        ostr.str().data(), ostr.str().size());
+        "Comm failures: " << context.pstat->cf_54410306 << " " << context.pstat->cfo << "\n";
+      write((context.lock_file.installed() ? 2 : 1), ostr.str().data(), ostr.str().size());
     }
   }
   catch (const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   const char* td = getenv("TAO_DEBUG");
   TAO_debug_level = td ? atoi(td) : 0;
@@ -425,8 +387,7 @@ main(int argc, char** argv)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr
-      << "main: eh::Exception exception caught. Description:" << std::endl
+    std::cerr << "main: eh::Exception exception caught. Description:" << std::endl
       << e.what() << std::endl;
   }
   catch (...)

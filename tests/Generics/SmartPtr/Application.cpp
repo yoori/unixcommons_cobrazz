@@ -14,28 +14,23 @@
 class A : public ReferenceCounting::AtomicImpl
 {
 public:
-  explicit
-  A() noexcept
+  explicit A() noexcept
     : rc_(0), adds_(0)
   {
   }
-  void
-  rc(int inc = 1) const noexcept
+  void rc(int inc = 1) const noexcept
   {
     rc_ += inc;
     assert(ref_count_ == rc_);
     //std::cout << rc_ << " " << adds_ << std::endl;
   }
-  virtual
-  void
-  add_ref() const noexcept
+  virtual void add_ref() const noexcept
   {
     ReferenceCounting::AtomicImpl::add_ref();
     adds_++;
   }
 protected:
-  virtual
-  ~A() noexcept
+  virtual ~A() noexcept
   {
     std::cout << adds_ << "\n";
   }
@@ -43,68 +38,60 @@ protected:
   mutable int rc_;
   mutable int adds_;
 };
-typedef ReferenceCounting::SmartPtr<A> A_var;
-typedef ReferenceCounting::SmartPtr<const A> CA_var;
-typedef ReferenceCounting::FixedPtr<A> AFtr;
-typedef ReferenceCounting::FixedPtr<const A> CAFtr;
-typedef ReferenceCounting::QualPtr<A> APtr;
-typedef ReferenceCounting::QualPtr<const A> CAPtr;
-typedef ReferenceCounting::ConstPtr<A> CACtr;
+using A_var = ReferenceCounting::SmartPtr<A>;
+using CA_var = ReferenceCounting::SmartPtr<const A>;
+using AFtr = ReferenceCounting::FixedPtr<A>;
+using CAFtr = ReferenceCounting::FixedPtr<const A>;
+using APtr = ReferenceCounting::QualPtr<A>;
+using CAPtr = ReferenceCounting::QualPtr<const A>;
+using CACtr = ReferenceCounting::ConstPtr<A>;
 
 class B : public A
 {
 protected:
-  virtual
-  ~B() noexcept
+  virtual ~B() noexcept
   {
   }
 };
-typedef ReferenceCounting::SmartPtr<B> B_var;
-typedef ReferenceCounting::SmartPtr<const B> CB_var;
-typedef ReferenceCounting::FixedPtr<B> BFtr;
-typedef ReferenceCounting::FixedPtr<const B> CBFtr;
-typedef ReferenceCounting::QualPtr<B> BPtr;
-typedef ReferenceCounting::QualPtr<const B> CBPtr;
-typedef ReferenceCounting::ConstPtr<B> CBCtr;
+using B_var = ReferenceCounting::SmartPtr<B>;
+using CB_var = ReferenceCounting::SmartPtr<const B>;
+using BFtr = ReferenceCounting::FixedPtr<B>;
+using CBFtr = ReferenceCounting::FixedPtr<const B>;
+using BPtr = ReferenceCounting::QualPtr<B>;
+using CBPtr = ReferenceCounting::QualPtr<const B>;
+using CBCtr = ReferenceCounting::ConstPtr<B>;
 
-A_var
-a_var() /*throw (eh::Exception)*/
+A_var a_var() /*throw (eh::Exception)*/
 {
   return new A;
 }
 
-AFtr
-a_ftr() /*throw (eh::Exception)*/
+AFtr a_ftr() /*throw (eh::Exception)*/
 {
   return new A;
 }
 
-APtr
-a_ptr() /*throw (eh::Exception)*/
+APtr a_ptr() /*throw (eh::Exception)*/
 {
   return new A;
 }
 
-B_var
-b_var() /*throw (eh::Exception)*/
+B_var b_var() /*throw (eh::Exception)*/
 {
   return new B;
 }
 
-BFtr
-b_ftr() /*throw (eh::Exception)*/
+BFtr b_ftr() /*throw (eh::Exception)*/
 {
   return new B;
 }
 
-BPtr
-b_ptr() /*throw (eh::Exception)*/
+BPtr b_ptr() /*throw (eh::Exception)*/
 {
   return new B;
 }
 
-void
-test0() /*throw (eh::Exception)*/
+void test0() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -222,8 +209,7 @@ test0() /*throw (eh::Exception)*/
   ca2->rc();
 }
 
-void
-test00() /*throw (eh::Exception)*/
+void test00() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -303,8 +289,7 @@ test00() /*throw (eh::Exception)*/
   pa12->rc();
 }
 
-void
-test1() /*throw (eh::Exception)*/
+void test1() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -417,8 +402,7 @@ test1() /*throw (eh::Exception)*/
   ca2->rc();
 }
 
-void
-test1_() /*throw (eh::Exception)*/
+void test1_() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -489,8 +473,7 @@ test1_() /*throw (eh::Exception)*/
   ca1->rc(0);
 }
 
-void
-test10() /*throw (eh::Exception)*/
+void test10() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -533,8 +516,7 @@ test10() /*throw (eh::Exception)*/
   ca->rc();
 }
 
-void
-test2() /*throw (eh::Exception)*/
+void test2() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -622,8 +604,7 @@ test2() /*throw (eh::Exception)*/
   sb1->rc();
 }
 
-void
-test20() /*throw (eh::Exception)*/
+void test20() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -703,8 +684,7 @@ test20() /*throw (eh::Exception)*/
   pa12->rc();
 }
 
-void
-test3() /*throw (eh::Exception)*/
+void test3() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -767,8 +747,7 @@ test3() /*throw (eh::Exception)*/
   sb1->rc();
 }
 
-void
-test30() /*throw (eh::Exception)*/
+void test30() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -811,12 +790,11 @@ test30() /*throw (eh::Exception)*/
   ca->rc();
 }
 
-void
-test4() /*throw (eh::Exception)*/
+void test4() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::Vector<APtr> V;
+  using V = ReferenceCounting::Vector<APtr>;
 
   APtr a(new A);
   a->rc();
@@ -863,12 +841,11 @@ test4() /*throw (eh::Exception)*/
   a->rc(-2);
 }
 
-void
-test5() /*throw (eh::Exception)*/
+void test5() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::List<APtr> V;
+  using V = ReferenceCounting::List<APtr>;
 
   APtr a(new A);
   a->rc();
@@ -922,12 +899,11 @@ test5() /*throw (eh::Exception)*/
   a->rc(-2);
 }
 
-void
-test6() /*throw (eh::Exception)*/
+void test6() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::Deque<APtr> V;
+  using V = ReferenceCounting::Deque<APtr>;
 
   APtr a(new A);
   a->rc();
@@ -974,12 +950,11 @@ test6() /*throw (eh::Exception)*/
   a->rc(-2);
 }
 
-void
-test7() /*throw (eh::Exception)*/
+void test7() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::Map<int, APtr> V;
+  using V = ReferenceCounting::Map<int, APtr>;
 
   APtr a(new A);
   a->rc();
@@ -1023,13 +998,12 @@ test7() /*throw (eh::Exception)*/
   a->rc();
 }
 
-void
-test8() /*throw (eh::Exception)*/
+void test8() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::HashTable<
-    Generics::NumericHashAdapter<int>, APtr> V;
+  using V = ReferenceCounting::HashTable<
+    Generics::NumericHashAdapter<int>, APtr>;
 
   A_var a(new A);
   a->rc();
@@ -1073,8 +1047,7 @@ test8() /*throw (eh::Exception)*/
   a->rc();
 }
 
-void
-test9() /*throw (eh::Exception)*/
+void test9() /*throw (eh::Exception)*/
 {
   std::cout << __FUNCTION__ << "\n";
 
@@ -1120,12 +1093,11 @@ test9() /*throw (eh::Exception)*/
 }
 
 template <typename SmartPtr>
-void
-test_hp() /*throw (eh::Exception)*/
+void test_hp() /*throw (eh::Exception)*/
 {
   std::cout << __PRETTY_FUNCTION__ << "\n";
 
-  typedef ReferenceCounting::PtrHolder<SmartPtr> HPtr;
+  using HPtr = ReferenceCounting::PtrHolder<SmartPtr>;
 
   HPtr h1;
   HPtr h2(new A);
@@ -1145,16 +1117,14 @@ test_hp() /*throw (eh::Exception)*/
   const_cast<const HPtr&>(h2).get();
 }
 
-void
-test_h() /*throw (eh::Exception)*/
+void test_h() /*throw (eh::Exception)*/
 {
   test_hp<A_var>();
   test_hp<APtr>();
   test_hp<CACtr>();
 }
 
-int
-main()
+int main()
 {
   try
   {

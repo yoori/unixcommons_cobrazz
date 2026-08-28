@@ -44,8 +44,7 @@ namespace
   std::string prefix;
 }
 
-int
-Application::run(int& argc, char** argv)
+int Application::run(int& argc, char** argv)
   /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
     CORBA::Exception)*/
 {
@@ -77,8 +76,7 @@ Application::run(int& argc, char** argv)
   }
 
   {
-    logger_ =
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout));
+    logger_ = new Logging::OStream::Logger(Logging::OStream::Config(std::cout));
     logger_->log_level(100);
     adapter_ = new CORBACommons::CorbaClientAdapter(config, logger_);
   }
@@ -109,8 +107,7 @@ Application::run(int& argc, char** argv)
   }
 }
 
-int
-Application::shutdown_(int argc, char** argv)
+int Application::shutdown_(int argc, char** argv)
   /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
     CORBA::Exception)*/
 {
@@ -143,8 +140,7 @@ Application::shutdown_(int argc, char** argv)
     throw InvalidArgument("CORBA object url undefined");
   }
 
-  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl>
-    process_control(adapter_);
+  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl> process_control(adapter_);
   try
   {
     process_control.set(0, url.c_str());
@@ -159,8 +155,7 @@ Application::shutdown_(int argc, char** argv)
   return PR_ALL_CORRECT;
 }
 
-int
-Application::status_(int argc, char** argv)
+int Application::status_(int argc, char** argv)
   /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
     CORBA::Exception)*/
 {
@@ -179,13 +174,13 @@ Application::status_(int argc, char** argv)
       throw InvalidArgument(ostr);
     }
   }
+
   if (url.empty())
   {
     throw InvalidArgument("CORBA object url undefined");
   }
 
-  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl>
-    process_control(adapter_);
+  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl> process_control(adapter_);
   try
   {
     process_control.set(0, url.c_str());
@@ -210,8 +205,7 @@ Application::status_(int argc, char** argv)
   return PR_ALL_CORRECT;
 }
 
-int
-Application::control_(int argc, char** argv)
+int Application::control_(int argc, char** argv)
   /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
     CORBA::Exception)*/
 {
@@ -224,8 +218,7 @@ Application::control_(int argc, char** argv)
 
   std::string url(argv[2]);
 
-  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl>
-    process_control(adapter_);
+  CORBAConfigParser::CorbaRefOption<CORBACommons::IProcessControl> process_control(adapter_);
   try
   {
     process_control.set(0, url.c_str());
@@ -243,8 +236,7 @@ Application::control_(int argc, char** argv)
   catch (const CORBACommons::ImplementationError& ex)
   {
     Stream::Error ostr;
-    ostr << "Received ImplementationError exception as a result: " <<
-      ex.error;
+    ostr << "Received ImplementationError exception as a result: " << ex.error;
     throw Exception(ostr);
   }
   catch (const CORBACommons::OutOfMemory& ex)
@@ -257,8 +249,7 @@ Application::control_(int argc, char** argv)
   return PR_ALL_CORRECT;
 }
 
-int
-Application::probe_(int argc, char** argv)
+int Application::probe_(int argc, char** argv)
   /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
     CORBA::Exception)*/
 {
@@ -270,8 +261,7 @@ Application::probe_(int argc, char** argv)
   MESSAGE_TYPE message_type = MT_NONE;
   std::string retry_text;
   bool check_status = false;
-  CORBACommons::IProcessControl::ALIVE_STATUS status =
-    CORBACommons::IProcessControl::AS_ALIVE;
+  CORBACommons::IProcessControl::ALIVE_STATUS status = CORBACommons::IProcessControl::AS_ALIVE;
   bool server_unreachable = false;
   CORBACommons::SecureConnectionConfig security_params;
 
@@ -296,8 +286,7 @@ Application::probe_(int argc, char** argv)
         throw InvalidArgument(ostr);
       }
 
-      sleep_interval = Generics::Time(timeout / 1000,
-        (timeout % 1000) * 1000);
+      sleep_interval = Generics::Time(timeout / 1000, (timeout % 1000) * 1000);
       retry = true;
 
       if (i + 1 < argc && !strcmp(argv[i + 1], "-count"))
@@ -408,8 +397,7 @@ Application::probe_(int argc, char** argv)
       {
         if (is_a_mode)
         {
-          const char* rep_id =
-            "IDL:prbably_no_such_module/probably_no_such_interface:99.99";
+          const char* rep_id = "IDL:prbably_no_such_module/probably_no_such_interface:99.99";
 
           if (obj->_is_a(rep_id) == false)
           {
@@ -424,8 +412,7 @@ Application::probe_(int argc, char** argv)
 
           if (!CORBA::is_nil(process_control))
           {
-            CORBACommons::IProcessControl::ALIVE_STATUS actual_status =
-              process_control->is_alive();
+            CORBACommons::IProcessControl::ALIVE_STATUS actual_status = process_control->is_alive();
             if (check_status)
             {
               if (actual_status == status)
@@ -440,8 +427,7 @@ Application::probe_(int argc, char** argv)
             }
             else
             {
-              if (actual_status !=
-                CORBACommons::IProcessControl::AS_NOT_ALIVE)
+              if (actual_status != CORBACommons::IProcessControl::AS_NOT_ALIVE)
               {
                 result = PR_ALL_CORRECT;
                 break;
@@ -524,8 +510,7 @@ Application::probe_(int argc, char** argv)
   return result;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   {
     std::ostringstream ostr;

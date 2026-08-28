@@ -17,8 +17,7 @@
 
 namespace
 {
-  const char USAGE_MSG[] =
-    "Usage:\n"
+  const char USAGE_MSG[] = "Usage:\n"
     "  AllSequencesTest [-hasnrepoiq] "
     "[--segmentor=\"name\"] [--threads-num=<positive number>]"
     " [--lower-border=<positive number>] [--upper-border=<positive number>]"
@@ -55,8 +54,7 @@ namespace
 
   /** Klt segmentor constructor*/
   /*
-  Language::Segmentor::SegmentorInterface_var
-  get_klt_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_klt_segmentor()
   {
     static const char* cfg1 = "/opt/KLT/hdic/KLT2000.ini";
     static const char* cfg2 = "-p";
@@ -68,8 +66,7 @@ namespace
 #ifdef MORAN_TEST
   /** Moran segmentor constructor*/
   /*
-  Language::Segmentor::SegmentorInterface_var
-  get_moran_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_moran_segmentor()
   {
     static const char* cfg = "/opt/Moran/dic/moran.dbs";
     Language::Segmentor::SegmentorInterface_var moran(
@@ -81,8 +78,7 @@ namespace
 
   /** MeCab segmentor constructor*/
   /*
-  Language::Segmentor::SegmentorInterface_var
-  get_mecab_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_mecab_segmentor()
   {
     static const char* cfg = "/usr/etc/mecabrc";
     Language::Segmentor::SegmentorInterface_var mecab(
@@ -92,8 +88,7 @@ namespace
   */
   /** NLPIR segmentor constructor*/
   /*
-  Language::Segmentor::SegmentorInterface_var
-  get_nlpir_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_nlpir_segmentor()
   {
     Language::Segmentor::SegmentorInterface_var nlpir(
       new Language::Segmentor::Chineese::NlpirSegmentor());
@@ -101,8 +96,7 @@ namespace
   }
   */
   /** Polyglot segmentor constructor*/
-  Language::Segmentor::SegmentorInterface_var
-  get_polyglot_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_polyglot_segmentor()
   {
     static const char* cfg = "/opt/oix/polyglot/dict/";
     Language::Segmentor::SegmentorInterface_var polyglot(
@@ -112,19 +106,16 @@ namespace
 
   /** Composite segmentor constructor*/
   /*
-  Language::Segmentor::SegmentorInterface_var
-  get_composite_segmentor()
+  Language::Segmentor::SegmentorInterface_var get_composite_segmentor()
   {
     Language::Segmentor::CompositeSegmentor_var composite(
       new Language::Segmentor::CompositeSegmentor);
     {
-      Language::Segmentor::SegmentorInterface_var klt =
-        get_klt_segmentor();
+      Language::Segmentor::SegmentorInterface_var klt = get_klt_segmentor();
       composite->add_segmentor(klt);
     }
     {
-      Language::Segmentor::SegmentorInterface_var mecab =
-        get_mecab_segmentor();
+      Language::Segmentor::SegmentorInterface_var mecab = get_mecab_segmentor();
       composite->add_segmentor(mecab);
     }
     return Language::Segmentor::SegmentorInterface_var(composite);
@@ -137,9 +128,9 @@ namespace
   class TaskFunctor
   {
   public:
-    
+
     /** Default constructor */
-    TaskFunctor(const char* name, 
+    TaskFunctor(const char* name,
                 const Segment_var& task,
                 const std::string& input_file,
                 bool  has_error_file,
@@ -150,29 +141,24 @@ namespace
     TaskFunctor(const TaskFunctor& c) noexcept;
 
     /** Get segmentor name of this task */
-    const char*
-    name() const noexcept;
+    const char* name() const noexcept;
 
     /** Execute task */
-    void
-    operator ()() /*throw (eh::Exception)*/;
+    void operator ()() /*throw (eh::Exception)*/;
 
     /** Get errors of execution of this task */
-    const std::string&
-    errors() const noexcept;
+    const std::string& errors() const noexcept;
 
   protected:
     /** must be initialized with name and task */
     TaskFunctor ();
 
     /** Execute task with input and error streams*/
-    void
-    execute_(std::istream& istrm, std::ostream& estrm)
+    void execute_(std::istream& istrm, std::ostream& estrm)
       /*throw (eh::Exception)*/;
 
     /** Execute task with error stream*/
-    void
-    execute_(std::ostream& estrm)
+    void execute_(std::ostream& estrm)
        /*throw (eh::Exception)*/;
 
     std::string name_;
@@ -184,7 +170,7 @@ namespace
   };
 
   inline
-  TaskFunctor::TaskFunctor(const char* name, 
+  TaskFunctor::TaskFunctor(const char* name,
                            const Segment_var& task,
                            const std::string& input_file,
                            bool  has_error_file,
@@ -198,10 +184,8 @@ namespace
   {
   }
 
-  inline
-  TaskFunctor::TaskFunctor(const TaskFunctor& c)
-    noexcept
-    : name_(c.name_), 
+  inline TaskFunctor::TaskFunctor(const TaskFunctor& c) noexcept
+    : name_(c.name_),
       task_(c.task_),
       input_file_(c.input_file_),
       has_error_file_(c.has_error_file_),
@@ -209,25 +193,17 @@ namespace
   {
   }
 
-  inline
-  const char*
-  TaskFunctor::name() const
-    noexcept
+  inline const char* TaskFunctor::name() const noexcept
   {
     return name_.c_str();
   }
 
-  inline
-  const std::string&
-  TaskFunctor::errors() const
-    noexcept
+  inline const std::string& TaskFunctor::errors() const noexcept
   {
     return errors_;
   }
 
-  inline
-  void
-  TaskFunctor::execute_(std::istream& istrm, std::ostream& estrm)
+  inline void TaskFunctor::execute_(std::istream& istrm, std::ostream& estrm)
     /*throw (eh::Exception)*/
   {
     if (has_error_file_)
@@ -237,9 +213,7 @@ namespace
     task_->execute(istrm, estrm);
   }
 
-  inline
-  void
-  TaskFunctor::execute_(std::ostream& estrm)
+  inline void TaskFunctor::execute_(std::ostream& estrm)
     /*throw (eh::Exception)*/
   {
     if (input_file_.empty())
@@ -258,9 +232,7 @@ namespace
     }
   }
 
-  inline
-  void
-  TaskFunctor::operator ()()
+  inline void TaskFunctor::operator ()()
     /*throw (eh::Exception)*/
   {
     if (has_error_file_)
@@ -271,8 +243,7 @@ namespace
       }
       else
       {
-        std::ofstream errors(error_file_.c_str(), 
-                             std::ios_base::app);
+        std::ofstream errors(error_file_.c_str(), std::ios_base::app);
         if (!errors.is_open())
         {
           errors_ = "Can't open file: " + error_file_;
@@ -289,8 +260,8 @@ namespace
     }
   }
 
-  typedef std::vector<TaskFunctor> TaskSeq;
-  typedef TaskSeq::iterator TaskSeqIter;
+  using TaskSeq = std::vector<TaskFunctor>;
+  using TaskSeqIter = TaskSeq::iterator;
 }
 
 /**
@@ -306,33 +277,30 @@ public:
 
   /** Default constructor from main arguments */
   Config(int argc, char **argv) /*throw (ParamsException)*/;
-  
+
   /**
    * Is usage param setted
    * @return is usage param set
    */
-  bool
-  is_usage() const noexcept;
+  bool is_usage() const noexcept;
 
   /**
    * Threads num param
    * @return threads num
    */
-  unsigned long
-  threads_num() const noexcept;
+  unsigned long threads_num() const noexcept;
 
   /**
    * Create tasks for this config
    * @return sequence of tasks
    */
-  TaskSeq
-  create_tasks() const /*throw (eh::Exception)*/;
+  TaskSeq create_tasks() const /*throw (eh::Exception)*/;
 
 protected:
 
-  typedef Generics::AppUtils::Option<unsigned long> ULongOption;
-  typedef Generics::AppUtils::StringOption StringOption;
-  typedef Generics::AppUtils::CheckOption CheckOption;
+  using ULongOption = Generics::AppUtils::Option<unsigned long>;
+  using StringOption = Generics::AppUtils::StringOption;
+  using CheckOption = Generics::AppUtils::CheckOption;
 
   // common
   CheckOption usage_;
@@ -361,16 +329,13 @@ protected:
   StringOption error_file_;
 
   /** Construct scenario from params */
-  Segment::TestScenarios
-  get_scenario_() const noexcept;
+  Segment::TestScenarios get_scenario_() const noexcept;
 
   /** Validate borders params*/
-  void
-  check_borders_() /*throw (ParamsException)*/;
+  void check_borders_() /*throw (ParamsException)*/;
 
   /** Validate threads num param */
-  void
-  check_threads_num_() const /*throw (ParamsException)*/;
+  void check_threads_num_() const /*throw (ParamsException)*/;
 
   /**
    * Create segmentor task for this config
@@ -379,31 +344,32 @@ protected:
    * @return task for this config and segmentor
    */
   TaskFunctor
-  get_task_(const char* name,
-    Language::Segmentor::SegmentorInterface_var& segmentor) const
+  get_task_(const char* name, Language::Segmentor::SegmentorInterface_var& segmentor) const
     /*throw (eh::Exception)*/;
 };
 
-Segment::TestScenarios
-Config::get_scenario_() const
-  noexcept
+Segment::TestScenarios Config::get_scenario_() const noexcept
 {
   if (std_utf8_.enabled())
   {
     return Segment::TS_STANDARD_UTF8;
   }
+
   if (non_std_utf8_.enabled())
   {
     return Segment::TS_NON_STANDARD_UTF8;
   }
+
   if (separators_.enabled())
   {
     return Segment::TS_SEPARATORS;
   }
+
   if (phrases_.enabled())
   {
     return Segment::TS_PHRASES;
   }
+
   if (phrases_seq_.enabled())
   {
     return Segment::TS_PHRASES_SEQ;
@@ -411,8 +377,7 @@ Config::get_scenario_() const
   return Segment::TS_ALL;
 }
 
-void 
-Config::check_borders_()
+void Config::check_borders_()
   /*throw (ParamsException)*/
 {
   if (lower_border_.installed() && *lower_border_ < 1)
@@ -422,6 +387,7 @@ Config::check_borders_()
       "a positive number";
     throw ParamsException(err);
   }
+
   if (upper_border_.installed())
   {
     if (*upper_border_ < *lower_border_)
@@ -432,14 +398,14 @@ Config::check_borders_()
       throw ParamsException(err);
     }
   }
+
   if (*lower_border_ > *upper_border_)
   {
     upper_border_.set_value(*lower_border_);
   }
 }
 
-void
-Config::check_threads_num_() const
+void Config::check_threads_num_() const
   /*throw (ParamsException)*/
 {
   if (threads_num_.installed() && *threads_num_ < 1)
@@ -452,8 +418,7 @@ Config::check_threads_num_() const
 }
 
 TaskFunctor
-Config::get_task_(const char* name, 
-  Language::Segmentor::SegmentorInterface_var& iface) const
+Config::get_task_(const char* name, Language::Segmentor::SegmentorInterface_var& iface) const
   /*throw (eh::Exception)*/
 {
   Segment_var segm(new Segment(iface,
@@ -463,7 +428,7 @@ Config::get_task_(const char* name,
     print_.enabled(),
     symbols_only_.enabled()));
 
-  return TaskFunctor(name, segm, 
+  return TaskFunctor(name, segm,
                      *input_file_,
                      error_file_.installed(),
                      *error_file_);
@@ -501,24 +466,17 @@ Config::Config(int argc, char **argv)
   check_borders_();
 }
 
-inline
-bool
-Config::is_usage() const
-  noexcept
-{ 
+inline bool Config::is_usage() const noexcept
+{
   return usage_.enabled();
 }
 
-inline
-unsigned long
-Config::threads_num() const
-  noexcept
-{ 
+inline unsigned long Config::threads_num() const noexcept
+{
   return *threads_num_;
 }
 
-TaskSeq
-Config::create_tasks() const
+TaskSeq Config::create_tasks() const
   /*throw (eh::Exception)*/
 {
   bool all = !segmentor_name_.installed();
@@ -547,6 +505,7 @@ Config::create_tasks() const
     TaskFunctor task = get_task_("MeCab", mecab);
     tasks.push_back(task);
   }
+
   if (all || *segmentor_name_ == "nlpir")
   {
     Language::Segmentor::SegmentorInterface_var nlpir
@@ -584,8 +543,7 @@ Config::create_tasks() const
   return tasks;
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   try
   {
@@ -597,7 +555,7 @@ main(int argc, char **argv)
       std::cout << USAGE_MSG << std::endl;
       return ret;
     }
-    
+
     unsigned long threads_num = config.threads_num();
     TaskSeq tasks = config.create_tasks();
 
@@ -606,31 +564,26 @@ main(int argc, char **argv)
       TaskFunctor& task = *i;
       const char* name = task.name();
 
-      std::cout << name << " segmentor checking started."
-                << std::endl;
-      
+      std::cout << name << " segmentor checking started." << std::endl;
+
       TestCommons::MTTester<TaskFunctor&> tester(task, threads_num);
       tester.run(threads_num, 0, threads_num);
-      
+
       bool with_errors = !task.errors().empty();
-      std::cout << name << " segmentor checking finished"
-                << (with_errors ? " with errors." : ".")
+      std::cout << name << " segmentor checking finished" << (with_errors ? " with errors." : ".")
                 << std::endl;
 
       if (with_errors)
       {
-        std::cerr << name << " segmentor checking errors:\n"
-                  << task.errors()
-                  << std::endl;
+        std::cerr << name << " segmentor checking errors:\n" << task.errors() << std::endl;
         ret = -1;
       }
-    }    
+    }
     return ret;
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << std::endl
-              << "  main(): eh::Exception caught: " << e.what()
+    std::cerr << std::endl << "  main(): eh::Exception caught: " << e.what()
               << std::endl << USAGE_MSG << std::endl;
     return -1;
   }

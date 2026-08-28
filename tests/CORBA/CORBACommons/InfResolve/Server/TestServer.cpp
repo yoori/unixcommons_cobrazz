@@ -8,57 +8,48 @@
 class Echo_i : public POA_Test::Echo
 {
 public:
-  virtual void
-  echoString(const Test::AType & message) noexcept;
+  virtual void echoString(const Test::AType & message) noexcept;
 };
 
-void
-Echo_i::echoString(const Test::AType & message) noexcept
+void Echo_i::echoString(const Test::AType & message) noexcept
 {
-  std::cout << "Server message sizeof=" << sizeof(::Test::AType)
-            << std::endl;
+  std::cout << "Server message sizeof=" << sizeof(::Test::AType) << std::endl;
   // some actions with AType sequence...
   std::cout << "Length=" << message.length() << std::endl;
-  for(std::size_t i = 0; i< message.length(); ++i)
+  for (std::size_t i = 0; i< message.length(); ++i)
   {
-    std::cout << message[i].aa << " "
-      << std::endl;
+    std::cout << message[i].aa << " " << std::endl;
   }
 }
 
 class OutVal_i : public POA_Test::OutVal
 {
 public:
-  virtual void
-  test(Test::B_out value) noexcept;
+  virtual void test(Test::B_out value) noexcept;
 };
 
-void
-OutVal_i::test(Test::B_out) noexcept
+void OutVal_i::test(Test::B_out) noexcept
 {
   // Do not assign anything into value
   std::cout << "Server do test(Test::B_out value) method. sizeof(B)="
     << sizeof(::Test::B) << std::endl;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
     std::cout << "Server started" << std::endl;
     CORBA::ORB_ptr orb = CORBA::ORB_init(argc, argv);
-    if(CORBA::is_nil(orb))
+    if (CORBA::is_nil(orb))
     {
       std::cerr << "CORBA::ORB_init failed" << std::endl;
       return 1;
-    }        
+    }
 
-    CORBA::Object_var obj =
-      orb->resolve_initial_references("RootPOA");
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
 
-    PortableServer::POA_var root_poa =
-      PortableServer::POA::_narrow (obj.in ());
+    PortableServer::POA_var root_poa = PortableServer::POA::_narrow (obj.in ());
     if (CORBA::is_nil (root_poa.in ()))
     {
       std::cerr << "POA::_narrow failed. Error=" << LM_ERROR << std::endl;
@@ -68,8 +59,7 @@ main(int argc, char** argv)
     Echo_i* myecho = new Echo_i();
 
     PortableServer::ServantBase_var owner_transfer(myecho);
-    PortableServer::ObjectId_var myechoid =
-      root_poa->activate_object (myecho);
+    PortableServer::ObjectId_var myechoid = root_poa->activate_object (myecho);
     CORBA::Object_var object = root_poa->id_to_reference (myechoid.in ());
     Test::Echo_var echo = Test::Echo::_narrow (object.in ());
 
@@ -80,10 +70,8 @@ main(int argc, char** argv)
 
     OutVal_i* myout = new OutVal_i();
     PortableServer::ServantBase_var transfer_owner(myout);
-    PortableServer::ObjectId_var my_outval_id =
-      root_poa->activate_object (myout);
-    CORBA::Object_var out_object =
-      root_poa->id_to_reference (my_outval_id.in ());
+    PortableServer::ObjectId_var my_outval_id = root_poa->activate_object (myout);
+    CORBA::Object_var out_object = root_poa->id_to_reference (my_outval_id.in ());
     Test::OutVal_var out = Test::OutVal::_narrow (out_object.in ());
 
     //obj = myout->_this();
@@ -114,8 +102,7 @@ main(int argc, char** argv)
     myecho->_remove_ref();
     myout->_remove_ref();
 
-    PortableServer::POAManager_var poa_manager =
-      root_poa->the_POAManager ();
+    PortableServer::POAManager_var poa_manager = root_poa->the_POAManager ();
 
     poa_manager->activate();
 

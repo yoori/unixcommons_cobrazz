@@ -12,131 +12,116 @@
 #include <Generics/Uncopyable.hpp>
 
 
-namespace Generics
+namespace Generics::Network
 {
-  namespace Network
+  /**
+   * Class supplies static resolving functions and a set of exceptions
+   */
+  class Resolver
   {
-    /**
-     * Class supplies static resolving functions and a set of exceptions
-     */
-    class Resolver
-    {
-    public:
-      DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
-      DECLARE_EXCEPTION(InvalidArgument, Exception);
-      DECLARE_EXCEPTION(GetHostByNameFailed, Exception);
-      DECLARE_EXCEPTION(UnresolvableAddress, Exception);
-
-      /**
-       * Translates a host name into set of addresses.
-       * Throws an exception on error.
-       * @param host_name name of the host to translate
-       * @param addresses resulted addresses
-       * @param buf buffer for host information storage
-       * @param buf_size its size
-       */
-      static
-      void
-      get_host_by_name(const char* host_name, hostent& addresses,
-        char* buf, size_t buf_size)
-        /*throw (Exception)*/;
-    };
+  public:
+    DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
+    DECLARE_EXCEPTION(InvalidArgument, Exception);
+    DECLARE_EXCEPTION(GetHostByNameFailed, Exception);
+    DECLARE_EXCEPTION(UnresolvableAddress, Exception);
 
     /**
-     * Provides list of IPs of local network interfaces
+     * Translates a host name into set of addresses.
+     * Throws an exception on error.
+     * @param host_name name of the host to translate
+     * @param addresses resulted addresses
+     * @param buf buffer for host information storage
+     * @param buf_size its size
      */
-    class LocalInterfaces : private Uncopyable
-    {
-    public:
-      DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
+    static
+    void get_host_by_name(const char* host_name, hostent& addresses, char* buf, size_t buf_size)
+      /*throw (Exception)*/;
+  };
 
-      /**
-       * Constructor
-       */
-      LocalInterfaces() /*throw (eh::Exception, Exception)*/;
-
-      /**
-       * Destructor
-       */
-      ~LocalInterfaces() noexcept;
-
-      /**
-       * Copies list of 'const sockaddr_in*' converted by functor into
-       * the container
-       * @param container container to fill with addresses
-       * @param functor functor to convert address with for the container
-       */
-      template <typename Container, typename Functor>
-      void
-      list_all(Container& container, Functor functor)
-        /*throw (eh::Exception, Exception)*/;
-
-
-    private:
-      ifaddrs* addresses_;
-    };
+  /**
+   * Provides list of IPs of local network interfaces
+   */
+  class LocalInterfaces : private Uncopyable
+  {
+  public:
+    DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
     /**
-     * Test if a hostname resolves localhost
+     * Constructor
      */
-    class IsLocalInterface : public Resolver
-    {
-    public:
-      /**
-       * Constructor
-       */
-      IsLocalInterface() /*throw (eh::Exception)*/;
+    LocalInterfaces() /*throw (eh::Exception, Exception)*/;
 
-      /**
-       * MT-safe method, that is intended for checking
-       * if host name resolves local host.
-       * If any of IPs got from the host_name is equal to any local
-       * network interface IP match is recorded
-       * @param host_name name of the host to resolve
-       * @return match of host_name IPs and local IPs
-       */
-      bool
-      check_host_name(const char* host_name) const
-        /*throw (eh::Exception, InvalidArgument, GetHostByNameFailed,
-          UnresolvableAddress)*/;
+    /**
+     * Destructor
+     */
+    ~LocalInterfaces() noexcept;
+
+    /**
+     * Copies list of 'const sockaddr_in*' converted by functor into
+     * the container
+     * @param container container to fill with addresses
+     * @param functor functor to convert address with for the container
+     */
+    template <typename Container, typename Functor>
+    void list_all(Container& container, Functor functor)
+      /*throw (eh::Exception, Exception)*/;
 
 
-    protected:
-      static
-      uint32_t
-      ip_address(const sockaddr_in* address) noexcept;
+  private:
+    ifaddrs* addresses_;
+  };
 
-      typedef std::set<uint32_t> LocalAddresses;
+  /**
+   * Test if a hostname resolves localhost
+   */
+  class IsLocalInterface : public Resolver
+  {
+  public:
+    /**
+     * Constructor
+     */
+    IsLocalInterface() /*throw (eh::Exception)*/;
 
-      LocalAddresses local_addresses_;
-    };
-  }
+    /**
+     * MT-safe method, that is intended for checking
+     * if host name resolves local host.
+     * If any of IPs got from the host_name is equal to any local
+     * network interface IP match is recorded
+     * @param host_name name of the host to resolve
+     * @return match of host_name IPs and local IPs
+     */
+    bool check_host_name(const char* host_name) const
+      /*throw (eh::Exception, InvalidArgument, GetHostByNameFailed,
+        UnresolvableAddress)*/;
+
+
+  protected:
+    static uint32_t ip_address(const sockaddr_in* address) noexcept;
+
+    using LocalAddresses = std::set<uint32_t>;
+
+    LocalAddresses local_addresses_;
+  };
 }
 
 //
 // Implementation
 //
 
-namespace Generics
+namespace Generics::Network
 {
-  namespace Network
+  template <typename Container, typename Functor>
+  void LocalInterfaces::list_all(Container& container, Functor functor)
+    /*throw (eh::Exception, Exception)*/
   {
-    template <typename Container, typename Functor>
-    void
-    LocalInterfaces::list_all(Container& container, Functor functor)
-      /*throw (eh::Exception, Exception)*/
+    for (const ifaddrs* address = addresses_; address; address = address->ifa_next)
     {
-      for (const ifaddrs* address = addresses_; address;
-        address = address->ifa_next)
+      if (address->ifa_addr && address->ifa_addr->sa_family == AF_INET)
       {
-        if (address->ifa_addr && address->ifa_addr->sa_family == AF_INET)
+        const sockaddr_in* addr = reinterpret_cast<const sockaddr_in*>(address->ifa_addr);
+        if (addr->sin_addr.s_addr != INADDR_ANY)
         {
-          const sockaddr_in* addr =
-            reinterpret_cast<const sockaddr_in*>(address->ifa_addr);
-          if (addr->sin_addr.s_addr != INADDR_ANY)
-          {
-            container.insert(container.end(), functor(addr));
-          }
+          container.insert(container.end(), functor(addr));
         }
       }
     }

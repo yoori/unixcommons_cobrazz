@@ -14,12 +14,11 @@ namespace HTTP
     HM_GET
   };
 
-  const char*
-  method_name(HttpMethod method) noexcept;
+  const char* method_name(HttpMethod method) noexcept;
 
 
   // host name and port
-  typedef std::pair<std::string, int> HttpServer;
+  using HttpServer = std::pair<std::string, int>;
 
 
   /**
@@ -31,33 +30,26 @@ namespace HTTP
     /**
      * Destructor
      */
-    virtual
-    ~RequestInformation() noexcept;
+    virtual ~RequestInformation() noexcept;
 
 
     /**
      * Request method
      * @return request method
      */
-    virtual
-    HttpMethod
-    method() const noexcept = 0;
+    virtual HttpMethod method() const noexcept = 0;
 
     /**
      * Request URI
      * @return request URI string
      */
-    virtual
-    const char*
-    http_request() const noexcept = 0;
+    virtual const char* http_request() const noexcept = 0;
 
     /**
      * List of provided request headers
      * @return list of request headers
      */
-    virtual
-    const HeaderList&
-    headers() const noexcept = 0;
+    virtual const HeaderList& headers() const noexcept = 0;
   };
 
   /**
@@ -70,34 +62,27 @@ namespace HTTP
      * Response code
      * @return response code
      */
-    virtual
-    int
-    response_code() const noexcept = 0;
+    virtual int response_code() const noexcept = 0;
 
     /**
      * Response headers
      * @return response headers
      */
-    virtual
-    const HeaderList&
-    response_headers() const noexcept = 0;
+    virtual const HeaderList& response_headers() const noexcept = 0;
 
     /**
      * Searches for specific header in the response
      * @param name header name
      * @param headers all headers with the specified name to place to
      */
-    void
-    find_headers(const char* name, HeaderList& headers) const
+    void find_headers(const char* name, HeaderList& headers) const
       /*throw (eh::Exception)*/;
 
     /**
      * Response body
      * @return response body data
      */
-    virtual
-    String::SubString
-    body() const noexcept = 0;
+    virtual String::SubString body() const noexcept = 0;
   };
 
 
@@ -112,29 +97,21 @@ namespace HTTP
      * Called when request succeeded
      * @param data response
      */
-    virtual
-    void
-    on_response(const ResponseInformation& data) noexcept = 0;
+    virtual void on_response(const ResponseInformation& data) noexcept = 0;
 
     /**
      * Called when request succeeded and it is not possible to call on_response
      * Should return control ASAP
      * @param data response
      */
-    virtual
-    void
-    quick_on_response(const ResponseInformation& data) noexcept;
+    virtual void quick_on_response(const ResponseInformation& data) noexcept;
 
     /**
      * Called when request failed
      * @param description error message
      * @param data request
      */
-    virtual
-    void
-    on_error(
-      const String::SubString& description,
-      const RequestInformation& data)
+    virtual void on_error( const String::SubString& description, const RequestInformation& data)
       noexcept = 0;
 
     /**
@@ -144,20 +121,16 @@ namespace HTTP
      * @param data request
      */
     virtual
-    void
-    quick_on_error(
-      const String::SubString& description,
-      const RequestInformation& data)
+    void quick_on_error( const String::SubString& description, const RequestInformation& data)
       noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~ResponseCallback() noexcept;
+    virtual ~ResponseCallback() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<ResponseCallback> ResponseCallback_var;
+  using ResponseCallback_var = ReferenceCounting::QualPtr<ResponseCallback>;
 
 
   /**
@@ -180,8 +153,7 @@ namespace HTTP
     void
     add_get_request(const char* http_request,
       ResponseCallback* callback = 0,
-      const HttpServer& peer = HttpServer(),
-      const HeaderList& headers = HeaderList())
+      const HttpServer& peer = HttpServer(), const HeaderList& headers = HeaderList())
       /*throw (eh::Exception, Exception)*/ = 0;
 
     /**
@@ -197,8 +169,7 @@ namespace HTTP
     void
     add_post_request(const char* http_request,
       ResponseCallback* callback = 0,
-      const String::SubString& body = String::SubString(),
-      const HttpServer& peer = HttpServer(),
+      const String::SubString& body = String::SubString(), const HttpServer& peer = HttpServer(),
       const HeaderList& headers = HeaderList())
       /*throw (eh::Exception, Exception)*/ = 0;
 
@@ -206,11 +177,9 @@ namespace HTTP
     /**
      * Destructor
      */
-    virtual
-    ~HttpInterface() noexcept;
+    virtual ~HttpInterface() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<HttpInterface>
-    HttpInterface_var;
+  using HttpInterface_var = ReferenceCounting::QualPtr<HttpInterface>;
 
 
   /**
@@ -221,18 +190,16 @@ namespace HTTP
     public Generics::ActiveObject
   {
   public:
-    typedef HttpInterface::Exception Exception;
-    typedef Generics::ActiveObject::Exception ActiveObjectException;
+    using Exception = HttpInterface::Exception;
+    using ActiveObjectException = Generics::ActiveObject::Exception;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~HttpActiveInterface() noexcept;
+    virtual ~HttpActiveInterface() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<HttpActiveInterface>
-    HttpActiveInterface_var;
+  using HttpActiveInterface_var = ReferenceCounting::QualPtr<HttpActiveInterface>;
 
 
   /**

@@ -63,15 +63,13 @@ namespace CORBACommons
      * @param right another information to compare with
      * @return if contents are binary equal or not
      */
-    bool
-    operator ==(const SecureConnectionConfig& right) const noexcept;
+    bool operator ==(const SecureConnectionConfig& right) const noexcept;
 
     /**
      * Gives "secure" status
      * @return if it was initialized with security information or not
      */
-    bool
-    is_secure() const noexcept;
+    bool is_secure() const noexcept;
 
     std::string pass_phrase;
     PrivateKey_var private_key;
@@ -97,30 +95,26 @@ namespace CORBACommons
      * Reference to stored configuration
      * @return reference to stored configuration
      */
-    const SecureConnectionConfig&
-    operator *() const noexcept;
+    const SecureConnectionConfig& operator *() const noexcept;
 
     /**
      * Pointer to stored configuration
      * @return pointer to stored configuration
      */
-    const SecureConnectionConfig*
-    operator ->() const noexcept;
+    const SecureConnectionConfig* operator ->() const noexcept;
 
     /**
      * Calculated hash value for configuration
      * @return calculated hash value
      */
-    size_t
-    hash() const noexcept;
+    size_t hash() const noexcept;
 
     /**
      * Compares with another adapter on equality
      * @param other another adapter to compare with
      * @return if two adapters hold equal information or not
      */
-    bool
-    operator ==(const SecureConnectionConfigAdaptor& other) const noexcept;
+    bool operator ==(const SecureConnectionConfigAdaptor& other) const noexcept;
 
   private:
     SecureConnectionConfig config_;
@@ -131,7 +125,7 @@ namespace CORBACommons
   /**
    * Orb properties - list of arguments to pass to ORB_init
    */
-  typedef std::list<std::string> ORBProperties;
+  using ORBProperties = std::list<std::string>;
 
   /**
    * Throws an object of Exception type, add termination zero
@@ -139,8 +133,7 @@ namespace CORBACommons
    * @param substr The substring containing description of error
    */
   template <typename Exception>
-  void
-  throw_desc(const String::SubString& substr)
+  void throw_desc(const String::SubString& substr)
     /*throw (eh::Exception, Exception)*/;
 }
 
@@ -149,8 +142,7 @@ namespace CORBACommons
  * @param str The destination to write a substring
  * @param substr The substring to be assigned to string
  */
-void
-operator <<(CORBA::String_var& str, const String::SubString& substr)
+void operator <<(CORBA::String_var& str, const String::SubString& substr)
   /*throw (eh::Exception)*/;
 
 /**
@@ -158,8 +150,7 @@ operator <<(CORBA::String_var& str, const String::SubString& substr)
  * @param str The destination to write a substring
  * @param substr The substring to be assigned to string
  */
-void
-operator <<(TAO::String_Manager& str, const String::SubString& substr)
+void operator <<(TAO::String_Manager& str, const String::SubString& substr)
   /*throw (eh::Exception)*/;
 
 
@@ -173,31 +164,24 @@ namespace CORBACommons
   // SecureConnectionConfig class
   //
 
-  inline
-  SecureConnectionConfig::SecureConnectionConfig() noexcept
+  inline SecureConnectionConfig::SecureConnectionConfig() noexcept
   {
   }
 
-  inline
-  bool
-  SecureConnectionConfig::is_secure() const noexcept
+  inline bool SecureConnectionConfig::is_secure() const noexcept
   {
     const char* key = private_key;
     return key && *key;
   }
 
-  inline
-  bool
-  SecureConnectionConfig::operator ==(const SecureConnectionConfig& right)
+  inline bool SecureConnectionConfig::operator ==(const SecureConnectionConfig& right)
     const noexcept
   {
     return !is_secure() ? !right.is_secure() :
-      right.is_secure() &&
-      !strcmp(private_key, right.private_key) &&
+      right.is_secure() && !strcmp(private_key, right.private_key) &&
       !strcmp(pass_phrase.c_str(), right.pass_phrase.c_str()) &&
       !strcmp(own_certificate, right.own_certificate) &&
-      !strcmp(peer_certificate_authority,
-        right.peer_certificate_authority);
+      !strcmp(peer_certificate_authority, right.peer_certificate_authority);
   }
 
 
@@ -217,23 +201,17 @@ namespace CORBACommons
     }
   }
 
-  inline
-  const SecureConnectionConfig&
-  SecureConnectionConfigAdaptor::operator *() const noexcept
+  inline const SecureConnectionConfig& SecureConnectionConfigAdaptor::operator *() const noexcept
   {
     return config_;
   }
 
-  inline
-  const SecureConnectionConfig*
-  SecureConnectionConfigAdaptor::operator ->() const noexcept
+  inline const SecureConnectionConfig* SecureConnectionConfigAdaptor::operator ->() const noexcept
   {
     return &config_;
   }
 
-  inline
-  size_t
-  SecureConnectionConfigAdaptor::hash() const noexcept
+  inline size_t SecureConnectionConfigAdaptor::hash() const noexcept
   {
     return hash_;
   }
@@ -251,8 +229,7 @@ namespace CORBACommons
   //
 
   template <typename Exception>
-  void
-  throw_desc(const String::SubString& substr) /*throw (eh::Exception, Exception)*/
+  void throw_desc(const String::SubString& substr) /*throw (eh::Exception, Exception)*/
   {
     Exception ex;
     ex.description << substr;
@@ -260,9 +237,7 @@ namespace CORBACommons
   }
 }
 
-inline
-void
-operator <<(CORBA::String_var& str, const String::SubString& substr)
+inline void operator <<(CORBA::String_var& str, const String::SubString& substr)
   /*throw (eh::Exception)*/
 {
   char* ptr = CORBA::String_var::s_traits::allocate(substr.size() + 1);
@@ -270,9 +245,7 @@ operator <<(CORBA::String_var& str, const String::SubString& substr)
   str = ptr;
 }
 
-inline
-void
-operator <<(CORBA::String_out& str, const String::SubString& substr)
+inline void operator <<(CORBA::String_out& str, const String::SubString& substr)
   /*throw (eh::Exception)*/
 {
   char* ptr = CORBA::String_out::s_traits::allocate(substr.size() + 1);
@@ -280,9 +253,7 @@ operator <<(CORBA::String_out& str, const String::SubString& substr)
   str = ptr;
 }
 
-inline
-void
-operator <<(TAO::String_Manager& str, const String::SubString& substr)
+inline void operator <<(TAO::String_Manager& str, const String::SubString& substr)
   /*throw (eh::Exception)*/
 {
   char* ptr = TAO::String_Manager::s_traits::allocate(substr.size() + 1);

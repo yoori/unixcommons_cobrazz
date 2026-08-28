@@ -63,16 +63,14 @@ namespace String
      * Maximum value U+10FFFF never overflow. Illegal code units over jump.
      * Raise exception when call on Null UnicodeSymbol.
      */
-    UnicodeSymbol&
-    operator ++() /*throw (RangeException)*/;
+    UnicodeSymbol& operator ++() /*throw (RangeException)*/;
 
     /**
      * Prefix decrement operator.
      * Illegal code units over jump.
      * Raise exception when call on Null UnicodeSymbol.
      */
-    UnicodeSymbol&
-    operator --() /*throw (RangeException)*/;
+    UnicodeSymbol& operator --() /*throw (RangeException)*/;
 
     /**
      * This type conversion operator allow comparison of
@@ -85,8 +83,7 @@ namespace String
      * @param new_value new Unicode code point value.
      * @return object with new code point.
      */
-    UnicodeSymbol&
-    operator =(wchar_t new_value)
+    UnicodeSymbol& operator =(wchar_t new_value)
       /*throw (RangeException, eh::Exception)*/;
 
     UnicodeSymbol& operator=(const String::UnicodeSymbol& s);
@@ -94,29 +91,25 @@ namespace String
     /**
      * @return length of corresponding UTF-8 byte sequence.
      */
-    size_t
-    length() const /*throw (RangeException)*/;
+    size_t length() const /*throw (RangeException)*/;
 
     /**
      * @return true if isn't stored any valid code unit.
      */
-    bool
-    is_null() const noexcept;
+    bool is_null() const noexcept;
 
     /**
      * After call UnicodeSymbol doesn't contain any legal
      * Unicode code unit.
      */
-    void
-    set_null() noexcept;
+    void set_null() noexcept;
 
     /**
      * Convert UnicodeSymbol into UTF-8 byte sequence and
      * @return pointer to internal buffer with UTF-8 byte
      * sequence.
      */
-    const char*
-    c_str() const /*throw (RangeException)*/;
+    const char* c_str() const /*throw (RangeException)*/;
 
     /**
      * The same that c_str, but return unsigned char* pointer. Need it
@@ -124,8 +117,7 @@ namespace String
      * @return pointer to internal buffer with UTF-8 byte
      * sequence.
      */
-    const unsigned char*
-    c_ustr() const /*throw (RangeException)*/;
+    const unsigned char* c_ustr() const /*throw (RangeException)*/;
 
     /**
      * Manipulator for std streams input/output
@@ -135,9 +127,7 @@ namespace String
      * @param iosbase stream to manipulate
      * @return manipulated stream
      */
-    static
-    std::ios_base&
-    binary(std::ios_base& iosbase) noexcept;
+    static std::ios_base& binary(std::ios_base& iosbase) noexcept;
 
     /**
      * Manipulator for std streams input/output
@@ -148,33 +138,25 @@ namespace String
      * @param iosbase stream to manipulate
      * @return manipulated stream
      */
-    static
-    std::ios_base&
-    nobinary(std::ios_base& iosbase) noexcept;
+    static std::ios_base& nobinary(std::ios_base& iosbase) noexcept;
 
     /**
      * @return true if set binary output mode for UnicodeSymbol's
      * in iosbase stream. false is text mode established.
      */
-    static
-    bool
-    get_out(std::ios_base& iosbase) noexcept;
+    static bool get_out(std::ios_base& iosbase) noexcept;
 
     /**
      * @param iosbase stream to set UnicodeSymbols in/out mode.
      * @param binary_output_mode true - binary mode, false - text mode.
      */
-    static
-    void
-    set_out(std::ios_base& iosbase, bool binary_output_mode) noexcept;
+    static void set_out(std::ios_base& iosbase, bool binary_output_mode) noexcept;
 
     /**
      * Random well-formed UnicodeSymbol generator.
      * @return any well-formed UnicodeSymbol.
      */
-    static
-    UnicodeSymbol
-    random() noexcept;
+    static UnicodeSymbol random() noexcept;
 
   private:
     /**
@@ -182,9 +164,7 @@ namespace String
      * @param value code unit to check
      * @return if a simbol suits the standard
      */
-    static
-    bool
-    check_validity_(wchar_t value) noexcept;
+    static bool check_validity_(wchar_t value) noexcept;
 
   public:
     /// Maximum legal Unicode code unit value
@@ -204,17 +184,13 @@ namespace String
   /**
    * Put UTF-8 byte sequence into stream
    */
-  std::ostream&
-  operator <<(std::ostream &os, const UnicodeSymbol& u)
-    noexcept;
+  std::ostream& operator <<(std::ostream &os, const UnicodeSymbol& u) noexcept;
 
   /**
    * Get UTF-8 byte sequence from stream, and put it into internal
    * representation Unicode code unit.
    */
-  std::istream&
-  operator >>(std::istream &is, UnicodeSymbol &u)
-    noexcept;
+  std::istream& operator >>(std::istream &is, UnicodeSymbol &u) noexcept;
 } // namespace String
 
 //////////////////////////////////////////////////////////////////////////
@@ -227,29 +203,23 @@ namespace String
   //  class UnicodeSymbol
   //
 
-  inline
-  bool
-  UnicodeSymbol::check_validity_(wchar_t value) noexcept
+  inline bool UnicodeSymbol::check_validity_(wchar_t value) noexcept
   {
     // Surrogates are not symbols
-    return (value >= 0 && value <= 0xD7FF) ||
-      (value >= 0xE000 && value <= MAX_CODE_UNIT);
+    return (value >= 0 && value <= 0xD7FF) || (value >= 0xE000 && value <= MAX_CODE_UNIT);
   }
 
-  inline
-  UnicodeSymbol::UnicodeSymbol() noexcept
+  inline UnicodeSymbol::UnicodeSymbol() noexcept
     : code_unit_(NULL_CODE_UNIT_)
   {
   }
 
-  inline
-  UnicodeSymbol::UnicodeSymbol(const UnicodeSymbol& symbol) noexcept
+  inline UnicodeSymbol::UnicodeSymbol(const UnicodeSymbol& symbol) noexcept
     : code_unit_(symbol.code_unit_)
   {
   }
 
-  inline
-  UnicodeSymbol::UnicodeSymbol(wchar_t code_unit) /*throw (RangeException)*/
+  inline UnicodeSymbol::UnicodeSymbol(wchar_t code_unit) /*throw (RangeException)*/
     : code_unit_(code_unit)
   {
     if (!check_validity_(code_unit))
@@ -261,8 +231,7 @@ namespace String
     }
   }
 
-  inline
-  UnicodeSymbol::UnicodeSymbol(const char* byte_sequence)
+  inline UnicodeSymbol::UnicodeSymbol(const char* byte_sequence)
     /*throw (RangeException)*/
   {
     unsigned long count;
@@ -280,53 +249,45 @@ namespace String
     }
   }
 
-  inline
-  bool
-  UnicodeSymbol::get_out(std::ios_base& iosbase) noexcept
+  inline bool UnicodeSymbol::get_out(std::ios_base& iosbase) noexcept
   {
     return iosbase.iword(output_format_index_) != 0;
   }
 
-  inline
-  void
-  UnicodeSymbol::set_out(std::ios_base& iosbase, bool binary_output_mode)
-    noexcept
+  inline void UnicodeSymbol::set_out(std::ios_base& iosbase, bool binary_output_mode) noexcept
   {
     iosbase.iword(output_format_index_) = binary_output_mode;
   }
 
-  inline
-  std::ios_base&
-  UnicodeSymbol::binary(std::ios_base& iosbase) noexcept
+  inline std::ios_base& UnicodeSymbol::binary(std::ios_base& iosbase) noexcept
   {
     set_out(iosbase, true);
     return iosbase;
   }
 
-  inline
-  std::ios_base&
-  UnicodeSymbol::nobinary(std::ios_base& iosbase) noexcept
+  inline std::ios_base& UnicodeSymbol::nobinary(std::ios_base& iosbase) noexcept
   {
     set_out(iosbase, false);
     return iosbase;
   }
 
-  inline
-  size_t
-  UnicodeSymbol::length() const /*throw (RangeException)*/
+  inline size_t UnicodeSymbol::length() const /*throw (RangeException)*/
   {
     if (code_unit_ <= 0x7F)
     {
       return 1;
     }
+
     if (code_unit_ <= 0x07FF)
     {
       return 2;
     }
+
     if (code_unit_ <= 0xFFFF)
     {
       return 3;
     }
+
     if (code_unit_ <= 0x10FFFF)
     {
       return 4;
@@ -337,23 +298,17 @@ namespace String
     throw RangeException(ostr);
   }
 
-  inline
-  bool
-  UnicodeSymbol::is_null() const noexcept
+  inline bool UnicodeSymbol::is_null() const noexcept
   {
     return code_unit_ == NULL_CODE_UNIT_;
   }
 
-  inline
-  void
-  UnicodeSymbol::set_null() noexcept
+  inline void UnicodeSymbol::set_null() noexcept
   {
     code_unit_ = NULL_CODE_UNIT_;
   }
 
-  inline
-  const char*
-  UnicodeSymbol::c_str() const /*throw (RangeException)*/
+  inline const char* UnicodeSymbol::c_str() const /*throw (RangeException)*/
   {
     if (is_null())
     {
@@ -364,31 +319,24 @@ namespace String
     else
     {
       unsigned long octets_count = 0;
-      UTF8Handler::wchar_to_utf8_char(code_unit_,
-        as_text_, octets_count);
+      UTF8Handler::wchar_to_utf8_char(code_unit_, as_text_, octets_count);
       as_text_[octets_count] = 0;
     }
     return as_text_;
   }
 
-  inline
-  const unsigned char*
-  UnicodeSymbol::c_ustr() const /*throw (RangeException)*/
+  inline const unsigned char* UnicodeSymbol::c_ustr() const /*throw (RangeException)*/
   {
     return reinterpret_cast<const unsigned char*>(c_str());
   }
 
-  inline
-  UnicodeSymbol&
-  UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
+  inline UnicodeSymbol& UnicodeSymbol::operator=(const String::UnicodeSymbol& symbol)
   {
     code_unit_ = symbol.code_unit_;
     return *this;
   }
 
-  inline
-  UnicodeSymbol&
-  UnicodeSymbol::operator ++() /*throw (RangeException)*/
+  inline UnicodeSymbol& UnicodeSymbol::operator ++() /*throw (RangeException)*/
   {
     if (!check_validity_(code_unit_) || is_null())
     {
@@ -409,9 +357,7 @@ namespace String
     return *this;
   }
 
-  inline
-  UnicodeSymbol&
-  UnicodeSymbol::operator --() /*throw (RangeException)*/
+  inline UnicodeSymbol& UnicodeSymbol::operator --() /*throw (RangeException)*/
   {
     if (!check_validity_(code_unit_) || code_unit_ == 0 || is_null())
     {
@@ -419,6 +365,7 @@ namespace String
       ostr << FNS << "out of range";
       throw RangeException(ostr);
     }
+
     if (code_unit_ > 0)
     {
       if (code_unit_ == 0xE000)
@@ -431,8 +378,7 @@ namespace String
     return *this;
   }
 
-  inline
-  UnicodeSymbol::operator wchar_t() const noexcept
+  inline UnicodeSymbol::operator wchar_t() const noexcept
   {
     return code_unit_;
   }

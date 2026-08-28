@@ -3,55 +3,47 @@
 #include <String/SubString.hpp>
 
 
+namespace String::Helper
+{
+  struct Iterator
+  {
+  public:
+    explicit Iterator(const String::SubString& src) noexcept;
+
+    bool exhausted() const noexcept;
+
+    char forward() noexcept;
+
+    void backward(int step) noexcept;
+
+  private:
+    const char* current_;
+    const char* const END_;
+  };
+}
+
+namespace String::ToLower
+{
+  bool to_lower(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
+}
+
+namespace String::ToUpper
+{
+  bool to_upper(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
+}
+
+namespace String::ToUniform
+{
+  bool to_uniform(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
+}
+
+namespace String::ToSimplify
+{
+  bool to_simplify(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
+}
+
 namespace String
 {
-  namespace Helper
-  {
-    struct Iterator
-    {
-    public:
-      explicit
-      Iterator(const String::SubString& src) noexcept;
-
-      bool
-      exhausted() const noexcept;
-
-      char
-      forward() noexcept;
-
-      void
-      backward(int step) noexcept;
-
-    private:
-      const char* current_;
-      const char* const END_;
-    };
-  }
-
-  namespace ToLower
-  {
-    bool
-    to_lower(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
-  }
-
-  namespace ToUpper
-  {
-    bool
-    to_upper(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
-  }
-
-  namespace ToUniform
-  {
-    bool
-    to_uniform(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
-  }
-
-  namespace ToSimplify
-  {
-    bool
-    to_simplify(Helper::Iterator it, char*& dest, size_t& counter) noexcept;
-  }
-
   /**
    * Special struct for handy conversion algorithm selection.
    * into case_change methods. Do lower UTF-8 encoding conversion.
@@ -60,9 +52,7 @@ namespace String
   {
     static const size_t MULTIPLIER = 2;
 
-    static
-    bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
+    static bool doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -73,9 +63,7 @@ namespace String
   {
     static const size_t MULTIPLIER = 11;
 
-    static
-    bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
+    static bool doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -86,9 +74,7 @@ namespace String
   {
     static const size_t MULTIPLIER = 3;
 
-    static
-    bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
+    static bool doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -99,9 +85,7 @@ namespace String
   {
     static const size_t MULTIPLIER = 2;
 
-    static
-    bool
-    doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
+    static bool doit(Helper::Iterator in, char*& out, size_t& counter) noexcept;
   };
 
   /**
@@ -112,9 +96,7 @@ namespace String
    * UTF-8 sequence is occurred.
    */
   template <typename Action>
-  bool
-  case_change(const String::SubString& src, char*& dest,
-    std::size_t* counter = 0) noexcept;
+  bool case_change(const String::SubString& src, char*& dest, std::size_t* counter = 0) noexcept;
 
   /**
    * @param src source UTF-8 string to convert
@@ -133,75 +115,57 @@ namespace String
 //////////////////////////////////////////////////////////////////////////
 // Implementation
 
-namespace String
+namespace String::Helper
 {
-  namespace Helper
+  inline Iterator::Iterator(const String::SubString& src) noexcept
+    : current_(src.data()), END_(current_ + src.size())
   {
-    inline
-    Iterator::Iterator(const String::SubString& src) noexcept
-      : current_(src.data()), END_(current_ + src.size())
-    {
-    }
-
-    inline
-    bool
-    Iterator::exhausted() const noexcept
-    {
-      return current_ == END_;
-    }
-
-    inline
-    char
-    Iterator::forward() noexcept
-    {
-      return *current_++;
-    }
-
-    inline
-    void
-    Iterator::backward(int step) noexcept
-    {
-      current_ -= step;
-    }
   }
 
-  inline
-  bool
-  Lower::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
+  inline bool Iterator::exhausted() const noexcept
+  {
+    return current_ == END_;
+  }
+
+  inline char Iterator::forward() noexcept
+  {
+    return *current_++;
+  }
+
+  inline void Iterator::backward(int step) noexcept
+  {
+    current_ -= step;
+  }
+}
+
+namespace String
+{
+  inline bool Lower::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToLower::to_lower(in, out, counter);
   }
 
-  inline
-  bool
-  Simplify::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
+  inline bool Simplify::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToSimplify::to_simplify(in, out, counter);
   }
 
-  inline
-  bool
-  Uniform::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
+  inline bool Uniform::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToUniform::to_uniform(in, out, counter);
   }
 
-  inline
-  bool
-  Upper::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
+  inline bool Upper::doit(Helper::Iterator in, char*& out, size_t& counter) noexcept
   {
     return ToUpper::to_upper(in, out, counter);
   }
 
 
   template <typename Action>
-  bool
-  case_change(const String::SubString& src, char*& dest, size_t* counter)
-    noexcept
+  bool case_change(const String::SubString& src, char*& dest, size_t* counter) noexcept
   {
     size_t dummy;
-    return Action::doit(Helper::Iterator(src), dest,
-      counter ? *counter : dummy);
+    return Action::doit(Helper::Iterator(src), dest, counter ? *counter : dummy);
   }
 
   template <typename Action, typename Traits, typename Alloc>
@@ -213,8 +177,7 @@ namespace String
     size_t dummy;
     dest.resize(src.size() * Action::MULTIPLIER);
     char* out = &dest[0];
-    bool result = Action::doit(Helper::Iterator(src), out,
-      counter ? *counter : dummy);
+    bool result = Action::doit(Helper::Iterator(src), out, counter ? *counter : dummy);
     dest.resize(out - &dest[0]);
     return result;
   }

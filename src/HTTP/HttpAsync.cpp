@@ -12,9 +12,7 @@ namespace HTTP
   {
   }
 
-  void
-  ResponseCallback::quick_on_response(const ResponseInformation& data)
-    noexcept
+  void ResponseCallback::quick_on_response(const ResponseInformation& data) noexcept
   {
     on_response(data);
   }
@@ -47,8 +45,7 @@ namespace HTTP
     String::AsciiStringManip::Caseless header_name(name);
     const HeaderList& rheaders = response_headers();
 
-    for (HeaderList::const_iterator itor(rheaders.begin());
-      itor != rheaders.end(); ++itor)
+    for (HeaderList::const_iterator itor(rheaders.begin()); itor != rheaders.end(); ++itor)
     {
       if (header_name == itor->name)
       {
@@ -76,8 +73,7 @@ namespace HTTP
   }
 
 
-  const char*
-  method_name(HttpMethod method) noexcept
+  const char* method_name(HttpMethod method) noexcept
   {
     switch (method)
     {
@@ -107,22 +103,19 @@ namespace HTTP
       void
       add_get_request(const char* http_request,
         ResponseCallback* callback = 0,
-        const HttpServer& peer = HttpServer(),
-        const HeaderList& headers = HeaderList())
+        const HttpServer& peer = HttpServer(), const HeaderList& headers = HeaderList())
         /*throw (eh::Exception, Exception)*/;
 
       virtual
       void
       add_post_request(const char* http_request,
         ResponseCallback* callback = 0,
-        const String::SubString& body = String::SubString(),
-        const HttpServer& peer = HttpServer(),
+        const String::SubString& body = String::SubString(), const HttpServer& peer = HttpServer(),
         const HeaderList& headers = HeaderList())
         /*throw (eh::Exception, Exception)*/;
 
     protected:
-      virtual
-      ~HttpConnectionWrapper() noexcept;
+      virtual ~HttpConnectionWrapper() noexcept;
 
     private:
       void
@@ -141,37 +134,24 @@ namespace HTTP
     class Response : public ResponseInformation
     {
     public:
-      Response(HttpMethod method, const char* request,
-        const HeaderList& headers) noexcept;
+      Response(HttpMethod method, const char* request, const HeaderList& headers) noexcept;
 
       void
       response(int response_code, const HeaderList& response_headers,
         const String::SubString& response_body, ResponseCallback* callback)
         noexcept;
 
-      virtual
-      HttpMethod
-      method() const noexcept;
+      virtual HttpMethod method() const noexcept;
 
-      virtual
-      const char*
-      http_request() const noexcept;
+      virtual const char* http_request() const noexcept;
 
-      virtual
-      const HeaderList&
-      headers() const noexcept;
+      virtual const HeaderList& headers() const noexcept;
 
-      virtual
-      int
-      response_code() const noexcept;
+      virtual int response_code() const noexcept;
 
-      virtual
-      const HeaderList&
-      response_headers() const noexcept;
+      virtual const HeaderList& response_headers() const noexcept;
 
-      virtual
-      String::SubString
-      body() const noexcept;
+      virtual String::SubString body() const noexcept;
 
     private:
       HttpMethod method_;
@@ -188,8 +168,7 @@ namespace HTTP
     // Response class
     //
 
-    Response::Response(HttpMethod method, const char* request,
-      const HeaderList& headers) noexcept
+    Response::Response(HttpMethod method, const char* request, const HeaderList& headers) noexcept
       : method_(method), request_(request), headers_(headers),
         response_code_(0), response_body_(0)
     {
@@ -209,38 +188,32 @@ namespace HTTP
       }
     }
 
-    HttpMethod
-    Response::method() const noexcept
+    HttpMethod Response::method() const noexcept
     {
       return method_;
     }
 
-    const char*
-    Response::http_request() const noexcept
+    const char* Response::http_request() const noexcept
     {
       return request_;
     }
 
-    const HeaderList&
-    Response::headers() const noexcept
+    const HeaderList& Response::headers() const noexcept
     {
       return headers_;
     }
 
-    int
-    Response::response_code() const noexcept
+    int Response::response_code() const noexcept
     {
       return response_code_;
     }
 
-    const HeaderList&
-    Response::response_headers() const noexcept
+    const HeaderList& Response::response_headers() const noexcept
     {
       return *response_headers_;
     }
 
-    String::SubString
-    Response::body() const noexcept
+    String::SubString Response::body() const noexcept
     {
       return *response_body_;
     }
@@ -255,8 +228,7 @@ namespace HTTP
       const Generics::Time* send_timeout,
       const Generics::Time* recv_timeout)
       /*throw (eh::Exception)*/
-      : connect_timeout_(connect_timeout ?
-          new Generics::Time(*connect_timeout) : 0),
+      : connect_timeout_(connect_timeout ? new Generics::Time(*connect_timeout) : 0),
         send_timeout_(send_timeout ? new Generics::Time(*send_timeout) : 0),
         recv_timeout_(recv_timeout ? new Generics::Time(*recv_timeout) : 0)
     {
@@ -283,8 +255,7 @@ namespace HTTP
       const HeaderList& headers)
       /*throw (eh::Exception, Exception)*/
     {
-      do_request_(HM_POST, HTTP_Connection::HM_Post, http_request,
-        callback, body, peer, headers);
+      do_request_(HM_POST, HTTP_Connection::HM_Post, http_request, callback, body, peer, headers);
     }
 
     void
@@ -304,8 +275,7 @@ namespace HTTP
 
       Response response(method, request, headers);
 
-      HTTP_Connection::HttpBody* http_body =
-        new HTTP_Connection::HttpBody();
+      HTTP_Connection::HttpBody* http_body = new HTTP_Connection::HttpBody();
       if (!body.empty())
       {
         http_body->init(body.data(), body.size());
@@ -314,8 +284,7 @@ namespace HTTP
       try
       {
         HeaderList response_headers;
-        std::copy(headers.begin(), headers.end(),
-          std::back_inserter(response_headers));
+        std::copy(headers.begin(), headers.end(), std::back_inserter(response_headers));
 
         std::string proxy;
         if (!peer.first.empty())
@@ -338,11 +307,9 @@ namespace HTTP
         if (http_body)
         {
           response_body.reserve(http_body->total_size());
-          for (HTTP_Connection::HttpBody* block = http_body; block;
-            block = block->cont())
+          for (HTTP_Connection::HttpBody* block = http_body; block; block = block->cont())
           {
-            response_body.insert(response_body.end(), block->base(),
-              block->base() + block->size());
+            response_body.insert(response_body.end(), block->base(), block->base() + block->size());
           }
         }
 
@@ -388,7 +355,6 @@ namespace HTTP
     const Generics::Time* recv_timeout)
     /*throw (eh::Exception)*/
   {
-    return new HttpConnectionWrapper(connect_timeout, send_timeout,
-      recv_timeout);
+    return new HttpConnectionWrapper(connect_timeout, send_timeout, recv_timeout);
   }
 }

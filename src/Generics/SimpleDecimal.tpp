@@ -10,16 +10,13 @@ namespace Generics
   // SimpleDecimal class
   //
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::PACK_SIZE;
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Base SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::INVALID_FLAG_;
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer, typename Fraction>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(bool negative,
@@ -35,6 +32,7 @@ namespace Generics
         static_cast<typename Parent::CalcType>(MAX_FRACTION_);
       throw Overflow(ostr);
     }
+
     if (DecimalHelper::exceeds(integer, MAX_INTEGER_))
     {
       Stream::Error ostr;
@@ -47,8 +45,7 @@ namespace Generics
       static_cast<Base>(fraction);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::construct_(
@@ -56,8 +53,7 @@ namespace Generics
   {
     DecimalIntegerCheck<Integer>();
 
-    if (power >= std::numeric_limits<Integer>::digits10 + FRACTION_RANK ||
-      !integer)
+    if (power >= std::numeric_limits<Integer>::digits10 + FRACTION_RANK || !integer)
     {
       negative_ = false;
       data_ = 0;
@@ -71,10 +67,8 @@ namespace Generics
       if (DecimalHelper::exceeds(integer, MAX_VALUE_))
       {
         Stream::Error ostr;
-        ostr << FNS << "integer " <<
-          integer / DecimalHelper::pow10<Integer>(power) <<
-          " is not less than " <<
-          static_cast<typename Parent::CalcType>(MAX_INTEGER_);
+        ostr << FNS << "integer " << integer / DecimalHelper::pow10<Integer>(power) <<
+          " is not less than " << static_cast<typename Parent::CalcType>(MAX_INTEGER_);
         throw Overflow(ostr);
       }
       data_ = static_cast<Base>(integer);
@@ -85,8 +79,7 @@ namespace Generics
       if (DecimalHelper::exceeds(integer, MAX_VALUE_))
       {
         Stream::Error ostr;
-        ostr << FNS << "integer " << integer / MAX_FRACTION_ <<
-          " is not less than " <<
+        ostr << FNS << "integer " << integer / MAX_FRACTION_ << " is not less than " <<
           static_cast<typename Parent::CalcType>(MAX_INTEGER_);
         throw Overflow(ostr);
       }
@@ -98,10 +91,8 @@ namespace Generics
       if (DecimalHelper::exceeds(integer, MAX_VALUE_ / mul))
       {
         Stream::Error ostr;
-        ostr << FNS << "integer " <<
-          integer / DecimalHelper::pow10<Integer>(power) <<
-          " is not less than " <<
-          static_cast<typename Parent::CalcType>(MAX_INTEGER_);
+        ostr << FNS << "integer " << integer / DecimalHelper::pow10<Integer>(power) <<
+          " is not less than " << static_cast<typename Parent::CalcType>(MAX_INTEGER_);
         throw Overflow(ostr);
       }
       data_ = static_cast<Base>(integer) * mul;
@@ -114,8 +105,7 @@ namespace Generics
     /*throw (Overflow, NotNumber)*/
   {
     std::ios_base::iostate iostate(std::ios_base::goodbit);
-    const char* result =
-      DecimalHelper::extract_decimal<TOTAL_RANK, FRACTION_RANK>(
+    const char* result = DecimalHelper::extract_decimal<TOTAL_RANK, FRACTION_RANK>(
         str.begin(), str.end(), iostate, data_, negative_);
 
     if (iostate & std::ios_base::failbit)
@@ -140,15 +130,13 @@ namespace Generics
     }
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal() noexcept
     : negative_(false), data_(INVALID_FLAG_)
   {
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer, typename Fraction>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     bool negative, Integer integer, Fraction fraction) /*throw (Overflow)*/
@@ -156,8 +144,7 @@ namespace Generics
     construct_(negative, integer, fraction);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     Integer integer, unsigned power) /*throw (Overflow)*/
@@ -165,8 +152,7 @@ namespace Generics
     construct_(integer, power);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     const String::SubString& str) /*throw (Overflow, NotNumber)*/
   {
@@ -187,8 +173,7 @@ namespace Generics
     construct_(str);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename General>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     General num) /*throw (Overflow, NotNumber)*/
@@ -198,10 +183,8 @@ namespace Generics
     construct_(ostr.str());
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  template <typename DiffBase, const unsigned DIFF_TOTAL,
-    const unsigned DIFF_FRACTION>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::SimpleDecimal(
     const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& diff)
     /*throw (Overflow)*/
@@ -213,11 +196,9 @@ namespace Generics
     negative_ = diff.negative_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToInteger>
-  ToInteger
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::integer() const
+  ToInteger SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::integer() const
     /*throw (Overflow, Sign)*/
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
@@ -232,6 +213,7 @@ namespace Generics
         static_cast<typename Parent::CalcType>(int_part);
       throw Overflow(ostr);
     }
+
     if (negative_ && int_part && !std::numeric_limits<ToInteger>::is_signed)
     {
       Stream::Error ostr;
@@ -243,8 +225,7 @@ namespace Generics
       static_cast<ToInteger>(int_part);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToInteger>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::to_integer(
@@ -253,38 +234,28 @@ namespace Generics
     val = integer<ToInteger>();
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToFloating>
-  ToFloating
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
+  ToFloating SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
   {
-    static_assert(!std::numeric_limits<ToFloating>::is_integer,
-      "Floating type is integer");
-    static_assert(std::numeric_limits<ToFloating>::is_signed,
-      "Floating type is not signed");
+    static_assert(!std::numeric_limits<ToFloating>::is_integer, "Floating type is integer");
+    static_assert(std::numeric_limits<ToFloating>::is_signed, "Floating type is not signed");
 
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
-    ToFloating ret(static_cast<ToFloating>(data_) /
-      static_cast<ToFloating>(MAX_FRACTION_));
+    ToFloating ret(static_cast<ToFloating>(data_) / static_cast<ToFloating>(MAX_FRACTION_));
     return negative_ ? -ret : ret;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToFloating>
-  void
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::to_floating(
-    ToFloating& val) const noexcept
+  void SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::to_floating( ToFloating& val) const noexcept
   {
     val = floating<ToFloating>();
   }
 
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  char*
-  SimpleDecimal<Base, TOTAL, FRACTION>::decimal_to_char_(
-    char* buf_end) const noexcept
+  char* SimpleDecimal<Base, TOTAL, FRACTION>::decimal_to_char_( char* buf_end) const noexcept
   {
     assert(data_ != INVALID_FLAG_);
 
@@ -347,10 +318,8 @@ namespace Generics
     return buf;
   }
 
-  template <typename Base, const unsigned TOTAL,
-    const unsigned FRACTION>
-  std::string
-  SimpleDecimal<Base, TOTAL, FRACTION>::str() const
+  template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  std::string SimpleDecimal<Base, TOTAL, FRACTION>::str() const
     /*throw (eh::Exception)*/
   {
     char buffer[TOTAL + 2];
@@ -359,9 +328,7 @@ namespace Generics
   }
 
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::ostream&
-  operator <<(std::ostream& ostr,
-    const SimpleDecimal<Base, TOTAL, FRACTION>& number)
+  std::ostream& operator <<(std::ostream& ostr, const SimpleDecimal<Base, TOTAL, FRACTION>& number)
     /*throw (eh::Exception)*/
   {
     char buffer[TOTAL + 2];
@@ -372,9 +339,7 @@ namespace Generics
   }
 
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::istream&
-  operator >>(std::istream& istr,
-    SimpleDecimal<Base, TOTAL, FRACTION>& number)
+  std::istream& operator >>(std::istream& istr, SimpleDecimal<Base, TOTAL, FRACTION>& number)
     /*throw (eh::Exception)*/
   {
     typename std::istream::sentry ok(istr);
@@ -393,10 +358,8 @@ namespace Generics
     return istr;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  std::string
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::dump() const
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  std::string SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::dump() const
     /*throw (eh::Exception)*/
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
@@ -405,16 +368,12 @@ namespace Generics
     ostr << TOTAL_RANK << '.' << FRACTION_RANK << "(" <<
       static_cast<typename Parent::CalcType>(MAX_INTEGER_) << "," <<
       static_cast<typename Parent::CalcType>(MAX_FRACTION_) << ") " <<
-      std::setfill('0') << std::setw(TOTAL_RANK) <<
-      static_cast<unsigned long long>(data_);
+      std::setfill('0') << std::setw(TOTAL_RANK) << static_cast<unsigned long long>(data_);
     return ostr.str().str();
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  void
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const
-    noexcept
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  void SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const noexcept
   {
     assert(data_ != INVALID_FLAG_);
 
@@ -422,19 +381,14 @@ namespace Generics
     static_cast<unsigned char*>(buffer)[sizeof(data_)] = negative_ ? 1 : 0;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  void
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer)
-    noexcept
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  void SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer) noexcept
   {
     memcpy(&data_, buffer, sizeof(data_));
-    negative_ =
-      static_cast<const unsigned char*>(buffer)[sizeof(data_)] != 0;
+    negative_ = static_cast<const unsigned char*>(buffer)[sizeof(data_)] != 0;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::negate() noexcept
   {
@@ -444,11 +398,9 @@ namespace Generics
     return *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction)
-    noexcept
+  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction) noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
@@ -466,8 +418,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::ceil(unsigned fraction)
     /*throw (eh::Exception, Overflow)*/
@@ -486,8 +437,7 @@ namespace Generics
       if (data == MAX_VALUE_)
       {
         Stream::Error ostr;
-        ostr << FNS << " overflow while ceiling " << str() << " on " <<
-          fraction << " digit";
+        ostr << FNS << " overflow while ceiling " << str() << " on " << fraction << " digit";
         throw Overflow(ostr);
       }
       data_ = data;
@@ -496,40 +446,31 @@ namespace Generics
     return *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
     return data_ == 0;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const
-    noexcept
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
     return !negative_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const
-    noexcept
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const noexcept
   {
     DEV_ASSERT(data_ != INVALID_FLAG_);
 
     return negative_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator ==(
     const SimpleDecimal& test) const noexcept
@@ -541,8 +482,7 @@ namespace Generics
       !data_ && !test.data_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator <(
     const SimpleDecimal& test) const noexcept
@@ -554,8 +494,7 @@ namespace Generics
       data_ || test.data_ : !test.negative_ && data_ < test.data_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator !=(
     const SimpleDecimal& test) const noexcept
@@ -563,8 +502,7 @@ namespace Generics
     return !operator ==(test);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator >(
     const SimpleDecimal& test) const noexcept
@@ -572,8 +510,7 @@ namespace Generics
     return test < *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator >=(
     const SimpleDecimal& test) const noexcept
@@ -581,8 +518,7 @@ namespace Generics
     return !(*this < test);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator <=(
     const SimpleDecimal& test) const noexcept
@@ -590,8 +526,7 @@ namespace Generics
     return !(test < *this);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::add(
@@ -625,8 +560,7 @@ namespace Generics
     }
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::sub(
@@ -640,8 +574,7 @@ namespace Generics
     {
       if (MAX_VALUE_ - minuend.data_ <= subtrahend.data_)
       {
-        throw_overflow(__PRETTY_FUNCTION__, "subtracting",
-          subtrahend, minuend);
+        throw_overflow(__PRETTY_FUNCTION__, "subtracting", subtrahend, minuend);
       }
       target.data_ = minuend.data_ + subtrahend.data_;
       target.negative_ = minuend.negative_;
@@ -661,8 +594,7 @@ namespace Generics
     }
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator +=(
@@ -672,8 +604,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>&
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator -=(
@@ -683,8 +614,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator +(
@@ -695,8 +625,7 @@ namespace Generics
     return ret;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::operator -(
@@ -707,8 +636,7 @@ namespace Generics
     return ret;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   inline
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::mul(
@@ -725,13 +653,11 @@ namespace Generics
       throw_overflow(__PRETTY_FUNCTION__, "multiplying", factor1, factor2);
     }
 
-    if (dmr != DMR_FLOOR && FRACTION_RANK &&
-      (dmr == DMR_ROUND ? rem >= MAX_FRACTION_ / 2 : rem))
+    if (dmr != DMR_FLOOR && FRACTION_RANK && (dmr == DMR_ROUND ? rem >= MAX_FRACTION_ / 2 : rem))
     {
       if (++res == MAX_VALUE_)
       {
-        throw_overflow(__PRETTY_FUNCTION__,
-          "incrementing after multiplication", factor1, factor2);
+        throw_overflow(__PRETTY_FUNCTION__, "incrementing after multiplication", factor1, factor2);
       }
     }
 
@@ -742,8 +668,7 @@ namespace Generics
     return target;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::div_(
     const SimpleDecimal& dividend, const SimpleDecimal& divisor,
@@ -771,8 +696,7 @@ namespace Generics
     {
       if (++quot == MAX_VALUE_)
       {
-        throw_overflow(__PRETTY_FUNCTION__, "increment after division",
-          dividend, divisor);
+        throw_overflow(__PRETTY_FUNCTION__, "increment after division", dividend, divisor);
       }
     }
 
@@ -780,8 +704,7 @@ namespace Generics
     quotient.negative_ = dividend.negative_ != divisor.negative_;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::div(
     const SimpleDecimal& dividend, const SimpleDecimal& divisor,
@@ -793,8 +716,7 @@ namespace Generics
     return quotient;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::div(
     const SimpleDecimal& dividend, const SimpleDecimal& divisor,
@@ -805,8 +727,7 @@ namespace Generics
     return quotient;
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::
     throw_overflow(const char* func, const char* when,
@@ -815,37 +736,28 @@ namespace Generics
     Stream::Error ostr;
     ostr << ::Generics::FunctionHelper::get_function_name(func) <<
       "(): overflow " << when << " " << d1 << " and " << d2 << " (over " <<
-      static_cast<typename Parent::CalcType>(MAX_INTEGER_) <<
-      " by absolute value)";
+      static_cast<typename Parent::CalcType>(MAX_INTEGER_) << " by absolute value)";
     throw Overflow(ostr);
   }
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
     SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::ZERO(false, 0, 0);
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
     SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::EPSILON(
       false, FRACTION_RANK ? 0 : 1, FRACTION_RANK ? 1 : 0);
 
-  template <typename Base, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Base, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>
     SimpleDecimal<Base, TOTAL_RANK, FRACTION_RANK>::MAXIMUM(
       false, MAX_INTEGER_ - 1, MAX_FRACTION_ - 1);
 
-  template <typename Hash, typename Base, const unsigned TOTAL,
-    const unsigned FRACTION>
-  void
-  hash_add(Hash& hash,
-    const SimpleDecimal<Base, TOTAL, FRACTION>& key)
-    noexcept
+  template <typename Hash, typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  void hash_add(Hash& hash, const SimpleDecimal<Base, TOTAL, FRACTION>& key) noexcept
   {
-    DEV_ASSERT(key.data_ !=
-      (SimpleDecimal<Base, TOTAL, FRACTION>::INVALID_FLAG_));
+    DEV_ASSERT(key.data_ != (SimpleDecimal<Base, TOTAL, FRACTION>::INVALID_FLAG_));
 
     hash.add(&key.data_, sizeof(key.data_));
   }

@@ -9,8 +9,7 @@
 
 #include <dlfcn.h>
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   if (argc < 3)
   {
@@ -27,8 +26,7 @@ main(int argc, char** argv)
     ::Test::Echo_var echoref = ::Test::Echo::_narrow(obj.in());
     if (CORBA::is_nil(echoref))
     {
-      std::cerr << "Can't narrow reference to type Echo (or it was nil)."
-                << std::endl;
+      std::cerr << "Can't narrow reference to type Echo (or it was nil)." << std::endl;
       return 1;
     }
 
@@ -37,8 +35,7 @@ main(int argc, char** argv)
     ::Test::OutVal_var outref = ::Test::OutVal::_narrow(obj_out.in());
     if (CORBA::is_nil(outref))
     {
-      std::cerr << "Can't narrow reference to type Echo (or it was nil)."
-                << std::endl;
+      std::cerr << "Can't narrow reference to type Echo (or it was nil)." << std::endl;
       return 1;
     }
 
@@ -49,7 +46,7 @@ main(int argc, char** argv)
     Test::AType_var values = new Test::AType;
     const size_t N = 3;
     values->length(N);
-    
+
     for (std::size_t i = 0; i < N; ++i)
     {
       values[i].aa = 0xFFFFF;
@@ -65,7 +62,7 @@ main(int argc, char** argv)
 
     for (std::size_t i =0; i < 5;++i)
     {
-       echoref->echoString(values);  // call server...
+      echoref->echoString(values);  // call server...
     }
 
     orb->destroy();

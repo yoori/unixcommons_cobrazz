@@ -26,8 +26,7 @@ namespace Generics
       file_size = lseek(fd, 0, SEEK_END);
       if (file_size == static_cast<off_t>(-1))
       {
-        eh::throw_errno_exception<Exception>(FNE,
-          "Failed to determine size of file");
+        eh::throw_errno_exception<Exception>(FNE, "Failed to determine size of file");
       }
 
       if (offset + static_cast<off_t>(size) > file_size)
@@ -47,15 +46,13 @@ namespace Generics
       if (std::numeric_limits<ssize_t>::max() < file_size)
       {
         Stream::Error ostr;
-        ostr << FNS << "requested map length " << file_size <<
-          " is too large";
+        ostr << FNS << "requested map length " << file_size << " is too large";
         throw Exception(ostr);
       }
       length_ = static_cast<ssize_t>(file_size);
     }
 
-    memory_ = mmap(preferrable_address, length_, mmap_prot, mmap_flags, fd,
-      offset);
+    memory_ = mmap(preferrable_address, length_, mmap_prot, mmap_flags, fd, offset);
     if (memory_ == MAP_FAILED)
     {
       memory_ = 0;
@@ -77,8 +74,7 @@ namespace Generics
   MMap::MMap(void* preferrable_address, std::size_t size)
     /*throw (eh::Exception, Exception)*/
   {
-    map_(-1, preferrable_address, size, 0, PROT_READ | PROT_WRITE,
-      MAP_SHARED | MAP_ANONYMOUS);
+    map_(-1, preferrable_address, size, 0, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS);
   }
 
   MMap::~MMap() noexcept
@@ -86,14 +82,12 @@ namespace Generics
     munmap(memory_, length_);
   }
 
-  void*
-  MMap::memory() const noexcept
+  void* MMap::memory() const noexcept
   {
     return memory_;
   }
 
-  size_t
-  MMap::length() const noexcept
+  size_t MMap::length() const noexcept
   {
     return length_;
   }
@@ -117,8 +111,7 @@ namespace Generics
     fd_ = open(filename, flags, 0666);
     if (fd_ < 0)
     {
-      eh::throw_errno_exception<Exception>(FNE, "Failed to open file '",
-        filename, "'");
+      eh::throw_errno_exception<Exception>(FNE, "Failed to open file '", filename, "'");
     }
 
     try
@@ -166,8 +159,7 @@ namespace Generics
     close(fd_);
   }
 
-  int
-  MMapFile::file_descriptor() const noexcept
+  int MMapFile::file_descriptor() const noexcept
   {
     return fd_;
   }

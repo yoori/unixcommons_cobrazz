@@ -19,16 +19,13 @@ class TestInterface :
 {
 public:
 
-  virtual const std::string
-  additional_http_query() /*throw (eh::Exception)*/;
+  virtual const std::string additional_http_query() /*throw (eh::Exception)*/;
 
-  virtual void
-  execute() noexcept = 0;
+  virtual void execute() noexcept = 0;
 
 protected:
 
-  virtual
-  ~TestInterface() noexcept = 0;
+  virtual ~TestInterface() noexcept = 0;
 };
 
 //
@@ -55,14 +52,13 @@ public:
 
 protected:
 
-  virtual
-  ~SimplePolicy() noexcept;
+  virtual ~SimplePolicy() noexcept;
 
 private:
   TestCommons::Errors errors_;
 };
 
-typedef ReferenceCounting::QualPtr<SimplePolicy> SimplePolicy_var;
+using SimplePolicy_var = ReferenceCounting::QualPtr<SimplePolicy>;
 
 //
 // class EventLog
@@ -120,27 +116,21 @@ public:
       EventLog::EventLogStrategies strategy = EventLog::ELS_LOG_FAILS_LAST_VALID)
     /*throw(eh::Exception)*/;
 
-  virtual void
-  on_response(const HTTP::ResponseInformation& data) noexcept;
+  virtual void on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
-  on_error(const String::SubString& description,
-    const HTTP::RequestInformation& data) noexcept;
+  on_error(const String::SubString& description, const HTTP::RequestInformation& data) noexcept;
 
-  virtual void
-  print_stat(std::ostream& ostr) const /*throw (eh::Exception)*/;
-  
-  virtual void
-  print_errors(std::ostream& ostr, bool log_needed = false) /*throw (eh::Exception)*/;
+  virtual void print_stat(std::ostream& ostr) const /*throw (eh::Exception)*/;
 
-  const TestCommons::Counter&
-  get_counter() const noexcept;
+  virtual void print_errors(std::ostream& ostr, bool log_needed = false) /*throw (eh::Exception)*/;
+
+  const TestCommons::Counter& get_counter() const noexcept;
 
 protected:
 
-  virtual
-  ~SimpleCounterCallback() noexcept;
-  
+  virtual ~SimpleCounterCallback() noexcept;
+
   HTTP::PoolPolicy_var policy_;
 
 private:
@@ -150,8 +140,7 @@ private:
   TestCommons::Errors errors_;
 };
 
-typedef ReferenceCounting::QualPtr<SimpleCounterCallback>
-  SimpleCounterCallback_var;
+using SimpleCounterCallback_var = ReferenceCounting::QualPtr<SimpleCounterCallback>;
 
 //
 // class Requester
@@ -165,17 +154,13 @@ public:
     HTTP::ResponseCallback* cb, const std::string& get_req,
     const std::string& post_req, const std::string& post_body = std::string());
 
-  void
-  print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/;
+  void print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/;
 
-  void
-  operator ()() noexcept;
+  void operator ()() noexcept;
 
-  const TestCommons::Counter&
-  get_counter() const noexcept;
+  const TestCommons::Counter& get_counter() const noexcept;
 
-  void
-  release_callback() noexcept;
+  void release_callback() noexcept;
 
 private:
   HTTP::HttpInterface_var pool_;

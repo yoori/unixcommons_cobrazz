@@ -22,8 +22,7 @@ extern "C"
    * @param mode running mode of HAM
    */
   extern PREFIX int
-  get_tokens_TS(HAM_PUCHAR word, int length, TOKEN_STR out[],
-    HAM_PMORES hamout, HAM_PRUNMODE mode);
+  get_tokens_TS(HAM_PUCHAR word, int length, TOKEN_STR out[], HAM_PMORES hamout, HAM_PRUNMODE mode);
 }
 
 namespace
@@ -33,177 +32,170 @@ namespace
 #endif
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  namespace Korean
   {
-    namespace Korean
-    {
 #ifdef KLT_LIBRARY
 
-      //
-      // Variables
-      //
+    //
+    // Variables
+    //
 
-      HAM_RUNMODE klt_mode; // HAM running mode: 'header/runmode.h'
+    HAM_RUNMODE klt_mode; // HAM running mode: 'header/runmode.h'
 
-      //
-      // class KltSegmentor
-      //
+    //
+    // class KltSegmentor
+    //
 
-      KltSegmentor::KltSegmentor(const char* config_file,
-        const char* additional_params)
-        /*throw (UniqueException, SegmException)*/
+    KltSegmentor::KltSegmentor(const char* config_file, const char* additional_params)
+      /*throw (UniqueException, SegmException)*/
+    {
+      if (open_HAM_index(&klt_mode,
+        const_cast<char*>(additional_params ? additional_params : ""),
+         const_cast<char*>(config_file ? config_file : KLT_DEFAULT_CONFIG)))
       {
-        if (open_HAM_index(&klt_mode,
-          const_cast<char*>(additional_params ? additional_params : ""),
-           const_cast<char*>(config_file ? config_file : KLT_DEFAULT_CONFIG)))
+        Stream::Error ostr;
+        ostr << FNS << "can't load dictionary \"" << klt_mode.dicpath <<
+          "\", KLT error code: " << klt_mode.err_code;
+        throw SegmException(ostr);
+      }
+
+      klt_mode.hcode_out = klt_mode.hcode_in = 2;
+      klt_mode.index.stopw = 0;
+    }
+
+    KltSegmentor::~KltSegmentor() noexcept
+    {
+      close_HAM_index(&klt_mode);
+    }
+
+    void
+    KltSegmentor::segmentation(WordsList& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/
+    {
+      try
+      {
+        result.clear();
+
+        if (!phrase || !phrase_len)
+        {
+          return;
+        }
+
+        HAM_MORES hamout;
+        Generics::ArrayAutoPtr<TOKEN_STR> out(phrase_len);
+
+        String::SubString input(phrase, phrase_len);
+        String::StringManip::Splitter<const NotHangul&> tokenizer( input, NOT_HANGUL);
+        const char* pos = input.begin();
+        String::SubString token;
+        while (tokenizer.get_token(token))
+        {
+          if (token.begin() != pos)
+          {
+            result.push_back(std::string(pos, token.begin()));
+          }
+
+          size_t kwd_count = get_tokens_TS(
+            reinterpret_cast<HAM_PUCHAR>(const_cast<char*>(token.begin())),
+            token.length(), out.get(), &hamout, &klt_mode);
+
+          for (size_t i = 0; i < kwd_count; ++i)
+          {
+            std::string klt_token(
+              reinterpret_cast<const char*>(out.get()[i].token),
+              out.get()[i].length);
+
+            // Remove everything after first zero byte.
+            klt_token.resize(strlen(klt_token.c_str()));
+
+            result.push_back(klt_token);
+          }
+
+          pos = token.end();
+        }
+
+        if (tokenizer.is_error())
         {
           Stream::Error ostr;
-          ostr << FNS << "can't load dictionary \"" << klt_mode.dicpath <<
-            "\", KLT error code: " << klt_mode.err_code;
+          ostr << FNS << "invalid UTF-8 character in the input: " << input;
           throw SegmException(ostr);
         }
 
-        klt_mode.hcode_out = klt_mode.hcode_in = 2;
-        klt_mode.index.stopw = 0;
+        if (pos != input.end())
+        {
+          result.push_back(std::string(pos, input.end()));
+        }
       }
-
-      KltSegmentor::~KltSegmentor() noexcept
+      catch (const eh::Exception& e)
       {
-        close_HAM_index(&klt_mode);
+        Stream::Error ostr;
+        ostr << FNS << "eh::Exception caught: " << e.what();
+        throw SegmException(ostr);
       }
+    }
 
-      void
-      KltSegmentor::segmentation(WordsList& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/
+    void
+    KltSegmentor::put_spaces(std::string& res, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/
+    {
+      try
       {
-        try
+        std::string result;
+        result.reserve(phrase_len + phrase_len);
+        WordsList gathered_words;
+
+        segmentation(gathered_words, phrase, phrase_len);
+
+        WordsList::const_iterator it = gathered_words.begin();
+        WordsList::const_iterator end = gathered_words.end();
+        for (; it != end; ++it)
         {
-          result.clear();
-
-          if (!phrase || !phrase_len)
+          if (!result.empty())
           {
-            return;
+            result += ' ';
           }
-
-          HAM_MORES hamout;
-          Generics::ArrayAutoPtr<TOKEN_STR> out(phrase_len);
-
-          String::SubString input(phrase, phrase_len);
-          String::StringManip::Splitter<const NotHangul&> tokenizer(
-            input, NOT_HANGUL);
-          const char* pos = input.begin();
-          String::SubString token;
-          while (tokenizer.get_token(token))
-          {
-            if (token.begin() != pos)
-            {
-              result.push_back(std::string(pos, token.begin()));
-            }
-
-            size_t kwd_count = get_tokens_TS(
-              reinterpret_cast<HAM_PUCHAR>(const_cast<char*>(token.begin())),
-              token.length(), out.get(), &hamout, &klt_mode);
-
-            for (size_t i = 0; i < kwd_count; ++i)
-            {
-              std::string klt_token(
-                reinterpret_cast<const char*>(out.get()[i].token),
-                out.get()[i].length);
-
-              // Remove everything after first zero byte.
-              klt_token.resize(strlen(klt_token.c_str()));
-
-              result.push_back(klt_token);
-            }
-
-            pos = token.end();
-          }
-
-          if (tokenizer.is_error())
-          {
-            Stream::Error ostr;
-            ostr << FNS << "invalid UTF-8 character in the input: " << input;
-            throw SegmException(ostr);
-          }
-
-          if (pos != input.end())
-          {
-            result.push_back(std::string(pos, input.end()));
-          }
+          result += *it;
         }
-        catch (const eh::Exception& e)
-        {
-          Stream::Error ostr;
-          ostr << FNS << "eh::Exception caught: " << e.what();
-          throw SegmException(ostr);
-        }
+        result.swap(res);
       }
-
-      void
-      KltSegmentor::put_spaces(std::string& res, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/
+      catch (const SegmException& e)
       {
-        try
-        {
-          std::string result;
-          result.reserve(phrase_len + phrase_len);
-          WordsList gathered_words;
-
-          segmentation(gathered_words, phrase, phrase_len);
-
-          WordsList::const_iterator it = gathered_words.begin();
-          WordsList::const_iterator end = gathered_words.end();
-          for (; it != end; ++it)
-          {
-            if (!result.empty())
-            {
-              result += ' ';
-            }
-            result += *it;
-          }
-          result.swap(res);
-        }
-        catch (const SegmException& e)
-        {
-          Stream::Error ostr;
-          ostr << FNS << "Language::Segmentor::SegmentorInterface::"
-            "SegmException caught: " << e.what();
-          throw SegmException(ostr);
-        }
-        catch (const eh::Exception& e)
-        {
-          Stream::Error ostr;
-          ostr << FNS << "eh::Exception caught: " << e.what();
-          throw SegmException(ostr);
-        }
+        Stream::Error ostr;
+        ostr << FNS << "Language::Segmentor::SegmentorInterface::"
+          "SegmException caught: " << e.what();
+        throw SegmException(ostr);
       }
+      catch (const eh::Exception& e)
+      {
+        Stream::Error ostr;
+        ostr << FNS << "eh::Exception caught: " << e.what();
+        throw SegmException(ostr);
+      }
+    }
 
 #else
 
-      KltSegmentor::KltSegmentor(const char*, const char*)
-        /*throw (UniqueException, SegmException)*/
-      {
-      }
+    KltSegmentor::KltSegmentor(const char*, const char*)
+      /*throw (UniqueException, SegmException)*/
+    {
+    }
 
-      KltSegmentor::~KltSegmentor() noexcept
-      {
-      }
+    KltSegmentor::~KltSegmentor() noexcept
+    {
+    }
 
-      void
-      KltSegmentor::segmentation(WordsList&, const char*, size_t) const
-        /*throw (SegmException)*/
-      {
-      }
+    void KltSegmentor::segmentation(WordsList&, const char*, size_t) const
+      /*throw (SegmException)*/
+    {
+    }
 
-      void
-      KltSegmentor::put_spaces(std::string&, const char*, size_t) const
-        /*throw (SegmException)*/
-      {
-      }
+    void KltSegmentor::put_spaces(std::string&, const char*, size_t) const
+      /*throw (SegmException)*/
+    {
+    }
 
 #endif
-    } //namespace Korean
-  } //namespace Segmentor
-} //namespace Language
+  } //namespace Korean
+}

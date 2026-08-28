@@ -16,26 +16,17 @@ namespace ReferenceCounting
     private Generics::Uncopyable
   {
   public:
-    virtual
-    void
-    add_ref() const noexcept;
+    virtual void add_ref() const noexcept;
 
-    virtual
-    void
-    remove_ref() const noexcept;
+    virtual void remove_ref() const noexcept;
 
   protected:
     AtomicImpl() noexcept;
-    virtual
-    ~AtomicImpl() noexcept;
+    virtual ~AtomicImpl() noexcept;
 
-    virtual
-    bool
-    remove_ref_no_delete_() const noexcept;
+    virtual bool remove_ref_no_delete_() const noexcept;
 
-    virtual
-    void
-    delete_this_() const noexcept;
+    virtual void delete_this_() const noexcept;
 
   protected:
     mutable Generics::AtomicInt ref_count_;
@@ -46,53 +37,42 @@ namespace ReferenceCounting
   protected:
     AtomicCopyImpl() noexcept;
     AtomicCopyImpl(const volatile AtomicCopyImpl&) noexcept;
-    virtual
-    ~AtomicCopyImpl() noexcept;
+    virtual ~AtomicCopyImpl() noexcept;
   };
 }
 
 namespace ReferenceCounting
 {
-  inline
-  AtomicImpl::AtomicImpl() noexcept
+  inline AtomicImpl::AtomicImpl() noexcept
     : ReferenceCounting::Interface(), ref_count_(1)
   {
   }
 
-  inline
-  AtomicImpl::~AtomicImpl() noexcept
+  inline AtomicImpl::~AtomicImpl() noexcept
   {
 #ifndef NVALGRIND
     RunningOnValgrind<>::check_ref_count(ref_count_);
 #endif
   }
 
-  inline
-  void
-  AtomicImpl::add_ref() const noexcept
+  inline void AtomicImpl::add_ref() const noexcept
   {
     ++ref_count_;
   }
 
-  inline
-  void
-  AtomicImpl::delete_this_() const noexcept
+  inline void AtomicImpl::delete_this_() const noexcept
   {
     delete this;
   }
 
-  inline
-  bool
-  AtomicImpl::remove_ref_no_delete_() const noexcept
+  inline bool AtomicImpl::remove_ref_no_delete_() const noexcept
   {
     int old = ref_count_.exchange_and_add(-1);
     assert(old > 0);
     return old == 1;
   }
 
-  inline
-  void
-  AtomicImpl::remove_ref() const noexcept
+  inline void AtomicImpl::remove_ref() const noexcept
   {
     if (remove_ref_no_delete_())
     {
@@ -101,20 +81,17 @@ namespace ReferenceCounting
   }
 
 
-  inline
-  AtomicCopyImpl::AtomicCopyImpl() noexcept
+  inline AtomicCopyImpl::AtomicCopyImpl() noexcept
     : ReferenceCounting::Interface()
   {
   }
 
-  inline
-  AtomicCopyImpl::AtomicCopyImpl(const volatile AtomicCopyImpl&) noexcept
+  inline AtomicCopyImpl::AtomicCopyImpl(const volatile AtomicCopyImpl&) noexcept
     : ReferenceCounting::Interface(), AtomicImpl()
   {
   }
 
-  inline
-  AtomicCopyImpl::~AtomicCopyImpl() noexcept
+  inline AtomicCopyImpl::~AtomicCopyImpl() noexcept
   {
   }
 }

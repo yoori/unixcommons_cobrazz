@@ -36,25 +36,16 @@ namespace XMLUtility
      * @return <code>true</code> if error messages are reported;
      * <code>false</code> otherwise.
      */
-    bool
-    errors() noexcept;
+    bool errors() noexcept;
 
   protected:
-    virtual
-    void
-    warning(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
+    virtual void warning(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    error(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
+    virtual void error(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    fatalError(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
+    virtual void fatalError(const SAXParseException& toCatch) /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    resetErrors() /*throw (eh::Exception)*/;
+    virtual void resetErrors() /*throw (eh::Exception)*/;
 
   protected:
     bool errors_;
@@ -76,9 +67,7 @@ namespace XMLUtility
   {
   }
 
-  inline
-  bool
-  ParseErrorReporter::errors() noexcept
+  inline bool ParseErrorReporter::errors() noexcept
   {
     return errors_;
   }

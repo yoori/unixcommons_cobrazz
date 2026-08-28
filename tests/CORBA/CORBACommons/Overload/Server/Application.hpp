@@ -18,18 +18,14 @@ public:
 public:
   Application() /*throw (eh::Exception)*/;
 
-  void
-  run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/;
+  void run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/;
 
-  void
-  error(const char* message) noexcept;
+  void error(const char* message) noexcept;
 
-  virtual char*
-  control(const char* param_name, const char* param_value) noexcept;
+  virtual char* control(const char* param_name, const char* param_value) noexcept;
 
 protected:
-  virtual
-  ~Application() noexcept;
+  virtual ~Application() noexcept;
 
 private:
   bool error_state_;

@@ -23,14 +23,12 @@ namespace Stream
     setp(buffer_, buffer_ + (BUFFER_SIZE - 1));
   }
 
-  std::streamsize
-  BinaryStreambuf::showmanyc() /*throw (eh::Exception)*/
+  std::streamsize BinaryStreambuf::showmanyc() /*throw (eh::Exception)*/
   {
     return egptr() - gptr();
   }
 
-  BinaryStreambuf::int_type
-  BinaryStreambuf::underflow() /*throw (eh::Exception)*/
+  BinaryStreambuf::int_type BinaryStreambuf::underflow() /*throw (eh::Exception)*/
   {
     if (gptr() < egptr())
     {
@@ -43,8 +41,7 @@ namespace Stream
       num_putback = PUTBACK_SIZE;
     }
 
-    std::copy(gptr() - num_putback, gptr(),
-      buffer_ + (PUTBACK_SIZE - num_putback));
+    std::copy(gptr() - num_putback, gptr(), buffer_ + (PUTBACK_SIZE - num_putback));
 
     if (!in_->read(buffer_ + PUTBACK_SIZE, BUFFER_SIZE - PUTBACK_SIZE))
     {
@@ -59,8 +56,7 @@ namespace Stream
     return traits_type::to_int_type(*gptr());
   }
 
-  ssize_t
-  BinaryStreambuf::flush_buffer() /*throw (eh::Exception)*/
+  ssize_t BinaryStreambuf::flush_buffer() /*throw (eh::Exception)*/
   {
     int num = pptr() - pbase();
     if (!out_->write(buffer_, num))
@@ -71,14 +67,12 @@ namespace Stream
     return num;
   }
 
-  int
-  BinaryStreambuf::sync() /*throw (eh::Exception)*/
+  int BinaryStreambuf::sync() /*throw (eh::Exception)*/
   {
     return flush_buffer();
   }
 
-  BinaryStreambuf::int_type
-  BinaryStreambuf::overflow(int_type c) /*throw (eh::Exception)*/
+  BinaryStreambuf::int_type BinaryStreambuf::overflow(int_type c) /*throw (eh::Exception)*/
   {
     if (!traits_type::eq_int_type(c, traits_type::eof()))
     {

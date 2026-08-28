@@ -31,18 +31,15 @@ Application::~Application() noexcept
 {
 }
 
-void
-Application::error(const char* message) noexcept
+void Application::error(const char* message) noexcept
 {
   error_state_ = true;
   std::cerr << message << std::endl;
 };
 
-char*
-Application::control(const char* param_name, const char* param_value) noexcept
+char* Application::control(const char* param_name, const char* param_value) noexcept
 {
-  std::cout << "Param '" << param_name << "' value '" << param_value << "'" <<
-    std::endl;
+  std::cout << "Param '" << param_name << "' value '" << param_value << "'" << std::endl;
 
   std::string result(param_name);
   result.push_back('=');
@@ -51,12 +48,11 @@ Application::control(const char* param_name, const char* param_value) noexcept
   return CORBA::String_var(result.c_str())._retn();
 }
 
-void
-Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
+void Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
 {
   try
   {
-    typedef std::vector<unsigned long> Ports;
+    using Ports = std::vector<unsigned long>;
     Generics::AppUtils::OptionsSet<Ports> opt_port;
     Generics::AppUtils::OptionsSet<Ports> opt_secure_port;
     Generics::AppUtils::Option<std::string> opt_host("*");
@@ -65,43 +61,33 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
     Generics::AppUtils::Option<unsigned long> opt_normal_threads(3);
     Generics::AppUtils::Option<unsigned long> opt_min_threads(2);
     Generics::AppUtils::CheckOption opt_orb_per_endpoint;
-    typedef std::vector<std::string> Names;
+    using Names = std::vector<std::string>;
     Generics::AppUtils::OptionsSet<Names> opt_name{Names()};
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("port") ||
-      Generics::AppUtils::short_name("p"),
+      Generics::AppUtils::equal_name("port") || Generics::AppUtils::short_name("p"),
       opt_port, "IIOP endpoint port to listen to", "PORT NUMBER");
     args.add(
-      Generics::AppUtils::equal_name("host") ||
-      Generics::AppUtils::short_name("h"),
+      Generics::AppUtils::equal_name("host") || Generics::AppUtils::short_name("h"),
       opt_host, "interface to use for endpoints", "IP or HOSTNAME");
     args.add(
       Generics::AppUtils::equal_name("secure-port"),
       opt_secure_port, "SSLIOP endpoint port to listen to", "PORT NUMBER");
     args.add(
-      Generics::AppUtils::equal_name("secure-params") ||
-      Generics::AppUtils::short_name("sp"),
+      Generics::AppUtils::equal_name("secure-params") || Generics::AppUtils::short_name("sp"),
       opt_secure_params, "SSLIOP parameters");
     args.add(
-      Generics::AppUtils::equal_name("threads") ||
-      Generics::AppUtils::short_name("thr"),
+      Generics::AppUtils::equal_name("threads") || Generics::AppUtils::short_name("thr"),
       opt_threads, "Thread pool size");
     args.add(
-      Generics::AppUtils::equal_name("norm-threads") ||
-      Generics::AppUtils::short_name("nt"),
+      Generics::AppUtils::equal_name("norm-threads") || Generics::AppUtils::short_name("nt"),
       opt_normal_threads, "Normal threads");
     args.add(
-      Generics::AppUtils::equal_name("min-threads") ||
-      Generics::AppUtils::short_name("mt"),
+      Generics::AppUtils::equal_name("min-threads") || Generics::AppUtils::short_name("mt"),
       opt_min_threads, "Minimum threads");
-    args.add(
-      Generics::AppUtils::short_name("ope"),
-      opt_orb_per_endpoint, "Orb per endpoint");
-    args.add(
-      Generics::AppUtils::short_name("name"),
-      opt_name, "Insecure name");
+    args.add( Generics::AppUtils::short_name("ope"), opt_orb_per_endpoint, "Orb per endpoint");
+    args.add( Generics::AppUtils::short_name("name"), opt_name, "Insecure name");
 
     try
     {
@@ -122,28 +108,24 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
 
     if (opt_port.installed())
     {
-      for (Ports::const_iterator itor((*opt_port).begin());
-        itor != ((*opt_port).end()); ++itor)
+      for (Ports::const_iterator itor((*opt_port).begin()); itor != ((*opt_port).end()); ++itor)
       {
         CORBACommons::EndpointConfig endpoint_config;
         endpoint_config.host = *opt_host;
         endpoint_config.port = *itor;
         if (opt_name->empty())
         {
-          endpoint_config.objects[TEST_INT_SERVANT].insert(
-            EXT_TEST_INT_SERVANT);
+          endpoint_config.objects[TEST_INT_SERVANT].insert( EXT_TEST_INT_SERVANT);
         }
         else
         {
-          for (Names::const_iterator itor(opt_name->begin());
-            itor != opt_name->end(); ++itor)
+          for (Names::const_iterator itor(opt_name->begin()); itor != opt_name->end(); ++itor)
           {
             endpoint_config.objects[TEST_INT_SERVANT].insert(
               *itor);
           }
         }
-        endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert(
-          PROCESS_CONTROL_SERVANT);
+        endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert( PROCESS_CONTROL_SERVANT);
         corba_config.endpoints.push_back(endpoint_config);
       }
     }
@@ -156,8 +138,7 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
         CORBACommons::EndpointConfig endpoint_config;
         endpoint_config.host = *opt_host;
         endpoint_config.port = *itor;
-        endpoint_config.objects[TEST_INT_SERVANT].insert(
-          EXT_TEST_INT_SECURE_SERVANT);
+        endpoint_config.objects[TEST_INT_SERVANT].insert( EXT_TEST_INT_SECURE_SERVANT);
         endpoint_config.secure_connection_config = *opt_secure_params;
         corba_config.endpoints.push_back(endpoint_config);
       }
@@ -177,8 +158,7 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
     corba_server_adapter->run();
     shutdowner_.reset();
 
-    std::cout << "Received requests: " <<
-      test_int_impl->received_requests << std::endl;
+    std::cout << "Received requests: " << test_int_impl->received_requests << std::endl;
   }
   catch (const CORBA::Exception& e)
   {
@@ -193,8 +173,7 @@ Application::run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   const char* td = getenv("TAO_DEBUG");
   TAO_debug_level = td ? atoi(td) : 0;

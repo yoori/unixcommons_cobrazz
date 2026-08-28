@@ -6,19 +6,16 @@
 class Echo_i : public POA_Echo
 {
 public:
-  virtual char*
-  echoString(const char* message, const char* ior) noexcept;
+  virtual char* echoString(const char* message, const char* ior) noexcept;
 };
 
-char*
-Echo_i::echoString(const char* message, const char*) noexcept
+char* Echo_i::echoString(const char* message, const char*) noexcept
 {
   std::cerr << "Client!\n";
   return CORBA::string_dup(message);
 }
 
-static void
-hello(Echo_ptr e, const char* ior)
+static void hello(Echo_ptr e, const char* ior)
 {
   CORBA::String_var src = (const char*) "Hello!";
   CORBA::String_var dest = e->echoString(src, ior);
@@ -27,15 +24,13 @@ hello(Echo_ptr e, const char* ior)
        << "The Echo object replied, \"" << dest <<"\"." << std::endl;
 }
 
-void*
-thread_proc(void* arg)
+void* thread_proc(void* arg)
 {
   (*static_cast<CORBA::ORB_var*>(arg))->run();
   return 0;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   //char ADDR[] = "iiop://0.0.0.0:1028/ssl_port=1027";
   char ADDR[] = "iiop://localhost:1028";

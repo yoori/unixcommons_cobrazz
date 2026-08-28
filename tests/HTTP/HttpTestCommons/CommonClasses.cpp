@@ -9,8 +9,7 @@ TestInterface::~TestInterface() noexcept
 {
 }
 
-const std::string
-TestInterface::additional_http_query() /*throw (eh::Exception)*/
+const std::string TestInterface::additional_http_query() /*throw (eh::Exception)*/
 {
   return std::string();
 }
@@ -46,8 +45,7 @@ SimplePolicy::~SimplePolicy() noexcept
 // class EventLog
 //
 
-const char* EventLog::HEADERS_TO_LOG[] =
-{
+const char* EventLog::HEADERS_TO_LOG[] = {
   "Content-type",
   "Content-length",
   "Connection",
@@ -60,8 +58,7 @@ EventLog::EventLog(EventLogStrategies strategy)
 {
 }
 
-void
-EventLog::log_valid(const char* data) /*throw(eh::Exception)*/
+void EventLog::log_valid(const char* data) /*throw(eh::Exception)*/
 {
   if (strategy_ == ELS_DONT_LOG || strategy_ == ELS_LOG_FAILS)
   {
@@ -82,8 +79,7 @@ EventLog::log_valid(const char* data) /*throw(eh::Exception)*/
   log_ += last_valid_;
 }
 
-void
-EventLog::log_valid(const HTTP::ResponseInformation& data) /*throw(eh::Exception)*/
+void EventLog::log_valid(const HTTP::ResponseInformation& data) /*throw(eh::Exception)*/
 {
   if (strategy_ == ELS_DONT_LOG || strategy_ == ELS_LOG_FAILS)
   {
@@ -106,8 +102,7 @@ EventLog::log_valid(const HTTP::ResponseInformation& data) /*throw(eh::Exception
     data.find_headers(HEADERS_TO_LOG[i], headers);
     if (!headers.empty())
     {
-      last_valid << "\n" << HEADERS_TO_LOG[i] << " : "
-                 << headers.front().value;
+      last_valid << "\n" << HEADERS_TO_LOG[i] << " : " << headers.front().value;
     }
   }
   last_valid << "\n\n";
@@ -122,8 +117,7 @@ EventLog::log_valid(const HTTP::ResponseInformation& data) /*throw(eh::Exception
   log_ += last_valid_;
 }
 
-void
-EventLog::log_invalid(const char* data) /*throw(eh::Exception)*/
+void EventLog::log_invalid(const char* data) /*throw(eh::Exception)*/
 {
   if (strategy_ == ELS_DONT_LOG)
   {
@@ -146,8 +140,7 @@ EventLog::log_invalid(const char* data) /*throw(eh::Exception)*/
   log_ += "\n\n";
 }
 
-void
-EventLog::log_invalid(const HTTP::RequestInformation& data) /*throw(eh::Exception)*/
+void EventLog::log_invalid(const HTTP::RequestInformation& data) /*throw(eh::Exception)*/
 {
   if (strategy_ == ELS_DONT_LOG)
   {
@@ -173,8 +166,7 @@ EventLog::log_invalid(const HTTP::RequestInformation& data) /*throw(eh::Exceptio
   log_ += buf.str();
 }
 
-void
-EventLog::print(std::ostream& out) /*throw(eh::Exception)*/
+void EventLog::print(std::ostream& out) /*throw(eh::Exception)*/
 {
   out << "Log strategy: ";
   switch (strategy_)
@@ -199,8 +191,7 @@ SimpleCounterCallback::SimpleCounterCallback(HTTP::PoolPolicy* policy,
 {
 }
 
-void
-SimpleCounterCallback::on_response(const HTTP::ResponseInformation& data) noexcept
+void SimpleCounterCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   counter_.success();
   try
@@ -241,15 +232,13 @@ SimpleCounterCallback::on_error(const String::SubString& description,
   }
 }
 
-void
-SimpleCounterCallback::print_stat(std::ostream& ostr) const /*throw (eh::Exception)*/
+void SimpleCounterCallback::print_stat(std::ostream& ostr) const /*throw (eh::Exception)*/
 {
   ostr << "Execution: ";
   counter_.print(ostr);
 }
 
-void
-SimpleCounterCallback::print_errors(std::ostream& ostr, bool log_needed)
+void SimpleCounterCallback::print_errors(std::ostream& ostr, bool log_needed)
   /*throw (eh::Exception)*/
 {
   ostr << "Errors: ";
@@ -261,8 +250,7 @@ SimpleCounterCallback::print_errors(std::ostream& ostr, bool log_needed)
   }
 }
 
-const TestCommons::Counter&
-SimpleCounterCallback::get_counter() const noexcept
+const TestCommons::Counter& SimpleCounterCallback::get_counter() const noexcept
 {
   return counter_;
 }
@@ -285,15 +273,13 @@ Requester::Requester(TestInterface& test, HTTP::HttpInterface* pool,
 {
 }
 
-void
-Requester::print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/
+void Requester::print_stat(std::ostringstream& ostr) const /*throw (eh::Exception)*/
 {
   ostr << "Addition: ";
   counter_.print(ostr);
 }
 
-void
-Requester::operator ()() noexcept
+void Requester::operator ()() noexcept
 {
   for (int i = 0; i < 100; i++)
   {
@@ -319,14 +305,12 @@ Requester::operator ()() noexcept
   }
 }
 
-void
-Requester::release_callback() noexcept
+void Requester::release_callback() noexcept
 {
   cb_.reset();
 }
 
-const TestCommons::Counter&
-Requester::get_counter() const noexcept
+const TestCommons::Counter& Requester::get_counter() const noexcept
 {
   return counter_;
 }

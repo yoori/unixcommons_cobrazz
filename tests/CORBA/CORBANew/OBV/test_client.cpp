@@ -3,8 +3,7 @@
 #include "echo.hpp"
 #include "message.hpp"
 
-void
-hello(CORBA::Object_ptr obj)
+void hello(CORBA::Object_ptr obj)
 {
   Echo_var e = Echo::_narrow(obj);
 
@@ -23,8 +22,7 @@ hello(CORBA::Object_ptr obj)
     " The Object said, \"" << dest->message() <<"\"" << std::endl;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 
@@ -33,8 +31,7 @@ main(int argc, char** argv)
     return 1;
   }
 
-  orb->register_value_factory("IDL:MessageHolder:1.0",
-    new MessageHolderFactory);
+  orb->register_value_factory("IDL:MessageHolder:1.0", new MessageHolderFactory);
 
   for (int i = 0; i < 1000; i++)
   {

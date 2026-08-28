@@ -51,8 +51,7 @@ namespace XMLUtility
      * @param validate validation error reporting
      */
     void
-    parse(const char* text,
-      AbstractDOMParser::ValSchemes validate = AbstractDOMParser::Val_Auto)
+    parse(const char* text, AbstractDOMParser::ValSchemes validate = AbstractDOMParser::Val_Auto)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
     /** Parses an XML file into a DOM tree.
@@ -72,40 +71,35 @@ namespace XMLUtility
      * @return Pointer to the DOMDocument of the parsed text or file;
      * NULL if the document is empty or the document has not been parsed.
      */
-    DOMDocument*
-    root() /*throw (NotParsed, Exception, eh::Exception)*/;
+    DOMDocument* root() /*throw (NotParsed, Exception, eh::Exception)*/;
 
     /** Determines whether a document has been parsed into a DOM tree.
      *
      * @return <code>true</code> if the document has been parsed;
      * <code>false</code> otherwise.
      */
-    bool
-    parsed() noexcept;
+    bool parsed() noexcept;
 
     /** Destroys the parser and clears the DOM tree.
      *
      */
-    void
-    clear() /*throw (Exception, eh::Exception)*/;
+    void clear() /*throw (Exception, eh::Exception)*/;
 
     /** Sets the location of XML Schema that must be used for validating the
      * parsed XML texts/files.
      *
      * @param value The XML Schema location path.
      */
-    void
-    schema_location(const char* value) /*throw (eh::Exception)*/;
+    void schema_location(const char* value) /*throw (eh::Exception)*/;
 
     /** Retrieves the location of XML Schema.
      *
      * @return XML Schema location path as as null-terminated string.
      */
-    const char*
-    schema_location() const /*throw (eh::Exception)*/;
+    const char* schema_location() const /*throw (eh::Exception)*/;
 
   protected:
-    typedef std::unique_ptr<XercesDOMParser> XercesDOMParser_ptr;
+    using XercesDOMParser_ptr = std::unique_ptr<XercesDOMParser>;
 
     XercesDOMParser_ptr parser_;
     std::string schema_location_;
@@ -122,49 +116,38 @@ namespace XMLUtility
   // DOMDocumentAdapter class
   //
 
-  inline
-  DOMDocumentAdapter::DOMDocumentAdapter()
+  inline DOMDocumentAdapter::DOMDocumentAdapter()
     /*throw (DOMDocumentAdapter::Exception, eh::Exception)*/
   {
   }
 
   inline
-  DOMDocumentAdapter::DOMDocumentAdapter(const char* text,
-    AbstractDOMParser::ValSchemes validate)
+  DOMDocumentAdapter::DOMDocumentAdapter(const char* text, AbstractDOMParser::ValSchemes validate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     parse(text, validate);
   }
 
-  inline
-  DOMDocumentAdapter::~DOMDocumentAdapter() noexcept
+  inline DOMDocumentAdapter::~DOMDocumentAdapter() noexcept
   {
   }
 
-  inline
-  bool
-  DOMDocumentAdapter::parsed() noexcept
+  inline bool DOMDocumentAdapter::parsed() noexcept
   {
     return parser_.get() != 0;
   }
 
-  inline
-  void
-  DOMDocumentAdapter::clear() /*throw (Exception, eh::Exception)*/
+  inline void DOMDocumentAdapter::clear() /*throw (Exception, eh::Exception)*/
   {
     parser_ = XercesDOMParser_ptr();
   }
 
-  inline
-  void
-  DOMDocumentAdapter::schema_location(const char* value) /*throw (eh::Exception)*/
+  inline void DOMDocumentAdapter::schema_location(const char* value) /*throw (eh::Exception)*/
   {
     schema_location_ = value;
   }
 
-  inline
-  const char*
-  DOMDocumentAdapter::schema_location() const /*throw (eh::Exception)*/
+  inline const char* DOMDocumentAdapter::schema_location() const /*throw (eh::Exception)*/
   {
     return schema_location_.c_str();
   }

@@ -23,43 +23,35 @@ namespace Generics
     void init(int& argc, char** argv)
       /*throw (Exception, eh::Exception)*/;
 
-    typedef Generics::Time (Application::*TimeGenerator)() const;
-    typedef void (Application::*Scenarist)(TimeGenerator);
+    using TimeGenerator = Generics::Time (Application::*)() const;
+    using Scenarist = void (Application::*)(TimeGenerator);
 
     void run(Scenarist make_schedule, TimeGenerator tg)
       /*throw (InvalidOperationOrder, Exception, eh::Exception)*/;
 
     void stop() /*throw (Exception, eh::Exception)*/;
 
-    Generics::Time
-    rand_time() const /*throw (eh::Exception)*/;
+    Generics::Time rand_time() const /*throw (eh::Exception)*/;
 
-    Generics::Time
-    full_random_time() const /*throw (eh::Exception)*/;
+    Generics::Time full_random_time() const /*throw (eh::Exception)*/;
 
-    Generics::Time
-    compact_time_series() const /*throw (eh::Exception)*/;
+    Generics::Time compact_time_series() const /*throw (eh::Exception)*/;
 
-    void
-    set_test_execution_time(int nt) noexcept;
+    void set_test_execution_time(int nt) noexcept;
 
     /**
      * Scheduling strategies
      */
-    void
-    ScheduleMaker(TimeGenerator tg)
+    void ScheduleMaker(TimeGenerator tg)
       /*throw (Planner::Exception, eh::Exception)*/;
 
-    void
-    SchedulePortionMaker(TimeGenerator tg)
+    void SchedulePortionMaker(TimeGenerator tg)
       /*throw (Planner::Exception, eh::Exception)*/;
 
-    void
-    ScheduleMakerUCS97(TimeGenerator tg)
+    void ScheduleMakerUCS97(TimeGenerator tg)
       /*throw (Planner::Exception, eh::Exception)*/;
 
-    void
-    set_message_count(unsigned long new_value) noexcept;
+    void set_message_count(unsigned long new_value) noexcept;
 
   private:
 
@@ -86,10 +78,9 @@ namespace Generics
     public:
       StopMessage(Application* app);
 
-      virtual void
-      deliver() /*throw (eh::Exception)*/;
+      virtual void deliver() /*throw (eh::Exception)*/;
     };
-    typedef ReferenceCounting::QualPtr<StopMessage> StopMessage_var;
+    using StopMessage_var = ReferenceCounting::QualPtr<StopMessage>;
 
     class TimedMessage : public Message
     {
@@ -97,43 +88,34 @@ namespace Generics
       TimedMessage(Application* app, const Generics::Time& tm)
         /*throw (eh::Exception)*/;
 
-      Generics::Time
-      time() const /*throw (eh::Exception)*/;
+      Generics::Time time() const /*throw (eh::Exception)*/;
 
-      void
-      time(const Generics::Time& tm)
+      void time(const Generics::Time& tm)
         /*throw (eh::Exception)*/;
 
-      Generics::Time
-      scheduling_time() const /*throw (eh::Exception)*/;
+      Generics::Time scheduling_time() const /*throw (eh::Exception)*/;
 
-      TimedMessage*
-      scheduling_time(const Generics::Time& tm)
+      TimedMessage* scheduling_time(const Generics::Time& tm)
         /*throw (eh::Exception)*/;
 
-      virtual void
-      deliver() /*throw (eh::Exception)*/;
+      virtual void deliver() /*throw (eh::Exception)*/;
 
     private:
       Generics::Time time_;
       // At this time message was scheduled into Scheduler
       Generics::Time push_time_;
     };
-    typedef ReferenceCounting::QualPtr<TimedMessage> TimedMessage_var;
+    using TimedMessage_var = ReferenceCounting::QualPtr<TimedMessage>;
 
-    void
-    deliver_message(TimedMessage* timed_message)
-      noexcept;
+    void deliver_message(TimedMessage* timed_message) noexcept;
 
   private:
 
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard Read_Guard_;
-    typedef Sync::PosixWGuard Write_Guard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using Read_Guard_ = Sync::PosixRGuard;
+    using Write_Guard_ = Sync::PosixWGuard;
 
-    bool
-    is_test_successfull_(std::string& error_description) const
-      noexcept;
+    bool is_test_successfull_(std::string& error_description) const noexcept;
 
     mutable Mutex_ lock_;
 
@@ -158,11 +140,11 @@ namespace Generics
 //    Statistics::Timed_var schedule_stat_;
     Generics::ActiveObjectCallback_var callback_;
     Statistics::Collection_var statistics_;
-    typedef Sync::PosixMutex PMutex_;
-    typedef Sync::PosixGuard PGuard_;
+    using PMutex_ = Sync::PosixMutex;
+    using PGuard_ = Sync::PosixGuard;
     PMutex_        schedule_events_lock_;
 
-    typedef std::multiset<Generics::Time> Schedule;
+    using Schedule = std::multiset<Generics::Time>;
     Schedule        scheduled_events_;
     Generics::Time  max_gap_;
     Generics::Time  max_gap_planed_moment_;
@@ -179,13 +161,11 @@ namespace Generics
 
 namespace Generics
 {
-
   //
   // Application::Message class
   //
 
-  inline
-  Application::Message::Message(Application* app)
+  inline Application::Message::Message(Application* app)
     : app_(app)
   {
   }
@@ -194,8 +174,7 @@ namespace Generics
   // Application::StopMessage class
   //
 
-  inline
-  Application::StopMessage::StopMessage(Application* app)
+  inline Application::StopMessage::StopMessage(Application* app)
     : Application::Message(app)
   {
   }
@@ -204,43 +183,34 @@ namespace Generics
   // Application::TimedMessage class
   //
 
-  inline
-  Application::TimedMessage::TimedMessage(Application* app,
-    const Generics::Time& time)
+  inline Application::TimedMessage::TimedMessage(Application* app, const Generics::Time& time)
     /*throw (eh::Exception)*/
     : Application::Message(app),
       time_(time)
   {
   }
 
-  inline
-  Generics::Time
-  Application::TimedMessage::scheduling_time() const
+  inline Generics::Time Application::TimedMessage::scheduling_time() const
     /*throw (eh::Exception)*/
   {
     return push_time_;
   }
 
   inline
-  Application::TimedMessage*
-  Application::TimedMessage::scheduling_time(const Generics::Time& time)
+  Application::TimedMessage* Application::TimedMessage::scheduling_time(const Generics::Time& time)
     /*throw (eh::Exception)*/
   {
     push_time_ = time;
     return this;
   }
 
-  inline
-  Generics::Time
-  Application::TimedMessage::time() const
+  inline Generics::Time Application::TimedMessage::time() const
     /*throw (eh::Exception)*/
   {
     return time_;
   }
 
-  inline
-  void
-  Application::TimedMessage::time(const Generics::Time& time)
+  inline void Application::TimedMessage::time(const Generics::Time& time)
     /*throw (eh::Exception)*/
   {
     time_ = time;

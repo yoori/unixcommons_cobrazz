@@ -44,9 +44,7 @@ namespace
      * @return 0 for success.
      * @return -1 for failure.
      */
-    virtual
-    int
-    open(const ACE_TCHAR* logger_key) noexcept;
+    virtual int open(const ACE_TCHAR* logger_key) noexcept;
 
     /**
      * Reset the backend.  If ACE_Log_Msg is reopened during execution, this
@@ -56,14 +54,10 @@ namespace
      * @return Currently ignored, but to be safe, return 0 for success;
      *         -1 for failure.
      */
-    virtual
-    int
-    reset() noexcept;
+    virtual int reset() noexcept;
 
     /// Close the backend completely.
-    virtual
-    int
-    close() noexcept;
+    virtual int close() noexcept;
 
     /**
      * Process a log record.
@@ -71,58 +65,49 @@ namespace
      * @return -1 for failure; else it is customarily the number of bytes
      *         processed, but can also be 0 to signify success.
      */
-    virtual
-    ssize_t
-    log(ACE_Log_Record& log_record) noexcept;
+    virtual ssize_t log(ACE_Log_Record& log_record) noexcept;
 
     /**
      * Remove logger from internal counting map.
      * @param this pointer to logger used as key for logger count
      */
-    void
-    remove_logger(Logging::Logger* logger) noexcept;
+    void remove_logger(Logging::Logger* logger) noexcept;
 
     /**
      * Memorize phorm logger, there delegate ACE_Log_Msg calls.
      * @param pointer to new or already count logger
      * used as key for logger count.
      */
-    void
-    add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/;
+    void add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/;
 
   private:
     /// Convert ACE message types to Phorm logger types.
-    Logging::Logger::Severity
-    convert_severity(ACE_UINT32 ace_severity) const noexcept;
+    Logging::Logger::Severity convert_severity(ACE_UINT32 ace_severity) const noexcept;
 
     struct LoggerCounter
     {
-      explicit
-      LoggerCounter(Logging::Logger* logger = 0) noexcept;
+      explicit LoggerCounter(Logging::Logger* logger = 0) noexcept;
       LoggerCounter(LoggerCounter&&) noexcept;
 
       Logging::QLogger_var logger;
       unsigned count;
     };
 
-    typedef ReferenceCounting::Map<Logging::Logger*, LoggerCounter>
-      UsedLoggers;
+    using UsedLoggers = ReferenceCounting::Map<Logging::Logger*, LoggerCounter>;
     UsedLoggers loggers_;
 
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard ReadGuard_;
-    typedef Sync::PosixWGuard WriteGuard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using ReadGuard_ = Sync::PosixRGuard;
+    using WriteGuard_ = Sync::PosixWGuard;
     Mutex_ lock_;
   };
 
-  ACELoggerHook::LoggerCounter::LoggerCounter(Logging::Logger* logger)
-    noexcept
+  ACELoggerHook::LoggerCounter::LoggerCounter(Logging::Logger* logger) noexcept
     : logger(ReferenceCounting::add_ref(logger)), count(0)
   {
   }
 
-  ACELoggerHook::LoggerCounter::LoggerCounter(LoggerCounter&& l)
-    noexcept
+  ACELoggerHook::LoggerCounter::LoggerCounter(LoggerCounter&& l) noexcept
     : logger(std::move(l.logger)), count(l.count)
   {
   }
@@ -139,30 +124,25 @@ namespace
   {
     ACE_Log_Msg::instance()->msg_backend(this);
     ACE_Log_Msg::instance()->clr_flags(ACE_Log_Msg::STDERR);
-    ACE_Log_Msg::instance()->set_flags(ACE_Log_Msg::CUSTOM |
-      ACE_Log_Msg::LOGGER);
+    ACE_Log_Msg::instance()->set_flags(ACE_Log_Msg::CUSTOM | ACE_Log_Msg::LOGGER);
   }
 
-  int
-  ACELoggerHook::open(const ACE_TCHAR* /*logger_key*/) noexcept
+  int ACELoggerHook::open(const ACE_TCHAR* /*logger_key*/) noexcept
   {
     return 0;
   }
 
-  int
-  ACELoggerHook::reset() noexcept
+  int ACELoggerHook::reset() noexcept
   {
     return 0;
   }
 
-  int
-  ACELoggerHook::close() noexcept
+  int ACELoggerHook::close() noexcept
   {
     return 0;
   }
 
-  void
-  ACELoggerHook::remove_logger(Logging::Logger* logger) noexcept
+  void ACELoggerHook::remove_logger(Logging::Logger* logger) noexcept
   {
     Logging::Logger_var logger_find(ReferenceCounting::add_ref(logger));
     WriteGuard_ guard(lock_);
@@ -176,8 +156,7 @@ namespace
     }
   }
 
-  void
-  ACELoggerHook::add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/
+  void ACELoggerHook::add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/
   {
     LoggerCounter lc(logger);
     WriteGuard_ guard(lock_);
@@ -185,16 +164,13 @@ namespace
       second.count++;
   }
 
-  ssize_t
-  ACELoggerHook::log(ACE_Log_Record& log_record) noexcept
+  ssize_t ACELoggerHook::log(ACE_Log_Record& log_record) noexcept
   {
     ReadGuard_ guard(lock_);
     if (!loggers_.empty())
     {
-      const Logging::Logger::Severity SEVERITY =
-        convert_severity(log_record.type());
-      for (UsedLoggers::iterator it(loggers_.begin());
-        it != loggers_.end(); ++it)
+      const Logging::Logger::Severity SEVERITY = convert_severity(log_record.type());
+      for (UsedLoggers::iterator it(loggers_.begin()); it != loggers_.end(); ++it)
       {
         it->first->log(String::SubString(log_record.msg_data(),
           log_record.msg_data_len()), SEVERITY);
@@ -209,8 +185,7 @@ namespace
     return 0; // success (-1 if error)
   }
 
-  Logging::Logger::Severity
-  ACELoggerHook::convert_severity(ACE_UINT32 ace_severity) const noexcept
+  Logging::Logger::Severity ACELoggerHook::convert_severity(ACE_UINT32 ace_severity) const noexcept
   {
     switch (ace_severity)
     {
@@ -233,26 +208,21 @@ namespace
     default:
       // LM_INFO, LM_SHUTDOWN, LM_STARTUP, LM_MAX, etc
       // return as INFO severity
-      return Logging::Logger::INFO; 
+      return Logging::Logger::INFO;
     }
   }
 }
 
 
-namespace CORBACommons
+namespace CORBACommons::AceLogger
 {
-  namespace AceLogger
+  void add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/
   {
-    void
-    add_logger(Logging::Logger* logger) /*throw (eh::Exception)*/
-    {
-      ace_logger_replacement->add_logger(logger);
-    }
+    ace_logger_replacement->add_logger(logger);
+  }
 
-    void
-    remove_logger(Logging::Logger* logger) noexcept
-    {
-      ace_logger_replacement->remove_logger(logger);
-    }
+  void remove_logger(Logging::Logger* logger) noexcept
+  {
+    ace_logger_replacement->remove_logger(logger);
   }
 }

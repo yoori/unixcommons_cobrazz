@@ -11,12 +11,10 @@ namespace
     const char sample_mix_lower_upper[256];
     const char ethalon_lower[256];  // standard for results
     const char ethalon_upper[256];
-  } tds[4] =
-  {
+  } tds[4] = {
     // French
-    {
-      "De nombreux projets sont à l'étude pour produire de l'électricité à"
-      " partir de la seule force des vagues.",
+    {"De nombreux projets sont à l'étude pour produire de l'électricité à"
+     " partir de la seule force des vagues.",
       "DE NOMBREUX PROJETS SONT À L'ÉTUDE POUR PRODUIRE DE L'ÉLECTRICITÉ À"
       " PARTIR DE LA SEULE FORCE DES VAGUES.",
       "DE NOMBREUX PROJETS SONT À L'ÉTUDE POUR PRODUIRE DE l'électricité à"
@@ -25,32 +23,23 @@ namespace
       "de nombreux projets sont à l'étude pour produire de l'électricité à"
       " partir de la seule force des vagues.",
       "DE NOMBREUX PROJETS SONT À L'ÉTUDE POUR PRODUIRE DE L'ÉLECTRICITÉ À"
-      " PARTIR DE LA SEULE FORCE DES VAGUES."
-    },
+      " PARTIR DE LA SEULE FORCE DES VAGUES."},
     // Russian
-    {
-      "Строка на русском",
-      "СТРОКА НА РУССКОМ",
-      "СТРОКА НА русском",
+    {"Строка на русском", "СТРОКА НА РУССКОМ", "СТРОКА НА русском",
       // standard Russian results
-      "строка на русском",
-      "СТРОКА НА РУССКОМ"
-    },
+      "строка на русском", "СТРОКА НА РУССКОМ"},
     // Arabian texts
-    {
-      "واقفًا وإلى ورائه عامود على النحو المألوف في التماث",
+    {"واقفًا وإلى ورائه عامود على النحو المألوف في التماث",
       "واقفًا وإلى ورائه عامود على النحو المألوف في التماث",
       "واقفًا وإلى ورائه عامود على النحو المألوف في التماث",
       // standard Arabian results
       "واقفًا وإلى ورائه عامود على النحو المألوف في التماث",
-      "واقفًا وإلى ورائه عامود على النحو المألوف في التماث"
-    },
+      "واقفًا وإلى ورائه عامود على النحو المألوف في التماث"},
     // Deutsch texts
-    {
-      "Sie die einmalige Gebühr bezahlt haben können Sie dieses Bild in "
-      "anderen Produkten oder weiteren Bestellungen ohne Gebühr verwenden."
-      " Es können zusätzliche Kosten entstehen wenn Ihre Bestellung mehr "
-      "als ein GRATIS Produkt enthält.",
+    {"Sie die einmalige Gebühr bezahlt haben können Sie dieses Bild in "
+     "anderen Produkten oder weiteren Bestellungen ohne Gebühr verwenden."
+     " Es können zusätzliche Kosten entstehen wenn Ihre Bestellung mehr "
+     "als ein GRATIS Produkt enthält.",
       "SIE DIE EINMALIGE GEBÜHR BEZAHLT HABEN KÖNNEN SIE DIESES BILD IN "
       "ANDEREN PRODUKTEN ODER WEITEREN BESTELLUNGEN OHNE GEBÜHR VERWENDEN."
       " ES KÖNNEN ZUSÄTZLICHE KOSTEN ENTSTEHEN WENN IHRE BESTELLUNG MEHR "
@@ -67,8 +56,7 @@ namespace
       "SIE DIE EINMALIGE GEBÜHR BEZAHLT HABEN KÖNNEN SIE DIESES BILD IN "
       "ANDEREN PRODUKTEN ODER WEITEREN BESTELLUNGEN OHNE GEBÜHR VERWENDEN."
       " ES KÖNNEN ZUSÄTZLICHE KOSTEN ENTSTEHEN WENN IHRE BESTELLUNG MEHR "
-      "ALS EIN GRATIS PRODUKT ENTHÄLT."
-    },
+      "ALS EIN GRATIS PRODUKT ENTHÄLT."},
   };
 
 } // namespace

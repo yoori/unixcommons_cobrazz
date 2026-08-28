@@ -13,26 +13,21 @@
 class Echo_i : public POA_Echo
 {
 public:
-  virtual void
-  two_way() noexcept;
-  virtual void
-  one_way() noexcept;
+  virtual void two_way() noexcept;
+  virtual void one_way() noexcept;
 };
 
-void
-Echo_i::two_way() noexcept
+void Echo_i::two_way() noexcept
 {
   std::cerr << "two_way\n";
 }
 
-void
-Echo_i::one_way() noexcept
+void Echo_i::one_way() noexcept
 {
   std::cerr << "one_way\n";
 }
 
-int
-main()
+int main()
 {
   //TAO_debug_level = 100;
 
@@ -89,8 +84,7 @@ main()
           root_poa->the_POAManagerFactory();
         CORBA::PolicyList policies;
 #if 0
-        EndpointPolicy::EndpointValueBase_var endpoint =
-          new IIOPEndpointValue_i("localhost", 1025);
+        EndpointPolicy::EndpointValueBase_var endpoint = new IIOPEndpointValue_i("localhost", 1025);
         EndpointPolicy::EndpointList list;
         list.length(1);
         list[0] = endpoint;
@@ -106,12 +100,9 @@ main()
       CORBA::PolicyList policies;
       CORBA::Policy_var policy0, policy1, policy2;
       policies.length(3);
-      policies[0] = policy0 =
-        root_poa->create_lifespan_policy(PortableServer::PERSISTENT);
-      policies[1] = policy1 =
-        root_poa->create_id_uniqueness_policy(PortableServer::MULTIPLE_ID);
-      policies[2] = policy2 =
-        root_poa->create_id_assignment_policy(PortableServer::USER_ID);
+      policies[0] = policy0 = root_poa->create_lifespan_policy(PortableServer::PERSISTENT);
+      policies[1] = policy1 = root_poa->create_id_uniqueness_policy(PortableServer::MULTIPLE_ID);
+      policies[2] = policy2 = root_poa->create_id_assignment_policy(PortableServer::USER_ID);
       root_poa = root_poa->create_POA("Custom_POA", pman, policies);
     }
 #endif
@@ -119,8 +110,7 @@ main()
   Echo_i* myecho = new Echo_i();
 
 #ifdef ADVANCED
-  PortableServer::ObjectId_var object_id(
-    PortableServer::string_to_ObjectId("Object"));
+  PortableServer::ObjectId_var object_id( PortableServer::string_to_ObjectId("Object"));
   root_poa->activate_object_with_id(object_id, myecho);
 #else
   root_poa->activate_object(myecho);
@@ -149,8 +139,7 @@ main()
   PortableServer::POA_var poa = root_poa->create_POA("CustomPoa", pman, pl);
 #endif
 
-  PortableServer::ObjectId_var oid =
-    PortableServer::string_to_ObjectId("Echo");
+  PortableServer::ObjectId_var oid = PortableServer::string_to_ObjectId("Echo");
 
   Echo_i* myecho = new Echo_i();
 

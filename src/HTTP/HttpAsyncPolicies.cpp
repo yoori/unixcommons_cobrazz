@@ -32,14 +32,11 @@ namespace HTTP
 
     static
     PoolPolicySimpleEmptyThread::Threads::const_iterator
-    convert(PoolPolicySimpleEmptyThread::Threads::const_iterator& src)
-      noexcept;
+    convert(PoolPolicySimpleEmptyThread::Threads::const_iterator& src) noexcept;
 
     static
     PoolPolicySimpleEmptyConnection::Connections::const_iterator
-    convert(
-      PoolPolicySimpleEmptyConnection::ConnectionPtrs::const_iterator& src)
-      noexcept;
+    convert( PoolPolicySimpleEmptyConnection::ConnectionPtrs::const_iterator& src) noexcept;
 
     static
     bool
@@ -48,8 +45,7 @@ namespace HTTP
 
     static
     bool
-    additional_closing_validator(
-      PoolPolicySimpleEmptyConnection::Connections::const_iterator& it)
+    additional_closing_validator( PoolPolicySimpleEmptyConnection::Connections::const_iterator& it)
       noexcept;
   };
 
@@ -98,8 +94,7 @@ namespace HTTP
   }
 
   PoolPolicySimpleEmptyThread::Threads::const_iterator
-  EmptyPoliciesCommonMethods::convert(
-    PoolPolicySimpleEmptyThread::Threads::const_iterator& src)
+  EmptyPoliciesCommonMethods::convert( PoolPolicySimpleEmptyThread::Threads::const_iterator& src)
     noexcept
   {
     return src;
@@ -146,8 +141,7 @@ namespace HTTP
     typename AuxiliaryMap::const_iterator end = map.end();
     for (; it != end; ++it)
     {
-      typename EntitiesMap::const_iterator current =
-        EmptyPoliciesCommonMethods::convert(it);
+      typename EntitiesMap::const_iterator current = EmptyPoliciesCommonMethods::convert(it);
 
       if (current->first == cur_obj_it->first)
       {
@@ -173,8 +167,7 @@ namespace HTTP
       }
     }
 
-    if ((additional_condition && closure_awaiting_exists) ||
-      !policy.CLOSURE_DELAY_)
+    if ((additional_condition && closure_awaiting_exists) || !policy.CLOSURE_DELAY_)
     {
       cur_obj_it->second.state = Policy::StateInfo::CLOSING;
       return 0;
@@ -196,8 +189,7 @@ namespace HTTP
     typename AuxiliaryMap::const_iterator end = map.end();
     for (; it != end; ++it)
     {
-      typename EntitiesMap::const_iterator current =
-        EmptyPoliciesCommonMethods::convert(it);
+      typename EntitiesMap::const_iterator current = EmptyPoliciesCommonMethods::convert(it);
 
       if (current->second.state == Policy::StateInfo::ACTIVE ||
         current->second.state == Policy::StateInfo::ACTIVE_AWAITING)
@@ -285,8 +277,7 @@ namespace HTTP
   // PoolPolicySimpleStatistics::StateInfo class
   //
 
-  inline
-  PoolPolicySimpleStatistics::StateInfo::StateInfo() noexcept
+  inline PoolPolicySimpleStatistics::StateInfo::StateInfo() noexcept
     : state(ACTIVE_AWAITING)
   {
   }
@@ -295,8 +286,7 @@ namespace HTTP
   // PoolPolicySimpleStatistics::StateInfo class
   //
 
-  inline
-  PoolPolicySimpleStatistics::SimpleStat::SimpleStat() noexcept
+  inline PoolPolicySimpleStatistics::SimpleStat::SimpleStat() noexcept
     : items_count(0)
   {
   }
@@ -311,8 +301,7 @@ namespace HTTP
   {
   }
 
-  PoolPolicySimpleStatistics::Connection::Connection(Identifier server)
-    noexcept
+  PoolPolicySimpleStatistics::Connection::Connection(Identifier server) noexcept
     : server(server), thread(0)
   {
   }
@@ -337,8 +326,7 @@ namespace HTTP
     assert(connections_.empty());
   }
 
-  void
-  PoolPolicySimpleStatistics::server_added(Identifier server) noexcept
+  void PoolPolicySimpleStatistics::server_added(Identifier server) noexcept
   {
     try
     {
@@ -354,15 +342,13 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicySimpleStatistics::server_added_i(Identifier server)
+  void PoolPolicySimpleStatistics::server_added_i(Identifier server)
     /*throw (eh::Exception)*/
   {
     servers_.insert(Servers::value_type(server, ConnectionPtrs()));
   }
 
-  void
-  PoolPolicySimpleStatistics::server_removed(Identifier server) noexcept
+  void PoolPolicySimpleStatistics::server_removed(Identifier server) noexcept
   {
     try
     {
@@ -378,8 +364,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicySimpleStatistics::server_removed_i(Identifier server)
+  void PoolPolicySimpleStatistics::server_removed_i(Identifier server)
     /*throw (eh::Exception)*/
   {
     Servers::iterator itor(servers_.find(server));
@@ -416,8 +401,7 @@ namespace HTTP
     Servers::iterator itor(servers_.find(server));
     if (itor != servers_.end())
     {
-      itor->second.insert(
-        ConnectionPtrs::value_type(connection, conn_it));
+      itor->second.insert( ConnectionPtrs::value_type(connection, conn_it));
     }
   }
 
@@ -475,8 +459,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicySimpleStatistics::thread_added(Identifier thread) noexcept
+  void PoolPolicySimpleStatistics::thread_added(Identifier thread) noexcept
   {
     try
     {
@@ -492,8 +475,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicySimpleStatistics::thread_removed(Identifier thread) noexcept
+  void PoolPolicySimpleStatistics::thread_removed(Identifier thread) noexcept
   {
     try
     {
@@ -509,8 +491,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicySimpleStatistics::thread_removed_i(Identifier thread)
+  void PoolPolicySimpleStatistics::thread_removed_i(Identifier thread)
     /*throw (eh::Exception)*/
   {
     Threads::iterator itor(threads_.find(thread));
@@ -759,8 +740,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicyAdvancedStatistics::server_added_i(Identifier server)
+  void PoolPolicyAdvancedStatistics::server_added_i(Identifier server)
     /*throw (eh::Exception)*/
   {
     PoolPolicySimpleStatistics::server_added_i(server);
@@ -768,8 +748,7 @@ namespace HTTP
     server_requests_.insert(ServerRequests::value_type(server, Requests()));
   }
 
-  void
-  PoolPolicyAdvancedStatistics::server_removed_i(Identifier server)
+  void PoolPolicyAdvancedStatistics::server_removed_i(Identifier server)
     /*throw (eh::Exception)*/
   {
     PoolPolicySimpleStatistics::server_removed_i(server);
@@ -786,8 +765,7 @@ namespace HTTP
     Identifier server, Identifier connection, Identifier request)
     /*throw (eh::Exception)*/
   {
-    PoolPolicySimpleStatistics::connection_request_added_i(
-      server, connection, request);
+    PoolPolicySimpleStatistics::connection_request_added_i( server, connection, request);
 
     ServerRequests::iterator serv_it(server_requests_.find(server));
     if (serv_it != server_requests_.end())
@@ -830,16 +808,14 @@ namespace HTTP
   {
   }
 
-  PoolPolicySimpleDecider::Identifier
-  PoolPolicySimpleDecider::choose_thread() noexcept
+  PoolPolicySimpleDecider::Identifier PoolPolicySimpleDecider::choose_thread() noexcept
   {
     try
     {
       Sync::PosixGuard guard(mutex_);
 
       const Threads& threads = get_threads_();
-      for (Threads::const_iterator itor(threads.begin());
-        itor != threads.end(); ++itor)
+      for (Threads::const_iterator itor(threads.begin()); itor != threads.end(); ++itor)
       {
         if (itor->second.state == StateInfo::CLOSING)
         {
@@ -867,8 +843,7 @@ namespace HTTP
   }
 
   PoolPolicySimpleDecider::Identifier
-  PoolPolicySimpleDecider::choose_connection(
-    Identifier server, Identifier /*request*/) noexcept
+  PoolPolicySimpleDecider::choose_connection( Identifier server, Identifier /*request*/) noexcept
   {
     try
     {
@@ -928,15 +903,13 @@ namespace HTTP
   }
 
   PoolPolicySimpleDecider::RequestPolicy
-  PoolPolicySimpleDecider::request_failed(Identifier /*server*/,
-    Identifier /*request*/) noexcept
+  PoolPolicySimpleDecider::request_failed(Identifier /*server*/, Identifier /*request*/) noexcept
   {
     return RP_CANCEL_ALL;
   }
 
   PoolPolicySimpleDecider::RequestPolicy
-  PoolPolicySimpleDecider::requests_failed(Identifier /*server*/)
-    noexcept
+  PoolPolicySimpleDecider::requests_failed(Identifier /*server*/) noexcept
   {
     return RP_CANCEL_FIRST_RESEND_OTHERS;
   }
@@ -946,14 +919,12 @@ namespace HTTP
   // class PoolPolicySimpleEmptyThread
   //
 
-  PoolPolicySimpleEmptyThread::PoolPolicySimpleEmptyThread(
-    time_t closure_delay) noexcept
+  PoolPolicySimpleEmptyThread::PoolPolicySimpleEmptyThread( time_t closure_delay) noexcept
     : CLOSURE_DELAY_(closure_delay)
   {
   }
 
-  int
-  PoolPolicySimpleEmptyThread::when_close_thread(Identifier thread) noexcept
+  int PoolPolicySimpleEmptyThread::when_close_thread(Identifier thread) noexcept
   {
     int res = -1;
     try
@@ -965,8 +936,7 @@ namespace HTTP
       if (thr_it != threads.end())
       {
         res = EmptyPoliciesCommonMethods::when_close_entity
-          <PoolPolicySimpleEmptyThread, Threads, Threads>(
-            thr_it, threads, *this);
+          <PoolPolicySimpleEmptyThread, Threads, Threads>( thr_it, threads, *this);
       }
     }
     catch (...)
@@ -984,8 +954,7 @@ namespace HTTP
     Threads::const_iterator& cur_thr, const Threads&) /*throw (eh::Exception)*/
   {
     return EmptyPoliciesCommonMethods::process_entity_active_state
-      <PoolPolicySimpleEmptyThread, Threads, Threads>(
-        cur_thr, get_threads_(), *this);
+      <PoolPolicySimpleEmptyThread, Threads, Threads>( cur_thr, get_threads_(), *this);
   }
 
   int
@@ -993,8 +962,7 @@ namespace HTTP
     Threads::const_iterator& cur_thr, const Threads&) /*throw (eh::Exception)*/
   {
     return EmptyPoliciesCommonMethods::process_entity_closure_awaiting_state
-      <PoolPolicySimpleEmptyThread, Threads, Threads>(
-        cur_thr, get_threads_(), *this);
+      <PoolPolicySimpleEmptyThread, Threads, Threads>( cur_thr, get_threads_(), *this);
   }
 
   PoolPolicySimpleEmptyThread::~PoolPolicySimpleEmptyThread() noexcept
@@ -1006,15 +974,12 @@ namespace HTTP
   // class PoolPolicySimpleEmptyConnection
   //
 
-  PoolPolicySimpleEmptyConnection::PoolPolicySimpleEmptyConnection(
-    time_t closure_delay) noexcept
+  PoolPolicySimpleEmptyConnection::PoolPolicySimpleEmptyConnection( time_t closure_delay) noexcept
     : CLOSURE_DELAY_(closure_delay)
   {
   }
 
-  int
-  PoolPolicySimpleEmptyConnection::when_close_connection(
-    Identifier connection) noexcept
+  int PoolPolicySimpleEmptyConnection::when_close_connection( Identifier connection) noexcept
   {
     int res = -1;
     try
@@ -1063,8 +1028,7 @@ namespace HTTP
     /*throw (eh::Exception)*/
   {
     return EmptyPoliciesCommonMethods::process_entity_active_state
-      <PoolPolicySimpleEmptyConnection, Connections, ConnectionPtrs>(
-        conn_it, aux_map, *this);
+      <PoolPolicySimpleEmptyConnection, Connections, ConnectionPtrs>( conn_it, aux_map, *this);
   }
 
   int
@@ -1073,8 +1037,7 @@ namespace HTTP
     /*throw (eh::Exception)*/
   {
     return EmptyPoliciesCommonMethods::process_entity_closure_awaiting_state
-        <PoolPolicySimpleEmptyConnection, Connections, ConnectionPtrs>(
-          conn_it, aux_map, *this);
+        <PoolPolicySimpleEmptyConnection, Connections, ConnectionPtrs>( conn_it, aux_map, *this);
   }
 
   PoolPolicySimpleEmptyConnection::~PoolPolicySimpleEmptyConnection() noexcept
@@ -1090,13 +1053,11 @@ namespace HTTP
   {
   }
 
-  void
-  PoolPolicySimpleRequests::request_constructing() /*throw (eh::Exception)*/
+  void PoolPolicySimpleRequests::request_constructing() /*throw (eh::Exception)*/
   {
   }
 
-  void
-  PoolPolicySimpleRequests::request_destroying() noexcept
+  void PoolPolicySimpleRequests::request_destroying() noexcept
   {
   }
 
@@ -1115,14 +1076,12 @@ namespace HTTP
   {
   }
 
-  void
-  PoolPolicyWaitRequests::request_constructing() /*throw (eh::Exception)*/
+  void PoolPolicyWaitRequests::request_constructing() /*throw (eh::Exception)*/
   {
     semaphore_.acquire();
   }
 
-  void
-  PoolPolicyWaitRequests::request_destroying() noexcept
+  void PoolPolicyWaitRequests::request_destroying() noexcept
   {
     semaphore_.release();
   }
@@ -1142,8 +1101,7 @@ namespace HTTP
   {
   }
 
-  void
-  PoolPolicyThrowRequests::request_constructing() /*throw (eh::Exception)*/
+  void PoolPolicyThrowRequests::request_constructing() /*throw (eh::Exception)*/
   {
     _Atomic_word old = __gnu_cxx::__exchange_and_add(&requests_, -1);
     if (old <= 0)
@@ -1155,8 +1113,7 @@ namespace HTTP
     }
   }
 
-  void
-  PoolPolicyThrowRequests::request_destroying() noexcept
+  void PoolPolicyThrowRequests::request_destroying() noexcept
   {
     __gnu_cxx::__atomic_add(&requests_, 1);
   }
@@ -1175,9 +1132,7 @@ namespace HTTP
   {
   }
 
-  int
-  PoolPolicySimpleTimeout::expiration_timeout(Identifier /*connection*/)
-    noexcept
+  int PoolPolicySimpleTimeout::expiration_timeout(Identifier /*connection*/) noexcept
   {
     return TIMEOUT_;
   }

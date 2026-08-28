@@ -15,28 +15,21 @@ class TestModule :
 public:
   TestModule() /*throw (eh::Exception)*/;
 
-  typedef ReferenceCounting::QualPtr<TestModule> TestModule_var;
+  using TestModule_var = ReferenceCounting::QualPtr<TestModule>;
   static TestModule_var instance;
 
-  virtual int
-  handler(request_rec *r) noexcept;
-  virtual const char*
-  handle_command(const ConfigArgs& args) noexcept;
+  virtual int handler(request_rec *r) noexcept;
+  virtual const char* handle_command(const ConfigArgs& args) noexcept;
 
-  virtual bool
-  will_handle(const char* uri) noexcept;
+  virtual bool will_handle(const char* uri) noexcept;
   virtual int
-  handle_request(const Apache::HttpRequest& request,
-    Apache::HttpResponse& response) noexcept;
+  handle_request(const Apache::HttpRequest& request, Apache::HttpResponse& response) noexcept;
 
-  virtual void
-  init() noexcept;
-  virtual void
-  shutdown() noexcept;
+  virtual void init() noexcept;
+  virtual void shutdown() noexcept;
 
 protected:
-  virtual
-  ~TestModule() noexcept;
+  virtual ~TestModule() noexcept;
 
 private:
   int test_;

@@ -11,14 +11,12 @@ class Initializer
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-  bool
-  require_value() noexcept
+  bool require_value() noexcept
   {
     return true;
   }
 
-  void
-  set(const char*, const char* value) /*throw (eh::Exception)*/
+  void set(const char*, const char* value) /*throw (eh::Exception)*/
   {
     try
     {
@@ -47,18 +45,13 @@ protected:
   {
   }
 
-  virtual
-  ~Initializer() noexcept
+  virtual ~Initializer() noexcept
   {
   }
 
-  virtual
-  void
-  init() /*throw (eh::Exception)*/ = 0;
+  virtual void init() /*throw (eh::Exception)*/ = 0;
 
-  virtual
-  void
-  work() /*throw (eh::Exception)*/ = 0;
+  virtual void work() /*throw (eh::Exception)*/ = 0;
 
   Generics::AppUtils::Args args_;
 };
@@ -72,30 +65,23 @@ public:
       opt_secure_url(corba_client_adapter.in())
   {
     args_.add(
-      Generics::AppUtils::equal_name("url") ||
-      Generics::AppUtils::short_name("u"),
+      Generics::AppUtils::equal_name("url") || Generics::AppUtils::short_name("u"),
       opt_url);
     args_.add(
-      Generics::AppUtils::equal_name("secure-url") ||
-      Generics::AppUtils::short_name("su"),
+      Generics::AppUtils::equal_name("secure-url") || Generics::AppUtils::short_name("su"),
       opt_secure_url);
   }
 
-  virtual
-  ~Client() noexcept
+  virtual ~Client() noexcept
   {
   }
 
 protected:
-  virtual
-  void
-  init() /*throw (eh::Exception)*/
+  virtual void init() /*throw (eh::Exception)*/
   {
   }
 
-  virtual
-  void
-  work() /*throw (eh::Exception)*/;
+  virtual void work() /*throw (eh::Exception)*/;
 
 protected:
   CORBACommons::CorbaClientAdapter_var corba_client_adapter;
@@ -111,42 +97,30 @@ public:
   {
   }
 
-  virtual
-  ~Server() noexcept
+  virtual ~Server() noexcept
   {
   }
 
 protected:
-  virtual
-  void
-  init() /*throw (eh::Exception)*/
+  virtual void init() /*throw (eh::Exception)*/
   {
     args_.add(
-      Generics::AppUtils::equal_name("port") ||
-      Generics::AppUtils::short_name("p"),
+      Generics::AppUtils::equal_name("port") || Generics::AppUtils::short_name("p"),
       opt_port_);
     args_.add(
-      Generics::AppUtils::equal_name("host") ||
-      Generics::AppUtils::short_name("h"),
+      Generics::AppUtils::equal_name("host") || Generics::AppUtils::short_name("h"),
       opt_host_);
+    args_.add( Generics::AppUtils::equal_name("secure-port"), opt_secure_port_);
     args_.add(
-      Generics::AppUtils::equal_name("secure-port"),
-      opt_secure_port_);
-    args_.add(
-      Generics::AppUtils::equal_name("secure-params") ||
-      Generics::AppUtils::short_name("sp"),
+      Generics::AppUtils::equal_name("secure-params") || Generics::AppUtils::short_name("sp"),
       opt_secure_params_);
   }
 
-  virtual
-  void
-  init_endpoint(CORBACommons::EndpointConfig&) /*throw (eh::Exception)*/
+  virtual void init_endpoint(CORBACommons::EndpointConfig&) /*throw (eh::Exception)*/
   {
   }
 
-  virtual
-  void
-  work() /*throw (eh::Exception)*/
+  virtual void work() /*throw (eh::Exception)*/
   {
     CORBACommons::CorbaConfig corba_config;
 
@@ -171,8 +145,7 @@ protected:
       corba_config.endpoints.push_back(endpoint_config);
     }
 
-    corba_server_adapter =
-      new CORBACommons::CorbaServerAdapter(corba_config);
+    corba_server_adapter = new CORBACommons::CorbaServerAdapter(corba_config);
   }
 
 protected:
@@ -186,19 +159,15 @@ protected:
 template <typename Client, typename Server>
 struct Usage
 {
-  virtual
-  ~Usage() noexcept
+  virtual ~Usage() noexcept
   {
   }
 
-  virtual
-  void
-  action(Client&, Server&) /*throw (eh::Exception)*/
+  virtual void action(Client&, Server&) /*throw (eh::Exception)*/
   {
   }
 
-  int
-  use(int argc, char* argv[]) noexcept
+  int use(int argc, char* argv[]) noexcept
   {
     try
     {
@@ -207,12 +176,10 @@ struct Usage
       Generics::AppUtils::Args args;
 
       args.add(
-        Generics::AppUtils::equal_name("client") ||
-        Generics::AppUtils::short_name("c"),
+        Generics::AppUtils::equal_name("client") || Generics::AppUtils::short_name("c"),
         client);
       args.add(
-        Generics::AppUtils::equal_name("server") ||
-        Generics::AppUtils::short_name("s"),
+        Generics::AppUtils::equal_name("server") || Generics::AppUtils::short_name("s"),
         server);
 
       args.parse(argc - 1, argv + 1);
@@ -223,11 +190,11 @@ struct Usage
     }
     catch (const CORBA::Exception& e)
     {
-      std::cerr << "main(): " << e << std::endl;    
+      std::cerr << "main(): " << e << std::endl;
     }
     catch (const eh::Exception& e)
     {
-      std::cerr << "main(): " << e.what() << std::endl;    
+      std::cerr << "main(): " << e.what() << std::endl;
     }
     catch (...)
     {

@@ -11,13 +11,11 @@
 class NonBlockFlushingStrategy : public TAO_Flushing_Strategy
 {
 public:
-  virtual int
-  schedule_output(TAO_Transport* /*transport*/)
+  virtual int schedule_output(TAO_Transport* /*transport*/)
   {
     return MUST_FLUSH;
   }
-  virtual int
-  cancel_output(TAO_Transport* transport)
+  virtual int cancel_output(TAO_Transport* transport)
   {
     return 0;
   }
@@ -27,8 +25,7 @@ public:
   {
     return transport->handle_output(max_wait_time);
   }
-  virtual int
-  flush_transport(TAO_Transport* transport, ACE_Time_Value* max_wait_time)
+  virtual int flush_transport(TAO_Transport* transport, ACE_Time_Value* max_wait_time)
   {
     return transport->handle_output(max_wait_time);
   }
@@ -39,8 +36,7 @@ public:
 
 volatile _Atomic_word total;
 
-static void
-hello(TestInt_ptr test_int)
+static void hello(TestInt_ptr test_int)
 {
   unsigned int PARAM_LEN = ::rand() % 10/*000*/;
   OctetSeq param;
@@ -53,8 +49,7 @@ hello(TestInt_ptr test_int)
   test_int->oneway_test(total, param);
 }
 
-void*
-thread_func(void* arg)
+void* thread_func(void* arg)
 {
   int i = 0;
   for (CORBA::ULong count = 0; count < 10000; count++)
@@ -80,16 +75,14 @@ thread_func(void* arg)
   return NULL;
 }
 
-void*
-thread_func3(void* arg)
+void* thread_func3(void* arg)
 {
   CORBA::ORB_ptr(arg)->run();
   std::cout << "ORB::run() ended\n";
   return NULL;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 
@@ -104,16 +97,14 @@ main(int argc, char** argv)
 #ifdef ORB_TAO
   CORBA::Object_var object = orb->resolve_initial_references("PolicyCurrent");
 
-  CORBA::PolicyCurrent_var policy_current =
-    CORBA::PolicyCurrent::_narrow(object.in ());
+  CORBA::PolicyCurrent_var policy_current = CORBA::PolicyCurrent::_narrow(object.in ());
 
   TimeBase::TimeT timeout = 10000000;
   CORBA::Any timeout_as_any;
   timeout_as_any <<= timeout;
 
   CORBA::Policy_var policy =
-    orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE,
-      timeout_as_any);
+    orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE, timeout_as_any);
   CORBA::PolicyList policy_list(1);
   policy_list.length(1);
   policy_list[0] = policy;

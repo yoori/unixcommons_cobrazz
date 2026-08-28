@@ -17,100 +17,75 @@ namespace Generics
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
     DECLARE_EXCEPTION(InvalidArgument, Exception);
 
-    typedef uint8_t value_type;
-    typedef value_type& reference_type;
-    typedef const value_type& const_reference_type;
-    typedef value_type* iterator;
-    typedef const value_type* const_iterator;
-    typedef ssize_t difference_type;
-    typedef size_t size_type;
+    using value_type = uint8_t;
+    using reference_type = value_type&;
+    using const_reference_type = const value_type&;
+    using iterator = value_type*;
+    using const_iterator = const value_type*;
+    using difference_type = ssize_t;
+    using size_type = size_t;
 
 
     // random number based
-    static
-    Uuid
-    create_random_based() noexcept;
+    static Uuid create_random_based() noexcept;
 
     Uuid() noexcept;
 
-    explicit
-    Uuid(const char* str, bool padding = true)
+    explicit Uuid(const char* str, bool padding = true)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
-    explicit
-    Uuid(const String::SubString& str, bool padding = true)
+    explicit Uuid(const String::SubString& str, bool padding = true)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
-    explicit
-    Uuid(std::istream& istr)
+    explicit Uuid(std::istream& istr)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
     template <typename ByteInputIterator>
     Uuid(ByteInputIterator first, ByteInputIterator last)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
-    bool
-    operator ==(const Uuid& rhs) const noexcept;
+    bool operator ==(const Uuid& rhs) const noexcept;
 
-    bool
-    operator !=(const Uuid& rhs) const noexcept;
+    bool operator !=(const Uuid& rhs) const noexcept;
 
-    bool
-    operator <(const Uuid& rhs) const noexcept;
+    bool operator <(const Uuid& rhs) const noexcept;
 
-    bool
-    operator >(const Uuid& rhs) const noexcept;
+    bool operator >(const Uuid& rhs) const noexcept;
 
-    bool
-    operator <=(const Uuid& rhs) const noexcept;
+    bool operator <=(const Uuid& rhs) const noexcept;
 
-    bool
-    operator >=(const Uuid& rhs) const noexcept;
+    bool operator >=(const Uuid& rhs) const noexcept;
 
-    bool
-    is_null() const noexcept;
+    bool is_null() const noexcept;
 
-    std::string
-    to_string(bool padding = true) const
+    std::string to_string(bool padding = true) const
       /*throw (eh::Exception)*/;
 
-    static
-    size_type
-    size() noexcept;
+    static size_type size() noexcept;
 
-    static
-    size_type
-    encoded_size(bool padding = true) noexcept;
+    static size_type encoded_size(bool padding = true) noexcept;
 
-    iterator
-    begin() noexcept;
+    iterator begin() noexcept;
 
-    const_iterator
-    begin() const noexcept;
+    const_iterator begin() const noexcept;
 
-    iterator
-    end() noexcept;
+    iterator end() noexcept;
 
-    const_iterator
-    end() const noexcept;
+    const_iterator end() const noexcept;
 
-    void
-    swap(Uuid& rhs) noexcept;
+    void swap(Uuid& rhs) noexcept;
 
-    unsigned long
-    hash() const noexcept;
+    unsigned long hash() const noexcept;
 
   private:
     static const size_type DATA_SIZE = 16;
-    typedef value_type DataType[DATA_SIZE];
+    using DataType = value_type[DATA_SIZE];
 
     template <typename Iterator>
-    Iterator
-    construct_(Iterator begin, Iterator end, bool padding)
+    Iterator construct_(Iterator begin, Iterator end, bool padding)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
-    void
-    construct_(const String::SubString& str, bool padding)
+    void construct_(const String::SubString& str, bool padding)
       /*throw (eh::Exception, Exception, InvalidArgument)*/;
 
     union
@@ -124,14 +99,11 @@ namespace Generics
 # endif
   ;
 
-  std::ostream&
-  operator <<(std::ostream& ostr, const Uuid& uuid) noexcept;
-  std::istream&
-  operator >>(std::istream& istr, Uuid& uuid) noexcept;
+  std::ostream& operator <<(std::ostream& ostr, const Uuid& uuid) noexcept;
+  std::istream& operator >>(std::istream& istr, Uuid& uuid) noexcept;
 
   template <typename Hash>
-  void
-  hash_add(Hash& hash, const Uuid& value) noexcept;
+  void hash_add(Hash& hash, const Uuid& value) noexcept;
 
 
   class SignedUuidGenerator;
@@ -148,23 +120,20 @@ namespace Generics
      * Returns contained uuid
      * @return contained uuid
      */
-    const Uuid&
-    uuid() const noexcept;
+    const Uuid& uuid() const noexcept;
 
     /**
      * Returns contained data bits
      * @return contained data bits
      */
-    uint8_t
-    data() const noexcept;
+    uint8_t data() const noexcept;
 
     /**
      * String representation of Uuid and its signature. It can be parsed
      * by SignedUuidVerifier to create SignedUuid object.
      * @return string representation of the signed uuid
      */
-    const std::string&
-    str() const noexcept;
+    const std::string& str() const noexcept;
 
 
   private:
@@ -208,8 +177,7 @@ namespace Generics
      * @param data optional data bits
      * @return randomly generated SignedUuid
      */
-    SignedUuid
-    generate(uint8_t data = 0) const /*throw (eh::Exception, Exception)*/;
+    SignedUuid generate(uint8_t data = 0) const /*throw (eh::Exception, Exception)*/;
 
     /**
      * Signs the supplied uuid.
@@ -217,8 +185,7 @@ namespace Generics
      * @param data optional data bits
      * @return randomly generated SignedUuid
      */
-    SignedUuid
-    sign(const Uuid& uuid, uint8_t data = 0) const
+    SignedUuid sign(const Uuid& uuid, uint8_t data = 0) const
       /*throw (eh::Exception, Exception)*/;
 
   private:
@@ -265,11 +232,9 @@ namespace Generics
   class SignedUuidProbe
   {
   public:
-    explicit
-    SignedUuidProbe(const Uuid& probe) noexcept;
+    explicit SignedUuidProbe(const Uuid& probe) noexcept;
 
-    SignedUuid
-    construct() const /*throw (eh::Exception)*/;
+    SignedUuid construct() const /*throw (eh::Exception)*/;
 
   private:
     SignedUuid probe_;
@@ -291,6 +256,7 @@ namespace Generics
     {
       data_[i] = static_cast<value_type>(*first++);
     }
+
     if (i != DATA_SIZE)
     {
       Stream::Error ostr;
@@ -299,9 +265,7 @@ namespace Generics
     }
   }
 
-  inline
-  bool
-  Uuid::operator ==(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator ==(const Uuid& rhs) const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -313,16 +277,12 @@ namespace Generics
     return true;
   }
 
-  inline
-  bool
-  Uuid::operator !=(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator !=(const Uuid& rhs) const noexcept
   {
     return !operator ==(rhs);
   }
 
-  inline
-  bool
-  Uuid::operator <(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator <(const Uuid& rhs) const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -330,6 +290,7 @@ namespace Generics
       {
         return true;
       }
+
       if (data_[i] > rhs.data_[i])
       {
         break;
@@ -338,30 +299,22 @@ namespace Generics
     return false;
   }
 
-  inline
-  bool
-  Uuid::operator >(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator >(const Uuid& rhs) const noexcept
   {
     return rhs < *this;
   }
 
-  inline
-  bool
-  Uuid::operator <=(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator <=(const Uuid& rhs) const noexcept
   {
     return !operator >(rhs);
   }
 
-  inline
-  bool
-  Uuid::operator >=(const Uuid& rhs) const noexcept
+  inline bool Uuid::operator >=(const Uuid& rhs) const noexcept
   {
     return !operator <(rhs);
   }
 
-  inline
-  bool
-  Uuid::is_null() const noexcept
+  inline bool Uuid::is_null() const noexcept
   {
     for (size_t i = 0; i < DATA_SIZE; i++)
     {
@@ -374,51 +327,37 @@ namespace Generics
     return true;
   }
 
-  inline
-  Uuid::size_type
-  Uuid::size() noexcept
+  inline Uuid::size_type Uuid::size() noexcept
   {
     return DATA_SIZE;
   }
 
-  inline
-  Uuid::size_type
-  Uuid::encoded_size(bool padding) noexcept
+  inline Uuid::size_type Uuid::encoded_size(bool padding) noexcept
   {
     return String::StringManip::base64mod_encoded_size(DATA_SIZE, padding);
   }
 
-  inline
-  Uuid::iterator
-  Uuid::begin() noexcept
+  inline Uuid::iterator Uuid::begin() noexcept
   {
     return data_;
   }
 
-  inline
-  Uuid::const_iterator
-  Uuid::begin() const noexcept
+  inline Uuid::const_iterator Uuid::begin() const noexcept
   {
     return data_;
   }
 
-  inline
-  Uuid::iterator
-  Uuid::end() noexcept
+  inline Uuid::iterator Uuid::end() noexcept
   {
     return data_ + DATA_SIZE;
   }
 
-  inline
-  Uuid::const_iterator
-  Uuid::end() const noexcept
+  inline Uuid::const_iterator Uuid::end() const noexcept
   {
     return data_ + DATA_SIZE;
   }
 
-  inline
-  void
-  Uuid::swap(Uuid& rhs) noexcept
+  inline void Uuid::swap(Uuid& rhs) noexcept
   {
     DataType data;
     std::copy(begin(), end(), data);
@@ -426,17 +365,14 @@ namespace Generics
     std::copy(data, data + sizeof(data), rhs.data_);
   }
 
-  inline
-  unsigned long
-  Uuid::hash() const noexcept
+  inline unsigned long Uuid::hash() const noexcept
   {
     return hash_[1];
   }
 
 
   template <typename Hash>
-  void
-  hash_add(Hash& hash, const Uuid& value) noexcept
+  void hash_add(Hash& hash, const Uuid& value) noexcept
   {
     hash.add(value.begin(), value.size());
   }
@@ -446,23 +382,17 @@ namespace Generics
   // SignedUuid class
   //
 
-  inline
-  const Uuid&
-  SignedUuid::uuid() const noexcept
+  inline const Uuid& SignedUuid::uuid() const noexcept
   {
     return uuid_;
   }
 
-  inline
-  uint8_t
-  SignedUuid::data() const noexcept
+  inline uint8_t SignedUuid::data() const noexcept
   {
     return data_;
   }
 
-  inline
-  const std::string&
-  SignedUuid::str() const noexcept
+  inline const std::string& SignedUuid::str() const noexcept
   {
     return str_;
   }

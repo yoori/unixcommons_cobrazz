@@ -5,8 +5,7 @@
 
 namespace Generics
 {
-  std::string
-  Time::float_str() const
+  std::string Time::float_str() const
   {
     char buf[64];
     const Time::Print& print = this->print();
@@ -33,8 +32,7 @@ namespace Generics
   const Time Time::ONE_DAY(24l * 60l * 60l);
   const Time Time::ONE_WEEK(7l * 24l * 60l * 60l);
 
-  const String::AsciiStringManip::Caseless ExtendedTime::DAYS_[] =
-  {
+  const String::AsciiStringManip::Caseless ExtendedTime::DAYS_[] = {
     String::AsciiStringManip::Caseless("Sun"),
     String::AsciiStringManip::Caseless("Mon"),
     String::AsciiStringManip::Caseless("Tue"),
@@ -44,8 +42,7 @@ namespace Generics
     String::AsciiStringManip::Caseless("Sat")
   };
 
-  const String::AsciiStringManip::Caseless ExtendedTime::DAYS_FULL_[] =
-  {
+  const String::AsciiStringManip::Caseless ExtendedTime::DAYS_FULL_[] = {
     String::AsciiStringManip::Caseless("Sunday"),
     String::AsciiStringManip::Caseless("Monday"),
     String::AsciiStringManip::Caseless("Tuesday"),
@@ -55,8 +52,7 @@ namespace Generics
     String::AsciiStringManip::Caseless("Saturday")
   };
 
-  const String::AsciiStringManip::Caseless ExtendedTime::MONTHS_[] =
-  {
+  const String::AsciiStringManip::Caseless ExtendedTime::MONTHS_[] = {
     String::AsciiStringManip::Caseless("Jan"),
     String::AsciiStringManip::Caseless("Feb"),
     String::AsciiStringManip::Caseless("Mar"),
@@ -71,8 +67,7 @@ namespace Generics
     String::AsciiStringManip::Caseless("Dec")
   };
 
-  const String::AsciiStringManip::Caseless ExtendedTime::MONTHS_FULL_[] =
-  {
+  const String::AsciiStringManip::Caseless ExtendedTime::MONTHS_FULL_[] = {
     String::AsciiStringManip::Caseless("January"),
     String::AsciiStringManip::Caseless("February"),
     String::AsciiStringManip::Caseless("March"),
@@ -87,14 +82,12 @@ namespace Generics
     String::AsciiStringManip::Caseless("December")
   };
 
-  static const int DAYS[2][12] =
-  {
+  static const int DAYS[2][12] = {
     { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 },
     { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 }
   };
 
-  time_t
-  gm_to_time(const tm& et) noexcept
+  time_t gm_to_time(const tm& et) noexcept
   {
     const long YEARS = et.tm_year - 70;
     return ((YEARS * 365) + (YEARS + 1) / 4 +
@@ -102,8 +95,7 @@ namespace Generics
       et.tm_hour * 3600 + et.tm_min * 60 + et.tm_sec;
   }
 
-  void
-  time_to_gm(time_t time, tm& et) noexcept
+  void time_to_gm(time_t time, tm& et) noexcept
   {
     memset(&et, 0, sizeof(et));
     et.tm_sec = time % 60;
@@ -141,8 +133,7 @@ namespace Generics
     et.tm_year = years + 70;
     et.tm_yday = time;
     const int* const CDAYS(DAYS[leap]);
-    const int* const MONTH(
-      std::lower_bound(CDAYS + 1, CDAYS + 12, ++time) - 1);
+    const int* const MONTH( std::lower_bound(CDAYS + 1, CDAYS + 12, ++time) - 1);
     et.tm_mon = MONTH - CDAYS;
     et.tm_mday = time - *MONTH;
   }
@@ -171,12 +162,9 @@ namespace Generics
     }
 
     template <const size_t SIZE, typename T>
-    bool
-    read_number(const char*& src, size_t& size, T& number, bool strict)
-      noexcept
+    bool read_number(const char*& src, size_t& size, T& number, bool strict) noexcept
     {
-      if (!size || !String::AsciiStringManip::NUMBER(*src) ||
-        (strict && size < SIZE))
+      if (!size || !String::AsciiStringManip::NUMBER(*src) || (strict && size < SIZE))
       {
         return false;
       }
@@ -193,9 +181,7 @@ namespace Generics
       return !strict || !left;
     }
 
-    bool
-    add_str(char*& str, size_t& size, size_t length,
-      const String::SubString& src) noexcept
+    bool add_str(char*& str, size_t& size, size_t length, const String::SubString& src) noexcept
     {
       if (size + src.size() > length)
       {
@@ -208,8 +194,7 @@ namespace Generics
     }
 
     template <typename T>
-    bool
-    add_num(char*& str, size_t& size, size_t length, T number) noexcept
+    bool add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[64];
       size_t ns = String::StringManip::int_to_str(number, buf, sizeof(buf));
@@ -217,8 +202,7 @@ namespace Generics
     }
 
     template <const size_t SIZE, typename T>
-    bool
-    add_num(char*& str, size_t& size, size_t length, T number) noexcept
+    bool add_num(char*& str, size_t& size, size_t length, T number) noexcept
     {
       char buf[SIZE];
       size_t i = SIZE;
@@ -252,8 +236,7 @@ namespace Generics
     case Time::TZ_LOCAL:
       if (!localtime_r(&sec, this))
       {
-        eh::throw_errno_exception<Exception>(FNE,
-          "localtime_r(", sec, ") failed");
+        eh::throw_errno_exception<Exception>(FNE, "localtime_r(", sec, ") failed");
       }
       break;
     /*
@@ -269,8 +252,7 @@ namespace Generics
   }
 
   const char*
-  ExtendedTime::from_str_(const String::SubString& value,
-    const char* format, bool strict) noexcept
+  ExtendedTime::from_str_(const String::SubString& value, const char* format, bool strict) noexcept
   {
     const char* v_str = value.data();
     size_t v_size = value.size();
@@ -303,6 +285,7 @@ namespace Generics
                 break;
               }
             }
+
             if (wd == 7)
             {
               return "weekday name is expected but not found";
@@ -322,6 +305,7 @@ namespace Generics
                 break;
               }
             }
+
             if (m == 12)
             {
               return "month name is expected but not found";
@@ -333,8 +317,7 @@ namespace Generics
         case 'd':
         case 'e':
           {
-            if (!read_number<2>(v_str, v_size, tm_mday, strict) ||
-              tm_mday < 1 || tm_mday > 31)
+            if (!read_number<2>(v_str, v_size, tm_mday, strict) || tm_mday < 1 || tm_mday > 31)
             {
               return "day of month expected but not found";
             }
@@ -343,8 +326,7 @@ namespace Generics
 
         case 'H':
           {
-            if (!read_number<2>(v_str, v_size, tm_hour, strict) ||
-              tm_hour > 23)
+            if (!read_number<2>(v_str, v_size, tm_hour, strict) || tm_hour > 23)
             {
               return "hours expected but not found";
             }
@@ -353,8 +335,7 @@ namespace Generics
 
         case 'm':
           {
-            if (!read_number<2>(v_str, v_size, tm_mon, strict) ||
-              tm_mon < 1 || tm_mon > 12)
+            if (!read_number<2>(v_str, v_size, tm_mon, strict) || tm_mon < 1 || tm_mon > 12)
             {
               return "month number expected but not found";
             }
@@ -364,8 +345,7 @@ namespace Generics
 
         case 'M':
           {
-            if (!read_number<2>(v_str, v_size, tm_min, strict) ||
-              tm_min > 59)
+            if (!read_number<2>(v_str, v_size, tm_min, strict) || tm_min > 59)
             {
               return "minutes expected but not found";
             }
@@ -374,8 +354,7 @@ namespace Generics
 
         case 'q':
           {
-            if (!read_number<6>(v_str, v_size, tm_usec, strict) ||
-              tm_usec >= Time::USEC_MAX)
+            if (!read_number<6>(v_str, v_size, tm_usec, strict) || tm_usec >= Time::USEC_MAX)
             {
               return "microseconds expected but not found";
             }
@@ -384,8 +363,7 @@ namespace Generics
 
         case 'S':
           {
-            if (!read_number<2>(v_str, v_size, tm_sec, strict) ||
-              tm_sec > 59)
+            if (!read_number<2>(v_str, v_size, tm_sec, strict) || tm_sec > 59)
             {
               return "seconds expected but not found";
             }
@@ -394,8 +372,7 @@ namespace Generics
 
         case 'Y':
           {
-            if (!read_number<4>(v_str, v_size, tm_year, strict) ||
-              tm_year < 1970)
+            if (!read_number<4>(v_str, v_size, tm_year, strict) || tm_year < 1970)
             {
               return "year expected but not found";
             }
@@ -432,9 +409,7 @@ namespace Generics
     return 0;
   }
 
-  size_t
-  ExtendedTime::to_str_(char* str, size_t length, const char* format) const
-    noexcept
+  size_t ExtendedTime::to_str_(char* str, size_t length, const char* format) const noexcept
   {
     size_t size = 0;
     for (; *format; format++)
@@ -613,8 +588,7 @@ namespace Generics
           {
             if (timezone == Time::TZ_GMT)
             {
-              if (!add_str(str, size, length,
-                String::SubString("+0000", 5)))
+              if (!add_str(str, size, length, String::SubString("+0000", 5)))
               {
                 return 0;
               }
@@ -633,8 +607,7 @@ namespace Generics
                 return 0;
               }
               diff /= 60;
-              if (!add_num<4>(str, size, length,
-                diff / 60 * 100 + diff % 60))
+              if (!add_num<4>(str, size, length, diff / 60 * 100 + diff % 60))
               {
                 return 0;
               }
@@ -660,8 +633,7 @@ namespace Generics
     return size;
   }
 
-  std::string
-  ExtendedTime::format(const char* fmt) const
+  std::string ExtendedTime::format(const char* fmt) const
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     if (fmt == 0)
@@ -688,15 +660,13 @@ namespace Generics
 // Global functions
 //
 
-std::ostream&
-operator <<(std::ostream& ostr, const Generics::Time& time)
+std::ostream& operator <<(std::ostream& ostr, const Generics::Time& time)
   /*throw (eh::Exception)*/
 {
   return ostr << time.float_str();
 }
 
-std::ostream&
-operator <<(std::ostream& ostr, const Generics::ExtendedTime& time)
+std::ostream& operator <<(std::ostream& ostr, const Generics::ExtendedTime& time)
   /*throw (eh::Exception)*/
 {
   char buf[64];
@@ -714,8 +684,7 @@ operator <<(std::ostream& ostr, const Generics::ExtendedTime& time)
   return ostr;
 }
 
-std::istream&
-operator >>(std::istream& istr, Generics::Time& time)
+std::istream& operator >>(std::istream& istr, Generics::Time& time)
   /*throw (Generics::Time::Exception, eh::Exception)*/
 {
   std::string timestr, suffix;
@@ -742,8 +711,7 @@ operator >>(std::istream& istr, Generics::Time& time)
   return istr;
 }
 
-std::istream&
-operator >>(std::istream& istr, Generics::ExtendedTime& time)
+std::istream& operator >>(std::istream& istr, Generics::ExtendedTime& time)
   /*throw (Generics::ExtendedTime::Exception, eh::Exception)*/
 {
   std::string tmstr;

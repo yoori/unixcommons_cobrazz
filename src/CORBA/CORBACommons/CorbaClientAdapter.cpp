@@ -6,8 +6,7 @@ namespace
   const char ORB_CLIENT_NON_SECURE_NAME[] = "ClientNonSecureORB";
   const char ORB_CLIENT_SECURE_NAME[] = "ClientSecureORB";
 
-  const String::SubString IOR1(
-    "IOR:0100000001000000000000000100000000000000");
+  const String::SubString IOR1( "IOR:0100000001000000000000000100000000000000");
   const String::SubString IOR2("0101");
 }
 
@@ -21,29 +20,23 @@ namespace CORBACommons
   {
   }
 
-  void
-  CorbaObjectRef::save(CorbaObjectRefDef& out_corba_object_ref) const
+  void CorbaObjectRef::save(CorbaObjectRefDef& out_corba_object_ref) const
     /*throw (eh::Exception, Exception)*/
   {
     try
     {
       out_corba_object_ref.object_ref = object_ref.c_str();
 
-      CORBACommons::ConnectionDef& out_connection =
-        out_corba_object_ref.connection;
+      CORBACommons::ConnectionDef& out_connection = out_corba_object_ref.connection;
 
-      out_connection.connection_type =
-        type == CorbaObjectConnection::CT_SECURE ?
+      out_connection.connection_type = type == CorbaObjectConnection::CT_SECURE ?
           CORBACommons::CT_SECURE : CORBACommons::CT_NON_SECURE;
 
       if (type == CorbaObjectConnection::CT_SECURE)
       {
-        out_connection.secure_connection.private_key =
-          secure_connection_config.private_key;
-        out_connection.secure_connection.pass_phrase =
-          secure_connection_config.pass_phrase.c_str();
-        out_connection.secure_connection.own_certificate =
-          secure_connection_config.own_certificate;
+        out_connection.secure_connection.private_key = secure_connection_config.private_key;
+        out_connection.secure_connection.pass_phrase = secure_connection_config.pass_phrase.c_str();
+        out_connection.secure_connection.own_certificate = secure_connection_config.own_certificate;
         out_connection.secure_connection.peer_certificate_authority =
           secure_connection_config.peer_certificate_authority;
       }
@@ -56,8 +49,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaObjectRef::load(const CorbaObjectRefDef& in_corba_object_ref)
+  void CorbaObjectRef::load(const CorbaObjectRefDef& in_corba_object_ref)
     /*throw (eh::Exception, Exception)*/
   {
     try
@@ -72,12 +64,9 @@ namespace CORBACommons
         const CORBACommons::SecureConnectionDef& in_secure_connection =
           in_corba_object_ref.connection.secure_connection;
 
-        secure_connection_config.private_key =
-          in_secure_connection.private_key;
-        secure_connection_config.pass_phrase =
-          in_secure_connection.pass_phrase;
-        secure_connection_config.own_certificate =
-          in_secure_connection.own_certificate;
+        secure_connection_config.private_key = in_secure_connection.private_key;
+        secure_connection_config.pass_phrase = in_secure_connection.pass_phrase;
+        secure_connection_config.own_certificate = in_secure_connection.own_certificate;
         secure_connection_config.peer_certificate_authority =
           in_secure_connection.peer_certificate_authority;
       }
@@ -102,8 +91,7 @@ namespace CORBACommons
   {
   }
 
-  size_t
-  CorbaClientAdapter::Orbs::OrbDesignator::hash() const noexcept
+  size_t CorbaClientAdapter::Orbs::OrbDesignator::hash() const noexcept
   {
     return config_.hash();
   }
@@ -115,14 +103,12 @@ namespace CORBACommons
     return timeout_ == designator.timeout_ && config_ == designator.config_;
   }
 
-  const Generics::Time&
-  CorbaClientAdapter::Orbs::OrbDesignator::timeout() const noexcept
+  const Generics::Time& CorbaClientAdapter::Orbs::OrbDesignator::timeout() const noexcept
   {
     return timeout_;
   }
 
-  const SecureConnectionConfig&
-  CorbaClientAdapter::Orbs::OrbDesignator::config() const noexcept
+  const SecureConnectionConfig& CorbaClientAdapter::Orbs::OrbDesignator::config() const noexcept
   {
     return *config_;
   }
@@ -134,15 +120,13 @@ namespace CORBACommons
 
   CorbaClientAdapter::Orbs::~Orbs() noexcept
   {
-    for (OrbsHolder::iterator itor(orbs_.begin()); itor != orbs_.end();
-      ++itor)
+    for (OrbsHolder::iterator itor(orbs_.begin()); itor != orbs_.end(); ++itor)
     {
       itor->second->destroy();
     }
   }
 
-  CORBA::ORB_ptr
-  CorbaClientAdapter::Orbs::get_orb(const OrbDesignator& designator)
+  CORBA::ORB_ptr CorbaClientAdapter::Orbs::get_orb(const OrbDesignator& designator)
     /*throw (eh::Exception, Exception)*/
   {
     {
@@ -172,8 +156,7 @@ namespace CORBACommons
         value_factories_.begin(); it != value_factories_.end(); ++it)
       {
         CORBA::ValueFactoryBase_var old_factory =
-          orb->register_value_factory(it->type_name.c_str(),
-            it->value_factory);
+          orb->register_value_factory(it->type_name.c_str(), it->value_factory);
       }
 
       orbs_[designator] = orb;
@@ -190,8 +173,7 @@ namespace CORBACommons
 
     try
     {
-      for (OrbsHolder::iterator itor(orbs_.begin()); itor != orbs_.end();
-        ++itor)
+      for (OrbsHolder::iterator itor(orbs_.begin()); itor != orbs_.end(); ++itor)
       {
         CORBA::ValueFactoryBase_var old_factory =
           itor->second->register_value_factory(type_name, factory);
@@ -212,28 +194,23 @@ namespace CORBACommons
     }
   }
 
-  const CorbaClientAdapter::Orbs::OrbsHolder&
-  CorbaClientAdapter::Orbs::get_orbs() const noexcept
+  const CorbaClientAdapter::Orbs::OrbsHolder& CorbaClientAdapter::Orbs::get_orbs() const noexcept
   {
     return orbs_;
   }
 
-  CORBA::ORB_ptr
-  CorbaClientAdapter::Orbs::create_orb_(
-    const OrbDesignator& designator)
+  CORBA::ORB_ptr CorbaClientAdapter::Orbs::create_orb_( const OrbDesignator& designator)
     /*throw (eh::Exception)*/
   {
     ORBProperties properties;
 
     properties.emplace_back("-ORBSvcConfDirective");
-    properties.emplace_back("static Resource_Factory "
-      "\"-ORBProtocolFactory IIOP_Factory\"");
+    properties.emplace_back("static Resource_Factory " "\"-ORBProtocolFactory IIOP_Factory\"");
 
     const char* name = ORB_CLIENT_NON_SECURE_NAME;
     if (designator.config().is_secure())
     {
-      PropertiesHandling::create_secure_properties(properties,
-        designator.config());
+      PropertiesHandling::create_secure_properties(properties, designator.config());
       name = ORB_CLIENT_SECURE_NAME;
     }
 
@@ -249,8 +226,7 @@ namespace CORBACommons
 
     properties.emplace_front();
 
-    return OrbCreator::create_orb(properties, name,
-      &designator.config(), designator.timeout());
+    return OrbCreator::create_orb(properties, name, &designator.config(), designator.timeout());
   }
 
 
@@ -258,8 +234,7 @@ namespace CORBACommons
   // CorbaClientAdapter class
   //
 
-  CorbaClientAdapter::CorbaClientAdapter(
-    Logging::Logger* logger) noexcept
+  CorbaClientAdapter::CorbaClientAdapter( Logging::Logger* logger) noexcept
     : logger_(::ReferenceCounting::add_ref(logger))
   {
     if (logger_)
@@ -285,8 +260,7 @@ namespace CORBACommons
     AceLogger::remove_logger(logger_);
   }
 
-  std::string
-  CorbaClientAdapter::object_to_string(CORBA::Object* obj) const
+  std::string CorbaClientAdapter::object_to_string(CORBA::Object* obj) const
     /*throw (eh::Exception, Exception)*/
   {
     CORBA::ORB_var orb(OrbsSingleton::instance().get_orb(
@@ -305,8 +279,7 @@ namespace CORBACommons
   }
 
   CORBA::Object_ptr
-  CorbaClientAdapter::resolve_object(
-    const CorbaObjectRef& corba_object_ref) const
+  CorbaClientAdapter::resolve_object( const CorbaObjectRef& corba_object_ref) const
     /*throw (eh::Exception, Exception)*/
   {
     CORBA::ORB_var orb(OrbsSingleton::instance().get_orb(
@@ -314,14 +287,12 @@ namespace CORBACommons
         corba_object_ref.secure_connection_config)));
     try
     {
-      CORBA::Object_var obj =
-        orb->string_to_object(corba_object_ref.object_ref.c_str());
+      CORBA::Object_var obj = orb->string_to_object(corba_object_ref.object_ref.c_str());
 
       if (CORBA::is_nil(obj))
       {
         Stream::Error ostr;
-        ostr << FNS << "Can't resolve object '" <<
-          corba_object_ref.object_ref << "' on " <<
+        ostr << FNS << "Can't resolve object '" << corba_object_ref.object_ref << "' on " <<
           (corba_object_ref.secure_connection_config.is_secure() ?
             "secure" : "insecure") << " connection";
         throw Exception(ostr);
@@ -344,9 +315,7 @@ namespace CORBACommons
     OrbsSingleton::instance().register_value_factory(type_name, factory);
   }
 
-  CORBA::ORB_var
-  CorbaClientAdapter::designate_orb(
-    const SecureConnectionConfig& config) const
+  CORBA::ORB_var CorbaClientAdapter::designate_orb( const SecureConnectionConfig& config) const
     /*throw (eh::Exception)*/
   {
     CORBA::ORB_var orb(OrbsSingleton::instance().get_orb(
@@ -354,8 +323,7 @@ namespace CORBACommons
     return orb;
   }
 
-  CorbaClientAdapter::ObjectInfo
-  CorbaClientAdapter::get_object_info(CORBA::Object* obj)
+  CorbaClientAdapter::ObjectInfo CorbaClientAdapter::get_object_info(CORBA::Object* obj)
     /*throw (eh::Exception, Exception)*/
   {
     if (!obj)
@@ -369,8 +337,7 @@ namespace CORBACommons
       ObjectInfo info;
       CORBA::String_var ior(obj->_get_orb()->object_to_string(obj));
       String::SubString str(ior);
-      if (str.substr(0, IOR1.size()) != IOR1 ||
-        str.substr(52, IOR2.size()) != IOR2)
+      if (str.substr(0, IOR1.size()) != IOR1 || str.substr(52, IOR2.size()) != IOR2)
       {
         Stream::Error ostr;
         ostr << FNS << "Unexpected IOR format";
@@ -389,8 +356,7 @@ namespace CORBACommons
       info.port = port;
       String::AsciiStringManip::hex_to_integer(&str[72 + len1], len2);
       buf.reset(len2);
-      String::AsciiStringManip::hex_to_buf(
-        str.substr(80 + len1, len2 << 1), buf.get());
+      String::AsciiStringManip::hex_to_buf( str.substr(80 + len1, len2 << 1), buf.get());
       info.name.assign(buf.get(), len2);
       return info;
     }

@@ -25,8 +25,7 @@ namespace Sync
 
       ~ProtectedObject() noexcept;
 
-      ObjectType*
-      operator ->() const noexcept;
+      ObjectType* operator ->() const noexcept;
 
     private:
       ObjectType* object_;
@@ -34,22 +33,17 @@ namespace Sync
     };
 
 
-    explicit
-    MutexPtr(Object* object) /*throw (eh::Exception)*/;
+    explicit MutexPtr(Object* object) /*throw (eh::Exception)*/;
 
-    ProtectedObject<Object>
-    operator ->() /*throw (eh::Exception)*/;
+    ProtectedObject<Object> operator ->() /*throw (eh::Exception)*/;
 
-    ProtectedObject<const Object>
-    operator ->() const /*throw (eh::Exception)*/;
+    ProtectedObject<const Object> operator ->() const /*throw (eh::Exception)*/;
 
     template <typename OtherObject>
-    ProtectedObject<OtherObject>
-    as() /*throw (eh::Exception)*/;
+    ProtectedObject<OtherObject> as() /*throw (eh::Exception)*/;
 
     template <typename OtherObject>
-    ProtectedObject<const OtherObject>
-    as() const /*throw (eh::Exception)*/;
+    ProtectedObject<const OtherObject> as() const /*throw (eh::Exception)*/;
 
   private:
     std::unique_ptr<Object> object_;
@@ -65,8 +59,7 @@ namespace Sync
     MutexRefPtr(Object* object) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~MutexRefPtr() noexcept = default;
+    virtual ~MutexRefPtr() noexcept = default;
   };
 }
 
@@ -90,8 +83,7 @@ namespace Sync
 
   template <typename Object>
   template <typename ObjectType>
-  MutexPtr<Object>::ProtectedObject<ObjectType>::ProtectedObject(
-    ProtectedObject&& object) noexcept
+  MutexPtr<Object>::ProtectedObject<ObjectType>::ProtectedObject( ProtectedObject&& object) noexcept
     : Generics::Uncopyable(), object_(object.object_), mutex_(object.mutex_)
   {
     object.mutex_ = nullptr;
@@ -109,9 +101,7 @@ namespace Sync
 
   template <typename Object>
   template <typename ObjectType>
-  ObjectType*
-  MutexPtr<Object>::ProtectedObject<ObjectType>::operator ->() const
-    noexcept
+  ObjectType* MutexPtr<Object>::ProtectedObject<ObjectType>::operator ->() const noexcept
   {
     return object_;
   }
@@ -146,8 +136,7 @@ namespace Sync
   typename MutexPtr<Object>::template ProtectedObject<OtherObject>
   MutexPtr<Object>::as() /*throw (eh::Exception)*/
   {
-    return ProtectedObject<OtherObject>(
-      static_cast<OtherObject*>(object_.get()), mutex_);
+    return ProtectedObject<OtherObject>( static_cast<OtherObject*>(object_.get()), mutex_);
   }
 
   template <typename Object>

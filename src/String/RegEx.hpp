@@ -80,8 +80,7 @@ namespace String
     private:
       friend class RegEx;
 
-      bool
-      ensure_ovector_(uint32_t ovector_count) noexcept;
+      bool ensure_ovector_(uint32_t ovector_count) noexcept;
 
       pcre2_match_data_8* match_data_;
       uint32_t ovector_count_;
@@ -94,8 +93,7 @@ namespace String
      * @param options compilation options (see pcreapi(3))
      * @param allocator custom allocator for expression and compiled regex
      */
-    explicit
-    RegEx(const String::SubString& regex = String::SubString(),
+    explicit RegEx(const String::SubString& regex = String::SubString(),
       int options = 0, Generics::Allocator::Base* allocator = 0)
       /*throw (Exception, eh::Exception)*/;
 
@@ -119,8 +117,7 @@ namespace String
      * @param side source regexp
      * @return reference to destination regexp
      */
-    RegEx&
-    operator =(const RegEx& side)
+    RegEx& operator =(const RegEx& side)
       /*throw (Exception, eh::Exception)*/;
 
 
@@ -136,14 +133,13 @@ namespace String
       /*throw (Exception, eh::Exception)*/;
 
 
-    typedef std::vector<SubString> Result;
+    using Result = std::vector<SubString>;
 
     /**
      * Returns total number of substrings in regular expressions
      * @return expected number of substrings
      */
-    int
-    sub_strings() const /*throw (Exception)*/;
+    int sub_strings() const /*throw (Exception)*/;
 
     /**
      * Performes execution of compiled regular expression
@@ -153,9 +149,7 @@ namespace String
      * @param options execution options (see pcreapi(3))
      * @return if match occurred or not
      */
-    bool
-    search(Result& result, const String::SubString& subject,
-      int options = 0) const
+    bool search(Result& result, const String::SubString& subject, int options = 0) const
       /*throw (Exception, eh::Exception)*/;
 
     bool
@@ -171,9 +165,7 @@ namespace String
      * @param subject string to match
      * @param options execution options (see pcreapi(3))
      */
-    void
-    gsearch(Result& result, const String::SubString& subject,
-      int options = 0) const
+    void gsearch(Result& result, const String::SubString& subject, int options = 0) const
       /*throw (Exception, eh::Exception)*/;
 
     void
@@ -188,35 +180,28 @@ namespace String
      * @param options execution options (see pcreapi(3))
      * @return if subject matches compiled regular expression or not
      */
-    bool
-    match(const String::SubString& subject, int options = 0) const
-      noexcept;
+    bool match(const String::SubString& subject, int options = 0) const noexcept;
 
-    bool
-    match(const String::SubString& subject, MatchContext& match_context,
-      int options = 0) const
+    bool match(const String::SubString& subject, MatchContext& match_context, int options = 0) const
       noexcept;
 
     /**
      * Compiled regular expression
      * @return original regular expression
      */
-    String::SubString
-    expression() const noexcept;
+    String::SubString expression() const noexcept;
 
 
   private:
     /**
      * Provides data members initialization
      */
-    void
-    init_() noexcept;
+    void init_() noexcept;
 
     /**
      * Provides data members clearance
      */
-    void
-    clear_() noexcept;
+    void clear_() noexcept;
 
     Generics::Allocator::SmartBase_var allocator_;
     char* expr_;
@@ -240,8 +225,7 @@ namespace String
      * @param regex regular expression
      * @param options compilation options (see pcreapi(3))
      */
-    explicit
-    BasicRegEx(const String::SubString& regex = String::SubString(),
+    explicit BasicRegEx(const String::SubString& regex = String::SubString(),
       int options = 0) /*throw (Exception, eh::Exception)*/;
 
   private:
@@ -259,9 +243,7 @@ namespace String
   // RegEx class
   //
 
-  inline
-  void
-  RegEx::init_() noexcept
+  inline void RegEx::init_() noexcept
   {
     expr_ = 0;
     expr_len_ = 0;
@@ -270,9 +252,7 @@ namespace String
     substrcount_ = 0;
   }
 
-  inline
-  void
-  RegEx::clear_() noexcept
+  inline void RegEx::clear_() noexcept
   {
     if (expr_)
     {
@@ -285,8 +265,7 @@ namespace String
   }
 
   inline
-  RegEx::RegEx(const String::SubString& regex, int options,
-    Generics::Allocator::Base* allocator)
+  RegEx::RegEx(const String::SubString& regex, int options, Generics::Allocator::Base* allocator)
     /*throw (Exception, eh::Exception)*/
   {
     init_();
@@ -297,8 +276,7 @@ namespace String
     }
   }
 
-  inline
-  RegEx::RegEx(const RegEx& side)
+  inline RegEx::RegEx(const RegEx& side)
     /*throw (Exception, eh::Exception)*/
   {
     init_();
@@ -306,15 +284,12 @@ namespace String
     *this = side;
   }
 
-  inline
-  RegEx::~RegEx() noexcept
+  inline RegEx::~RegEx() noexcept
   {
     clear_();
   }
 
-  inline
-  int
-  RegEx::sub_strings() const /*throw (Exception)*/
+  inline int RegEx::sub_strings() const /*throw (Exception)*/
   {
     if (!re_)
     {
@@ -326,9 +301,7 @@ namespace String
     return substrcount_;
   }
 
-  inline
-  String::SubString
-  RegEx::expression() const noexcept
+  inline String::SubString RegEx::expression() const noexcept
   {
     return SubString(expr_, expr_len_);
   }

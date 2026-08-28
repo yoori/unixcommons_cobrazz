@@ -23,7 +23,7 @@ namespace PlainStorage
   class Write
   {
   protected:
-    typedef PlainWriter PlainActor;
+    using PlainActor = PlainWriter;
     Write(PlainActor* plain_actor) noexcept;
 
     ~Write() noexcept;
@@ -42,8 +42,7 @@ namespace PlainStorage
      * @param buf The pointer to data to be saved
      * @param buf_size The size of data to be written pointed by buf
      */
-    void
-    write(const void* buf, unsigned long buf_size)
+    void write(const void* buf, unsigned long buf_size)
       /*throw (eh::Exception)*/;
   };
 
@@ -53,7 +52,7 @@ namespace PlainStorage
   class Read
   {
   protected:
-    typedef PlainReader PlainActor;
+    using PlainActor = PlainReader;
     Read(PlainActor* plain_actor) noexcept;
 
     ~Read() noexcept;
@@ -77,8 +76,7 @@ namespace PlainStorage
      * @return The size of the data that will be write or read in this
      * transaction
      */
-    unsigned long
-    size() const noexcept;
+    unsigned long size() const noexcept;
 
     /**
      * Reads the data provided by PlainWriter at the creation of the
@@ -86,8 +84,7 @@ namespace PlainStorage
      * @param buf The pointer to allocated memory to store loaded data
      * @param buf_size The size of allocated memory pointed by buf
      */
-    bool
-    read(void* buf, unsigned long buf_size) const /*throw (eh::Exception)*/;
+    bool read(void* buf, unsigned long buf_size) const /*throw (eh::Exception)*/;
 
   protected:
     /**
@@ -101,17 +98,14 @@ namespace PlainStorage
     /**
      * Do unlock at PlainWriter
      */
-    virtual
-    ~PlainTransaction() noexcept;
+    virtual ~PlainTransaction() noexcept;
   };
 
-  typedef PlainTransaction<Read> PlainReadOnlyTransaction;
-  typedef PlainTransaction<Write> PlainReadWriteTransaction;
+  using PlainReadOnlyTransaction = PlainTransaction<Read>;
+  using PlainReadWriteTransaction = PlainTransaction<Write>;
 
-  typedef ReferenceCounting::SmartPtr<PlainReadWriteTransaction>
-    PlainReadWriteTransaction_var;
-  typedef ReferenceCounting::SmartPtr<PlainReadOnlyTransaction>
-    PlainTransaction_var;
+  using PlainReadWriteTransaction_var = ReferenceCounting::SmartPtr<PlainReadWriteTransaction>;
+  using PlainTransaction_var = ReferenceCounting::SmartPtr<PlainReadOnlyTransaction>;
 
   //
   // wrappers to plain data access
@@ -149,8 +143,7 @@ namespace PlainStorage
      * Thread-Safe version of size_i_()
      * @return The size of the data that PlainReader able to read
      */
-    unsigned long
-    size() const noexcept;
+    unsigned long size() const noexcept;
 
     /**
      * Thread-Safe version of read_i_() Perform reading data from file to
@@ -159,8 +152,7 @@ namespace PlainStorage
      * @param buf_size The size of buf. Must be greater than size()
      * @return The number of bytes actually read, i.e. size() or 0.
      */
-    unsigned long
-    read(void* buf, unsigned long buf_size) const
+    unsigned long read(void* buf, unsigned long buf_size) const
       /*throw (eh::Exception)*/;
 
     /**
@@ -169,43 +161,36 @@ namespace PlainStorage
      * @return The pointer to created transaction,
      * should be putted in smart pointer
      */
-    PlainReadOnlyTransaction*
-    create_readonly_transaction() /*throw (eh::Exception)*/;
+    PlainReadOnlyTransaction* create_readonly_transaction() /*throw (eh::Exception)*/;
 
     /**
      * @return The index from which start reading, in other words
      * return index of first Data block that store data.
      */
-    BlockIndex
-    index() const noexcept;
+    BlockIndex index() const noexcept;
 
   protected:
     /**
      * Empty virtual destructor
      */
-    virtual
-    ~PlainReader() noexcept;
+    virtual ~PlainReader() noexcept;
 
     /**
      * Without thread sync
      * @return The size of the data that PlainReader able to read
      */
-    unsigned long
-    size_i_() const noexcept;
+    unsigned long size_i_() const noexcept;
 
-    unsigned long
-    read_i_(void* buf, unsigned long buf_size) const
+    unsigned long read_i_(void* buf, unsigned long buf_size) const
       /*throw (eh::Exception, ReadFailed)*/;
 
-    void
-    read_lock_() noexcept;
+    void read_lock_() noexcept;
 
-    void
-    unlock_() noexcept;
+    void unlock_() noexcept;
 
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard ReadGuard_;
-    typedef Sync::PosixWGuard WriteGuard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using ReadGuard_ = Sync::PosixRGuard;
+    using WriteGuard_ = Sync::PosixWGuard;
 
     mutable Mutex_ lock_;
 
@@ -214,7 +199,7 @@ namespace PlainStorage
     const BlockIndex FIRST_BLOCK_INDEX_;
     unsigned long data_size_;
   };
-  typedef ReferenceCounting::SmartPtr<PlainReader> PlainReader_var;
+  using PlainReader_var = ReferenceCounting::SmartPtr<PlainReader>;
 
   /**
    * Allows one to read/write some part of file of some length,
@@ -254,19 +239,16 @@ namespace PlainStorage
      * @param buf The pointer to data to be saved
      * @param buf_size The size of data to be written pointed by buf
      */
-    void
-    write(const void* buf, unsigned long buf_size)
+    void write(const void* buf, unsigned long buf_size)
       /*throw (eh::Exception)*/;
 
-    PlainReadWriteTransaction*
-    create_readwrite_transaction() /*throw (eh::Exception)*/;
+    PlainReadWriteTransaction* create_readwrite_transaction() /*throw (eh::Exception)*/;
 
   protected:
     /**
      * Empty virtual destructor
      */
-    virtual
-    ~PlainWriter() noexcept;
+    virtual ~PlainWriter() noexcept;
 
     /**
      * Thread-unsafe. Perform write Data of specified size.
@@ -279,17 +261,15 @@ namespace PlainStorage
      * @param buf The pointer to data to be saved
      * @param buf_size The size of data to be written pointed by buf
      */
-    void
-    write_i_(const void* buf, unsigned long buf_size)
+    void write_i_(const void* buf, unsigned long buf_size)
       /*throw (eh::Exception, WriteFailed)*/;
 
-    void
-    write_lock_() noexcept;
+    void write_lock_() noexcept;
 
     WriteBlockFileAdapter* write_block_file_adapter_;
     BaseBlockAllocator* block_allocator_;
   };
-  typedef ReferenceCounting::SmartPtr<PlainWriter> PlainWriter_var;
+  using PlainWriter_var = ReferenceCounting::SmartPtr<PlainWriter>;
 
   //
   // Default strategies
@@ -303,8 +283,7 @@ namespace PlainStorage
   class DefaultReadIndexAccessor
   {
   public:
-    void
-    load(const void* buf, unsigned long size, Key& out)
+    void load(const void* buf, unsigned long size, Key& out)
       /*throw (eh::Exception)*/;
   };
 
@@ -319,8 +298,7 @@ namespace PlainStorage
      * @param in Key to calculate his size
      * @return size of input key
      */
-    unsigned long
-    size(const Key& in) /*throw (eh::Exception)*/;
+    unsigned long size(const Key& in) /*throw (eh::Exception)*/;
 
     /**
      * Save key into Index of file
@@ -329,8 +307,7 @@ namespace PlainStorage
      * method should write data of key to pointed by buf memory region
      * @param size The size of shared memory pointed by buf
      */
-    void
-    save(const Key& in, void* buf, unsigned long size)
+    void save(const Key& in, void* buf, unsigned long size)
       /*throw (eh::Exception)*/;
   };
 
@@ -367,22 +344,18 @@ namespace PlainStorage
        */
       virtual
       void
-      load_key(
-        const Key& key,
-        const BlockIndex& first_data_block,
-        const KeyAddition& key_addition)
+      load_key( const Key& key, const BlockIndex& first_data_block, const KeyAddition& key_addition)
         /*throw (eh::Exception)*/ = 0;
 
       /**
        * Virtual empty destructor
        */
-      virtual
-      ~IndexLoadCallback() noexcept;
+      virtual ~IndexLoadCallback() noexcept;
     };
 
     /// Type of field in some headers of file data structures
-    typedef uint32_t FieldType;
-    typedef const uint32_t ConstFieldType;
+    using FieldType = uint32_t;
+    using ConstFieldType = const uint32_t;
 
     /**
      * Generic structure for some user data typification.
@@ -394,11 +367,9 @@ namespace PlainStorage
       /// sizeof of field
       static const std::size_t SIZE = sizeof(FieldType);
 
-      FieldType&
-      value() noexcept;
+      FieldType& value() noexcept;
 
-      FieldType
-      value() const noexcept;
+      FieldType value() const noexcept;
 
     private:
       FieldType data_;
@@ -416,23 +387,19 @@ namespace PlainStorage
         FH_FIRST_INDEX_DESC_BLOCK,
         FH_NUMBER_FIELDS
       };
-      typedef FieldType FileHeaderBody[FH_NUMBER_FIELDS];
+      using FileHeaderBody = FieldType[FH_NUMBER_FIELDS];
       FileHeaderBody data_;
     public:
       /// sizeof of header (header service fields)
       static const std::size_t FILE_HEADER_SIZE = sizeof(FileHeaderBody);
 
-      FieldType&
-      allocator_index() noexcept;
+      FieldType& allocator_index() noexcept;
 
-      FieldType
-      allocator_index() const noexcept;
+      FieldType allocator_index() const noexcept;
 
-      FieldType&
-      first_index_block() noexcept;
+      FieldType& first_index_block() noexcept;
 
-      FieldType
-      first_index_block() const noexcept;
+      FieldType first_index_block() const noexcept;
     };
     /**
      * Auxiliary class need to more comfortable work with key service
@@ -451,7 +418,7 @@ namespace PlainStorage
         /// Key header size - the number of FieldType fields into Key header
         KH_NUMBER_FIELDS
       };
-      typedef FieldType KeyHeaderBody[KH_NUMBER_FIELDS];
+      using KeyHeaderBody = FieldType[KH_NUMBER_FIELDS];
       KeyHeaderBody data_;
     public:
       /// sizeof of header (header service fields)
@@ -462,35 +429,26 @@ namespace PlainStorage
         MARK_DELETED = 1
       };
 
-      FieldType&
-      key_size() noexcept;
+      FieldType& key_size() noexcept;
 
-      FieldType
-      key_size() const noexcept;
+      FieldType key_size() const noexcept;
 
       /**
        * @return sizeof of data of the key (sizeof(body))
        */
-      unsigned long
-      get_key_body_size() const noexcept;
+      unsigned long get_key_body_size() const noexcept;
 
-      FieldType&
-      data_block_index() noexcept;
+      FieldType& data_block_index() noexcept;
 
-      FieldType
-      data_block_index() const noexcept;
+      FieldType data_block_index() const noexcept;
 
-      FieldType&
-      mark() noexcept;
+      FieldType& mark() noexcept;
 
-      FieldType
-      mark() const noexcept;
+      FieldType mark() const noexcept;
 
-      void*
-      key_value() noexcept;
+      void* key_value() noexcept;
 
-      const void*
-      key_value() const noexcept;
+      const void* key_value() const noexcept;
     };
 
   };
@@ -504,10 +462,9 @@ namespace PlainStorage
   class DefaultSyncIndexStrategy : public SyncIndexStrategy
   {
   public:
-    typedef typename SyncIndexStrategy::KeyAddition KeyAddition;
-    typedef typename SyncIndexStrategy::IndexLoadCallback<Key>
-      IndexLoadCallback;
-    typedef SyncIndexStrategy BaseType;
+    using KeyAddition = typename SyncIndexStrategy::KeyAddition;
+    using IndexLoadCallback = typename SyncIndexStrategy::IndexLoadCallback<Key>;
+    using BaseType = SyncIndexStrategy;
     /**
      * Constructor calculate and save reference to index description and
      * reference to first Keys Block. If cannot calculate index of Keys begin,
@@ -538,8 +495,7 @@ namespace PlainStorage
      *
      * @param index_load_callback At this time pointer to base of Map
      */
-    void
-    load(IndexLoadCallback* index_load_callback)
+    void load(IndexLoadCallback* index_load_callback)
       /*throw (eh::Exception, typename BaseType::LoadIndexFail)*/;
 
     /**
@@ -551,10 +507,7 @@ namespace PlainStorage
      * @param key_addition Additional key information need to locate key in
      * file
      */
-    void
-    insert(const Key& key,
-      BlockIndex first_data_block,
-      KeyAddition& key_addition)
+    void insert(const Key& key, BlockIndex first_data_block, KeyAddition& key_addition)
       /*throw (eh::Exception)*/;
 
     /**
@@ -564,10 +517,7 @@ namespace PlainStorage
      * should be associated with key
      * @param key_addition Additional key information, need to locate key
      */
-    void
-    update(const Key& key,
-      BlockIndex first_data_block,
-      const KeyAddition& key_addition)
+    void update(const Key& key, BlockIndex first_data_block, const KeyAddition& key_addition)
       /*throw (eh::Exception)*/;
 
     /**
@@ -578,9 +528,7 @@ namespace PlainStorage
      * @param key The key to be deleted
      * @param key_addition Additional key information for fist parameter of method
      */
-    void
-    erase(const Key& key,
-      const KeyAddition& key_addition)
+    void erase(const Key& key, const KeyAddition& key_addition)
       /*throw (eh::Exception)*/;
 
     /**
@@ -588,23 +536,18 @@ namespace PlainStorage
      * @return true will lead to call a method save with each Key element
      * false will lead to immediately call end_saving
      */
-    bool
-    begin_saving() /*throw (eh::Exception)*/;
+    bool begin_saving() /*throw (eh::Exception)*/;
 
     /**
      * Do nothing
      */
-    void
-    save(const Key& key,
-      BlockIndex first_data_block,
-      const KeyAddition& key_addition)
+    void save(const Key& key, BlockIndex first_data_block, const KeyAddition& key_addition)
       /*throw (eh::Exception)*/;
 
     /**
      * Do nothing
      */
-    void
-    end_saving() /*throw (eh::Exception)*/;
+    void end_saving() /*throw (eh::Exception)*/;
 
   protected:
     /**
@@ -633,12 +576,11 @@ namespace PlainStorage
      * Write index of the first Keys Block to Index Description Block.
      * Perform synchronizations between Keys and Description
      */
-    void
-    sync_() /*throw (eh::Exception)*/;
+    void sync_() /*throw (eh::Exception)*/;
 
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard ReadGuard_;
-    typedef Sync::PosixWGuard WriteGuard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using ReadGuard_ = Sync::PosixRGuard;
+    using WriteGuard_ = Sync::PosixWGuard;
 
     /// Used in multiple readers writers synchronization
     mutable Mutex_ lock_;
@@ -659,8 +601,8 @@ namespace PlainStorage
   class BaseBlockAllocator
   {
   public:
-    typedef SyncIndexStrategy::GenericField AllocatorIndex;
-    typedef const SyncIndexStrategy::GenericField ConstAllocatorIndex;
+    using AllocatorIndex = SyncIndexStrategy::GenericField;
+    using ConstAllocatorIndex = const SyncIndexStrategy::GenericField;
 
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
     /// Raise when allocation of block is impossible
@@ -671,23 +613,18 @@ namespace PlainStorage
      * Request for Data block. Memory will allocated on disk
      * @return index of Data block available for user
      */
-    virtual
-    BlockIndex
-    allocate() /*throw (eh::Exception)*/ = 0;
+    virtual BlockIndex allocate() /*throw (eh::Exception)*/ = 0;
 
     /**
      * Free allocated early Data block
      * @param index The index of Data block to be free
      */
-    virtual
-    void
-    deallocate(BlockIndex index) /*throw (eh::Exception)*/ = 0;
+    virtual void deallocate(BlockIndex index) /*throw (eh::Exception)*/ = 0;
 
     /**
      * Virtual empty destructor
      */
-    virtual
-    ~BaseBlockAllocator() noexcept;
+    virtual ~BaseBlockAllocator() noexcept;
   };
 
   /**
@@ -713,25 +650,20 @@ namespace PlainStorage
     /**
      * Do sync (correct header)
      */
-    virtual
-    ~DefaultBlockAllocator() noexcept;
+    virtual ~DefaultBlockAllocator() noexcept;
 
     /**
      * Allocate with caching, just a few instead of one. Note: remember that
      * the memory allocated on the disk
      * @return The index of block available for user
      */
-    virtual
-    BlockIndex
-    allocate() /*throw (eh::Exception, AllocationFailed)*/;
+    virtual BlockIndex allocate() /*throw (eh::Exception, AllocationFailed)*/;
 
     /**
      * deallocate one block
      * @param block_to_free Index of block to be free
      */
-    virtual
-    void
-    deallocate(BlockIndex block_to_free)
+    virtual void deallocate(BlockIndex block_to_free)
       /*throw (eh::Exception, DeallocationFailed)*/;
 
   protected:
@@ -740,12 +672,11 @@ namespace PlainStorage
      * Perform synchronizations between Available Blocks and Allocator
      * Description
      */
-    void
-    sync_() noexcept;
+    void sync_() noexcept;
 
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard ReadGuard_;
-    typedef Sync::PosixWGuard WriteGuard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using ReadGuard_ = Sync::PosixRGuard;
+    using WriteGuard_ = Sync::PosixWGuard;
 
     mutable Mutex_ lock_;
 
@@ -762,12 +693,11 @@ namespace PlainStorage
   struct DefaultMapTraits
   {
     /// block allocation strategy
-    typedef DefaultBlockAllocator BlockAllocator;
+    using BlockAllocator = DefaultBlockAllocator;
 
     /// key sync strategy
-    typedef KeyAccessor IndexAccessor;
-    typedef DefaultSyncIndexStrategy<Key, IndexAccessor>
-      SyncIndexStrategy;
+    using IndexAccessor = KeyAccessor;
+    using SyncIndexStrategy = DefaultSyncIndexStrategy<Key, IndexAccessor>;
   };
 
   /**
@@ -793,19 +723,19 @@ namespace PlainStorage
     /// Raise when key loading failed
     DECLARE_EXCEPTION(LoadFailed, Exception);
 
-    typedef typename MapTraits::SyncIndexStrategy SyncIndexStrategy;
-    typedef typename MapTraits::BlockAllocator BlockAllocator;
-    typedef typename SyncIndexStrategy::KeyAddition KeyAddition;
+    using SyncIndexStrategy = typename MapTraits::SyncIndexStrategy;
+    using BlockAllocator = typename MapTraits::BlockAllocator;
+    using KeyAddition = typename SyncIndexStrategy::KeyAddition;
     /// associative container types
-    typedef std::pair<const Key, PlainWriter_var> ValueType;
-    typedef std::pair<const Key, const PlainWriter_var> ConstValueType;
+    using ValueType = std::pair<const Key, PlainWriter_var>;
+    using ConstValueType = std::pair<const Key, const PlainWriter_var>;
 
   protected:
-    typedef Map<Key, KeyAccessor, MapTraits> ThisType;
-    typedef typename SyncIndexStrategy::FileHeader FileHeader;
-    typedef typename SyncIndexStrategy::GenericField GenericField;
-    typedef std::pair<PlainWriter_var, KeyAddition> ContainerValue;
-    typedef std::map<Key, ContainerValue> IndexContainer;
+    using ThisType = Map<Key, KeyAccessor, MapTraits>;
+    using FileHeader = typename SyncIndexStrategy::FileHeader;
+    using GenericField = typename SyncIndexStrategy::GenericField;
+    using ContainerValue = std::pair<PlainWriter_var, KeyAddition>;
+    using IndexContainer = std::map<Key, ContainerValue>;
   public:
 
     /**
@@ -826,12 +756,12 @@ namespace PlainStorage
       const Key& first;
       SecondType second;
     };
-    typedef NodeValueType<PlainWriter_var&> ValueTypeRef;
-    typedef NodeValueType<const PlainWriter_var&> ConstValueTypeRef;
+    using ValueTypeRef = NodeValueType<PlainWriter_var&>;
+    using ConstValueTypeRef = NodeValueType<const PlainWriter_var&>;
 
-    typedef ValueTypeRef reference;
-    typedef ConstValueTypeRef const_reference;
-    typedef unsigned long size_type;
+    using reference = ValueTypeRef;
+    using const_reference = ConstValueTypeRef;
+    using size_type = unsigned long;
 
   private:
 
@@ -854,19 +784,16 @@ namespace PlainStorage
         IndexContainer* container_ref) noexcept;
 
     protected:
-      void
-      inc_() /*throw (OutOfRange)*/;
+      void inc_() /*throw (OutOfRange)*/;
 
-      void
-      dec_() /*throw (OutOfRange)*/;
+      void dec_() /*throw (OutOfRange)*/;
 
       /**
        * Assign iterator from the right side to this, set reference to
        * pointed value if it exists
        * @param right The iterator to be assigned to this
        */
-      void
-      set_(const MapBaseIterator& right) noexcept;
+      void set_(const MapBaseIterator& right) noexcept;
 
       typename IndexContainer::iterator it_;
       /// Container pointer is need to check bounds and throw OutOfRange()
@@ -888,16 +815,14 @@ namespace PlainStorage
        */
       struct ReturnedMediator : private Reference
       {
-        ReturnedMediator(const Key& key, PlainWriter_var& plain_writer)
-          noexcept;
+        ReturnedMediator(const Key& key, PlainWriter_var& plain_writer) noexcept;
 
-        Reference*
-        operator ->() noexcept;
+        Reference* operator ->() noexcept;
       };
 
     public:
-      typedef BiDiIterator<ValueTypeRef> iterator;
-      typedef BiDiIterator<ConstValueTypeRef> const_iterator;
+      using iterator = BiDiIterator<ValueTypeRef>;
+      using const_iterator = BiDiIterator<ConstValueTypeRef>;
 
       /**
        * Default constructor calls base default constructor
@@ -907,8 +832,7 @@ namespace PlainStorage
       /**
        * Constructor calls base constructor with parameters
        */
-      BiDiIterator(const typename IndexContainer::iterator& it,
-        IndexContainer& container) noexcept;
+      BiDiIterator(const typename IndexContainer::iterator& it, IndexContainer& container) noexcept;
 
       /**
        * copy constructor for iterator and constructor from iterator for
@@ -919,43 +843,37 @@ namespace PlainStorage
       /**
        * @return Returns the element that a BiDiIterator addresses
        */
-      Reference
-      operator *() const noexcept;
+      Reference operator *() const noexcept;
 
       /**
        * @return Returns a special mediator object that return pointer to Reference.
        * This pointer used to get value of BiDiIterator
        */
-      ReturnedMediator
-      operator ->() const noexcept;
+      ReturnedMediator operator ->() const noexcept;
 
       /**
        * Increments the BiDiIterator to the next element
        * @return Reference on the incremented BiDiIterator
        */
-      BiDiIterator&
-      operator ++() /*throw (OutOfRange)*/;
+      BiDiIterator& operator ++() /*throw (OutOfRange)*/;
 
       /**
        * Increments the BiDiIterator to the next element
        * @return Previous value (copy) of the non-incremented BiDiIterator
        */
-      BiDiIterator
-      operator ++(int) /*throw (OutOfRange)*/;
+      BiDiIterator operator ++(int) /*throw (OutOfRange)*/;
 
       /**
        * Decrements the BiDiIterator to the previous element
        * @return Reference on the decremented BiDiIterator
        */
-      BiDiIterator&
-      operator --() /*throw (OutOfRange)*/;
+      BiDiIterator& operator --() /*throw (OutOfRange)*/;
 
       /**
        * Decrements the BiDiIterator to the previous element
        * @return Previous value (copy) of the non-decremented BiDiIterator
        */
-      BiDiIterator
-      operator --(int) /*throw (OutOfRange)*/;
+      BiDiIterator operator --(int) /*throw (OutOfRange)*/;
 
       /**
        * Tests if the iterator on the left side of the operator is equal
@@ -965,8 +883,7 @@ namespace PlainStorage
        * @return true if the iterator on the left side of the operator is
        * equal to the iterator on right side of the operator, otherwise false
        */
-      bool
-      operator ==(const BiDiIterator& right) const noexcept;
+      bool operator ==(const BiDiIterator& right) const noexcept;
 
       /**
        * Tests if the iterator on the left side of the operator is not equal
@@ -976,22 +893,20 @@ namespace PlainStorage
        * @return true if the iterators are not equal, false if iterators
        * are equal
        */
-      bool
-      operator !=(const BiDiIterator& right) const noexcept;
+      bool operator !=(const BiDiIterator& right) const noexcept;
 
       /**
        * Assign some iterator to this
        * @param it The iterator to be assigned to this
        * @return The reference on self
        */
-      BiDiIterator&
-      operator =(const iterator& it) noexcept;
+      BiDiIterator& operator =(const iterator& it) noexcept;
     };
 
-    typedef BiDiIterator<reference> iterator;
-    typedef BiDiIterator<const_reference> const_iterator;
+    using iterator = BiDiIterator<reference>;
+    using const_iterator = BiDiIterator<const_reference>;
 
-    typedef std::pair<iterator, bool> Pairib_;
+    using Pairib_ = std::pair<iterator, bool>;
 
     /**
      * Map default constructor, nothing to do
@@ -1010,8 +925,7 @@ namespace PlainStorage
     /**
      * Destructor call close()
      */
-    virtual
-    ~Map() noexcept;
+    virtual ~Map() noexcept;
 
     // associative container interface
     /**
@@ -1019,16 +933,14 @@ namespace PlainStorage
      * @return A bidirectional iterator addressing the first element
      * in the Map or the location succeeding an empty Map
      */
-    iterator
-    begin() noexcept;
+    iterator begin() noexcept;
 
     /**
      * Returns an const iterator that addresses the first element in the Map
      * @return A const bidirectional iterator addressing the first element
      * in the Map or the location succeeding an empty Map
      */
-    const_iterator
-    begin() const noexcept;
+    const_iterator begin() const noexcept;
 
     /**
      * Returns an iterator that addresses the location succeeding the last
@@ -1037,8 +949,7 @@ namespace PlainStorage
      * the last element in a Map. If the Map is empty, then
      * Map::end() == Map::begin()
      */
-    iterator
-    end() noexcept;
+    iterator end() noexcept;
 
     /**
      * Returns an const iterator that addresses the location succeeding the
@@ -1047,8 +958,7 @@ namespace PlainStorage
      * succeeding the last element in a Map. If the Map is empty, then
      * Map::end() == Map::begin()
      */
-    const_iterator
-    end() const noexcept;
+    const_iterator end() const noexcept;
 
     /**
      * Returns an iterator addressing the location of an element in a Map
@@ -1058,8 +968,7 @@ namespace PlainStorage
      * the key, or the location succeeding the last element in the map
      * if no match is found for the key
      */
-    iterator
-    find(const Key& key) noexcept;
+    iterator find(const Key& key) noexcept;
 
     /**
      * Returns an const iterator addressing the location of an element
@@ -1069,8 +978,7 @@ namespace PlainStorage
      * with the key, or the location succeeding the last element in the map
      * if no match is found for the key
      */
-    const_iterator
-    find(const Key& key) const noexcept;
+    const_iterator find(const Key& key) const noexcept;
 
     /**
      * Removes an element in a Map that match a specified key.
@@ -1078,8 +986,7 @@ namespace PlainStorage
      * @param key The key value of the element to be removed from the Map
      * @return The number of elements that have been removed from the Map
      */
-    size_type
-    erase(const Key& key) /*throw (eh::Exception)*/;
+    size_type erase(const Key& key) /*throw (eh::Exception)*/;
 
     /**
      * Removes an element in a Map that referenced by a specified iterator.
@@ -1087,8 +994,7 @@ namespace PlainStorage
      * and can destroy container
      * @param it The iterator of the element to be removed from the Map
      */
-    void
-    erase(iterator it) /*throw (eh::Exception)*/;
+    void erase(iterator it) /*throw (eh::Exception)*/;
 
     /**
      * 1. Find element with specified key. If found return its iterator
@@ -1096,8 +1002,7 @@ namespace PlainStorage
      * @param key The key to be inserted in Index in file and in IndexContainer
      * @return The iterator to existing element or iterator to inserted element
      */
-    iterator
-    insert(const Key& key) /*throw (eh::Exception)*/;
+    iterator insert(const Key& key) /*throw (eh::Exception)*/;
 
     /**
      * Perform find an element of a Map that matches value.first key value.
@@ -1109,14 +1014,12 @@ namespace PlainStorage
      * key value, and whose iterator component locate a new element was
      * inserted or locate the element was already
      */
-    Pairib_
-    insert(const ValueType& value) /*throw (eh::Exception)*/;
+    Pairib_ insert(const ValueType& value) /*throw (eh::Exception)*/;
 
     /**
      * Not implemented
      */
-    iterator
-    insert(iterator position, const ValueType& value)
+    iterator insert(iterator position, const ValueType& value)
       /*throw (eh::Exception)*/;
 
     /**
@@ -1128,21 +1031,18 @@ namespace PlainStorage
      * @return The PlainWriter variable that able read/write data from/to a Map
      * element
      */
-    PlainWriter_var
-    operator [](const Key& key) /*throw (eh::Exception)*/;
+    PlainWriter_var operator [](const Key& key) /*throw (eh::Exception)*/;
 
     /**
      * Erases all the elements of a Map
      */
-    void
-    clear() /*throw (eh::Exception)*/;
+    void clear() /*throw (eh::Exception)*/;
 
     /**
      * Returns the number of elements in the Map
      * @return The current length of the Map
      */
-    std::size_t
-    size() const noexcept;
+    std::size_t size() const noexcept;
 
     /**
      * Open file filename. This method is not thread-safe.
@@ -1153,10 +1053,7 @@ namespace PlainStorage
      * Create sync index strategy
      * Delegate further loading to sync index strategy
      */
-    void
-    load(
-      const char* filename,
-      unsigned long block_size = 64*1024) /*throw (eh::Exception)*/;
+    void load( const char* filename, unsigned long block_size = 64*1024) /*throw (eh::Exception)*/;
 
     /**
      * If file have been opened and loaded in map, do following:
@@ -1168,16 +1065,14 @@ namespace PlainStorage
      * DefaultSyncIndexStrategy do not save anything on close call,
      * just close the file and free shared memory used to hold file
      */
-    void
-    close() /*throw (eh::Exception)*/;
+    void close() /*throw (eh::Exception)*/;
 
   protected:
     /**
      * Allocate Data block and create PlainWriter with it, size of data is zero
      * @param plain_writer The reference to return result (PlainWriter)
      */
-    void
-    init_value_(PlainWriter_var& plain_writer) /*throw (eh::Exception)*/;
+    void init_value_(PlainWriter_var& plain_writer) /*throw (eh::Exception)*/;
 
     /**
      * Do copy of source PlainWriter to plain_writer. Actually, call
@@ -1185,10 +1080,7 @@ namespace PlainStorage
      * @param plain_writer The reference to store copied value
      * @param source_plain_writer The source PlainWriter to be copied
      */
-    void
-    copy_value_(
-      PlainWriter_var& plain_writer,
-      PlainWriter* source_plain_writer)
+    void copy_value_( PlainWriter_var& plain_writer, PlainWriter* source_plain_writer)
       /*throw (eh::Exception)*/;
 
     /**
@@ -1243,9 +1135,9 @@ namespace PlainStorage
       const typename SyncIndexStrategy::KeyAddition& key_addition)
       /*throw (eh::Exception)*/;
 
-    typedef std::unique_ptr<WriteBlockFileAdapter> WriteBlockFileAdapterPtr;
-    typedef std::unique_ptr<BlockAllocator> BlockAllocatorPtr;
-    typedef std::unique_ptr<SyncIndexStrategy> SyncIndexStrategyPtr;
+    using WriteBlockFileAdapterPtr = std::unique_ptr<WriteBlockFileAdapter>;
+    using BlockAllocatorPtr = std::unique_ptr<BlockAllocator>;
+    using SyncIndexStrategyPtr = std::unique_ptr<SyncIndexStrategy>;
 
     WriteBlockFileAdapterPtr write_block_file_adapter_;
     BlockAllocatorPtr block_allocator_;

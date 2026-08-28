@@ -72,12 +72,10 @@ namespace
       /*throw (eh::Exception)*/;
 
     template <class Target>
-    void
-    parse_to(Target& target) /*throw (eh::Exception)*/;
+    void parse_to(Target& target) /*throw (eh::Exception)*/;
   };
 
-  inline
-  MoranParser::MoranParser(const char* phrase, size_t phrase_len)
+  inline MoranParser::MoranParser(const char* phrase, size_t phrase_len)
     /*throw (eh::Exception)*/
     : source_(phrase_len + 1),
       output_(phrase_len),
@@ -88,9 +86,7 @@ namespace
   }
 
   template <class Target>
-  inline
-  void
-  MoranParser::parse_to(Target& target)
+  inline void MoranParser::parse_to(Target& target)
     /*throw (eh::Exception)*/
   {
     size_t n = 0;
@@ -104,9 +100,7 @@ namespace
   }
 
   template <class Target>
-  inline
-  void
-  parse_to(Target& target, const char* phrase, size_t phrase_len)
+  inline void parse_to(Target& target, const char* phrase, size_t phrase_len)
     /*throw (eh::Exception)*/
   {
     String::SubString input(phrase, phrase_len);
@@ -137,143 +131,136 @@ namespace
 #endif//MORAN_LIBRARY
 }
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  namespace Korean
   {
-    namespace Korean
-    {
-      //
-      // class MoranSegmentor
-      //
+    //
+    // class MoranSegmentor
+    //
 #ifdef MORAN_LIBRARY
-      MoranSegmentor::MoranSegmentor(const char* config_file)
-        /*throw (UniqueException)*/
+    MoranSegmentor::MoranSegmentor(const char* config_file)
+      /*throw (UniqueException)*/
+    {
+      MorAn16_open_dbs(const_cast<char*>(config_file));
+    }
+
+    MoranSegmentor::~MoranSegmentor() noexcept
+    {
+      MorAn16_close_dbs();
+    }
+
+    void
+    MoranSegmentor::segmentation(WordsList& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/
+    {
+      try
       {
-        MorAn16_open_dbs(const_cast<char*>(config_file));
-      }
+        result.clear();
 
-      MoranSegmentor::~MoranSegmentor() noexcept
-      {
-        MorAn16_close_dbs();
-      }
-
-      void
-      MoranSegmentor::segmentation(WordsList& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/
-      {
-        try
+        if (!phrase || *phrase == '\0' || !phrase_len)
         {
-          result.clear();
-
-          if (!phrase || *phrase == '\0' || !phrase_len)
-          {
-            return;
-          }
-
-          if (!is_valid_utf8_(phrase, phrase_len))
-          {
-            String::SubString phrase_str(phrase, phrase_len);
-            append(result, phrase_str);
-            return;
-          }
-
-          parse_to(result, phrase, phrase_len);
-        }
-        catch (const eh::Exception& e)
-        {
-          Stream::Error error;
-          error << FNS << "eh::Exception caught: " << e.what();
-          throw SegmException(error);
-        }
-      }
-
-      void
-      MoranSegmentor::put_spaces(std::string& res, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/
-      {
-        try
-        {
-          if (!phrase || *phrase == '\0' || !phrase_len)
-          {
-            res.clear();
-            return;
-          }
-
-          std::string result;
-          result.reserve(phrase_len + phrase_len);
-
-          if (!is_valid_utf8_(phrase, phrase_len))
-          {
-            String::SubString phrase_str(phrase, phrase_len);
-            append(result, phrase_str);
-            return;
-          }
-
-          parse_to(result, phrase, phrase_len);
-
-          result.swap(res);
-        }
-        catch (const eh::Exception& e)
-        {
-          Stream::Error error;
-          error << FNS << "eh::Exception caught: " << e.what();
-          throw SegmException(error);
-        }
-      }
-
-      bool
-      MoranSegmentor::is_valid_utf8_(const char* str, size_t str_len) const
-        noexcept
-      {
-        bool valid_utf8 = true;
-        unsigned long count = 0;
-        unsigned long count_buf = 0;
-        while (valid_utf8 && count < str_len)
-        {
-          count_buf = String::UTF8Handler::get_octet_count(str[count]);
-          //UTF8 symbol of size 4 cannot be converted into ucs2
-          if (!count_buf || count_buf > 3 || count_buf + count > str_len)
-          {
-            return false;
-          }
-
-          valid_utf8 = valid_utf8 &&
-            String::UTF8Handler::is_correct_utf8_sequence(str + count, count_buf);
-          count += count_buf;
+          return;
         }
 
-        return valid_utf8;
+        if (!is_valid_utf8_(phrase, phrase_len))
+        {
+          String::SubString phrase_str(phrase, phrase_len);
+          append(result, phrase_str);
+          return;
+        }
+
+        parse_to(result, phrase, phrase_len);
       }
+      catch (const eh::Exception& e)
+      {
+        Stream::Error error;
+        error << FNS << "eh::Exception caught: " << e.what();
+        throw SegmException(error);
+      }
+    }
+
+    void
+    MoranSegmentor::put_spaces(std::string& res, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/
+    {
+      try
+      {
+        if (!phrase || *phrase == '\0' || !phrase_len)
+        {
+          res.clear();
+          return;
+        }
+
+        std::string result;
+        result.reserve(phrase_len + phrase_len);
+
+        if (!is_valid_utf8_(phrase, phrase_len))
+        {
+          String::SubString phrase_str(phrase, phrase_len);
+          append(result, phrase_str);
+          return;
+        }
+
+        parse_to(result, phrase, phrase_len);
+
+        result.swap(res);
+      }
+      catch (const eh::Exception& e)
+      {
+        Stream::Error error;
+        error << FNS << "eh::Exception caught: " << e.what();
+        throw SegmException(error);
+      }
+    }
+
+    bool MoranSegmentor::is_valid_utf8_(const char* str, size_t str_len) const noexcept
+    {
+      bool valid_utf8 = true;
+      unsigned long count = 0;
+      unsigned long count_buf = 0;
+      while (valid_utf8 && count < str_len)
+      {
+        count_buf = String::UTF8Handler::get_octet_count(str[count]);
+        //UTF8 symbol of size 4 cannot be converted into ucs2
+        if (!count_buf || count_buf > 3 || count_buf + count > str_len)
+        {
+          return false;
+        }
+
+        valid_utf8 = valid_utf8 &&
+          String::UTF8Handler::is_correct_utf8_sequence(str + count, count_buf);
+        count += count_buf;
+      }
+
+      return valid_utf8;
+    }
 #else //not MORAN_LIBRARY
-      MoranSegmentor::MoranSegmentor(const char* /*config_file*/)
-        /*throw (UniqueException)*/
-      {
-      }
-      MoranSegmentor::~MoranSegmentor() noexcept
-      {
-      }
-      void
-      MoranSegmentor::segmentation(WordsList& /*result*/,
-        const char* /*phrase*/, size_t /*phrase_len*/) const
-        /*throw (SegmException)*/
-      {
-      }
-      void
-      MoranSegmentor::put_spaces(std::string& /*result*/,
-        const char* /*phrase*/, size_t /*phrase_len*/) const
-        /*throw (SegmException)*/
-      {
-      }
-      bool
-      MoranSegmentor::is_valid_utf8_(const char* /*str*/,
-        size_t /*str_len*/) const noexcept
-      {
-        return false;
-      }
+    MoranSegmentor::MoranSegmentor(const char* /*config_file*/)
+      /*throw (UniqueException)*/
+    {
+    }
+    MoranSegmentor::~MoranSegmentor() noexcept
+    {
+    }
+    void
+    MoranSegmentor::segmentation(WordsList& /*result*/,
+      const char* /*phrase*/, size_t /*phrase_len*/) const
+      /*throw (SegmException)*/
+    {
+    }
+    void
+    MoranSegmentor::put_spaces(std::string& /*result*/,
+      const char* /*phrase*/, size_t /*phrase_len*/) const
+      /*throw (SegmException)*/
+    {
+    }
+    bool MoranSegmentor::is_valid_utf8_(const char* /*str*/, size_t /*str_len*/) const noexcept
+    {
+      return false;
+    }
 
 #endif //MORAN_LIBRARY
 
-    } //namespace Korean
-  } //namespace Segmentor
-} //namespace Language
+  } //namespace Korean
+}

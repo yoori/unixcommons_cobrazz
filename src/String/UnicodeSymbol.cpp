@@ -21,8 +21,7 @@ namespace String
   const wchar_t UnicodeSymbol::NULL_CODE_UNIT_;
   int UnicodeSymbol::output_format_index_ = std::ios_base::xalloc();
 
-  UnicodeSymbol
-  UnicodeSymbol::random() noexcept
+  UnicodeSymbol UnicodeSymbol::random() noexcept
   {
     wchar_t value;
     do
@@ -33,15 +32,13 @@ namespace String
     return UnicodeSymbol(value);
   }
 
-  UnicodeSymbol&
-  UnicodeSymbol::operator =(wchar_t new_value)
+  UnicodeSymbol& UnicodeSymbol::operator =(wchar_t new_value)
     /*throw (RangeException, eh::Exception)*/
   {
     if (!check_validity_(new_value))
     {
       Stream::Error ostr;
-      ostr << FNS << static_cast<unsigned long>(new_value) <<
-        "is out of UTF8 range";
+      ostr << FNS << static_cast<unsigned long>(new_value) << "is out of UTF8 range";
       throw RangeException(ostr);
     }
     code_unit_ = new_value;
@@ -55,8 +52,7 @@ namespace String
   /**
    *  Put UTF-8 byte sequence into stream
    */
-  std::ostream&
-  operator <<(std::ostream &os, const UnicodeSymbol& u) noexcept
+  std::ostream& operator <<(std::ostream &os, const UnicodeSymbol& u) noexcept
   {
     std::ostream::sentry ok(os);
     if (ok)
@@ -103,8 +99,7 @@ namespace String
    *  Get UTF-8 byte sequence from stream, and put it into internal
    *  representation Unicode code unit.
    */
-  std::istream&
-  operator >>(std::istream &is, UnicodeSymbol &u) noexcept
+  std::istream& operator >>(std::istream &is, UnicodeSymbol &u) noexcept
   {
     std::istream::sentry ok(is);
     if (ok)
@@ -147,8 +142,7 @@ namespace String
         byte_text_view[1] = c;
 
         utf8_sequence += strtol(byte_text_view, 0, 16);
-        utf8_sequence_length =
-          UTF8Handler::get_octet_count(utf8_sequence[0]);
+        utf8_sequence_length = UTF8Handler::get_octet_count(utf8_sequence[0]);
 
         for (std::size_t end_sequence = utf8_sequence_length;
           is && (end_sequence > 1); --end_sequence)
@@ -201,6 +195,7 @@ namespace String
           }
           is.get(c);
         }
+
         if (!is)
         {
           return is;
@@ -208,11 +203,9 @@ namespace String
       }
 
       // realize is >> src;
-      UTF8Handler::is_correct_utf8_sequence(utf8_sequence.c_str(),
-        utf8_sequence_length);
+      UTF8Handler::is_correct_utf8_sequence(utf8_sequence.c_str(), utf8_sequence_length);
 
-      if (!UTF8Handler::utf8_char_to_wchar(
-        utf8_sequence.c_str(), utf8_sequence_length, code_unit))
+      if (!UTF8Handler::utf8_char_to_wchar( utf8_sequence.c_str(), utf8_sequence_length, code_unit))
       {
         is.setstate(std::ios_base::failbit);
         return is;

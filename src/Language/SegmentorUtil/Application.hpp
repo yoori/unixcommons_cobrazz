@@ -8,7 +8,6 @@ public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 public:
-  void
-  run(int argc, char* argv[])
+  void run(int argc, char* argv[])
     /*throw (Exception, eh::Exception)*/;
 };

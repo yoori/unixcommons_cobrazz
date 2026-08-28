@@ -19,8 +19,7 @@ public:
   CallBack(const char* click_url, const char* ad_image) noexcept;
   ~CallBack() noexcept;
 
-  std::string
-  get_argument(const char* key) const
+  std::string get_argument(const char* key) const
     /*throw (TextTemplate::UnknownName, eh::Exception)*/;
 
 private:
@@ -40,8 +39,7 @@ CallBack::~CallBack() noexcept
 {
 }
 
-std::string
-CallBack::get_argument(const char* key) const
+std::string CallBack::get_argument(const char* key) const
   /*throw (TextTemplate::UnknownName, eh::Exception)*/
 {
   if (!key)
@@ -70,23 +68,18 @@ class TestTextTemplateUpdateStrategy : public TextTemplate::UpdateStrategy
 public:
   TestTextTemplateUpdateStrategy(const char* fname) /*throw (eh::Exception)*/;
 
-  virtual
-  ~TestTextTemplateUpdateStrategy() noexcept;
+  virtual ~TestTextTemplateUpdateStrategy() noexcept;
 
-  virtual String::SubString
-  start_lexeme() const /*throw (eh::Exception)*/;
-  virtual String::SubString
-  end_lexeme() const /*throw (eh::Exception)*/;
+  virtual String::SubString start_lexeme() const /*throw (eh::Exception)*/;
+  virtual String::SubString end_lexeme() const /*throw (eh::Exception)*/;
 };
 
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if (argc < 2)
   {
-    std::cerr << "Usage:\n" << argv[0] <<
-      " filename [iterations] [keys_filename]\n";
+    std::cerr << "Usage:\n" << argv[0] << " filename [iterations] [keys_filename]\n";
     return 1;
   }
 
@@ -103,8 +96,7 @@ main(int argc, char* argv[])
 
   std::cout << "Processing " << file_name << " ...\n\n";
 
-  typedef Generics::FileCacheManager<TestTextTemplateUpdateStrategy>
-    TextTemplateCacheManager;
+  using TextTemplateCacheManager = Generics::FileCacheManager<TestTextTemplateUpdateStrategy>;
 
   try
   {
@@ -115,8 +107,7 @@ main(int argc, char* argv[])
                       "bugzilla/image.jpg");
 #else
     //TextTemplateArgs callback;
-    TextTemplate::Args callback(true, 200, true,
-      TextTemplate::Args::EI_JS_UNICODE);
+    TextTemplate::Args callback(true, 200, true, TextTemplate::Args::EI_JS_UNICODE);
     if (argc > 3)
     {
       std::ifstream file(argv[3]);
@@ -147,16 +138,14 @@ main(int argc, char* argv[])
 
     for (unsigned int i = 0; iterations ? (i < iterations) : true; i++)
     {
-      TextTemplateCacheManager::BufferHolder_var text_template =
-        manager.get(file_name);
+      TextTemplateCacheManager::BufferHolder_var text_template = manager.get(file_name);
 
       std::cout << "Instantiating template (" << i << "):\n";
       {
         TextTemplate::Keys keys;
         (*text_template)->keys(callback, keys);
         std::cout << "Keys:";
-        for (TextTemplate::Keys::const_iterator itor(keys.begin());
-          itor != keys.end(); ++itor)
+        for (TextTemplate::Keys::const_iterator itor(keys.begin()); itor != keys.end(); ++itor)
         {
           std::cout << " " << *itor;
         }
@@ -167,8 +156,7 @@ main(int argc, char* argv[])
 
       if (output.length() && out != output)
       {
-        std::cerr << "Unexpected result of template instantiation" <<
-          std::endl;
+        std::cerr << "Unexpected result of template instantiation" << std::endl;
       }
 
       sleep(1);
@@ -176,8 +164,7 @@ main(int argc, char* argv[])
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "main: eh::Exception caught. Description:" << std::endl <<
-      e.what() << std::endl;
+    std::cerr << "main: eh::Exception caught. Description:" << std::endl << e.what() << std::endl;
     return -1;
   }
   catch (...)
@@ -199,14 +186,12 @@ TestTextTemplateUpdateStrategy::TestTextTemplateUpdateStrategy(
 {
 }
 
-String::SubString
-TestTextTemplateUpdateStrategy::start_lexeme() const /*throw (eh::Exception)*/
+String::SubString TestTextTemplateUpdateStrategy::start_lexeme() const /*throw (eh::Exception)*/
 {
   return String::TextTemplate::Basic::DEFAULT_LEXEME;
 }
 
-String::SubString
-TestTextTemplateUpdateStrategy::end_lexeme() const /*throw (eh::Exception)*/
+String::SubString TestTextTemplateUpdateStrategy::end_lexeme() const /*throw (eh::Exception)*/
 {
   return String::TextTemplate::Basic::DEFAULT_LEXEME;
 }

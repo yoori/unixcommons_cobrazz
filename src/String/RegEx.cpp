@@ -17,8 +17,7 @@ namespace String
     init.ovector_count_ = 0;
   }
 
-  RegEx::MatchContext&
-  RegEx::MatchContext::operator=(MatchContext&& init) noexcept
+  RegEx::MatchContext& RegEx::MatchContext::operator=(MatchContext&& init) noexcept
   {
     if (this != &init)
     {
@@ -37,8 +36,7 @@ namespace String
     pcre2_match_data_free_8(match_data_);
   }
 
-  bool
-  RegEx::MatchContext::ensure_ovector_(uint32_t ovector_count) noexcept
+  bool RegEx::MatchContext::ensure_ovector_(uint32_t ovector_count) noexcept
   {
     if (ovector_count == 0)
     {
@@ -50,8 +48,7 @@ namespace String
       return true;
     }
 
-    pcre2_match_data_8* match_data =
-      pcre2_match_data_create_8(ovector_count, nullptr);
+    pcre2_match_data_8* match_data = pcre2_match_data_create_8(ovector_count, nullptr);
     if (!match_data)
     {
       return false;
@@ -63,8 +60,7 @@ namespace String
     return true;
   }
 
-  RegEx&
-  RegEx::operator =(const RegEx& side)
+  RegEx& RegEx::operator =(const RegEx& side)
     /*throw (Exception, eh::Exception)*/
   {
     if (this != &side)
@@ -119,10 +115,7 @@ namespace String
       alloc->deallocate(expr, expr_size);
 
       PCRE2_UCHAR8 error_buffer[256];
-      pcre2_get_error_message_8(
-        error_code,
-        error_buffer,
-        sizeof(error_buffer));
+      pcre2_get_error_message_8( error_code, error_buffer, sizeof(error_buffer));
 
       Stream::Error ostr;
       ostr << FNS << "Couldn't compile expression '" << regex <<
@@ -139,10 +132,7 @@ namespace String
       });
 
     uint32_t capture_count = 0;
-    pcre2_pattern_info_8(
-      re.get(),
-      PCRE2_INFO_CAPTURECOUNT,
-      &capture_count);
+    pcre2_pattern_info_8( re.get(), PCRE2_INFO_CAPTURECOUNT, &capture_count);
 
     clear_();
 
@@ -154,9 +144,7 @@ namespace String
     substrcount_ = static_cast<int>(capture_count) + 1;
   }
 
-  bool
-  RegEx::search(Result& result, const String::SubString& subject,
-    int options) const
+  bool RegEx::search(Result& result, const String::SubString& subject, int options) const
     /*throw (Exception, eh::Exception)*/
   {
     MatchContext match_context;
@@ -194,8 +182,7 @@ namespace String
       return false;
     }
 
-    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(
-      match_context.match_data_);
+    PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8( match_context.match_data_);
     result.resize(substrcount_);
     for (int i = 0; i < substrcount_; i++)
     {
@@ -210,9 +197,7 @@ namespace String
     return true;
   }
 
-  void
-  RegEx::gsearch(Result& result, const String::SubString& subject,
-    int options) const
+  void RegEx::gsearch(Result& result, const String::SubString& subject, int options) const
     /*throw (Exception, eh::Exception)*/
   {
     MatchContext match_context;
@@ -244,8 +229,7 @@ namespace String
 
     result.clear();
     PCRE2_SIZE offset = 0;
-    while (offset <= subject.size() &&
-      pcre2_match_8(
+    while (offset <= subject.size() && pcre2_match_8(
         re_.get(),
         reinterpret_cast<PCRE2_SPTR8>(subject.data()),
         subject.size(),
@@ -254,8 +238,7 @@ namespace String
         match_context.match_data_,
         nullptr) > 0)
     {
-      PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8(
-        match_context.match_data_);
+      PCRE2_SIZE* ovector = pcre2_get_ovector_pointer_8( match_context.match_data_);
       size_t res_offset = result.size() - first_capture;
       result.resize(res_offset + substrcount_);
       for (int i = first_capture; i < substrcount_; ++i)
@@ -280,17 +263,14 @@ namespace String
     }
   }
 
-  bool
-  RegEx::match(const String::SubString& subject, int options) const
-    noexcept
+  bool RegEx::match(const String::SubString& subject, int options) const noexcept
   {
     MatchContext match_context;
     return match(subject, match_context, options);
   }
 
   bool
-  RegEx::match(const String::SubString& subject, MatchContext& match_context,
-    int options) const
+  RegEx::match(const String::SubString& subject, MatchContext& match_context, int options) const
     noexcept
   {
     if (!re_)

@@ -16,10 +16,7 @@ namespace
    * set_next is move char to next char
    * @param us is char to move next
    */
-  inline
-  bool
-  set_next(unsigned char& uc)
-    noexcept
+  inline bool set_next(unsigned char& uc) noexcept
   {
     if (uc == 255)
     {
@@ -37,8 +34,8 @@ namespace
 
 ////// class Segment
 
-Segment::Segment(Language::Segmentor::SegmentorInterface_var segmentor, 
-  unsigned long start_border,  
+Segment::Segment(Language::Segmentor::SegmentorInterface_var segmentor,
+  unsigned long start_border,
   unsigned long finish_border,
   TestScenarios scenario,
   bool print_utf8_transforms,
@@ -73,8 +70,7 @@ Segment::Segment(Language::Segmentor::SegmentorInterface_var segmentor,
           " upper border for std utf8 (>4).";
         throw SegmentError(err);
       }
-      scenario_ = 
-        &Segment::check_with_walker_<SegmentorTestCommons::Utf8CharWalker>;
+      scenario_ = &Segment::check_with_walker_<SegmentorTestCommons::Utf8CharWalker>;
       break;
     }
   case TS_NON_STANDARD_UTF8:
@@ -86,8 +82,7 @@ Segment::Segment(Language::Segmentor::SegmentorInterface_var segmentor,
           " upper border for non std utf8 (>6).";
         throw SegmentError(err);
       }
-      scenario_ = 
-        &Segment::check_with_walker_<SegmentorTestCommons::PseudoUtf8CharWalker>;
+      scenario_ = &Segment::check_with_walker_<SegmentorTestCommons::PseudoUtf8CharWalker>;
       break;
     }
   case TS_SEPARATORS:
@@ -131,7 +126,7 @@ Segment::equal_ignore_spaces(const char *orig, size_t orig_len,
   {
     return false;
   }
-  
+
   const char *orig_end = orig + orig_len;
   const char *with_spaces_end = with_spaces + with_spaces_len;
   while (orig < orig_end)
@@ -154,12 +149,11 @@ Segment::equal_ignore_spaces(const char *orig, size_t orig_len,
       return false;
     }
   }
-  
+
   return (with_spaces == with_spaces_end);
 }
 
-void
-Segment::check_all_(std::istream&, std::ostream& estrm) const
+void Segment::check_all_(std::istream&, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   unsigned char test[finish_border_ + 7];
@@ -172,20 +166,18 @@ Segment::check_all_(std::istream&, std::ostream& estrm) const
 
   for (size_t i = start_border_; i <= finish_border_; ++i)
   {
-    std::cout << "Start processing of sequences of " 
-              << i << " byte(s) length." << std::endl;
+    std::cout << "Start processing of sequences of " << i << " byte(s) length." << std::endl;
     do
     {
       // update char string as increment of big number (MSB)
-      for(size_t j = i - 1; !set_next(test[j]) && j > 0; j--);
+      for (size_t j = i - 1; !set_next(test[j]) && j > 0; j--);
 
       try
       {
         std::string result;
         segmentor_->put_spaces(result, test_ptr, i);
 
-        if (print_utf8_transforms_ &&
-            !equal_ignore_spaces(test_ptr, i,
+        if (print_utf8_transforms_ && !equal_ignore_spaces(test_ptr, i,
                                  result.c_str(), result.size()))
         {
           // print transformation where input was changed, ignore spaces
@@ -199,8 +191,7 @@ Segment::check_all_(std::istream&, std::ostream& estrm) const
       }
       catch (const eh::Exception& e)
       {
-        estrm << "exception: '"
-              << std::string(test_ptr, i) << "' => \"" << e.what() << '\"'
+        estrm << "exception: '" << std::string(test_ptr, i) << "' => \"" << e.what() << '\"'
               << std::endl;
       }
     }
@@ -208,8 +199,7 @@ Segment::check_all_(std::istream&, std::ostream& estrm) const
   }
 }
 
-void
-Segment::check_separators_(std::istream&, std::ostream& estrm) const
+void Segment::check_separators_(std::istream&, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   SegmentorTestCommons::Utf8CharWalker test_str(start_border_);
@@ -217,8 +207,7 @@ Segment::check_separators_(std::istream&, std::ostream& estrm) const
   size_t octets = 0;
   while ((octets = test_str.octets()) <= finish_border_)
   {
-    std::cout << "Start processing of sequences of " 
-              << octets << " byte(s) length." << std::endl;
+    std::cout << "Start processing of sequences of " << octets << " byte(s) length." << std::endl;
     do
     {
       try
@@ -228,26 +217,21 @@ Segment::check_separators_(std::istream&, std::ostream& estrm) const
 
         if (result.empty() || result == " ")
         {
-          estrm << "transformation: '"
-                << test_str << "' => '" << result << "\' ";
+          estrm << "transformation: '" << test_str << "' => '" << result << "\' ";
           test_str.dump(estrm);
-          estrm << " (U+" << std::hex << test_str.code() << ')'
-                << std::endl;
+          estrm << " (U+" << std::hex << test_str.code() << ')' << std::endl;
         }
       }
       catch (const eh::Exception& e)
       {
-        estrm << "exception: '" << test_str
-              << "' => \"" << e.what() << '\"'
-              << std::endl;
+        estrm << "exception: '" << test_str << "' => \"" << e.what() << '\"' << std::endl;
       }
     }
     while (test_str.next());
   }
 }
 
-void
-Segment::check_phrases_(std::istream& istrm, std::ostream& estrm) const
+void Segment::check_phrases_(std::istream& istrm, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   std::string word_from, word_to;
@@ -261,7 +245,7 @@ Segment::check_phrases_(std::istream& istrm, std::ostream& estrm) const
         break;
       }
       getline(istrm, word_to);
-      
+
       const char* from_cstr = word_from.c_str();
       size_t from_size = word_from.size();
 
@@ -273,22 +257,18 @@ Segment::check_phrases_(std::istream& istrm, std::ostream& estrm) const
         //this is error condition - expected not equal existing
         estrm << "phrase " << line_num << " : "
               << word_from << " -> " << word_to  << " != " << result
-              << ((word_from != result) ? " * " : " ^ ")
-              << std::endl;
+              << ((word_from != result) ? " * " : " ^ ") << std::endl;
       }
     }
     catch (const eh::Exception& e)
     {
-      estrm << "exception in " << line_num << " : "
-            << word_from << " -> " << word_to
-            << "(\"" << e.what() << "\")"
-            << std::endl;
+      estrm << "exception in " << line_num << " : " << word_from << " -> " << word_to
+            << "(\"" << e.what() << "\")" << std::endl;
     }
   }
 }
 
-void
-Segment::check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
+void Segment::check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   std::string word_from, word_to;
@@ -302,7 +282,7 @@ Segment::check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
         break;
       }
       getline(istrm, word_to);
-      
+
       const char* from_cstr = word_from.c_str();
       size_t from_size = word_from.size();
 
@@ -311,31 +291,27 @@ Segment::check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
 
       std::string result;
       result.reserve(1024);
-      for (Language::Segmentor::WordsList::const_iterator i = list.begin();
-           i != list.end(); ++i)
+      for (Language::Segmentor::WordsList::const_iterator i = list.begin(); i != list.end(); ++i)
       {
         if (!result.empty())
         {
           result += " ";
         }
-        result += *i;        
+        result += *i;
       }
-        
+
       if (word_to != result)
       {
         //this is error condition - expected not equal existing
         estrm << "phrase " << line_num << " : "
               << word_from << " -> " << word_to  << " != " << result
-              << ((word_from != result) ? " * " : " ^ ")
-              << std::endl;
+              << ((word_from != result) ? " * " : " ^ ") << std::endl;
       }
     }
     catch (const eh::Exception& e)
     {
-      estrm << "exception in " << line_num << " : "
-            << word_from << " -> " << word_to
-            << "(\"" << e.what() << "\")"
-            << std::endl;
+      estrm << "exception in " << line_num << " : " << word_from << " -> " << word_to
+            << "(\"" << e.what() << "\")" << std::endl;
     }
   }
 }

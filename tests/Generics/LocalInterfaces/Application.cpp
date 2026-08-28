@@ -16,8 +16,7 @@ namespace
     ER_INVALID
   };
 
-  void
-  check(const char* host_name, EXPECTED_RESULT expected_result)
+  void check(const char* host_name, EXPECTED_RESULT expected_result)
     /*throw (eh::Exception)*/
   {
     std::cout << "Checking " << host_name << std::endl;
@@ -27,10 +26,8 @@ namespace
         ER_LOCAL : ER_NONLOCAL;
       if (result != expected_result)
       {
-        std::cerr << "'" << host_name << "' " <<
-          (expected_result == ER_LOCAL ? "is" : "isn't") <<
-          (expected_result == ER_INVALID ?
-            " an address" : " a local address)") <<
+        std::cerr << "'" << host_name << "' " << (expected_result == ER_LOCAL ? "is" : "isn't") <<
+          (expected_result == ER_INVALID ? " an address" : " a local address)") <<
           "check failed" << std::endl;
       }
     }
@@ -38,20 +35,17 @@ namespace
     {
       if (expected_result != ER_INVALID)
       {
-        std::cerr << "'" << host_name << "' unexpected exception: " <<
-          ex.what() << std::endl;
+        std::cerr << "'" << host_name << "' unexpected exception: " << ex.what() << std::endl;
       }
       else
       {
-        std::cout << "'" << host_name << "' expected exception: " <<
-          ex.what() << std::endl;
+        std::cout << "'" << host_name << "' expected exception: " << ex.what() << std::endl;
       }
     }
   }
 }
 
-int
-main()
+int main()
 {
   try
   {

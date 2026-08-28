@@ -19,8 +19,7 @@ namespace
 //
 // Testing input / output UnicodeSymbols from stl streams.
 //
-void
-unicode_symbol_test() /*throw (eh::Exception, IOException)*/
+void unicode_symbol_test() /*throw (eh::Exception, IOException)*/
 {
   std::ostringstream ostr;
   UnicodeSymbol symbol, symbol_middle(0x10FFFF / 2),
@@ -29,12 +28,9 @@ unicode_symbol_test() /*throw (eh::Exception, IOException)*/
   std::cout << "Put information:\nText mode\n"
     << symbol << " " << symbol_middle << " " << symbol_last
     << UnicodeSymbol::binary << "\nBinary mode\n"
-    << symbol << " " << symbol_middle << " " << symbol_last
-    << "\nEnd of information."
-    << std::endl;
+    << symbol << " " << symbol_middle << " " << symbol_last << "\nEnd of information." << std::endl;
 
-  ostr << symbol << symbol_middle << symbol_last
-    << UnicodeSymbol::binary
+  ostr << symbol << symbol_middle << symbol_last << UnicodeSymbol::binary
     << symbol << symbol_middle << symbol_last;
 
   std::cout << "Stream content: " << ostr.str() << std::endl;
@@ -58,17 +54,14 @@ unicode_symbol_test() /*throw (eh::Exception, IOException)*/
   istr >> UnicodeSymbol::binary;
   istr /*>> got_bin_symbol*/ >> got_bin_middle_symbol >> got_bin_last_symbol;
 
-  if (symbol != got_symbol || symbol != got_bin_symbol ||
-    symbol_middle != got_middle_symbol ||
-    symbol_middle != got_bin_middle_symbol ||
-    symbol_last != got_last_symbol ||
+  if (symbol != got_symbol || symbol != got_bin_symbol || symbol_middle != got_middle_symbol ||
+    symbol_middle != got_bin_middle_symbol || symbol_last != got_last_symbol ||
     symbol_last != got_bin_last_symbol)
   {
     std::cout << "Stream contain: " << ostr.str() << std::endl;
-    std::cout << "Got information:\nText symbols: " 
-      << UnicodeSymbol::nobinary
+    std::cout << "Got information:\nText symbols: " << UnicodeSymbol::nobinary
       << got_symbol << " " << got_middle_symbol << " " << got_last_symbol
-      << "\nBinary symbols: " << got_bin_symbol << " " 
+      << "\nBinary symbols: " << got_bin_symbol << " "
       << got_bin_middle_symbol << " " << got_bin_last_symbol << std::endl;
     throw IOException("Unicode symbol binary input/output error");
   }
@@ -82,11 +75,10 @@ unicode_symbol_test() /*throw (eh::Exception, IOException)*/
   {
     throw IOException("EOF must be reached");
   }
-  
+
 }
 
-void
-not_trimmed_input_test() /*throw (eh::Exception, IOException)*/
+void not_trimmed_input_test() /*throw (eh::Exception, IOException)*/
 {
   Stream::Parser istr("  41");
   UnicodeSymbol symbol;
@@ -98,8 +90,7 @@ not_trimmed_input_test() /*throw (eh::Exception, IOException)*/
   }
 }
 
-void
-text_format_check() /*throw (eh::Exception, IOException)*/
+void text_format_check() /*throw (eh::Exception, IOException)*/
 {
   UnicodeSymbol symbol(L'A'), symbol_last("\xF4\x8F\xBF\xBF");
   std::cout << symbol << std::endl;
@@ -109,8 +100,7 @@ text_format_check() /*throw (eh::Exception, IOException)*/
   std::cout << symbol_last << std::uppercase << symbol_last << std::endl;
 }
 
-void
-construction_test() /*throw (eh::Exception)*/
+void construction_test() /*throw (eh::Exception)*/
 {
   UnicodeSymbol symbol(L'\0');
   const UnicodeSymbol LAST("\xF4\x8F\xBF\xBF");
@@ -122,9 +112,8 @@ construction_test() /*throw (eh::Exception)*/
     }
     catch (...)
     {
-      std::cerr << "Cannot create symbol on well-formed sequence: "
-        << symbol << std::endl;
-      break; 
+      std::cerr << "Cannot create symbol on well-formed sequence: " << symbol << std::endl;
+      break;
     }
   }
 
@@ -145,8 +134,7 @@ construction_test() /*throw (eh::Exception)*/
       try
       {
         UnicodeSymbol new_symbol(buf);
-        std::cerr << "Created symbol on ill-formed sequence: "
-          << buf << std::endl;
+        std::cerr << "Created symbol on ill-formed sequence: " << buf << std::endl;
       }
       catch (...)
       {
@@ -155,14 +143,12 @@ construction_test() /*throw (eh::Exception)*/
   }
   catch (const eh::Exception& ex)
   {
-    std::cerr << "File " << fn << " open error. "
-      << ex.what() << std::endl;
+    std::cerr << "File " << fn << " open error. " << ex.what() << std::endl;
     return;
   }
 }
 
-int
-main(int /*argc*/, char* /*argv*/[])
+int main(int /*argc*/, char* /*argv*/[])
 {
   try
   {

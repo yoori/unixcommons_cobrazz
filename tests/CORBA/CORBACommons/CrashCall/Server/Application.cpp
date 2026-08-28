@@ -37,19 +37,14 @@ void Application::run(int argc, char* argv[])
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("port") ||
-      Generics::AppUtils::short_name("p"),
+      Generics::AppUtils::equal_name("port") || Generics::AppUtils::short_name("p"),
       opt_port);
     args.add(
-      Generics::AppUtils::equal_name("host") ||
-      Generics::AppUtils::short_name("h"),
+      Generics::AppUtils::equal_name("host") || Generics::AppUtils::short_name("h"),
       opt_host);
+    args.add( Generics::AppUtils::equal_name("secure-port"), opt_secure_port);
     args.add(
-      Generics::AppUtils::equal_name("secure-port"),
-      opt_secure_port);
-    args.add(
-      Generics::AppUtils::equal_name("secure-params") ||
-      Generics::AppUtils::short_name("sp"),
+      Generics::AppUtils::equal_name("secure-params") || Generics::AppUtils::short_name("sp"),
       opt_secure_params);
 
     args.parse(argc - 1, argv + 1);
@@ -62,10 +57,8 @@ void Application::run(int argc, char* argv[])
       CORBACommons::EndpointConfig endpoint_config;
       endpoint_config.host = *opt_host;
       endpoint_config.port = *opt_port;
-      endpoint_config.objects[TEST_INT_SERVANT].insert(
-        EXT_TEST_INT_SERVANT);
-      endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert(
-        PROCESS_CONTROL_SERVANT);
+      endpoint_config.objects[TEST_INT_SERVANT].insert( EXT_TEST_INT_SERVANT);
+      endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert( PROCESS_CONTROL_SERVANT);
       corba_config.endpoints.push_back(endpoint_config);
     }
 
@@ -74,14 +67,12 @@ void Application::run(int argc, char* argv[])
       CORBACommons::EndpointConfig endpoint_config;
       endpoint_config.host = *opt_host;
       endpoint_config.port = *opt_secure_port;
-      endpoint_config.objects[TEST_INT_SERVANT].insert(
-        EXT_TEST_INT_SECURE_SERVANT);
+      endpoint_config.objects[TEST_INT_SERVANT].insert( EXT_TEST_INT_SECURE_SERVANT);
       endpoint_config.secure_connection_config = *opt_secure_params;
       corba_config.endpoints.push_back(endpoint_config);
     }
 
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
 
     CORBACommons::CorbaServerAdapter_var corba_server_adapter(
       new CORBACommons::CorbaServerAdapter(corba_config, logger));
@@ -96,15 +87,13 @@ void Application::run(int argc, char* argv[])
   catch (const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
@@ -116,8 +105,7 @@ main(int argc, char** argv)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr
-      << "main: eh::Exception exception caught. Description:" << std::endl
+    std::cerr << "main: eh::Exception exception caught. Description:" << std::endl
       << e.what() << std::endl;
   }
   catch (...)

@@ -10,11 +10,9 @@ namespace Generics
   public:
     FDSet() noexcept;
 
-    fd_set*
-    operator &() noexcept;
+    fd_set* operator &() noexcept;
 
-    const fd_set*
-    operator &() const noexcept;
+    const fd_set* operator &() const noexcept;
 
   private:
     unsigned data_[16384 / (8 * sizeof(unsigned))];
@@ -32,14 +30,12 @@ namespace Generics
     }
   }
 
-  fd_set*
-  FDSet::operator &() noexcept
+  fd_set* FDSet::operator &() noexcept
   {
     return &set_;
   }
 
-  const fd_set*
-  FDSet::operator &() const noexcept
+  const fd_set* FDSet::operator &() const noexcept
   {
     return &set_;
   }

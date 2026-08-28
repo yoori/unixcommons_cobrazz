@@ -6,24 +6,20 @@
 
 namespace SegmentorTestCommons
 {
+  namespace
+  {
+    /**
+     * Start octets for utf8 sequence
+     */
+    static const unsigned char uf8_char_begins[] = {0x00, 0x00,
+                                                    0xc0, 0xe0,
+                                                    0xf0, 0xf8,
+                                                    0xfc, 0xfe};
+  }
 
- namespace
- {
-   /**
-    * Start octets for utf8 sequence
-    */
-   static const unsigned char uf8_char_begins[] = {0x00, 0x00, 
-                                                   0xc0, 0xe0, 
-                                                   0xf0, 0xf8, 
-                                                   0xfc, 0xfe};
- }
-  
   ////// class Utf8Generator
-  
-  size_t
-  Utf8Generator::gen_rand_utf8_sequence(char* buf,
-                                        size_t max_sequence_len,
-                                        bool valid_only)
+
+  size_t Utf8Generator::gen_rand_utf8_sequence(char* buf, size_t max_sequence_len, bool valid_only)
     noexcept
   {
     size_t i = 0;
@@ -51,14 +47,12 @@ namespace SegmentorTestCommons
             {
               unicode_val = Generics::safe_rand(B_TOP_2BYTES + 1, B_TOP_3BYTES);
             }
-            while (unicode_val >= B_GAP_3BYTES_BOTTOM &&
-                   unicode_val <= B_GAP_3BYTES_TOP);
+            while (unicode_val >= B_GAP_3BYTES_BOTTOM && unicode_val <= B_GAP_3BYTES_TOP);
             break;
           }
         default:
           {
-            unicode_val = Generics::safe_rand(B_TOP_3BYTES + 1,
-              B_GAP_4BYTES_BOTTOM - 1);
+            unicode_val = Generics::safe_rand(B_TOP_3BYTES + 1, B_GAP_4BYTES_BOTTOM - 1);
           }
         }//switch (Generics::safe_rand(0, 3))
       }
@@ -70,8 +64,7 @@ namespace SegmentorTestCommons
       if (!String::UTF8Handler::ulong_to_utf8_char(unicode_val, buf + i, length))
       {
         std::cerr << "Utf8Generator::gen_rand_utf8_sequence: "
-                  << unicode_val << " is incorrect unicode value."
-                  << std::endl;
+                  << unicode_val << " is incorrect unicode value." << std::endl;
       }
 
       i += length;
@@ -82,9 +75,7 @@ namespace SegmentorTestCommons
 
   ////// class AsciiGenerator
 
-  void
-  AsciiGenerator::gen_rand_ascii_sequence(char* buf, size_t buf_len)
-    noexcept
+  void AsciiGenerator::gen_rand_ascii_sequence(char* buf, size_t buf_len) noexcept
   {
     for (size_t i = 0; i < buf_len; ++i)
     {
@@ -94,11 +85,9 @@ namespace SegmentorTestCommons
 
   ////// String dumper
 
-  void
-  hex_dump (std::ostream &os, const char* str, size_t size)
-    noexcept
+  void hex_dump (std::ostream &os, const char* str, size_t size) noexcept
   {
-    if(str == 0 || size == 0)
+    if (str == 0 || size == 0)
     {
       return;
     }
@@ -116,11 +105,9 @@ namespace SegmentorTestCommons
 
   ////// class Utf8CharWalker
 
-  void
-  Utf8CharWalker::setup_ (size_t octets)
-    noexcept
+  void Utf8CharWalker::setup_ (size_t octets) noexcept
   {
-    octets_ = octets; 
+    octets_ = octets;
     if (octets_ > 4)
     {
       octets_ = 4;
@@ -134,10 +121,8 @@ namespace SegmentorTestCommons
     str[octets_] = 0x00;
     sym_ = String::UnicodeSymbol(str);
   }
-  
-  const char* 
-  Utf8CharWalker::next()
-    noexcept
+
+  const char* Utf8CharWalker::next() noexcept
   {
     if (String::UnicodeSymbol::MAX_CODE_UNIT > sym_)
     {
@@ -160,11 +145,9 @@ namespace SegmentorTestCommons
 
   ////// class PseudoUtf8CharWalker
 
-  void
-  PseudoUtf8CharWalker::setup_(size_t octets)
-    noexcept
+  void PseudoUtf8CharWalker::setup_(size_t octets) noexcept
   {
-    octets_ = octets; 
+    octets_ = octets;
     if (octets_ > 6)
     {
       octets_ = 6;
@@ -174,19 +157,16 @@ namespace SegmentorTestCommons
     {
       data_[i] = 0x80;
     }
-    data_[octets_] = 0x00;    
+    data_[octets_] = 0x00;
   }
 
-  const char* 
-  PseudoUtf8CharWalker::next ()
-    noexcept
+  const char* PseudoUtf8CharWalker::next () noexcept
   {
     if (octets_ > 6)
     {
       return 0;
     }
-    for (unsigned char* last = data_ + octets_ - 1; 
-         last != data_; *(last--) = 0x80)
+    for (unsigned char* last = data_ + octets_ - 1; last != data_; *(last--) = 0x80)
     {
       if ((*last += 1) <= 0xbf)
       {

@@ -15,24 +15,19 @@ public:
   BasicsTestEmptyThreadPolicy(std::ostringstream& log, TestCommons::Errors& errors,
     Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) noexcept;
 
-  virtual int
-  when_close_thread(Identifier thread) noexcept;
+  virtual int when_close_thread(Identifier thread) noexcept;
 
 protected:
 
   virtual ~BasicsTestEmptyThreadPolicy() noexcept;
 
-  virtual void
-  check_thread_connection_added(Identifier thread, Identifier connection) noexcept;
+  virtual void check_thread_connection_added(Identifier thread, Identifier connection) noexcept;
 
-  virtual void
-  check_choose_thread(Identifier thread) noexcept;
+  virtual void check_choose_thread(Identifier thread) noexcept;
 
-  virtual void
-  check_thread_added(Identifier thread) noexcept;
+  virtual void check_thread_added(Identifier thread) noexcept;
 
-  virtual void
-  check_thread_removed(Identifier thread) noexcept;
+  virtual void check_thread_removed(Identifier thread) noexcept;
 
   void dynamic_states_checker_(const char* prefix, const void* addr,
     const StateHistory* prev_n_now) /*throw (eh::Exception)*/;
@@ -56,27 +51,20 @@ public:
   BasicsTestEmptyConnectionPolicy(std::ostringstream& log, TestCommons::Errors& errors,
     Sync::Semaphore& work_finished, unsigned short closure_delay/* = 8*/) noexcept;
 
-  virtual int
-  when_close_connection(Identifier connection) noexcept;
+  virtual int when_close_connection(Identifier connection) noexcept;
 
 protected:
 
   virtual ~BasicsTestEmptyConnectionPolicy() noexcept;
 
-  virtual void
-  check_connection_request_added(Identifier connection, Identifier request) noexcept;
+  virtual void check_connection_request_added(Identifier connection, Identifier request) noexcept;
 
   virtual void
-  check_choose_connection(Identifier connection, Identifier server,
-    Identifier request) noexcept;
+  check_choose_connection(Identifier connection, Identifier server, Identifier request) noexcept;
 
-  virtual void
-  check_server_connection_added(Identifier server, Identifier connection)
-    noexcept;
+  virtual void check_server_connection_added(Identifier server, Identifier connection) noexcept;
 
-  virtual void
-  check_server_connection_removed(Identifier server, Identifier connection)
-    noexcept;
+  virtual void check_server_connection_removed(Identifier server, Identifier connection) noexcept;
 
   void dynamic_states_checker_(const char* prefix, const void* addr,
     const StateHistory* prev_n_now) /*throw (eh::Exception)*/;
@@ -113,19 +101,17 @@ public:
   report_error(Severity severity, const String::SubString& description,
     const char* error_code = 0) noexcept;
 
-  void
-  dump_errors(std::ostringstream& err_stream) /*throw(eh::Exception)*/;
+  void dump_errors(std::ostringstream& err_stream) /*throw(eh::Exception)*/;
 
 protected:
-  virtual
-  ~BasicsTestPolicy() noexcept;
+  virtual ~BasicsTestPolicy() noexcept;
 private:
 
   TestCommons::Errors errors_;
   std::ostringstream& log_;
 };
 
-typedef ReferenceCounting::QualPtr<BasicsTestPolicy> BasicsTestPolicy_var;
+using BasicsTestPolicy_var = ReferenceCounting::QualPtr<BasicsTestPolicy>;
 
 //
 // class BasicsTest

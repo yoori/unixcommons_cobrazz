@@ -19,8 +19,7 @@ public:
     size_t phrase_len) const /*throw (SegmException)*/;
 
 private:
-  virtual
-  ~DummySegmentor() noexcept;
+  virtual ~DummySegmentor() noexcept;
 
   int my_id_;
   std::ostream& out_;
@@ -54,6 +53,7 @@ DummySegmentor::segmentation(Language::Segmentor::WordsList& result, const char*
     {
       result.push_back(std::string(phrase, half));
     }
+
     if (phrase_len - half > 0)
     {
       result.push_back(std::string(phrase + half, phrase_len - half));
@@ -62,8 +62,7 @@ DummySegmentor::segmentation(Language::Segmentor::WordsList& result, const char*
   catch (const eh::Exception& e)
   {
     Stream::Error error;
-    error << "DummySegmentor::segmentation: eh::Exception caught: "
-          << e.what();
+    error << "DummySegmentor::segmentation: eh::Exception caught: " << e.what();
 
     throw SegmException(error);
   }
@@ -94,7 +93,7 @@ DummySegmentor::put_spaces(std::string& res, const char* phrase,
 
     std::string::size_type first = 0;
     std::string::size_type second = 0;
-    while(second < phrase_len)
+    while (second < phrase_len)
     {
       first = result.find(' ', second);
       if (first == std::string::npos)

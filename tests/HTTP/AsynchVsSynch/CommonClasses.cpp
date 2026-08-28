@@ -20,8 +20,7 @@ NotificationCallback::NotificationCallback(HTTP::PoolPolicy_var policy,
 {
 }
 
-void
-NotificationCallback::on_response(const HTTP::ResponseInformation& data) noexcept
+void NotificationCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   SimpleCounterCallback::on_response(data);
   check();
@@ -35,24 +34,21 @@ NotificationCallback::on_error(const String::SubString& descr,
   check();
 }
 
-inline
-void
-NotificationCallback::check() noexcept
+inline void NotificationCallback::check() noexcept
 {
-  if (get_counter().succeeded() + get_counter().failed() >= notify_number_ 
-      && waits_number_)
+  if (get_counter().succeeded() + get_counter().failed() >= notify_number_ && waits_number_)
   {
     for (int i = 0; i < waits_number_; ++i)
     {
       sem_->release();
     }
   }
-  //else
-  //  std::cout << notify_number_ << " : " << get_counter().succeeded() + get_counter().failed() << std::endl;
+  // else
+  //   std::cout << notify_number_ << " : " << get_counter().succeeded() + get_counter().failed() <<
+  //   std::endl;
 }
 
-Sync::Semaphore&
-NotificationCallback::get_semaphore() noexcept
+Sync::Semaphore& NotificationCallback::get_semaphore() noexcept
 {
   if (waits_number_++ == 0)
   {

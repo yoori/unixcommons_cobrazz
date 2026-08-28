@@ -5,9 +5,7 @@
 #include <String/UTF8Handler.hpp>
 
 
-bool
-String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
-  noexcept
+bool String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter) noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -28,8 +26,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
         {
           return false;
         }
-        const unsigned char SLOT_NUMBER =
-          FIRST - static_cast<unsigned char>(0xC3);
+        const unsigned char SLOT_NUMBER = FIRST - static_cast<unsigned char>(0xC3);
         if (SLOT_NUMBER > 18)
         {
           *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -87,8 +84,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
         {
         case 0xE1:
           {
-            const CodeUnit4Bytes& MODIFIED =
-              TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
+            const CodeUnit4Bytes& MODIFIED = TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -104,8 +100,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
           }
         case 0xE2:
           {
-            const CodeUnit2Bytes& MODIFIED =
-              TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
+            const CodeUnit2Bytes& MODIFIED = TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -129,6 +124,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
                   *dest++ = '\x89';
                   continue;
                 }
+
                 if (THIRD == 0xAA)
                 {
                   *dest++ = '\x6B';
@@ -138,8 +134,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
                 *dest++ = '\xA5';
                 continue;
               }
-              const CodeUnit2Bytes& MODIFIED_SP =
-                TABLE_3_SP_E2[THIRD & 0x1F];
+              const CodeUnit2Bytes& MODIFIED_SP = TABLE_3_SP_E2[THIRD & 0x1F];
               *dest++ = MODIFIED_SP[0];
               *dest++ = MODIFIED_SP[1];
               if (THIRD == 0xA3)
@@ -155,12 +150,10 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
           }
         case 0xEA:
           {
-            const unsigned char SLOT_NUMBER =
-              SECOND - static_cast<unsigned char>(0x99);
+            const unsigned char SLOT_NUMBER = SECOND - static_cast<unsigned char>(0x99);
             if (SLOT_NUMBER < 6)
             {
-              const CodeUnit2Bytes& MODIFIED =
-                TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
+              const CodeUnit2Bytes& MODIFIED = TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
               if (MODIFIED[0] == 0)
               {
                 // SPECIAL
@@ -224,6 +217,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
         {
           return false;
         }
+
         if ((THIRD & 0xC0) != 0x80)
         {
           return false;
@@ -249,6 +243,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
                 *dest++ = TABLE_4_F0[FOURTH & 0x3F];
                 continue;
               }
+
               if (THIRD == 0xB2)
               {
                 *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -273,6 +268,7 @@ String::ToLower::to_lower(Helper::Iterator it, char*& dest, size_t& counter)
                 }
               }
             }
+
             if (SECOND < 0x90 || SECOND > 0xBF)
             {
               return false;

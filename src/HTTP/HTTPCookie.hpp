@@ -17,8 +17,7 @@ namespace HTTP
   {
     Cookie() noexcept;
 
-    Cookie(const String::SubString& name, const String::SubString& value)
-      noexcept;
+    Cookie(const String::SubString& name, const String::SubString& value) noexcept;
 
     String::SubString name;
     String::SubString value;
@@ -63,7 +62,7 @@ namespace HTTP
     DECLARE_EXCEPTION(Exception, HTTP::Exception);
     DECLARE_EXCEPTION(InvalidArgument, Exception);
 
-    typedef std::list<Cookie> Parent;
+    using Parent = std::list<Cookie>;
 
     using Parent::iterator;
     using Parent::const_iterator;
@@ -77,27 +76,19 @@ namespace HTTP
     using Parent::push_back;
     using Parent::emplace_back;
 
-    virtual
-    ~CookieList() noexcept;
+    virtual ~CookieList() noexcept;
 
-    void
-    load_from_headers(const SubHeaderList& headers,
-      bool replace_duplicate = false)
+    void load_from_headers(const SubHeaderList& headers, bool replace_duplicate = false)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
 
-    void
-    load_from_headers(const HeaderList& headers,
-      bool replace_duplicate = false)
+    void load_from_headers(const HeaderList& headers, bool replace_duplicate = false)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
 
-    std::string
-    cookie_header() /*throw (eh::Exception)*/;
+    std::string cookie_header() /*throw (eh::Exception)*/;
 
   private:
     template <typename HeaderList>
-    void
-    load_from_headers_(const HeaderList& headers,
-      bool replace_duplicate)
+    void load_from_headers_(const HeaderList& headers, bool replace_duplicate)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
   };
 
@@ -107,7 +98,7 @@ namespace HTTP
     DECLARE_EXCEPTION(Exception, HTTP::Exception);
     DECLARE_EXCEPTION(InvalidArgument, Exception);
 
-    typedef std::list<CookieDef> Parent;
+    using Parent = std::list<CookieDef>;
 
     using Parent::iterator;
     using Parent::const_iterator;
@@ -121,39 +112,29 @@ namespace HTTP
     using Parent::push_back;
     using Parent::emplace_back;
 
-    explicit
-    CookieDefList(bool keep_expired = false) /*throw (eh::Exception)*/;
+    explicit CookieDefList(bool keep_expired = false) /*throw (eh::Exception)*/;
 
-    virtual
-    ~CookieDefList() noexcept;
+    virtual ~CookieDefList() noexcept;
 
-    void
-    load_from_headers(const SubHeaderList& headers,
-      const HTTPAddress& url_address)
+    void load_from_headers(const SubHeaderList& headers, const HTTPAddress& url_address)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
-    void
-    load_from_headers(const HeaderList& headers,
-      const HTTPAddress& url_address)
+    void load_from_headers(const HeaderList& headers, const HTTPAddress& url_address)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
 
-    void
-    set_cookie_header(HeaderList& headers)
+    void set_cookie_header(HeaderList& headers)
       /*throw (eh::Exception)*/;
 
     /**
      * Set cookie headers without any checks
      */
-    void
-    set_cookie_header_plain(HeaderList& headers)
+    void set_cookie_header_plain(HeaderList& headers)
       /*throw (eh::Exception)*/;
 
-    std::string
-    cookie_header(const HTTPAddress& url_address)
+    std::string cookie_header(const HTTPAddress& url_address)
       /*throw (eh::Exception)*/;
 
   protected:
-    void
-    expire_(bool sesion_cookies = false) /*throw (eh::Exception)*/;
+    void expire_(bool sesion_cookies = false) /*throw (eh::Exception)*/;
 
     bool keep_expired_;
   };
@@ -164,54 +145,42 @@ namespace HTTP
     DECLARE_EXCEPTION(Exception, HTTP::Exception);
     DECLARE_EXCEPTION(InvalidArgument, Exception);
 
-    typedef std::list<PersistentCookieDef> Parent;
+    using Parent = std::list<PersistentCookieDef>;
 
     using Parent::clear;
     using Parent::push_back;
     using Parent::emplace_back;
 
-    virtual
-    ~ClientCookieFacility() noexcept;
+    virtual ~ClientCookieFacility() noexcept;
 
-    void
-    load_from_headers(const SubHeaderList& headers,
-      const HTTPAddress& url_address)
+    void load_from_headers(const SubHeaderList& headers, const HTTPAddress& url_address)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
-    void
-    load_from_headers(const HeaderList& headers,
-      const HTTPAddress& url_address)
+    void load_from_headers(const HeaderList& headers, const HTTPAddress& url_address)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
 
-    void
-    set_cookie_header(HeaderList& headers)
+    void set_cookie_header(HeaderList& headers)
       /*throw (eh::Exception)*/;
 
     /**
      * Set cookie headers without any checks
      */
-    void
-    set_cookie_header_plain(HeaderList& headers)
+    void set_cookie_header_plain(HeaderList& headers)
       /*throw (eh::Exception)*/;
 
-    std::string
-    cookie_header(const HTTPAddress& url_address)
+    std::string cookie_header(const HTTPAddress& url_address)
       /*throw (eh::Exception)*/;
 
-    void
-    end_session() /*throw (eh::Exception)*/;
+    void end_session() /*throw (eh::Exception)*/;
 
   protected:
-    void
-    expire_(bool sesion_cookies = false) /*throw (eh::Exception)*/;
+    void expire_(bool sesion_cookies = false) /*throw (eh::Exception)*/;
   };
 
-  std::string
-  cookie_date(const Generics::Time& time, bool show_usec = false)
+  std::string cookie_date(const Generics::Time& time, bool show_usec = false)
     /*throw (eh::Exception)*/;
 
   template <typename CookieDef>
-  void
-  cookie_header_plain(const CookieDef& cookie, std::string& dst)
+  void cookie_header_plain(const CookieDef& cookie, std::string& dst)
     /*throw (eh::Exception)*/;
 } // namespace HTTP
 
@@ -225,15 +194,12 @@ namespace HTTP
   // Cookie struct
   //
 
-  inline
-  Cookie::Cookie(const String::SubString& nam,
-    const String::SubString& val) noexcept
+  inline Cookie::Cookie(const String::SubString& nam, const String::SubString& val) noexcept
     : name(nam), value(val)
   {
   }
 
-  inline
-  Cookie::Cookie() noexcept
+  inline Cookie::Cookie() noexcept
   {
   }
 
@@ -242,8 +208,7 @@ namespace HTTP
   // CookieDef struct
   //
 
-  inline
-  CookieDef::CookieDef() noexcept
+  inline CookieDef::CookieDef() noexcept
     : expires(Generics::Time::ZERO), secure(false)
   {
   }
@@ -262,8 +227,7 @@ namespace HTTP
   // PersistentCookieDef struct
   //
 
-  inline
-  PersistentCookieDef::PersistentCookieDef() noexcept
+  inline PersistentCookieDef::PersistentCookieDef() noexcept
     : expires(Generics::Time::ZERO), secure(false)
   {
   }
@@ -278,8 +242,7 @@ namespace HTTP
   {
   }
 
-  inline
-  PersistentCookieDef::operator CookieDef() const noexcept
+  inline PersistentCookieDef::operator CookieDef() const noexcept
   {
     return CookieDef(name, value, domain, path, expires, secure);
   }
@@ -288,9 +251,7 @@ namespace HTTP
   // ClientCookieFacility class
   //
 
-  inline
-  void
-  ClientCookieFacility::end_session() /*throw (eh::Exception)*/
+  inline void ClientCookieFacility::end_session() /*throw (eh::Exception)*/
   {
     expire_(true);
   }
@@ -298,9 +259,7 @@ namespace HTTP
 
   //
 
-  inline
-  std::string
-  cookie_date(const Generics::Time& tim, bool show_usec)
+  inline std::string cookie_date(const Generics::Time& tim, bool show_usec)
     /*throw (eh::Exception)*/
   {
     const Generics::ExtendedTime& time = tim.get_gm_time();
@@ -313,8 +272,7 @@ namespace HTTP
     if (show_usec && time.tm_usec)
     {
       size_t length = strlen(out);
-      snprintf(out + length, sizeof(out) - length, ".%06i GMT",
-        time.tm_usec);
+      snprintf(out + length, sizeof(out) - length, ".%06i GMT", time.tm_usec);
     }
     else
     {
@@ -325,8 +283,7 @@ namespace HTTP
   }
 
   template <typename CookieDef>
-  void
-  cookie_header_plain(const CookieDef& cookie, std::string& dst)
+  void cookie_header_plain(const CookieDef& cookie, std::string& dst)
     /*throw (eh::Exception)*/
   {
     std::ostringstream header;

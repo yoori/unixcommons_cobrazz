@@ -16,20 +16,13 @@ namespace HTTP
     public:
       Callback(ResponseCallback* callback, CookiePoolPtr* cookie) noexcept;
 
-      virtual
-      void
-      on_response(const ResponseInformation& data) noexcept;
+      virtual void on_response(const ResponseInformation& data) noexcept;
 
-      virtual
-      void
-      on_error(
-        const String::SubString& description,
-        const RequestInformation& data)
+      virtual void on_error( const String::SubString& description, const RequestInformation& data)
         noexcept;
 
     protected:
-      virtual
-      ~Callback() noexcept;
+      virtual ~Callback() noexcept;
 
     private:
       ResponseCallback_var callback_;
@@ -48,26 +41,22 @@ namespace HTTP
       void
       add_get_request(const char* http_request,
         ResponseCallback* callback = 0,
-        const HttpServer& peer = HttpServer(),
-        const HeaderList& headers = HeaderList())
+        const HttpServer& peer = HttpServer(), const HeaderList& headers = HeaderList())
         /*throw (eh::Exception, Exception)*/;
 
       virtual
       void
       add_post_request(const char* http_request,
         ResponseCallback* callback = 0,
-        const String::SubString& body = String::SubString(),
-        const HttpServer& peer = HttpServer(),
+        const String::SubString& body = String::SubString(), const HttpServer& peer = HttpServer(),
         const HeaderList& headers = HeaderList())
         /*throw (eh::Exception, Exception)*/;
 
     protected:
-      virtual
-      ~CookieClient() noexcept;
+      virtual ~CookieClient() noexcept;
 
     private:
-      void
-      add_cookies(const char* url, HeaderList& headers)
+      void add_cookies(const char* url, HeaderList& headers)
         /*throw (eh::Exception)*/;
 
       HttpInterface_var pool_;
@@ -79,8 +68,7 @@ namespace HTTP
     // Callback class
     //
 
-    Callback::Callback(ResponseCallback* callback, CookiePoolPtr* cookie)
-      noexcept
+    Callback::Callback(ResponseCallback* callback, CookiePoolPtr* cookie) noexcept
       : callback_(ReferenceCounting::add_ref(callback)),
         cookie_(ReferenceCounting::add_ref(cookie))
     {
@@ -90,8 +78,7 @@ namespace HTTP
     {
     }
 
-    void
-    Callback::on_response(const ResponseInformation& data) noexcept
+    void Callback::on_response(const ResponseInformation& data) noexcept
     {
       try
       {
@@ -137,10 +124,8 @@ namespace HTTP
     {
       HeaderList new_headers(headers);
       add_cookies(http_request, new_headers);
-      ResponseCallback_var response_callback(
-        new Callback(callback, cookie_));
-      pool_->add_get_request(http_request, response_callback,
-        peer, new_headers);
+      ResponseCallback_var response_callback( new Callback(callback, cookie_));
+      pool_->add_get_request(http_request, response_callback, peer, new_headers);
     }
 
     void
@@ -152,22 +137,18 @@ namespace HTTP
     {
       HeaderList new_headers(headers);
       add_cookies(http_request, new_headers);
-      ResponseCallback_var response_callback(
-        new Callback(callback, cookie_));
-      pool_->add_post_request(http_request, response_callback,
-        body, peer, new_headers);
+      ResponseCallback_var response_callback( new Callback(callback, cookie_));
+      pool_->add_post_request(http_request, response_callback, body, peer, new_headers);
     }
 
     CookieClient::~CookieClient() noexcept
     {
     }
 
-    void
-    CookieClient::add_cookies(const char* url, HeaderList& headers)
+    void CookieClient::add_cookies(const char* url, HeaderList& headers)
       /*throw (eh::Exception)*/
     {
-      std::string cookie((*cookie_)->cookie_header(HTTPAddress(
-        String::SubString(url))));
+      std::string cookie((*cookie_)->cookie_header(HTTPAddress( String::SubString(url))));
       if (!cookie.empty())
       {
         headers.emplace_back(COOKIE, cookie);
@@ -180,8 +161,7 @@ namespace HTTP
   //
   //
 
-  HttpInterface*
-  CreateCookieClient(HttpInterface* pool, CookiePoolPtr* cookie)
+  HttpInterface* CreateCookieClient(HttpInterface* pool, CookiePoolPtr* cookie)
     /*throw (eh::Exception)*/
   {
     return new CookieClient(pool, cookie);

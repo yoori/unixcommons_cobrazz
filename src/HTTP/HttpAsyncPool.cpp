@@ -63,8 +63,7 @@ namespace HTTP::HttpInternals
     RequestsTransfererInterface* requests_transferer_interface,
     const String::SubString& error, Request* request, Requests& requests)
     /*throw (eh::Exception)*/
-    : requests_transferer_interface_(
-	ReferenceCounting::add_ref(requests_transferer_interface)),
+    : requests_transferer_interface_( ReferenceCounting::add_ref(requests_transferer_interface)),
       error_(error.data(), error.size()),
       request_(ReferenceCounting::add_ref(request))
   {
@@ -75,19 +74,16 @@ namespace HTTP::HttpInternals
   {
   }
 
-  void
-  RequestsTransferer::execute() noexcept
+  void RequestsTransferer::execute() noexcept
   {
     if (request_)
     {
-      requests_transferer_interface_->process_request(
-	request_, error_);
+      requests_transferer_interface_->process_request( request_, error_);
     }
 
     if (!requests_.empty())
     {
-      requests_transferer_interface_->process_requests(
-	requests_, error_);
+      requests_transferer_interface_->process_requests( requests_, error_);
     }
   }
 
@@ -95,21 +91,19 @@ namespace HTTP::HttpInternals
   // Connection class
   //
 
-  Connection::Connection(ConnServInterface* server_interface,
-    const char* host, int port)
+  Connection::Connection(ConnServInterface* server_interface, const char* host, int port)
     /*throw (eh::Exception, Exception)*/
     : serv_interf_(ReferenceCounting::add_ref(server_interface)),
       policy_(serv_interf_->policy()),
       queue_(*this, &Connection::process_request_,
-	&Connection::process_close, &Connection::try_close_),
+  &Connection::process_close, &Connection::try_close_),
       terminating_(false)
   {
     conn_ = evhttp_connection_new(host, port);
     if (!conn_)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't create connection object (" <<
-	host << ':' << port << ')';
+      ostr << FNS << "Can't create connection object (" << host << ':' << port << ')';
       throw Exception(ostr);
     }
 
@@ -135,19 +129,18 @@ namespace HTTP::HttpInternals
       Stream::Error error;
       try
       {
-	error << "Cancelling of requests due to "
-	  "destruction of connection";
-	if (!error_.empty())
-	{
-	  error << ": " << error_;
-	}
+  error << "Cancelling of requests due to "
+    "destruction of connection";
+  if (!error_.empty())
+  {
+    error << ": " << error_;
+  }
       }
       catch (...)
       {
-	Stream::Error ostr;
-	ostr << FNS <<
-	  "Can't send error description to HTTP::HttpInternals::Server.";
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << "Can't send error description to HTTP::HttpInternals::Server.";
+  policy_->error(ostr.str());
       }
 
       serv_interf_->transf_unused_requests(requests_, error.str());
@@ -158,17 +151,17 @@ namespace HTTP::HttpInternals
       evhttp_connection_free(conn_);
       if (evtimer_pending(&try_close_event_, 0))
       {
-	evtimer_del(&try_close_event_);
+  evtimer_del(&try_close_event_);
       }
+
       if (evtimer_pending(&term_event_, 0))
       {
-	evtimer_del(&term_event_);
+  evtimer_del(&term_event_);
       }
     }
   }
 
-  void
-  Connection::add_request(Request* request)
+  void Connection::add_request(Request* request)
     /*throw (eh::Exception, Exception)*/
   {
     try
@@ -184,8 +177,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  bool
-  Connection::deactivate() noexcept
+  bool Connection::deactivate() noexcept
   {
     try
     {
@@ -207,8 +199,7 @@ namespace HTTP::HttpInternals
     return false;
   }
 
-  void
-  Connection::register_connection(ConnThreadInterface* thread_interf)
+  void Connection::register_connection(ConnThreadInterface* thread_interf)
     /*throw (eh::Exception, Exception)*/
   {
     thread_interf_ = ReferenceCounting::add_ref(thread_interf);
@@ -224,8 +215,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Connection::process_request_(Request_var& request) noexcept
+  void Connection::process_request_(Request_var& request) noexcept
   {
     try
     {
@@ -241,7 +231,7 @@ namespace HTTP::HttpInternals
 
       if (requests_.empty())
       {
-	try_close_();
+  try_close_();
       }
 
       return;
@@ -258,21 +248,18 @@ namespace HTTP::HttpInternals
 
     if (result != -1)
     {
-      result = evhttp_add_header(req->output_headers, "Host",
-	request->address().first.c_str());
+      result = evhttp_add_header(req->output_headers, "Host", request->address().first.c_str());
 
       if (result != -1)
       {
-	result = evhttp_add_header(req->output_headers,
-	  "Connection", "keep-alive");
+  result = evhttp_add_header(req->output_headers, "Connection", "keep-alive");
       }
 
       HeaderList::const_iterator end = request->headers().end();
       for (HeaderList::const_iterator it = request->headers().begin();
-	it != end && result != -1; ++it)
+  it != end && result != -1; ++it)
       {
-	result = evhttp_add_header(req->output_headers, it->name.c_str(),
-		  it->value.c_str());
+  result = evhttp_add_header(req->output_headers, it->name.c_str(), it->value.c_str());
       }
     }
 
@@ -281,21 +268,19 @@ namespace HTTP::HttpInternals
       String::SubString req_body = request->req_body();
       if (!req_body.empty())
       {
-	result = evbuffer_add(req->output_buffer, req_body.data(),
-	  req_body.size());
+  result = evbuffer_add(req->output_buffer, req_body.data(), req_body.size());
       }
     }
 
     if (result != -1)
     {
-      evhttp_make_request(conn_, req, request->evhttp_method(),
-	request->http_request());
+      evhttp_make_request(conn_, req, request->evhttp_method(), request->http_request());
     }
     else
     {
       if (req)
       {
-	evhttp_request_free(req);
+  evhttp_request_free(req);
       }
 
       requests_.pop_back();
@@ -308,13 +293,12 @@ namespace HTTP::HttpInternals
 
       if (requests_.empty())
       {
-	try_close_();
+  try_close_();
       }
     }
   }
 
-  void
-  Connection::process_close() noexcept
+  void Connection::process_close() noexcept
   {
     process_partial_close_();
 
@@ -324,11 +308,12 @@ namespace HTTP::HttpInternals
       conn_ = 0;
       if (evtimer_pending(&try_close_event_, 0))
       {
-	evtimer_del(&try_close_event_);
+  evtimer_del(&try_close_event_);
       }
+
       if (evtimer_pending(&term_event_, 0))
       {
-	evtimer_del(&term_event_);
+  evtimer_del(&term_event_);
       }
     }
 
@@ -338,8 +323,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Connection::process_partial_close_() noexcept
+  void Connection::process_partial_close_() noexcept
   {
     terminating_ = true;
     serv_interf_->exclude_connection(this);
@@ -350,37 +334,32 @@ namespace HTTP::HttpInternals
     catch (...)
     {
       Stream::Error ostr;
-      ostr << FNS <<
-	"Can't get requests from SignalQueue, some requests may be lost.";
+      ostr << FNS << "Can't get requests from SignalQueue, some requests may be lost.";
       policy_->error(ostr.str());
     }
   }
 
-  void
-  Connection::close_callback_(int /*fd*/, short /*type*/, void* arg)
-    noexcept
+  void Connection::close_callback_(int /*fd*/, short /*type*/, void* arg) noexcept
   {
     static_cast<Connection*>(arg)->process_close();
   }
 
-  void
-  Connection::process_response_(evhttp_request* req) noexcept
+  void Connection::process_response_(evhttp_request* req) noexcept
   {
     if (!req)
     {
       try
       {
-	Stream::Stack<1024> ostr;
-	ostr << FNS << "Either connection refused or bad response.";
-	ostr.str().assign_to(error_);
+  Stream::Stack<1024> ostr;
+  ostr << FNS << "Either connection refused or bad response.";
+  ostr.str().assign_to(error_);
       }
       catch (...)
       {
-	Stream::Error ostr;
-	ostr << FNS <<
-	  "Can't send error description (Connection refused) to "
-	  "HTTP::HttpInternals::Server.";
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << "Can't send error description (Connection refused) to "
+    "HTTP::HttpInternals::Server.";
+  policy_->error(ostr.str());
       }
 
       process_close();
@@ -391,28 +370,28 @@ namespace HTTP::HttpInternals
     {
       if (!terminating_)
       {
-	try
-	{
-	  Stream::Stack<1024> ostr;
-	  ostr << FNS << "Connection refused (Invalid address).";
-	  ostr.str().assign_to(error_);
-	}
-	catch (...)
-	{
-	  Stream::Error ostr;
-	  ostr << FNS << "Can't send error description "
-	    "(Connection refused (Invalid address)) to "
-	    "HTTP::HttpInternals::Server.";
-	  policy_->error(ostr.str());
-	}
+  try
+  {
+    Stream::Stack<1024> ostr;
+    ostr << FNS << "Connection refused (Invalid address).";
+    ostr.str().assign_to(error_);
+  }
+  catch (...)
+  {
+    Stream::Error ostr;
+    ostr << FNS << "Can't send error description "
+      "(Connection refused (Invalid address)) to "
+      "HTTP::HttpInternals::Server.";
+    policy_->error(ostr.str());
+  }
 
-	process_partial_close_();
-	if (evtimer_add(&term_event_, &Generics::Time::ZERO) == -1)
-	{
-	  Stream::Error ostr;
-	  ostr << FNS << "evtimer_add failed.";
-	  policy_->error(ostr.str());
-	}
+  process_partial_close_();
+  if (evtimer_add(&term_event_, &Generics::Time::ZERO) == -1)
+  {
+    Stream::Error ostr;
+    ostr << FNS << "evtimer_add failed.";
+    policy_->error(ostr.str());
+  }
       }
       return;
     }
@@ -437,13 +416,12 @@ namespace HTTP::HttpInternals
       policy_->connection_request_removed(this, user_req);
 
       Stream::Error ostr;
-      ostr << FNS <<
-	"Can't process response due to evhttp_request allocation error.";
+      ostr << FNS << "Can't process response due to evhttp_request allocation error.";
       serv_interf_->transf_failed_request(user_req, ostr.str());
 
       if (requests_.empty())
       {
-	try_close_();
+  try_close_();
       }
 
       return;
@@ -465,20 +443,17 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Connection::response_callback_(evhttp_request* req, void* arg) noexcept
+  void Connection::response_callback_(evhttp_request* req, void* arg) noexcept
   {
     static_cast<Connection*>(arg)->process_response_(req);
   }
 
-  void
-  Connection::try_close_callback_(int, short, void* arg) noexcept
+  void Connection::try_close_callback_(int, short, void* arg) noexcept
   {
     static_cast<Connection*>(arg)->try_close_();
   }
 
-  void
-  Connection::try_close_() noexcept
+  void Connection::try_close_() noexcept
   {
     if (evtimer_pending(&try_close_event_, 0))
     {
@@ -491,9 +466,9 @@ namespace HTTP::HttpInternals
       Generics::Time tv(wait_period);
       if (evtimer_add(&try_close_event_, &tv) == -1)
       {
-	Stream::Error ostr;
-	ostr << FNS << "evtimer_add failed.";
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << "evtimer_add failed.";
+  policy_->error(ostr.str());
       }
     }
     else if (wait_period == 0)
@@ -502,8 +477,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Connection::check_try_close() noexcept
+  void Connection::check_try_close() noexcept
   {
     try
     {
@@ -526,7 +500,7 @@ namespace HTTP::HttpInternals
     ThrPoolThrInterface* pool_interf) /*throw (eh::Exception, Exception)*/
     : policy_(ReferenceCounting::add_ref(policy)),
       queue_(*this, &EventThread::process_connection_,
-	&EventThread::process_quit_, &EventThread::try_close_),
+  &EventThread::process_quit_, &EventThread::try_close_),
       pool_interf_(ReferenceCounting::add_ref(pool_interf))
   {
     base_ = event_base_new();
@@ -541,8 +515,7 @@ namespace HTTP::HttpInternals
 
     if (pthread_create(&thread_pid_, 0, thread_proc_, this) == -1)
     {
-      eh::throw_errno_exception<Exception>(FNE,
-	"Can't create a new thread");
+      eh::throw_errno_exception<Exception>(FNE, "Can't create a new thread");
     }
 
     evtimer_set(&try_close_event_, try_close_callback_, this);
@@ -556,73 +529,65 @@ namespace HTTP::HttpInternals
     event_base_free(base_);
   }
 
-  void
-  EventThread::thread_proc_() noexcept
+  void EventThread::thread_proc_() noexcept
   {
     event_base_dispatch(base_);
 
     queue_.flush();
-    for (Connections::iterator itor(connections_.begin());
-      itor != connections_.end();)
+    for (Connections::iterator itor(connections_.begin()); itor != connections_.end();)
     {
       itor++->second->process_close();
     }
     assert(connections_.empty());
   }
 
-  void*
-  EventThread::thread_proc_(void* arg) noexcept
+  void* EventThread::thread_proc_(void* arg) noexcept
   {
     static_cast<EventThread*>(arg)->thread_proc_();
     return 0;
   }
 
-  void
-  EventThread::add_connection(Connection* connection)
+  void EventThread::add_connection(Connection* connection)
     /*throw (eh::Exception)*/
   {
     Connection_var conn(ReferenceCounting::add_ref(connection));
     queue_.add(conn);
   }
 
-  void
-  EventThread::deactivate() noexcept
+  void EventThread::deactivate() noexcept
   {
     queue_.quit();
     pthread_join(thread_pid_, 0);
   }
 
-  void
-  EventThread::process_connection_(Connection_var& connection)
-    noexcept
+  void EventThread::process_connection_(Connection_var& connection) noexcept
   {
     try
     {
       try
       {
-	Connections::iterator itor;
-	try
-	{
-	  itor = connections_.emplace(
-	    connection.in(), connection).first;
-	}
-	catch (...)
-	{
-	  policy_->thread_connection_removed(this, connection);
-	  throw;
-	}
+  Connections::iterator itor;
+  try
+  {
+    itor = connections_.emplace( connection.in(), connection).first;
+  }
+  catch (...)
+  {
+    policy_->thread_connection_removed(this, connection);
+    throw;
+  }
 
-	connection->register_connection(this);
+  connection->register_connection(this);
       }
       catch (const eh::Exception& ex)
       {
-	throw;
+  throw;
       }
       catch (...)
       {
-	Stream::Error ostr;
-	ostr << FNS << "failed to process connection";
-	throw Exception(ostr);
+  Stream::Error ostr;
+  ostr << FNS << "failed to process connection";
+  throw Exception(ostr);
       }
     }
     catch (const eh::Exception& ex)
@@ -632,8 +597,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  EventThread::process_quit_() noexcept
+  void EventThread::process_quit_() noexcept
   {
     if (event_base_loopexit(base_, 0) == -1)
     {
@@ -643,14 +607,12 @@ namespace HTTP::HttpInternals
     }
   }
 
-  PoolPolicy_var
-  EventThread::policy() noexcept
+  PoolPolicy_var EventThread::policy() noexcept
   {
     return policy_;
   }
 
-  void
-  EventThread::exclude_connection(Connection* connection) noexcept
+  void EventThread::exclude_connection(Connection* connection) noexcept
   {
     Connections::iterator itor(connections_.find(connection));
     if (itor != connections_.end())
@@ -666,20 +628,17 @@ namespace HTTP::HttpInternals
     }
   }
 
-  event_base*
-  EventThread::get_base() noexcept
+  event_base* EventThread::get_base() noexcept
   {
     return base_;
   }
 
-  void
-  EventThread::try_close_callback_(int, short, void* arg) noexcept
+  void EventThread::try_close_callback_(int, short, void* arg) noexcept
   {
     static_cast<EventThread*>(arg)->try_close_();
   }
 
-  void
-  EventThread::try_close_() noexcept
+  void EventThread::try_close_() noexcept
   {
     if (evtimer_pending(&try_close_event_, 0))
     {
@@ -692,20 +651,18 @@ namespace HTTP::HttpInternals
       Generics::Time tv(wait_period);
       if (evtimer_add(&try_close_event_, &tv) == -1)
       {
-	Stream::Error ostr;
-	ostr << FNS << "evtimer_add(try_close_event_) failed.";
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << "evtimer_add(try_close_event_) failed.";
+  policy_->error(ostr.str());
       }
     }
-    else if (wait_period == 0 &&
-      pool_interf_->exclude_thread_from_choice_list(this))
+    else if (wait_period == 0 && pool_interf_->exclude_thread_from_choice_list(this))
     {
       process_quit_();
     }
   }
 
-  void
-  EventThread::execute() noexcept
+  void EventThread::execute() noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -717,8 +674,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  EventThread::check_try_close() noexcept
+  void EventThread::check_try_close() noexcept
   {
     try
     {
@@ -749,8 +705,7 @@ namespace HTTP::HttpInternals
     assert(!active_);
   }
 
-  void
-  EventThreadPool::add_connection(Connection* connection)
+  void EventThreadPool::add_connection(Connection* connection)
     /*throw (eh::Exception, Exception)*/
   {
     EventThread_var thread;
@@ -760,36 +715,37 @@ namespace HTTP::HttpInternals
 
       if (!active_)
       {
-	Stream::Error ostr;
-	ostr << FNS << "Not active";
-	throw Exception(ostr);
+  Stream::Error ostr;
+  ostr << FNS << "Not active";
+  throw Exception(ostr);
       }
 
       PoolPolicy::Identifier id(policy_->choose_thread());
       if (id != PoolPolicy::SPECIAL_IDENTIFIER)
       {
-	Threads::iterator itor(threads_.begin());
-	for (; itor != threads_.end(); ++itor)
-	{
-	  if (itor->in() == id)
-	  {
-	    thread = *itor;
-	    break;
-	  }
-	}
-	if (itor == threads_.end())
-	{
-	  Stream::Error ostr;
-	  ostr << FNS << "Unknown thread";
-	  throw Exception(ostr);
-	}
+  Threads::iterator itor(threads_.begin());
+  for (; itor != threads_.end(); ++itor)
+  {
+    if (itor->in() == id)
+    {
+      thread = *itor;
+      break;
+    }
+  }
+
+  if (itor == threads_.end())
+  {
+    Stream::Error ostr;
+    ostr << FNS << "Unknown thread";
+    throw Exception(ostr);
+  }
       }
       else
       {
-	thread = new EventThread(policy_, this);
-	threads_.push_back(thread);
+  thread = new EventThread(policy_, this);
+  threads_.push_back(thread);
 
-	policy_->thread_added(thread);
+  policy_->thread_added(thread);
       }
 
       policy_->thread_connection_added(thread, connection);
@@ -806,8 +762,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  EventThreadPool::activate_object()
+  void EventThreadPool::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -822,8 +777,7 @@ namespace HTTP::HttpInternals
     active_ = true;
   }
 
-  void
-  EventThreadPool::deactivate_object()
+  void EventThreadPool::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
     if (!active_)
@@ -835,18 +789,18 @@ namespace HTTP::HttpInternals
     {
       EventThread_var thread;
       {
-	Sync::PosixGuard guard(mutex_);
+  Sync::PosixGuard guard(mutex_);
 
-	if (threads_.empty())
-	{
-	  break;
-	}
+  if (threads_.empty())
+  {
+    break;
+  }
 
-	thread = threads_.front();
+  thread = threads_.front();
 
-	policy_->thread_removed(thread);
+  policy_->thread_removed(thread);
 
-	threads_.pop_front();
+  threads_.pop_front();
       }
       thread->deactivate();
     }
@@ -855,15 +809,15 @@ namespace HTTP::HttpInternals
     {
       EventThread_var thread;
       {
-	Sync::PosixGuard guard(mutex_);
+  Sync::PosixGuard guard(mutex_);
 
-	if (deactivating_threads_.empty())
-	{
-	  break;
-	}
+  if (deactivating_threads_.empty())
+  {
+    break;
+  }
 
-	thread = deactivating_threads_.front();
-	deactivating_threads_.pop_front();
+  thread = deactivating_threads_.front();
+  deactivating_threads_.pop_front();
       }
       thread->execute();
     }
@@ -871,23 +825,19 @@ namespace HTTP::HttpInternals
     active_ = false;
   }
 
-  void
-  EventThreadPool::wait_object() /*throw (Exception, eh::Exception)*/
+  void EventThreadPool::wait_object() /*throw (Exception, eh::Exception)*/
   {
     Stream::Error ostr;
     ostr << FNS << "not supported";
     throw NotSupported(ostr);
   }
 
-  bool
-  EventThreadPool::active() const /*throw (eh::Exception)*/
+  bool EventThreadPool::active() const /*throw (eh::Exception)*/
   {
     return active_;
   }
 
-  bool
-  EventThreadPool::exclude_thread_from_choice_list(EventThread* thread)
-    noexcept
+  bool EventThreadPool::exclude_thread_from_choice_list(EventThread* thread) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -897,33 +847,30 @@ namespace HTTP::HttpInternals
     {
       if (thr_it->in() == thread)
       {
-	policy_->thread_removed(thread);
+  policy_->thread_removed(thread);
 
-	try
-	{
-	  task_runner_->enqueue_task(thread);
-	}
-	catch (...)
-	{
-	  Stream::Error ostr;
-	  ostr << FNS <<
-	    "can't enqueue task (HTTP::HttpInternals::EventThread "
-	    "deactivation failed)";
-	  policy_->error(ostr.str());
-	}
+  try
+  {
+    task_runner_->enqueue_task(thread);
+  }
+  catch (...)
+  {
+    Stream::Error ostr;
+    ostr << FNS << "can't enqueue task (HTTP::HttpInternals::EventThread "
+      "deactivation failed)";
+    policy_->error(ostr.str());
+  }
 
-	deactivating_threads_.splice(
-	  deactivating_threads_.end(), std::move(threads_), thr_it);
+  deactivating_threads_.splice( deactivating_threads_.end(), std::move(threads_), thr_it);
 
-	return true;
+  return true;
       }
     }
 
     return false;
   }
 
-  bool
-  EventThreadPool::exclude_thread_from_pool(EventThread* thread) noexcept
+  bool EventThreadPool::exclude_thread_from_pool(EventThread* thread) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -933,9 +880,9 @@ namespace HTTP::HttpInternals
     {
       if (thr_it->in() == thread)
       {
-	deactivating_threads_.erase(thr_it);
+  deactivating_threads_.erase(thr_it);
 
-	return true;
+  return true;
       }
     }
 
@@ -964,8 +911,7 @@ namespace HTTP::HttpInternals
     assert(connections_.empty());
   }
 
-  void
-  Server::add_request(Request* request)
+  void Server::add_request(Request* request)
     /*throw (eh::Exception)*/
   {
     Connection_var connection;
@@ -974,44 +920,42 @@ namespace HTTP::HttpInternals
 
       if (deactivating_)
       {
-	Stream::Error ostr;
-	ostr << FNS << "Deactivated";
-	throw Exception(ostr);
+  Stream::Error ostr;
+  ostr << FNS << "Deactivated";
+  throw Exception(ostr);
       }
 
-      PoolPolicy::Identifier id(policy_->choose_connection(
-	this, request));
+      PoolPolicy::Identifier id(policy_->choose_connection( this, request));
       if (id != PoolPolicy::SPECIAL_IDENTIFIER)
       {
-	Connections::iterator itor(connections_.find(id));
-	if (itor == connections_.end())
-	{
-	  Stream::Error ostr;
-	  ostr << FNS << "Invalid connection";
-	  throw Exception(ostr);
-	}
-	connection = itor->second;
+  Connections::iterator itor(connections_.find(id));
+  if (itor == connections_.end())
+  {
+    Stream::Error ostr;
+    ostr << FNS << "Invalid connection";
+    throw Exception(ostr);
+  }
+  connection = itor->second;
       }
       else
       {
-	const HttpServer& addr = request->address();
-	connection = new Connection(this, addr.first.c_str(), addr.second);
+  const HttpServer& addr = request->address();
+  connection = new Connection(this, addr.first.c_str(), addr.second);
 
-	Connections::iterator conn_it = connections_.emplace(
-	  connection, connection).first;
+  Connections::iterator conn_it = connections_.emplace( connection, connection).first;
 
-	policy_->server_connection_added(this, connection);
+  policy_->server_connection_added(this, connection);
 
-	try
-	{
-	  server_interface_->place_connection(connection);
-	}
-	catch (...)
-	{
-	  policy_->server_connection_removed(this, connection);
-	  connections_.erase(conn_it);
-	  throw;
-	}
+  try
+  {
+    server_interface_->place_connection(connection);
+  }
+  catch (...)
+  {
+    policy_->server_connection_removed(this, connection);
+    connections_.erase(conn_it);
+    throw;
+  }
       }
       policy_->connection_request_added(this, connection, request);
     }
@@ -1030,8 +974,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Server::deactivate() noexcept
+  void Server::deactivate() noexcept
   {
     deactivating_ = true;
     bool wait_for_connections;
@@ -1039,10 +982,9 @@ namespace HTTP::HttpInternals
     {
       Sync::PosixGuard guard(mutex_);
 
-      for (Connections::iterator itor(connections_.begin());
-	itor != connections_.end();)
+      for (Connections::iterator itor(connections_.begin()); itor != connections_.end();)
       {
-	deactivate_connection_(itor++->second);
+  deactivate_connection_(itor++->second);
       }
 
       wait_for_connections = !connections_.empty();
@@ -1055,29 +997,26 @@ namespace HTTP::HttpInternals
     server_interface_->remove_by_address(server_);
   }
 
-  void
-  Server::deactivate_connection_(Connection* connection) noexcept
+  void Server::deactivate_connection_(Connection* connection) noexcept
   {
     if (!connection->deactivate())
     {
       Connections::iterator itor(connections_.find(connection));
       if (itor != connections_.end())
       {
-	policy_->server_connection_removed(this, connection);
+  policy_->server_connection_removed(this, connection);
 
-	connections_.erase(itor);
+  connections_.erase(itor);
       }
     }
   }
 
-  PoolPolicy_var
-  Server::policy() noexcept
+  PoolPolicy_var Server::policy() noexcept
   {
     return policy_;
   }
 
-  void
-  Server::exclude_connection(Connection* connection) noexcept
+  void Server::exclude_connection(Connection* connection) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -1095,9 +1034,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Server::add_task_on_error_(Request* req,
-    const String::SubString& error) noexcept
+  void Server::add_task_on_error_(Request* req, const String::SubString& error) noexcept
   {
     policy_->server_request_removed(this, req);
     try
@@ -1115,8 +1052,7 @@ namespace HTTP::HttpInternals
     req->quick_on_error(error);
   }
 
-  void
-  Server::add_task_on_response(Request* req) noexcept
+  void Server::add_task_on_response(Request* req) noexcept
   {
     policy_->server_request_removed(this, req);
     try
@@ -1141,22 +1077,21 @@ namespace HTTP::HttpInternals
     {
       try
       {
-	Generics::Task_var task(new RequestsTransferer(
-	  this, error, request, requests));
-	add_task_(task);
-	return;
+  Generics::Task_var task(new RequestsTransferer( this, error, request, requests));
+  add_task_(task);
+  return;
       }
       catch (const eh::Exception& ex)
       {
-	Stream::Error ostr;
-	ostr << FNS << ex.what();
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << ex.what();
+  policy_->error(ostr.str());
       }
       catch (...)
       {
-	Stream::Error ostr;
-	ostr << FNS << "Exception caught";
-	policy_->error(ostr.str());
+  Stream::Error ostr;
+  ostr << FNS << "Exception caught";
+  policy_->error(ostr.str());
       }
     }
     catch (...)
@@ -1168,63 +1103,56 @@ namespace HTTP::HttpInternals
       policy_->server_request_removed(this, request);
       request->quick_on_error(error);
     }
-    for (Requests::iterator itor(requests.begin());
-      itor != requests.end(); ++itor)
+    for (Requests::iterator itor(requests.begin()); itor != requests.end(); ++itor)
     {
       policy_->server_request_removed(this, itor->in());
       (*itor)->quick_on_error(error);
     }
   }
 
-  void
-  Server::transf_unused_requests(Requests& requests,
-    const String::SubString& error) noexcept
+  void Server::transf_unused_requests(Requests& requests, const String::SubString& error) noexcept
   {
     transf_requests_(error, 0, requests);
   }
 
-  void
-  Server::transf_failed_request(Request* request,
-    const String::SubString& error) noexcept
+  void Server::transf_failed_request(Request* request, const String::SubString& error) noexcept
   {
     Requests requests;
     transf_requests_(error, request, requests);
   }
 
-  void
-  Server::process_requests(Requests& requests,
-    const String::SubString& error) noexcept
+  void Server::process_requests(Requests& requests, const String::SubString& error) noexcept
   {
     switch (policy_->requests_failed(this))
     {
     case PoolPolicy::RP_MORE_DETAILS_REQUIRED:
       while (!requests.empty() && !deactivating_)
       {
-	process_request(requests.front(), error);
-	requests.pop_front();
+  process_request(requests.front(), error);
+  requests.pop_front();
       }
       // FALLTHROUGH
 
     case PoolPolicy::RP_CANCEL_FIRST_RESEND_OTHERS:
       if (!requests.empty())
       {
-	add_task_on_error_(requests.front(), error);
-	requests.pop_front();
+  add_task_on_error_(requests.front(), error);
+  requests.pop_front();
       }
       // FALLTHROUGH
 
     case PoolPolicy::RP_RESEND_ALL:
       while (!deactivating_ && !requests.empty())
       {
-	try
-	{
-	  add_request(requests.front());
-	}
-	catch (...)
-	{
-	  break;
-	}
-	requests.pop_front();
+  try
+  {
+    add_request(requests.front());
+  }
+  catch (...)
+  {
+    break;
+  }
+  requests.pop_front();
       }
       // FALLTHROUGH
 
@@ -1232,27 +1160,25 @@ namespace HTTP::HttpInternals
     default:
       while (!requests.empty())
       {
-	add_task_on_error_(requests.front(), error);
-	requests.pop_front();
+  add_task_on_error_(requests.front(), error);
+  requests.pop_front();
       }
       break;
     }
   }
 
-  void
-  Server::process_request(Request* request,
-    const String::SubString& error) noexcept
+  void Server::process_request(Request* request, const String::SubString& error) noexcept
   {
     switch (policy_->request_failed(this, request))
     {
     case PoolPolicy::RP_RESEND_ALL:
       try
       {
-	add_request(request);
+  add_request(request);
       }
       catch (...)
       {
-	add_task_on_error_(request, error);
+  add_task_on_error_(request, error);
       }
       break;
 
@@ -1265,8 +1191,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Server::add_task_(Generics::Task* task) /*throw (eh::Exception)*/
+  void Server::add_task_(Generics::Task* task) /*throw (eh::Exception)*/
   {
     task_runner_->enqueue_task(task);
   }
@@ -1306,14 +1231,12 @@ namespace HTTP::HttpInternals
     policy_->request_destroying();
   }
 
-  const HttpServer&
-  Request::address() const noexcept
+  const HttpServer& Request::address() const noexcept
   {
     return address_;
   }
 
-  void
-  Request::quick_on_response() noexcept
+  void Request::quick_on_response() noexcept
   {
     if (callback_)
     {
@@ -1321,8 +1244,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  Request::quick_on_error(const String::SubString& description) noexcept
+  void Request::quick_on_error(const String::SubString& description) noexcept
   {
     if (callback_)
     {
@@ -1331,20 +1253,17 @@ namespace HTTP::HttpInternals
   }
 
 
-  const char*
-  Request::http_request() const noexcept
+  const char* Request::http_request() const noexcept
   {
     return http_request_.c_str();
   }
 
-  const HeaderList&
-  Request::headers() const noexcept
+  const HeaderList& Request::headers() const noexcept
   {
     return headers_;
   }
 
-  void
-  Request::set_response(evhttp_request* response_data) noexcept
+  void Request::set_response(evhttp_request* response_data) noexcept
   {
     response_data_ = response_data;
     evkeyvalq* input_headers = evhttp_request_get_input_headers(response_data_);
@@ -1354,8 +1273,8 @@ namespace HTTP::HttpInternals
       struct evkeyval* kv = input_headers->tqh_first;
       while (kv)
       {
-	response_headers_.emplace_back(kv->key, kv->value);          
-	kv = kv->next.tqe_next;
+  response_headers_.emplace_back(kv->key, kv->value);
+  kv = kv->next.tqe_next;
       }
     }
     catch (...)
@@ -1363,8 +1282,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  int
-  Request::response_code() const noexcept
+  int Request::response_code() const noexcept
   {
     if (response_data_)
     {
@@ -1374,33 +1292,29 @@ namespace HTTP::HttpInternals
     return -1;
   }
 
-  const HeaderList&
-  Request::response_headers() const noexcept
+  const HeaderList& Request::response_headers() const noexcept
   {
     return response_headers_;
   }
 
-  String::SubString
-  Request::body() const noexcept
+  String::SubString Request::body() const noexcept
   {
     if (response_data_)
     {
       return String::SubString(reinterpret_cast<const char*>(
-	EVBUFFER_DATA(response_data_->input_buffer)),
-	EVBUFFER_LENGTH(response_data_->input_buffer));
+  EVBUFFER_DATA(response_data_->input_buffer)),
+  EVBUFFER_LENGTH(response_data_->input_buffer));
     }
 
     return String::SubString();
   }
 
-  HttpMethod
-  Request::method() const noexcept
+  HttpMethod Request::method() const noexcept
   {
     return method_;
   }
 
-  evhttp_cmd_type
-  Request::evhttp_method() const noexcept
+  evhttp_cmd_type Request::evhttp_method() const noexcept
   {
     switch (method_)
     {
@@ -1414,8 +1328,7 @@ namespace HTTP::HttpInternals
     return EVHTTP_REQ_GET;
   }
 
-  void
-  Request::set_error(const String::SubString& description)
+  void Request::set_error(const String::SubString& description)
     /*throw (eh::Exception)*/
   {
     if (description.empty())
@@ -1428,24 +1341,22 @@ namespace HTTP::HttpInternals
     assert(!error_.empty());
   }
 
-  void
-  Request::execute() noexcept
+  void Request::execute() noexcept
   {
     if (callback_)
     {
       if (error_.empty())
       {
-	callback_->on_response(*this);
+  callback_->on_response(*this);
       }
       else
       {
-	callback_->on_error(error_, *this);
+  callback_->on_error(error_, *this);
       }
     }
   }
 
-  String::SubString
-  Request::req_body() noexcept
+  String::SubString Request::req_body() noexcept
   {
     return String::SubString(&body_[0], body_.size());
   }
@@ -1455,8 +1366,7 @@ namespace HTTP::HttpInternals
   // Informer class
   //
 
-  Informer::Informer(ServerInterface* server_interface,
-    Sync::Semaphore& semaphore) noexcept
+  Informer::Informer(ServerInterface* server_interface, Sync::Semaphore& semaphore) noexcept
     : server_interface_(server_interface), semaphore_(semaphore)
   {
     server_interface->add_ref();
@@ -1472,8 +1382,7 @@ namespace HTTP::HttpInternals
   // HttpAsyncPool class
   //
 
-  HttpAsyncPool::HttpAsyncPool(PoolPolicy* policy,
-    Generics::TaskRunner* task_runner)
+  HttpAsyncPool::HttpAsyncPool(PoolPolicy* policy, Generics::TaskRunner* task_runner)
     /*throw (eh::Exception)*/
     : policy_(ReferenceCounting::add_ref(policy)),
       thread_pool_(new HttpInternals::EventThreadPool(policy, task_runner)),
@@ -1543,15 +1452,15 @@ namespace HTTP::HttpInternals
     {
       try
       {
-	BrowserAddress parser{String::SubString(http_request)};
-	parser.host().assign_to(address.first);
-	address.second = parser.port_number();
+  BrowserAddress parser{String::SubString(http_request)};
+  parser.host().assign_to(address.first);
+  address.second = parser.port_number();
       }
       catch (const eh::Exception& ex)
       {
-	Stream::Error ostr;
-	ostr << FNS << "Can't parse received http_request: " << ex.what();
-	throw Exception(ostr);
+  Stream::Error ostr;
+  ostr << FNS << "Can't parse received http_request: " << ex.what();
+  throw Exception(ostr);
       }
     }
     else
@@ -1566,12 +1475,12 @@ namespace HTTP::HttpInternals
       Servers::iterator server = servers_.find(address);
       if (server == servers_.end())
       {
-	server = servers_.emplace(
-	  address,
-	  HttpInternals::Server_var(new HttpInternals::Server(
-	    address, this, task_runner_))).first;
+  server = servers_.emplace(
+    address,
+    HttpInternals::Server_var(new HttpInternals::Server(
+      address, this, task_runner_))).first;
 
-	policy_->server_added(server->second);
+  policy_->server_added(server->second);
       }
       server_var = server->second;
     }
@@ -1592,8 +1501,7 @@ namespace HTTP::HttpInternals
     }
   }
 
-  void
-  HttpAsyncPool::remove_by_address(const HttpServer& address) noexcept
+  void HttpAsyncPool::remove_by_address(const HttpServer& address) noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -1606,21 +1514,18 @@ namespace HTTP::HttpInternals
     }
   }
 
-  PoolPolicy_var
-  HttpAsyncPool::policy() noexcept
+  PoolPolicy_var HttpAsyncPool::policy() noexcept
   {
     return policy_;
   }
 
-  void
-  HttpAsyncPool::place_connection(HttpInternals::Connection* connection)
+  void HttpAsyncPool::place_connection(HttpInternals::Connection* connection)
     /*throw (eh::Exception)*/
   {
     thread_pool_->add_connection(connection);
   }
 
-  void
-  HttpAsyncPool::activate_object()
+  void HttpAsyncPool::activate_object()
     /*throw (AlreadyActive, ActiveObjectException, eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -1632,8 +1537,7 @@ namespace HTTP::HttpInternals
     thread_pool_->activate_object();
   }
 
-  void
-  HttpAsyncPool::deactivate_object()
+  void HttpAsyncPool::deactivate_object()
     /*throw (ActiveObjectException, eh::Exception)*/
   {
     if (!active())
@@ -1647,28 +1551,26 @@ namespace HTTP::HttpInternals
     {
       HttpInternals::Server_var server;
       {
-	Sync::PosixGuard guard(mutex_);
-	if (servers_.empty())
-	{
-	  thread_pool_->deactivate_object();
-	  break;
-	}
-	server = servers_.begin()->second;
+  Sync::PosixGuard guard(mutex_);
+  if (servers_.empty())
+  {
+    thread_pool_->deactivate_object();
+    break;
+  }
+  server = servers_.begin()->second;
       }
       server->deactivate();
     }
   }
 
-  void
-  HttpAsyncPool::wait_object()
+  void HttpAsyncPool::wait_object()
     /*throw (ActiveObjectException, eh::Exception)*/
   {
     semaphore_.acquire();
     semaphore_.release();
   }
 
-  bool
-  HttpAsyncPool::active() const /*throw (eh::Exception)*/
+  bool HttpAsyncPool::active() const /*throw (eh::Exception)*/
   {
     return thread_pool_->active();
   }
@@ -1689,8 +1591,7 @@ namespace HTTP
   //
   //
 
-  HttpActiveInterface*
-  CreatePool(PoolPolicy* policy, Generics::TaskRunner* task_runner)
+  HttpActiveInterface* CreatePool(PoolPolicy* policy, Generics::TaskRunner* task_runner)
     /*throw (eh::Exception)*/
   {
     return new HttpInternals::HttpAsyncPool(policy, task_runner);

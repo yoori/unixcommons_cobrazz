@@ -5,8 +5,7 @@
 extern "C"
 {
   JNIEXPORT jstring JNICALL
-  Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize(
-    JNIEnv* env, jclass cls);
+  Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_initialize( JNIEnv* env, jclass cls);
 
   JNIEXPORT jstring JNICALL
   Java_com_phorm_oix_util_normalization_UnixCommonsNormalizer_normalizeURL(
@@ -22,8 +21,7 @@ extern "C"
 
   // old ui compatibility symbols
   JNIEXPORT jstring JNICALL
-  Java_com_foros_util_unixcommons_UnixCommonsTools_initialize(
-    JNIEnv* env, jclass cls);
+  Java_com_foros_util_unixcommons_UnixCommonsTools_initialize( JNIEnv* env, jclass cls);
 
   JNIEXPORT jstring JNICALL
   Java_com_foros_util_unixcommons_UnixCommonsTools_normalizeURL(

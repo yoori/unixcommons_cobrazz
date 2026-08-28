@@ -2,8 +2,7 @@
 #include <HTTP/HTTPCookie.hpp>
 #include <String/StringManip.hpp>
 
-void
-test_cookie_list() /*throw (eh::Exception)*/
+void test_cookie_list() /*throw (eh::Exception)*/
 {
   std::cout << "test_cookie_list()\n";
 
@@ -43,8 +42,7 @@ test_cookie_list() /*throw (eh::Exception)*/
 
   std::cout << "set_cookie_header:\n";
 
-  for (HTTP::HeaderList::const_iterator it = headers.begin();
-    it != headers.end(); ++it)
+  for (HTTP::HeaderList::const_iterator it = headers.begin(); it != headers.end(); ++it)
   {
     std::cout << "  " << it->name << " : " << it->value << std::endl;
   }
@@ -70,14 +68,15 @@ test_cookie_list() /*throw (eh::Exception)*/
   std::cout << "Cookie : " << cookie_list.cookie_header() << std::endl;
 }
 
-void
-test_cookie_def_list() /*throw (eh::Exception)*/
+void test_cookie_def_list() /*throw (eh::Exception)*/
 {
   std::cout << "test_cookie_def_list()\n";
 
   HTTP::SubHeaderList hl1;
-  hl1.push_back(HTTP::SubHeader("Set-Cookie", "sc=0/GCSdEeDAA|; expires=Sat, 30-Jan-2020 12:25:55 GMT; path=/services/"));
-  hl1.push_back(HTTP::SubHeader("Set-Cookie", "uid=PPPPPPPPPPPPPPPPPPPPPP||; expires=Sat, 30-Jan-2020 12:25:55 GMT; path=/services/"));
+  hl1.push_back(HTTP::SubHeader(
+    "Set-Cookie", "sc=0/GCSdEeDAA|; expires=Sat, 30-Jan-2020 12:25:55 GMT; path=/services/"));
+  hl1.push_back(HTTP::SubHeader("Set-Cookie",
+    "uid=PPPPPPPPPPPPPPPPPPPPPP||; expires=Sat, 30-Jan-2020 12:25:55 GMT; path=/services/"));
 
   HTTP::CookieDefList cookie_list;
   HTTP::HTTPAddress addr(String::SubString(
@@ -86,21 +85,18 @@ test_cookie_def_list() /*throw (eh::Exception)*/
     "&rnd=388334&v=1.3.0-3.ssv1&app=PS&require-debug-info=header"));
   cookie_list.load_from_headers(hl1, addr);
 
-  for (HTTP::CookieDefList::const_iterator it = cookie_list.begin();
-    it != cookie_list.end(); ++it)
+  for (HTTP::CookieDefList::const_iterator it = cookie_list.begin(); it != cookie_list.end(); ++it)
   {
     std::cout << "Cookie: domain '" << it->domain << "' path '" <<
       it->path << "' expires " << it->expires.get_gm_time() << " secure " <<
-      it->secure << " name '" << it->name << "' value '" << it->value <<
-      "'\n";
+      it->secure << " name '" << it->name << "' value '" << it->value << "'\n";
   }
   std::cout << "Cookie : " << cookie_list.cookie_header(HTTP::HTTPAddress(
     String::SubString("http://prof1.ocslab.com/services/la-la-la"))) <<
     std::endl;
 }
 
-int
-main(int /*argc*/, char** /*argv*/)
+int main(int /*argc*/, char** /*argv*/)
 {
   try
   {
@@ -109,8 +105,7 @@ main(int /*argc*/, char** /*argv*/)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "main: exception caught. Description:\n" <<
-      e.what() << std::endl;
+    std::cerr << "main: exception caught. Description:\n" << e.what() << std::endl;
     return -1;
   }
 

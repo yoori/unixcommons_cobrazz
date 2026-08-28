@@ -25,7 +25,7 @@ bool VerificationTest ( pfHash hash, const int hashbits, uint32_t expected, bool
   // Hash keys of the form {0}, {0,1}, {0,1,2}... up to N=255,using 256-N as
   // the seed
 
-  for(int i = 0; i < 256; i++)
+  for (int i = 0; i < 256; i++)
   {
     key[i] = (uint8_t)i;
 
@@ -47,14 +47,15 @@ bool VerificationTest ( pfHash hash, const int hashbits, uint32_t expected, bool
 
   //----------
 
-  if(expected != verification)
+  if (expected != verification)
   {
-    if(verbose) printf("Verification value 0x%08X : Failed! (Expected 0x%08x)\n",verification,expected);
+    if (verbose)
+      printf("Verification value 0x%08X : Failed! (Expected 0x%08x)\n", verification, expected);
     return false;
   }
   else
   {
-    if(verbose) printf("Verification value 0x%08X : Passed!\n",verification);
+    if (verbose) printf("Verification value 0x%08X : Passed!\n",verification);
     return true;
   }
 }
@@ -100,13 +101,13 @@ bool SanityTest ( pfHash hash, const int hashbits )
 
   //----------
 
-  for(int irep = 0; irep < reps; irep++)
+  for (int irep = 0; irep < reps; irep++)
   {
-    if(irep % (reps/10) == 0) printf(".");
+    if (irep % (reps/10) == 0) printf(".");
 
-    for(int len = 4; len <= keymax; len++)
+    for (int len = 4; len <= keymax; len++)
     {
-      for(int offset = pad; offset < pad*2; offset++)
+      for (int offset = pad; offset < pad*2; offset++)
       {
         uint8_t * key1 = &buffer1[pad];
         uint8_t * key2 = &buffer2[pad+offset];
@@ -118,14 +119,14 @@ bool SanityTest ( pfHash hash, const int hashbits )
 
         hash(key1,len,0,hash1);
 
-        for(int bit = 0; bit < (len * 8); bit++)
+        for (int bit = 0; bit < (len * 8); bit++)
         {
           // Flip a bit, hash the key -> we should get a different result.
 
           flipbit(key2,len,bit);
           hash(key2,len,0,hash2);
 
-          if(memcmp(hash1,hash2,hashbytes) == 0)
+          if (memcmp(hash1,hash2,hashbytes) == 0)
           {
             result = false;
             events.flip_and_nothing = false;
@@ -136,7 +137,7 @@ bool SanityTest ( pfHash hash, const int hashbits )
           flipbit(key2,len,bit);
           hash(key2,len,0,hash2);
 
-          if(memcmp(hash1,hash2,hashbytes) != 0)
+          if (memcmp(hash1,hash2,hashbytes) != 0)
           {
             result = false;
             events.flip_back_success = false;
@@ -146,13 +147,14 @@ bool SanityTest ( pfHash hash, const int hashbits )
     }
   }
 
-  if(result == false)
+  if (result == false)
   {
     printf("*********FAIL*********\n");
     if (!events.flip_back_success)
     {
       printf("Flip back, hash again and get different result\n");
     }
+
     if (!events.flip_and_nothing)
     {
       printf("Flip a bit, but result is the same\n");
@@ -181,9 +183,9 @@ void AppendedZeroesTest ( pfHash hash, const int hashbits )
 
   const int hashbytes = hashbits/8;
 
-  for(int rep = 0; rep < 100; rep++)
+  for (int rep = 0; rep < 100; rep++)
   {
-    if(rep % 10 == 0) printf(".");
+    if (rep % 10 == 0) printf(".");
 
     unsigned char key[256];
 
@@ -197,11 +199,11 @@ void AppendedZeroesTest ( pfHash hash, const int hashbits )
     memset(h1,0,hashbytes);
     memset(h2,0,hashbytes);
 
-    for(int i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
       hash(key,32+i,0,h1);
 
-      if(memcmp(h1,h2,hashbytes) == 0)
+      if (memcmp(h1,h2,hashbytes) == 0)
       {
         printf("\n*********FAIL*********\n");
         return;
@@ -224,11 +226,11 @@ void TwoBytesKeygen ( int maxlen, KeyCallback & c )
 
   int keycount = 0;
 
-  for(int i = 2; i <= maxlen; i++) keycount += (int)chooseK(i,2);
+  for (int i = 2; i <= maxlen; i++) keycount += (int)chooseK(i,2);
 
   keycount *= 255*255;
 
-  for(int i = 2; i <= maxlen; i++) keycount += i*255;
+  for (int i = 2; i <= maxlen; i++) keycount += i*255;
 
   printf("Keyset 'TwoBytes' - up-to-%d-byte keys, %d total keys\n",maxlen, keycount);
 
@@ -241,10 +243,10 @@ void TwoBytesKeygen ( int maxlen, KeyCallback & c )
 
   memset(key,0,256);
 
-  for(int keylen = 2; keylen <= maxlen; keylen++)
-  for(int byteA = 0; byteA < keylen; byteA++)
+  for (int keylen = 2; keylen <= maxlen; keylen++)
+  for (int byteA = 0; byteA < keylen; byteA++)
   {
-    for(int valA = 1; valA <= 255; valA++)
+    for (int valA = 1; valA <= 255; valA++)
     {
       key[byteA] = (uint8_t)valA;
 
@@ -257,15 +259,15 @@ void TwoBytesKeygen ( int maxlen, KeyCallback & c )
   //----------
   // Add all keys with two non-zero bytes
 
-  for(int keylen = 2; keylen <= maxlen; keylen++)
-  for(int byteA = 0; byteA < keylen-1; byteA++)
-  for(int byteB = byteA+1; byteB < keylen; byteB++)
+  for (int keylen = 2; keylen <= maxlen; keylen++)
+  for (int byteA = 0; byteA < keylen-1; byteA++)
+  for (int byteB = byteA+1; byteB < keylen; byteB++)
   {
-    for(int valA = 1; valA <= 255; valA++)
+    for (int valA = 1; valA <= 255; valA++)
     {
       key[byteA] = (uint8_t)valA;
 
-      for(int valB = 1; valB <= 255; valB++)
+      for (int valB = 1; valB <= 255; valB++)
       {
         key[byteB] = (uint8_t)valB;
         c(key,keylen);
@@ -283,9 +285,9 @@ void TwoBytesKeygen ( int maxlen, KeyCallback & c )
 template< typename hashtype >
 void DumpCollisionMap ( CollisionMap<hashtype,ByteVec> & cmap )
 {
-  typedef CollisionMap<hashtype,ByteVec> cmap_t;
+  using cmap_t = CollisionMap<hashtype,ByteVec>;
 
-  for(typename cmap_t::iterator it = cmap.begin(); it != cmap.end(); ++it)
+  for (typename cmap_t::iterator it = cmap.begin(); it != cmap.end(); ++it)
   {
     const hashtype & hash = (*it).first;
 
@@ -295,7 +297,7 @@ void DumpCollisionMap ( CollisionMap<hashtype,ByteVec> & cmap )
 
     std::vector<ByteVec> & keys = (*it).second;
 
-    for(int i = 0; i < (int)keys.size(); i++)
+    for (int i = 0; i < (int)keys.size(); i++)
     {
       ByteVec & key = keys[i];
 

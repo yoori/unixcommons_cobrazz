@@ -14,9 +14,7 @@ namespace Generics::Simd
 
   extern const std::uint32_t CPU_CAPABILITIES;
 
-  inline
-  bool
-  has(std::uint32_t capabilities) noexcept
+  inline bool has(std::uint32_t capabilities) noexcept
   {
     return (CPU_CAPABILITIES & capabilities) == capabilities;
   }

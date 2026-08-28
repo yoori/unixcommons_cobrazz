@@ -12,23 +12,17 @@ namespace TestCommons
   public:
     Counter() noexcept;
 
-    void
-    print() const /*throw (eh::Exception)*/;
+    void print() const /*throw (eh::Exception)*/;
 
-    void
-    print(std::ostream& ostr) const /*throw (eh::Exception)*/;
+    void print(std::ostream& ostr) const /*throw (eh::Exception)*/;
 
-    void
-    success() noexcept;
+    void success() noexcept;
 
-    void
-    failure() noexcept;
+    void failure() noexcept;
 
-    int
-    succeeded() const noexcept;
+    int succeeded() const noexcept;
 
-    int
-    failed() const noexcept;
+    int failed() const noexcept;
 
   private:
     Generics::AtomicInt success_, failure_;

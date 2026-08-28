@@ -17,30 +17,25 @@ class TaskImpl :
 #endif
 {
 public:
-  TaskImpl(Generics::TaskRunner* task_runner)
-    noexcept;
+  TaskImpl(Generics::TaskRunner* task_runner) noexcept;
 
-  virtual void
-  execute() noexcept;
+  virtual void execute() noexcept;
 
 private:
   Generics::TaskRunner_var task_runner_;
 };
 
-TaskImpl::TaskImpl(Generics::TaskRunner* task_runner)
-  noexcept
+TaskImpl::TaskImpl(Generics::TaskRunner* task_runner) noexcept
   : task_runner_(ReferenceCounting::add_ref(task_runner))
 {
 }
 
-void
-TaskImpl::execute() noexcept
+void TaskImpl::execute() noexcept
 {
   task_runner_->enqueue_task(this);
 }
 
-int
-main()
+int main()
 {
   try
   {

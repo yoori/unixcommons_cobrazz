@@ -29,21 +29,18 @@ const std::string FAIL_REQUEST = REQUEST + "/cgi-bin/wait.pl?3";
 class ResponseCounter
 {
 public:
-  void
-  success() noexcept
+  void success() noexcept
   {
     counter_.success();
   }
 
-  void
-  failure(const String::SubString& description)
+  void failure(const String::SubString& description)
   {
     counter_.failure();
     errors_.add(description);
   }
 
-  void
-  print() /*throw (eh::Exception)*/
+  void print() /*throw (eh::Exception)*/
   {
     std::cout << "Execution: ";
     counter_.print();
@@ -51,14 +48,12 @@ public:
     errors_.print();
   }
 
-  int
-  succeeded() const noexcept
+  int succeeded() const noexcept
   {
     return counter_.succeeded();
   }
 
-  int
-  failed() const noexcept
+  int failed() const noexcept
   {
     return counter_.failed();
   }
@@ -85,9 +80,7 @@ public:
   {
   }
 
-  virtual void
-  server_connection_added(Identifier server, Identifier connection)
-    noexcept
+  virtual void server_connection_added(Identifier server, Identifier connection) noexcept
   {
     PoolPolicySimpleDecider::server_connection_added(server, connection);
     __gnu_cxx::__atomic_add(&connections_, 1);
@@ -100,8 +93,7 @@ public:
     errors_.add(description, true);
   }
 protected:
-  virtual
-  ~MyPolicy() noexcept
+  virtual ~MyPolicy() noexcept
   {
     std::cout << "Number of connections created: " << connections_ << std::endl;
     std::cout << "Policy errors:" << std::endl;
@@ -117,14 +109,12 @@ class CallbackRequester :
   public ReferenceCounting::AtomicImpl
 {
 public:
-  CallbackRequester(HttpInterface* pool,
-    Sync::Semaphore& semaphore) noexcept
+  CallbackRequester(HttpInterface* pool, Sync::Semaphore& semaphore) noexcept
     : pool_(ReferenceCounting::add_ref(pool)), semaphore_(semaphore)
   {
   }
 
-  virtual void
-  on_response(const ResponseInformation& /*data*/) noexcept
+  virtual void on_response(const ResponseInformation& /*data*/) noexcept
   {
     response_counter_.success();
   }
@@ -145,8 +135,7 @@ public:
     response_counter_.failure(error.empty() ? description : error);
   }
 
-  void
-  operator ()() noexcept
+  void operator ()() noexcept
   {
     ResponseCallback_var cb(this);
     add_ref();
@@ -183,8 +172,7 @@ public:
   }
 
 protected:
-  virtual
-  ~CallbackRequester() noexcept
+  virtual ~CallbackRequester() noexcept
   {
     std::cout << "Addition: ";
     addition_.print();
@@ -216,16 +204,14 @@ private:
   ResponseCounter response_counter_;
 };
 
-int
-main()
+int main()
 {
   try
   {
     MyPolicy* policy_ptr = new MyPolicy;
     PoolPolicy_var policy(policy_ptr);
 
-    Generics::TaskRunner_var task_runner(
-      new Generics::TaskRunner(policy_ptr, 5));
+    Generics::TaskRunner_var task_runner( new Generics::TaskRunner(policy_ptr, 5));
     task_runner->activate_object();
 
     HttpActiveInterface_var pool(CreatePool(policy.in(), task_runner.in()));
@@ -235,8 +221,7 @@ main()
     pool->activate_object();
 
     Sync::Semaphore semaphore(0);
-    ReferenceCounting::QualPtr<CallbackRequester> cr(
-      new CallbackRequester(npool.in(), semaphore));
+    ReferenceCounting::QualPtr<CallbackRequester> cr( new CallbackRequester(npool.in(), semaphore));
     {
       TestCommons::MTTester<CallbackRequester&> tester(*cr, 5);
       tester.run(10, 3);

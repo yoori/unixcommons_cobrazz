@@ -26,26 +26,17 @@ namespace Generics
     report_error(Severity severity, const String::SubString& description,
       const char* error_code = 0) noexcept = 0;
 
-    void
-    critical(const String::SubString& description,
-      const char* error_code = 0) noexcept;
+    void critical(const String::SubString& description, const char* error_code = 0) noexcept;
 
-    void
-    error(const String::SubString& description,
-      const char* error_code = 0) noexcept;
+    void error(const String::SubString& description, const char* error_code = 0) noexcept;
 
-    void
-    warning(const String::SubString& description,
-      const char* error_code = 0) noexcept;
+    void warning(const String::SubString& description, const char* error_code = 0) noexcept;
 
   protected:
-    virtual
-    ~ActiveObjectCallback() noexcept;
+    virtual ~ActiveObjectCallback() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<ActiveObjectCallback>
-    ActiveObjectCallback_var;
-  typedef ReferenceCounting::FixedPtr<ActiveObjectCallback>
-    FixedActiveObjectCallback_var;
+  using ActiveObjectCallback_var = ReferenceCounting::QualPtr<ActiveObjectCallback>;
+  using FixedActiveObjectCallback_var = ReferenceCounting::FixedPtr<ActiveObjectCallback>;
 
   class ActiveObject
   {
@@ -56,35 +47,24 @@ namespace Generics
     DECLARE_EXCEPTION(InvalidArgument, Exception);
 
   public:
-    virtual
-    void
-    activate_object()
+    virtual void activate_object()
       /*throw (AlreadyActive, Exception, eh::Exception)*/ = 0;
 
-    virtual
-    void
-    deactivate_object()
+    virtual void deactivate_object()
       /*throw (Exception, eh::Exception)*/ = 0;
 
-    virtual
-    void
-    wait_object()
+    virtual void wait_object()
       /*throw (Exception, eh::Exception)*/ = 0;
 
-    virtual
-    bool
-    active() const
+    virtual bool active() const
       /*throw (eh::Exception)*/ = 0;
 
-    virtual
-    void
-    clear() /*throw (eh::Exception)*/;
+    virtual void clear() /*throw (eh::Exception)*/;
 
   public:
     static const char PRINTABLE_NAME[];
 
-    virtual
-    ~ActiveObject() noexcept;
+    virtual ~ActiveObject() noexcept;
 
   protected:
     enum ACTIVE_STATE
@@ -100,11 +80,9 @@ namespace Generics
     public virtual ReferenceCounting::Interface
   {
   protected:
-    virtual
-    ~RefCountableActiveObject() noexcept;
+    virtual ~RefCountableActiveObject() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<RefCountableActiveObject>
-    ActiveObject_var;
+  using ActiveObject_var = ReferenceCounting::QualPtr<RefCountableActiveObject>;
 
 
   /**
@@ -117,41 +95,24 @@ namespace Generics
   public:
     SimpleActiveObject() /*throw (eh::Exception)*/;
 
-    virtual
-    void
-    activate_object() /*throw (AlreadyActive, Exception, eh::Exception)*/;
+    virtual void activate_object() /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
-    virtual
-    void
-    deactivate_object() /*throw (Exception, eh::Exception)*/;
+    virtual void deactivate_object() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    void
-    wait_object() /*throw (Exception, eh::Exception)*/;
+    virtual void wait_object() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    bool
-    active() const /*throw (eh::Exception)*/;
+    virtual bool active() const /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~SimpleActiveObject() noexcept;
+    virtual ~SimpleActiveObject() noexcept;
 
-    virtual
-    void
-    activate_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void activate_object_() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    void
-    deactivate_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void deactivate_object_() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    bool
-    wait_more_() /*throw (Exception, eh::Exception)*/;
+    virtual bool wait_more_() /*throw (Exception, eh::Exception)*/;
 
-    virtual
-    void
-    wait_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void wait_object_() /*throw (Exception, eh::Exception)*/;
 
     Sync::Condition cond_;
     volatile sig_atomic_t state_;
@@ -163,8 +124,7 @@ namespace Generics
     public virtual ReferenceCounting::AtomicImpl
   {
   protected:
-    virtual
-    ~RefCountableSimpleActiveObject() noexcept;
+    virtual ~RefCountableSimpleActiveObject() noexcept;
   };
 
 
@@ -178,43 +138,35 @@ namespace Generics
     public virtual ReferenceCounting::AtomicImpl
   {
   public:
-    typedef ActiveObject::Exception Exception;
-    typedef ActiveObject::NotSupported NotSupported;
-    typedef ActiveObject::AlreadyActive AlreadyActive;
-    typedef ActiveObject::InvalidArgument InvalidArgument;
+    using Exception = ActiveObject::Exception;
+    using NotSupported = ActiveObject::NotSupported;
+    using AlreadyActive = ActiveObject::AlreadyActive;
+    using InvalidArgument = ActiveObject::InvalidArgument;
 
     /**
      * Start threads that will perform SingleJob
      */
-    virtual
-    void
-    activate_object()
+    virtual void activate_object()
       /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
     /**
      * Initiate stopping of Active object
      * Acquires mutex and informs SingleJob
      */
-    virtual
-    void
-    deactivate_object()
+    virtual void deactivate_object()
       /*throw (Exception, eh::Exception)*/;
 
     /**
      * Waits for deactivation completion
      * Acquires mutex and waits for threads completion
      */
-    virtual
-    void
-    wait_object() /*throw (Exception, eh::Exception)*/;
+    virtual void wait_object() /*throw (Exception, eh::Exception)*/;
 
     /**
      * Current status
      * @return Returns true if active and not going to deactivate
      */
-    virtual
-    bool
-    active() const /*throw (eh::Exception)*/;
+    virtual bool active() const /*throw (eh::Exception)*/;
 
   protected:
     /**
@@ -225,66 +177,55 @@ namespace Generics
     class SingleJob : public ThreadJob
     {
     public:
-      typedef ActiveObject::Exception Exception;
-      typedef ActiveObject::NotSupported NotSupported;
-      typedef ActiveObject::AlreadyActive AlreadyActive;
-      typedef ActiveObject::InvalidArgument InvalidArgument;
+      using Exception = ActiveObject::Exception;
+      using NotSupported = ActiveObject::NotSupported;
+      using AlreadyActive = ActiveObject::AlreadyActive;
+      using InvalidArgument = ActiveObject::InvalidArgument;
 
       /**
        * Constructor
        * @param callback callback to be called for error reporting
        */
-      explicit
-      SingleJob(ActiveObjectCallback* callback)
+      explicit SingleJob(ActiveObjectCallback* callback)
         /*throw (InvalidArgument, eh::Exception)*/;
 
       /**
        * Stored callback
        * @return stored callback
        */
-      ActiveObjectCallback_var
-      callback() noexcept;
+      ActiveObjectCallback_var callback() noexcept;
 
       /**
        * Mutex for operations synchronizations
        * @return stored mutex
        */
-      Sync::PosixMutex&
-      mutex() const noexcept;
+      Sync::PosixMutex& mutex() const noexcept;
 
-      virtual
-      void
-      started(unsigned threads) noexcept;
+      virtual void started(unsigned threads) noexcept;
 
-      void
-      make_terminate() noexcept;
+      void make_terminate() noexcept;
 
-      void
-      terminated() noexcept;
+      void terminated() noexcept;
 
-      bool
-      is_terminating() noexcept;
+      bool is_terminating() noexcept;
 
       /**
        * Function must inform the object to stop jobs to work.
        */
-      virtual
-      void
-      terminate() noexcept = 0;
+      virtual void terminate() noexcept = 0;
 
     protected:
       /**
        * Destructor
        */
-      virtual
-      ~SingleJob() noexcept;
+      virtual ~SingleJob() noexcept;
 
     private:
       mutable Sync::PosixMutex mutex_;
       ActiveObjectCallback_var callback_;
       volatile sig_atomic_t terminating_;
     };
-    typedef ReferenceCounting::FixedPtr<SingleJob> SingleJob_var;
+    using SingleJob_var = ReferenceCounting::FixedPtr<SingleJob>;
 
     /**
      * Constructor
@@ -303,14 +244,12 @@ namespace Generics
     /**
      * Destructor
      */
-    virtual
-    ~ActiveObjectCommonImpl() noexcept;
+    virtual ~ActiveObjectCommonImpl() noexcept;
 
     /**
      * @return the same mutex SINGLE_JOB_->mutex() returns
      */
-    Sync::PosixMutex&
-    mutex_() const noexcept;
+    Sync::PosixMutex& mutex_() const noexcept;
 
 
     SingleJob_var SINGLE_JOB_;
@@ -335,33 +274,26 @@ namespace Generics
   // ActiveObjectCallback class
   //
 
-  inline
-  ActiveObjectCallback::~ActiveObjectCallback() noexcept
+  inline ActiveObjectCallback::~ActiveObjectCallback() noexcept
   {
   }
 
   inline
-  void
-  ActiveObjectCallback::critical(const String::SubString& description,
-    const char* error_code)
+  void ActiveObjectCallback::critical(const String::SubString& description, const char* error_code)
     noexcept
   {
     report_error(CRITICAL_ERROR, description, error_code);
   }
 
   inline
-  void
-  ActiveObjectCallback::error(const String::SubString& description,
-    const char* error_code)
+  void ActiveObjectCallback::error(const String::SubString& description, const char* error_code)
     noexcept
   {
     report_error(ERROR, description, error_code);
   }
 
   inline
-  void
-  ActiveObjectCallback::warning(const String::SubString& description,
-    const char* error_code)
+  void ActiveObjectCallback::warning(const String::SubString& description, const char* error_code)
     noexcept
   {
     report_error(WARNING, description, error_code);
@@ -372,18 +304,15 @@ namespace Generics
   // SimpleActiveObject class
   //
 
-  inline
-  RefCountableActiveObject::~RefCountableActiveObject() noexcept
+  inline RefCountableActiveObject::~RefCountableActiveObject() noexcept
   {
   }
 
-  inline
-  RefCountableSimpleActiveObject::~RefCountableSimpleActiveObject() noexcept
+  inline RefCountableSimpleActiveObject::~RefCountableSimpleActiveObject() noexcept
   {
   }
 
-  inline
-  SimpleActiveObject::SimpleActiveObject() /*throw (eh::Exception)*/
+  inline SimpleActiveObject::SimpleActiveObject() /*throw (eh::Exception)*/
     : state_(AS_NOT_ACTIVE)
   {
   }
@@ -393,9 +322,7 @@ namespace Generics
   // class ActiveObjectCommonImpl
   //
 
-  inline
-  Sync::PosixMutex&
-  ActiveObjectCommonImpl::mutex_() const noexcept
+  inline Sync::PosixMutex& ActiveObjectCommonImpl::mutex_() const noexcept
   {
     return work_mutex_;
   }
@@ -405,14 +332,11 @@ namespace Generics
   // ActiveObject class
   //
 
-  inline
-  ActiveObject::~ActiveObject() noexcept
+  inline ActiveObject::~ActiveObject() noexcept
   {
   }
 
-  inline
-  void
-  ActiveObject::clear() /*throw (eh::Exception)*/
+  inline void ActiveObject::clear() /*throw (eh::Exception)*/
   {
   }
 
@@ -421,9 +345,7 @@ namespace Generics
   // ActiveObjectCommonImpl::SingleJob class
   //
 
-  inline
-  ActiveObjectCommonImpl::SingleJob::SingleJob(
-    ActiveObjectCallback* callback)
+  inline ActiveObjectCommonImpl::SingleJob::SingleJob( ActiveObjectCallback* callback)
     /*throw (InvalidArgument, eh::Exception)*/
     : callback_(ReferenceCounting::add_ref(callback)),
       terminating_(false)
@@ -436,49 +358,36 @@ namespace Generics
     }
   }
 
-  inline
-  ActiveObjectCommonImpl::SingleJob::~SingleJob() noexcept
+  inline ActiveObjectCommonImpl::SingleJob::~SingleJob() noexcept
   {
   }
 
-  inline
-  ActiveObjectCallback_var
-  ActiveObjectCommonImpl::SingleJob::callback() noexcept
+  inline ActiveObjectCallback_var ActiveObjectCommonImpl::SingleJob::callback() noexcept
   {
     return callback_;
   }
 
-  inline
-  Sync::PosixMutex&
-  ActiveObjectCommonImpl::SingleJob::mutex() const noexcept
+  inline Sync::PosixMutex& ActiveObjectCommonImpl::SingleJob::mutex() const noexcept
   {
     return mutex_;
   }
 
-  inline
-  void
-  ActiveObjectCommonImpl::SingleJob::started(unsigned /*threads*/) noexcept
+  inline void ActiveObjectCommonImpl::SingleJob::started(unsigned /*threads*/) noexcept
   {
   }
 
-  inline
-  void
-  ActiveObjectCommonImpl::SingleJob::make_terminate() noexcept
+  inline void ActiveObjectCommonImpl::SingleJob::make_terminate() noexcept
   {
     terminating_ = true;
     terminate();
   }
 
-  inline
-  void
-  ActiveObjectCommonImpl::SingleJob::terminated() noexcept
+  inline void ActiveObjectCommonImpl::SingleJob::terminated() noexcept
   {
     terminating_ = false;
   }
 
-  inline
-  bool
-  ActiveObjectCommonImpl::SingleJob::is_terminating() noexcept
+  inline bool ActiveObjectCommonImpl::SingleJob::is_terminating() noexcept
   {
     return terminating_;
   }

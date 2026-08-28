@@ -24,16 +24,13 @@ namespace
 // Checking correct size and data structure, after
 // doubling MemBuf object.
 
-void
-do_test_fill_with_merge(MemBuf& buf) /*throw (eh::Exception)*/
+void do_test_fill_with_merge(MemBuf& buf) /*throw (eh::Exception)*/
 {
   {
     MemBuf new_buf(BUF_SIZE * 2);
 
-    const unsigned char* ptr =
-      buf.get<const unsigned char>();
-    std::merge(ptr, ptr + BUF_SIZE,
-      ptr, ptr + BUF_SIZE, new_buf.get<unsigned char>());
+    const unsigned char* ptr = buf.get<const unsigned char>();
+    std::merge(ptr, ptr + BUF_SIZE, ptr, ptr + BUF_SIZE, new_buf.get<unsigned char>());
 
     buf.swap(new_buf);
   }
@@ -50,15 +47,13 @@ do_test_fill_with_merge(MemBuf& buf) /*throw (eh::Exception)*/
     if (ptr[i] != (i / 8) % 256)
     {
       std::cerr << "Fail: cannot produce merged buffer with right content."
-        " Position " << i << " contain "
-        << static_cast<std::size_t>(ptr[i]) <<
+        " Position " << i << " contain " << static_cast<std::size_t>(ptr[i]) <<
         " instead " << (i / 8) % 256 << std::endl;
     }
   }
 }
 
-void
-do_test_resize(MemBuf& buf) /*throw (eh::Exception)*/
+void do_test_resize(MemBuf& buf) /*throw (eh::Exception)*/
 {
   buf.resize(0);
   buf.resize(BUF_SIZE);
@@ -73,16 +68,15 @@ do_test_resize(MemBuf& buf) /*throw (eh::Exception)*/
   }
 }
 
-void
-do_test_copyconstructible(MemBuf& buf, MemBuf copy_buf) /*throw (eh::Exception)*/
+void do_test_copyconstructible(MemBuf& buf, MemBuf copy_buf) /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_test_copyconstructible: ";
   Stream::Error ostr;
   if (buf.size() != copy_buf.size())
   {
-    ostr << " Unequal size: left=" << buf.size()
-      << ", right=" << copy_buf.size() << std::endl;
+    ostr << " Unequal size: left=" << buf.size() << ", right=" << copy_buf.size() << std::endl;
   }
+
   if (memcmp(buf.data(), copy_buf.data(), buf.size()) != 0)
   {
     ostr << " Unequal content " << buf.size() << " ";
@@ -97,8 +91,7 @@ do_test_copyconstructible(MemBuf& buf, MemBuf copy_buf) /*throw (eh::Exception)*
   }
 }
 
-void
-do_test_assignable(MemBuf& will_assign) /*throw (eh::Exception)*/
+void do_test_assignable(MemBuf& will_assign) /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_test_assignable: ";
   ::memset(will_assign.data(), 0xFF, will_assign.size());
@@ -108,6 +101,7 @@ do_test_assignable(MemBuf& will_assign) /*throw (eh::Exception)*/
   {
     ostr << " Unequal size ";
   }
+
   if (memcmp(buf.data(), will_assign.data(), buf.size()) != 0)
   {
     ostr << " Unequal content " << buf.size() << " ";
@@ -122,8 +116,7 @@ do_test_assignable(MemBuf& will_assign) /*throw (eh::Exception)*/
   }
 }
 
-void
-do_usable_test() /*throw (eh::Exception)*/
+void do_usable_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "do_usable_test: ";
 
@@ -152,8 +145,7 @@ do_usable_test() /*throw (eh::Exception)*/
   }
 }
 
-void
-smart_membuf() /*throw (eh::Exception)*/
+void smart_membuf() /*throw (eh::Exception)*/
 {
   SmartMemBuf_var s1(new SmartMemBuf(100));
   SmartMemBuf_var s2 = s1;
@@ -165,8 +157,7 @@ smart_membuf() /*throw (eh::Exception)*/
 
   // create a copy
   ConstSmartMemBuf_var c1(new ConstSmartMemBuf(s1->membuf()));
-  if (c1->membuf().empty() || s1->membuf().empty() ||
-    s2->membuf().empty())
+  if (c1->membuf().empty() || s1->membuf().empty() || s2->membuf().empty())
   {
     std::cerr << FNS << "Copy construction error" << std::endl;
     return;
@@ -174,16 +165,14 @@ smart_membuf() /*throw (eh::Exception)*/
 
   // move ownership
   ConstSmartMemBuf_var c2(Generics::transfer_membuf(s1));
-  if (c2->membuf().empty() || !s1->membuf().empty() ||
-    !s2->membuf().empty())
+  if (c2->membuf().empty() || !s1->membuf().empty() || !s2->membuf().empty())
   {
     std::cerr << FNS << "Ownership transfer error" << std::endl;
     return;
   }
 }
 
-int
-main()
+int main()
 {
   std::cout << "MemBuf test started" << std::endl;
 

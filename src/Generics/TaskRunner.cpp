@@ -10,8 +10,7 @@ namespace Generics
 {
   namespace
   {
-    void
-    set_task_runner_thread_name_() noexcept
+    void set_task_runner_thread_name_() noexcept
     {
       ::pthread_setname_np(::pthread_self(), "task-runner");
     }
@@ -40,14 +39,12 @@ namespace Generics
   TaskRunner::TaskRunnerJob::~TaskRunnerJob() noexcept
   {}
 
-  void
-  TaskRunner::TaskRunnerJob::started(unsigned /*threads*/) noexcept
+  void TaskRunner::TaskRunnerJob::started(unsigned /*threads*/) noexcept
   {
     //number_of_unused_threads_ = threads;
   }
 
-  void
-  TaskRunner::TaskRunnerJob::clear() /*throw (eh::Exception)*/
+  void TaskRunner::TaskRunnerJob::clear() /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(tasks_lock_);
     tasks_.clear();
@@ -72,7 +69,7 @@ namespace Generics
     bool try_add_thread = false;
     Task_var new_task(ReferenceCounting::add_ref(task));
 
-    while(true)
+    while (true)
     {
       Sync::ConditionalGuard lock(not_full_, tasks_lock_);
 
@@ -87,7 +84,7 @@ namespace Generics
       }
       else
       {
-        if(!lock.timed_wait(timeout))
+        if (!lock.timed_wait(timeout))
         {
           overflow = true;
           break;
@@ -95,7 +92,7 @@ namespace Generics
       }
     }
 
-    if(overflow)
+    if (overflow)
     {
       // prepare exception outside lock
       Stream::Error ostr;
@@ -103,15 +100,15 @@ namespace Generics
       throw Overflow(ostr);
     }
 
-    if(new_task_signal)
+    if (new_task_signal)
     {
       // Wake any working thread
       new_task_.signal();
     }
 
-    if(try_add_thread)
+    if (try_add_thread)
     {
-      if(++adding_thread_ == 1)
+      if (++adding_thread_ == 1)
       {
         try
         {
@@ -128,15 +125,14 @@ namespace Generics
     }
   }
 
-  void
-  TaskRunner::TaskRunnerJob::wait_for_queue_exhausting()
+  void TaskRunner::TaskRunnerJob::wait_for_queue_exhausting()
     /*throw (eh::Exception)*/
   {
     // used only in test cases and implemented not effective,
     // but without affecting to main functionality
     //
 
-    while(true)
+    while (true)
     {
       {
         Sync::PosixGuard guard(tasks_lock_);
@@ -150,8 +146,7 @@ namespace Generics
     }
   }
 
-  void
-  TaskRunner::TaskRunnerJob::work() noexcept
+  void TaskRunner::TaskRunnerJob::work() noexcept
   {
     set_task_runner_thread_name_();
 
@@ -159,7 +154,7 @@ namespace Generics
 
     try
     {
-      while(true)
+      while (true)
       {
         bool not_full_signal = false;
         Task_var run_task;
@@ -170,13 +165,13 @@ namespace Generics
           number_of_unused_threads_ += number_of_unused_threads_increased ? 0 : 1;
           number_of_unused_threads_increased = false;
 
-          if(is_terminating())
+          if (is_terminating())
           {
             --number_of_unused_threads_;
             return;
           }
 
-          while(tasks_.empty())
+          while (tasks_.empty())
           {
             ++waiting_threads_;
 
@@ -184,19 +179,19 @@ namespace Generics
 
             --waiting_threads_;
 
-            if(is_terminating())
+            if (is_terminating())
             {
               --number_of_unused_threads_;
               return;
             }
           }
 
-          if(!tasks_.empty())
+          if (!tasks_.empty())
           {
             run_task.swap(tasks_.front());
             tasks_.pop_front();
 
-            if(MAX_PENDING_TASKS_ > 0)
+            if (MAX_PENDING_TASKS_ > 0)
             {
               not_full_signal = true;
             }
@@ -206,7 +201,7 @@ namespace Generics
           --number_of_unused_threads_;
         }
 
-        if(not_full_signal)
+        if (not_full_signal)
         {
           not_full_.signal();
         }
@@ -229,14 +224,12 @@ namespace Generics
     }
   }
 
-  void
-  TaskRunner::TaskRunnerJob::add_thread_i_(ThreadRunner& thread_runner)
-    noexcept
+  void TaskRunner::TaskRunnerJob::add_thread_i_(ThreadRunner& thread_runner) noexcept
   {
     {
       Sync::PosixGuard lock(tasks_lock_);
 
-      if(tasks_.size() <= number_of_unused_threads_)
+      if (tasks_.size() <= number_of_unused_threads_)
       {
         return;
       }
@@ -246,8 +239,7 @@ namespace Generics
 
     try
     {
-      if (!thread_runner.running() ||
-        thread_runner.running() == thread_runner.number_of_jobs())
+      if (!thread_runner.running() || thread_runner.running() == thread_runner.number_of_jobs())
       {
         return;
       }
@@ -267,8 +259,7 @@ namespace Generics
     }
   }
 
-  void
-  TaskRunner::TaskRunnerJob::terminate() noexcept
+  void TaskRunner::TaskRunnerJob::terminate() noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     new_task_.broadcast();
@@ -298,8 +289,7 @@ namespace Generics
       job_(static_cast<TaskRunnerJob&>(*SINGLE_JOB_))
   {}
 
-  void
-  TaskRunner::activate_object()
+  void TaskRunner::activate_object()
   {
     ActiveObjectCommonImpl::activate_object();
 

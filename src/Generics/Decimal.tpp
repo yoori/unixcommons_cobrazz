@@ -10,49 +10,39 @@ namespace Generics
   // Decimal::MulTmpArray class
   //
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::
     TMP_FRACTION_RANK;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::
     TMP_TOTAL_RANK;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::
     TMP_SIZE;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::
     TMP_INTEGER_MAX_OVER;
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  std::string
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::dump() const
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  std::string Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::dump() const
     /*throw (eh::Exception)*/
   {
     Stream::Stack<SIZE * (DIGITS_PER_ELEMENT + 1) + 33> ostr;
     ostr << SIZE << ':' << TOTAL_RANK << '.' << FRACTION_RANK;
     for (unsigned i = 0; i != SIZE; i++)
     {
-      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) <<
-        tmp_array_[i];
+      ostr << ' ' << std::setfill('0') << std::setw(DIGITS_PER_ELEMENT) << tmp_array_[i];
     }
     return std::string(ostr->available_data(), ostr->available_size());
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::MulTmpArray()
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::MulTmpArray() noexcept
   {
     std::fill(tmp_array_, tmp_array_ + TMP_SIZE, 0);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::add(
     Element value, unsigned index) noexcept
@@ -109,15 +99,12 @@ namespace Generics
     return overflow || tmp_array_[TMP_SIZE - 1] >= TMP_INTEGER_MAX_OVER;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::round() noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::round() noexcept
   {
     if (FRACTION_REMAINDER == 1 ?
       tmp_array_[FRACTION_END - 1] >= BASE / 2 :
-      tmp_array_[FRACTION_END] % FRACTION_REMAINDER >=
-        FRACTION_REMAINDER / 2)
+      tmp_array_[FRACTION_END] % FRACTION_REMAINDER >= FRACTION_REMAINDER / 2)
     {
       if (add(FRACTION_REMAINDER, FRACTION_END))
       {
@@ -127,10 +114,8 @@ namespace Generics
     return false;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::ceil() noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::ceil() noexcept
   {
     if (FRACTION_REMAINDER == 1 ? tmp_array_[FRACTION_END - 1] :
       tmp_array_[FRACTION_END] % FRACTION_REMAINDER)
@@ -143,8 +128,7 @@ namespace Generics
     return false;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MulTmpArray::export_to(
     Decimal& result) const noexcept
@@ -177,8 +161,7 @@ namespace Generics
   // Decimal::DivTmpArrayBase class
   //
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     DivTmpArrayBase<TMP_DIV_SIZE>::DivTmpArrayBase() noexcept
@@ -186,8 +169,7 @@ namespace Generics
   {
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
@@ -196,14 +178,14 @@ namespace Generics
     for (; size_ > 1 && !tmp_array_[size_ - 1]; size_--)
     {
     }
+
     if (!initial_size_)
     {
       initial_size_ = size_;
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   unsigned
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
@@ -212,8 +194,7 @@ namespace Generics
     return size_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   unsigned
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
@@ -222,8 +203,7 @@ namespace Generics
     return initial_size_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
@@ -246,6 +226,7 @@ namespace Generics
       tmp_array_[i] = result;
       overflow = over;
     }
+
     if (overflow)
     {
       assert(size_ < TMP_DIV_SIZE);
@@ -256,13 +237,11 @@ namespace Generics
 #endif
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
-    DivTmpArrayBase<TMP_DIV_SIZE>::div(Element divisor, Element& remainder)
-    noexcept
+    DivTmpArrayBase<TMP_DIV_SIZE>::div(Element divisor, Element& remainder) noexcept
   {
     Element r = 0;
     for (int i = size_ - 1; i >= 0; i--)
@@ -273,8 +252,7 @@ namespace Generics
     shrink();
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <const unsigned TMP_DIV_SIZE>
   std::string
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
@@ -299,18 +277,15 @@ namespace Generics
   // Decimal::DivTmpDividend class
   //
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
     DivTmpDividend(const Decimal& dividend) noexcept
   {
     if (FRACTION_REMAINDER == 1)
     {
       std::fill(this->tmp_array_, this->tmp_array_ + FRACTION_END, 0);
-      std::copy(dividend.array_, dividend.array_ + SIZE,
-        this->tmp_array_ + FRACTION_END);
-      std::fill(this->tmp_array_ + FRACTION_END + SIZE,
-        this->tmp_array_ + DIV_TMP_SIZE, 0);
+      std::copy(dividend.array_, dividend.array_ + SIZE, this->tmp_array_ + FRACTION_END);
+      std::fill(this->tmp_array_ + FRACTION_END + SIZE, this->tmp_array_ + DIV_TMP_SIZE, 0);
     }
     else
     {
@@ -323,17 +298,14 @@ namespace Generics
         over = dividend.array_[i] / FRACTION_OVER;
       }
       this->tmp_array_[FRACTION_END + SIZE] = over;
-      std::fill(this->tmp_array_ + FRACTION_END + SIZE + 1,
-        this->tmp_array_ + DIV_TMP_SIZE, 0);
+      std::fill(this->tmp_array_ + FRACTION_END + SIZE + 1, this->tmp_array_ + DIV_TMP_SIZE, 0);
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Element
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
-    guess_next_quotient(unsigned index, Element max_div,
-      Element pre_max_div) noexcept
+    guess_next_quotient(unsigned index, Element max_div, Element pre_max_div) noexcept
   {
 #ifdef DEBUG_DECIMAL
     std::cerr << "guess_next_quotient " << index << "\n";
@@ -341,8 +313,7 @@ namespace Generics
     assert(index >= 1);
     Element guess, guess_high;
     Element r;
-    assert(this->tmp_array_[index] <= max_div ||
-      max_div / 2 < this->tmp_array_[index]);
+    assert(this->tmp_array_[index] <= max_div || max_div / 2 < this->tmp_array_[index]);
     if (this->tmp_array_[index] >= max_div)
     {
       div_elements_(this->tmp_array_[index] - max_div,
@@ -351,8 +322,7 @@ namespace Generics
     }
     else
     {
-      div_elements_(this->tmp_array_[index], this->tmp_array_[index - 1],
-        max_div, guess, r);
+      div_elements_(this->tmp_array_[index], this->tmp_array_[index - 1], max_div, guess, r);
       guess_high = 0;
     }
     while (r < BASE)
@@ -361,12 +331,12 @@ namespace Generics
       Element minor, major;
       mul_elements_(pre_max_div, guess, minor, major);
       major += guess_high * pre_max_div;
-      if ((major < r ||
-        (major == r && minor <= this->tmp_array_[index - 2])) &&
+      if ((major < r || (major == r && minor <= this->tmp_array_[index - 2])) &&
         (guess_high != 1 || guess))
       {
         break;
       }
+
       if (!guess)
       {
         guess_high--;
@@ -381,17 +351,14 @@ namespace Generics
     return guess;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
-    apply_next_quotient(unsigned index, Element guess,
-    const DivTmpDivisor& divisor) noexcept
+    apply_next_quotient(unsigned index, Element guess, const DivTmpDivisor& divisor) noexcept
   {
 #ifdef DEBUG_DECIMAL
     std::cerr << "apply_next_quotient " << index << " " <<
-      static_cast<unsigned long long>(guess) << "\n" << dump() << "\n" <<
-      divisor.dump() << "\n";
+      static_cast<unsigned long long>(guess) << "\n" << dump() << "\n" << divisor.dump() << "\n";
 #endif
     assert(index + divisor.initial_size_ <= DIV_TMP_SIZE);
 
@@ -419,8 +386,7 @@ namespace Generics
 #ifdef DEBUG_DECIMAL
       std::cerr << "T[i] T"
         " " << static_cast<unsigned long long>(target[i]) <<
-        " " << static_cast<unsigned long long>(temp) <<
-        "\n";
+        " " << static_cast<unsigned long long>(temp) << "\n";
 #endif
       if (target[i] < temp)
       {
@@ -439,8 +405,7 @@ namespace Generics
 #ifdef DEBUG_DECIMAL
       std::cerr << "T[size] T"
         " " << static_cast<unsigned long long>(target[size]) <<
-        " " << static_cast<unsigned long long>(temp) <<
-        "\n";
+        " " << static_cast<unsigned long long>(temp) << "\n";
 #endif
       if (target[size] < temp)
       {
@@ -457,8 +422,7 @@ namespace Generics
     return borrow != 0;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
     fix_next_quotient(unsigned index, const DivTmpDivisor& divisor) noexcept
@@ -484,8 +448,7 @@ namespace Generics
     target[size] -= BASE - carry;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDividend::
     export_to(Decimal& result) noexcept
@@ -510,8 +473,7 @@ namespace Generics
   // Decimal::DivTmpDivisor class
   //
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::DivTmpDivisor(
     const Decimal& divider) noexcept
   {
@@ -519,18 +481,13 @@ namespace Generics
     this->tmp_array_[SIZE] = 0;
   }
 
-  template <typename Element,
-    const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  Element
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::max_element()
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::max_element() noexcept
   {
     return this->tmp_array_[this->size_ - 1];
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Element
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DivTmpDivisor::
     pre_max_element() noexcept
@@ -543,56 +500,42 @@ namespace Generics
   // Decimal class
   //
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     DIGITS_PER_ELEMENT;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::BASE;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MAX_SUM;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::SIZE;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     INTEGER_MAX_OVER;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::FRACTION_END;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     FRACTION_REMAINDER;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::FRACTION_OVER;
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::PACK_SIZE;
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Element Decimal<Element, TOTAL_RANK, FRACTION_RANK>::INVALID_FLAG_;
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     DIV_TMP_FRACTION_RANK;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::
     DIV_TMP_TOTAL_RANK;
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const unsigned Decimal<Element, TOTAL_RANK, FRACTION_RANK>::DIV_TMP_SIZE;
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer, typename Fraction>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::construct_(bool negative,
@@ -609,6 +552,7 @@ namespace Generics
       array_[i] = static_cast<Element>(fraction % BASE);
       fraction = static_cast<Fraction>(fraction / BASE);
     }
+
     if (DecimalHelper::exceeds(fraction, FRACTION_REMAINDER))
     {
       Stream::Error ostr;
@@ -627,12 +571,14 @@ namespace Generics
         array_[i] = static_cast<Element>(integer % BASE);
         integer = static_cast<Integer>(integer / BASE);
       }
+
       if (i == SIZE - 1)
       {
         array_[i] = static_cast<Element>(integer % INTEGER_MAX_OVER);
         integer = static_cast<Integer>(integer / INTEGER_MAX_OVER);
       }
     }
+
     if (integer)
     {
       Stream::Error ostr;
@@ -643,8 +589,7 @@ namespace Generics
     negative_ = negative;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::construct_(Integer integer,
@@ -655,8 +600,7 @@ namespace Generics
     Integer old_integer = integer;
     unsigned old_power = power;
 
-    if (power >= std::numeric_limits<Integer>::digits10 + FRACTION_RANK ||
-      !integer)
+    if (power >= std::numeric_limits<Integer>::digits10 + FRACTION_RANK || !integer)
     {
       negative_ = false;
       std::fill(array_, array_ + SIZE, 0);
@@ -677,8 +621,7 @@ namespace Generics
     diff %= DIGITS_PER_ELEMENT;
     if (diff)
     {
-      Element mask =
-        DecimalHelper::pow10<Element>(DIGITS_PER_ELEMENT - diff);
+      Element mask = DecimalHelper::pow10<Element>(DIGITS_PER_ELEMENT - diff);
       array_[i++] = static_cast<Element>(integer % mask) * (BASE / mask);
       integer /= mask;
     }
@@ -687,6 +630,7 @@ namespace Generics
       array_[i] = static_cast<Element>(integer % BASE);
       integer = static_cast<Integer>(integer / BASE);
     }
+
     if (i == SIZE - 1)
     {
       array_[i] = static_cast<Element>(integer % INTEGER_MAX_OVER);
@@ -696,18 +640,17 @@ namespace Generics
     {
       std::fill(array_ + i, array_ + SIZE, 0);
     }
+
     if (integer)
     {
       Stream::Error ostr;
       ostr << FNS << "Initializer " << old_integer << " with power " <<
-        old_power << " exceeds maximum allowed of " << INTEGER_RANK <<
-        " integer part digits";
+        old_power << " exceeds maximum allowed of " << INTEGER_RANK << " integer part digits";
       throw Overflow(ostr);
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::construct_(
     const String::SubString& str) /*throw (Overflow, NotNumber)*/
@@ -752,16 +695,19 @@ namespace Generics
       {
         end--;
       }
+
       if (end[-1] == '.')
       {
         integer_end = fraction_begin = --end;
       }
     }
+
     if (begin == end)
     {
       std::fill(array_, array_ + SIZE, 0);
       return;
     }
+
     if (static_cast<ptrdiff_t>(FRACTION_RANK) < (end - fraction_begin))
     {
       Stream::Error ostr;
@@ -769,6 +715,7 @@ namespace Generics
         "' is bigger than " << FRACTION_RANK;
       throw Overflow(ostr);
     }
+
     if (static_cast<ptrdiff_t>(INTEGER_RANK) < (integer_end - begin))
     {
       Stream::Error ostr;
@@ -785,8 +732,7 @@ namespace Generics
       if (!isdigit(*i))
       {
         Stream::Error ostr;
-        ostr << FNS << "string '" << str <<
-          "' contains non-digit character";
+        ostr << FNS << "string '" << str << "' contains non-digit character";
         throw NotNumber(ostr);
       }
       *fraction = *i - '0';
@@ -799,8 +745,7 @@ namespace Generics
       if (!isdigit(*i))
       {
         Stream::Error ostr;
-        ostr << FNS << "string '" << str <<
-          "' contains non-digit character";
+        ostr << FNS << "string '" << str << "' contains non-digit character";
         throw NotNumber(ostr);
       }
       *integer = *i - '0';
@@ -812,22 +757,19 @@ namespace Generics
       {
         unsigned digits = n >= DIGITS_PER_ELEMENT ? DIGITS_PER_ELEMENT : n;
         n -= digits;
-        array_[i] =
-          DecimalHelper::assemble_decimal<Element>(digits, num + n);
+        array_[i] = DecimalHelper::assemble_decimal<Element>(digits, num + n);
       }
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal() noexcept
     : negative_(false)
   {
     array_[0] = INVALID_FLAG_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer, typename Fraction>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(bool negative,
     Integer integer, Fraction fraction) /*throw (Overflow)*/
@@ -835,8 +777,7 @@ namespace Generics
     construct_(negative, integer, fraction);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename Integer>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(Integer integer,
     unsigned power) /*throw (Overflow)*/
@@ -844,10 +785,8 @@ namespace Generics
     construct_(integer, power);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(
     const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& diff)
     /*throw (Overflow)*/
@@ -859,16 +798,14 @@ namespace Generics
     negative_ = diff.negative_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(
     const String::SubString& str) /*throw (Overflow, NotNumber)*/
   {
     construct_(str);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename General>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(General num)
     /*throw (Overflow, NotNumber)*/
@@ -878,21 +815,17 @@ namespace Generics
     construct_(ostr.str());
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  template <typename DiffElement, const unsigned DIFF_TOTAL,
-    const unsigned DIFF_FRACTION>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  template <typename DiffElement, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::Decimal(
     const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& diff)
     /*throw (Overflow)*/
   {
-    static_assert(DIFF_FRACTION <= Decimal::FRACTION_RANK,
-      "different Decimal is more precise");
+    static_assert(DIFF_FRACTION <= Decimal::FRACTION_RANK, "different Decimal is more precise");
     construct_(diff.str());
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::maximum_() noexcept
   {
@@ -903,11 +836,9 @@ namespace Generics
     return decimal;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToInteger>
-  ToInteger
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::integer() const
+  ToInteger Decimal<Element, TOTAL_RANK, FRACTION_RANK>::integer() const
     /*throw (Overflow, Sign)*/
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
@@ -917,13 +848,11 @@ namespace Generics
       return 0;
     }
 
-    static const unsigned long long INTEG_MAX =
-      std::numeric_limits<ToInteger>::max();
+    static const unsigned long long INTEG_MAX = std::numeric_limits<ToInteger>::max();
     ToInteger ret = 0;
     for (unsigned i = SIZE - 1; i != FRACTION_END; i--)
     {
-      if (INTEG_MAX >= array_[i] &&
-        static_cast<unsigned long long>(ret) <=
+      if (INTEG_MAX >= array_[i] && static_cast<unsigned long long>(ret) <=
           (INTEG_MAX - array_[i]) / BASE)
       {
         ret = static_cast<ToInteger>(ret * BASE + array_[i]);
@@ -936,6 +865,7 @@ namespace Generics
         throw Overflow(ostr);
       }
     }
+
     if (INTEG_MAX < array_[FRACTION_END] / FRACTION_REMAINDER ||
       static_cast<unsigned long long>(ret) >
         (INTEG_MAX - array_[FRACTION_END] / FRACTION_REMAINDER) /
@@ -959,8 +889,7 @@ namespace Generics
     return ret;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToInteger>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::to_integer(
@@ -969,16 +898,12 @@ namespace Generics
     val = integer<ToInteger>();
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToFloating>
-  ToFloating
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
+  ToFloating Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floating() const noexcept
   {
-    static_assert(!std::numeric_limits<ToFloating>::is_integer,
-      "Floating type is integer");
-    static_assert(std::numeric_limits<ToFloating>::is_signed,
-      "Floating type is not signed");
+    static_assert(!std::numeric_limits<ToFloating>::is_integer, "Floating type is integer");
+    static_assert(std::numeric_limits<ToFloating>::is_signed, "Floating type is not signed");
 
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -996,20 +921,15 @@ namespace Generics
     return negative_ ? -ret : ret;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   template <typename ToFloating>
-  void
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::to_floating(
-    ToFloating& val) const noexcept
+  void Decimal<Element, TOTAL_RANK, FRACTION_RANK>::to_floating( ToFloating& val) const noexcept
   {
     val = floating<ToFloating>();
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  std::string
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::str() const
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  std::string Decimal<Element, TOTAL_RANK, FRACTION_RANK>::str() const
     /*throw (eh::Exception)*/
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
@@ -1042,6 +962,7 @@ namespace Generics
       for (; i != INTEGER_RANK && !num[i]; i++)
       {
       }
+
       if (i  == INTEGER_RANK)
       {
         *res++ = '0';
@@ -1074,18 +995,15 @@ namespace Generics
     return std::string(ret, last - ret + 1);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  std::string
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::dump() const
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  std::string Decimal<Element, TOTAL_RANK, FRACTION_RANK>::dump() const
     /*throw (eh::Exception)*/
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
     Stream::Stack<SIZE * (DIGITS_PER_ELEMENT + 1) + 128> ostr;
     ostr << SIZE << ':' << TOTAL_RANK << '.' << FRACTION_RANK <<
-      "(" << static_cast<unsigned long long>(INTEGER_MAX_OVER) << "," <<
-      FRACTION_END << "," <<
+      "(" << static_cast<unsigned long long>(INTEGER_MAX_OVER) << "," << FRACTION_END << "," <<
       static_cast<unsigned long long>(FRACTION_REMAINDER) << "," <<
       static_cast<unsigned long long>(FRACTION_OVER) << ")";
     for (int i = SIZE - 1; i >= 0; i--)
@@ -1096,32 +1014,24 @@ namespace Generics
     return ostr.str().str();
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  void
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  void Decimal<Element, TOTAL_RANK, FRACTION_RANK>::pack(void* buffer) const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
     memcpy(buffer, array_, SIZE * sizeof(Element));
-    static_cast<unsigned char*>(buffer)[SIZE * sizeof(Element)] =
-      negative_ ? 1 : 0;
+    static_cast<unsigned char*>(buffer)[SIZE * sizeof(Element)] = negative_ ? 1 : 0;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  void
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer)
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  void Decimal<Element, TOTAL_RANK, FRACTION_RANK>::unpack(const void* buffer) noexcept
   {
     memcpy(array_, buffer, SIZE * sizeof(Element));
     negative_ = static_cast<const unsigned char*>(buffer)[
       SIZE * sizeof(Element)] != 0;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::negate() noexcept
   {
@@ -1131,11 +1041,9 @@ namespace Generics
     return *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction)
-    noexcept
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::floor(unsigned fraction) noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1150,8 +1058,7 @@ namespace Generics
 
     if (index < SIZE)
     {
-      Element pow = DecimalHelper::pow10<Element>(
-        fraction % DIGITS_PER_ELEMENT);
+      Element pow = DecimalHelper::pow10<Element>( fraction % DIGITS_PER_ELEMENT);
       if (array_[index] % pow)
       {
         array_[index] = array_[index] / pow * pow;
@@ -1161,8 +1068,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::ceil(unsigned fraction)
     /*throw (eh::Exception, Overflow)*/
@@ -1188,8 +1094,7 @@ namespace Generics
 
     if (index < SIZE)
     {
-      Element pow = DecimalHelper::pow10<Element>(
-        fraction % DIGITS_PER_ELEMENT);
+      Element pow = DecimalHelper::pow10<Element>( fraction % DIGITS_PER_ELEMENT);
       if (overflow || array_[index] % pow)
       {
         Element res = (array_[index] / pow + 1) * pow;
@@ -1213,6 +1118,7 @@ namespace Generics
             array_[i] = 0;
           }
         }
+
         if (array_[SIZE - 1] >= INTEGER_MAX_OVER)
         {
           overflow = true;
@@ -1223,18 +1129,15 @@ namespace Generics
     if (overflow)
     {
       Stream::Error ostr;
-      ostr << FNS << " overflow while ceiling " << str() << " on " <<
-        fraction << " digit";
+      ostr << FNS << " overflow while ceiling " << str() << " on " << fraction << " digit";
       throw Overflow(ostr);
     }
 
     return *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_zero() const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
@@ -1248,33 +1151,25 @@ namespace Generics
     return true;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonnegative() const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
     return !negative_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const
-    noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_nonpositive() const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
 
     return negative_;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator ==(
-    const Decimal& right) const noexcept
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator ==( const Decimal& right) const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
     DEV_ASSERT(right.array_[0] != INVALID_FLAG_);
@@ -1302,11 +1197,8 @@ namespace Generics
     return true;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <(
-    const Decimal& test) const noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <( const Decimal& test) const noexcept
   {
     DEV_ASSERT(array_[0] != INVALID_FLAG_);
     DEV_ASSERT(test.array_[0] != INVALID_FLAG_);
@@ -1314,8 +1206,7 @@ namespace Generics
     unsigned diff_index;
 #ifdef DEBUG_DECIMAL
     std::cerr << "LESS " << negative_ << " " << is_zero() << " " <<
-      test.negative_ << " " << test.is_zero() << " " <<
-      is_less_than_(test, diff_index) << " " <<
+      test.negative_ << " " << test.is_zero() << " " << is_less_than_(test, diff_index) << " " <<
       test.is_less_than_(*this, diff_index) << "\n";
 #endif
     return negative_ ? test.negative_ ?
@@ -1324,44 +1215,32 @@ namespace Generics
         !test.negative_ && is_less_than_(test, diff_index);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator !=(
-    const Decimal& right) const noexcept
+  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator !=( const Decimal& right) const noexcept
   {
     return !operator ==(right);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >(
-    const Decimal& test) const noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >( const Decimal& test) const noexcept
   {
     return test < *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >=(
-    const Decimal& test) const noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator >=( const Decimal& test) const noexcept
   {
     return !(*this < test);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
-  bool
-  Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <=(
-    const Decimal& test) const noexcept
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
+  bool Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator <=( const Decimal& test) const noexcept
   {
     return !(test < *this);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator +=(
     const Decimal& summand) /*throw (eh::Exception, Overflow)*/
@@ -1370,8 +1249,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>&
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator -=(
     const Decimal& subtrahend) /*throw (eh::Exception, Overflow)*/
@@ -1380,8 +1258,7 @@ namespace Generics
     return *this;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator +(
     const Decimal& summand) const /*throw (eh::Exception, Overflow)*/
@@ -1391,8 +1268,7 @@ namespace Generics
     return ret;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::operator -(
     const Decimal& subtrahend) const /*throw (eh::Exception, Overflow)*/
@@ -1402,8 +1278,7 @@ namespace Generics
     return ret;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::add(const Decimal& summand1,
     const Decimal& summand2, Decimal& target)
@@ -1418,8 +1293,7 @@ namespace Generics
       {
         Stream::Error ostr;
         ostr << FNS << "overflow summing " << summand1.str() << " and " <<
-          summand2.str() << " (over " << INTEGER_RANK <<
-          " digits in integer)";
+          summand2.str() << " (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
       target.negative_ = summand1.negative_;
@@ -1440,8 +1314,7 @@ namespace Generics
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::sub(const Decimal& minuend,
     const Decimal& subtrahend, Decimal& target)
@@ -1470,16 +1343,14 @@ namespace Generics
       {
         Stream::Error ostr;
         ostr << FNS << "overflow subtracting " << subtrahend.str() <<
-          " from " << minuend.str() << " (over " << INTEGER_RANK <<
-          " digits in integer)";
+          " from " << minuend.str() << " (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
       target.negative_ = minuend.negative_;
     }
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::mul_elements_(
     Element multiplier, Element factor,
@@ -1487,22 +1358,18 @@ namespace Generics
   {
     uint64_t h, l;
     DecimalHelper::mul<std::numeric_limits<Element>::digits10 <=
-      std::numeric_limits<uint64_t>::digits10 / 2>(
-        multiplier, factor, BASE, h, l);
+      std::numeric_limits<uint64_t>::digits10 / 2>( multiplier, factor, BASE, h, l);
     minor = static_cast<Element>(l);
     major = static_cast<Element>(h);
 #ifdef DEBUG_DECIMAL
-    std::cerr << "ME:" <<
-      " " << static_cast<unsigned long long>(multiplier) <<
+    std::cerr << "ME:" << " " << static_cast<unsigned long long>(multiplier) <<
       " " << static_cast<unsigned long long>(factor) <<
       " " << static_cast<unsigned long long>(minor) <<
-      " " << static_cast<unsigned long long>(major) <<
-      "\n";
+      " " << static_cast<unsigned long long>(major) << "\n";
 #endif
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::div_elements_(
     Element major, Element minor, Element divisor,
@@ -1510,25 +1377,21 @@ namespace Generics
   {
     uint64_t q, r;
     DecimalHelper::div<std::numeric_limits<Element>::digits10 <=
-      std::numeric_limits<uint64_t>::digits10 / 2>(
-        major, minor, BASE, divisor, q, r);
+      std::numeric_limits<uint64_t>::digits10 / 2>( major, minor, BASE, divisor, q, r);
     quotient = static_cast<Element>(q);
     remainder = static_cast<Element>(r);
 #ifdef DEBUG_DECIMAL
-    std::cerr << "DE:" <<
-      " " << static_cast<unsigned long long>(major) <<
+    std::cerr << "DE:" << " " << static_cast<unsigned long long>(major) <<
       " " << static_cast<unsigned long long>(minor) <<
       " " << static_cast<unsigned long long>(divisor) <<
       " " << static_cast<unsigned long long>(quotient_high) <<
       " " << static_cast<unsigned long long>(quotient_low) <<
-      " " << static_cast<unsigned long long>(remainder) <<
-      "\n";
+      " " << static_cast<unsigned long long>(remainder) << "\n";
 #endif
   }
 
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::mul(const Decimal& factor1,
     const Decimal& factor2, DecimalMulRemainder dmr)
@@ -1557,8 +1420,7 @@ namespace Generics
           if (factor1.array_[j])
           {
             Element result, over;
-            mul_elements_(factor1.array_[j], factor2.array_[i],
-              result, over);
+            mul_elements_(factor1.array_[j], factor2.array_[i], result, over);
             if (mul_tmp.add(result + overflow, i + j))
             {
               exceeds = true;
@@ -1579,10 +1441,12 @@ namespace Generics
             }
           }
         }
+
         if (exceeds)
         {
           break;
         }
+
         if (overflow)
         {
           if (mul_tmp.add(overflow, i + SIZE))
@@ -1597,8 +1461,7 @@ namespace Generics
       {
         Stream::Error ostr;
         ostr << FNS << "overflow multiplying " << factor1.str() <<
-          " and " << factor2.str() << " (over " << INTEGER_RANK <<
-          " digits in integer)";
+          " and " << factor2.str() << " (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
     }
@@ -1623,8 +1486,7 @@ namespace Generics
     return target;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::div_(const Decimal& dividend,
     const Decimal& divisor, Decimal& quotient)
@@ -1678,16 +1540,14 @@ namespace Generics
       {
         Stream::Error ostr;
         ostr << FNS << "overflow dividing " << dividend.str() << " by " <<
-          divisor.str() << " (over " << INTEGER_RANK <<
-          " digits in integer)";
+          divisor.str() << " (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
     }
     else
     {
 #ifdef DEBUG_DECIMAL
-      std::cerr << "Slow " << dividend_tmp.size() << " " <<
-        divisor_tmp.size() << "\n";
+      std::cerr << "Slow " << dividend_tmp.size() << " " << divisor_tmp.size() << "\n";
 #endif
 
       Element scale = BASE / (max_div + 1);
@@ -1695,8 +1555,7 @@ namespace Generics
       if (scale > 1)
       {
 #ifdef DEBUG_DECIMAL
-        std::cerr << "scale = " << static_cast<unsigned long long>(scale) <<
-          "\n";
+        std::cerr << "scale = " << static_cast<unsigned long long>(scale) << "\n";
 #endif
         dividend_tmp.mul(scale);
         divisor_tmp.mul(scale);
@@ -1709,10 +1568,8 @@ namespace Generics
 
       Element pre_max_div = divisor_tmp.pre_max_element();
 #ifdef DEBUG_DECIMAL
-      std::cerr << "divs:" <<
-        " " << static_cast<unsigned long long>(max_div) <<
-        " " << static_cast<unsigned long long>(pre_max_div) <<
-        "\n";
+      std::cerr << "divs:" << " " << static_cast<unsigned long long>(max_div) <<
+        " " << static_cast<unsigned long long>(pre_max_div) << "\n";
 #endif
       int i = dividend_tmp.initial_size() - divisor_tmp.initial_size();
 #ifdef DEBUG_DECIMAL
@@ -1722,10 +1579,10 @@ namespace Generics
       {
         Stream::Error ostr;
         ostr << FNS << "overflow dividing " << dividend.str() << " by " <<
-          divisor.str() << " (over " << INTEGER_RANK <<
-          " digits in integer)";
+          divisor.str() << " (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
+
       if (static_cast<unsigned>(i) < SIZE)
       {
         std::fill(quotient.array_ + i + 1, quotient.array_ + SIZE, 0);
@@ -1742,8 +1599,7 @@ namespace Generics
         }
 
 #ifdef DEBUG_DECIMAL
-        std::cerr << "Q " << i << " = " <<
-          static_cast<unsigned long long>(guess) << "\n";
+        std::cerr << "Q " << i << " = " << static_cast<unsigned long long>(guess) << "\n";
 #endif
         if (static_cast<unsigned>(i) == SIZE)
         {
@@ -1751,20 +1607,17 @@ namespace Generics
           {
             Stream::Error ostr;
             ostr << FNS << "overflow dividing " << dividend.str() <<
-              " by " << divisor.str() << " (over " << INTEGER_RANK <<
-              " digits in integer)";
+              " by " << divisor.str() << " (over " << INTEGER_RANK << " digits in integer)";
             throw Overflow(ostr);
           }
           continue;
         }
 
-        if (static_cast<unsigned>(i) == SIZE - 1 &&
-          guess >= INTEGER_MAX_OVER)
+        if (static_cast<unsigned>(i) == SIZE - 1 && guess >= INTEGER_MAX_OVER)
         {
           Stream::Error ostr;
           ostr << FNS << "overflow dividing " << dividend.str() << " by " <<
-            divisor.str() << " (over " << INTEGER_RANK <<
-            " digits in integer)";
+            divisor.str() << " (over " << INTEGER_RANK << " digits in integer)";
           throw Overflow(ostr);
         }
         quotient.array_[i] = guess;
@@ -1787,8 +1640,7 @@ namespace Generics
     return false;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::div(const Decimal& dividend,
     const Decimal& divisor, Decimal& remainder)
@@ -1806,8 +1658,7 @@ namespace Generics
     return quotient;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::div(const Decimal& dividend,
     const Decimal& divisor, DecimalDivRemainder ddr)
@@ -1820,16 +1671,14 @@ namespace Generics
       if (internal_add_(quotient, EPSILON, quotient))
       {
         Stream::Error ostr;
-        ostr << FNS << "overflow while dividing (over " << INTEGER_RANK <<
-          " digits in integer)";
+        ostr << FNS << "overflow while dividing (over " << INTEGER_RANK << " digits in integer)";
         throw Overflow(ostr);
       }
     }
     return quotient;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-   const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::internal_add_(
     const Decimal& summand1, const Decimal& summand2, Decimal& target)
@@ -1853,8 +1702,7 @@ namespace Generics
     return overflow != 0 || target.array_[SIZE - 1] >= INTEGER_MAX_OVER;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-   const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   void
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::internal_sub_(
     const Decimal& minuend, const Decimal& subtrahend, Decimal& target,
@@ -1876,6 +1724,7 @@ namespace Generics
         underflow = 0;
       }
     }
+
     if (diff_index < SIZE)
     {
       std::fill(target.array_ + diff_index + 1, target.array_ + SIZE, 0);
@@ -1883,8 +1732,7 @@ namespace Generics
     assert(!underflow);
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-   const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   bool
   Decimal<Element, TOTAL_RANK, FRACTION_RANK>::is_less_than_(
     const Decimal& test, unsigned& diff_index) const noexcept
@@ -1897,6 +1745,7 @@ namespace Generics
         diff_index = i;
         return true;
       }
+
       if (array_[i] > test.array_[i])
       {
         diff_index = i;
@@ -1908,31 +1757,23 @@ namespace Generics
     return false;
   }
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Decimal<Element, TOTAL_RANK, FRACTION_RANK>
     Decimal<Element, TOTAL_RANK, FRACTION_RANK>::ZERO(false, 0, 0);
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Decimal<Element, TOTAL_RANK, FRACTION_RANK>
     Decimal<Element, TOTAL_RANK, FRACTION_RANK>::EPSILON(
       false, FRACTION_RANK ? 0 : 1, FRACTION_RANK ? 1 : 0);
 
-  template <typename Element, const unsigned TOTAL_RANK,
-    const unsigned FRACTION_RANK>
+  template <typename Element, const unsigned TOTAL_RANK, const unsigned FRACTION_RANK>
   const Decimal<Element, TOTAL_RANK, FRACTION_RANK>
     Decimal<Element, TOTAL_RANK, FRACTION_RANK>::MAXIMUM(maximum_());
 
-  template <typename Hash, typename Element, const unsigned TOTAL,
-    const unsigned FRACTION>
-  void
-  hash_add(Hash& hash,
-    const Decimal<Element, TOTAL, FRACTION>& key)
-    noexcept
+  template <typename Hash, typename Element, const unsigned TOTAL, const unsigned FRACTION>
+  void hash_add(Hash& hash, const Decimal<Element, TOTAL, FRACTION>& key) noexcept
   {
-    DEV_ASSERT(key.array_[0] !=
-      (Decimal<Element, TOTAL, FRACTION>::INVALID_FLAG_));
+    DEV_ASSERT(key.array_[0] != (Decimal<Element, TOTAL, FRACTION>::INVALID_FLAG_));
 
     hash.add(key.array_, sizeof(key.array_));
   }

@@ -51,26 +51,22 @@ namespace Logging
     }
   }
 
-  Logger*
-  ActiveObjectCallbackImpl::logger() const noexcept
+  Logger* ActiveObjectCallbackImpl::logger() const noexcept
   {
     return logger_;
   }
 
-  const char*
-  ActiveObjectCallbackImpl::message_prefix() const noexcept
+  const char* ActiveObjectCallbackImpl::message_prefix() const noexcept
   {
     return message_prefix_;
   }
 
-  const char*
-  ActiveObjectCallbackImpl::aspect() const noexcept
+  const char* ActiveObjectCallbackImpl::aspect() const noexcept
   {
     return aspect_;
   }
 
-  const char*
-  ActiveObjectCallbackImpl::code(const char* error_code) const noexcept
+  const char* ActiveObjectCallbackImpl::code(const char* error_code) const noexcept
   {
     return error_code ? error_code : code_;
   }

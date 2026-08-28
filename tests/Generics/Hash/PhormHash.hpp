@@ -11,8 +11,7 @@
  * Adapt Phorm hash class to test suitable function
  */
 template <typename Hash>
-void
-hash_simple(const void* key, int len, uint32_t seed, void* out)
+void hash_simple(const void* key, int len, uint32_t seed, void* out)
 {
 #if 0
   Hash hash(*static_cast<std::size_t*>(out), seed);
@@ -25,8 +24,7 @@ hash_simple(const void* key, int len, uint32_t seed, void* out)
 }
 
 template <typename Hash, const int N>
-void
-hash_by_n(const void* key, int len, uint32_t seed, void* out)
+void hash_by_n(const void* key, int len, uint32_t seed, void* out)
 {
   Hash hash(*static_cast<std::size_t*>(out), seed);
   for (; len > N; len -= N)
@@ -38,8 +36,7 @@ hash_by_n(const void* key, int len, uint32_t seed, void* out)
 }
 
 template <typename Hash, const int N>
-void
-hash_by_r(const void* key, int len, uint32_t seed, void* out)
+void hash_by_r(const void* key, int len, uint32_t seed, void* out)
 {
   Hash hash(*static_cast<std::size_t*>(out), seed);
   while (len)
@@ -70,11 +67,9 @@ struct CustomKey
 };
 
 template <typename Hash>
-void
-test_custom_key_incremental_hash_int(Hash& hash)
+void test_custom_key_incremental_hash_int(Hash& hash)
 {
-  const CustomKey key =
-  {
+  const CustomKey key = {
     "f1fjksdfmnqwef", String::SubString("f2fom4fq3409fm34f8n34f"),
     Generics::Uuid(), Generics::Time(),
     0., 6, true, '8', {'\xFB', '\xFB', '\xFB', '\xFB', '\xFB', '\xFB',
@@ -94,20 +89,18 @@ test_custom_key_incremental_hash_int(Hash& hash)
 }
 
 template <typename Hash>
-void
-test_custom_key_incremental_hash(const char* hash_name,
-  std::size_t standard_hash)
+void test_custom_key_incremental_hash(const char* hash_name, std::size_t standard_hash)
 {
   uint64_t hash_value;
   {
     Hash hash(hash_value);
     test_custom_key_incremental_hash_int(hash);
   }
+
   if (hash_value != standard_hash)
   {
     std::cerr << hash_name << ": not standard hash result: " << std::hex <<
-      hash_value << " (" << std::hex << standard_hash <<
-      " expected)" << std::endl;
+      hash_value << " (" << std::hex << standard_hash << " expected)" << std::endl;
   }
 }
 
@@ -118,8 +111,7 @@ namespace Generics
   public:
     HashAdapter(std::size_t& result, pfHash hash_func);
     ~HashAdapter();
-    void
-    add(const void* key, std::size_t len);
+    void add(const void* key, std::size_t len);
 
   private:
     std::size_t& result_;
@@ -127,21 +119,17 @@ namespace Generics
     std::vector<uint8_t> data_;
   };
 
-  inline
-  HashAdapter::HashAdapter(std::size_t& result, pfHash hash_func)
+  inline HashAdapter::HashAdapter(std::size_t& result, pfHash hash_func)
     : result_(result), hash_func_(hash_func)
   {
   }
 
-  inline
-  HashAdapter::~HashAdapter()
+  inline HashAdapter::~HashAdapter()
   {
     hash_func_(data_.size() ? &data_[0] : 0, data_.size(), 0, &result_);
   }
 
-  inline
-  void
-  HashAdapter::add(const void* key, std::size_t len)
+  inline void HashAdapter::add(const void* key, std::size_t len)
   {
     const uint8_t* data = static_cast<const uint8_t*>(key);
     data_.insert(data_.end(), data, data + len);
@@ -158,10 +146,10 @@ test_custom_key_incremental_hash_indirect(const char* hash_name,
     Generics::HashAdapter hash(hash_value, hash_func);
     test_custom_key_incremental_hash_int(hash);
   }
+
   if (hash_value != standard_hash)
   {
     std::cerr << hash_name << ": not standard hash result: " << std::hex <<
-      hash_value << " (" << std::hex << standard_hash <<
-      " expected) by hash adapter" << std::endl;
+      hash_value << " (" << std::hex << standard_hash << " expected) by hash adapter" << std::endl;
   }
 }

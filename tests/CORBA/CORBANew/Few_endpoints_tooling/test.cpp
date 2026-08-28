@@ -3,8 +3,7 @@
 #include <signal.h>
 #include "echo.hpp"
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   if (!fork())
   {
@@ -22,8 +21,7 @@ main(int argc, char** argv)
 #endif
 
 #ifdef ORB_OMNI
-  const char* options[][2] =
-    {
+  const char* options[][2] = {
       { "endPoint", ADDR1 },
       { "endPoint", ADDR2 },
       { 0, 0 }

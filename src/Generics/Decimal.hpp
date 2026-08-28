@@ -12,12 +12,11 @@ namespace Generics
    * @param TOTAL total rank
    * @param FRACTION fraction rank
    */
-  template <typename Element, const unsigned TOTAL,
-    const unsigned FRACTION>
+  template <typename Element, const unsigned TOTAL, const unsigned FRACTION>
   class Decimal : public DecimalBase<Element, TOTAL, FRACTION>
   {
   public:
-    typedef DecimalBase<Element, TOTAL, FRACTION> Parent;
+    using Parent = DecimalBase<Element, TOTAL, FRACTION>;
 
     using Parent::TOTAL_RANK;
     using Parent::FRACTION_RANK;
@@ -26,52 +25,42 @@ namespace Generics
   private:
     template <typename Hash, typename DiffElement,
       const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
-    friend
-    void
-    hash_add(Hash& hash,
-      const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& key)
+    friend void hash_add(Hash& hash, const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& key)
       noexcept;
 
     /**
      * decimal digits per element
      * summing of two Elements must fit Element
      */
-    static const unsigned DIGITS_PER_ELEMENT =
-      static_cast<Element>(-1) /
+    static const unsigned DIGITS_PER_ELEMENT = static_cast<Element>(-1) /
         DecimalHelper::Pow10<Element,
           std::numeric_limits<Element>::digits10>::Value >= 2 ?
         std::numeric_limits<Element>::digits10 :
         std::numeric_limits<Element>::digits10 - 1;
 
     /** evaluation base for this number (base of digit)*/
-    static const Element BASE =
-      DecimalHelper::Pow10<Element, DIGITS_PER_ELEMENT>::Value;
+    static const Element BASE = DecimalHelper::Pow10<Element, DIGITS_PER_ELEMENT>::Value;
 
     /**  */
     static const unsigned MAX_SUM = static_cast<Element>(-1) / BASE;
 
     /** size of array of elements to represent number */
-    static const unsigned SIZE =
-      (TOTAL_RANK + DIGITS_PER_ELEMENT - 1) / DIGITS_PER_ELEMENT;
+    static const unsigned SIZE = (TOTAL_RANK + DIGITS_PER_ELEMENT - 1) / DIGITS_PER_ELEMENT;
 
     /** max value of integer element at end of integer part */
-    static const Element INTEGER_MAX_OVER =
-      DecimalHelper::Pow10<Element,
+    static const Element INTEGER_MAX_OVER = DecimalHelper::Pow10<Element,
         DIGITS_PER_ELEMENT - (SIZE * DIGITS_PER_ELEMENT - TOTAL_RANK)>::
           Value;
 
     /** index of end of fraction part */
-    static const unsigned FRACTION_END =
-      FRACTION_RANK / DIGITS_PER_ELEMENT;
+    static const unsigned FRACTION_END = FRACTION_RANK / DIGITS_PER_ELEMENT;
 
     /** remainder of fraction in fraction-integer boundary */
-    static const Element FRACTION_REMAINDER =
-      DecimalHelper::Pow10<Element,
+    static const Element FRACTION_REMAINDER = DecimalHelper::Pow10<Element,
         FRACTION_RANK % DIGITS_PER_ELEMENT>::Value;
 
     /** over part in fraction-integer boundary */
-    static const Element FRACTION_OVER =
-      DecimalHelper::Pow10<Element,
+    static const Element FRACTION_OVER = DecimalHelper::Pow10<Element,
         DIGITS_PER_ELEMENT - FRACTION_RANK % DIGITS_PER_ELEMENT>::Value;
 
     /** self sign */
@@ -130,10 +119,8 @@ namespace Generics
      * Construct from SimpleDecimal
      * @param diff SimpleDecimal
      */
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
-    explicit
-    Decimal(const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& diff)
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
+    explicit Decimal(const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& diff)
       /*throw (Overflow)*/;
 
     /**
@@ -142,8 +129,7 @@ namespace Generics
      * @exception Overflow if passed string is bigger value
      * @exception NotNumber if passed string contains not digits
      */
-    explicit
-    Decimal(const String::SubString& str) /*throw (Overflow, NotNumber)*/;
+    explicit Decimal(const String::SubString& str) /*throw (Overflow, NotNumber)*/;
 
     /**
      * Construct from general. Firstly converted to string.
@@ -152,17 +138,14 @@ namespace Generics
      * @exception NotNumber if passed num is invalid
      */
     template <typename General>
-    explicit
-    Decimal(General num) /*throw (Overflow, NotNumber)*/;
+    explicit Decimal(General num) /*throw (Overflow, NotNumber)*/;
 
     /**
      * Construct from different Decimal
      * @param diff different Decimal
      */
-    template <typename DiffElement, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
-    explicit
-    Decimal(const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& diff)
+    template <typename DiffElement, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
+    explicit Decimal(const Decimal<DiffElement, DIFF_TOTAL, DIFF_FRACTION>& diff)
       /*throw (Overflow)*/;
 
     /**
@@ -174,8 +157,7 @@ namespace Generics
      * unapplicable
      */
     template <typename ToInteger>
-    ToInteger
-    integer() const /*throw (Overflow, Sign)*/;
+    ToInteger integer() const /*throw (Overflow, Sign)*/;
 
     /**
      * Integer representation of this number
@@ -186,8 +168,7 @@ namespace Generics
      * inapplicable
      */
     template <typename ToInteger>
-    void
-    to_integer(ToInteger& val) const /*throw (Overflow, Sign)*/;
+    void to_integer(ToInteger& val) const /*throw (Overflow, Sign)*/;
 
     /**
      * Floating representation of this number
@@ -196,8 +177,7 @@ namespace Generics
      * @return integer part of this number
      */
     template <typename ToFloating>
-    ToFloating
-    floating() const noexcept;
+    ToFloating floating() const noexcept;
 
     /**
      * Floating representation of this number
@@ -205,51 +185,44 @@ namespace Generics
      * @param val integer part of this number
      */
     template <typename ToFloating>
-    void
-    to_floating(ToFloating& val) const noexcept;
+    void to_floating(ToFloating& val) const noexcept;
 
     /**
      * String representation of this number
      * @return string representation of this number in format [-]abcd[.efg]
      */
-    std::string
-    str() const /*throw (eh::Exception)*/;
+    std::string str() const /*throw (eh::Exception)*/;
 
     /**
      * Internal dump of this number
      * @return Internal dump of this number
      */
-    std::string
-    dump() const /*throw (eh::Exception)*/;
+    std::string dump() const /*throw (eh::Exception)*/;
 
     /**
      * Packs current value into PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
-    void
-    pack(void* buffer) const noexcept;
+    void pack(void* buffer) const noexcept;
 
     /**
      * Unpacks current value from PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
-    void
-    unpack(const void* buffer) noexcept;
+    void unpack(const void* buffer) noexcept;
 
     /**
      * Revert sign of this number
      * @return this
      */
-    Decimal&
-    negate() noexcept;
+    Decimal& negate() noexcept;
 
     /**
      * Makes floor of absolute value of this
      * @param fraction fraction rank for floor (zero means integer)
      * @return this
      */
-    Decimal&
-    floor(unsigned fraction) noexcept;
+    Decimal& floor(unsigned fraction) noexcept;
 
     /**
      * Makes ceil of absolute value of this
@@ -257,77 +230,67 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    Decimal&
-    ceil(unsigned fraction) /*throw (eh::Exception, Overflow)*/;
+    Decimal& ceil(unsigned fraction) /*throw (eh::Exception, Overflow)*/;
 
     /**
      * Test on zero
      * @return true if number is zero
      */
-    bool
-    is_zero() const noexcept;
+    bool is_zero() const noexcept;
 
     /**
      * Test on greater than or equal to zero
      * @return true if number greater than or equal to zero
      */
-    bool
-    is_nonnegative() const noexcept;
+    bool is_nonnegative() const noexcept;
 
     /**
      * Test on less than or equal to zero
      * @return true if number less than or equal to zero
      */
-    bool
-    is_nonpositive() const noexcept;
+    bool is_nonpositive() const noexcept;
 
     /**
      * Test on equality
      * @param test value to compare for equality
      * @return true if equal or false otherwise
      */
-    bool
-    operator ==(const Decimal& test) const noexcept;
+    bool operator ==(const Decimal& test) const noexcept;
 
     /**
      * Test on not equality
      * @param test value to compare for inequality
      * @return true if not equal or false otherwise
      */
-    bool
-    operator !=(const Decimal& test) const noexcept;
+    bool operator !=(const Decimal& test) const noexcept;
 
     /**
      * Test on minority
      * @param test value to compare for minority
      * @return true if less than or false otherwise
      */
-    bool
-    operator <(const Decimal& test) const noexcept;
+    bool operator <(const Decimal& test) const noexcept;
 
     /**
      * Test on minority or equality
      * @param test value to compare for minority or equality
      * @return true if less than or equal to or false otherwise
      */
-    bool
-    operator <=(const Decimal& test) const noexcept;
+    bool operator <=(const Decimal& test) const noexcept;
 
     /**
      * Test on majority
      * @param test value to compare for majority
      * @return true if greater than or false otherwise
      */
-    bool
-    operator >(const Decimal& test) const noexcept;
+    bool operator >(const Decimal& test) const noexcept;
 
     /**
      * Test on majority or equality
      * @param test value to compare for majority or equality
      * @return true if greater than or equal to or false otherwise
      */
-    bool
-    operator >=(const Decimal& test) const noexcept;
+    bool operator >=(const Decimal& test) const noexcept;
 
     /**
      * Add summand to this
@@ -335,8 +298,7 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    Decimal&
-    operator +=(const Decimal& summand) /*throw (eh::Exception, Overflow)*/;
+    Decimal& operator +=(const Decimal& summand) /*throw (eh::Exception, Overflow)*/;
 
     /**
      * Substruct subtrahend from this
@@ -344,8 +306,7 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    Decimal&
-    operator -=(const Decimal& subtrahend)
+    Decimal& operator -=(const Decimal& subtrahend)
       /*throw (eh::Exception, Overflow)*/;
 
     /**
@@ -354,8 +315,7 @@ namespace Generics
      * @return new value result of summation
      * @exception Overflow if result is too big
      */
-    Decimal
-    operator +(const Decimal& summand) const
+    Decimal operator +(const Decimal& summand) const
       /*throw (eh::Exception, Overflow)*/;
 
     /**
@@ -364,8 +324,7 @@ namespace Generics
      * @return new value result of substraction
      * @exception Overflow if result is too big
      */
-    Decimal
-    operator -(const Decimal& subtrahend) const
+    Decimal operator -(const Decimal& subtrahend) const
       /*throw (eh::Exception, Overflow)*/;
 
     /**
@@ -438,9 +397,7 @@ namespace Generics
      * Maximum
      * @return maximal value
      */
-    static
-    Decimal
-    maximum_() noexcept;
+    static Decimal maximum_() noexcept;
 
   private:
     /**
@@ -453,8 +410,7 @@ namespace Generics
      * @exception Overflow if passed values too big
      */
     template <typename Integer, typename Fraction>
-    void
-    construct_(bool negative, Integer integer, Fraction fraction)
+    void construct_(bool negative, Integer integer, Fraction fraction)
       /*throw (Overflow)*/;
 
     /**
@@ -465,8 +421,7 @@ namespace Generics
      * @param power power of ten in denominator
      */
     template <typename Integer>
-    void
-    construct_(Integer integer, unsigned power)
+    void construct_(Integer integer, unsigned power)
       /*throw (Overflow)*/;
 
     /**
@@ -475,8 +430,7 @@ namespace Generics
      * @exception Overflow if passed string is bigger value
      * @exception NotNumber if passed string contains not digits
      */
-    void
-    construct_(const String::SubString& str)
+    void construct_(const String::SubString& str)
       /*throw (Overflow, NotNumber)*/;
 
     /**
@@ -487,9 +441,7 @@ namespace Generics
      * @return true if result is too big
      */
     static
-    bool
-    internal_add_(const Decimal& summand1, const Decimal& summand2,
-      Decimal& target) noexcept;
+    bool internal_add_(const Decimal& summand1, const Decimal& summand2, Decimal& target) noexcept;
 
     /**
      * Substruct array parts of decimals
@@ -512,9 +464,7 @@ namespace Generics
      * where this[index] != test[index]
      * @return true if this < test
      */
-    bool
-    is_less_than_(const Decimal& test, unsigned& diff_index) const
-      noexcept;
+    bool is_less_than_(const Decimal& test, unsigned& diff_index) const noexcept;
 
     /**
      * Multiply elements in base of BASE
@@ -524,9 +474,7 @@ namespace Generics
      * @param major major part of result
      */
     static
-    void
-    mul_elements_(Element multiplier, Element factor,
-      Element& minor, Element& major) noexcept;
+    void mul_elements_(Element multiplier, Element factor, Element& minor, Element& major) noexcept;
 
     /**
      * Divide elements in base of BASE
@@ -559,27 +507,18 @@ namespace Generics
     {
     public:
       MulTmpArray() noexcept;
-      bool
-      add(Element value, unsigned index) noexcept;
-      bool
-      round() noexcept;
-      bool
-      ceil() noexcept;
-      void
-      export_to(Decimal& result) const noexcept;
-      std::string
-      dump() const /*throw (eh::Exception)*/;
+      bool add(Element value, unsigned index) noexcept;
+      bool round() noexcept;
+      bool ceil() noexcept;
+      void export_to(Decimal& result) const noexcept;
+      std::string dump() const /*throw (eh::Exception)*/;
 
     private:
-      static const unsigned TMP_FRACTION_RANK =
-        2 * FRACTION_RANK;
-      static const unsigned TMP_TOTAL_RANK =
-        INTEGER_RANK + TMP_FRACTION_RANK;
-      static const unsigned TMP_SIZE =
-        TMP_TOTAL_RANK / DIGITS_PER_ELEMENT +
+      static const unsigned TMP_FRACTION_RANK = 2 * FRACTION_RANK;
+      static const unsigned TMP_TOTAL_RANK = INTEGER_RANK + TMP_FRACTION_RANK;
+      static const unsigned TMP_SIZE = TMP_TOTAL_RANK / DIGITS_PER_ELEMENT +
           (TMP_TOTAL_RANK % DIGITS_PER_ELEMENT ? 1 : 0);
-      static const Element TMP_INTEGER_MAX_OVER =
-        DecimalHelper::Pow10<Element, DIGITS_PER_ELEMENT -
+      static const Element TMP_INTEGER_MAX_OVER = DecimalHelper::Pow10<Element, DIGITS_PER_ELEMENT -
           (TMP_SIZE * DIGITS_PER_ELEMENT - TMP_TOTAL_RANK)>::Value;
 
       Element tmp_array_[TMP_SIZE] = {};
@@ -595,22 +534,16 @@ namespace Generics
     public:
       DivTmpArrayBase() noexcept;
 
-      void
-      shrink() noexcept;
+      void shrink() noexcept;
 
-      unsigned
-      size() noexcept;
+      unsigned size() noexcept;
 
-      unsigned
-      initial_size() noexcept;
+      unsigned initial_size() noexcept;
 
-      void
-      mul(Element multiplicator) noexcept;
-      void
-      div(Element multiplicator, Element& remainder) noexcept;
+      void mul(Element multiplicator) noexcept;
+      void div(Element multiplicator, Element& remainder) noexcept;
 
-      std::string
-      dump() const /*throw (eh::Exception)*/;
+      std::string dump() const /*throw (eh::Exception)*/;
 
     protected:
       Element tmp_array_[DIV_TMP_SIZE] = {};
@@ -622,12 +555,10 @@ namespace Generics
 
     class DivTmpDivisor;
 
-    static const unsigned DIV_TMP_FRACTION_RANK =
-      2 * FRACTION_RANK;
+    static const unsigned DIV_TMP_FRACTION_RANK = 2 * FRACTION_RANK;
     static const unsigned DIV_TMP_TOTAL_RANK =
       INTEGER_RANK + DIV_TMP_FRACTION_RANK + DIGITS_PER_ELEMENT;
-    static const unsigned DIV_TMP_SIZE =
-      DIV_TMP_TOTAL_RANK / DIGITS_PER_ELEMENT +
+    static const unsigned DIV_TMP_SIZE = DIV_TMP_TOTAL_RANK / DIGITS_PER_ELEMENT +
         (DIV_TMP_TOTAL_RANK % DIGITS_PER_ELEMENT ? 1 : 0);
 
     class DivTmpDividend : public DivTmpArrayBase<DIV_TMP_SIZE>
@@ -635,20 +566,14 @@ namespace Generics
     public:
       DivTmpDividend(const Decimal& dividend) noexcept;
 
-      Element
-      guess_next_quotient(unsigned index, Element max_div,
-        Element pre_max_div) noexcept;
+      Element guess_next_quotient(unsigned index, Element max_div, Element pre_max_div) noexcept;
 
       bool
-      apply_next_quotient(unsigned index, Element guess,
-        const DivTmpDivisor& divisor) noexcept;
+      apply_next_quotient(unsigned index, Element guess, const DivTmpDivisor& divisor) noexcept;
 
-      void
-      fix_next_quotient(unsigned index, const DivTmpDivisor& divisor)
-        noexcept;
+      void fix_next_quotient(unsigned index, const DivTmpDivisor& divisor) noexcept;
 
-      bool
-      export_to(Decimal& result) noexcept;
+      bool export_to(Decimal& result) noexcept;
     };
     friend class DivTmpDividend;
 
@@ -657,10 +582,8 @@ namespace Generics
     public:
       DivTmpDivisor(const Decimal& divider) noexcept;
 
-      Element
-      max_element() noexcept;
-      Element
-      pre_max_element() noexcept;
+      Element max_element() noexcept;
+      Element pre_max_element() noexcept;
 
       friend class
       DivTmpDividend;

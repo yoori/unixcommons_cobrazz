@@ -11,24 +11,21 @@ const unsigned int THREADS_COUNT[] = {
   20,
   40
   };
-const size_t THREADS_COUNT_SIZE =
-  sizeof(THREADS_COUNT) / sizeof(THREADS_COUNT[0]);
+const size_t THREADS_COUNT_SIZE = sizeof(THREADS_COUNT) / sizeof(THREADS_COUNT[0]);
 
 const unsigned int POOLS_COUNT[] = {
   1,
   5,
   10
   };
-const size_t POOLS_COUNT_SIZE =
-  sizeof(POOLS_COUNT) / sizeof(POOLS_COUNT[0]);
+const size_t POOLS_COUNT_SIZE = sizeof(POOLS_COUNT) / sizeof(POOLS_COUNT[0]);
 
 const unsigned int UNITS_COUNT[] = {
   1,
   5,
   10
   };
-const size_t UNITS_COUNT_SIZE =
-  sizeof(UNITS_COUNT) / sizeof(UNITS_COUNT[0]);
+const size_t UNITS_COUNT_SIZE = sizeof(UNITS_COUNT) / sizeof(UNITS_COUNT[0]);
 
 const int KEEP_ALIVE_SERV_PORT[] = {
   ApachePorts::get_port(34),
@@ -47,22 +44,18 @@ const int hostnamez_res = gethostname(hostnamez, sizeof(hostnamez));
 
 void usage()
 {
-  std::cout << "General AsynchVsSynch test params:\n"
-            << "THREADS_COUNT = " << THREADS_COUNT
-            << "\nREQUESTS_COUNT = " << REQUESTS_COUNT
-            << "\n\n"
-            << std::endl;
+  std::cout << "General AsynchVsSynch test params:\n" << "THREADS_COUNT = " << THREADS_COUNT
+            << "\nREQUESTS_COUNT = " << REQUESTS_COUNT << "\n\n" << std::endl;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
     rlimit limit;
-    if(getrlimit(RLIMIT_NOFILE, &limit) == 0)
+    if (getrlimit(RLIMIT_NOFILE, &limit) == 0)
     {
-      limit.rlim_cur = limit.rlim_max;  
+      limit.rlim_cur = limit.rlim_max;
       setrlimit(RLIMIT_NOFILE, &limit);
     }
 
@@ -84,7 +77,7 @@ main(int argc, char* argv[])
     Generics::TaskRunner_var tests_runner(new Generics::TaskRunner(policy, 1));
 
     Sync::Semaphore finish_sem(0);
-    typedef ReferenceCounting::List<VSTestInterface_var> Tests;
+    using Tests = ReferenceCounting::List<VSTestInterface_var>;
     Tests tests;
 
     for (size_t thr_cnt = 0; thr_cnt < THREADS_COUNT_SIZE; ++thr_cnt)
@@ -141,8 +134,7 @@ main(int argc, char* argv[])
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << "[ERROR]: main(2). eh::Exception caught: " <<
-      e.what() << std::endl;
+    std::cerr << "[ERROR]: main(2). eh::Exception caught: " << e.what() << std::endl;
 
     return -1;
   }

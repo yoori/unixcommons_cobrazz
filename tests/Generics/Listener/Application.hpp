@@ -14,33 +14,25 @@ public:
   DescriptorListenerCallbackTester() noexcept;
 
   virtual void
-  on_data_ready(int fd, std::size_t fd_index,
-    const char* str, std::size_t size) noexcept;
+  on_data_ready(int fd, std::size_t fd_index, const char* str, std::size_t size) noexcept;
 
-  virtual void
-  on_closed(int fd, std::size_t fd_index, int error) noexcept;
+  virtual void on_closed(int fd, std::size_t fd_index, int error) noexcept;
 
-  virtual void
-  on_all_closed() noexcept;
+  virtual void on_all_closed() noexcept;
 
-  std::size_t
-  get_and_reset_closed() noexcept;
+  std::size_t get_and_reset_closed() noexcept;
 
-  std::string
-  received_data() const noexcept;
+  std::string received_data() const noexcept;
 
-  void
-  reset() noexcept;
+  void reset() noexcept;
 
-  void
-  set_full_lines_test(bool new_value) noexcept;
+  void set_full_lines_test(bool new_value) noexcept;
 
   virtual void
   report_error(Severity severity, const String::SubString& description,
     const char* error_code = 0) noexcept;
 protected:
-  virtual
-  ~DescriptorListenerCallbackTester() noexcept;
+  virtual ~DescriptorListenerCallbackTester() noexcept;
 private:
   volatile _Atomic_word close_counter_;
   std::string ready_data_;
@@ -49,44 +41,39 @@ private:
   bool full_lines_test_;
 };
 
-  typedef ReferenceCounting::QualPtr<DescriptorListenerCallbackTester>
-    DescriptorListenerCallbackTester_var;
+  using DescriptorListenerCallbackTester_var =
+    ReferenceCounting::QualPtr<DescriptorListenerCallbackTester>;
 
 class TestTasker
 {
 public:
-  typedef Generics::ArrayAutoPtr<int> Descriptors;
+  using Descriptors = Generics::ArrayAutoPtr<int>;
 
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
   TestTasker() /*throw (eh::Exception)*/;
 
-  virtual
-  ~TestTasker() noexcept;
+  virtual ~TestTasker() noexcept;
 
   /**
    * Check all data delivery.
    */
-  void
-  do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/;
+  void do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/;
 
   /**
    * Close half of descriptors amount. Check correct of quantity.
    */
-  void
-  do_closed_descriptors_test(bool buffering_mode) /*throw (eh::Exception)*/;
+  void do_closed_descriptors_test(bool buffering_mode) /*throw (eh::Exception)*/;
 
   /**
    * Check all data delivery + full lines mode only.
    */
-  void
-  do_auto_test(bool buffering_mode) /*throw (eh::Exception)*/;
+  void do_auto_test(bool buffering_mode) /*throw (eh::Exception)*/;
 
   /**
    * Do execute_and_listen function test
    */
-  void
-  do_execute_and_listen_test(const char* program_name)
+  void do_execute_and_listen_test(const char* program_name)
     /*throw (eh::Exception)*/;
 
 private:
@@ -104,13 +91,12 @@ private:
   DescriptorListenerCallbackTester_var callback_;
 };
 
-typedef TestTasker::Descriptors Descriptors;
+using Descriptors = TestTasker::Descriptors;
 
 /**
  * Child part for execute_and_listen function test
  */
-void
-do_execute_and_listen_test_child_code(char* argv[])
+void do_execute_and_listen_test_child_code(char* argv[])
   /*throw (eh::Exception)*/;
 
 class Writer
@@ -118,14 +104,12 @@ class Writer
 public:
   Writer(Descriptors& dscs, const char* msg) noexcept;
 
-  void
-  operator()() /*throw (eh::Exception)*/;
+  void operator()() /*throw (eh::Exception)*/;
 
   /**
    * Should reset multiplexer before new test cycle.
    */
-  void
-  reset() noexcept;
+  void reset() noexcept;
 
 private:
 
@@ -140,8 +124,7 @@ class MTAdapter
 {
 public:
   MTAdapter(const char* progname) noexcept;
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
   const char* progname;
@@ -150,10 +133,8 @@ private:
 class MPAdapter
 {
 public:
-  MPAdapter(const char* progname, int threads, time_t interval,
-    int limit = -1) noexcept;
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  MPAdapter(const char* progname, int threads, time_t interval, int limit = -1) noexcept;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
   const char* progname;

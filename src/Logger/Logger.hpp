@@ -49,9 +49,7 @@ namespace Logging
      * Gets logger trace level.
      * @return current trace level
      */
-    virtual
-    unsigned long
-    log_level() noexcept = 0;
+    virtual unsigned long log_level() noexcept = 0;
 
     /**
      * Sets logger trace level.
@@ -59,9 +57,7 @@ namespace Logging
      * level should not be logged.
      * @param value new log level.
      */
-    virtual
-    void
-    log_level(unsigned long value) noexcept = 0;
+    virtual void log_level(unsigned long value) noexcept = 0;
 
     /**
      * Logs text with severity, aspect and code specified.
@@ -80,8 +76,7 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~BaseLogger() noexcept;
+    virtual ~BaseLogger() noexcept;
 
   private:
     BaseLogger() noexcept;
@@ -118,9 +113,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    emergency(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool emergency(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -130,9 +123,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    alert(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool alert(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -142,9 +133,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    critical(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool critical(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -154,9 +143,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    error(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool error(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -166,9 +153,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    warning(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool warning(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -178,9 +163,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    notice(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool notice(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -190,10 +173,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    info(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
-      noexcept;
+    bool info(const String::SubString& text, const char* aspect = 0, const char* code = 0) noexcept;
 
     /**
      * Logs text with DEBUG severity, specified aspect and code.
@@ -202,9 +182,7 @@ namespace Logging
      * @param code log record code
      * @return success status
      */
-    bool
-    debug(const String::SubString& text, const char* aspect = 0,
-      const char* code = 0)
+    bool debug(const String::SubString& text, const char* aspect = 0, const char* code = 0)
       noexcept;
 
     /**
@@ -223,8 +201,7 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~BasicLogger() noexcept;
+    virtual ~BasicLogger() noexcept;
 
   private:
     BasicLogger() noexcept;
@@ -263,12 +240,10 @@ namespace Logging
     public:
       ~Wrapper() noexcept;
 
-      std::ostream&
-      operator ()() noexcept;
+      std::ostream& operator ()() noexcept;
 
       template <typename Object>
-      std::ostream&
-      operator <<(const Object& object) /*throw (eh::Exception)*/;
+      std::ostream& operator <<(const Object& object) /*throw (eh::Exception)*/;
 
     private:
       BasicLogger* logger_;
@@ -283,13 +258,11 @@ namespace Logging
 
     /**X
      */
-    typedef Wrapper<Stream::MemoryStream::OutputMemoryStream<char>, size_t>
-      WrapperAlloc;
+    using WrapperAlloc = Wrapper<Stream::MemoryStream::OutputMemoryStream<char>, size_t>;
 
     /**X
      */
-    typedef Wrapper<StackWrapper<DEFAULT_BUFFER_SIZE>, size_t>
-      WrapperStack;
+    using WrapperStack = Wrapper<StackWrapper<DEFAULT_BUFFER_SIZE>, size_t>;
 
     /**
      */
@@ -301,7 +274,7 @@ namespace Logging
 
       char buffer_[SIZE];
     };
-    typedef Buffer<DEFAULT_BUFFER_SIZE> DBuffer;
+    using DBuffer = Buffer<DEFAULT_BUFFER_SIZE>;
 
 
     /**
@@ -383,8 +356,7 @@ namespace Logging
       const char* code = 0) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~StreamLogger() noexcept;
+    virtual ~StreamLogger() noexcept;
 
   private:
     StreamLogger() noexcept;
@@ -392,8 +364,7 @@ namespace Logging
     friend class Logger;
 
 
-    typedef Generics::ThreadBuffer<Logger, DEFAULT_BUFFER_SIZE, 100>
-      ThreadBuffer;
+    using ThreadBuffer = Generics::ThreadBuffer<Logger, DEFAULT_BUFFER_SIZE, 100>;
 
     static ThreadBuffer thread_buffer_;
   };
@@ -407,12 +378,11 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~Logger() noexcept;
+    virtual ~Logger() noexcept;
   };
-  typedef ReferenceCounting::SmartPtr<Logger> Logger_var;
-  typedef ReferenceCounting::QualPtr<Logger> QLogger_var;
-  typedef ReferenceCounting::FixedPtr<Logger> FLogger_var;
+  using Logger_var = ReferenceCounting::SmartPtr<Logger>;
+  using QLogger_var = ReferenceCounting::QualPtr<Logger>;
+  using FLogger_var = ReferenceCounting::FixedPtr<Logger>;
 
   /**
    * Simple class proxy for Logger
@@ -428,16 +398,13 @@ namespace Logging
      * Construct holder with logger to hold
      * @param logger logger to hold
      */
-    explicit
-    SimpleLoggerHolder(Logger* logger) noexcept;
+    explicit SimpleLoggerHolder(Logger* logger) noexcept;
 
     /**
      * Gets logger trace level.
      * @return current trace level
      */
-    virtual
-    unsigned long
-    log_level() noexcept;
+    virtual unsigned long log_level() noexcept;
 
     /**
      * Sets logger trace level.
@@ -445,9 +412,7 @@ namespace Logging
      * level should not be logged.
      * @param value new log level.
      */
-    virtual
-    void
-    log_level(unsigned long value) noexcept;
+    virtual void log_level(unsigned long value) noexcept;
 
     /**
      * Logs text with severity, aspect and code specified.
@@ -466,8 +431,7 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~SimpleLoggerHolder() noexcept;
+    virtual ~SimpleLoggerHolder() noexcept;
 
     mutable QLogger_var logger_;
   };
@@ -484,32 +448,26 @@ namespace Logging
      * Construct holder with logger to hold
      * @param logger logger to hold
      */
-    explicit
-    LoggerHolder(Logger* logger = 0) noexcept;
+    explicit LoggerHolder(Logger* logger = 0) noexcept;
 
     /*
      * Set in held logger
      * @param logger logger to hold
      */
-    void
-    logger(Logger* logger) noexcept;
+    void logger(Logger* logger) noexcept;
 
     /**
      * Gets logger trace level.
      * @return current trace level
      */
-    virtual
-    unsigned long
-    log_level() noexcept;
+    virtual unsigned long log_level() noexcept;
     /**
      * Sets logger trace level.
      * Records with severity value higher than trace
      * level should not be logged.
      * @param value new log level.
      */
-    virtual
-    void
-    log_level(unsigned long value) noexcept;
+    virtual void log_level(unsigned long value) noexcept;
 
     /**
      * Logs text with severity, aspect and code specified.
@@ -528,21 +486,19 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~LoggerHolder() noexcept;
+    virtual ~LoggerHolder() noexcept;
 
   private:
     /*
      * Check - if logger is held here
      * @return true if logger present
      */
-    bool
-    has_logger_() noexcept;
+    bool has_logger_() noexcept;
 
     Sync::PosixSpinLock mutex_;
     volatile sig_atomic_t log_level_;
   };
-  typedef ReferenceCounting::QualPtr<LoggerHolder> LoggerHolder_var;
+  using LoggerHolder_var = ReferenceCounting::QualPtr<LoggerHolder>;
 
   /**
    * Logger uses another logger and puts predefined aspect and/or error_code
@@ -575,8 +531,7 @@ namespace Logging
       const char* aspect = 0, const char* code = 0) noexcept;
 
   protected:
-    virtual
-    ~LoggerDefaultHolder() noexcept = default;
+    virtual ~LoggerDefaultHolder() noexcept = default;
 
     std::string aspect_;
     std::string code_;
@@ -608,19 +563,16 @@ namespace Logging
      * Places record into corresponding media.
      * @param record log record to publish
      */
-    virtual
-    void
-    publish(const LogRecord& record)
+    virtual void publish(const LogRecord& record)
       /*throw (Exception, eh::Exception)*/ = 0;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~Handler() noexcept;
+    virtual ~Handler() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<Handler> Handler_var;
+  using Handler_var = ReferenceCounting::QualPtr<Handler>;
 
   /**
    * Log record formatter. Responsible for converting
@@ -637,8 +589,7 @@ namespace Logging
      * @param record log record to format
      * @return formatted text string
      */
-    Generics::ArrayChar
-    format(const LogRecord& record) const
+    Generics::ArrayChar format(const LogRecord& record) const
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -646,9 +597,7 @@ namespace Logging
      * @param record log record to format
      * @return memory size to use
      */
-    virtual
-    size_t
-    required_size(const LogRecord& record) const
+    virtual size_t required_size(const LogRecord& record) const
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -658,19 +607,16 @@ namespace Logging
      * @param size external memory size
      * @return whether the record has been formatted or not
      */
-    virtual
-    bool
-    format(const LogRecord& record, char* buf, size_t size) const
+    virtual bool format(const LogRecord& record, char* buf, size_t size) const
       /*throw (Exception, eh::Exception)*/;
 
   protected:
     /**
      * Destructor.
      */
-    virtual
-    ~Formatter() noexcept;
+    virtual ~Formatter() noexcept;
   };
-  typedef ReferenceCounting::ConstPtr<Formatter> Formatter_var;
+  using Formatter_var = ReferenceCounting::ConstPtr<Formatter>;
 
 
   /**
@@ -706,8 +652,7 @@ namespace Logging
        * Returns pointer to formatted message
        * @return formatted message or NULL if formatting error occurred
        */
-      const char*
-      get() const noexcept;
+      const char* get() const noexcept;
 
     private:
       const char* ptr_;
@@ -728,16 +673,13 @@ namespace Logging
      * @param record log record to format
      * @return formatted string in Result
      */
-    Result
-    format(const LogRecord& record) const /*throw (eh::Exception)*/;
+    Result format(const LogRecord& record) const /*throw (eh::Exception)*/;
 
   private:
     /**
      * Creates default (simple) formatter if the one is not passed
      */
-    static
-    Formatter_var
-    create_default_formatter_() /*throw (eh::Exception)*/;
+    static Formatter_var create_default_formatter_() /*throw (eh::Exception)*/;
 
     const Formatter_var FORMATTER_;
     const size_t ALLOCATED_;
@@ -745,53 +687,49 @@ namespace Logging
   };
 
 
-  namespace Null
+}
+
+namespace Logging::Null
+{
+  /**
+   * Logger null implementation (i.e. no logging).
+   */
+  class Logger :
+    public ::Logging::Logger,
+    public ReferenceCounting::AtomicImpl
   {
+  public:
     /**
-     * Logger null implementation (i.e. no logging).
+     * Gets logger trace level
+     * @return zero
      */
-    class Logger :
-      public ::Logging::Logger,
-      public ReferenceCounting::AtomicImpl
-    {
-    public:
-      /**
-       * Gets logger trace level
-       * @return zero
-       */
-      virtual
-      unsigned long
-      log_level() noexcept;
+    virtual unsigned long log_level() noexcept;
 
-      /**X
-       * Does nothing
-       * @param value new log level
-       */
-      virtual
-      void
-      log_level(unsigned long value) noexcept;
+    /**X
+     * Does nothing
+     * @param value new log level
+     */
+    virtual void log_level(unsigned long value) noexcept;
 
-      /**
-       * Ignores passed log record information
-       * @param text text to be logged
-       * @param severity log record severity
-       * @param aspect log record aspect
-       * @param code log record code
-       * @return true
-       */
-      virtual
-      bool
-      log(const String::SubString& text, unsigned long severity = INFO,
-        const char* aspect = 0, const char* code = 0) noexcept;
+    /**
+     * Ignores passed log record information
+     * @param text text to be logged
+     * @param severity log record severity
+     * @param aspect log record aspect
+     * @param code log record code
+     * @return true
+     */
+    virtual
+    bool
+    log(const String::SubString& text, unsigned long severity = INFO,
+      const char* aspect = 0, const char* code = 0) noexcept;
 
-    protected:
-      /**
-       * Destructor
-       */
-      virtual
-      ~Logger() noexcept;
-    };
-  }
+  protected:
+    /**
+     * Destructor
+     */
+    virtual ~Logger() noexcept;
+  };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -804,13 +742,11 @@ namespace Logging
   // BaseLogger class
   //
 
-  inline
-  BaseLogger::BaseLogger() noexcept
+  inline BaseLogger::BaseLogger() noexcept
   {
   }
 
-  inline
-  BaseLogger::~BaseLogger() noexcept
+  inline BaseLogger::~BaseLogger() noexcept
   {
   }
 
@@ -819,13 +755,11 @@ namespace Logging
   // BasicLogger class
   //
 
-  inline
-  BasicLogger::BasicLogger() noexcept
+  inline BasicLogger::BasicLogger() noexcept
   {
   }
 
-  inline
-  BasicLogger::~BasicLogger() noexcept
+  inline BasicLogger::~BasicLogger() noexcept
   {
   }
 
@@ -838,9 +772,7 @@ namespace Logging
   }
 
   inline
-  bool
-  BasicLogger::alert(const String::SubString& text, const char* aspect,
-    const char* code)
+  bool BasicLogger::alert(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, ALERT, aspect, code);
@@ -855,45 +787,34 @@ namespace Logging
   }
 
   inline
-  bool
-  BasicLogger::error(const String::SubString& text, const char* aspect,
-    const char* code)
+  bool BasicLogger::error(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, ERROR, aspect, code);
   }
 
   inline
-  bool
-  BasicLogger::warning(const String::SubString& text, const char* aspect,
-    const char* code)
+  bool BasicLogger::warning(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, WARNING, aspect, code);
   }
 
   inline
-  bool
-  BasicLogger::notice(const String::SubString& text, const char* aspect,
-    const char* code)
+  bool BasicLogger::notice(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, NOTICE, aspect, code);
   }
 
-  inline
-  bool
-  BasicLogger::info(const String::SubString& text, const char* aspect,
-    const char* code)
+  inline bool BasicLogger::info(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, INFO, aspect, code);
   }
 
   inline
-  bool
-  BasicLogger::debug(const String::SubString& text, const char* aspect,
-    const char* code)
+  bool BasicLogger::debug(const String::SubString& text, const char* aspect, const char* code)
     noexcept
   {
     return log(text, DEBUG, aspect, code);
@@ -957,8 +878,7 @@ namespace Logging
   }
 
   template <typename Stream, typename Initializer>
-  StreamLogger::Wrapper<Stream, Initializer>::Wrapper(
-    Wrapper<Stream, Initializer>&& wrapper)
+  StreamLogger::Wrapper<Stream, Initializer>::Wrapper( Wrapper<Stream, Initializer>&& wrapper)
     /*throw (eh::Exception)*/
     : Generics::Uncopyable(),
       logger_(wrapper.logger_), severity_(wrapper.severity_),
@@ -989,8 +909,7 @@ namespace Logging
   }
 
   template <typename Stream, typename Initializer>
-  std::ostream&
-  StreamLogger::Wrapper<Stream, Initializer>::operator ()() noexcept
+  std::ostream& StreamLogger::Wrapper<Stream, Initializer>::operator ()() noexcept
   {
     return ostr_;
   }
@@ -1009,13 +928,11 @@ namespace Logging
   // StreamLogger class
   //
 
-  inline
-  StreamLogger::StreamLogger() noexcept
+  inline StreamLogger::StreamLogger() noexcept
   {
   }
 
-  inline
-  StreamLogger::~StreamLogger() noexcept
+  inline StreamLogger::~StreamLogger() noexcept
   {
   }
 
@@ -1032,8 +949,7 @@ namespace Logging
   StreamLogger::stream(unsigned long severity, const char* aspect,
     const char* code) /*throw (eh::Exception)*/
   {
-    return Wrapper<StackWrapper<SIZE>, size_t>(this, severity, aspect,
-      code, SIZE);
+    return Wrapper<StackWrapper<SIZE>, size_t>(this, severity, aspect, code, SIZE);
   }
 
   template <const size_t SIZE>
@@ -1041,8 +957,7 @@ namespace Logging
   StreamLogger::stream(Buffer<SIZE>& buffer, unsigned long severity,
     const char* aspect, const char* code) /*throw (eh::Exception)*/
   {
-    return Wrapper<Stream::Buffer<SIZE>, char*>(this, severity, aspect,
-      code, buffer.buffer_);
+    return Wrapper<Stream::Buffer<SIZE>, char*>(this, severity, aspect, code, buffer.buffer_);
   }
 
   inline
@@ -1060,8 +975,7 @@ namespace Logging
   // Logger class
   //
 
-  inline
-  Logger::~Logger() noexcept
+  inline Logger::~Logger() noexcept
   {
   }
 
@@ -1070,8 +984,7 @@ namespace Logging
   // Handler class
   //
 
-  inline
-  Handler::~Handler() noexcept
+  inline Handler::~Handler() noexcept
   {
   }
 
@@ -1080,14 +993,11 @@ namespace Logging
   // Formatter class
   //
 
-  inline
-  Formatter::~Formatter() noexcept
+  inline Formatter::~Formatter() noexcept
   {
   }
 
-  inline
-  Generics::ArrayChar
-  Formatter::format(const LogRecord& record) const
+  inline Generics::ArrayChar Formatter::format(const LogRecord& record) const
     /*throw (Exception, eh::Exception)*/
   {
     size_t size = required_size(record);
@@ -1101,9 +1011,7 @@ namespace Logging
     return buffer;
   }
 
-  inline
-  size_t
-  Formatter::required_size(const LogRecord& /*record*/) const
+  inline size_t Formatter::required_size(const LogRecord& /*record*/) const
     /*throw (Exception, eh::Exception)*/
   {
     return 0;
@@ -1122,22 +1030,17 @@ namespace Logging
   // FormatWrapper::Result class
   //
 
-  inline
-  FormatWrapper::Result::Result(const char* ptr, Generics::ArrayChar&& buf)
-    noexcept
+  inline FormatWrapper::Result::Result(const char* ptr, Generics::ArrayChar&& buf) noexcept
     : ptr_(ptr), buf_(std::move(buf))
   {
   }
 
-  inline
-  FormatWrapper::Result::Result(Result&& result) noexcept
+  inline FormatWrapper::Result::Result(Result&& result) noexcept
     : ptr_(result.ptr_), buf_(std::move(result.buf_))
   {
   }
 
-  inline
-  const char*
-  FormatWrapper::Result::get() const noexcept
+  inline const char* FormatWrapper::Result::get() const noexcept
   {
     return ptr_;
   }
@@ -1147,8 +1050,7 @@ namespace Logging
   // FormatWrapper class
   //
 
-  inline
-  FormatWrapper::FormatWrapper(const Formatter* formatter, size_t size)
+  inline FormatWrapper::FormatWrapper(const Formatter* formatter, size_t size)
     /*throw (eh::Exception)*/
     : FORMATTER_(ReferenceCounting::add_ref(formatter ? formatter :
         create_default_formatter_().in())), ALLOCATED_(size), BUFFER_(size)
@@ -1171,46 +1073,43 @@ namespace Logging
   }
 
 
-  namespace Null
+}
+
+namespace Logging::Null
+{
+  //
+  // Logger class
+  //
+
+  inline Logger::~Logger() noexcept
   {
-    //
-    // Logger class
-    //
-
-    inline
-    Logger::~Logger() noexcept
-    {
-    }
-
-    inline
-    unsigned long
-    Logger::log_level() noexcept
-    {
-      return 0;
-    }
-
-    inline
-    void
-    Logger::log_level(unsigned long /*level*/) noexcept
-    {
-    }
-
-    inline
-    bool
-    Logger::log(const String::SubString& /*text*/, unsigned long /*severity*/,
-      const char* /*aspect*/, const char* /*code*/) noexcept
-    {
-      return true;
-    }
   }
 
+  inline unsigned long Logger::log_level() noexcept
+  {
+    return 0;
+  }
+
+  inline void Logger::log_level(unsigned long /*level*/) noexcept
+  {
+  }
+
+  inline
+  bool
+  Logger::log(const String::SubString& /*text*/, unsigned long /*severity*/,
+    const char* /*aspect*/, const char* /*code*/) noexcept
+  {
+    return true;
+  }
+}
+
+namespace Logging
+{
   //
   // LoggerHolder class
   //
 
-  inline
-  bool
-  LoggerHolder::has_logger_() noexcept
+  inline bool LoggerHolder::has_logger_() noexcept
   {
     return logger_ != 0;
   }

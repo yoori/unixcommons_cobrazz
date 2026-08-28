@@ -18,30 +18,23 @@ namespace CORBATest
   public:
     struct Callback
     {
-      virtual
-      ~Callback() noexcept
+      virtual ~Callback() noexcept
       {
       }
-      virtual void
-      error(const char*) noexcept = 0;
+      virtual void error(const char*) noexcept = 0;
     };
 
     TestIntImpl(int seq3 = 3000, int seq2 = 15, int size = 1000) noexcept;
 
-    virtual
-    ~TestIntImpl() noexcept;
+    virtual ~TestIntImpl() noexcept;
 
-    virtual void
-    test(const OctetSeq& in_seq) noexcept;
+    virtual void test(const OctetSeq& in_seq) noexcept;
 
-    virtual void
-    oneway_test(const OctetSeq& in_seq) noexcept;
+    virtual void oneway_test(const OctetSeq& in_seq) noexcept;
 
-    virtual Seq3*
-    memory_test() /*throw (eh::Exception)*/;
+    virtual Seq3* memory_test() /*throw (eh::Exception)*/;
 
-    virtual void
-    print_memory(CORBA::Boolean full) noexcept;
+    virtual void print_memory(CORBA::Boolean full) noexcept;
 
     volatile _Atomic_word received_requests;
 
@@ -50,5 +43,5 @@ namespace CORBATest
     int seq3_, seq2_, size_;
   };
 
-  typedef ReferenceCounting::QualPtr<TestIntImpl> TestIntImpl_var;
+  using TestIntImpl_var = ReferenceCounting::QualPtr<TestIntImpl>;
 }

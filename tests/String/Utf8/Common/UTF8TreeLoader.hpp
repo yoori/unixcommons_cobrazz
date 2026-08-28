@@ -15,8 +15,7 @@ namespace Utf8Loading
   DECLARE_EXCEPTION(FileOpenError, eh::DescriptiveException);
 
   template <typename Container>
-  void
-  load_properties(const char* file_name, Container& container)
+  void load_properties(const char* file_name, Container& container)
     /*throw (eh::Exception, FileOpenError)*/;
 }
 
@@ -26,8 +25,7 @@ namespace Utf8Loading
 namespace Utf8Loading
 {
   template <typename Container>
-  void
-  load_properties(const char* file_name, Container& container)
+  void load_properties(const char* file_name, Container& container)
     /*throw (eh::Exception, FileOpenError)*/
   {
     std::ifstream ifs(file_name);

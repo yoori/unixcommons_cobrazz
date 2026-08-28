@@ -23,7 +23,7 @@ namespace HTTP
     std::string value;
   };
 
-  typedef std::list<Header> HeaderList;
+  using HeaderList = std::list<Header>;
 
   /**
    * HTTP Header based on SubString
@@ -32,15 +32,14 @@ namespace HTTP
   {
     SubHeader() noexcept;
     SubHeader(const char* nm, const char* vl) noexcept;
-    SubHeader(const String::SubString& nm, const String::SubString& vl)
-      noexcept;
+    SubHeader(const String::SubString& nm, const String::SubString& vl) noexcept;
     SubHeader(const Header& header) noexcept; // implicit
 
     String::SubString name;
     String::SubString value;
   };
 
-  typedef std::list<SubHeader> SubHeaderList;
+  using SubHeaderList = std::list<SubHeader>;
 
   /**
    * HTTP Parameter
@@ -56,7 +55,7 @@ namespace HTTP
     std::string value;
   };
 
-  typedef std::list<Param> ParamList;
+  using ParamList = std::list<Param>;
 
   /**
    * HTTP Parameter based on SubString
@@ -65,15 +64,14 @@ namespace HTTP
   {
     SubParam() noexcept;
     SubParam(const char* nm, const char* vl) noexcept;
-    SubParam(const String::SubString& nm, const String::SubString& vl)
-      noexcept;
+    SubParam(const String::SubString& nm, const String::SubString& vl) noexcept;
     SubParam(const Param& param) noexcept; // implicit
 
     String::SubString name;
     String::SubString value;
   };
 
-  typedef std::list<SubParam> SubParamList;
+  using SubParamList = std::list<SubParam>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,19 +84,16 @@ namespace HTTP
   // Header class
   //
 
-  inline
-  Header::Header() /*throw (eh::Exception)*/
+  inline Header::Header() /*throw (eh::Exception)*/
   {
   }
 
-  inline
-  Header::Header(const char* nm, const char* vl) /*throw (eh::Exception)*/
+  inline Header::Header(const char* nm, const char* vl) /*throw (eh::Exception)*/
     : name(nm), value(vl)
   {
   }
 
-  inline
-  Header::Header(const std::string& nm, const std::string& vl)
+  inline Header::Header(const std::string& nm, const std::string& vl)
     /*throw (eh::Exception)*/
     : name(nm), value(vl)
   {
@@ -109,26 +104,21 @@ namespace HTTP
   // SubHeader class
   //
 
-  inline
-  SubHeader::SubHeader() noexcept
+  inline SubHeader::SubHeader() noexcept
   {
   }
 
-  inline
-  SubHeader::SubHeader(const char* nm, const char* vl) noexcept
+  inline SubHeader::SubHeader(const char* nm, const char* vl) noexcept
     : name(nm), value(vl)
   {
   }
 
-  inline
-  SubHeader::SubHeader(const String::SubString& nm,
-    const String::SubString& vl) noexcept
+  inline SubHeader::SubHeader(const String::SubString& nm, const String::SubString& vl) noexcept
     : name(nm), value(vl)
   {
   }
 
-  inline
-  SubHeader::SubHeader(const Header& header) noexcept
+  inline SubHeader::SubHeader(const Header& header) noexcept
     : name(header.name), value(header.value)
   {
   }
@@ -138,19 +128,16 @@ namespace HTTP
   // Param class
   //
 
-  inline
-  Param::Param() /*throw (eh::Exception)*/
+  inline Param::Param() /*throw (eh::Exception)*/
   {
   }
 
-  inline
-  Param::Param(const char* nm, const char* vl) /*throw (eh::Exception)*/
+  inline Param::Param(const char* nm, const char* vl) /*throw (eh::Exception)*/
     : name(nm), value(vl)
   {
   }
 
-  inline
-  Param::Param(const std::string& nm, const std::string& vl)
+  inline Param::Param(const std::string& nm, const std::string& vl)
     /*throw (eh::Exception)*/
     : name(nm), value(vl)
   {
@@ -161,26 +148,21 @@ namespace HTTP
   // SubParam class
   //
 
-  inline
-  SubParam::SubParam() noexcept
+  inline SubParam::SubParam() noexcept
   {
   }
 
-  inline
-  SubParam::SubParam(const char* nm, const char* vl) noexcept
+  inline SubParam::SubParam(const char* nm, const char* vl) noexcept
     : name(nm), value(vl)
   {
   }
 
-  inline
-  SubParam::SubParam(const String::SubString& nm,
-    const String::SubString& vl) noexcept
+  inline SubParam::SubParam(const String::SubString& nm, const String::SubString& vl) noexcept
     : name(nm), value(vl)
   {
   }
 
-  inline
-  SubParam::SubParam(const Param& param) noexcept
+  inline SubParam::SubParam(const Param& param) noexcept
     : name(param.name), value(param.value)
   {
   }

@@ -10,12 +10,10 @@
 class Obj : public Generics::Last<ReferenceCounting::AtomicImpl>
 {
 public:
-  void
-  func() noexcept;
+  void func() noexcept;
 
 protected:
-  virtual
-  ~Obj() noexcept;
+  virtual ~Obj() noexcept;
 };
 
 Obj::~Obj() noexcept
@@ -23,25 +21,22 @@ Obj::~Obj() noexcept
   std::cout << FNS << std::endl;
 }
 
-void
-Obj::func() noexcept
+void Obj::func() noexcept
 {
   std::cout << FNS << std::endl;
 }
 
-typedef ReferenceCounting::QualPtr<Obj> ObjPtr;
+using ObjPtr = ReferenceCounting::QualPtr<Obj>;
 
-typedef Generics::LastPtr<Obj> ObjLastPtr;
+using ObjLastPtr = Generics::LastPtr<Obj>;
 
-void
-test0() /*throw (eh::Exception)*/
+void test0() /*throw (eh::Exception)*/
 {
   ObjPtr ptr(new Obj);
   ptr->func();
 }
 
-void
-test1() /*throw (eh::Exception)*/
+void test1() /*throw (eh::Exception)*/
 {
   ObjPtr ptr(new Obj);
   ptr->func();
@@ -49,16 +44,14 @@ test1() /*throw (eh::Exception)*/
   lptr->func();
 }
 
-void*
-reseter(void* arg)
+void* reseter(void* arg)
 {
   sleep(2);
   static_cast<ObjPtr*>(arg)->reset();
   return 0;
 }
 
-void
-test2() /*throw (eh::Exception)*/
+void test2() /*throw (eh::Exception)*/
 {
   ObjPtr ptr(new Obj);
   ObjPtr ptr2(ptr);
@@ -75,8 +68,7 @@ test2() /*throw (eh::Exception)*/
   pthread_join(tid, 0);
 }
 
-int
-main()
+int main()
 {
   try
   {

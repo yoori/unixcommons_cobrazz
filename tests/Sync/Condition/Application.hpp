@@ -8,23 +8,18 @@
 class ConsumerProducer
 {
 public:
-  ConsumerProducer(std::size_t max_item_count,
-    std::size_t producer_threads_count = 1)
+  ConsumerProducer(std::size_t max_item_count, std::size_t producer_threads_count = 1)
     /*throw(Sync::Conditional::Exception)*/;
   ~ConsumerProducer() noexcept;
 
-  void
-  producer(std::size_t &work_stat)
+  void producer(std::size_t &work_stat)
     /*throw(Sync::Conditional::Exception)*/;
 
-  static void *
-  producer(void *arg) noexcept;
+  static void * producer(void *arg) noexcept;
 
-  void
-  consumer() /*throw(Sync::Conditional::Exception)*/;
+  void consumer() /*throw(Sync::Conditional::Exception)*/;
 
-  static void *
-  consumer(void *arg) noexcept;
+  static void * consumer(void *arg) noexcept;
 
 private:
   const std::size_t MAX_ITEM_COUNT_;
@@ -45,6 +40,6 @@ private:
     pthread_t thread;
   };
 
-  typedef std::vector<ThreadContext> ThreadsContainer;
+  using ThreadsContainer = std::vector<ThreadContext>;
   ThreadsContainer threads_;
 };

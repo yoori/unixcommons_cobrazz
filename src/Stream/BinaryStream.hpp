@@ -19,9 +19,9 @@ namespace Stream
   class StreamBase : private Generics::Uncopyable
   {
   public:
-    typedef int int_type;
-    typedef char char_type;
-    typedef unsigned long streamsize;
+    using int_type = int;
+    using char_type = char;
+    using streamsize = unsigned long;
 
     /**
      * Construct object in good state
@@ -31,8 +31,7 @@ namespace Stream
     /**
      * Empty virtual destructor
      */
-    virtual
-    ~StreamBase() noexcept;
+    virtual ~StreamBase() noexcept;
 
     /**
      * Indicates if the stream is still good
@@ -44,31 +43,27 @@ namespace Stream
      * Indicates if the stream is not bad
      * @return returns fail()
      */
-    bool
-    operator !() const noexcept;
+    bool operator !() const noexcept;
 
     /**
      * Reads the state of bits for flags
      * @return The stored stream state information
      */
-    std::ios_base::iostate
-    rdstate() const noexcept;
+    std::ios_base::iostate rdstate() const noexcept;
 
     /**
      * Clears all error flags
      * @param state The flags you want to set after clearing all flags,
      * optional
      */
-    void
-    clear(std::ios_base::iostate state = std::ios_base::goodbit)
+    void clear(std::ios_base::iostate state = std::ios_base::goodbit)
       /*throw (eh::Exception)*/;
 
     /**
      * Sets additional flags
      * @param state Additional flags to set
      */
-    void
-    setstate(std::ios_base::iostate state)
+    void setstate(std::ios_base::iostate state)
       /*throw (eh::Exception)*/;
 
     /**
@@ -76,16 +71,14 @@ namespace Stream
      * @return true if rdstate() == goodbit (no state flags are set),
      * otherwise, false
      */
-    bool
-    good() const noexcept;
+    bool good() const noexcept;
 
     /**
      * Indicates if the end of a stream has been reached
      * @return true if the end of the stream has been reached,
      *  false otherwise
      */
-    bool
-    eof() const noexcept;
+    bool eof() const noexcept;
 
     /**
      * Indicates the status of
@@ -93,30 +86,26 @@ namespace Stream
      * @return true if rdstate & (failbit | badbit) is nonzero,
      * otherwise false
      */
-    bool
-    fail() const noexcept;
+    bool fail() const noexcept;
 
     /**
      * Indicates the state of rdstate() & std::ios_base::badbit
      * @return true if rdstate & badbit is nonzero; otherwise false
      */
-    bool
-    bad() const noexcept;
+    bool bad() const noexcept;
 
     /**
      * Indicates which exceptions will be thrown by the stream
      * @return The flags that are currently specified to thrown
      * an exception for the stream
      */
-    std::ios_base::iostate
-    exceptions() const noexcept;
+    std::ios_base::iostate exceptions() const noexcept;
 
     /**
      * Set new exceptions mask
      * @param except The flags that you want to throw an exception
      */
-    void
-    exceptions(std::ios_base::iostate except) /*throw (eh::Exception)*/;
+    void exceptions(std::ios_base::iostate except) /*throw (eh::Exception)*/;
 
   protected:
     std::ios_base::iostate state_;
@@ -139,8 +128,7 @@ namespace Stream
      * @return The number of characters extracted by the last unformatted
      * input member function called for the object.
      */
-    streamsize
-    gcount() const noexcept;
+    streamsize gcount() const noexcept;
 
     // TODO: Do we need this?
     // virtual
@@ -154,9 +142,7 @@ namespace Stream
      * @param c Character to store result
      * @return Reference on self
      */
-    virtual
-    BinaryInputStream&
-    get(char_type& c) /*throw (eh::Exception)*/;
+    virtual BinaryInputStream& get(char_type& c) /*throw (eh::Exception)*/;
 
     /**
      * Reads a specified number of characters from the stream and stores them
@@ -164,9 +150,7 @@ namespace Stream
      * @param s The array in which to read the characters
      * @param n The number of characters to read
      */
-    virtual
-    BinaryInputStream&
-    read(char_type* s, streamsize n) /*throw (eh::Exception)*/ = 0;
+    virtual BinaryInputStream& read(char_type* s, streamsize n) /*throw (eh::Exception)*/ = 0;
 
     // TODO: do we need these?
     // BinaryInputStream&
@@ -193,9 +177,7 @@ namespace Stream
      * @param c A character
      * @return Reference to self
      */
-    virtual
-    BinaryOutputStream&
-    put(char_type c) /*throw (eh::Exception)*/;
+    virtual BinaryOutputStream& put(char_type c) /*throw (eh::Exception)*/;
 
     /**
      * Put characters in a stream
@@ -204,8 +186,7 @@ namespace Stream
      * @return Reference on self
      */
     virtual
-    BinaryOutputStream&
-    write(const char_type* s, streamsize n) /*throw (eh::Exception)*/ = 0;
+    BinaryOutputStream& write(const char_type* s, streamsize n) /*throw (eh::Exception)*/ = 0;
   };
 
   /**
@@ -220,7 +201,7 @@ namespace Stream
      * Construct buffer work with input stream
      */
     BinaryStreambuf(BinaryInputStream* in) /*throw (eh::Exception)*/;
- 
+
     /**
      * Construct buffer work with output stream
      */
@@ -231,13 +212,9 @@ namespace Stream
     // read functions
     //
 
-    virtual
-    std::streamsize
-    showmanyc() /*throw (eh::Exception)*/;
+    virtual std::streamsize showmanyc() /*throw (eh::Exception)*/;
 
-    virtual
-    int_type
-    underflow() /*throw (eh::Exception)*/;
+    virtual int_type underflow() /*throw (eh::Exception)*/;
 
     // virtual
     // std::streamsize
@@ -247,16 +224,11 @@ namespace Stream
     // write functions
     //
 
-    ssize_t
-    flush_buffer() /*throw (eh::Exception)*/;
+    ssize_t flush_buffer() /*throw (eh::Exception)*/;
 
-    virtual
-    int
-    sync() /*throw (eh::Exception)*/;
+    virtual int sync() /*throw (eh::Exception)*/;
 
-    virtual
-    int_type
-    overflow(int_type c = traits_type::eof()) /*throw (eh::Exception)*/;
+    virtual int_type overflow(int_type c = traits_type::eof()) /*throw (eh::Exception)*/;
     // virtual
     // std::streamsize
     // xsputn(const char_type* s, std::streamsize n) /*throw (eh::Exception)*/;
@@ -311,40 +283,31 @@ namespace Stream
   // StreamBase class
   //
 
-  inline
-  StreamBase::StreamBase() noexcept
+  inline StreamBase::StreamBase() noexcept
     : state_(std::ios_base::goodbit), exceptions_(std::ios_base::goodbit)
   {
   }
 
-  inline
-  StreamBase::~StreamBase() noexcept
+  inline StreamBase::~StreamBase() noexcept
   {
   }
 
-  inline
-  StreamBase::operator const void*() const noexcept
+  inline StreamBase::operator const void*() const noexcept
   {
     return fail() ? 0 : static_cast<const void*>(this);
   }
 
-  inline
-  bool
-  StreamBase::operator !() const noexcept
+  inline bool StreamBase::operator !() const noexcept
   {
     return fail();
   }
 
-  inline
-  std::ios_base::iostate
-  StreamBase::rdstate() const noexcept
+  inline std::ios_base::iostate StreamBase::rdstate() const noexcept
   {
     return state_;
   }
 
-  inline
-  void
-  StreamBase::clear(std::ios_base::iostate state) /*throw (eh::Exception)*/
+  inline void StreamBase::clear(std::ios_base::iostate state) /*throw (eh::Exception)*/
   {
     state_ = state;
     if (exceptions_ & state_)
@@ -353,51 +316,37 @@ namespace Stream
     }
   }
 
-  inline
-  void
-  StreamBase::setstate(std::ios_base::iostate state) /*throw (eh::Exception)*/
+  inline void StreamBase::setstate(std::ios_base::iostate state) /*throw (eh::Exception)*/
   {
     clear(rdstate() | state);
   }
 
-  inline
-  bool
-  StreamBase::good() const noexcept
+  inline bool StreamBase::good() const noexcept
   {
     return !state_;
   }
 
-  inline
-  bool
-  StreamBase::eof() const noexcept
+  inline bool StreamBase::eof() const noexcept
   {
     return state_ & std::ios_base::eofbit;
   }
 
-  inline
-  bool
-  StreamBase::fail() const noexcept
+  inline bool StreamBase::fail() const noexcept
   {
     return state_ & (std::ios_base::failbit | std::ios_base::badbit);
   }
 
-  inline
-  bool
-  StreamBase::bad() const noexcept
+  inline bool StreamBase::bad() const noexcept
   {
     return state_ & std::ios_base::badbit;
   }
 
-  inline
-  std::ios_base::iostate
-  StreamBase::exceptions() const noexcept
+  inline std::ios_base::iostate StreamBase::exceptions() const noexcept
   {
     return exceptions_;
   }
 
-  inline
-  void
-  StreamBase::exceptions(std::ios_base::iostate except) /*throw (eh::Exception)*/
+  inline void StreamBase::exceptions(std::ios_base::iostate except) /*throw (eh::Exception)*/
   {
     exceptions_ = except;
     clear(rdstate());
@@ -408,22 +357,17 @@ namespace Stream
   // BinaryInputStream class
   //
 
-  inline
-  BinaryInputStream::BinaryInputStream() noexcept
+  inline BinaryInputStream::BinaryInputStream() noexcept
     : gcount_(0)
   {
   }
 
-  inline
-  BinaryInputStream::streamsize
-  BinaryInputStream::gcount() const noexcept
+  inline BinaryInputStream::streamsize BinaryInputStream::gcount() const noexcept
   {
     return gcount_;
   }
 
-  inline
-  BinaryInputStream&
-  BinaryInputStream::get(char_type& c) /*throw (eh::Exception)*/
+  inline BinaryInputStream& BinaryInputStream::get(char_type& c) /*throw (eh::Exception)*/
   {
     return read(&c, 1);
   }
@@ -433,9 +377,7 @@ namespace Stream
   // BinaryOutputStream class
   //
 
-  inline
-  BinaryOutputStream&
-  BinaryOutputStream::put(char_type c) /*throw (eh::Exception)*/
+  inline BinaryOutputStream& BinaryOutputStream::put(char_type c) /*throw (eh::Exception)*/
   {
     return write(&c, 1);
   }
@@ -445,8 +387,7 @@ namespace Stream
   // BinaryStreamReader class
   //
 
-  inline
-  BinaryStreamReader::BinaryStreamReader(BinaryInputStream* in)
+  inline BinaryStreamReader::BinaryStreamReader(BinaryInputStream* in)
     /*throw (eh::Exception)*/
     : std::istream(0), buf_(in)
   {
@@ -458,8 +399,7 @@ namespace Stream
   // BinaryStreamWriter class
   //
 
-  inline
-  BinaryStreamWriter::BinaryStreamWriter(BinaryOutputStream* out)
+  inline BinaryStreamWriter::BinaryStreamWriter(BinaryOutputStream* out)
     /*throw (eh::Exception)*/
     : std::ostream(0), buf_(out)
   {

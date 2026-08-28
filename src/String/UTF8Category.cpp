@@ -10,66 +10,60 @@
 #include <Stream/MemoryStream.hpp>
 
 
-namespace String
+namespace String::UnicodeProperty
 {
-  namespace UnicodeProperty
-  {
-    const Node TREE_STOP(&TREE_STOP);
-  }
+  const Node TREE_STOP(&TREE_STOP);
+}
 
-  namespace Utf8Set
+namespace String::Utf8Set
+{
+  Utf8Char get_char(const char* symbol, unsigned long* poctets)
+    /*throw (eh::Exception)*/
   {
-    Utf8Char
-    get_char(const char* symbol, unsigned long* poctets)
-      /*throw (eh::Exception)*/
+    Utf8Char utf8char = 0;
+    unsigned long octets;
+    if (!(octets = UTF8Handler::get_octet_count(*symbol)) || octets > 4)
     {
-      Utf8Char utf8char = 0;
-      unsigned long octets;
-      if (!(octets = UTF8Handler::get_octet_count(*symbol)) || octets > 4)
-      {
-        if (poctets)
-        {
-          *poctets = 0;
-        }
-        return ~static_cast<Utf8Char>(0);
-      }
-
-      for (const char* till = symbol + octets; symbol != till; symbol++)
-      {
-        utf8char = (utf8char << 8) | static_cast<uint8_t>(*symbol);
-      }
-
       if (poctets)
       {
-        *poctets = octets;
+        *poctets = 0;
       }
-      return utf8char;
+      return ~static_cast<Utf8Char>(0);
     }
 
-    void
-    add_symbol(Utf8Chars& chars, const char* symbol)
-      /*throw (eh::Exception)*/
+    for (const char* till = symbol + octets; symbol != till; symbol++)
     {
-      chars.add(get_char(symbol));
+      utf8char = (utf8char << 8) | static_cast<uint8_t>(*symbol);
     }
 
-    void
-    add_symbols(Utf8Chars& chars, const char* first, const char* last)
-      /*throw (eh::Exception)*/
+    if (poctets)
     {
-      chars.add(get_char(first), get_char(last));
+      *poctets = octets;
     }
+    return utf8char;
   }
 
+  void add_symbol(Utf8Chars& chars, const char* symbol)
+    /*throw (eh::Exception)*/
+  {
+    chars.add(get_char(symbol));
+  }
+
+  void add_symbols(Utf8Chars& chars, const char* first, const char* last)
+    /*throw (eh::Exception)*/
+  {
+    chars.add(get_char(first), get_char(last));
+  }
+}
+
+namespace String
+{
   const Utf8Category UNICODE_SPACES(UnicodeProperty::SPACE_TREE);
   const Utf8Category UNICODE_DIGITS(UnicodeProperty::DIGIT_TREE);
   const Utf8Category UNICODE_LETTERS(UnicodeProperty::LETTER_TREE);
-  const Utf8Category UNICODE_LOWER_LETTERS(
-    UnicodeProperty::LETTER_LOWER_TREE);
-  const Utf8Category UNICODE_TITLE_LETTERS(
-    UnicodeProperty::LETTER_TITLE_TREE);
-  const Utf8Category UNICODE_UPPER_LETTERS(
-    UnicodeProperty::LETTER_UPPER_TREE);
+  const Utf8Category UNICODE_LOWER_LETTERS( UnicodeProperty::LETTER_LOWER_TREE);
+  const Utf8Category UNICODE_TITLE_LETTERS( UnicodeProperty::LETTER_TITLE_TREE);
+  const Utf8Category UNICODE_UPPER_LETTERS( UnicodeProperty::LETTER_UPPER_TREE);
 
   Utf8Category::Utf8Category(const char* symbols, bool check_zero)
     /*throw (eh::Exception, InvalidArgument)*/
@@ -141,22 +135,17 @@ namespace String
     }
   }
 
-  void
-  Utf8Category::swap(Utf8Category& category) noexcept
+  void Utf8Category::swap(Utf8Category& category) noexcept
   {
     char buf[sizeof(nodes_)];
 
     memcpy(buf, nodes_, sizeof(buf));
-    memcpy(const_cast<UnicodeProperty::Node*>(nodes_),
-      category.nodes_, sizeof(buf));
-    memcpy(const_cast<UnicodeProperty::Node*>(category.nodes_),
-      buf, sizeof(buf));
+    memcpy(const_cast<UnicodeProperty::Node*>(nodes_), category.nodes_, sizeof(buf));
+    memcpy(const_cast<UnicodeProperty::Node*>(category.nodes_), buf, sizeof(buf));
     std::swap(category.need_cleaning_, need_cleaning_);
   }
 
-  const char*
-  Utf8Category::find_owned(const char* str, unsigned long* octets) const
-    noexcept
+  const char* Utf8Category::find_owned(const char* str, unsigned long* octets) const noexcept
   {
     for (;;)
     {
@@ -197,8 +186,7 @@ namespace String
   }
 
   const char*
-  Utf8Category::find_owned(const char* begin, const char* end,
-    unsigned long* octets) const noexcept
+  Utf8Category::find_owned(const char* begin, const char* end, unsigned long* octets) const noexcept
   {
     while (begin < end)
     {
@@ -230,9 +218,7 @@ namespace String
     return end;
   }
 
-  const char*
-  Utf8Category::find_nonowned(const char* str, unsigned long* octets) const
-    noexcept
+  const char* Utf8Category::find_nonowned(const char* str, unsigned long* octets) const noexcept
   {
     for (;;)
     {
@@ -323,6 +309,7 @@ namespace String
         {
           return 0;
         }
+
         if (is_owned(current))
         {
           if (octets)
@@ -355,6 +342,7 @@ namespace String
         {
           return 0;
         }
+
         if (!is_owned(current))
         {
           if (octets)
@@ -370,8 +358,7 @@ namespace String
     return pos;
   }
 
-  void
-  Utf8Category::clear_() noexcept
+  void Utf8Category::clear_() noexcept
   {
     for (int i = 0; i < 256; i++)
     {
@@ -383,9 +370,7 @@ namespace String
     }
   }
 
-  void
-  Utf8Category::clear_(const UnicodeProperty::Node* node,
-    unsigned long depth) noexcept
+  void Utf8Category::clear_(const UnicodeProperty::Node* node, unsigned long depth) noexcept
   {
     if (!node || node == &UnicodeProperty::TREE_STOP)
     {
@@ -403,8 +388,7 @@ namespace String
     delete [] node;
   }
 
-  void
-  Utf8Category::init_(const Utf8Set::Utf8Chars& chars) /*throw (eh::Exception)*/
+  void Utf8Category::init_(const Utf8Set::Utf8Chars& chars) /*throw (eh::Exception)*/
   {
     try
     {
@@ -422,8 +406,7 @@ namespace String
           break;
 
         default:
-          init_interval_(chars, const_cast<UnicodeProperty::Node&>(
-            nodes_[i]), i, depth - 2);
+          init_interval_(chars, const_cast<UnicodeProperty::Node&>( nodes_[i]), i, depth - 2);
           break;
         }
       }
@@ -459,8 +442,7 @@ namespace String
         prefix <<= 8;
         prefix += 0x80;
         depth_left--;
-        for (Utf8Set::Utf8Char stop = prefix + 64; prefix < stop;
-          prefix++, middle++)
+        for (Utf8Set::Utf8Char stop = prefix + 64; prefix < stop; prefix++, middle++)
         {
           init_interval_(chars, *middle, prefix, depth_left);
         }
@@ -483,8 +465,7 @@ namespace String
       case Utf8Set::Utf8Chars::CS_SOME:
         node.leaf = 0;
         UnicodeProperty::TreeLeaf flag = 1;
-        for (Utf8Set::Utf8Char stop = prefix + 64; prefix < stop;
-          flag <<= 1, prefix++)
+        for (Utf8Set::Utf8Char stop = prefix + 64; prefix < stop; flag <<= 1, prefix++)
         {
           if (chars.belongs(prefix))
           {

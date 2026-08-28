@@ -47,21 +47,16 @@ struct Hashes : public std::vector<HashInfo>
 {
   Hashes();
 
-  void
-  append(const HashInfo& hash);
+  void append(const HashInfo& hash);
 
   template <typename Hash, const int N>
-  void
-  add_hash_n(const char* hash_name, HashInfo& hash);
+  void add_hash_n(const char* hash_name, HashInfo& hash);
 
   template <typename Hash, const int N>
-  void
-  add_hash_r(const char* hash_name, HashInfo& hash);
+  void add_hash_r(const char* hash_name, HashInfo& hash);
 
   template <typename Hash>
-  void
-  add_hash(std::size_t incremental_standard, uint32_t verification,
-    const char* hash_name);
+  void add_hash(std::size_t incremental_standard, uint32_t verification, const char* hash_name);
 };
 
 extern Hashes g_hashes;
@@ -70,9 +65,7 @@ extern Hashes g_hashes;
 // Hashes class implementation
 //
 
-inline
-void
-Hashes::append(const HashInfo& hash)
+inline void Hashes::append(const HashInfo& hash)
 {
   test_custom_key_incremental_hash_indirect(hash.name.c_str(),
     hash.incremental_standard, hash.hash);
@@ -80,8 +73,7 @@ Hashes::append(const HashInfo& hash)
 }
 
 template <typename Hash, const int N>
-void
-Hashes::add_hash_n(const char* hash_name, HashInfo& hash)
+void Hashes::add_hash_n(const char* hash_name, HashInfo& hash)
 {
   hash.hash = hash_by_n<Hash, N>;
   char txt[1024];
@@ -92,8 +84,7 @@ Hashes::add_hash_n(const char* hash_name, HashInfo& hash)
 
 
 template <typename Hash, const int N>
-void
-Hashes::add_hash_r(const char* hash_name, HashInfo& hash)
+void Hashes::add_hash_r(const char* hash_name, HashInfo& hash)
 {
   hash.hash = hash_by_r<Hash, N>;
   char txt[1024];
@@ -104,13 +95,11 @@ Hashes::add_hash_r(const char* hash_name, HashInfo& hash)
 
 template <typename Hash>
 void
-Hashes::add_hash(std::size_t incremental_standard, uint32_t verification,
-  const char* hash_name)
+Hashes::add_hash(std::size_t incremental_standard, uint32_t verification, const char* hash_name)
 {
   // Check incremental calculation
   test_custom_key_incremental_hash<Hash>(hash_name, incremental_standard);
-  HashInfo hash =
-  {
+  HashInfo hash = {
     hash_simple<Hash>, 64, verification, hash_name, "", incremental_standard
   };
   append(hash);

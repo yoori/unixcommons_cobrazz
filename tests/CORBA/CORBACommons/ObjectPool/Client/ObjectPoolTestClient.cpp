@@ -15,10 +15,10 @@
 
 
 using namespace CORBACommons;
-typedef CORBAConfigParser::CorbaRefOption<
-  CORBATest::TestObjectPool> RefOption;
+using RefOption = CORBAConfigParser::CorbaRefOption<
+  CORBATest::TestObjectPool>;
 
-typedef std::vector<std::string> Urls;
+using Urls = std::vector<std::string>;
 
 /**
  * class with tests
@@ -27,8 +27,8 @@ template <typename PoolType>
 class OPTester
 {
 public:
-  typedef PoolType Pool;
-  typedef typename PoolType::ConfigType::RefAndNumber RefAndNumber;
+  using Pool = PoolType;
+  using RefAndNumber = typename PoolType::ConfigType::RefAndNumber;
 
   /**
    * Constructor on Objects
@@ -53,45 +53,37 @@ public:
   /**
    * check round robin algorithm.
    */
-  void
-  test_demultiplex() /*throw (eh::Exception)*/;
+  void test_demultiplex() /*throw (eh::Exception)*/;
 
   /**
    * check random selection objects from pool
    */
-  void
-  test_random() /*throw (eh::Exception)*/;
+  void test_random() /*throw (eh::Exception)*/;
 
   /**
    * Check PT_BAD_SWITCH policy - object switch only if
    * it was bad at time of get_object call
    */
-  void
-  test_bad_switch() /*throw (eh::Exception)*/;
+  void test_bad_switch() /*throw (eh::Exception)*/;
 
   /**
    * check unfrozen after timeout and inaccessible.
    */
-  void
-  test_invalidate() /*throw (eh::Exception)*/;
+  void test_invalidate() /*throw (eh::Exception)*/;
 
   /**
    * behavior in case of full refusal
    */
-  void
-  test_all_bad() /*throw (eh::Exception)*/;
+  void test_all_bad() /*throw (eh::Exception)*/;
 
-  void
-  test() /*throw (eh::Exception)*/;
+  void test() /*throw (eh::Exception)*/;
 
   /**
    * Test round robin algorithm
    * @param pool pool to call objects
    * @param first_stage determine standard results for pool working
    */
-  static void
-  test_not_exist_yet(Pool& pool,
-    typename Pool::ConfigType& config, bool first_stage);
+  static void test_not_exist_yet(Pool& pool, typename Pool::ConfigType& config, bool first_stage);
 
   /**
    * Perform MT_TEST_REPETITIONS calls to pool from some threads, and
@@ -101,8 +93,7 @@ public:
    * strategy
    */
   static void
-  multithread_test(typename Pool::ConfigType& config,
-    ChoosePolicyType::POLICY_TYPE policy_type)
+  multithread_test(typename Pool::ConfigType& config, ChoosePolicyType::POLICY_TYPE policy_type)
     /*throw (eh::Exception)*/;
 
   static const std::size_t MT_TEST_REPETITIONS = 1000;
@@ -110,9 +101,9 @@ public:
 private:
 
   typename PoolType::ConfigType config_base_;
-  typedef typename PoolType::ConfigType::References Refs;
+  using Refs = typename PoolType::ConfigType::References;
   Refs ref_;
-  typedef std::vector<CORBATest::TestObjectPool_var> Objects;
+  using Objects = std::vector<CORBATest::TestObjectPool_var>;
   Objects ob_;
 
   /**
@@ -126,8 +117,7 @@ private:
   {
     PoolIterator(Pool& pool_ref) noexcept;
 
-    void
-    operator ()() noexcept;
+    void operator ()() noexcept;
   private:
     Pool& pool_;
   };
@@ -167,15 +157,13 @@ OPTester<PoolType>::OPTester(
 }
 
 template <typename PoolType>
-OPTester<PoolType>::PoolIterator::PoolIterator(Pool& pool_ref)
-  noexcept
+OPTester<PoolType>::PoolIterator::PoolIterator(Pool& pool_ref) noexcept
   : pool_(pool_ref)
 {
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::PoolIterator::operator ()() noexcept
+void OPTester<PoolType>::PoolIterator::operator ()() noexcept
 {
   unsigned key = Generics::safe_rand(30);
   pool_iteration_(pool_, false, key > 20 ? Pool::SPECIAL_KEY : key);
@@ -222,8 +210,7 @@ OPTester<PoolType>::pool_iteration_(Pool& pool, bool ignore_ir,
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test_demultiplex() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test_demultiplex() /*throw (eh::Exception)*/
 {
   typename PoolType::ConfigType configuration(config_base_);
   configuration.iors_list = ref_;
@@ -240,11 +227,11 @@ OPTester<PoolType>::test_demultiplex() /*throw (eh::Exception)*/
     if (ob_load != 6)
     {
       std::cerr << FNS << "Fail: each object should be called 6 times at "
-        "round robin selection, but actually number for some object " <<
-        ob_load << std::endl;
+        "round robin selection, but actually number for some object " << ob_load << std::endl;
       break;
     }
   }
+
   if (it == ob_.end())
   {
     std::cout << "Round robin selection is working" << std::endl;
@@ -252,8 +239,7 @@ OPTester<PoolType>::test_demultiplex() /*throw (eh::Exception)*/
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test_random() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test_random() /*throw (eh::Exception)*/
 {
   typename PoolType::ConfigType configuration(config_base_);
   configuration.iors_list = ref_;
@@ -278,10 +264,12 @@ OPTester<PoolType>::test_random() /*throw (eh::Exception)*/
     {
       std::cout << i << "=" << ob_load << std::endl;
     }
+
     if (i == 10)
     {
       std::cout << "And so on..." << std::endl;
     }
+
     if (!ob_load)
     {
       std::cerr << FNS << "Load is not a random distribution, "
@@ -289,6 +277,7 @@ OPTester<PoolType>::test_random() /*throw (eh::Exception)*/
       break;
     }
   }
+
   if (i == ob_.size())
   {
     std::cout << "Random selection is working" << std::endl;
@@ -296,13 +285,11 @@ OPTester<PoolType>::test_random() /*throw (eh::Exception)*/
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
 {
   if (ref_.size() < 2)
   {
-    std::cerr << FNS << "cannot test, not enough objects into pool" <<
-      std::endl;
+    std::cerr << FNS << "cannot test, not enough objects into pool" << std::endl;
     return;
   }
   typename PoolType::ConfigType configuration(config_base_);
@@ -324,6 +311,7 @@ OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
   {
     ob_rest_load &= (*it)->get_calling_number();
   }
+
   if (ob_load != ITERATIONS || ob_rest_load)
   {
     std::cerr << FNS << "Switch performed on good object, but should only "
@@ -332,20 +320,16 @@ OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
 
   for (std::size_t j = 0; j < 3; ++j)
   {
-    for (std::size_t i = 0;
-      i < ob_.size() && pool_iteration_(pool);
-      ++i)
+    for (std::size_t i = 0; i < ob_.size() && pool_iteration_(pool); ++i)
     {
     }
     typename Pool::ObjectHandlerType cs = pool.get_object();
     cs.release_bad();
   }
 
-  std::cout << "Perform " << ITERATIONS <<
-    " calls to CORBA objects on server, "
+  std::cout << "Perform " << ITERATIONS << " calls to CORBA objects on server, "
     "with PT_BAD_SWITCH object selection\n"
-    "Calls distribution by objects (with 3 modeling switches):" <<
-    std::endl;
+    "Calls distribution by objects (with 3 modeling switches):" << std::endl;
 
   std::size_t i = 0;
   for (; i < ob_.size(); ++i)
@@ -355,15 +339,18 @@ OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
     {
       std::cout << i << "=" << ob_load << std::endl;
     }
+
     if (i == 10)
     {
       std::cout << "And so on.." << std::endl;
     }
+
     if (ob_load != ITERATIONS / 3 && ob_load != 0)
     {
       break;
     }
   }
+
   if (i < ob_.size())
   {
     std::cerr << FNS << "Switch was not perform on bad object, "
@@ -372,13 +359,11 @@ OPTester<PoolType>::test_bad_switch() /*throw (eh::Exception)*/
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test_invalidate() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test_invalidate() /*throw (eh::Exception)*/
 {
   if (ref_.size() < 2)
   {
-    std::cerr << FNS << "cannot test, not enough objects into pool" <<
-      std::endl;
+    std::cerr << FNS << "cannot test, not enough objects into pool" << std::endl;
     return;
   }
   typename PoolType::ConfigType configuration(config_base_);
@@ -404,6 +389,7 @@ OPTester<PoolType>::test_invalidate() /*throw (eh::Exception)*/
       success = true;
     }
   }
+
   if (!success)
   {
     std::cerr << FNS << "Fail: object cannot frozen" << std::endl;
@@ -419,11 +405,11 @@ OPTester<PoolType>::test_invalidate() /*throw (eh::Exception)*/
     std::size_t ob_load = (*it)->get_calling_number();
     if (ob_load != 1)
     {
-      std::cerr << FNS << "Fail: object cannot unfrozen, current load=" <<
-        ob_load << std::endl;
+      std::cerr << FNS << "Fail: object cannot unfrozen, current load=" << ob_load << std::endl;
       break;
     }
   }
+
   if (it == ob_.end())
   {
     std::cout << "Positive unfrozen test is working" << std::endl;
@@ -431,8 +417,7 @@ OPTester<PoolType>::test_invalidate() /*throw (eh::Exception)*/
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test_all_bad() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test_all_bad() /*throw (eh::Exception)*/
 {
   typename PoolType::ConfigType configuration(config_base_);
   configuration.timeout = Generics::Time::ONE_SECOND;
@@ -472,6 +457,7 @@ OPTester<PoolType>::test_all_bad() /*throw (eh::Exception)*/
       break;
     }
   }
+
   if (it == ob_.end())
   {
     std::cout << "All references are bad - is working" << std::endl;
@@ -479,8 +465,7 @@ OPTester<PoolType>::test_all_bad() /*throw (eh::Exception)*/
 }
 
 template <typename PoolType>
-void
-OPTester<PoolType>::test() /*throw (eh::Exception)*/
+void OPTester<PoolType>::test() /*throw (eh::Exception)*/
 {
   test_demultiplex();
   test_random();
@@ -528,13 +513,13 @@ OPTester<PoolType>::test_not_exist_yet(Pool& pool,
       }
     }
   }
+
   if (error)
   {
     return;
   }
   std::cout << (first_stage ? "First" : "Second") <<
-    " stage of reference on non-existing object test is working" <<
-    std::endl;
+    " stage of reference on non-existing object test is working" << std::endl;
   if (!first_stage)
   {
     std::cout << "UpOnline object successfully used into pool" << std::endl;
@@ -549,8 +534,7 @@ OPTester<PoolType>::multithread_test(typename Pool::ConfigType& config,
 {
   Pool pool(config, policy_type);
   PoolIterator pool_iterator(pool);
-  TestCommons::MTTester<PoolIterator&> mt_tester(
-    pool_iterator, 10);
+  TestCommons::MTTester<PoolIterator&> mt_tester( pool_iterator, 10);
 
   mt_tester.run(MT_TEST_REPETITIONS, 0, MT_TEST_REPETITIONS);
 }
@@ -559,30 +543,27 @@ OPTester<PoolType>::multithread_test(typename Pool::ConfigType& config,
  * Check compatibility of Base Object Configuration with
  * Derived Objects Pool
  */
-void
-check_narrow(const CorbaClientAdapter_var& corba_client_adapter,
-  const char* pool_obj_url)
+void check_narrow(const CorbaClientAdapter_var& corba_client_adapter, const char* pool_obj_url)
   /*throw (eh::Exception)*/
 {
-  typedef CORBATest::PoolObject PoolObject;
-  typedef CORBATest::Base ConfigObject;
+  using PoolObject = CORBATest::PoolObject;
+  using ConfigObject = CORBATest::Base;
 
-  typedef CORBACommons::ObjectPool<PoolObject,
-    ObjectPoolConfiguration<ConfigObject> > Pool;
-  typedef CORBACommons::ObjectPool<ConfigObject,
-    ObjectPoolConfiguration<ConfigObject> > BasePool;
-  typedef Pool::ConfigType::RefAndNumber RefAndNumber;
+  using Pool = CORBACommons::ObjectPool<PoolObject,
+    ObjectPoolConfiguration<ConfigObject> >;
+  using BasePool = CORBACommons::ObjectPool<ConfigObject,
+    ObjectPoolConfiguration<ConfigObject> >;
+  using RefAndNumber = Pool::ConfigType::RefAndNumber;
 
-  typedef CORBAConfigParser::CorbaRefOption<
-    CORBATest::Base> BaseRefOption;
+  using BaseRefOption = CORBAConfigParser::CorbaRefOption<
+    CORBATest::Base>;
 
   Pool::ConfigType base_obj_config;
 
   BaseRefOption pool_obj_opt(corba_client_adapter.in());
   pool_obj_opt.set("", pool_obj_url);
 
-  base_obj_config.iors_list.push_back(
-    RefAndNumber(*pool_obj_opt, 5));
+  base_obj_config.iors_list.push_back( RefAndNumber(*pool_obj_opt, 5));
   Pool pool(base_obj_config);
   BasePool base_pool(base_obj_config);
 
@@ -615,22 +596,18 @@ check_narrow(const CorbaClientAdapter_var& corba_client_adapter,
   }
 }
 
-void
-check_no_good_reference(
-  const CorbaClientAdapter_var& corba_client_adapter,
-  const char* url)
+void check_no_good_reference( const CorbaClientAdapter_var& corba_client_adapter, const char* url)
   noexcept
 {
-  typedef CORBACommons::ObjectPool<CORBATest::PoolObject,
-    ObjectPoolRefConfiguration> Pool;
+  using Pool = CORBACommons::ObjectPool<CORBATest::PoolObject,
+    ObjectPoolRefConfiguration>;
   Pool::ConfigType config(corba_client_adapter.in());
-  typedef Pool::ConfigType::RefAndNumber RefAndNumber;
+  using RefAndNumber = Pool::ConfigType::RefAndNumber;
   const std::size_t OBJECTS_COUNT = 20;
 
   for (std::size_t i = 0; i < OBJECTS_COUNT; ++i)
   {
-    config.iors_list.push_back(RefAndNumber(
-      CORBACommons::CorbaObjectRef(url), 5));
+    config.iors_list.push_back(RefAndNumber( CORBACommons::CorbaObjectRef(url), 5));
   }
   config.timeout = Generics::Time(10);
   Pool pool(config);
@@ -646,8 +623,7 @@ check_no_good_reference(
   }
   catch (const Pool::NoGoodReference& ex)
   {
-    (i == OBJECTS_COUNT ? std::cout : std::cerr << "FAIL:") <<
-      FNS << ex.what() << std::endl;
+    (i == OBJECTS_COUNT ? std::cout : std::cerr << "FAIL:") << FNS << ex.what() << std::endl;
   }
   catch (const eh::Exception& ex)
   {
@@ -659,8 +635,7 @@ check_no_good_reference(
   }
 }
 
-void
-get_urls(Urls& urls) /*throw (eh::Exception)*/
+void get_urls(Urls& urls) /*throw (eh::Exception)*/
 {
   std::ifstream ifs("./urls.txt");
   while (ifs.good())
@@ -686,8 +661,7 @@ up_object_test(
 {
   try
   {
-    obj_refs[CORBA_OBJECTS_COUNT - 1]->set("",
-      urls[CORBA_OBJECTS_COUNT - 1].c_str());
+    obj_refs[CORBA_OBJECTS_COUNT - 1]->set("", urls[CORBA_OBJECTS_COUNT - 1].c_str());
     (**obj_refs[CORBA_OBJECTS_COUNT - 1])->square(12);
     std::cerr << "FAIL: object exist on server, "
       "Non-exist test cannot be done."  << std::endl;
@@ -706,8 +680,7 @@ up_object_test(
   }
 
   typename PoolTester::Pool pool(configuration);
-  std::cout << "Created pool with non-existing reference to UpOnline" <<
-    std::endl;
+  std::cout << "Created pool with non-existing reference to UpOnline" << std::endl;
 
   // Check first stage of not exist test
   PoolTester::test_not_exist_yet(pool, configuration, true);
@@ -731,13 +704,11 @@ up_object_test(
 }
 
 template <typename PoolTester>
-void
-switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
+void switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
 {
   std::size_t general_count = 0;
   const std::size_t POOLED_OBJECTS = configuration.iors_list.size();
-  Generics::ArrayAutoPtr<typename PoolTester::Pool::ObjectRef>
-    objects(POOLED_OBJECTS);
+  Generics::ArrayAutoPtr<typename PoolTester::Pool::ObjectRef> objects(POOLED_OBJECTS);
   auto it = configuration.iors_list.begin();
   for (std::size_t i = 0; i < POOLED_OBJECTS; ++it, i++)
   {
@@ -746,28 +717,25 @@ switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
     std::size_t use_count = objects[i]->get_calling_number();
     if (use_count)
     {
-      std::cerr << "Object " << i << ": use count " << use_count <<
-        ", but not zero" << std::endl;
+      std::cerr << "Object " << i << ": use count " << use_count << ", but not zero" << std::endl;
     }
   }
 
   {
     std::cout << "PT_BAD_SWITCH policy:" << std::endl;
-    PoolTester::multithread_test(configuration,
-      ChoosePolicyType::PT_BAD_SWITCH);
+    PoolTester::multithread_test(configuration, ChoosePolicyType::PT_BAD_SWITCH);
 
     bool only_one = false;
     for (std::size_t i = 0; i < POOLED_OBJECTS; ++i)
     {
       std::size_t use_count = objects[i]->get_calling_number();
       general_count += use_count;
-      std::cout << "Object " << i << " used " << use_count <<
-        " times." << std::endl;
+      std::cout << "Object " << i << " used " << use_count << " times." << std::endl;
       if (only_one && use_count != 0)
       {
-        std::cerr << "Switched from good object or object failure" <<
-          std::endl;
+        std::cerr << "Switched from good object or object failure" << std::endl;
       }
+
       if (use_count != 0)
       {
         if (use_count != PoolTester::MT_TEST_REPETITIONS)
@@ -781,15 +749,13 @@ switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
 
   {
     std::cout << "PT_LOOP policy:" << std::endl;
-    PoolTester::multithread_test(configuration,
-      ChoosePolicyType::PT_LOOP);
+    PoolTester::multithread_test(configuration, ChoosePolicyType::PT_LOOP);
 
     for (std::size_t i = 0; i < POOLED_OBJECTS; ++i)
     {
       ::CORBA::Long use_count = objects[i]->get_calling_number();
       general_count += use_count;
-      std::cout << "Object " << i << " used " << use_count <<
-        " times." << std::endl;
+      std::cout << "Object " << i << " used " << use_count << " times." << std::endl;
       if (use_count == 0)
       {
         std::cerr << FNS << "Unused objects in pool" << std::endl;
@@ -799,43 +765,37 @@ switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
 
   {
     std::cout << "PT_RAND policy:" << std::endl;
-    PoolTester::multithread_test(configuration,
-      ChoosePolicyType::PT_RAND);
+    PoolTester::multithread_test(configuration, ChoosePolicyType::PT_RAND);
 
     for (std::size_t i = 0; i < POOLED_OBJECTS; ++i)
     {
       ::CORBA::Long use_count = objects[i]->get_calling_number();
       general_count += use_count;
-      std::cout << "Object " << i << " used " << use_count <<
-        " times." << std::endl;
+      std::cout << "Object " << i << " used " << use_count << " times." << std::endl;
     }
   }
 
   {
     std::cout << "PT_PERSISTENT policy:" << std::endl;
-    PoolTester::multithread_test(configuration,
-      ChoosePolicyType::PT_PERSISTENT);
+    PoolTester::multithread_test(configuration, ChoosePolicyType::PT_PERSISTENT);
 
     for (std::size_t i = 0; i < POOLED_OBJECTS; ++i)
     {
       ::CORBA::Long use_count = objects[i]->get_calling_number();
       general_count += use_count;
-      std::cout << "Object " << i << " used " << use_count <<
-        " times." << std::endl;
+      std::cout << "Object " << i << " used " << use_count << " times." << std::endl;
     }
   }
 
   {
     std::cout << "PT_PRECISE policy:" << std::endl;
-    PoolTester::multithread_test(configuration,
-      ChoosePolicyType::PT_PRECISE);
+    PoolTester::multithread_test(configuration, ChoosePolicyType::PT_PRECISE);
 
     for (std::size_t i = 0; i < POOLED_OBJECTS; ++i)
     {
       ::CORBA::Long use_count = objects[i]->get_calling_number();
       general_count += use_count;
-      std::cout << "Object " << i << " used " << use_count <<
-        " times." << std::endl;
+      std::cout << "Object " << i << " used " << use_count << " times." << std::endl;
     }
   }
 
@@ -846,13 +806,11 @@ switch_policy_test(typename PoolTester::Pool::ConfigType& configuration)
   }
 }
 
-int
-main(int argc, char** argv) noexcept
+int main(int argc, char** argv) noexcept
 {
   try
   {
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
 
     CORBACommons::CorbaClientAdapter_var corba_client_adapter(
       new CORBACommons::CorbaClientAdapter(logger.in()));
@@ -862,16 +820,14 @@ main(int argc, char** argv) noexcept
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("purl") ||
-      Generics::AppUtils::short_name("pu"),
+      Generics::AppUtils::equal_name("purl") || Generics::AppUtils::short_name("pu"),
       pool_obj_url);
 
     Urls urls;
     get_urls(urls);
     args.parse(argc - 1, argv + 1);
 
-    if (urls.empty() ||
-      !pool_obj_url.installed())
+    if (urls.empty() || !pool_obj_url.installed())
     {
       std::cerr << "insecure urls are not supplied" << std::endl;
       return -1;
@@ -912,17 +868,14 @@ main(int argc, char** argv) noexcept
     }
 
 
-    typedef OPTester<
+    using PoolTester = OPTester<
       CORBACommons::ObjectPool<
       CORBATest::TestObjectPool,
-      ObjectPoolRefConfiguration> >
-      PoolTester;
+      ObjectPoolRefConfiguration> >;
 
     PoolTester::Pool::ConfigType configuration(corba_client_adapter.in());
-    obj_refs[CORBA_OBJECTS_COUNT - 1].reset(
-      new RefOption(corba_client_adapter.in()));
-    up_object_test<PoolTester>(configuration, obj_refs,
-      CORBA_OBJECTS_COUNT, urls);
+    obj_refs[CORBA_OBJECTS_COUNT - 1].reset( new RefOption(corba_client_adapter.in()));
+    up_object_test<PoolTester>(configuration, obj_refs, CORBA_OBJECTS_COUNT, urls);
     switch_policy_test<PoolTester>(configuration);
 
     return 0;

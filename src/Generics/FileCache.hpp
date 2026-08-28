@@ -19,16 +19,16 @@
 
 
 /**X Generics library namespace. */
+/**X Namespace containing file cache classes exceptions. */
+namespace Generics::CacheExceptions
+{
+  DECLARE_EXCEPTION(CacheException, eh::DescriptiveException);
+  DECLARE_EXCEPTION(ImplementationException, CacheException);
+  DECLARE_EXCEPTION(NotExistException, CacheException);
+}
+
 namespace Generics
 {
-  /**X Namespace containing file cache classes exceptions. */
-  namespace CacheExceptions
-  {
-    DECLARE_EXCEPTION(CacheException, eh::DescriptiveException);
-    DECLARE_EXCEPTION(ImplementationException, CacheException);
-    DECLARE_EXCEPTION(NotExistException, CacheException);
-  }
-
 
   /**
    * Templates defined below use CheckStrategy and UpdateStrategy.
@@ -58,7 +58,7 @@ namespace Generics
    * class UpdateStrategy
    * {
    * public:
-   *   typedef SomeType Buffer;
+   *   using Buffer = SomeType;
    *
    *   // Optional
    *   UpdateStrategy(const char* name);
@@ -100,8 +100,7 @@ namespace Generics
      * Checks if modifition time of the file increased
      * @return const std::string containing file data
      */
-    bool
-    object_is_changed()
+    bool object_is_changed()
       /*throw (eh::Exception, CacheExceptions::ImplementationException)*/;
 
 
@@ -142,8 +141,7 @@ namespace Generics
      * Content of the loaded file
      * @return const std::string containing file data
      */
-    bool
-    object_is_changed() /*throw (eh::Exception)*/;
+    bool object_is_changed() /*throw (eh::Exception)*/;
 
 
   private:
@@ -161,7 +159,7 @@ namespace Generics
   class SimpleFileUpdateStrategy
   {
   public:
-    typedef const std::string Buffer;
+    using Buffer = const std::string;
 
     /**
      * Constructor
@@ -174,14 +172,12 @@ namespace Generics
      * Content of the loaded file
      * @return const std::string containing file data
      */
-    Buffer&
-    get() noexcept;
+    Buffer& get() noexcept;
 
     /**
      * Loads the file's data into internal member
      */
-    void
-    update() /*throw (CacheExceptions::CacheException, eh::Exception)*/;
+    void update() /*throw (CacheExceptions::CacheException, eh::Exception)*/;
 
   private:
     const std::string FILE_NAME_;
@@ -201,8 +197,8 @@ namespace Generics
   class Cache : public ReferenceCounting::AtomicImpl
   {
   public:
-    typedef typename UpdateStrategy::Buffer Buffer;
-    typedef ReferenceCounting::QualPtr<Cache> Cache_var;
+    using Buffer = typename UpdateStrategy::Buffer;
+    using Cache_var = ReferenceCounting::QualPtr<Cache>;
 
     /**
      * Smart pointer for Buffer.
@@ -218,15 +214,13 @@ namespace Generics
        * Implements dereferencing poiner semantics.
        * @return reference to UPDATER_'s buffer
        */
-      Buffer&
-      operator *() const /*throw (eh::Exception)*/;
+      Buffer& operator *() const /*throw (eh::Exception)*/;
 
       /**
        * Implements dereferencing pointer semantics.
        * @return pointer to UPDATER_'s buffer
        */
-      Buffer*
-      operator ->() const /*throw (eh::Exception)*/;
+      Buffer* operator ->() const /*throw (eh::Exception)*/;
 
     protected:
       /**
@@ -238,8 +232,7 @@ namespace Generics
       /**
        * Destructor
        */
-      virtual
-      ~BufferHolder() noexcept;
+      virtual ~BufferHolder() noexcept;
 
       /**
        * If it was shared by several outer pointers, it calls reset_buffer_
@@ -247,17 +240,14 @@ namespace Generics
        * clears pointer to Cache
        * Otherwise (it is already the only owner) it removes itself
        */
-      virtual
-      bool
-      remove_ref_no_delete_() const noexcept;
+      virtual bool remove_ref_no_delete_() const noexcept;
 
       /**
        * Allows Cache to be referenced by BufferHolder
        * Called by cache
        * @param cache pointer to Cache to own
        */
-      void
-      set_cache_(Cache* cache) noexcept;
+      void set_cache_(Cache* cache) noexcept;
 
 
     protected:
@@ -267,7 +257,7 @@ namespace Generics
       friend class Cache;
     };
     friend class BufferHolder;
-    typedef ReferenceCounting::QualPtr<BufferHolder> BufferHolder_var;
+    using BufferHolder_var = ReferenceCounting::QualPtr<BufferHolder>;
 
   public:
     /**
@@ -296,28 +286,24 @@ namespace Generics
      * to renew memory data
      * @return smart pointer holding reference to UPDATER_'s buffer
      */
-    BufferHolder_var
-    get() /*throw (CacheExceptions::ImplementationException, eh::Exception)*/;
+    BufferHolder_var get() /*throw (CacheExceptions::ImplementationException, eh::Exception)*/;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~Cache() noexcept;
+    virtual ~Cache() noexcept;
 
     /**
      * @returns reference to UPDATER_'s buffer
      */
-    Buffer&
-    get_buffer_() /*throw (eh::Exception)*/;
+    Buffer& get_buffer_() /*throw (eh::Exception)*/;
 
     /**
      * It's called when all of the outer references to BufferHolder are gone
      * Takes ownership over buffer_
      */
-    void
-    reset_buffer_() noexcept;
+    void reset_buffer_() noexcept;
 
   private:
     const std::unique_ptr<CheckStrategy> CHECKER_;
@@ -342,8 +328,7 @@ namespace Generics
    * CacheFactory must produce Cache_var from supplied const char*.
    */
   template <typename Cache,
-    typename SizePolicy =
-      DefaultSizePolicy<std::string, typename Cache::Cache_var>,
+    typename SizePolicy = DefaultSizePolicy<std::string, typename Cache::Cache_var>,
     typename CacheFactory = typename Cache::Cache_var (*)(const char*)>
   class CacheManager
   {
@@ -354,8 +339,7 @@ namespace Generics
     static const time_t THRESHOLD_SEC = 30;
     static const size_t BOUND_LIMIT = 1000;
 
-    typedef typename Cache::BufferHolder_var
-      BufferHolder_var;
+    using BufferHolder_var = typename Cache::BufferHolder_var;
 
     /**
      * Constructor
@@ -382,8 +366,7 @@ namespace Generics
     /**
      * Destructor
      */
-    virtual
-    ~CacheManager() noexcept;
+    virtual ~CacheManager() noexcept;
 
     /**
      * Gets buffer corresponding to cache identified by 'name'.
@@ -391,52 +374,44 @@ namespace Generics
      * it is created.
      * @param name name of cache
      */
-    BufferHolder_var
-    get(const char* name)
+    BufferHolder_var get(const char* name)
       /*throw (CacheExceptions::ImplementationException, eh::Exception)*/;
 
     /**
      * See BoundedMap for details
      * @return current threshold timeout
      */
-    Time
-    threshold_timeout() noexcept;
+    Time threshold_timeout() noexcept;
 
     /**
      * Sets new threshold timeout
      * See BoundedMap for details
      * @param timeout new timeout
      */
-    void
-    threshold_timeout(Time timeout) noexcept;
+    void threshold_timeout(Time timeout) noexcept;
 
     /**
      * See BoundedMap for details
      * return current bound limit
      */
-    size_t
-    bound_limit() noexcept;
+    size_t bound_limit() noexcept;
 
     /**
      * Sets new size limit
      * See BoundedMap for details
      * @param new_bound_limit new limit
      */
-    void
-    bound_limit(size_t new_bound_limit) noexcept;
+    void bound_limit(size_t new_bound_limit) noexcept;
 
 
   private:
-    typedef BoundedMap<std::string, typename Cache::Cache_var,
+    using CacheDescriptorMap = BoundedMap<std::string, typename Cache::Cache_var,
       SizePolicy, Sync::Policy::Null,
       ReferenceCounting::Map<std::string,
         typename BoundedMapTypes<std::string,
-          typename Cache::Cache_var>::Item> >
-      CacheDescriptorMap;
+          typename Cache::Cache_var>::Item> >;
 
-    static
-    typename Cache::Cache_var
-    default_factory_(const char* name) /*throw (eh::Exception)*/;
+    static typename Cache::Cache_var default_factory_(const char* name) /*throw (eh::Exception)*/;
 
     Sync::PosixMutex mutex_;
     CacheDescriptorMap caches_;
@@ -456,8 +431,7 @@ namespace Generics
      * Constructor
      * @param file_name file name to check and update from
      */
-    explicit
-    FileCache(const char* file_name) /*throw (eh::Exception)*/;
+    explicit FileCache(const char* file_name) /*throw (eh::Exception)*/;
 
 
   protected:
@@ -474,18 +448,15 @@ namespace Generics
    */
   template <typename UpdateStrategy = SimpleFileUpdateStrategy,
     typename CheckStrategy = SimpleFileCheckStrategy,
-    typename SizePolicy =
-      DefaultSizePolicy<std::string,
+    typename SizePolicy = DefaultSizePolicy<std::string,
         typename Cache<CheckStrategy, UpdateStrategy>::Cache_var> >
   class FileCacheManager :
     public CacheManager<Cache<CheckStrategy, UpdateStrategy>, SizePolicy,
-      typename Cache<CheckStrategy, UpdateStrategy>::Cache_var (*)(
-        const char*)>
+      typename Cache<CheckStrategy, UpdateStrategy>::Cache_var (*)( const char*)>
   {
   private:
-    typedef CacheManager<Cache<CheckStrategy, UpdateStrategy>, SizePolicy,
-      typename Cache<CheckStrategy, UpdateStrategy>::Cache_var (*)(
-        const char*)> Parent;
+    using Parent = CacheManager<Cache<CheckStrategy, UpdateStrategy>, SizePolicy,
+      typename Cache<CheckStrategy, UpdateStrategy>::Cache_var (*)( const char*)>;
 
   public:
     using Parent::THRESHOLD_SEC;
@@ -497,16 +468,14 @@ namespace Generics
      * @param bound_limit Size limitation (passed into CacheManager)
      * @param size_policy Size policy (passed into CacheManager)
      */
-    explicit
-    FileCacheManager(Time threshold_timeout = Generics::Time(THRESHOLD_SEC),
+    explicit FileCacheManager(Time threshold_timeout = Generics::Time(THRESHOLD_SEC),
       size_t bound_limit = BOUND_LIMIT,
       SizePolicy size_policy = SizePolicy()) /*throw (eh::Exception)*/;
 
     /**
      * Destructor
      */
-    virtual
-    ~FileCacheManager() noexcept;
+    virtual ~FileCacheManager() noexcept;
   };
 
 
@@ -517,8 +486,8 @@ namespace Generics
   class FileAccessCache : public ReferenceCounting::AtomicImpl
   {
   public:
-    typedef ReferenceCounting::QualPtr<FileAccessCache> Cache_var;
-    typedef bool BufferHolder_var;
+    using Cache_var = ReferenceCounting::QualPtr<FileAccessCache>;
+    using BufferHolder_var = bool;
 
     /**
      * Constructor
@@ -532,15 +501,13 @@ namespace Generics
      * Returns file's access status
      * @return true if the plain file is accessible for read
      */
-    bool
-    get() noexcept;
+    bool get() noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~FileAccessCache() noexcept;
+    virtual ~FileAccessCache() noexcept;
 
   private:
     std::string file_name_;
@@ -568,8 +535,7 @@ namespace Generics
      * @param file_name name of the file to check
      * @return pointer to the newly created instance
      */
-    FileAccessCache*
-    operator ()(const char* file_name) /*throw (eh::Exception)*/;
+    FileAccessCache* operator ()(const char* file_name) /*throw (eh::Exception)*/;
 
   private:
     FileAccessCacheManager& factory_;
@@ -591,9 +557,7 @@ namespace Generics
      * @param timeout time interval when stored access status is valid
      * @param bound_limit number of files information to have stored
      */
-    explicit
-    FileAccessCacheManager(const Time& timeout,
-      size_t bound_limit = BOUND_LIMIT)
+    explicit FileAccessCacheManager(const Time& timeout, size_t bound_limit = BOUND_LIMIT)
       /*throw (eh::Exception)*/;
 
   protected:
@@ -605,9 +569,7 @@ namespace Generics
      * @param last_check timestamp of the last check
      * @param last_result result of the last check
      */
-    void
-    check_(const char* file_name, Time& last_check, bool& last_result) const
-      noexcept;
+    void check_(const char* file_name, Time& last_check, bool& last_result) const noexcept;
 
     /**
      * Creates a new instance of FileAccessCache (called by
@@ -615,8 +577,7 @@ namespace Generics
      * @param file_name name of the file to check
      * @return newly created instance of FileAccessCheck
      */
-    FileAccessCache*
-    create_(const char* file_name) /*throw (eh::Exception)*/;
+    FileAccessCache* create_(const char* file_name) /*throw (eh::Exception)*/;
 
     friend class FileAccessCache;
     friend class FileAccessCacheFactory;
@@ -637,16 +598,13 @@ namespace Generics
   // SimpleFileCheckStrategy
   //////////////////////////////////////////////////////////////
 
-  inline
-  SimpleFileCheckStrategy::SimpleFileCheckStrategy(const char* file_name)
+  inline SimpleFileCheckStrategy::SimpleFileCheckStrategy(const char* file_name)
     /*throw (eh::Exception)*/
     : FILE_NAME_(file_name ? file_name : ""), last_modification_time_(0)
   {
   }
 
-  inline
-  bool
-  SimpleFileCheckStrategy::object_is_changed()
+  inline bool SimpleFileCheckStrategy::object_is_changed()
     /*throw (eh::Exception, CacheExceptions::ImplementationException)*/
   {
     struct stat st;
@@ -692,8 +650,7 @@ namespace Generics
 
 
   template <typename CheckStrategy>
-  bool
-  DelayedCheckStrategy<CheckStrategy>::object_is_changed()
+  bool DelayedCheckStrategy<CheckStrategy>::object_is_changed()
     /*throw (eh::Exception)*/
   {
     const Time NOW(Time::get_time_of_day());
@@ -711,23 +668,18 @@ namespace Generics
   // SimpleFileUpdateStrategy
   //////////////////////////////////////////////////////////////
 
-  inline
-  SimpleFileUpdateStrategy::SimpleFileUpdateStrategy(const char* file_name)
+  inline SimpleFileUpdateStrategy::SimpleFileUpdateStrategy(const char* file_name)
     /*throw (eh::Exception)*/
     : FILE_NAME_(file_name ? file_name : "")
   {
   }
 
-  inline
-  SimpleFileUpdateStrategy::Buffer&
-  SimpleFileUpdateStrategy::get() noexcept
+  inline SimpleFileUpdateStrategy::Buffer& SimpleFileUpdateStrategy::get() noexcept
   {
     return content_;
   }
 
-  inline
-  void
-  SimpleFileUpdateStrategy::update()
+  inline void SimpleFileUpdateStrategy::update()
     /*throw (CacheExceptions::CacheException, eh::Exception)*/
   {
     int fildes = open(FILE_NAME_.c_str(), O_RDONLY);
@@ -766,8 +718,7 @@ namespace Generics
   }
 
   template <typename CheckStrategy, typename UpdateStrategy>
-  Cache<CheckStrategy, UpdateStrategy>::BufferHolder::~BufferHolder()
-    noexcept
+  Cache<CheckStrategy, UpdateStrategy>::BufferHolder::~BufferHolder() noexcept
   {
   }
 
@@ -807,9 +758,7 @@ namespace Generics
   }
 
   template <typename CheckStrategy, typename UpdateStrategy>
-  void
-  Cache<CheckStrategy, UpdateStrategy>::BufferHolder::set_cache_(
-    Cache* cache) noexcept
+  void Cache<CheckStrategy, UpdateStrategy>::BufferHolder::set_cache_( Cache* cache) noexcept
   {
     assert(cache && cache->UPDATER_.get());
 
@@ -865,8 +814,7 @@ namespace Generics
   }
 
   template <typename CheckStrategy, typename UpdateStrategy>
-  void
-  Cache<CheckStrategy, UpdateStrategy>::reset_buffer_() noexcept
+  void Cache<CheckStrategy, UpdateStrategy>::reset_buffer_() noexcept
   {
     unreferenced_buffer_ = ReferenceCounting::add_ref(buffer_);
     buffer_ = 0;
@@ -944,8 +892,7 @@ namespace Generics
   }
 
   template <typename Cache, typename SizePolicy, typename CacheFactory>
-  CacheManager<Cache, SizePolicy, CacheFactory>::~CacheManager()
-    noexcept
+  CacheManager<Cache, SizePolicy, CacheFactory>::~CacheManager() noexcept
   {
   }
 
@@ -958,15 +905,13 @@ namespace Generics
 
     Sync::PosixGuard guard(mutex_);
 
-    typename CacheDescriptorMap::iterator it =
-      caches_.find(string_name);
+    typename CacheDescriptorMap::iterator it = caches_.find(string_name);
 
     if (it == caches_.end())
     {
       // create and insert it
       typename Cache::Cache_var cache(factory_(name));
-      caches_.insert(
-        typename CacheDescriptorMap::value_type(string_name, cache));
+      caches_.insert( typename CacheDescriptorMap::value_type(string_name, cache));
       return cache->get();
     }
 
@@ -977,35 +922,28 @@ namespace Generics
   }
 
   template <typename Cache, typename SizePolicy, typename CacheFactory>
-  Time
-  CacheManager<Cache, SizePolicy, CacheFactory>::threshold_timeout()
-    noexcept
+  Time CacheManager<Cache, SizePolicy, CacheFactory>::threshold_timeout() noexcept
   {
     Sync::PosixGuard guard(mutex_);
     return caches_.timeout();
   }
 
   template <typename Cache, typename SizePolicy, typename CacheFactory>
-  void
-  CacheManager<Cache, SizePolicy, CacheFactory>::threshold_timeout(
-    Time timeout) noexcept
+  void CacheManager<Cache, SizePolicy, CacheFactory>::threshold_timeout( Time timeout) noexcept
   {
     Sync::PosixGuard guard(mutex_);
     caches_.timeout(timeout);
   }
 
   template <typename Cache, typename SizePolicy, typename CacheFactory>
-  size_t
-  CacheManager<Cache, SizePolicy, CacheFactory>::bound_limit() noexcept
+  size_t CacheManager<Cache, SizePolicy, CacheFactory>::bound_limit() noexcept
   {
     Sync::PosixGuard guard(mutex_);
     return caches_.bound();
   }
 
   template <typename Cache, typename SizePolicy, typename CacheFactory>
-  void
-  CacheManager<Cache, SizePolicy, CacheFactory>::bound_limit(
-    size_t new_bound_limit) noexcept
+  void CacheManager<Cache, SizePolicy, CacheFactory>::bound_limit( size_t new_bound_limit) noexcept
   {
     Sync::PosixGuard guard(mutex_);
     caches_.bound(new_bound_limit);
@@ -1039,8 +977,7 @@ namespace Generics
   // FileCacheManager
   //////////////////////////////////////////////////////////////
 
-  template <typename CheckStrategy, typename UpdateStrategy,
-    typename SizePolicy>
+  template <typename CheckStrategy, typename UpdateStrategy, typename SizePolicy>
   FileCacheManager<CheckStrategy, UpdateStrategy, SizePolicy>::
     FileCacheManager(Time threshold_timeout, size_t bound_limit,
     SizePolicy size_policy) /*throw (eh::Exception)*/
@@ -1048,8 +985,7 @@ namespace Generics
   {
   }
 
-  template <typename CheckStrategy, typename UpdateStrategy,
-    typename SizePolicy>
+  template <typename CheckStrategy, typename UpdateStrategy, typename SizePolicy>
   FileCacheManager<CheckStrategy, UpdateStrategy, SizePolicy>::
     ~FileCacheManager() noexcept
   {
@@ -1067,14 +1003,11 @@ namespace Generics
   {
   }
 
-  inline
-  FileAccessCache::~FileAccessCache() noexcept
+  inline FileAccessCache::~FileAccessCache() noexcept
   {
   }
 
-  inline
-  bool
-  FileAccessCache::get() noexcept
+  inline bool FileAccessCache::get() noexcept
   {
     Sync::PosixGuard guard(mutex_);
     checker_.check_(file_name_.c_str(), last_check_, last_result_);
@@ -1085,16 +1018,12 @@ namespace Generics
   // FileAccessCacheFactory class
   //
 
-  inline
-  FileAccessCacheFactory::FileAccessCacheFactory(
-    FileAccessCacheManager& factory) noexcept
+  inline FileAccessCacheFactory::FileAccessCacheFactory( FileAccessCacheManager& factory) noexcept
     : factory_(factory)
   {
   }
 
-  inline
-  FileAccessCache*
-  FileAccessCacheFactory::operator ()(const char* file_name)
+  inline FileAccessCache* FileAccessCacheFactory::operator ()(const char* file_name)
     /*throw (eh::Exception)*/
   {
     return factory_.create_(file_name);
@@ -1109,8 +1038,7 @@ namespace Generics
     size_t bound_limit) /*throw (eh::Exception)*/
     : CacheManager<FileAccessCache,
       DefaultSizePolicy<std::string, FileAccessCache::Cache_var>,
-      FileAccessCacheFactory>(
-        FileAccessCacheFactory(*this), timeout, bound_limit),
+      FileAccessCacheFactory>( FileAccessCacheFactory(*this), timeout, bound_limit),
       timeout_(timeout)
   {
   }
@@ -1124,15 +1052,12 @@ namespace Generics
     if (last_check < now - timeout_)
     {
       struct stat st;
-      last_result = !stat(file_name, &st) && S_ISREG(st.st_mode) &&
-        !access(file_name, R_OK);
+      last_result = !stat(file_name, &st) && S_ISREG(st.st_mode) && !access(file_name, R_OK);
       last_check = now;
     }
   }
 
-  inline
-  FileAccessCache*
-  FileAccessCacheManager::create_(const char* file_name)
+  inline FileAccessCache* FileAccessCacheManager::create_(const char* file_name)
     /*throw (eh::Exception)*/
   {
     return new FileAccessCache(file_name, *this);

@@ -24,8 +24,7 @@ namespace Generics
   }
 
   template <typename Iterator>
-  Iterator
-  Uuid::construct_(Iterator begin, Iterator end, bool padding)
+  Iterator Uuid::construct_(Iterator begin, Iterator end, bool padding)
     /*throw (eh::Exception, Exception, InvalidArgument)*/
   {
     size_type size = encoded_size(padding);
@@ -49,8 +48,7 @@ namespace Generics
     return begin;
   }
 
-  void
-  Uuid::construct_(const String::SubString& str, bool padding)
+  void Uuid::construct_(const String::SubString& str, bool padding)
     /*throw (eh::Exception, Exception, InvalidArgument)*/
   {
     if (construct_(str.begin(), str.end(), padding) != str.end())
@@ -76,20 +74,17 @@ namespace Generics
   Uuid::Uuid(std::istream& istr)
     /*throw (eh::Exception, Exception, InvalidArgument)*/
   {
-    construct_(std::istreambuf_iterator<char>(istr),
-      std::istreambuf_iterator<char>(0), true);
+    construct_(std::istreambuf_iterator<char>(istr), std::istreambuf_iterator<char>(0), true);
   }
 
-  std::string
-  Uuid::to_string(bool padding) const /*throw (eh::Exception)*/
+  std::string Uuid::to_string(bool padding) const /*throw (eh::Exception)*/
   {
     std::string str;
     String::StringManip::base64mod_encode(str, data_, DATA_SIZE, padding);
     return str;
   }
 
-  std::ostream&
-  operator <<(std::ostream& ostr, const Uuid& uuid) noexcept
+  std::ostream& operator <<(std::ostream& ostr, const Uuid& uuid) noexcept
   {
     std::ostream::sentry ok(ostr);
     if (ok)
@@ -106,8 +101,7 @@ namespace Generics
     return ostr;
   }
 
-  std::istream&
-  operator >>(std::istream& istr, Uuid& uuid) noexcept
+  std::istream& operator >>(std::istream& istr, Uuid& uuid) noexcept
   {
     std::istream::sentry ok(istr);
     if (ok)
@@ -125,8 +119,7 @@ namespace Generics
   }
 
   //random number based
-  Uuid
-  Uuid::create_random_based() noexcept
+  Uuid Uuid::create_random_based() noexcept
   {
     Uuid result;
 
@@ -157,13 +150,11 @@ namespace Generics
   // SignedUuid class
   //
 
-  SignedUuid::SignedUuid(const Uuid& uuid, uint8_t data,
-    const String::SubString& sign)
+  SignedUuid::SignedUuid(const Uuid& uuid, uint8_t data, const String::SubString& sign)
     /*throw (eh::Exception)*/
     : uuid_(uuid), data_(data)
   {
-    String::StringManip::base64mod_encode(str_, uuid.begin(),
-      uuid.size(), sign.empty(), data_);
+    String::StringManip::base64mod_encode(str_, uuid.begin(), uuid.size(), sign.empty(), data_);
     if (!sign.empty())
     {
       sign.append_to(str_);
@@ -180,8 +171,7 @@ namespace Generics
   {
   }
 
-  SignedUuid
-  SignedUuidGenerator::sign(const Uuid& uuid, uint8_t data) const
+  SignedUuid SignedUuidGenerator::sign(const Uuid& uuid, uint8_t data) const
     /*throw (eh::Exception, Exception)*/
   {
     unsigned char sign[SIZE_];
@@ -201,8 +191,7 @@ namespace Generics
     return SignedUuid(uuid, data, sign_str);
   }
 
-  SignedUuid
-  SignedUuidGenerator::generate(uint8_t data) const
+  SignedUuid SignedUuidGenerator::generate(uint8_t data) const
     /*throw (eh::Exception, Exception)*/
   {
     return sign(Uuid::create_random_based(), data);
@@ -219,17 +208,14 @@ namespace Generics
   {
   }
 
-  SignedUuid
-  SignedUuidVerifier::verify(const String::SubString& uuid_str,
-    bool data_expected) const
+  SignedUuid SignedUuidVerifier::verify(const String::SubString& uuid_str, bool data_expected) const
     /*throw (eh::Exception, Exception)*/
   {
     if (uuid_str.size() != Uuid::encoded_size(false) +
       String::StringManip::base64mod_encoded_size(SIZE_, false))
     {
       Stream::Error ostr;
-      ostr << FNS << "Incorrect size of string '" << uuid_str <<
-        "' to be SignedUuid";
+      ostr << FNS << "Incorrect size of string '" << uuid_str << "' to be SignedUuid";
       throw Exception(ostr);
     }
 
@@ -254,8 +240,7 @@ namespace Generics
     catch (const String::StringManip::InvalidFormatException& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Failed to decode sign from '" << uuid_str << "': " <<
-        ex.what();
+      ostr << FNS << "Failed to decode sign from '" << uuid_str << "': " << ex.what();
       throw Exception(ostr);
     }
 
@@ -280,8 +265,7 @@ namespace Generics
   {
   }
 
-  SignedUuid
-  SignedUuidProbe::construct() const /*throw (eh::Exception)*/
+  SignedUuid SignedUuidProbe::construct() const /*throw (eh::Exception)*/
   {
     return probe_;
   }

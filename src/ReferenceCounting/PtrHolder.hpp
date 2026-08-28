@@ -17,26 +17,21 @@ namespace ReferenceCounting
   class PtrHolder : private Generics::Uncopyable
   {
   public:
-    typedef typename SmartPtr::Type Type;
+    using Type = typename SmartPtr::Type;
 
-    explicit
-    PtrHolder(std::nullptr_t ptr = nullptr) /*throw (eh::Exception)*/;
+    explicit PtrHolder(std::nullptr_t ptr = nullptr) /*throw (eh::Exception)*/;
 
     template <typename Other>
-    explicit
-    PtrHolder(Other&& sptr) /*throw (eh::Exception)*/;
+    explicit PtrHolder(Other&& sptr) /*throw (eh::Exception)*/;
 
     ~PtrHolder() noexcept;
 
     template <typename Other>
-    PtrHolder&
-    operator =(Other&& sptr) /*throw (eh::Exception)*/;
+    PtrHolder& operator =(Other&& sptr) /*throw (eh::Exception)*/;
 
-    SmartPtr
-    get() /*throw (eh::Exception)*/;
+    SmartPtr get() /*throw (eh::Exception)*/;
 
-    const SmartPtr
-    get() const /*throw (eh::Exception)*/;
+    const SmartPtr get() const /*throw (eh::Exception)*/;
 
   private:
     mutable Sync::PosixSpinLock mutex_;
@@ -70,8 +65,7 @@ namespace ReferenceCounting
 
   template <typename SmartPtr>
   template <typename Other>
-  PtrHolder<SmartPtr>&
-  PtrHolder<SmartPtr>::operator =(Other&& sptr) /*throw (eh::Exception)*/
+  PtrHolder<SmartPtr>& PtrHolder<SmartPtr>::operator =(Other&& sptr) /*throw (eh::Exception)*/
   {
     Type* ptr = cond_add_ref(std::forward<Other>(sptr));
     Type* old_ptr;
@@ -80,6 +74,7 @@ namespace ReferenceCounting
       old_ptr = ptr_;
       ptr_ = ptr;
     }
+
     if (old_ptr)
     {
       old_ptr->remove_ref();
@@ -88,16 +83,14 @@ namespace ReferenceCounting
   }
 
   template <typename SmartPtr>
-  SmartPtr
-  PtrHolder<SmartPtr>::get() /*throw (eh::Exception)*/
+  SmartPtr PtrHolder<SmartPtr>::get() /*throw (eh::Exception)*/
   {
     Sync::PosixSpinGuard lock(mutex_);
     return SmartPtr(add_ref(ptr_));
   }
 
   template <typename SmartPtr>
-  const SmartPtr
-  PtrHolder<SmartPtr>::get() const /*throw (eh::Exception)*/
+  const SmartPtr PtrHolder<SmartPtr>::get() const /*throw (eh::Exception)*/
   {
     Sync::PosixSpinGuard lock(mutex_);
     return SmartPtr(add_ref(ptr_));

@@ -60,8 +60,7 @@ struct Stat
   {
   }
 
-  void
-  update(const Generics::Time& time) noexcept
+  void update(const Generics::Time& time) noexcept
   {
     total_time += time;
     max_time = max_time < time ? time : max_time;
@@ -69,8 +68,7 @@ struct Stat
     calls++;
   }
 
-  Generics::Time
-  avg_time() noexcept
+  Generics::Time avg_time() noexcept
   {
     if (calls > 0)
     {
@@ -87,53 +85,50 @@ Stat test_stat;
 
 struct Print
 {
-void
-operator ()(const char* full_path, const struct stat&) /*throw (eh::Exception)*/
+void operator ()(const char* full_path, const struct stat&) /*throw (eh::Exception)*/
 {
   std::cout << full_path << std::endl;
 }
 };
 
-void
-usage()
+void usage()
 {
-  std::cerr <<
-    "TestFileLogger utility to test Logging::FileLogger class " << std::endl <<
-    "functionality from Generics library" << std::endl <<
-    "Usage: TestFileLogger [options]" << std::endl <<
-    "  -c count     Count of log writes. Default " << config.count << "." << std::endl <<
-    "  -m message   Log message. Default 'a' 120 times." << std::endl <<
-    "  -f file      Log file name. Use 'cerr' for std::cerr. Default '" << config.file << "'" << std::endl <<
-    "  -s sleep     Sleep time between writes, seconds. Default " << config.sleep << "." << std::endl <<
-    "  -T sec       Time for span policy. Default " << config.time_span << "." << std::endl <<
-    "  -S bytes     Size for span policy. Default " << config.size_span << "." << std::endl <<
-    "  -p bytes     Preallocated buffer size. Default " << config.preallocated << "." << std::endl <<
-    "  -t           Perform check test." << std::endl <<
-    "  -h           Show this help." << std::endl;
+  std::cerr << "TestFileLogger utility to test Logging::FileLogger class " << std::endl
+            << "functionality from Generics library" << std::endl
+            << "Usage: TestFileLogger [options]" << std::endl
+            << "  -c count     Count of log writes. Default " << config.count << "." << std::endl
+            << "  -m message   Log message. Default 'a' 120 times." << std::endl
+            << "  -f file      Log file name. Use 'cerr' for std::cerr. Default '" << config.file
+            << "'" << std::endl
+            << "  -s sleep     Sleep time between writes, seconds. Default " << config.sleep << "."
+            << std::endl
+            << "  -T sec       Time for span policy. Default " << config.time_span << "."
+            << std::endl
+            << "  -S bytes     Size for span policy. Default " << config.size_span << "."
+            << std::endl
+            << "  -p bytes     Preallocated buffer size. Default " << config.preallocated << "."
+            << std::endl << "  -t           Perform check test." << std::endl
+            << "  -h           Show this help." << std::endl;
 }
 
-void
-print_stat()
+void print_stat()
 {
   std::cout << "Test result:" << std::endl <<
           "  log calls made : " << test_stat.calls << std::endl <<
           "  total time     : " << test_stat.total_time << std::endl <<
           "  average time   : " << test_stat.avg_time() << std::endl <<
           "  max time       : " << test_stat.max_time << std::endl <<
-          "  min time       : " << test_stat.min_time << std::endl <<
-          std::endl;
+          "  min time       : " << test_stat.min_time << std::endl << std::endl;
 }
 
-void
-sigterm_handler(int sig)
+void sigterm_handler(int sig)
 {
   std::cerr << "Aborted by user" << std::endl;
   config.count = 0;
   signal(sig, SIG_DFL);
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   signal(SIGINT, sigterm_handler);
 
@@ -246,8 +241,7 @@ main(int argc, char* argv[])
         return 1;
 
       default:
-        std::cerr << "Unexpected getopt result " << opt <<
-          " (" << (char)opt << ")" << std::endl;
+        std::cerr << "Unexpected getopt result " << opt << " (" << (char)opt << ")" << std::endl;
     }
 
   }
@@ -267,8 +261,7 @@ main(int argc, char* argv[])
 
     if (config.size_span)
     {
-      File::Policies::Policy_var size_span(
-        new File::Policies::SizeSpanPolicy(config.size_span));
+      File::Policies::Policy_var size_span( new File::Policies::SizeSpanPolicy(config.size_span));
       plist.push_back(size_span);
     }
 

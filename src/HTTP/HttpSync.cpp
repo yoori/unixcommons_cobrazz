@@ -18,20 +18,13 @@ namespace HTTP
         HeaderList& response_headers, ResponseBody& response_body,
         std::string& response_error, CaughtException& exception) noexcept;
 
-      virtual
-      void
-      on_response(const ResponseInformation& data) noexcept;
+      virtual void on_response(const ResponseInformation& data) noexcept;
 
-      virtual
-      void
-      on_error(
-        const String::SubString& description,
-        const RequestInformation& data)
+      virtual void on_error( const String::SubString& description, const RequestInformation& data)
         noexcept;
 
     protected:
-      virtual
-      ~SyncCallback() noexcept;
+      virtual ~SyncCallback() noexcept;
 
     private:
       Sync::Semaphore& semaphore_;
@@ -57,8 +50,7 @@ namespace HTTP
     {
     }
 
-    void
-    SyncCallback::on_response(const ResponseInformation& data) noexcept
+    void SyncCallback::on_response(const ResponseInformation& data) noexcept
     {
       try
       {

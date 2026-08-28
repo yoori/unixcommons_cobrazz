@@ -35,14 +35,12 @@ namespace Generics
      * Read descriptor
      * @return read descriptor
      */
-    int
-    read_descriptor() const noexcept;
+    int read_descriptor() const noexcept;
     /**
      * Write descriptor
      * @return write descriptor
      */
-    int
-    write_descriptor() const noexcept;
+    int write_descriptor() const noexcept;
 
     /**
      * Performs a single read operation from the pipe
@@ -50,8 +48,7 @@ namespace Generics
      * @param size maximum read size
      * @return see read(2)
      */
-    ssize_t
-    read(void* buf, size_t size) noexcept;
+    ssize_t read(void* buf, size_t size) noexcept;
 
     /**
      * Tries to read the exact amount of data.
@@ -59,8 +56,7 @@ namespace Generics
      * @param buf buffer for read data
      * @param size read size
      */
-    void
-    read_n(void* buf, size_t size) /*throw (Exception)*/;
+    void read_n(void* buf, size_t size) /*throw (Exception)*/;
 
     /**
      * Performs a single write operation into the pipe
@@ -68,8 +64,7 @@ namespace Generics
      * @param size buffer size
      * @return see write(2)
      */
-    ssize_t
-    write(const void* buf, size_t size) noexcept;
+    ssize_t write(const void* buf, size_t size) noexcept;
 
     /**
      * Tries to write the exact amount of data.
@@ -77,21 +72,18 @@ namespace Generics
      * @param buf buffer with write data
      * @param size write size
      */
-    void
-    write_n(const void* buf, size_t size) /*throw (Exception)*/;
+    void write_n(const void* buf, size_t size) /*throw (Exception)*/;
 
     /**
      * Writes a single character into the pipe ignoring EINTRs
      * @param ch character to write
      * @return see write(2)
      */
-    ssize_t
-    signal(char ch = '\0') noexcept;
+    ssize_t signal(char ch = '\0') noexcept;
 
   protected:
     template <typename Functor>
-    void
-    act_n_(Functor func, int fd, void* buf, ssize_t size) /*throw (Exception)*/;
+    void act_n_(Functor func, int fd, void* buf, ssize_t size) /*throw (Exception)*/;
 
   private:
     int pipe_[2];
@@ -131,8 +123,7 @@ namespace Generics
     DevNull() /*throw (eh::Exception, Exception)*/;
     ~DevNull() noexcept;
 
-    int
-    fd() noexcept;
+    int fd() noexcept;
 
   private:
     int fd_;
@@ -143,8 +134,7 @@ namespace Generics
    * @param fd descriptor to tune
    * @return 0 for success, negative for fcntl error
    */
-  int
-  set_cloexec(int fd) noexcept;
+  int set_cloexec(int fd) noexcept;
 }
 
 //
@@ -157,8 +147,7 @@ namespace Generics
   // Pipe class
   //
 
-  inline
-  Pipe::Pipe() /*throw (eh::Exception, Exception)*/
+  inline Pipe::Pipe() /*throw (eh::Exception, Exception)*/
   {
     if (pipe(pipe_) < 0)
     {
@@ -166,37 +155,29 @@ namespace Generics
     }
   }
 
-  inline
-  Pipe::~Pipe() noexcept
+  inline Pipe::~Pipe() noexcept
   {
     close(pipe_[1]);
     close(pipe_[0]);
   }
 
-  inline
-  int
-  Pipe::read_descriptor() const noexcept
+  inline int Pipe::read_descriptor() const noexcept
   {
     return pipe_[0];
   }
 
-  inline
-  int
-  Pipe::write_descriptor() const noexcept
+  inline int Pipe::write_descriptor() const noexcept
   {
     return pipe_[1];
   }
 
-  inline
-  ssize_t
-  Pipe::read(void* buf, size_t size) noexcept
+  inline ssize_t Pipe::read(void* buf, size_t size) noexcept
   {
     return ::read(read_descriptor(), buf, size);
   }
 
   template <typename Functor>
-  void
-  Pipe::act_n_(Functor func, int fd, void* buf, ssize_t size)
+  void Pipe::act_n_(Functor func, int fd, void* buf, ssize_t size)
     /*throw (Exception)*/
   {
     do
@@ -227,30 +208,22 @@ namespace Generics
     while (size);
   }
 
-  inline
-  void
-  Pipe::read_n(void* buf, size_t size) /*throw (Exception)*/
+  inline void Pipe::read_n(void* buf, size_t size) /*throw (Exception)*/
   {
     act_n_(::read, read_descriptor(), buf, size);
   }
 
-  inline
-  ssize_t
-  Pipe::write(const void* buf, size_t size) noexcept
+  inline ssize_t Pipe::write(const void* buf, size_t size) noexcept
   {
     return ::write(write_descriptor(), buf, size);
   }
 
-  inline
-  void
-  Pipe::write_n(const void* buf, size_t size) /*throw (Exception)*/
+  inline void Pipe::write_n(const void* buf, size_t size) /*throw (Exception)*/
   {
     act_n_(::write, write_descriptor(), const_cast<void*>(buf), size);
   }
 
-  inline
-  ssize_t
-  Pipe::signal(char ch) noexcept
+  inline ssize_t Pipe::signal(char ch) noexcept
   {
     ssize_t result;
     while ((result = write(&ch, 1)) < 0 && errno == EINTR)
@@ -264,13 +237,11 @@ namespace Generics
   // NonBlockingPipe class
   //
 
-  inline
-  NonBlockingReadPipe::NonBlockingReadPipe()
+  inline NonBlockingReadPipe::NonBlockingReadPipe()
     /*throw (eh::Exception, Exception)*/
   {
     int flags = fcntl(read_descriptor(), F_GETFL);
-    if (flags == -1 ||
-      fcntl(read_descriptor(), F_SETFL, flags | O_NONBLOCK) == -1)
+    if (flags == -1 || fcntl(read_descriptor(), F_SETFL, flags | O_NONBLOCK) == -1)
     {
       eh::throw_errno_exception<Exception>(FNE, "fcntl failure");
     }
@@ -281,8 +252,7 @@ namespace Generics
   // DevNull class
   //
 
-  inline
-  DevNull::DevNull() /*throw (eh::Exception, Exception)*/
+  inline DevNull::DevNull() /*throw (eh::Exception, Exception)*/
   {
     fd_ = open("/dev/null", O_RDWR);
     if (fd_ < 0)
@@ -291,15 +261,12 @@ namespace Generics
     }
   }
 
-  inline
-  DevNull::~DevNull() noexcept
+  inline DevNull::~DevNull() noexcept
   {
     close(fd_);
   }
 
-  inline
-  int
-  DevNull::fd() noexcept
+  inline int DevNull::fd() noexcept
   {
     return fd_;
   }
@@ -307,9 +274,7 @@ namespace Generics
 
   //
 
-  inline
-  int
-  set_cloexec(int fd) noexcept
+  inline int set_cloexec(int fd) noexcept
   {
     int flags = fcntl(fd, F_GETFD);
     return flags < 0 ? flags : fcntl(fd, F_SETFD, flags | FD_CLOEXEC);

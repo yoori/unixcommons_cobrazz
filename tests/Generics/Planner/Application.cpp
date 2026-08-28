@@ -11,18 +11,15 @@ class CompositeActiveObjectImpl :
 
 namespace
 {
-  Logging::FLogger_var logger(new Logging::OStream::Logger(
-    Logging::OStream::Config(std::cerr)));
-  Generics::ActiveObjectCallback_var callback(
-    new Logging::ActiveObjectCallbackImpl(logger));
+  Logging::FLogger_var logger(new Logging::OStream::Logger( Logging::OStream::Config(std::cerr)));
+  Generics::ActiveObjectCallback_var callback( new Logging::ActiveObjectCallbackImpl(logger));
 }
 
 class ActivateDeactivatePlanner
 {
 public:
   ActivateDeactivatePlanner() /*throw (eh::Exception)*/;
-  void
-  test() /*throw (eh::Exception)*/;
+  void test() /*throw (eh::Exception)*/;
 
 private:
   Generics::CompositeActiveObject_var active_objects_composite_;
@@ -31,14 +28,12 @@ private:
 ActivateDeactivatePlanner::ActivateDeactivatePlanner() /*throw (eh::Exception)*/
   : active_objects_composite_(new CompositeActiveObjectImpl)
 {
-  Generics::Planner_var scheduler(
-    new Generics::Planner(callback));
+  Generics::Planner_var scheduler( new Generics::Planner(callback));
 
   active_objects_composite_->add_child_object(scheduler.in());
 }
 
-void
-ActivateDeactivatePlanner::test() /*throw (eh::Exception)*/
+void ActivateDeactivatePlanner::test() /*throw (eh::Exception)*/
 {
   for (std::size_t i = 0; i < 10000; ++i)
   {
@@ -48,11 +43,9 @@ ActivateDeactivatePlanner::test() /*throw (eh::Exception)*/
   }
 }
 
-int
-main()
+int main()
 {
-  std::cout << "ActivateDeactivatePlanner functional test started.."
-    << std::endl;
+  std::cout << "ActivateDeactivatePlanner functional test started.." << std::endl;
   try
   {
     ActivateDeactivatePlanner tester;

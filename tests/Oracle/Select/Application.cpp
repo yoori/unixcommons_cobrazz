@@ -13,8 +13,7 @@ const OraText DB[] = "//oraclept/addbpt.ocslab.com";
 #if 1
 const OraText REQ[] = "select sysdate from dual";
 #else
-const OraText REQ[] =
-            "SELECT "
+const OraText REQ[] = "SELECT "
             "bc.behav_params_id, "
             "( case when bc.trigger_type = 'U' then ch.url_list_id "
               "else ch.keyword_list_id end), "
@@ -41,26 +40,26 @@ static OCIStmt *p_sql;
 
 #define ROWS 0x400
 ub4 count;
-typedef OCIDefine* OCIDefinePtr;
+using OCIDefinePtr = OCIDefine*;
 static OCIDefinePtr* p_dfn;
-typedef char* CharPtr;
+using CharPtr = char*;
 CharPtr* data;
 
 int rc;
 char errbuf[100];
 int errcode;
-#define OCI_CHECK(x) \
-do \
-{ \
-  rc = x; \
-  if (rc) \
-  { \
-    OCIErrorGet((dvoid *)p_err, (ub4) 1, (OraText *) 0, &errcode, (OraText *) errbuf, (ub4) sizeof(errbuf), OCI_HTYPE_ERROR); \
-    printf("Error %i %i while '%s': %.*s\n", rc, errcode, #x, 512, errbuf); \
-    exit(8); \
-  } \
-} \
-while (0)
+#define OCI_CHECK(x)                                                                               \
+  do                                                                                               \
+  {                                                                                                \
+    rc = x;                                                                                        \
+    if (rc)                                                                                        \
+    {                                                                                              \
+      OCIErrorGet((dvoid*)p_err, (ub4)1, (OraText*)0, &errcode, (OraText*)errbuf,                  \
+        (ub4)sizeof(errbuf), OCI_HTYPE_ERROR);                                                     \
+      printf("Error %i %i while '%s': %.*s\n", rc, errcode, #x, 512, errbuf);                      \
+      exit(8);                                                                                     \
+    }                                                                                              \
+  } while (0)
 
 void columns()
 {
@@ -81,8 +80,10 @@ void columns()
 
     OCI_CHECK(OCIParamGet(p_sql, OCI_HTYPE_STMT, p_err, (void **)&param_handle, i + 1));
 
-    OCI_CHECK(OCIAttrGet(param_handle, OCI_DTYPE_PARAM, &param_name, &name_len, OCI_ATTR_NAME, p_err));
-    OCI_CHECK(OCIAttrGet(param_handle, OCI_DTYPE_PARAM, &oci_data_type, 0, OCI_ATTR_DATA_TYPE, p_err));
+    OCI_CHECK(
+      OCIAttrGet(param_handle, OCI_DTYPE_PARAM, &param_name, &name_len, OCI_ATTR_NAME, p_err));
+    OCI_CHECK(
+      OCIAttrGet(param_handle, OCI_DTYPE_PARAM, &oci_data_type, 0, OCI_ATTR_DATA_TYPE, p_err));
     OCI_CHECK(OCIAttrGet(param_handle, OCI_DTYPE_PARAM, &size, 0, OCI_ATTR_DATA_SIZE, p_err));
 
     OCI_CHECK((OCIHandleFree(param_handle, OCI_DTYPE_PARAM),0));
@@ -146,12 +147,12 @@ void columns()
     data[i] = new char[ROWS * size];
 
     /* Define the select list items */
-    OCI_CHECK(OCIDefineByPos(p_sql, &p_dfn[i], p_err, i + 1, &data[i], size, oci_type, 0, 0, 0, OCI_DEFAULT));
+    OCI_CHECK(OCIDefineByPos(
+      p_sql, &p_dfn[i], p_err, i + 1, &data[i], size, oci_type, 0, 0, 0, OCI_DEFAULT));
   }
 }
 
-void
-trace(const char* message)
+void trace(const char* message)
 {
   write(STDERR_FILENO, message, strlen(message));
 }
@@ -174,8 +175,7 @@ void fre(void* ctxp, void* ptr)
   return free(ptr);
 }
 
-int
-main()
+int main()
 {
   trace("TRACE: starting\n");
 
@@ -194,7 +194,8 @@ main()
   OCI_CHECK(OCIHandleAlloc(p_env, (dvoid **)&p_svc, OCI_HTYPE_SVCCTX, 0, (dvoid **)0));
 
   /* Connect to database server */
-  OCI_CHECK(OCILogon(p_env, p_err, &p_svc, LOGIN, sizeof(LOGIN) - 1, PASSWORD, sizeof(PASSWORD) - 1, DB, sizeof(DB) - 1));
+  OCI_CHECK(OCILogon(p_env, p_err, &p_svc, LOGIN, sizeof(LOGIN) - 1, PASSWORD, sizeof(PASSWORD) - 1,
+    DB, sizeof(DB) - 1));
 
   trace("TRACE: preparing\n");
 
@@ -214,7 +215,8 @@ main()
   trace("TRACE: executing\n");
 
   /* Execute the SQL statement */
-  OCI_CHECK(OCIStmtExecute(p_svc, p_sql, p_err, 0, 0, (const OCISnapshot *)0, (OCISnapshot *)0, OCI_DEFAULT));
+  OCI_CHECK(
+    OCIStmtExecute(p_svc, p_sql, p_err, 0, 0, (const OCISnapshot*)0, (OCISnapshot*)0, OCI_DEFAULT));
 
   trace("TRACE: binding\n");
 

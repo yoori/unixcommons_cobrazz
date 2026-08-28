@@ -20,11 +20,9 @@ namespace TestCommons
 
     DECLARE_EXCEPTION(CheckException, eh::DescriptiveException);
 
-    void
-    add_message() /*throw (eh::Exception)*/;
+    void add_message() /*throw (eh::Exception)*/;
 
-    void
-    check(std::string file, int size_span, int time_span)
+    void check(std::string file, int size_span, int time_span)
       /*throw (eh::Exception, CheckException)*/;
 
   private:
@@ -33,15 +31,13 @@ namespace TestCommons
     public:
       FileNameComparer(const std::string& common) /*throw (eh::Exception)*/;
 
-      bool
-      operator ()(const std::string& left, const std::string& right)
-        noexcept;
+      bool operator ()(const std::string& left, const std::string& right) noexcept;
 
     private:
       std::string common_;
     };
 
-    typedef std::vector<time_t> Timestamps;
+    using Timestamps = std::vector<time_t>;
 
     static const time_t max_delay_;
 

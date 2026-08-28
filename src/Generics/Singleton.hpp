@@ -50,22 +50,18 @@ namespace Generics
      * Inserts object into the list of destroyable objects
      * @param priority objects with lesser value will be destroyed sooner
      */
-    explicit
-    AtExitDestroying(int priority) noexcept;
+    explicit AtExitDestroying(int priority) noexcept;
 
     /**
      * Destructor
      */
-    virtual
-    ~AtExitDestroying() noexcept;
+    virtual ~AtExitDestroying() noexcept;
 
   private:
     /**
      * Destroys the registered objects
      */
-    static
-    void
-    destroy_at_exit_() noexcept;
+    static void destroy_at_exit_() noexcept;
 
     static Sync::PosixMutex mutex_;
     static bool registered_;
@@ -75,67 +71,63 @@ namespace Generics
     int priority_;
   };
 
-  namespace Helper
+}
+
+namespace Generics::Helper
+{
+  /**
+   * Destroys Object on exit
+   */
+  template <typename Object, typename Pointer, const int PRIORITY>
+  class AtExitDestroyer : public AtExitDestroying
   {
+  public:
     /**
-     * Destroys Object on exit
+     * Constructor
+     * @param object object to destroy at exit
      */
-    template <typename Object, typename Pointer, const int PRIORITY>
-    class AtExitDestroyer : public AtExitDestroying
-    {
-    public:
-      /**
-       * Constructor
-       * @param object object to destroy at exit
-       */
-      explicit
-      AtExitDestroyer(Object* object) noexcept;
+    explicit AtExitDestroyer(Object* object) noexcept;
 
-    protected:
-      /**
-       * Destructor
-       */
-      virtual
-      ~AtExitDestroyer() noexcept;
-
-    private:
-      Pointer object_;
-    };
-
+  protected:
     /**
-     * Adapter for std::unique_ptr
+     * Destructor
      */
-    template <typename Type>
-    class AutoPtr : public std::unique_ptr<Type>
-    {
-    public:
-      explicit
-      AutoPtr(Type* object) noexcept;
-      Type*
-      in() noexcept;
-      Type*
-      retn() noexcept;
-    };
+    virtual ~AtExitDestroyer() noexcept;
 
-    /**
-     * Adapter for simple pointer
-     */
-    template <typename Type>
-    class SimplePtr
-    {
-    public:
-      explicit
-      SimplePtr(Type* object) noexcept;
-      Type*
-      in() noexcept;
-      Type*
-      retn() noexcept;
+  private:
+    Pointer object_;
+  };
 
-    private:
-      Type* ptr_;
-    };
-  }
+  /**
+   * Adapter for std::unique_ptr
+   */
+  template <typename Type>
+  class AutoPtr : public std::unique_ptr<Type>
+  {
+  public:
+    explicit AutoPtr(Type* object) noexcept;
+    Type* in() noexcept;
+    Type* retn() noexcept;
+  };
 
+  /**
+   * Adapter for simple pointer
+   */
+  template <typename Type>
+  class SimplePtr
+  {
+  public:
+    explicit SimplePtr(Type* object) noexcept;
+    Type* in() noexcept;
+    Type* retn() noexcept;
+
+  private:
+    Type* ptr_;
+  };
+}
+
+namespace Generics
+{
   /**
    * Singleton
    * Safe to use in multithreaded environment (even before main() call).
@@ -153,9 +145,7 @@ namespace Generics
      * It is not safe to call it after exit(3) call or main() exit.
      * @return reference to the unique object
      */
-    static
-    Single&
-    instance() /*throw (eh::Exception)*/;
+    static Single& instance() /*throw (eh::Exception)*/;
 
   private:
     static Sync::PosixMutex mutex_;
@@ -169,8 +159,7 @@ namespace Generics
    * to exist at the given point in time. Lifetime of each of those instances
    * are controlled manually.
    */
-  template <typename Determinator,
-    typename BaseException = eh::DescriptiveException>
+  template <typename Determinator, typename BaseException = eh::DescriptiveException>
   class Unique : private Uncopyable
   {
   public:
@@ -232,16 +221,12 @@ namespace Generics
     {
     public:
       LoudCounter() noexcept;
-      void
-      increment(Info* info) noexcept;
-      void
-      decrement(Info* info) noexcept;
-      void
-      check() noexcept;
+      void increment(Info* info) noexcept;
+      void decrement(Info* info) noexcept;
+      void check() noexcept;
 
     private:
-      virtual
-      ~LoudCounter() noexcept;
+      virtual ~LoudCounter() noexcept;
 
       _Atomic_word counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -249,20 +234,19 @@ namespace Generics
       Info* head_;
 #endif
     };
-    typedef ReferenceCounting::FixedPtr<LoudCounter> LoudCounter_var;
+    using LoudCounter_var = ReferenceCounting::FixedPtr<LoudCounter>;
 
     class LoudCounterHolder : private Uncopyable
     {
     public:
-      typedef Singleton<LoudCounterHolder,
+      using Single = Singleton<LoudCounterHolder,
         Helper::AutoPtr<LoudCounterHolder>,
-        AtExitDestroying::DP_LOUD_COUNTER> Single;
+        AtExitDestroying::DP_LOUD_COUNTER>;
 
       LoudCounterHolder() /*throw (eh::Exception)*/;
       ~LoudCounterHolder() noexcept;
 
-      LoudCounter*
-      counter() noexcept;
+      LoudCounter* counter() noexcept;
 
     private:
       LoudCounter_var counter_;
@@ -278,83 +262,81 @@ namespace Generics
   // AtExitDestroying class
   //
 
-  inline
-  AtExitDestroying::~AtExitDestroying() noexcept
+  inline AtExitDestroying::~AtExitDestroying() noexcept
   {
   }
 
 
-  namespace Helper
+}
+
+namespace Generics::Helper
+{
+  //
+  // AtExitDestroyer class
+  //
+
+  template <typename Object, typename Pointer, const int PRIORITY>
+  AtExitDestroyer<Object, Pointer, PRIORITY>::AtExitDestroyer( Object* object) noexcept
+    : AtExitDestroying(PRIORITY), object_(object)
   {
-    //
-    // AtExitDestroyer class
-    //
-
-    template <typename Object, typename Pointer, const int PRIORITY>
-    AtExitDestroyer<Object, Pointer, PRIORITY>::AtExitDestroyer(
-      Object* object) noexcept
-      : AtExitDestroying(PRIORITY), object_(object)
-    {
-    }
-
-    template <typename Object, typename Pointer, const int PRIORITY>
-    AtExitDestroyer<Object, Pointer, PRIORITY>::~AtExitDestroyer() noexcept
-    {
-    }
-
-
-    //
-    // class AutoPtr
-    //
-
-    template <typename Type>
-    AutoPtr<Type>::AutoPtr(Type* object) noexcept
-      : std::unique_ptr<Type>(object)
-    {
-    }
-
-    template <typename Type>
-    Type*
-    AutoPtr<Type>::in() noexcept
-    {
-      return this->get();
-    }
-
-    template <typename Type>
-    Type*
-    AutoPtr<Type>::retn() noexcept
-    {
-      return this->release();
-    }
-
-
-    //
-    // class SimplePtr
-    //
-
-    template <typename Type>
-    SimplePtr<Type>::SimplePtr(Type* object) noexcept
-      : ptr_(object)
-    {
-    }
-
-    template <typename Type>
-    Type*
-    SimplePtr<Type>::in() noexcept
-    {
-      return ptr_;
-    }
-
-    template <typename Type>
-    Type*
-    SimplePtr<Type>::retn() noexcept
-    {
-      Type* ptr(ptr_);
-      ptr_ = 0;
-      return ptr;
-    }
   }
 
+  template <typename Object, typename Pointer, const int PRIORITY>
+  AtExitDestroyer<Object, Pointer, PRIORITY>::~AtExitDestroyer() noexcept
+  {
+  }
+
+
+  //
+  // class AutoPtr
+  //
+
+  template <typename Type>
+  AutoPtr<Type>::AutoPtr(Type* object) noexcept
+    : std::unique_ptr<Type>(object)
+  {
+  }
+
+  template <typename Type>
+  Type* AutoPtr<Type>::in() noexcept
+  {
+    return this->get();
+  }
+
+  template <typename Type>
+  Type* AutoPtr<Type>::retn() noexcept
+  {
+    return this->release();
+  }
+
+
+  //
+  // class SimplePtr
+  //
+
+  template <typename Type>
+  SimplePtr<Type>::SimplePtr(Type* object) noexcept
+    : ptr_(object)
+  {
+  }
+
+  template <typename Type>
+  Type* SimplePtr<Type>::in() noexcept
+  {
+    return ptr_;
+  }
+
+  template <typename Type>
+  Type* SimplePtr<Type>::retn() noexcept
+  {
+    Type* ptr(ptr_);
+    ptr_ = 0;
+    return ptr;
+  }
+}
+
+namespace Generics
+{
 
   //
   // Singleton class
@@ -364,14 +346,12 @@ namespace Generics
   template <typename Single, typename Pointer, const int PRIORITY>
   Sync::PosixMutex Singleton<Single, Pointer, PRIORITY>::mutex_;
   template <typename Single, typename Pointer, const int PRIORITY>
-  volatile sig_atomic_t Singleton<Single, Pointer, PRIORITY>::initialized_ =
-    false;
+  volatile sig_atomic_t Singleton<Single, Pointer, PRIORITY>::initialized_ = false;
   template <typename Single, typename Pointer, const int PRIORITY>
   Single* volatile Singleton<Single, Pointer, PRIORITY>::instance_ = 0;
 
   template <typename Single, typename Pointer, const int PRIORITY>
-  Single&
-  Singleton<Single, Pointer, PRIORITY>::instance() /*throw (eh::Exception)*/
+  Single& Singleton<Single, Pointer, PRIORITY>::instance() /*throw (eh::Exception)*/
   {
     if (!initialized_)
     {
@@ -445,8 +425,7 @@ namespace Generics
   }
 
   template <typename Determinator>
-  void
-  AllDestroyer<Determinator>::LoudCounter::increment(Info* info) noexcept
+  void AllDestroyer<Determinator>::LoudCounter::increment(Info* info) noexcept
   {
     ++counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -461,8 +440,7 @@ namespace Generics
   }
 
   template <typename Determinator>
-  void
-  AllDestroyer<Determinator>::LoudCounter::decrement(Info* info) noexcept
+  void AllDestroyer<Determinator>::LoudCounter::decrement(Info* info) noexcept
   {
     --counter_;
 #ifdef LOUD_COUNTER_BACKTRACE
@@ -481,8 +459,7 @@ namespace Generics
   }
 
   template <typename Determinator>
-  void
-  AllDestroyer<Determinator>::LoudCounter::check() noexcept
+  void AllDestroyer<Determinator>::LoudCounter::check() noexcept
   {
     int counter = static_cast<int>(counter_);
     if (counter)
@@ -552,8 +529,7 @@ namespace Generics
   }
 
   template <typename Determinator>
-  AllDestroyer<Determinator>::AllDestroyer(const AllDestroyer& another)
-    noexcept
+  AllDestroyer<Determinator>::AllDestroyer(const AllDestroyer& another) noexcept
     : counter_(another.counter_)
   {
     counter_->increment(&info_);

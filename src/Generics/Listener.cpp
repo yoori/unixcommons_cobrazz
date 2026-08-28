@@ -27,7 +27,7 @@ namespace
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-    typedef char Error[sizeof(Exception)];
+    using Error = char[sizeof(Exception)];
 
     /**
      * Allocates memory enough to contain count descriptors.
@@ -45,38 +45,33 @@ namespace
      * Add at end of descriptors array open file descriptor.
      * @param fd must be open file descriptor
      */
-    void
-    push_back(int fd) /*throw (Exception)*/;
+    void push_back(int fd) /*throw (Exception)*/;
 
     /**
      * For redefining aims we will close descriptors consequently
      * from end of DescriptorsHolder.
      * @return the last descriptor available.
      */
-    int
-    pop_back(Error& error) noexcept;
+    int pop_back(Error& error) noexcept;
 
     /**
      * Close all owned descriptors. Call before destruction to get
      * potential closing troubles error info.
      */
-    void
-    close_all(Error& error) noexcept;
+    void close_all(Error& error) noexcept;
 
     /**
      * Close all owned descriptors. Call before destruction to get
      * potential closing troubles error info.
      */
-    void
-    close_all() /*throw (Exception)*/;
+    void close_all() /*throw (Exception)*/;
 
     /**
      * Get descriptors array pointer, need to placing at
      * DescriptorListener disposal.
      * @return pointer to descriptors array
      */
-    int*
-    get() const noexcept;
+    int* get() const noexcept;
 
     /**
      * Find fd element in descriptors container.
@@ -84,15 +79,13 @@ namespace
      * @return pointer to found element, 0 if doesn't contain
      * such element.
      */
-    int*
-    find(int fd) const noexcept;
+    int* find(int fd) const noexcept;
 
     /**
      * Get count of open descriptors that owned by descriptor object
      * @return current number of descriptors
      */
-    size_t
-    count() const noexcept
+    size_t count() const noexcept
     {
       return used_count_;
     }
@@ -103,8 +96,7 @@ namespace
      * @param begin range start pointer
      * @param end range end pointer
      */
-    void
-    close_(const int* begin, const int* end, Error& error)
+    void close_(const int* begin, const int* end, Error& error)
       /*throw (eh::Exception)*/;
 
     Generics::ArrayAutoPtr<int> descriptors_;
@@ -128,8 +120,7 @@ namespace
     }
   }
 
-  void
-  DescriptorsHolder::push_back(int fd) /*throw (Exception)*/
+  void DescriptorsHolder::push_back(int fd) /*throw (Exception)*/
   {
     if (used_count_ == allocated_size_)
     {
@@ -140,23 +131,19 @@ namespace
     descriptors_[used_count_++] = fd;
   }
 
-  int
-  DescriptorsHolder::pop_back(Error& error) noexcept
+  int DescriptorsHolder::pop_back(Error& error) noexcept
   {
     if (used_count_ == 0)
     {
-      String::StringManip::concat(error, sizeof(error),
-        FNE, "has not descriptors on hold");
+      String::StringManip::concat(error, sizeof(error), FNE, "has not descriptors on hold");
       return -1;
     }
     return descriptors_[--used_count_];
   }
 
-  int*
-  DescriptorsHolder::find(int fd) const noexcept
+  int* DescriptorsHolder::find(int fd) const noexcept
   {
-    for (int* p_fd = descriptors_.get();
-      p_fd < descriptors_.get() + used_count_; ++p_fd)
+    for (int* p_fd = descriptors_.get(); p_fd < descriptors_.get() + used_count_; ++p_fd)
     {
       if (*p_fd == fd)
       {
@@ -166,15 +153,13 @@ namespace
     return 0;
   }
 
-  void
-  DescriptorsHolder::close_all(Error& error) noexcept
+  void DescriptorsHolder::close_all(Error& error) noexcept
   {
     close_(descriptors_.get(), descriptors_.get() + used_count_, error);
     used_count_ = 0;
   }
 
-  void
-  DescriptorsHolder::close_all() /*throw (Exception)*/
+  void DescriptorsHolder::close_all() /*throw (Exception)*/
   {
     Error error = "";
     close_all(error);
@@ -184,14 +169,12 @@ namespace
     }
   }
 
-  int*
-  DescriptorsHolder::get() const noexcept
+  int* DescriptorsHolder::get() const noexcept
   {
     return descriptors_.get();
   }
 
-  void
-  DescriptorsHolder::close_(const int* begin, const int* end, Error& error)
+  void DescriptorsHolder::close_(const int* begin, const int* end, Error& error)
     /*throw (eh::Exception)*/
   {
     for (const int* fd = begin; fd != end; fd++)
@@ -225,8 +208,7 @@ namespace
     {
       if (pipe(error_piped) == -1)
       {
-        eh::throw_errno_exception<
-          Generics::DescriptorListener::SysCallFailure>(FNE, "pipe fail");
+        eh::throw_errno_exception< Generics::DescriptorListener::SysCallFailure>(FNE, "pipe fail");
       }
       write_descriptors.push_back(error_piped[1]);
     }
@@ -286,8 +268,7 @@ namespace
       {
         if (dup2(devnull, redirect_descriptors[i]) < 0)
         {
-          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno,
-            FNE, "dup2 failed");
+          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno, FNE, "dup2 failed");
           break;
         }
       }
@@ -315,14 +296,14 @@ namespace
         {
           continue;
         }
+
         if (int* clash_with_pipes = write_descriptors.find(descriptors[i]))
         {
           // avoid descriptors[i] closing by dup2 call.
           int new_fd = dup(descriptors[i]);
           if (new_fd == -1)
           {
-            eh::ErrnoHelper::compose_safe(error, sizeof(error), errno,
-              FNE, "dup failed");
+            eh::ErrnoHelper::compose_safe(error, sizeof(error), errno, FNE, "dup failed");
             break;
           }
           *clash_with_pipes = new_fd;
@@ -330,14 +311,13 @@ namespace
         // simple forward descriptors in our pipes
         if (dup2(write_descriptor, descriptors[i]) == -1)
         {
-          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno,
-            FNE, "dup2 failed");
+          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno, FNE, "dup2 failed");
           break;
         }
+
         if (close(write_descriptor) == -1)
         {
-          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno,
-              FNE, "close failed");
+          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno, FNE, "close failed");
           break;
         }
       }
@@ -349,8 +329,7 @@ namespace
       {
         if (Generics::set_cloexec(*write_descriptors.get()) < 0)
         {
-          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno,
-              FNE, "set_cloexec failed");
+          eh::ErrnoHelper::compose_safe(error, sizeof(error), errno, FNE, "set_cloexec failed");
         }
       }
     }
@@ -383,8 +362,7 @@ namespace Generics
   // class DescriptorListenerCallback
   //
 
-  void
-  DescriptorListenerCallback::on_all_closed() noexcept
+  void DescriptorListenerCallback::on_all_closed() noexcept
   {
     if (listener())
     {
@@ -420,8 +398,7 @@ namespace Generics
     base_ = event_base_new();
     if (base_ == 0)
     {
-      eh::throw_errno_exception<EventFailure>(FNE,
-        "event_base_new() failed.");
+      eh::throw_errno_exception<EventFailure>(FNE, "event_base_new() failed.");
     }
 
     try
@@ -432,8 +409,7 @@ namespace Generics
       event_base_set(base_, &termination_);
       if (event_add(&termination_, 0) == -1)
       {
-        eh::throw_errno_exception<EventFailure>(FNE,
-          "event_add(termination_) failed.");
+        eh::throw_errno_exception<EventFailure>(FNE, "event_add(termination_) failed.");
       }
 
       // periodic callback
@@ -441,21 +417,18 @@ namespace Generics
       event_base_set(base_, &periodic_);
       if (evtimer_add(&periodic_, &PERIOD) == -1)
       {
-        eh::throw_errno_exception<EventFailure>(FNE,
-          "event_add(periodic_) failed.");
+        eh::throw_errno_exception<EventFailure>(FNE, "event_add(periodic_) failed.");
       }
 
       // set descriptors for dispatching
       for (size_t i = 0; i < DESCRIPTORS_COUNT_; i++)
       {
         int flags = fcntl(descriptors[i], F_GETFL);
-        if (flags == -1 ||
-          fcntl(descriptors[i], F_SETFL, flags | O_NONBLOCK) == -1)
+        if (flags == -1 || fcntl(descriptors[i], F_SETFL, flags | O_NONBLOCK) == -1)
         {
           eh::throw_errno_exception<SysCallFailure>(FNE, "fcntl() failed");
         }
-        read_contexts_[i].init(base_, this, BUFFERS_LENGTH_,
-          descriptors[i]);
+        read_contexts_[i].init(base_, this, BUFFERS_LENGTH_, descriptors[i]);
       }
     }
     catch (...)
@@ -470,24 +443,18 @@ namespace Generics
     event_base_free(base_);
   }
 
-  void
-  DescriptorListener::terminate() noexcept
+  void DescriptorListener::terminate() noexcept
   {
     termination_pipe_.signal();
   }
 
-  void
-  DescriptorListener::read_callback_(int fd, short /*type*/, void* arg)
-    noexcept
+  void DescriptorListener::read_callback_(int fd, short /*type*/, void* arg) noexcept
   {
-    DescriptorActionContext* context =
-      static_cast<DescriptorActionContext*>(arg);
+    DescriptorActionContext* context = static_cast<DescriptorActionContext*>(arg);
     context->owner->handle_read_(fd, *context);
   }
 
-  void
-  DescriptorListener::terminate_callback_(int /*fd*/, short /*type*/,
-    void* arg) noexcept
+  void DescriptorListener::terminate_callback_(int /*fd*/, short /*type*/, void* arg) noexcept
   {
     DescriptorListener* listener = static_cast<DescriptorListener*>(arg);
     if (event_base_loopexit(listener->base_, 0) == -1)
@@ -498,9 +465,7 @@ namespace Generics
     }
   }
 
-  void
-  DescriptorListener::periodic_callback_(int /*fd*/, short /*type*/,
-    void* arg) noexcept
+  void DescriptorListener::periodic_callback_(int /*fd*/, short /*type*/, void* arg) noexcept
   {
     DescriptorListener* listener = static_cast<DescriptorListener*>(arg);
     listener->callback_->on_periodic();
@@ -512,9 +477,7 @@ namespace Generics
     }
   }
 
-  void
-  DescriptorListener::handle_read_(int fd, DescriptorActionContext& context)
-    noexcept
+  void DescriptorListener::handle_read_(int fd, DescriptorActionContext& context) noexcept
   {
     for (;;)
     {
@@ -569,8 +532,7 @@ namespace Generics
         // 1. buffer can contain rest of previous read (without \n).
         const char* chunk = context.buffer.get() + context.used_buffer;
         const char* line_start = context.buffer.get();
-        while (const char* line_end =
-          static_cast<const char*>(memchr(chunk, '\n', res)))
+        while (const char* line_end = static_cast<const char*>(memchr(chunk, '\n', res)))
         {
           // found new line
           callback_->on_data_ready(fd, &context - read_contexts_.get(),
@@ -599,20 +561,17 @@ namespace Generics
       }
       else
       {
-        callback_->on_data_ready(fd, &context - read_contexts_.get(),
-          context.buffer.get(), res);
+        callback_->on_data_ready(fd, &context - read_contexts_.get(), context.buffer.get(), res);
       }
     }
   }
 
-  void
-  DescriptorListener::listen() /*throw (eh::Exception, EventFailure)*/
+  void DescriptorListener::listen() /*throw (eh::Exception, EventFailure)*/
   {
     // loop and dispatch events
     if (event_base_dispatch(base_) < 0)
     {
-      eh::throw_errno_exception<EventFailure>(FNE,
-        "event_base_dispatch() failure");
+      eh::throw_errno_exception<EventFailure>(FNE, "event_base_dispatch() failure");
     }
   }
 
@@ -631,8 +590,7 @@ namespace Generics
     used_buffer = 0;
 
     // initialize the members of the event structure
-    event_set(&read_event, descriptor, EV_READ | EV_PERSIST, read_callback_,
-      this);
+    event_set(&read_event, descriptor, EV_READ | EV_PERSIST, read_callback_, this);
     event_base_set(base, &read_event);
     if (event_add(&read_event, 0) == -1)
     {
@@ -645,8 +603,7 @@ namespace Generics
   // class ActiveDescriptorListenerCallback
   //
 
-  void
-  ActiveDescriptorListenerCallback::on_all_closed() noexcept
+  void ActiveDescriptorListenerCallback::on_all_closed() noexcept
   {
     if (listener())
     {
@@ -692,9 +649,7 @@ namespace Generics
     active_callback_->on_closed(fd, fd_index, error);
   }
 
-  void
-  ActiveDescriptorListener::ListenerJob::DLCAdapter::on_all_closed()
-    noexcept
+  void ActiveDescriptorListener::ListenerJob::DLCAdapter::on_all_closed() noexcept
   {
     active_callback_->on_all_closed();
   }
@@ -704,8 +659,7 @@ namespace Generics
     ActiveObjectCallback::Severity severity,
     const String::SubString& description, const char* error_code) noexcept
   {
-    active_callback_->report_error(severity, description,
-      error_code);
+    active_callback_->report_error(severity, description, error_code);
   }
 
 
@@ -732,12 +686,10 @@ namespace Generics
   ActiveDescriptorListener::ListenerJob::active_listener(
     ActiveDescriptorListener* active_listener) noexcept
   {
-    static_cast<DLCAdapter&>(*DescriptorListener::callback_).active_listener(
-      active_listener);
+    static_cast<DLCAdapter&>(*DescriptorListener::callback_).active_listener( active_listener);
   }
 
-  void
-  ActiveDescriptorListener::ListenerJob::terminate() noexcept
+  void ActiveDescriptorListener::ListenerJob::terminate() noexcept
   {
     try
     {
@@ -751,8 +703,7 @@ namespace Generics
     }
   }
 
-  void
-  ActiveDescriptorListener::ListenerJob::work() noexcept
+  void ActiveDescriptorListener::ListenerJob::work() noexcept
   {
     try
     {
@@ -790,8 +741,7 @@ namespace Generics
   // ExecuteAndListenCallback class
   //
 
-  void
-  ExecuteAndListenCallback::set_pid(pid_t /*pid*/) noexcept
+  void ExecuteAndListenCallback::set_pid(pid_t /*pid*/) noexcept
   {
   }
 
@@ -831,8 +781,7 @@ namespace Generics
 
       Sync::PosixGuard guard(execute_and_listen_mutex);
 
-      create_pipes(error_pipe, descriptors_amount,
-        read_descriptors, write_descriptors);
+      create_pipes(error_pipe, descriptors_amount, read_descriptors, write_descriptors);
 
       // This may raise an exception, doing it before fork
       dl.reset(new DescriptorListener(callback, read_descriptors.get(),
@@ -844,8 +793,7 @@ namespace Generics
       cpid = fork();
       if (cpid == -1)
       {
-        eh::throw_errno_exception<DescriptorListener::SysCallFailure>(
-          FNE, "fork failed");
+        eh::throw_errno_exception<DescriptorListener::SysCallFailure>( FNE, "fork failed");
       }
 
       if (cpid == 0)
@@ -873,8 +821,7 @@ namespace Generics
     int status;
     if (waitpid(cpid, &status, 0) == -1)
     {
-      eh::throw_errno_exception<DescriptorListener::SysCallFailure>(
-        FNE, "waitpid() failed.");
+      eh::throw_errno_exception<DescriptorListener::SysCallFailure>( FNE, "waitpid() failed.");
     }
     return status;
   }

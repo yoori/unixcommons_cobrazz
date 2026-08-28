@@ -10,7 +10,7 @@ bool test_case()
   Args parser;
   _TEST_CASE test_case(parser);
   size_t argc = 0;
-  for(const char** argcur = _ARGV; *argcur; ++argcur)
+  for (const char** argcur = _ARGV; *argcur; ++argcur)
   {
     ++argc;
   };
@@ -50,9 +50,7 @@ struct TestCase1
 
   bool check()
   {
-    return
-      test.installed() && *test == 1 &&
-      test2.installed() && *test2 == 2 &&
+    return test.installed() && *test == 1 && test2.installed() && *test2 == 2 &&
       test2.installed() && *test3 == 'A';
   }
 
@@ -72,9 +70,7 @@ struct TestCase2
 
   bool check()
   {
-    return
-      test.installed() && *test == 1 &&
-      test2.installed() && *test2 == 2 &&
+    return test.installed() && *test == 1 && test2.installed() && *test2 == 2 &&
       test3.installed() && *test3 == 3;
   }
 
@@ -94,10 +90,7 @@ struct TestCase3
 
   bool check()
   {
-    return
-      test.enabled() &&
-      test2.enabled() &&
-      test3.installed() && *test3 == 2;
+    return test.enabled() && test2.enabled() && test3.installed() && *test3 == 2;
   }
 
   CheckOption test;
@@ -111,7 +104,7 @@ int main(/*int argc, char* argv[]*/)
 
   try
   {
-    if(test_case<TestCase1, ARGV1>())
+    if (test_case<TestCase1, ARGV1>())
     {
       std::cout << "Case #1 success." << std::endl;
     }
@@ -121,7 +114,7 @@ int main(/*int argc, char* argv[]*/)
       std::cerr << "Case #1 failed." << std::endl;
     }
 
-    if(test_case<TestCase2, ARGV2>())
+    if (test_case<TestCase2, ARGV2>())
     {
       std::cout << "Case #2 success." << std::endl;
     }
@@ -131,7 +124,7 @@ int main(/*int argc, char* argv[]*/)
       std::cerr << "Case #2 failed." << std::endl;
     }
 
-    if(test_case<TestCase3, ARGV3>())
+    if (test_case<TestCase3, ARGV3>())
     {
       std::cout << "Case #3 success." << std::endl;
     }

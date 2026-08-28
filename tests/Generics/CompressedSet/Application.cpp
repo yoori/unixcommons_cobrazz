@@ -10,16 +10,14 @@ template <typename Integer>
 class DebugCompressedSet : private Generics::CompressedSet<Integer>
 {
 public:
-  void
-  add(Integer low, Integer high) /*throw (eh::Exception)*/
+  void add(Integer low, Integer high) /*throw (eh::Exception)*/
   {
     std::cout << "Add " << low << " " << high << "\n";
     check();
     Generics::CompressedSet<Integer>::add(low, high);
   }
 
-  void
-  remove(Integer low, Integer high) /*throw (eh::Exception)*/
+  void remove(Integer low, Integer high) /*throw (eh::Exception)*/
   {
     std::cout << "Remove " << low << " " << high << "\n";
     check();
@@ -29,16 +27,14 @@ public:
   using Generics::CompressedSet<Integer>::belongs;
   using Generics::CompressedSet<Integer>::check_presence;
 
-  void
-  check() const /*throw (eh::Exception)*/
+  void check() const /*throw (eh::Exception)*/
   {
     if (this->holder_.empty())
     {
       return;
     }
 
-    typename Generics::CompressedSet<Integer>::Holder::const_iterator
-      itor(this->holder_.begin());
+    typename Generics::CompressedSet<Integer>::Holder::const_iterator itor(this->holder_.begin());
     assert(itor->first <= itor->second);
     std::cout << itor->first << ":" << itor->second;
     for (typename Generics::CompressedSet<Integer>::Holder::const_iterator
@@ -55,8 +51,7 @@ template <typename Integer>
 class SimpleSet
 {
 public:
-  void
-  add(Integer low, Integer high) /*throw (eh::Exception)*/
+  void add(Integer low, Integer high) /*throw (eh::Exception)*/
   {
     for (; low <= high; low++)
     {
@@ -64,14 +59,12 @@ public:
     }
   }
 
-  void
-  add(Integer value) /*throw (eh::Exception)*/
+  void add(Integer value) /*throw (eh::Exception)*/
   {
     holder_.insert(value);
   }
 
-  void
-  remove(Integer low, Integer high) /*throw (eh::Exception)*/
+  void remove(Integer low, Integer high) /*throw (eh::Exception)*/
   {
     for (; low <= high; low++)
     {
@@ -79,14 +72,12 @@ public:
     }
   }
 
-  void
-  remove(Integer value) /*throw (eh::Exception)*/
+  void remove(Integer value) /*throw (eh::Exception)*/
   {
     holder_.erase(value);
   }
 
-  bool
-  belongs(Integer value) const /*throw (eh::Exception)*/
+  bool belongs(Integer value) const /*throw (eh::Exception)*/
   {
     return holder_.find(value) != holder_.end();
   }
@@ -115,8 +106,7 @@ private:
   std::set<Integer> holder_;
 };
 
-int
-main()
+int main()
 {
   const int MIN = 0, MAX = 50;
 
@@ -159,10 +149,8 @@ main()
     {
       for (int j = i; j < MAX; j++)
       {
-        Generics::CompressedSet<int>::CheckStatus res1 =
-          set1.check_presence(i, j);
-        Generics::CompressedSet<int>::CheckStatus res2 =
-          set2.check_presence(i, j);
+        Generics::CompressedSet<int>::CheckStatus res1 = set1.check_presence(i, j);
+        Generics::CompressedSet<int>::CheckStatus res2 = set2.check_presence(i, j);
         if (res1 != res2)
         {
           std::cerr << "For " << i << ", " << j << " compressed = " <<

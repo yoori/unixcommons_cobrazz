@@ -25,13 +25,11 @@ namespace Generics
   {
   }
 
-  void
-  ThreadCallback::on_start() noexcept
+  void ThreadCallback::on_start() noexcept
   {
   }
 
-  void
-  ThreadCallback::on_stop() noexcept
+  void ThreadCallback::on_stop() noexcept
   {
   }
 
@@ -42,10 +40,8 @@ namespace Generics
 
   const size_t ThreadRunner::Options::DEFAULT_STACK_SIZE;
 
-  ThreadRunner::Options::Options(size_t stack_size,
-    ThreadCallback* thread_callback) noexcept
-    : stack_size(stack_size < PTHREAD_STACK_MIN ? DEFAULT_STACK_SIZE :
-        stack_size),
+  ThreadRunner::Options::Options(size_t stack_size, ThreadCallback* thread_callback) noexcept
+    : stack_size(stack_size < PTHREAD_STACK_MIN ? DEFAULT_STACK_SIZE : stack_size),
       thread_callback(ReferenceCounting::add_ref(thread_callback))
   {
   }
@@ -61,14 +57,12 @@ namespace Generics
     int res = ::pthread_attr_init(&attr_);
     if (res)
     {
-      eh::throw_errno_exception<PosixException>(res, FNE,
-        "failed to initialize attribute");
+      eh::throw_errno_exception<PosixException>(res, FNE, "failed to initialize attribute");
     }
     res = ::pthread_attr_setstacksize(&attr_, stack_size);
     if (res)
     {
-      eh::throw_errno_exception<PosixException>(res, FNE,
-        "tried to set stack size ", stack_size);
+      eh::throw_errno_exception<PosixException>(res, FNE, "tried to set stack size ", stack_size);
     }
   }
 
@@ -113,8 +107,7 @@ namespace Generics
     }
   }
 
-  void
-  ThreadRunner::thread_func_(ThreadJob& job) noexcept
+  void ThreadRunner::thread_func_(ThreadJob& job) noexcept
   {
     start_semaphore_.acquire();
     start_semaphore_.release();
@@ -134,16 +127,14 @@ namespace Generics
     }
   }
 
-  void*
-  ThreadRunner::thread_func_(void* arg) noexcept
+  void* ThreadRunner::thread_func_(void* arg) noexcept
   {
     JobInfo* info = static_cast<JobInfo*>(arg);
     info->runner->thread_func_(*info->job);
     return 0;
   }
 
-  void
-  ThreadRunner::start_one_thread_() /*throw (PosixException)*/
+  void ThreadRunner::start_one_thread_() /*throw (PosixException)*/
   {
     const int RES = pthread_create(&jobs_[number_running_].thread_id,
       attr_, thread_func_, &jobs_[number_running_]);
@@ -154,8 +145,7 @@ namespace Generics
     ++number_running_;
   }
 
-  void
-  ThreadRunner::wait_for_completion() /*throw (PosixException)*/
+  void ThreadRunner::wait_for_completion() /*throw (PosixException)*/
   {
     if (number_running_)
     {
@@ -166,8 +156,7 @@ namespace Generics
         if (RES)
         {
           char error[sizeof(PosixException)];
-          eh::ErrnoHelper::compose_safe(error, sizeof(error), RES,
-            FNE, "join failure");
+          eh::ErrnoHelper::compose_safe(error, sizeof(error), RES, FNE, "join failure");
           ostr << error << "\n";
         }
       }
@@ -182,8 +171,7 @@ namespace Generics
     }
   }
 
-  void
-  ThreadRunner::start(unsigned to_start)
+  void ThreadRunner::start(unsigned to_start)
     /*throw (AlreadyStarted, PosixException, eh::Exception)*/
   {
     if (number_running_)
@@ -225,8 +213,7 @@ namespace Generics
     start_semaphore_.release();
   }
 
-  void
-  ThreadRunner::start_one() /*throw (AlreadyStarted, PosixException)*/
+  void ThreadRunner::start_one() /*throw (AlreadyStarted, PosixException)*/
   {
     if (static_cast<unsigned>(number_running_) == number_of_jobs_)
     {

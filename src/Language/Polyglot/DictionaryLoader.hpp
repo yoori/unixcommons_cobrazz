@@ -23,9 +23,8 @@ namespace Polyglot
     long freq;
 
 #ifdef POLYGLOT_USE_BF
-    typedef Generics::GnuHashTable<
-      Generics::NumericHashAdapter<unsigned long>, unsigned long>
-      BiFrequencyMap;
+    using BiFrequencyMap = Generics::GnuHashTable<
+      Generics::NumericHashAdapter<unsigned long>, unsigned long>;
     BiFrequencyMap bi_freq_map;
 #endif
   };
@@ -40,7 +39,7 @@ namespace Polyglot
       long freq;
     };
 
-    typedef std::list<Suffix> SuffixList;
+    using SuffixList = std::list<Suffix>;
     SuffixList suffixes;
   };
 
@@ -54,8 +53,8 @@ namespace Polyglot
     std::string norm_form;
 
 #ifdef POLYGLOT_USE_BF
-    typedef Generics::GnuHashTable<
-      Generics::NumericHashAdapter<unsigned long>, unsigned long>
+    using BiFrequencyMap = Generics::GnuHashTable<
+      Generics::NumericHashAdapter<unsigned long>, unsigned long>;
     BiFrequencyMap bi_freq_map;
 #endif
   };
@@ -87,10 +86,9 @@ namespace Polyglot
     friend class DictionaryLoader;
 
   public:
-    typedef DictionaryNode Node;
+    using Node = DictionaryNode;
 
-    const DictionaryTraits&
-    traits() const noexcept;
+    const DictionaryTraits& traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -105,10 +103,9 @@ namespace Polyglot
     friend class DictionaryLoader;
 
   public:
-    typedef SuffixDictionaryNode Node;
+    using Node = SuffixDictionaryNode;
 
-    const DictionaryTraits&
-    traits() const noexcept;
+    const DictionaryTraits& traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -123,10 +120,9 @@ namespace Polyglot
     friend class DictionaryLoader;
 
   public:
-    typedef DictionaryNodeWithNorm Node;
+    using Node = DictionaryNodeWithNorm;
 
-    const DictionaryTraits&
-    traits() const noexcept;
+    const DictionaryTraits& traits() const noexcept;
 
   protected:
     DictionaryTraits traits_;
@@ -140,45 +136,28 @@ namespace Polyglot
   public:
     DECLARE_EXCEPTION(InvalidParameter, eh::DescriptiveException);
 
-    static
-    void
-    load(const char* dict_base_path, Dictionary& out_dict)
+    static void load(const char* dict_base_path, Dictionary& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load(const char* dict_base_path, DictionaryWithNorm& out_dict)
+    static void load(const char* dict_base_path, DictionaryWithNorm& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load_suffixes(const char* dict_base_path, SuffixDictionary& out_dict)
+    static void load_suffixes(const char* dict_base_path, SuffixDictionary& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load(const char* dict, const char* bidict, Dictionary& out_dict)
+    static void load(const char* dict, const char* bidict, Dictionary& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load(const char* dict, const char* bidict, DictionaryWithNorm& out_dict)
+    static void load(const char* dict, const char* bidict, DictionaryWithNorm& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load(std::istream& dict, std::istream& bidict, Dictionary& out_dict)
+    static void load(std::istream& dict, std::istream& bidict, Dictionary& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load(std::istream& dict, std::istream& bidict,
-      DictionaryWithNorm& out_dict)
+    static void load(std::istream& dict, std::istream& bidict, DictionaryWithNorm& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
 
-    static
-    void
-    load_suffixes(std::istream& suffix_dict, SuffixDictionary& out_dict)
+    static void load_suffixes(std::istream& suffix_dict, SuffixDictionary& out_dict)
       /*throw (eh::Exception, InvalidParameter)*/;
   };
 }
@@ -193,8 +172,7 @@ namespace Polyglot
   // DictionaryNode class
   //
 
-  inline
-  DictionaryNode::DictionaryNode(unsigned long id_val, long freq_val)
+  inline DictionaryNode::DictionaryNode(unsigned long id_val, long freq_val)
 #ifdef POLYGLOT_USE_BF
     /*throw (eh::Exception)*/
 #else
@@ -209,9 +187,7 @@ namespace Polyglot
   // SuffixDictionaryNode::Suffix class
   //
 
-  inline
-  SuffixDictionaryNode::Suffix::Suffix(
-    unsigned long length_val, long freq_val) noexcept
+  inline SuffixDictionaryNode::Suffix::Suffix( unsigned long length_val, long freq_val) noexcept
     : length(length_val), freq(freq_val)
   {
   }
@@ -233,8 +209,7 @@ namespace Polyglot
   // DictionaryTraits class
   //
 
-  inline
-  DictionaryTraits::DictionaryTraits() noexcept
+  inline DictionaryTraits::DictionaryTraits() noexcept
     : count_el(0), min_el(0xFFFFFFFF), max_el(0), sum_el(0),
       bi_count_el(0), bi_min_el(0xFFFFFFFF), bi_max_el(0), bi_sum_el(0)
   {
@@ -245,9 +220,7 @@ namespace Polyglot
   // Dictionary class
   //
 
-  inline
-  const DictionaryTraits&
-  Dictionary::traits() const noexcept
+  inline const DictionaryTraits& Dictionary::traits() const noexcept
   {
     return traits_;
   }
@@ -257,9 +230,7 @@ namespace Polyglot
   // DictionaryWithNorm class
   //
 
-  inline
-  const DictionaryTraits&
-  DictionaryWithNorm::traits() const noexcept
+  inline const DictionaryTraits& DictionaryWithNorm::traits() const noexcept
   {
     return traits_;
   }
@@ -269,9 +240,7 @@ namespace Polyglot
   // SuffixDictionary class
   //
 
-  inline
-  const DictionaryTraits&
-  SuffixDictionary::traits() const noexcept
+  inline const DictionaryTraits& SuffixDictionary::traits() const noexcept
   {
     return traits_;
   }

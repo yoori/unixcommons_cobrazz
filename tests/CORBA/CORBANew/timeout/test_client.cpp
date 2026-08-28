@@ -2,8 +2,7 @@
 #include <signal.h>
 #include "echo.hpp"
 
-static void
-hello(Echo_ptr e)
+static void hello(Echo_ptr e)
 {
   CORBA::String_var src = (const char*) "Hello!";
   CORBA::String_var dest = e->echoString(src);
@@ -12,8 +11,7 @@ hello(Echo_ptr e)
        << "The Echo object replied, \"" << dest <<"\"." << std::endl;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 
@@ -26,19 +24,16 @@ main(int argc, char** argv)
 #endif
 
 #ifdef ORB_TAO
-  CORBA::Object_var object =
-    orb->resolve_initial_references("ORBPolicyManager");
+  CORBA::Object_var object = orb->resolve_initial_references("ORBPolicyManager");
 
-  CORBA::PolicyManager_var policy_manager =
-    CORBA::PolicyManager::_narrow(object.in ());
+  CORBA::PolicyManager_var policy_manager = CORBA::PolicyManager::_narrow(object.in ());
 
   TimeBase::TimeT timeout = 10000000;
   CORBA::Any timeout_as_any;
   timeout_as_any <<= timeout;
 
   CORBA::Policy_var policy =
-    orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE,
-      timeout_as_any);
+    orb->create_policy(Messaging::RELATIVE_RT_TIMEOUT_POLICY_TYPE, timeout_as_any);
   CORBA::PolicyList policy_list(1);
   policy_list.length(1);
   policy_list[0] = policy;

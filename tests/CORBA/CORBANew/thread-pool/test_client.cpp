@@ -8,17 +8,16 @@ const int PROCESSES = 1;
 const int THREADS = 30;
 const int TIMEOUT = 5;
 
-static void
-hello(Echo_ptr e)
+static void hello(Echo_ptr e)
 {
   CORBA::String_var src = (const char*) "Hello!";
   time_t sent_server = e->echoString(time(NULL), src);
   time_t received_client = time(NULL);
   if (received_client > sent_server + 1)
   {
-    printf("Client: %u\n",
-      static_cast<unsigned>(received_client - sent_server));
+    printf("Client: %u\n", static_cast<unsigned>(received_client - sent_server));
   }
+
   if (!(rand() & 0xFF))
   {
     printf("Shutting it down!\n");
@@ -52,8 +51,7 @@ public:
   }
 
 private:
-  void
-  thread_proc_()
+  void thread_proc_()
   {
     CORBA::Object_var obj = orb_->string_to_object(ior_);
     Echo_var echoref = Echo::_narrow(obj);
@@ -75,8 +73,7 @@ private:
     }
   }
 
-  static void*
-  thread_proc_(void* arg) noexcept
+  static void* thread_proc_(void* arg) noexcept
   {
     try
     {
@@ -144,8 +141,7 @@ private:
   std::vector<pid_t> pids;
 };
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 #if 0
   int fd = open("/dev/null", O_WRONLY);

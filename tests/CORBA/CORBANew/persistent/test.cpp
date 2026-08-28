@@ -4,18 +4,15 @@
 class Echo_i : public POA_Echo
 {
 public:
-  virtual char*
-  echoString(const char* message) noexcept;
+  virtual char* echoString(const char* message) noexcept;
 };
 
-char*
-Echo_i::echoString(const char* message) noexcept
+char* Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }
 
-int
-main()
+int main()
 {
 #ifdef ORB_OMNI
   char ENDPOINT[] = "-ORBendPoint";
@@ -64,8 +61,7 @@ main()
   PortableServer::POA_var poa = root_poa->create_POA("CustomPoa", pman, pl);
 #endif
 
-  PortableServer::ObjectId_var oid =
-    PortableServer::string_to_ObjectId("Echo");
+  PortableServer::ObjectId_var oid = PortableServer::string_to_ObjectId("Echo");
 
   poa->activate_object_with_id(oid, myecho);
 #endif

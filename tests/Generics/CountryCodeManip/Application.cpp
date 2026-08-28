@@ -6,8 +6,7 @@
 
 DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-const char* ALL_CODES[] =
-{
+const char* ALL_CODES[] = {
   "AC", "CP", "DG", "EA", "EU", "FX", "IC", "TA", "UK",
   "CS", "NT", "SF", "SU", "TP", "YU", "ZR", "AF", "AX",
   "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR",
@@ -74,8 +73,7 @@ template<class KEY>
 struct HashFun
 {
   // hash
-  inline size_t
-  operator()(const KEY& value) const
+  inline size_t operator()(const KEY& value) const
   {
     return static_cast<size_t>(value);
   }
@@ -83,8 +81,7 @@ struct HashFun
 
 namespace
 {
-  inline uint32_t
-  get_country_code(const char* str) noexcept
+  inline uint32_t get_country_code(const char* str) noexcept
   {
     union
     {
@@ -94,47 +91,39 @@ namespace
     numeric = 0;
     for (std::size_t i = 0; str[i] && i < 4; ++i)
     {
-      str_code[i] = 
-        String::AsciiStringManip::Tables::
+      str_code[i] = String::AsciiStringManip::Tables::
         ASCII_TOUPPER_TABLE[static_cast<unsigned char>(str[i])];
     }
     return numeric;
   }
 
 #if 0
-  void
-  check()
+  void check()
     /*throw (eh::Exception)*/
   {
     std::cout << "Hash tables performance test started" << std::endl;
     std::cout << "Meters GNU hash_set versus tr1::unordered_set,"
       " lower value is better" << std::endl;
-    typedef std::set<uint32_t> Ranger;
+    using Ranger = std::set<uint32_t>;
     Ranger ranger;
 
-    for(std::size_t i = 0;
-        i < sizeof(ALL_CODES) / sizeof(ALL_CODES[0]);
-        ++i)
+    for (std::size_t i = 0; i < sizeof(ALL_CODES) / sizeof(ALL_CODES[0]); ++i)
     {
       ranger.insert(get_country_code(ALL_CODES[i]));
     }
 
-//    typedef Generics::GnuHashSet<Generics::NumericHashAdapter<uint32_t> >
-//    CountryMap_;
+//    using CountryMap_ = Generics::GnuHashSet<Generics::NumericHashAdapter<uint32_t> >;
 
-    typedef uint32_t KEY;
-    typedef __gnu_cxx::hash_set<KEY, HashFun<KEY> > 
-      CountryMap_;
+    using KEY = uint32_t;
+    using CountryMap_ = __gnu_cxx::hash_set<KEY, HashFun<KEY> >;
 
     CountryMap_ country_map_(2029ul);
 
-    typedef std::tr1::unordered_set<uint32_t> StdCountryMap_;
+    using StdCountryMap_ = std::tr1::unordered_set<uint32_t>;
     StdCountryMap_ std_country_map_;
 
     std::size_t i = 0;
-    for (Ranger::const_iterator it = ranger.begin();
-      it != ranger.end();
-      ++it)
+    for (Ranger::const_iterator it = ranger.begin(); it != ranger.end(); ++it)
     {
       ++i;
       country_map_.insert(*it);
@@ -150,9 +139,7 @@ namespace
     timer.start();
     for (std::size_t j = 0; j < 1000; ++j)
     {
-      for (Ranger::const_iterator it = ranger.begin();
-           it != ranger.end();
-           ++it)
+      for (Ranger::const_iterator it = ranger.begin(); it != ranger.end(); ++it)
       {
       }
     }
@@ -162,9 +149,7 @@ namespace
     timer.start();
     for (std::size_t j = 0; j < 1000; ++j)
     {
-      for (Ranger::const_iterator it = ranger.begin();
-           it != ranger.end();
-           ++it)
+      for (Ranger::const_iterator it = ranger.begin(); it != ranger.end(); ++it)
       {
         if (std_country_map_.find(*it) == std_country_map_.end())
         {
@@ -173,15 +158,12 @@ namespace
       }
     }
     timer.stop();
-    std::cout << "STL::TR1 hash table: " << timer.elapsed_time()
-      << std::endl;
+    std::cout << "STL::TR1 hash table: " << timer.elapsed_time() << std::endl;
 
     timer.start();
     for (std::size_t j = 0; j < 1000; ++j)
     {
-      for (Ranger::const_iterator it = ranger.begin();
-           it != ranger.end();
-           ++it)
+      for (Ranger::const_iterator it = ranger.begin(); it != ranger.end(); ++it)
       {
         if (country_map_.find(*it) == country_map_.end())
         {
@@ -195,8 +177,7 @@ namespace
   }
 #endif
 
-  void
-  check_generics()
+  void check_generics()
     /*throw (eh::Exception)*/
   {
     Generics::CountryCodeMap cmap;
@@ -206,22 +187,19 @@ namespace
     timer.start();
     for (std::size_t j = 0; j < 1000; ++j)
     {
-      for(std::size_t i = 0;
-          i < sizeof(ALL_CODES) / sizeof(ALL_CODES[0]);
-          ++i)
+      for (std::size_t i = 0; i < sizeof(ALL_CODES) / sizeof(ALL_CODES[0]); ++i)
       {
         if (!cmap.is_country_code(String::SubString(ALL_CODES[i])))
         {
           Stream::Error ostr;
-          ostr << "Country code " << ALL_CODES[i] << 
+          ostr << "Country code " << ALL_CODES[i] <<
             " numeric " << get_country_code(ALL_CODES[i]) << " not found";
           throw Exception(ostr);
         }
       }
     }
     timer.stop();
-    std::cout << "Generics::CountryCodeMap performance: "
-      << timer.elapsed_time() << std::endl;
+    std::cout << "Generics::CountryCodeMap performance: " << timer.elapsed_time() << std::endl;
 
     // negative part
     if (cmap.is_country_code(String::SubString(""))
@@ -237,8 +215,7 @@ namespace
 
 }
 
-int
-main()
+int main()
 {
   try
   {

@@ -11,11 +11,9 @@ namespace Generics
    * Based on ISAAC generator with /dev/urandom seed.
    * @return random number in [0..RAND_MAX] range
    */
-  uint32_t
-  safe_rand() noexcept;
+  uint32_t safe_rand() noexcept;
 
-  uint32_t
-  unsafe_rand() noexcept;
+  uint32_t unsafe_rand() noexcept;
 
   /**
    * Give uniform distribution in range [0..max_boundary-1].
@@ -24,17 +22,12 @@ namespace Generics
    * @return uniformly distributed positive random variable in
    * [0, max_boundary - 1] range.
    */
-  inline
-  uint32_t
-  safe_rand(uint32_t max_boundary) noexcept
+  inline uint32_t safe_rand(uint32_t max_boundary) noexcept
   {
-    return static_cast<uint32_t>(static_cast<double>(max_boundary) *
-      safe_rand() / 2147483648.0);
+    return static_cast<uint32_t>(static_cast<double>(max_boundary) * safe_rand() / 2147483648.0);
   }
 
-  inline
-  uint32_t
-  unsafe_rand(uint32_t max_boundary) noexcept
+  inline uint32_t unsafe_rand(uint32_t max_boundary) noexcept
   {
     return static_cast<uint32_t>(static_cast<double>(max_boundary) *
       unsafe_rand() / (static_cast<double>(RAND_MAX) + 1.0));
@@ -48,16 +41,12 @@ namespace Generics
    * @return uniformly distributed positive random variable in
    * [min_boundary, max_boundary] range.
    */
-  inline
-  uint32_t
-  safe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
+  inline uint32_t safe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
   {
     return min_boundary + safe_rand(max_boundary - min_boundary + 1);
   }
 
-  inline
-  uint32_t
-  unsafe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
+  inline uint32_t unsafe_rand(uint32_t min_boundary, uint32_t max_boundary) noexcept
   {
     return min_boundary + unsafe_rand(max_boundary - min_boundary + 1);
   }
@@ -72,9 +61,7 @@ namespace Generics
    * @return uniformly distributed random positive variable in
    * [0, 2^bits_number-1] range.
    */
-  inline
-  uint32_t
-  safe_integral_rand(uint8_t bits_number) noexcept
+  inline uint32_t safe_integral_rand(uint8_t bits_number) noexcept
   {
     return safe_rand() >> (31 - bits_number);
   }
@@ -82,9 +69,7 @@ namespace Generics
   /**
    * Obsolete
    */
-  inline
-  int
-  four_digits_rand() noexcept
+  inline int four_digits_rand() noexcept
   {
     return safe_rand(1000, 9999);
   }

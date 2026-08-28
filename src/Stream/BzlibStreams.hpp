@@ -46,9 +46,7 @@ namespace Stream
      * @param bzip_file_name File name to compress and write data
      * @param buffer_size Memory size to be allocate for write data buffer
      */
-    explicit
-    BzlibOutStream(const char* bzip_file_name,
-      size_t buffer_size = 64 * 1024)
+    explicit BzlibOutStream(const char* bzip_file_name, size_t buffer_size = 64 * 1024)
       /*throw (eh::Exception)*/;
 
   protected:

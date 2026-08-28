@@ -9,36 +9,27 @@ namespace ReferenceCounting
   // PolicyThrow class
   //
 
-  inline
-  void
-  PolicyThrow::check_init(const void* /*ptr*/) /*throw (NullPointer)*/
+  inline void PolicyThrow::check_init(const void* /*ptr*/) /*throw (NullPointer)*/
   {
   }
 
-  inline
-  void
-  PolicyThrow::check_dereference(const void* ptr)
+  inline void PolicyThrow::check_dereference(const void* ptr)
     /*throw (NotInitialized)*/
   {
     if (!ptr)
     {
-      char buf[sizeof(NotInitialized)] =
-        "ReferenceCounting::PolicyThrow::check_dereference(): "
+      char buf[sizeof(NotInitialized)] = "ReferenceCounting::PolicyThrow::check_dereference(): "
         "unable to dereference NULL pointer: ";
       Generics::Proc::backtrace(buf + 89, sizeof(buf) - 89, 1, 5);
       throw NotInitialized(buf);
     }
   }
 
-  inline
-  void
-  PolicyThrow::default_constructor() noexcept
+  inline void PolicyThrow::default_constructor() noexcept
   {
   }
 
-  inline
-  void
-  PolicyThrow::retn() noexcept
+  inline void PolicyThrow::retn() noexcept
   {
   }
 
@@ -47,30 +38,22 @@ namespace ReferenceCounting
   // PolicyAssert class
   //
 
-  inline
-  void
-  PolicyAssert::check_init(const void* /*ptr*/) /*throw (NullPointer)*/
+  inline void PolicyAssert::check_init(const void* /*ptr*/) /*throw (NullPointer)*/
   {
   }
 
-  inline
-  void
-  PolicyAssert::check_dereference(const void* ptr)
+  inline void PolicyAssert::check_dereference(const void* ptr)
     /*throw (NotInitialized)*/
   {
     (void)ptr;
     assert(ptr);
   }
 
-  inline
-  void
-  PolicyAssert::default_constructor() noexcept
+  inline void PolicyAssert::default_constructor() noexcept
   {
   }
 
-  inline
-  void
-  PolicyAssert::retn() noexcept
+  inline void PolicyAssert::retn() noexcept
   {
   }
 
@@ -79,9 +62,7 @@ namespace ReferenceCounting
   // PolicyNotNull class
   //
 
-  inline
-  void
-  PolicyNotNull::check_init(const void* ptr) /*throw (NullPointer)*/
+  inline void PolicyNotNull::check_init(const void* ptr) /*throw (NullPointer)*/
   {
     if (!ptr)
     {
@@ -91,9 +72,7 @@ namespace ReferenceCounting
     }
   }
 
-  inline
-  void
-  PolicyNotNull::check_dereference(const void* /*ptr*/)
+  inline void PolicyNotNull::check_dereference(const void* /*ptr*/)
     /*throw (NotInitialized)*/
   {
   }
@@ -103,24 +82,15 @@ namespace ReferenceCounting
   // PolicyChecker class
   //
 
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyThrow* /*policy*/)
-    noexcept
+  inline void PolicyChecker::check_policy_(const PolicyThrow* /*policy*/) noexcept
   {
   }
 
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyAssert* /*policy*/)
-    noexcept
+  inline void PolicyChecker::check_policy_(const PolicyAssert* /*policy*/) noexcept
   {
   }
 
-  inline
-  void
-  PolicyChecker::check_policy_(const PolicyNotNull* /*policy*/)
-    noexcept
+  inline void PolicyChecker::check_policy_(const PolicyNotNull* /*policy*/) noexcept
   {
   }
 }

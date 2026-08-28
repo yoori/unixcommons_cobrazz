@@ -3,71 +3,61 @@
 #include <eh/Exception.hpp>
 
 
-namespace ReferenceCounting
+namespace ReferenceCounting::Helper
 {
-  namespace Helper
+  template <typename T, typename Alloc>
+  struct Allocator : public std::allocator_traits<Alloc>::template rebind_alloc<T>
   {
-    template <typename T, typename Alloc>
-    struct Allocator : public std::allocator_traits<Alloc>::template rebind_alloc<T>
+    template <typename D>
+    struct rebind
     {
-      template <typename D>
-      struct rebind
-      {
-        typedef Allocator<D, Alloc> other;
-      };
-      Allocator() noexcept = default;
-      template <typename D>
-      Allocator(const Allocator<D, Alloc>&) noexcept;
-      template <typename... Args>
-      void
-      construct(T* p, Args&&... args) /*throw (eh::Exception)*/;
+      using other = Allocator<D, Alloc>;
     };
+    Allocator() noexcept = default;
+    template <typename D>
+    Allocator(const Allocator<D, Alloc>&) noexcept;
+    template <typename... Args>
+    void construct(T* p, Args&&... args) /*throw (eh::Exception)*/;
+  };
 
-    template <class Key>
-    struct HashFunForHashAdapter
-    {
-      size_t
-      operator ()(const Key& key) const /*throw (eh::Exception)*/;
-    };
-  }
+  template <class Key>
+  struct HashFunForHashAdapter
+  {
+    size_t operator ()(const Key& key) const /*throw (eh::Exception)*/;
+  };
 }
 
-namespace ReferenceCounting
+namespace ReferenceCounting::Helper
 {
-  namespace Helper
+  //
+  // Allocator class
+  //
+
+  template <typename T, typename Alloc>
+  template <typename D>
+  Allocator<T, Alloc>::Allocator(const Allocator<D, Alloc>&) noexcept
+    : std::allocator_traits<Alloc>::template rebind_alloc<T>()
   {
-    //
-    // Allocator class
-    //
+  }
 
-    template <typename T, typename Alloc>
-    template <typename D>
-    Allocator<T, Alloc>::Allocator(const Allocator<D, Alloc>&) noexcept
-      : std::allocator_traits<Alloc>::template rebind_alloc<T>()
-    {
-    }
-
-    template <typename T, typename Alloc>
-    template <typename... Args>
-    void
-    Allocator<T, Alloc>::construct(T* p, Args&&... args)
-      /*throw (eh::Exception)*/
-    {
-      ::new(p) T(const_cast<typename std::remove_const<
-        typename std::remove_reference<Args>::type>::type&&>(args)...);
-    }
+  template <typename T, typename Alloc>
+  template <typename... Args>
+  void Allocator<T, Alloc>::construct(T* p, Args&&... args)
+    /*throw (eh::Exception)*/
+  {
+    ::new(p) T(const_cast<typename std::remove_const<
+      typename std::remove_reference<Args>::type>::type&&>(args)...);
+  }
 
 
-    //
-    // HashFunForHashAdapter class
-    //
+  //
+  // HashFunForHashAdapter class
+  //
 
-    template <class Key>
-    size_t
-    HashFunForHashAdapter<Key>::operator ()(const Key& key) const
-      /*throw (eh::Exception)*/
-    {
-      return key.hash();
-    }
+  template <class Key>
+  size_t HashFunForHashAdapter<Key>::operator ()(const Key& key) const
+    /*throw (eh::Exception)*/
+  {
+    return key.hash();
   }
 }

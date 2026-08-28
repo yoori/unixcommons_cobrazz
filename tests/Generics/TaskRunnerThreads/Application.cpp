@@ -11,19 +11,16 @@
 class TRunner : public Generics::TaskRunner
 {
 public:
-  TRunner(Generics::ActiveObjectCallback* callback,
-    unsigned threads_number, unsigned start_threads)
+  TRunner(Generics::ActiveObjectCallback* callback, unsigned threads_number, unsigned start_threads)
     /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
 
-  unsigned
-  number_of_threads() const noexcept;
+  unsigned number_of_threads() const noexcept;
 
 protected:
-  virtual
-  ~TRunner() noexcept;
+  virtual ~TRunner() noexcept;
 };
-typedef ReferenceCounting::QualPtr<TRunner> TRunner_var;
+using TRunner_var = ReferenceCounting::QualPtr<TRunner>;
 
 TRunner::TRunner(Generics::ActiveObjectCallback* callback,
   unsigned threads_number, unsigned start_threads)
@@ -36,8 +33,7 @@ TRunner::~TRunner() noexcept
 {
 }
 
-unsigned
-TRunner::number_of_threads() const noexcept
+unsigned TRunner::number_of_threads() const noexcept
 {
   return thread_runner_.running();
 }
@@ -45,35 +41,28 @@ TRunner::number_of_threads() const noexcept
 class STask : public Generics::TaskImpl
 {
 public:
-  virtual
-  void
-  execute() /*throw (eh::Exception)*/;
+  virtual void execute() /*throw (eh::Exception)*/;
 
 protected:
-  virtual
-  ~STask() noexcept;
+  virtual ~STask() noexcept;
 };
 
 STask::~STask() noexcept
 {
 }
 
-void
-STask::execute() /*throw (eh::Exception)*/
+void STask::execute() /*throw (eh::Exception)*/
 {
   sleep(rand() % 10);
 }
 
 
-int
-main()
+int main()
 {
   try
   {
-    Logging::FLogger_var logger(new Logging::OStream::Logger(
-      Logging::OStream::Config(std::cerr)));
-    Generics::ActiveObjectCallback_var callback(
-      new Logging::ActiveObjectCallbackImpl(logger));
+    Logging::FLogger_var logger(new Logging::OStream::Logger( Logging::OStream::Config(std::cerr)));
+    Generics::ActiveObjectCallback_var callback( new Logging::ActiveObjectCallbackImpl(logger));
 
     Generics::Task_var task(new STask);
 
@@ -86,8 +75,7 @@ main()
     for (unsigned i = 0; i < 30; i++)
     {
       sleep(1);
-      std::cout << tr->number_of_threads() << " " <<
-        tr->task_count() << std::endl;
+      std::cout << tr->number_of_threads() << " " << tr->task_count() << std::endl;
       for (unsigned j = rand() % 5; j > 0; j--)
       {
         tr->enqueue_task(task);

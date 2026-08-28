@@ -4,8 +4,7 @@
 
 namespace String::StringManip::JsonEscape
 {
-  const char*
-  find_non_json_avx512bw(const char* cur, const char* end) noexcept
+  const char* find_non_json_avx512bw(const char* cur, const char* end) noexcept
   {
     if (end - cur >= 64)
     {
@@ -17,12 +16,9 @@ namespace String::StringManip::JsonEscape
       do
       {
         const __m512i value = _mm512_loadu_si512(cur);
-        const __mmask64 bits =
-          _mm512_cmpeq_epi8_mask(value, quote) |
+        const __mmask64 bits = _mm512_cmpeq_epi8_mask(value, quote) |
           _mm512_cmpeq_epi8_mask(value, backslash) |
-          _mm512_cmpeq_epi8_mask(
-            _mm512_subs_epu8(value, control_max),
-            zero);
+          _mm512_cmpeq_epi8_mask( _mm512_subs_epu8(value, control_max), zero);
 
         if (bits != 0)
         {

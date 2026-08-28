@@ -22,41 +22,29 @@ namespace
 
   const unsigned long STRING_KEY_SIZE = 20;
 
-  const char STAT_STRING_HASH_TABLE_INSERTION[] =
-  "String Hash Table Insertion";
+  const char STAT_STRING_HASH_TABLE_INSERTION[] = "String Hash Table Insertion";
 
-  const char STAT_STRING_MAP_TABLE_INSERTION[] =
-  "String Map Insertion";
+  const char STAT_STRING_MAP_TABLE_INSERTION[] = "String Map Insertion";
 
-  const char STAT_STRING_HASH_TABLE_FIND[] =
-  "String Hash Table Find";
+  const char STAT_STRING_HASH_TABLE_FIND[] = "String Hash Table Find";
 
-  const char STAT_STRING_MAP_TABLE_FIND[] =
-  "String Map Find";
+  const char STAT_STRING_MAP_TABLE_FIND[] = "String Map Find";
 
-  const char STAT_STRING_HASH_TABLE_ERASE[] =
-  "String Hash Table Erase";
+  const char STAT_STRING_HASH_TABLE_ERASE[] = "String Hash Table Erase";
 
-  const char STAT_STRING_MAP_TABLE_ERASE[] =
-  "String Map Erase";
+  const char STAT_STRING_MAP_TABLE_ERASE[] = "String Map Erase";
 
-  const char STAT_LONG_HASH_TABLE_INSERTION[] =
-  "Long Hash Table Insertion";
+  const char STAT_LONG_HASH_TABLE_INSERTION[] = "Long Hash Table Insertion";
 
-  const char STAT_LONG_MAP_TABLE_INSERTION[] =
-  "Long Map Insertion";
+  const char STAT_LONG_MAP_TABLE_INSERTION[] = "Long Map Insertion";
 
-  const char STAT_LONG_HASH_TABLE_FIND[] =
-  "Long Hash Table Find";
+  const char STAT_LONG_HASH_TABLE_FIND[] = "Long Hash Table Find";
 
-  const char STAT_LONG_MAP_TABLE_FIND[] =
-  "Long Map Find";
+  const char STAT_LONG_MAP_TABLE_FIND[] = "Long Map Find";
 
-  const char STAT_LONG_HASH_TABLE_ERASE[] =
-  "Long Hash Table Erase";
+  const char STAT_LONG_HASH_TABLE_ERASE[] = "Long Hash Table Erase";
 
-  const char STAT_LONG_MAP_TABLE_ERASE[] =
-  "Long Map Erase";
+  const char STAT_LONG_MAP_TABLE_ERASE[] = "Long Map Erase";
 };
 
 namespace Generics
@@ -64,8 +52,7 @@ namespace Generics
   Application::Application() /*throw (eh::Exception)*/
     : active_(false),
       execution_time_(TEST_EXECUTION_TIME),
-      callback_(new TestCommons::ActiveObjectCallbackStreamImpl(
-        std::cerr, "HashTable"))
+      callback_(new TestCommons::ActiveObjectCallbackStreamImpl( std::cerr, "HashTable"))
   {
     srand(time(0));
   }
@@ -74,8 +61,7 @@ namespace Generics
   {
   }
 
-  void
-  Application::test_iteration() /*throw (Exception, eh::Exception)*/
+  void Application::test_iteration() /*throw (Exception, eh::Exception)*/
   {
     test_string_table();
     test_long_table();
@@ -83,20 +69,18 @@ namespace Generics
     test_inserter_set();
   }
 
-  void
-  Application::test_long_table() /*throw (Exception, eh::Exception)*/
+  void Application::test_long_table() /*throw (Exception, eh::Exception)*/
   {
-    typedef GnuHashTable<NumericHashAdapter<unsigned long>, unsigned long>
-      LongHashTable;
+    using LongHashTable = GnuHashTable<NumericHashAdapter<unsigned long>, unsigned long>;
 
-    typedef std::map<unsigned long, unsigned long> LongMap;
-    typedef std::list<unsigned long> LongList;
+    using LongMap = std::map<unsigned long, unsigned long>;
+    using LongList = std::list<unsigned long>;
 
     LongHashTable long_hash_table(TEST_HASH_TABLE_SIZE);
     LongMap       long_map;
     LongList      key_list;
 
-    for(unsigned long i = 0; i < TEST_SET_SIZE; i++)
+    for (unsigned long i = 0; i < TEST_SET_SIZE; i++)
     {
       Generics::Timer timer;
       timer.start();
@@ -105,8 +89,7 @@ namespace Generics
 
       timer.stop();
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_LONG_HASH_TABLE_INSERTION));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_LONG_HASH_TABLE_INSERTION));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -122,7 +105,7 @@ namespace Generics
       key_list.push_front(i);
     }
 
-    for(unsigned long i = 0; i < TEST_SET_SIZE; i++)
+    for (unsigned long i = 0; i < TEST_SET_SIZE; i++)
     {
       Generics::Timer timer;
       timer.start();
@@ -131,13 +114,12 @@ namespace Generics
 
       timer.stop();
 
-      if(res == long_hash_table.end() || res->second != i)
+      if (res == long_hash_table.end() || res->second != i)
       {
         throw Exception("test_long_table: Bug in HashTable");
       }
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_LONG_HASH_TABLE_FIND));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_LONG_HASH_TABLE_FIND));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -154,7 +136,7 @@ namespace Generics
 
 //    long_hash_table.dump(std::cout);
 
-    for(LongList::iterator it = key_list.begin(); it != key_list.end(); it++)
+    for (LongList::iterator it = key_list.begin(); it != key_list.end(); it++)
     {
       Generics::Timer timer;
       timer.start();
@@ -163,8 +145,7 @@ namespace Generics
 
       timer.stop();
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_LONG_HASH_TABLE_ERASE));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_LONG_HASH_TABLE_ERASE));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -179,23 +160,21 @@ namespace Generics
     }
   }
 
-  void
-  Application::test_string_table() /*throw (Exception, eh::Exception)*/
+  void Application::test_string_table() /*throw (Exception, eh::Exception)*/
   {
-    typedef GnuHashTable<StringHashAdapter, unsigned long> StringHashTable;
-    typedef std::map<std::string, unsigned long> StringMap;
-    typedef std::list<std::string> StringList;
+    using StringHashTable = GnuHashTable<StringHashAdapter, unsigned long>;
+    using StringMap = std::map<std::string, unsigned long>;
+    using StringList = std::list<std::string>;
 
     StringHashTable string_hash_table(TEST_HASH_TABLE_SIZE);
     StringMap       string_map;
     StringList      key_list;
 
-    for(unsigned long i = 0; i < TEST_SET_SIZE; i++)
+    for (unsigned long i = 0; i < TEST_SET_SIZE; i++)
     {
       char buff[STRING_KEY_SIZE + 1];
 
-      snprintf(buff, sizeof(buff), "%0*lu",
-        static_cast<int>(STRING_KEY_SIZE), i);
+      snprintf(buff, sizeof(buff), "%0*lu", static_cast<int>(STRING_KEY_SIZE), i);
 
       Generics::Timer timer;
       timer.start();
@@ -204,8 +183,7 @@ namespace Generics
 
       timer.stop();
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_STRING_HASH_TABLE_INSERTION));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_STRING_HASH_TABLE_INSERTION));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -222,12 +200,11 @@ namespace Generics
     }
 
 //    string_hash_table.dump(std::cout);
-    for(unsigned long i = 0; i < TEST_SET_SIZE; i++)
+    for (unsigned long i = 0; i < TEST_SET_SIZE; i++)
     {
       char buff[STRING_KEY_SIZE + 1];
 
-      snprintf(buff, sizeof(buff), "%0*lu",
-        static_cast<int>(STRING_KEY_SIZE), i);
+      snprintf(buff, sizeof(buff), "%0*lu", static_cast<int>(STRING_KEY_SIZE), i);
 
       Generics::Timer timer;
       timer.start();
@@ -236,13 +213,12 @@ namespace Generics
 
       timer.stop();
 
-      if(res == string_hash_table.end() || res->second != i)
+      if (res == string_hash_table.end() || res->second != i)
       {
         throw Exception("Bug in HashTable");
       }
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_STRING_HASH_TABLE_FIND));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_STRING_HASH_TABLE_FIND));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -268,7 +244,7 @@ namespace Generics
     string_hash_table.end().dump(std::cout);
     std::cout << std::endl;
 */
-    for(StringHashTable::iterator it = string_hash_table.begin();
+    for (StringHashTable::iterator it = string_hash_table.begin();
         it != string_hash_table.end(); it++)
     {
 /*
@@ -284,7 +260,7 @@ namespace Generics
 */
     }
 
-    for(StringList::iterator it = key_list.begin(); it != key_list.end(); it++)
+    for (StringList::iterator it = key_list.begin(); it != key_list.end(); it++)
     {
       Generics::Timer timer;
       timer.start();
@@ -293,8 +269,7 @@ namespace Generics
 
       timer.stop();
 
-      Generics::Statistics::StatSink_var stat(
-        statistics_->get(STAT_STRING_HASH_TABLE_ERASE));
+      Generics::Statistics::StatSink_var stat( statistics_->get(STAT_STRING_HASH_TABLE_ERASE));
 
       stat->consider(Generics::Statistics::TimedSubject(timer.elapsed_time()));
 
@@ -310,12 +285,10 @@ namespace Generics
 
   }
 
-  void
-  Application::test_inserter_table() /*throw (eh::Exception, Exception)*/
+  void Application::test_inserter_table() /*throw (eh::Exception, Exception)*/
   {
-    typedef Generics::GnuHashTable<Generics::NumericHashAdapter<int>, int>
-      Table;
-    typedef std::list<Table::value_type> Init;
+    using Table = Generics::GnuHashTable<Generics::NumericHashAdapter<int>, int>;
+    using Init = std::list<Table::value_type>;
 
     Init init;
     int exp_sum = 0, exp_sums = 0;
@@ -344,12 +317,10 @@ namespace Generics
     }
   }
 
-  void
-  Application::test_inserter_set() /*throw (eh::Exception, Exception)*/
+  void Application::test_inserter_set() /*throw (eh::Exception, Exception)*/
   {
-    typedef Generics::GnuHashSet<Generics::NumericHashAdapter<int> >
-      Set;
-    typedef std::list<Set::value_type> Init;
+    using Set = Generics::GnuHashSet<Generics::NumericHashAdapter<int> >;
+    using Init = std::list<Set::value_type>;
 
     Init init;
     int exp_sum = 0;
@@ -376,8 +347,7 @@ namespace Generics
     }
   }
 
-  void
-  Application::init(int& /*argc*/, char** /*argv*/)
+  void Application::init(int& /*argc*/, char** /*argv*/)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     Write_Guard_ guard(lock_);
@@ -426,9 +396,7 @@ namespace Generics
                        new Statistics::TimedStatSink(),
                        dump_policy.in());
 
-      statistics_->add(STAT_LONG_MAP_TABLE_FIND,
-                       new Statistics::TimedStatSink(),
-                       dump_policy.in());
+      statistics_->add(STAT_LONG_MAP_TABLE_FIND, new Statistics::TimedStatSink(), dump_policy.in());
 
       statistics_->add(STAT_LONG_HASH_TABLE_ERASE,
                        new Statistics::TimedStatSink(),
@@ -447,11 +415,10 @@ namespace Generics
     }
   }
 
-  void
-  Application::run()
+  void Application::run()
     /*throw (InvalidOperationOrder, Exception, eh::Exception)*/
   {
-    if(statistics_.in() == 0)
+    if (statistics_.in() == 0)
     {
       throw InvalidOperationOrder("Application::run: call init() first");
     }
@@ -467,7 +434,7 @@ namespace Generics
 
       test();
 
-      if(!statistics_->active())
+      if (!statistics_->active())
         statistics_->wait_object();
 
       stop_time_ = Generics::Time::get_time_of_day();
@@ -490,13 +457,12 @@ namespace Generics
     print_results();
   }
 
-  void
-  Application::stop() /*throw (Exception, eh::Exception)*/
+  void Application::stop() /*throw (Exception, eh::Exception)*/
   {
     {
       Write_Guard_ guard(lock_);
 
-      if(!active_) return;
+      if (!active_) return;
       active_ = false;
     }
 
@@ -513,12 +479,11 @@ namespace Generics
     }
   }
 
-  void
-  Application::print_results() /*throw (eh::Exception)*/
+  void Application::print_results() /*throw (eh::Exception)*/
   {
     std::cout << "*** Test Results ***" << std::endl << std::endl;
 
-    if(start_time_ == Generics::Time::ZERO || stop_time_ == Generics::Time::ZERO)
+    if (start_time_ == Generics::Time::ZERO || stop_time_ == Generics::Time::ZERO)
     {
       std::cerr << "Test failed" << std::endl;
       return;
@@ -526,23 +491,21 @@ namespace Generics
 
     Generics::Time real_execution_time = stop_time_ - start_time_;
 
-    std::cout << "Execution time: " << real_execution_time << std::endl <<
-      std::endl;
+    std::cout << "Execution time: " << real_execution_time << std::endl << std::endl;
 
     statistics_->dump(std::cout);
 
   }
 
-  void
-  Application::test() /*throw (Exception, eh::Exception)*/
+  void Application::test() /*throw (Exception, eh::Exception)*/
   {
     try
     {
-      while(active())
+      while (active())
       {
         test_iteration();
 
-        if(Generics::Time::get_time_of_day() - start_time_ >= execution_time_)
+        if (Generics::Time::get_time_of_day() - start_time_ >= execution_time_)
         {
           stop();
         }
@@ -561,8 +524,7 @@ namespace Generics
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   int result = 1;
 

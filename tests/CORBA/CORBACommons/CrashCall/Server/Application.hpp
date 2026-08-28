@@ -15,23 +15,19 @@ namespace CORBATest
       POA_CORBATest::TestCrash>
   {
   public:
-    virtual void
-    crash() noexcept;
+    virtual void crash() noexcept;
 
   protected:
-    virtual
-    ~TestCrashImpl() noexcept;
+    virtual ~TestCrashImpl() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<TestCrashImpl> TestCrashImpl_var;
+  using TestCrashImpl_var = ReferenceCounting::QualPtr<TestCrashImpl>;
 }
 
-inline
-CORBATest::TestCrashImpl::~TestCrashImpl() noexcept
+inline CORBATest::TestCrashImpl::~TestCrashImpl() noexcept
 {
 }
 
-inline void
-CORBATest::TestCrashImpl::crash() noexcept
+inline void CORBATest::TestCrashImpl::crash() noexcept
 {
   _exit(1);
 }
@@ -45,10 +41,8 @@ public:
 public:
   Application() /*throw (eh::Exception)*/;
 
-  void
-  run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/;
+  void run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/;
 
 protected:
-  virtual
-  ~Application() noexcept;
+  virtual ~Application() noexcept;
 };

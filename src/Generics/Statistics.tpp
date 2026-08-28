@@ -9,8 +9,7 @@ namespace Generics::Statistics
   // Subject class
   //
 
-  inline
-  Subject::~Subject() noexcept
+  inline Subject::~Subject() noexcept
   {
   }
 
@@ -19,28 +18,21 @@ namespace Generics::Statistics
   // NullDumpPolicy class
   //
 
-  inline
-  NullDumpPolicy::~NullDumpPolicy() noexcept
+  inline NullDumpPolicy::~NullDumpPolicy() noexcept
   {
   }
 
-  inline
-  bool
-  NullDumpPolicy::need_dump(StatSink* /*stat*/) /*throw (eh::Exception)*/
+  inline bool NullDumpPolicy::need_dump(StatSink* /*stat*/) /*throw (eh::Exception)*/
   {
     return false;
   }
 
-  inline
-  DumpPolicy*
-  NullDumpPolicy::clone() /*throw (eh::Exception)*/
+  inline DumpPolicy* NullDumpPolicy::clone() /*throw (eh::Exception)*/
   {
     return new NullDumpPolicy();
   }
 
-  inline
-  void
-  NullDumpPolicy::dump(StatSink* /*stat*/) /*throw (eh::Exception)*/
+  inline void NullDumpPolicy::dump(StatSink* /*stat*/) /*throw (eh::Exception)*/
   {
   }
 
@@ -49,28 +41,22 @@ namespace Generics::Statistics
   // StreamDumpPolicy class
   //
 
-  inline
-  StreamDumpPolicy::StreamDumpPolicy(std::ostream& ostr)
+  inline StreamDumpPolicy::StreamDumpPolicy(std::ostream& ostr)
     /*throw (eh::Exception)*/
     : ostream_(ostr)
   {
   }
 
-  inline
-  StreamDumpPolicy::~StreamDumpPolicy() noexcept
+  inline StreamDumpPolicy::~StreamDumpPolicy() noexcept
   {
   }
 
-  inline
-  std::ostream&
-  StreamDumpPolicy::stream() /*throw (eh::Exception)*/
+  inline std::ostream& StreamDumpPolicy::stream() /*throw (eh::Exception)*/
   {
     return ostream_;
   }
 
-  inline
-  void
-  StreamDumpPolicy::dump(StatSink* stat) /*throw (eh::Exception)*/
+  inline void StreamDumpPolicy::dump(StatSink* stat) /*throw (eh::Exception)*/
   {
     if (stat)
     {
@@ -93,22 +79,17 @@ namespace Generics::Statistics
   {
   }
 
-  inline
-  CountBasedDumpPolicy::~CountBasedDumpPolicy() noexcept
+  inline CountBasedDumpPolicy::~CountBasedDumpPolicy() noexcept
   {
   }
 
-  inline
-  bool
-  CountBasedDumpPolicy::need_dump(StatSink* stat)
+  inline bool CountBasedDumpPolicy::need_dump(StatSink* stat)
     /*throw (eh::Exception)*/
   {
     return (stat->considered_count() % dump_freq_) == 0;
   }
 
-  inline
-  DumpPolicy*
-  CountBasedDumpPolicy::clone() /*throw (eh::Exception)*/
+  inline DumpPolicy* CountBasedDumpPolicy::clone() /*throw (eh::Exception)*/
   {
     return new CountBasedDumpPolicy(ostream_, dump_freq_);
   }
@@ -117,8 +98,7 @@ namespace Generics::Statistics
   //
   // DumpRunner class
 
-  inline
-  DumpRunner::~DumpRunner() noexcept
+  inline DumpRunner::~DumpRunner() noexcept
   {
   }
 
@@ -127,50 +107,38 @@ namespace Generics::Statistics
   // NullDumpRunner
   //
 
-  inline
-  NullDumpRunner::NullDumpRunner() noexcept
+  inline NullDumpRunner::NullDumpRunner() noexcept
     : active_(false)
   {
   }
 
-  inline
-  NullDumpRunner::~NullDumpRunner() noexcept
+  inline NullDumpRunner::~NullDumpRunner() noexcept
   {
   }
 
-  inline
-  void
-  NullDumpRunner::execute_dumping(DumpPolicy*, StatSink*)
+  inline void NullDumpRunner::execute_dumping(DumpPolicy*, StatSink*)
     /*throw (eh::Exception)*/
   {
   }
 
-  inline
-  void
-  NullDumpRunner::activate_object()
+  inline void NullDumpRunner::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     active_ = true;
   }
 
-  inline
-  void
-  NullDumpRunner::deactivate_object()
+  inline void NullDumpRunner::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
     active_ = false;
   }
 
-  inline
-  void
-  NullDumpRunner::wait_object() /*throw (Exception, eh::Exception)*/
+  inline void NullDumpRunner::wait_object() /*throw (Exception, eh::Exception)*/
   {
     active_ = false;
   }
 
-  inline
-  bool
-  NullDumpRunner::active() const /*throw (eh::Exception)*/
+  inline bool NullDumpRunner::active() const /*throw (eh::Exception)*/
   {
     return active_;
   }
@@ -180,9 +148,7 @@ namespace Generics::Statistics
   // TaskNullDumpRunner
   //
 
-  inline
-  TaskDumpRunner::TaskDumpRunner(ActiveObjectCallback* callback,
-    TaskRunner* task_runner)
+  inline TaskDumpRunner::TaskDumpRunner(ActiveObjectCallback* callback, TaskRunner* task_runner)
     /*throw (eh::Exception)*/
     : callback_(ReferenceCounting::add_ref(callback))
   {
@@ -203,14 +169,11 @@ namespace Generics::Statistics
     }
   }
 
-  inline
-  TaskDumpRunner::~TaskDumpRunner() noexcept
+  inline TaskDumpRunner::~TaskDumpRunner() noexcept
   {
   }
 
-  inline
-  void
-  TaskDumpRunner::execute_dumping(DumpPolicy* policy, StatSink* stat)
+  inline void TaskDumpRunner::execute_dumping(DumpPolicy* policy, StatSink* stat)
     /*throw (eh::Exception)*/
   {
     task_runner_->enqueue_task(DumpTask_var(new DumpTask(stat, policy)));
@@ -218,33 +181,25 @@ namespace Generics::Statistics
     sleep(0);
   }
 
-  inline
-  void
-  TaskDumpRunner::activate_object()
+  inline void TaskDumpRunner::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     task_runner_->activate_object();
   }
 
-  inline
-  void
-  TaskDumpRunner::deactivate_object()
+  inline void TaskDumpRunner::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
     task_runner_->deactivate_object();
   }
 
-  inline
-  void
-  TaskDumpRunner::wait_object()
+  inline void TaskDumpRunner::wait_object()
     /*throw (Exception, eh::Exception)*/
   {
     task_runner_->wait_object();
   }
 
-  inline
-  bool
-  TaskDumpRunner::active() const /*throw (eh::Exception)*/
+  inline bool TaskDumpRunner::active() const /*throw (eh::Exception)*/
   {
     return task_runner_->active();
   }
@@ -254,16 +209,12 @@ namespace Generics::Statistics
   // Collection class
   //
 
-  inline
-  bool
-  Collection::active() const /*throw (eh::Exception)*/
+  inline bool Collection::active() const /*throw (eh::Exception)*/
   {
     return stat_dumper_->active();
   }
 
-  inline
-  Statistics::StatSink*
-  Collection::get(const char* id)
+  inline Statistics::StatSink* Collection::get(const char* id)
     /*throw (InvalidArgument, StatItemNotFound, Exception, eh::Exception)*/
   {
     if (id == 0)
@@ -294,8 +245,7 @@ namespace Generics::Statistics
   // Collection::Item class
   //
 
-  inline
-  Collection::Item::~Item() noexcept
+  inline Collection::Item::~Item() noexcept
   {
   }
 
@@ -338,9 +288,7 @@ namespace Generics::Statistics
     stat_dumper_ = ReferenceCounting::add_ref(stat_dumper);
   }
 
-  inline
-  void
-  Collection::Item::consider(const Subject& subject)
+  inline void Collection::Item::consider(const Subject& subject)
     /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -353,37 +301,28 @@ namespace Generics::Statistics
     }
   }
 
-  inline
-  unsigned
-  Collection::Item::considered_count() const
+  inline unsigned Collection::Item::considered_count() const
     /*throw (eh::Exception)*/
   {
     return stat_->considered_count();
   }
 
-  inline
-  void
-  Collection::Item::reset() /*throw (eh::Exception)*/
+  inline void Collection::Item::reset() /*throw (eh::Exception)*/
   {
     stat_->considered_count();
   }
 
-  inline
-  StatSink*
-  Collection::Item::clone()
+  inline StatSink* Collection::Item::clone()
     /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
     return clone_i();
   }
 
-  inline
-  StatSink*
-  Collection::Item::clone_i()
+  inline StatSink* Collection::Item::clone_i()
     /*throw (eh::Exception)*/
   {
-    return new Item(id_.c_str(), stat_->clone(), dump_policy_,
-      stat_dumper_);
+    return new Item(id_.c_str(), stat_->clone(), dump_policy_, stat_dumper_);
   }
 
 
@@ -398,20 +337,17 @@ namespace Generics::Statistics
   {
   }
 
-  inline
-  TaskDumpRunner::DumpTask::~DumpTask() noexcept
+  inline TaskDumpRunner::DumpTask::~DumpTask() noexcept
   {
   }
 
-  inline
-  void
-  TaskDumpRunner::DumpTask::execute() noexcept
+  inline void TaskDumpRunner::DumpTask::execute() noexcept
   {
     try
     {
       if (dump_policy_)
       {
-	dump_policy_->dump(stat_);
+  dump_policy_->dump(stat_);
       }
     }
     catch(...)
@@ -453,8 +389,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataType, typename Policy>
-  void
-  DefaultDataProvider<DataType, Policy>::set() noexcept
+  void DefaultDataProvider<DataType, Policy>::set() noexcept
   {
   }
 
@@ -463,28 +398,22 @@ namespace Generics::Statistics
   // TimedSubject class
   //
 
-  inline
-  TimedSubject::TimedSubject(const Time& time)
+  inline TimedSubject::TimedSubject(const Time& time)
     /*throw (eh::Exception)*/
     : time_(time)
   {
   }
 
-  inline
-  TimedSubject::~TimedSubject() noexcept
+  inline TimedSubject::~TimedSubject() noexcept
   {
   }
 
-  inline
-  const Time&
-  TimedSubject::time() const /*throw (eh::Exception)*/
+  inline const Time& TimedSubject::time() const /*throw (eh::Exception)*/
   {
     return time_;
   }
 
-  inline
-  void
-  TimedSubject::time(const Time& src)
+  inline void TimedSubject::time(const Time& src)
     /*throw (eh::Exception)*/
   {
     time_ = src;
@@ -495,8 +424,7 @@ namespace Generics::Statistics
   // TimedStatSinkData::Data class
   //
 
-  inline
-  TimedStatData::Data::Data() /*throw (eh::Exception)*/
+  inline TimedStatData::Data::Data() /*throw (eh::Exception)*/
     : count(0)
   {
   }
@@ -533,8 +461,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  StatSink*
-  TimedStatSinkTempl<DataProvider>::clone()
+  StatSink* TimedStatSinkTempl<DataProvider>::clone()
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -542,8 +469,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  void
-  TimedStatSinkTempl<DataProvider>::reset() /*throw (eh::Exception)*/
+  void TimedStatSinkTempl<DataProvider>::reset() /*throw (eh::Exception)*/
   {
     typename Policy::WriteGuard guard(provider_.mutex());
 
@@ -572,11 +498,12 @@ namespace Generics::Statistics
     {
       if (data.max_time < time)
       {
-	data.max_time = time;
+  data.max_time = time;
       }
+
       if (data.min_time > time)
       {
-	data.min_time = time;
+  data.min_time = time;
       }
     }
 
@@ -585,14 +512,12 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  void
-  TimedStatSinkTempl<DataProvider>::consider(const Subject& subject)
+  void TimedStatSinkTempl<DataProvider>::consider(const Subject& subject)
     /*throw (InvalidArgument, eh::Exception)*/
   {
     typename Policy::WriteGuard guard(provider_.mutex());
 
-    const TimedSubject* timed_subject =
-      dynamic_cast<const TimedSubject*>(&subject);
+    const TimedSubject* timed_subject = dynamic_cast<const TimedSubject*>(&subject);
 
     if (timed_subject == 0)
     {
@@ -643,8 +568,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  Time
-  TimedStatSinkTempl<DataProvider>::max_time() const
+  Time TimedStatSinkTempl<DataProvider>::max_time() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -652,8 +576,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  Time
-  TimedStatSinkTempl<DataProvider>::min_time() const
+  Time TimedStatSinkTempl<DataProvider>::min_time() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -661,8 +584,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  Time
-  TimedStatSinkTempl<DataProvider>::total_time() const
+  Time TimedStatSinkTempl<DataProvider>::total_time() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -670,8 +592,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  Time
-  TimedStatSinkTempl<DataProvider>::average_time() const
+  Time TimedStatSinkTempl<DataProvider>::average_time() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -679,8 +600,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  unsigned
-  TimedStatSinkTempl<DataProvider>::considered_count() const
+  unsigned TimedStatSinkTempl<DataProvider>::considered_count() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -688,8 +608,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataProvider>
-  void
-  TimedStatSinkTempl<DataProvider>::dump(std::ostream& ostr)
+  void TimedStatSinkTempl<DataProvider>::dump(std::ostream& ostr)
     /*throw (eh::Exception)*/
   {
 #ifdef GENERICS_STATISTICS_USE_LATEST_TIMES
@@ -751,8 +670,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataType>
-  DataType
-  MeasurableSubject<DataType>::value() const noexcept
+  DataType MeasurableSubject<DataType>::value() const noexcept
   {
     return value_;
   }
@@ -816,18 +734,15 @@ namespace Generics::Statistics
   }
 
   template <typename DataType, typename DataProvider, typename StatType>
-  Statistics::StatSink*
-  MeasurableStatSink<DataType, DataProvider, StatType>::clone()
+  Statistics::StatSink* MeasurableStatSink<DataType, DataProvider, StatType>::clone()
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
-    return new MeasurableStatSink<DataType, DataProvider, StatType>(
-      provider_.get());
+    return new MeasurableStatSink<DataType, DataProvider, StatType>( provider_.get());
   }
 
   template <typename DataType, typename DataProvider, typename StatType>
-  void
-  MeasurableStatSink<DataType, DataProvider, StatType>::reset()
+  void MeasurableStatSink<DataType, DataProvider, StatType>::reset()
     /*throw (eh::Exception)*/
   {
     typename Policy::WriteGuard guard(provider_.mutex());
@@ -866,11 +781,12 @@ namespace Generics::Statistics
     {
       if (data.max_value < val)
       {
-	data.max_value = val;
+  data.max_value = val;
       }
+
       if (data.min_value > val)
       {
-	data.min_value = val;
+  data.min_value = val;
       }
     }
 
@@ -913,8 +829,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataType, typename DataProvider, typename StatType>
-  DataType
-  MeasurableStatSink<DataType, DataProvider, StatType>::max_value() const
+  DataType MeasurableStatSink<DataType, DataProvider, StatType>::max_value() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -922,8 +837,7 @@ namespace Generics::Statistics
   }
 
   template <typename DataType, typename DataProvider, typename StatType>
-  DataType
-  MeasurableStatSink<DataType, DataProvider, StatType>::min_value() const
+  DataType MeasurableStatSink<DataType, DataProvider, StatType>::min_value() const
     /*throw (eh::Exception)*/
   {
     typename Policy::ReadGuard guard(provider_.mutex());
@@ -958,8 +872,7 @@ namespace Generics::Statistics
     const StatType& data = stat(provider_.get());
 
     ostr << "Total meterings: " << data.meterings_count << std::endl <<
-      "Max : " << data.max_value << std::endl <<
-      "Min : " << data.min_value << std::endl <<
+      "Max : " << data.max_value << std::endl << "Min : " << data.min_value << std::endl <<
       "Avg : " << data.avg_value << std::endl;
   }
 }

@@ -175,11 +175,8 @@ namespace String
     return substr.compare(str) > 0;
   }
 
-  template <typename Hash,
-    typename CharType, typename Traits, typename Checker>
-  void
-  hash_add(Hash& hash,
-    const BasicSubString<CharType, Traits, Checker>& value) noexcept
+  template <typename Hash, typename CharType, typename Traits, typename Checker>
+  void hash_add(Hash& hash, const BasicSubString<CharType, Traits, Checker>& value) noexcept
   {
     hash.add(value.data(), value.size());
   }

@@ -21,8 +21,7 @@ namespace Generics
     public SimpleDecimalBase<DecimalBase<Base, TOTAL, FRACTION> >
   {
   public:
-    typedef SimpleDecimalBase<DecimalBase<Base, TOTAL, FRACTION> >
-      Parent;
+    using Parent = SimpleDecimalBase<DecimalBase<Base, TOTAL, FRACTION> >;
 
     using Parent::TOTAL_RANK;
     using Parent::FRACTION_RANK;
@@ -75,8 +74,7 @@ namespace Generics
      * @exception Overflow if passed string is bigger value
      * @exception NotNumber if passed string contains not digits
      */
-    explicit
-    SimpleDecimal(const String::SubString& str) /*throw (Overflow, NotNumber)*/;
+    explicit SimpleDecimal(const String::SubString& str) /*throw (Overflow, NotNumber)*/;
 
     explicit SimpleDecimal(std::string_view str) /*throw (Overflow, NotNumber)*/;
 
@@ -89,15 +87,13 @@ namespace Generics
      * @exception NotNumber if passed num is invalid
      */
     template <typename General>
-    explicit
-    SimpleDecimal(General num) /*throw (Overflow, NotNumber)*/;
+    explicit SimpleDecimal(General num) /*throw (Overflow, NotNumber)*/;
 
     /**
      * Construct from different SimpleDecimal
      * @param diff different SimpleDecimal
      */
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
     explicit
     SimpleDecimal(const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>&
       diff) /*throw (Overflow)*/;
@@ -111,8 +107,7 @@ namespace Generics
      * unapplicable
      */
     template <typename ToInteger>
-    ToInteger
-    integer() const /*throw (Overflow, Sign)*/;
+    ToInteger integer() const /*throw (Overflow, Sign)*/;
 
     /**
      * Integer representation of this number
@@ -123,8 +118,7 @@ namespace Generics
      * inapplicable
      */
     template <typename ToInteger>
-    void
-    to_integer(ToInteger& val) const /*throw (Overflow, Sign)*/;
+    void to_integer(ToInteger& val) const /*throw (Overflow, Sign)*/;
 
     /**
      * Floating representation of this number
@@ -133,8 +127,7 @@ namespace Generics
      * @return integer part of this number
      */
     template <typename ToFloating>
-    ToFloating
-    floating() const noexcept;
+    ToFloating floating() const noexcept;
 
     /**
      * Floating representation of this number
@@ -142,51 +135,44 @@ namespace Generics
      * @param val integer part of this number
      */
     template <typename ToFloating>
-    void
-    to_floating(ToFloating& val) const noexcept;
+    void to_floating(ToFloating& val) const noexcept;
 
     /**
      * String representation of this number
      * @return string representation of this number in format [-]abcd[.efg]
      */
-    std::string
-    str() const /*throw (eh::Exception)*/;
+    std::string str() const /*throw (eh::Exception)*/;
 
     /**
      * Internal dump of this number
      * @return Internal dump of this number
      */
-    std::string
-    dump() const /*throw (eh::Exception)*/;
+    std::string dump() const /*throw (eh::Exception)*/;
 
     /**
      * Packs current value into PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
-    void
-    pack(void* buffer) const noexcept;
+    void pack(void* buffer) const noexcept;
 
     /**
      * Unpacks current value from PACK_SIZE bytes long buffer
      * @param buffer pointer to PACK_SIZE bytes long buffer
      */
-    void
-    unpack(const void* buffer) noexcept;
+    void unpack(const void* buffer) noexcept;
 
     /**
      * Revert sign of this number
      * @return this
      */
-    SimpleDecimal&
-    negate() noexcept;
+    SimpleDecimal& negate() noexcept;
 
     /**
      * Makes floor of absolute value of this
      * @param fraction fraction rank for floor (zero means integer)
      * @return this
      */
-    SimpleDecimal&
-    floor(unsigned fraction) noexcept;
+    SimpleDecimal& floor(unsigned fraction) noexcept;
 
     /**
      * Makes ceil of absolute value of this
@@ -194,77 +180,67 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    SimpleDecimal&
-    ceil(unsigned fraction) /*throw (eh::Exception, Overflow)*/;
+    SimpleDecimal& ceil(unsigned fraction) /*throw (eh::Exception, Overflow)*/;
 
     /**
      * Test on zero
      * @return true if number is zero
      */
-    bool
-    is_zero() const noexcept;
+    bool is_zero() const noexcept;
 
     /**
      * Test on greater than or equal to zero
      * @return true if number greater than or equal to zero
      */
-    bool
-    is_nonnegative() const noexcept;
+    bool is_nonnegative() const noexcept;
 
     /**
      * Test on less than or equal to zero
      * @return true if number less than or equal to zero
      */
-    bool
-    is_nonpositive() const noexcept;
+    bool is_nonpositive() const noexcept;
 
     /**
      * Test on equality
      * @param test value to compare for equality
      * @return true if equal or false otherwise
      */
-    bool
-    operator ==(const SimpleDecimal& test) const noexcept;
+    bool operator ==(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on not equality
      * @param test value to compare for inequality
      * @return true if not equal or false otherwise
      */
-    bool
-    operator !=(const SimpleDecimal& test) const noexcept;
+    bool operator !=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on minority
      * @param test value to compare for minority
      * @return true if less than or false otherwise
      */
-    bool
-    operator <(const SimpleDecimal& test) const noexcept;
+    bool operator <(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on minority or equality
      * @param test value to compare for minority or equality
      * @return true if less than or equal to or false otherwise
      */
-    bool
-    operator <=(const SimpleDecimal& test) const noexcept;
+    bool operator <=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on majority
      * @param test value to compare for majority
      * @return true if greater than or false otherwise
      */
-    bool
-    operator >(const SimpleDecimal& test) const noexcept;
+    bool operator >(const SimpleDecimal& test) const noexcept;
 
     /**
      * Test on majority or equality
      * @param test value to compare for majority or equality
      * @return true if greater than or equal to or false otherwise
      */
-    bool
-    operator >=(const SimpleDecimal& test) const noexcept;
+    bool operator >=(const SimpleDecimal& test) const noexcept;
 
     /**
      * Add summand to this
@@ -272,8 +248,7 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    SimpleDecimal&
-    operator +=(const SimpleDecimal& summand)
+    SimpleDecimal& operator +=(const SimpleDecimal& summand)
       /*throw (eh::Exception, Overflow)*/
       __attribute__((always_inline));
 
@@ -283,8 +258,7 @@ namespace Generics
      * @return this
      * @exception Overflow if result is too big
      */
-    SimpleDecimal&
-    operator -=(const SimpleDecimal& subtrahend)
+    SimpleDecimal& operator -=(const SimpleDecimal& subtrahend)
       /*throw (eh::Exception, Overflow)*/
       __attribute__((always_inline));
 
@@ -294,8 +268,7 @@ namespace Generics
      * @return new value result of summation
      * @exception Overflow if result is too big
      */
-    SimpleDecimal
-    operator +(const SimpleDecimal& summand) const
+    SimpleDecimal operator +(const SimpleDecimal& summand) const
       /*throw (eh::Exception, Overflow)*/
       __attribute__((always_inline));
 
@@ -305,8 +278,7 @@ namespace Generics
      * @return new value result of subtraction
      * @exception Overflow if result is too big
      */
-    SimpleDecimal
-    operator -(const SimpleDecimal& subtrahend) const
+    SimpleDecimal operator -(const SimpleDecimal& subtrahend) const
       /*throw (eh::Exception, Overflow)*/
       __attribute__((always_inline));
 
@@ -321,8 +293,7 @@ namespace Generics
     static
     SimpleDecimal
     mul(const SimpleDecimal& factor1, const SimpleDecimal& factor2,
-      DecimalMulRemainder dmr) /*throw (eh::Exception, Overflow)*/
-      __attribute__((always_inline));
+      DecimalMulRemainder dmr) /*throw (eh::Exception, Overflow)*/ __attribute__((always_inline));
 
     /**
      * Do division of decimals
@@ -361,8 +332,7 @@ namespace Generics
     static
     void
     add(const SimpleDecimal& summand1, const SimpleDecimal& summand2,
-      SimpleDecimal& target) /*throw (eh::Exception, Overflow)*/
-      __attribute__((always_inline));
+      SimpleDecimal& target) /*throw (eh::Exception, Overflow)*/ __attribute__((always_inline));
 
     /**
      * Make subtruction of decimals
@@ -374,8 +344,7 @@ namespace Generics
     static
     void
     sub(const SimpleDecimal& minuend, const SimpleDecimal& subtrahend,
-      SimpleDecimal& target) /*throw (eh::Exception, Overflow)*/
-      __attribute__((always_inline));
+      SimpleDecimal& target) /*throw (eh::Exception, Overflow)*/ __attribute__((always_inline));
 
   private:
     using Parent::MAX_VALUE_;
@@ -394,8 +363,7 @@ namespace Generics
      * @exception Overflow if passed values too big
      */
     template <typename Integer, typename Fraction>
-    void
-    construct_(bool negative, Integer integer, Fraction fraction)
+    void construct_(bool negative, Integer integer, Fraction fraction)
       /*throw (Overflow)*/;
 
     /**
@@ -406,8 +374,7 @@ namespace Generics
      * @param power power of ten in denominator
      */
     template <typename Integer>
-    void
-    construct_(Integer integer, unsigned power)
+    void construct_(Integer integer, unsigned power)
       /*throw (Overflow)*/;
 
     /**
@@ -441,8 +408,7 @@ namespace Generics
      * @return The pointer to begin of string with text form
      * of SimpleDecimal
      */
-    char*
-    decimal_to_char_(char* buf_end) const noexcept;
+    char* decimal_to_char_(char* buf_end) const noexcept;
 
     static
     void
@@ -454,44 +420,34 @@ namespace Generics
     bool negative_;
     Base data_;
 
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
     friend class SimpleDecimal;
 
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
     friend
     std::ostream&
     operator <<(std::ostream& ostr,
       const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& number)
     /*throw (eh::Exception)*/;
 
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
     friend
     std::istream&
-    operator >>(std::istream& istr,
-      SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& number)
+    operator >>(std::istream& istr, SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& number)
     /*throw (eh::Exception)*/;
 
     template <typename Hash, typename DiffBase, const unsigned DIFF_TOTAL,
       const unsigned DIFF_FRACTION>
-    friend
-    void
-    hash_add(Hash& hash,
-      const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& key)
+    friend void hash_add(Hash& hash, const SimpleDecimal<DiffBase, DIFF_TOTAL, DIFF_FRACTION>& key)
       noexcept;
 
-    template <typename DiffBase, const unsigned DIFF_TOTAL,
-      const unsigned DIFF_FRACTION>
+    template <typename DiffBase, const unsigned DIFF_TOTAL, const unsigned DIFF_FRACTION>
     friend class Decimal;
   };
 
   // Stream functions
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
-  std::ostream&
-  operator <<(std::ostream& ostr,
-    const SimpleDecimal<Base, TOTAL, FRACTION>& number)
+  std::ostream& operator <<(std::ostream& ostr, const SimpleDecimal<Base, TOTAL, FRACTION>& number)
     /*throw (eh::Exception)*/;
 
   template <typename Base, const unsigned TOTAL, const unsigned FRACTION>
@@ -499,11 +455,8 @@ namespace Generics
   operator >>(std::istream& istr,
     SimpleDecimal<Base, TOTAL, FRACTION>& number) /*throw (eh::Exception)*/;
 
-  template <typename Hash, typename Base, const unsigned TOTAL,
-    const unsigned FRACTION>
-  void
-  hash_add(Hash& hash, const SimpleDecimal<Base, TOTAL, FRACTION>& key)
-    noexcept;
+  template <typename Hash, typename Base, const unsigned TOTAL, const unsigned FRACTION>
+  void hash_add(Hash& hash, const SimpleDecimal<Base, TOTAL, FRACTION>& key) noexcept;
 }
 
 #include <Generics/SimpleDecimal.tpp>

@@ -9,39 +9,31 @@
 
 namespace Polyglot
 {
-  bool
-  is_asian_char(wchar_t ch) noexcept;
+  bool is_asian_char(wchar_t ch) noexcept;
 
   template <typename DictionaryNodeType, typename SuffixDictionaryNodeType>
   struct SumWeightCollector
   {
-    typedef long long WeightType;
+    using WeightType = long long;
 
     SumWeightCollector(
       const DictionaryTraits& dict_traits,
       const DictionaryTraits& suffix_dict_traits) noexcept;
 
-    WeightType
-    start() const noexcept;
+    WeightType start() const noexcept;
+
+    WeightType unknown_symbol(WeightType in) const noexcept;
+
+    WeightType unknown_word_start() const noexcept;
+
+    WeightType unknown_word_start(WeightType in) const noexcept;
+
+    WeightType collect(WeightType in, const DictionaryNodeType& in2) const noexcept;
 
     WeightType
-    unknown_symbol(WeightType in) const noexcept;
+    collect(WeightType in, const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept;
 
-    WeightType
-    unknown_word_start() const noexcept;
-
-    WeightType
-    unknown_word_start(WeightType in) const noexcept;
-
-    WeightType
-    collect(WeightType in, const DictionaryNodeType& in2) const noexcept;
-
-    WeightType
-    collect(WeightType in,
-      const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept;
-
-    WeightType
-    collect(WeightType in, WeightType in2) const noexcept;
+    WeightType collect(WeightType in, WeightType in2) const noexcept;
 
   protected:
     long long min_weight_;
@@ -49,16 +41,14 @@ namespace Polyglot
 
   struct NullNormalizeStrategy
   {
-    void
-    operator()(const wchar_t* begin, const wchar_t* end,
+    void operator()(const wchar_t* begin, const wchar_t* end,
       const DictionaryNode* /*node*/, std::string& out) const
       /*throw (eh::Exception)*/;
   };
 
   struct WordNormalizeStrategy
   {
-    void
-    operator()(const wchar_t* begin, const wchar_t* end,
+    void operator()(const wchar_t* begin, const wchar_t* end,
       const DictionaryNodeWithNorm* node, std::string& out) const
       /*throw (eh::Exception)*/;
   };
@@ -90,8 +80,8 @@ namespace Polyglot
   class GenericNGramTokenizer
   {
   public:
-    typedef typename DictionaryType::Node DictionaryNode;
-    typedef typename WeightCollectorType::WeightType WeightType;
+    using DictionaryNode = typename DictionaryType::Node;
+    using WeightType = typename WeightCollectorType::WeightType;
 
     struct TokenizePoint
     {
@@ -126,8 +116,8 @@ namespace Polyglot
         std::wstring::const_iterator sep_pos;
       };
 
-      typedef std::list<Variant> VariantList;
-      typedef std::list<SuffixVariant> SuffixVariantList;
+      using VariantList = std::list<Variant>;
+      using SuffixVariantList = std::list<SuffixVariant>;
 
       /* weight that equal max of (unk_weight, variants, suffixes) */
       typename WeightCollectorType::WeightType weight;
@@ -140,7 +130,7 @@ namespace Polyglot
       SuffixVariantList erased_suffix_variants;
     };
 
-    typedef std::list<std::string> Result;
+    using Result = std::list<std::string>;
 
     GenericNGramTokenizer(const DictionaryType& dict,
       const SuffixDictionaryType& suffix_dict) noexcept;
@@ -150,9 +140,7 @@ namespace Polyglot
       std::vector<BiTokenizePoint>& vec, std::ostream& ostr) const
       /*throw (eh::Exception)*/;
 
-    void
-    bi_tokenize(const std::wstring& word,
-      std::vector<BiTokenizePoint>& vec) const
+    void bi_tokenize(const std::wstring& word, std::vector<BiTokenizePoint>& vec) const
       /*throw (eh::Exception)*/;
 
     void
@@ -160,12 +148,10 @@ namespace Polyglot
       const std::vector<BiTokenizePoint>& vec, Result& res) const
       /*throw (eh::Exception)*/;
 
-    void
-    segment(const String::SubString& in, Result& res) const
+    void segment(const String::SubString& in, Result& res) const
       /*throw (eh::Exception)*/;
 
-    void
-    put_spaces(std::string& result, const String::SubString& in) const
+    void put_spaces(std::string& result, const String::SubString& in) const
       /*throw (eh::Exception)*/;
 
   protected:
@@ -174,21 +160,17 @@ namespace Polyglot
     const WeightCollectorType coll_;
   };
 
-  typedef
-    GenericNGramTokenizer<
+  using Tokenizer = GenericNGramTokenizer<
       SumWeightCollector<Dictionary::Node, SuffixDictionary::Node>,
       Dictionary,
       SuffixDictionary,
-      NullNormalizeStrategy>
-    Tokenizer;
+      NullNormalizeStrategy>;
 
-  typedef
-    GenericNGramTokenizer<
+  using NormalizeTokenizer = GenericNGramTokenizer<
       SumWeightCollector<DictionaryWithNorm::Node, SuffixDictionary::Node>,
       DictionaryWithNorm,
       SuffixDictionary,
-      WordNormalizeStrategy>
-    NormalizeTokenizer;
+      WordNormalizeStrategy>;
 }
 
 //
@@ -197,32 +179,19 @@ namespace Polyglot
 
 namespace Polyglot
 {
-  inline
-  bool
-  is_asian_char(wchar_t ch) noexcept
+  inline bool is_asian_char(wchar_t ch) noexcept
   {
-    return
-      (ch >= 0x1100 && ch < 0x11FA) ||
-      (ch >= 0x2E80 && ch < 0x2EF3) ||
-      (ch >= 0x2F00 && ch < 0x2FD6) ||
-      (ch >= 0x2FF0 && ch < 0x2FFC) ||
-      (ch >= 0x3041 && ch < 0x3100) ||
-      (ch >= 0x3105 && ch < 0x312E) ||
-      (ch >= 0x3131 && ch < 0x318F) ||
-      (ch >= 0x3190 && ch < 0x31B8) ||
-      (ch >= 0x31C0 && ch < 0x31E4) ||
-      (ch >= 0x31F0 && ch < 0x4DB6) ||
-      (ch >= 0x4E00 && ch < 0x9FBC) ||
-      (ch >= 0xAC00 && ch < 0xD7A4) ||
-      (ch >= 0xF900 && ch < 0xFADA) ||
-      (ch >= 0xFE10 && ch < 0xFE1A) ||
-      (ch >= 0xFE30 && ch < 0xFE50) ||
-      (ch >= 0x2F800 && ch < 0x2FA1E) ||
-      (ch >= 0x20000 && ch < 0x2A6D6)
+    return (ch >= 0x1100 && ch < 0x11FA) ||
+      (ch >= 0x2E80 && ch < 0x2EF3) || (ch >= 0x2F00 && ch < 0x2FD6) ||
+      (ch >= 0x2FF0 && ch < 0x2FFC) || (ch >= 0x3041 && ch < 0x3100) ||
+      (ch >= 0x3105 && ch < 0x312E) || (ch >= 0x3131 && ch < 0x318F) ||
+      (ch >= 0x3190 && ch < 0x31B8) || (ch >= 0x31C0 && ch < 0x31E4) ||
+      (ch >= 0x31F0 && ch < 0x4DB6) || (ch >= 0x4E00 && ch < 0x9FBC) ||
+      (ch >= 0xAC00 && ch < 0xD7A4) || (ch >= 0xF900 && ch < 0xFADA) ||
+      (ch >= 0xFE10 && ch < 0xFE1A) || (ch >= 0xFE30 && ch < 0xFE50) ||
+      (ch >= 0x2F800 && ch < 0x2FA1E) || (ch >= 0x20000 && ch < 0x2A6D6)
 #ifdef P_DEBUG
-      ||
-      (ch >= 'A' && ch <= 'Z') ||
-      (ch >= 'a' && ch <= 'z')
+      || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')
 #endif
       ;
   }
@@ -291,8 +260,7 @@ namespace Polyglot
   typename SumWeightCollector<DictionaryNodeType,
     SuffixDictionaryNodeType>::WeightType
   SumWeightCollector<DictionaryNodeType, SuffixDictionaryNodeType>::
-    collect(WeightType in,
-      const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept
+    collect(WeightType in, const typename SuffixDictionaryNodeType::Suffix& in2) const noexcept
   {
     return in + in2.freq;
   }
@@ -311,9 +279,7 @@ namespace Polyglot
   // NullNormalizeStrategy class
   //
 
-  inline
-  void
-  NullNormalizeStrategy::operator()(const wchar_t* begin,
+  inline void NullNormalizeStrategy::operator()(const wchar_t* begin,
     const wchar_t* end, const DictionaryNode* /*node*/,
     std::string& out) const /*throw (eh::Exception)*/
   {
@@ -325,9 +291,7 @@ namespace Polyglot
   // WordNormalizeStrategy class
   //
 
-  inline
-  void
-  WordNormalizeStrategy::operator()(const wchar_t* begin,
+  inline void WordNormalizeStrategy::operator()(const wchar_t* begin,
     const wchar_t* end, const DictionaryNodeWithNorm* node,
     std::string& out) const /*throw (eh::Exception)*/
   {
@@ -337,8 +301,7 @@ namespace Polyglot
     }
     else
     {
-      String::StringManip::wchar_to_utf8(
-        String::WSubString(begin, end), out);
+      String::StringManip::wchar_to_utf8( String::WSubString(begin, end), out);
     }
   }
 
@@ -413,8 +376,7 @@ namespace Polyglot
       vec.begin(); it != vec.end(); ++it, ++i)
     {
       ostr << "+ POINT #" << i << " (" << vec[i].weight << ")" <<
-        std::endl << "  unk-variant: weight = " << vec[i].unk_weight <<
-        std::endl << "  variants: ";
+        std::endl << "  unk-variant: weight = " << vec[i].unk_weight << std::endl << "  variants: ";
 
       for (typename BiTokenizePoint::VariantList::const_iterator sit =
         it->variants.begin(); sit != it->variants.end(); ++sit)
@@ -433,8 +395,7 @@ namespace Polyglot
       {
         ostr << "( len = " << sit->node->length << ", suff-weight = " <<
           sit->node->freq << ", weight = " << sit->weight <<
-          ", unknown-word-len = " << (sit->sep_pos - (orig.begin() + i)) <<
-          ") ";
+          ", unknown-word-len = " << (sit->sep_pos - (orig.begin() + i)) << ") ";
       }
 
 #ifdef _DEBUG
@@ -445,8 +406,7 @@ namespace Polyglot
         sit != it->erased_suffix_variants.end(); ++sit)
       {
         ostr << "( len = " << sit->node->length << ", weight = " <<
-          sit->weight << ", unknown-word-len = " <<
-          (sit->sep_pos - (orig.begin() + i)) << ") ";
+          sit->weight << ", unknown-word-len = " << (sit->sep_pos - (orig.begin() + i)) << ") ";
       }
 #endif
 
@@ -459,8 +419,7 @@ namespace Polyglot
   void
   GenericNGramTokenizer<WeightCollectorType, DictionaryType,
     SuffixDictionaryType, NormalizeStrategyType>::
-      bi_tokenize(const std::wstring& word,
-      std::vector<BiTokenizePoint>& vec) const
+      bi_tokenize(const std::wstring& word, std::vector<BiTokenizePoint>& vec) const
       /*throw (eh::Exception)*/
   {
     const DictionaryType& dict = dict_;
@@ -493,18 +452,15 @@ namespace Polyglot
       /* calculate unknown weight */
       if (vec[word_i + 1].variants.empty() && word_i != len)
       {
-        vec[word_i].unk_weight =
-          coll_.unknown_symbol(vec[word_i + 1].weight);
+        vec[word_i].unk_weight = coll_.unknown_symbol(vec[word_i + 1].weight);
       }
       else
       {
-        vec[word_i].unk_weight =
-          coll_.unknown_word_start(vec[word_i + 1].weight);
+        vec[word_i].unk_weight = coll_.unknown_word_start(vec[word_i + 1].weight);
       }
 
       /* clear separated suffixes and recalculate point weight */
-      typename WeightCollectorType::WeightType new_weight =
-        vec[word_i].unk_weight;
+      typename WeightCollectorType::WeightType new_weight = vec[word_i].unk_weight;
 
       for (typename BiTokenizePoint::SuffixVariantList::iterator it =
         vec[word_i].suffix_variants.begin();
@@ -540,14 +496,12 @@ namespace Polyglot
           long next_word_pos = word_j + 1;
           long next_i = word_j + 1;
 
-          while (vec[next_word_pos].variants.empty() &&
-            next_word_pos <= len)
+          while (vec[next_word_pos].variants.empty() && next_word_pos <= len)
           {
             ++next_word_pos;
           }
 
-          typename WeightCollectorType::WeightType weight =
-            coll_.collect(vec[next_i].weight, node);
+          typename WeightCollectorType::WeightType weight = coll_.collect(vec[next_i].weight, node);
 
           vec[word_i].weight = std::max(vec[word_i].weight, weight);
 
@@ -562,8 +516,7 @@ namespace Polyglot
             if (sit != node.bi_freq_map.end())
             {
               // add bi-gram weight
-              typename WeightCollectorType::WeightType sw =
-                coll_.collect(weight, sit->second);
+              typename WeightCollectorType::WeightType sw = coll_.collect(weight, sit->second);
 
               if (weight < sw)
               {
@@ -573,8 +526,7 @@ namespace Polyglot
             }
           }
 #endif
-          vec[word_i].variants.emplace_back(
-            &node, weight, word.begin() + word_j + 1, next_node);
+          vec[word_i].variants.emplace_back( &node, weight, word.begin() + word_j + 1, next_node);
         }
 
         if (!cont)
@@ -584,10 +536,9 @@ namespace Polyglot
       } /* word_j */
 
       /* suffix search */
-      typename SuffixDictionaryType::ConstFinder
-        suffix_dict_it = suffix_dict.finder();
+      typename SuffixDictionaryType::ConstFinder suffix_dict_it = suffix_dict.finder();
 
-      for(long word_j = word_i; word_j <= len; ++word_j)
+      for (long word_j = word_i; word_j <= len; ++word_j)
       {
         bool cont = suffix_dict_it.find(word[word_j]);
 
@@ -604,8 +555,7 @@ namespace Polyglot
               typename WeightCollectorType::WeightType weight =
                 coll_.collect(vec[word_j + 1].weight, s_it->freq);
 
-              vec[word_j + 1 - len].weight =
-                std::max(vec[word_j + 1 - len].weight, weight);
+              vec[word_j + 1 - len].weight = std::max(vec[word_j + 1 - len].weight, weight);
 
               vec[word_j + 1 - len].suffix_variants.emplace_back(
                   &(*s_it), weight, word.begin() + word_j + 1);
@@ -642,8 +592,7 @@ namespace Polyglot
       if (vec[word_i].unk_weight == vec[word_i].weight)
       {
 #if 0
-        if (vec[word_i].variants.empty() &&
-          vec[word_i].suffix_variants.empty())
+        if (vec[word_i].variants.empty() && vec[word_i].suffix_variants.empty())
 #endif
         if (unknown_seq_i == -1)
         {
@@ -664,8 +613,7 @@ namespace Polyglot
         }
 
         /* check normal word variants */
-        typename BiTokenizePoint::VariantList::const_iterator max_it =
-          vec[word_i].variants.begin();
+        typename BiTokenizePoint::VariantList::const_iterator max_it = vec[word_i].variants.begin();
 
         if (next_node == 0)
         {
@@ -730,8 +678,7 @@ namespace Polyglot
 
         if (!suffix_selected)
         {
-          unsigned long word_end =
-            max_it->sep_pos - original_phrase.begin();
+          unsigned long word_end = max_it->sep_pos - original_phrase.begin();
 
           std::string word_utf8;
 
@@ -748,8 +695,7 @@ namespace Polyglot
         }
         else
         {
-          unsigned long word_end =
-            max_suffix_it->sep_pos - original_phrase.begin();
+          unsigned long word_end = max_suffix_it->sep_pos - original_phrase.begin();
 
           std::string word_utf8;
 
@@ -769,8 +715,7 @@ namespace Polyglot
     if (unknown_seq_i != -1)
     {
       std::string word_utf8;
-      std::wstring word(original_phrase.begin() + unknown_seq_i,
-        original_phrase.end());
+      std::wstring word(original_phrase.begin() + unknown_seq_i, original_phrase.end());
       String::StringManip::wchar_to_utf8(word, word_utf8);
       res.push_back(std::move(word_utf8));
     }

@@ -27,22 +27,19 @@ namespace Generics
   {
   }
 
-  void
-  PeriodicTask::set_period(const Generics::Time& period) noexcept
+  void PeriodicTask::set_period(const Generics::Time& period) noexcept
   {
     Sync::PosixGuard guard(mutex_);
     period_ = period;
   }
 
-  Generics::Time
-  PeriodicTask::wait_period(const Generics::Time& elapsed) const noexcept
+  Generics::Time PeriodicTask::wait_period(const Generics::Time& elapsed) const noexcept
   {
     Sync::PosixGuard guard(mutex_);
     return period_ > elapsed ? period_ - elapsed : Time::ZERO;
   }
 
-  void
-  PeriodicTask::enforce_start() /*throw (eh::Exception)*/
+  void PeriodicTask::enforce_start() /*throw (eh::Exception)*/
   {
     trace_message(FNB, this);
     Sync::PosixGuard guard(mutex_);
@@ -50,8 +47,7 @@ namespace Generics
     cond_.signal();
   }
 
-  void
-  PeriodicTask::stop() /*throw (eh::Exception)*/
+  void PeriodicTask::stop() /*throw (eh::Exception)*/
   {
     trace_message(FNB, this);
     Sync::PosixGuard guard(mutex_);
@@ -59,9 +55,7 @@ namespace Generics
     cond_.signal();
   }
 
-  void
-  PeriodicTask::run_once(ActiveObjectCallback* callback, bool forced)
-    noexcept
+  void PeriodicTask::run_once(ActiveObjectCallback* callback, bool forced) noexcept
   {
     trace_message(FNB, this);
     try
@@ -79,8 +73,7 @@ namespace Generics
     }
   }
 
-  void
-  PeriodicTask::run(ActiveObjectCallback* callback) noexcept
+  void PeriodicTask::run(ActiveObjectCallback* callback) noexcept
   {
     trace_message(FNB, this);
 
@@ -109,12 +102,14 @@ namespace Generics
             callback->error(ostr.str());
           }
         }
+
         if (quit_)
         {
           trace_message(FNB, "exiting");
           quit_ = false;
           return;
         }
+
         if (start_)
         {
           trace_message(FNB, "breaking");
@@ -152,14 +147,12 @@ namespace Generics
   {
   }
 
-  void
-  PeriodicRunner::PeriodicJob::work() noexcept
+  void PeriodicRunner::PeriodicJob::work() noexcept
   {
     task_->run(callback_);
   }
 
-  void
-  PeriodicRunner::PeriodicJob::signal(void (PeriodicTask::*signal)())
+  void PeriodicRunner::PeriodicJob::signal(void (PeriodicTask::*signal)())
     /*throw (eh::Exception)*/
   {
     (task_->*signal)();
@@ -178,8 +171,7 @@ namespace Generics
   {
   }
 
-  void
-  PeriodicRunner::add_task(PeriodicTask* task, bool silent, bool run)
+  void PeriodicRunner::add_task(PeriodicTask* task, bool silent, bool run)
     /*throw (eh::Exception)*/
   {
     PeriodicJob_var job(new PeriodicJob(callback_, task));
@@ -197,13 +189,11 @@ namespace Generics
     jobs_.emplace_back(std::move(job));
   }
 
-  void
-  PeriodicRunner::signal_all_(void (PeriodicTask::*signal)())
+  void PeriodicRunner::signal_all_(void (PeriodicTask::*signal)())
     /*throw (eh::Exception)*/
   {
     trace_message(FNB, this);
-    for (PeriodicJobs::iterator itor(jobs_.begin());
-      itor != jobs_.end(); ++itor)
+    for (PeriodicJobs::iterator itor(jobs_.begin()); itor != jobs_.end(); ++itor)
     {
       (*itor)->signal(signal);
     }
@@ -265,8 +255,7 @@ namespace Generics
     }
   }
 
-  void
-  PeriodicRunner::activate_object()
+  void PeriodicRunner::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     trace_message(FNB, this);
@@ -296,8 +285,7 @@ namespace Generics
     }
   }
 
-  void
-  PeriodicRunner::deactivate_object()
+  void PeriodicRunner::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
     trace_message(FNB, this);
@@ -309,8 +297,7 @@ namespace Generics
     }
   }
 
-  void
-  PeriodicRunner::wait_object() /*throw (Exception, eh::Exception)*/
+  void PeriodicRunner::wait_object() /*throw (Exception, eh::Exception)*/
   {
     trace_message(FNB, this);
     Sync::PosixGuard termination_guard(termination_mutex_);
@@ -335,22 +322,19 @@ namespace Generics
     }
   }
 
-  void
-  PeriodicRunner::clear() /*throw (eh::Exception)*/
+  void PeriodicRunner::clear() /*throw (eh::Exception)*/
   {
     trace_message(FNB, this);
     Sync::PosixGuard guard(work_mutex_);
     jobs_.clear();
   }
 
-  bool
-  PeriodicRunner::active() const /*throw (eh::Exception)*/
+  bool PeriodicRunner::active() const /*throw (eh::Exception)*/
   {
     return active_state_ == AS_ACTIVE;
   }
 
-  void
-  PeriodicRunner::enforce_start_all() /*throw (eh::Exception)*/
+  void PeriodicRunner::enforce_start_all() /*throw (eh::Exception)*/
   {
     trace_message(FNB, this);
     Sync::PosixGuard guard(work_mutex_);

@@ -6,8 +6,7 @@ struct ConfigInt : public CORBACommons::ObjectPoolConfiguration<int, int>
   struct Resolver
   {
     template <typename T>
-    T
-    resolve(int ref) noexcept
+    T resolve(int ref) noexcept
     {
       return -ref;
     }
@@ -17,11 +16,10 @@ struct ConfigInt : public CORBACommons::ObjectPoolConfiguration<int, int>
 };
 
 
-typedef CORBACommons::ObjectPool<int, ConfigInt,
-  CORBACommons::ObjectPlainVar<int>> Pool;
+using Pool = CORBACommons::ObjectPool<int, ConfigInt,
+  CORBACommons::ObjectPlainVar<int>>;
 
-void
-test() /*throw (eh::Exception)*/
+void test() /*throw (eh::Exception)*/
 {
   ConfigInt conf;
 
@@ -42,8 +40,7 @@ test() /*throw (eh::Exception)*/
   assert(*o2 == -1);
 }
 
-void
-test2() /*throw (eh::Exception)*/
+void test2() /*throw (eh::Exception)*/
 {
   ConfigInt conf;
 
@@ -88,8 +85,7 @@ test2() /*throw (eh::Exception)*/
   }
 }
 
-int
-main()
+int main()
 {
   try
   {

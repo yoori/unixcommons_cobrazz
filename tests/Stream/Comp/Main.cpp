@@ -26,8 +26,7 @@ std::unique_ptr<Data> data;
 const char* tmp = getenv("TEST_TMP_DIR");
 std::string root(tmp ? tmp : ".");
 
-void
-write_stream(std::ostream& ostr) /*throw (eh::Exception)*/
+void write_stream(std::ostream& ostr) /*throw (eh::Exception)*/
 {
   Generics::Timer t;
   Generics::CPUTimer c;
@@ -43,13 +42,11 @@ write_stream(std::ostream& ostr) /*throw (eh::Exception)*/
   t.stop();
   c.stop();
 
-  std::cout << "\t Real: " << t.elapsed_time() << " CPU: " <<
-    c.elapsed_time() << "\n";
+  std::cout << "\t Real: " << t.elapsed_time() << " CPU: " << c.elapsed_time() << "\n";
 }
 
 template <typename Stream>
-void
-write_stream_n(const char* filename) /*throw (eh::Exception)*/
+void write_stream_n(const char* filename) /*throw (eh::Exception)*/
 {
   std::cout << "Write\n";
   for (size_t i = 0; i < IN; i++)
@@ -63,8 +60,7 @@ write_stream_n(const char* filename) /*throw (eh::Exception)*/
   }
 }
 
-void
-read_stream(std::istream& istr) /*throw (eh::Exception)*/
+void read_stream(std::istream& istr) /*throw (eh::Exception)*/
 {
   Generics::Timer t;
   Generics::CPUTimer c;
@@ -92,13 +88,11 @@ read_stream(std::istream& istr) /*throw (eh::Exception)*/
   t.stop();
   c.stop();
 
-  std::cout << "\t Real: " << t.elapsed_time() << " CPU: " <<
-    c.elapsed_time() << "\n";
+  std::cout << "\t Real: " << t.elapsed_time() << " CPU: " << c.elapsed_time() << "\n";
 }
 
 template <typename Stream>
-void
-read_stream_n(const char* filename) /*throw (eh::Exception)*/
+void read_stream_n(const char* filename) /*throw (eh::Exception)*/
 {
   struct stat st;
   stat(filename, &st);
@@ -112,8 +106,7 @@ read_stream_n(const char* filename) /*throw (eh::Exception)*/
 }
 
 template <typename OStream, typename IStream>
-void
-test_stream(const char* filename) /*throw (eh::Exception)*/
+void test_stream(const char* filename) /*throw (eh::Exception)*/
 {
   std::cout << filename << "\n";
   const std::string& file = root + "/" + filename;
@@ -121,8 +114,7 @@ test_stream(const char* filename) /*throw (eh::Exception)*/
   read_stream_n<IStream>(file.c_str());
 }
 
-int
-main()
+int main()
 {
   static const String::SubString CHARS("0123456789+.-@;");
   data.reset(new Data);

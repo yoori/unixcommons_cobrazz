@@ -47,9 +47,7 @@ namespace Stream
      * @param gzip_file_name File name to read and decompress data
      * @param buffer_size Memory size to be allocate for write data buffer
      */
-    explicit
-    GzipOutStream(const char* gzip_file_name,
-      size_t buffer_size = 64 * 1024)
+    explicit GzipOutStream(const char* gzip_file_name, size_t buffer_size = 64 * 1024)
       /*throw (eh::Exception)*/;
 
   protected:

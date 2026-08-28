@@ -26,25 +26,16 @@ namespace Logging
     report_error(Severity severity, const String::SubString& description,
       const char* code = 0) noexcept;
 
-    virtual
-    Logger*
-    logger() const noexcept;
+    virtual Logger* logger() const noexcept;
 
-    virtual
-    const char*
-    message_prefix() const noexcept;
+    virtual const char* message_prefix() const noexcept;
 
-    virtual
-    const char*
-    aspect() const noexcept;
+    virtual const char* aspect() const noexcept;
 
-    virtual
-    const char*
-    code(const char* error_code) const noexcept;
+    virtual const char* code(const char* error_code) const noexcept;
 
   protected:
-    virtual
-    ~ActiveObjectCallbackImpl() noexcept;
+    virtual ~ActiveObjectCallbackImpl() noexcept;
 
   private:
     Logger* logger_;
@@ -52,8 +43,7 @@ namespace Logging
     const char* aspect_;
     const char* code_;
   };
-  typedef ReferenceCounting::QualPtr<ActiveObjectCallbackImpl>
-    ActiveObjectCallbackImpl_var;
+  using ActiveObjectCallbackImpl_var = ReferenceCounting::QualPtr<ActiveObjectCallbackImpl>;
 
   /**
    * Simply represent linked pair of Logger & ActiveObjectCallback
@@ -76,20 +66,17 @@ namespace Logging
      * Get stored callback
      * @return stored callback
      */
-    Generics::ActiveObjectCallback*
-    callback() noexcept;
+    Generics::ActiveObjectCallback* callback() noexcept;
     /*
      * Get stored logger
      * @return stored logger
      */
-    Logger*
-    logger() const noexcept;
+    Logger* logger() const noexcept;
     /*
      * Set stored logger
      * @param new_logger is logger to store
      */
-    void
-    logger(Logger* new_logger) noexcept;
+    void logger(Logger* new_logger) noexcept;
 
   protected:
     mutable LoggerHolder_var logger_holder_;
@@ -115,8 +102,7 @@ namespace Logging
   {
   }
 
-  inline
-  ActiveObjectCallbackImpl::~ActiveObjectCallbackImpl() noexcept
+  inline ActiveObjectCallbackImpl::~ActiveObjectCallbackImpl() noexcept
   {
   }
 
@@ -130,28 +116,21 @@ namespace Logging
     const char* message_prefix, const char* aspect, const char* code)
     /*throw (eh::Exception)*/
     : logger_holder_(new LoggerHolder(logger)),
-      callback_(new ActiveObjectCallbackImpl(logger_holder_,
-        message_prefix, aspect, code))
+      callback_(new ActiveObjectCallbackImpl(logger_holder_, message_prefix, aspect, code))
   {
   }
 
-  inline
-  Generics::ActiveObjectCallback*
-  LoggerCallbackHolder::callback() noexcept
+  inline Generics::ActiveObjectCallback* LoggerCallbackHolder::callback() noexcept
   {
     return callback_;
   }
 
-  inline
-  Logger*
-  LoggerCallbackHolder::logger() const noexcept
+  inline Logger* LoggerCallbackHolder::logger() const noexcept
   {
     return logger_holder_;
   }
 
-  inline
-  void
-  LoggerCallbackHolder::logger(Logger* new_logger) noexcept
+  inline void LoggerCallbackHolder::logger(Logger* new_logger) noexcept
   {
     logger_holder_->logger(new_logger);
   }

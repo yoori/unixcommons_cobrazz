@@ -6,8 +6,7 @@
 #include <Stream/MMapStream.hpp>
 
 
-void
-create_output(const char* filename) /*throw (eh::Exception)*/
+void create_output(const char* filename) /*throw (eh::Exception)*/
 {
   std::ofstream out(filename);
   int symbols = 0;
@@ -21,8 +20,7 @@ create_output(const char* filename) /*throw (eh::Exception)*/
   std::cout << symbols << " symbols sent to output" << std::endl;
 }
 
-void
-test_input(const char* filename) /*throw (eh::Exception)*/
+void test_input(const char* filename) /*throw (eh::Exception)*/
 {
   std::ifstream in(filename);
   Stream::FileParser parser(filename);
@@ -34,12 +32,12 @@ test_input(const char* filename) /*throw (eh::Exception)*/
     parser >> in2;
     if (in1 != in2)
     {
-      std::cerr << "Failure reading of '" << in1 << "' vs '" << in2 <<
-        "'" << std::endl;
+      std::cerr << "Failure reading of '" << in1 << "' vs '" << in2 << "'" << std::endl;
       return;
     }
     readings++;
   }
+
   if (parser.str().size())
   {
     std::cerr << "Invalid finish state" << std::endl;
@@ -48,8 +46,7 @@ test_input(const char* filename) /*throw (eh::Exception)*/
   std::cout << readings << " readings complete" << std::endl;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   if (argc != 2)
   {

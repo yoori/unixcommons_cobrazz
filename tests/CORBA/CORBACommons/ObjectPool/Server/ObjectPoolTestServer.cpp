@@ -19,8 +19,7 @@ Application::Application() /*throw (eh::Exception)*/
 {
 }
 
-void
-Application::create_names(std::size_t port, std::size_t count)
+void Application::create_names(std::size_t port, std::size_t count)
   /*throw (eh::Exception)*/
 {
   std::size_t current_char = -1;
@@ -40,18 +39,15 @@ Application::create_names(std::size_t port, std::size_t count)
       result[current_char] = 'a' + rest;
     }
 
-    ost << "corbaloc::localhost:" << port << '/'
-      << result << "\n";
+    ost << "corbaloc::localhost:" << port << '/' << result << "\n";
     servants.push_back(result);
   }
   result = "UpOnline";
   servants.push_back(result);
-  ost << "corbaloc::localhost:" << port << '/'
-    << result << "\n";
+  ost << "corbaloc::localhost:" << port << '/' << result << "\n";
 }
 
-void
-Application::run(int argc, char* argv[], std::size_t before_up)
+void Application::run(int argc, char* argv[], std::size_t before_up)
   /*throw (Exception, eh::Exception)*/
 {
   try
@@ -62,16 +58,13 @@ Application::run(int argc, char* argv[], std::size_t before_up)
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("port") ||
-      Generics::AppUtils::short_name("p"),
+      Generics::AppUtils::equal_name("port") || Generics::AppUtils::short_name("p"),
       opt_port);
     args.add(
-      Generics::AppUtils::equal_name("host") ||
-      Generics::AppUtils::short_name("h"),
+      Generics::AppUtils::equal_name("host") || Generics::AppUtils::short_name("h"),
       opt_host);
     args.add(
-      Generics::AppUtils::equal_name("objects_amount") ||
-      Generics::AppUtils::short_name("o"),
+      Generics::AppUtils::equal_name("objects_amount") || Generics::AppUtils::short_name("o"),
       objects_count);
 
     args.parse(argc - 1, argv + 1);
@@ -99,16 +92,13 @@ Application::run(int argc, char* argv[], std::size_t before_up)
       {
         endpoint_config.objects[servants[i]].insert(ext_servants[i]);
       }
-      endpoint_config.objects[POOL_OBJ_INT_SERVANT].insert(
-        EXT_POOL_OBJ_INT_SERVANT);
+      endpoint_config.objects[POOL_OBJ_INT_SERVANT].insert( EXT_POOL_OBJ_INT_SERVANT);
 
-      endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert(
-        PROCESS_CONTROL_SERVANT);
+      endpoint_config.objects[PROCESS_CONTROL_SERVANT].insert( PROCESS_CONTROL_SERVANT);
       corba_config.endpoints.push_back(endpoint_config);
     }
 
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
 
     CORBACommons::CorbaServerAdapter_var corba_server_adapter(
       new CORBACommons::CorbaServerAdapter(corba_config, logger));
@@ -125,12 +115,10 @@ Application::run(int argc, char* argv[], std::size_t before_up)
     corba_server_adapter->add_binding(POOL_OBJ_INT_SERVANT, pool_obj);
 
     corba_server_adapter->add_binding(PROCESS_CONTROL_SERVANT, this);
-    ProcessControlImpl::shutdowner_ =
-      corba_server_adapter->shutdowner();
+    ProcessControlImpl::shutdowner_ = corba_server_adapter->shutdowner();
     shuter = ProcessControlImpl::shutdowner_;
 
-    std::cout << (before_up ? "First server up" : "Second server started")
-      << std::endl;
+    std::cout << (before_up ? "First server up" : "Second server started") << std::endl;
 
     corba_server_adapter->run();
     shutdowner_.reset();
@@ -139,8 +127,7 @@ Application::run(int argc, char* argv[], std::size_t before_up)
   catch (const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
@@ -148,8 +135,7 @@ Application::run(int argc, char* argv[], std::size_t before_up)
 
 CORBACommons::OrbShutdowner_var Application::shuter;
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
@@ -162,9 +148,7 @@ main(int argc, char** argv)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr
-      << "main: eh::Exception exception caught. Description:" << e.what()
-      << std::endl;
+    std::cerr << "main: eh::Exception exception caught. Description:" << e.what() << std::endl;
   }
   catch (...)
   {

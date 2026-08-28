@@ -8,14 +8,11 @@
 // Base class for all members
 struct MemberBase
 {
-  virtual
-  ~MemberBase()
+  virtual ~MemberBase()
   {
   }
 
-  virtual
-  void
-  print(std::ostream& ostr) = 0;
+  virtual void print(std::ostream& ostr) = 0;
 };
 
 // General member
@@ -23,21 +20,17 @@ template <typename Data>
 class MemberCommon : public MemberBase
 {
 public:
-  Data&
-  data()
+  Data& data()
   {
     return data_;
   }
 
-  const Data&
-  data() const
+  const Data& data() const
   {
     return data_;
   }
 
-  virtual
-  void
-  print(std::ostream& ostr)
+  virtual void print(std::ostream& ostr)
   {
     ostr << data_;
   }
@@ -47,10 +40,10 @@ private:
 };
 
 // Certain member class
-typedef MemberCommon<std::string> MemberString;
+using MemberString = MemberCommon<std::string>;
 
 // Certain member class
-typedef MemberCommon<int> MemberInt;
+using MemberInt = MemberCommon<int>;
 
 #define LIST(type) \
   REFLECTION_INIT(type, MemberBase) \
@@ -95,8 +88,7 @@ class SA2
   {
     INIT((*this));
   }
-  void
-  print()
+  void print()
   {
     PRINT(SA2, (*this));
   }
@@ -193,8 +185,7 @@ struct Strings2
   }
 };
 
-int
-main()
+int main()
 {
   {
     SA1 sa;

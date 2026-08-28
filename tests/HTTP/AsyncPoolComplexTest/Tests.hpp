@@ -18,13 +18,11 @@ public:
            unsigned int functors_per_task, bool log_needed = false)
     /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/;
 
 protected:
 
-  virtual
-  ~EchoTest() noexcept;
+  virtual ~EchoTest() noexcept;
 
 private:
   CheckUpCallback_var my_cb_;
@@ -47,13 +45,11 @@ public:
       unsigned int functors_per_task, bool log_needed = false)
     /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/;
 
 protected:
 
-  virtual
-  ~NonExistanceTest() noexcept;
+  virtual ~NonExistanceTest() noexcept;
 
 private:
   SimpleCounterCallback_var my_cb_;
@@ -76,13 +72,11 @@ public:
       unsigned int functors_per_task, bool log_needed = false)
     /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/;
 
 protected:
 
-  virtual
-  ~BadAddressTest() noexcept;
+  virtual ~BadAddressTest() noexcept;
 
 private:
 
@@ -100,18 +94,15 @@ public:
   InterruptCallback(HTTP::PoolPolicy* policy, Sync::Semaphore& sem)
     /*throw(eh::Exception)*/;
 
-  virtual void
-  on_response(const HTTP::ResponseInformation& data) noexcept;
+  virtual void on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
-  on_error(const String::SubString& description,
-    const HTTP::RequestInformation& data) noexcept;
+  on_error(const String::SubString& description, const HTTP::RequestInformation& data) noexcept;
 
   void check() noexcept;
 
 protected:
-  virtual
-  ~InterruptCallback() noexcept;
+  virtual ~InterruptCallback() noexcept;
 
 private:
   Sync::Semaphore& sem_;
@@ -134,16 +125,13 @@ public:
                 unsigned int functors_per_task, bool log_needed = false)
     /*throw (eh::Exception)*/;
 
-  virtual const std::string
-  additional_http_query() /*throw (eh::Exception)*/;
+  virtual const std::string additional_http_query() /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/;
 
 protected:
 
-  virtual
-  ~InterruptTest() noexcept;
+  virtual ~InterruptTest() noexcept;
 
 private:
 
@@ -171,16 +159,13 @@ public:
               unsigned int functors_per_task, bool log_needed = false)
     /*throw (eh::Exception)*/;
 
-  virtual const std::string
-  additional_http_query() /*throw (eh::Exception)*/;
+  virtual const std::string additional_http_query() /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/;
 
 protected:
 
-  virtual
-  ~BadRespTest() noexcept;
+  virtual ~BadRespTest() noexcept;
 
 private:
 

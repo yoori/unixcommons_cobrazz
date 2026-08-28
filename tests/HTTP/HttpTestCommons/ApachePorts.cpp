@@ -10,9 +10,7 @@
 
 int ApachePorts::base_port_ = 0;
 
-inline
-int
-ApachePorts::get_base_port_() /*throw (InvalidPortRequested)*/
+inline int ApachePorts::get_base_port_() /*throw (InvalidPortRequested)*/
 {
   if (base_port_ == 0)
   {
@@ -22,11 +20,11 @@ ApachePorts::get_base_port_() /*throw (InvalidPortRequested)*/
     {
       port = atoi(p);
     }
+
     if (port > 65535 || port <= 0)
     {
       Stream::Error ostr;
-      ostr << "Incorrect base clients port value: USER_BASE_PORT="
-        << (p? p : "null") << std::endl;
+      ostr << "Incorrect base clients port value: USER_BASE_PORT=" << (p? p : "null") << std::endl;
       throw InvalidPortRequested(ostr);
     }
     base_port_ = port;
@@ -34,8 +32,7 @@ ApachePorts::get_base_port_() /*throw (InvalidPortRequested)*/
   return base_port_;
 }
 
-int
-ApachePorts::get_port(std::size_t shift)
+int ApachePorts::get_port(std::size_t shift)
   /*throw (InvalidPortRequested)*/
 {
   int port = ApachePorts::get_base_port_() + shift;
@@ -49,8 +46,7 @@ ApachePorts::get_port(std::size_t shift)
   return port;
 }
 
-std::string
-ApachePorts::get_port_string(std::size_t shift)
+std::string ApachePorts::get_port_string(std::size_t shift)
   /*throw (InvalidPortRequested)*/
 {
   char buf[6];

@@ -12,15 +12,13 @@
 #include <Logger/Logger.hpp>
 
 
+namespace SNMPAgentX::Helper
+{
+  int proxy(void* reg, void* requests) noexcept;
+}
+
 namespace SNMPAgentX
 {
-  namespace Helper
-  {
-    int
-    proxy(void* reg, void* requests)
-      noexcept;
-  }
-
   /**
    * Generics SNMP AgentX class
    * Loads MIB files, provides bindings for specified MIB subtree (using
@@ -33,7 +31,7 @@ namespace SNMPAgentX
   class GenericSNMPAgent : private Generics::Unique<GenericSNMPAgent>
   {
   public:
-    typedef Generics::Unique<GenericSNMPAgent>::Exception Exception;
+    using Exception = Generics::Unique<GenericSNMPAgent>::Exception;
 
     /**
      * Constructor
@@ -54,15 +52,12 @@ namespace SNMPAgentX
      * Destructor
      * Unbinds oids
      */
-    virtual
-    ~GenericSNMPAgent()
-      noexcept;
+    virtual ~GenericSNMPAgent() noexcept;
 
     /**
      * Breaks the main cycle
      */
-    void
-    stop()
+    void stop()
       /*throw (eh::Exception)*/;
 
 
@@ -96,18 +91,15 @@ namespace SNMPAgentX
       VarType type;
     };
 
-    typedef std::deque<VariableInfo> Vars;
+    using Vars = std::deque<VariableInfo>;
 
-    typedef std::map<int, std::string> EnumValue;
-    typedef std::vector<EnumValue> EnumInfo;
+    using EnumValue = std::map<int, std::string>;
+    using EnumInfo = std::vector<EnumValue>;
 
     struct RootInfo
     {
-      explicit
-      RootInfo(GenericSNMPAgent* agent)
-        noexcept;
-      RootInfo(RootInfo& root, const std::string& prefix,
-        size_t index_length)
+      explicit RootInfo(GenericSNMPAgent* agent) noexcept;
+      RootInfo(RootInfo& root, const std::string& prefix, size_t index_length)
         /*throw (eh::Exception)*/;
 
       GenericSNMPAgent* agent;
@@ -121,34 +113,18 @@ namespace SNMPAgentX
        * @param size size of ids
        * @param ids unique identifier to use as an index
        */
-      void
-      register_index(size_t size, const unsigned* ids) const
+      void register_index(size_t size, const unsigned* ids) const
         /*throw (eh::Exception)*/;
     };
 
 
-    static
-    void
-    set_variable(void* variable, unsigned long value)
-      noexcept;
-    static
-    void
-    set_variable(void* variable, long value)
-      noexcept;
-    static
-    void
-    set_variable64(void* variable, unsigned long value)
-      noexcept;
-    static
-    void
-    set_variable(void* variable, const String::SubString& value)
-      noexcept;
+    static void set_variable(void* variable, unsigned long value) noexcept;
+    static void set_variable(void* variable, long value) noexcept;
+    static void set_variable64(void* variable, unsigned long value) noexcept;
+    static void set_variable(void* variable, const String::SubString& value) noexcept;
 
     template <typename Values>
-    static
-    bool
-    set_variable_from_values(void* variable, const VariableInfo& info,
-      Values& values)
+    static bool set_variable_from_values(void* variable, const VariableInfo& info, Values& values)
       /*throw (eh::Exception)*/;
 
     /**
@@ -156,17 +132,14 @@ namespace SNMPAgentX
      * @param prefix empty or name of the sequence
      * @return the root info for the prefix or NULL
      */
-    const RootInfo*
-    get_rootinfo(const Generics::Values::Key& prefix =
-      Generics::Values::Key())
+    const RootInfo* get_rootinfo(const Generics::Values::Key& prefix = Generics::Values::Key())
       /*throw (eh::Exception)*/;
 
   protected:
     /**
      * Performs main loop on listening AgentX requests and processing them
      */
-    void
-    main_loop_()
+    void main_loop_()
       /*throw (eh::Exception)*/;
 
     /**
@@ -179,8 +152,7 @@ namespace SNMPAgentX
      */
     virtual
     bool
-    process_variable_(void* variable, const VariableInfo& info,
-      unsigned size, const unsigned* ids)
+    process_variable_(void* variable, const VariableInfo& info, unsigned size, const unsigned* ids)
       /*throw (eh::Exception, Exception)*/ = 0;
 
     /**
@@ -192,18 +164,14 @@ namespace SNMPAgentX
      */
     virtual
     void
-    no_such_value_(const VariableInfo& info, unsigned size,
-      const unsigned* ids, const char* reason)
+    no_such_value_(const VariableInfo& info, unsigned size, const unsigned* ids, const char* reason)
       noexcept;
 
     /**
      * Logging severity for no_such_value_ default behaviour.
      * @return severity for logging
      */
-    virtual
-    unsigned
-    no_such_value_severity_()
-      noexcept;
+    virtual unsigned no_such_value_severity_() noexcept;
 
     mutable Logging::FLogger_var logger_;
 
@@ -215,8 +183,7 @@ namespace SNMPAgentX
      * @param size size of ids
      * @param ids unique identifier to use as an index
      */
-    void
-    register_index_(const RootInfo* root, size_t size, const unsigned* ids)
+    void register_index_(const RootInfo* root, size_t size, const unsigned* ids)
       /*throw (eh::Exception, Exception)*/;
 
     /**
@@ -225,20 +192,15 @@ namespace SNMPAgentX
      * @param size size of ids
      * @param ids unique identifier to use as an index
      */
-    void
-    do_register_index_(const RootInfo* root, size_t size,
-      const unsigned* ids)
+    void do_register_index_(const RootInfo* root, size_t size, const unsigned* ids)
       /*throw (eh::Exception, Exception)*/;
 
-    friend
-    int
-    SNMPAgentX::Helper::proxy(void* reginfo, void* requests)
-      noexcept;
+    friend int SNMPAgentX::Helper::proxy(void* reginfo, void* requests) noexcept;
 
     friend
     struct RootInfo;
 
-    typedef std::deque<RootInfo> Roots;
+    using Roots = std::deque<RootInfo>;
 
 
     /**
@@ -252,15 +214,13 @@ namespace SNMPAgentX
        * @param info bind information
        * @param registration net-snmp registration information for unbind
        */
-      RegInfo(GenericSNMPAgent* agent, const VariableInfo* info,
-        void* registration)
-        noexcept;
+      RegInfo(GenericSNMPAgent* agent, const VariableInfo* info, void* registration) noexcept;
 
       GenericSNMPAgent* agent;
       const VariableInfo* info;
       void* registration;
     };
-    typedef std::deque<RegInfo*> Registrations;
+    using Registrations = std::deque<RegInfo*>;
 
 
     /**
@@ -268,8 +228,7 @@ namespace SNMPAgentX
      * @param info bind information
      * @param requests net-snmp requests
      */
-    int
-    process_requests_(const VariableInfo& info, void* requests)
+    int process_requests_(const VariableInfo& info, void* requests)
       /*throw (eh::Exception)*/;
 
     /**
@@ -279,17 +238,13 @@ namespace SNMPAgentX
      * @param serverarg
      * @param clientarg
      */
-    static
-    int
-    log_callback_(int major, int minor, void* serverarg, void* clientarg)
-      noexcept;
+    static int log_callback_(int major, int minor, void* serverarg, void* clientarg) noexcept;
 
     /**
      * Puts the net-snmp log message to the logger
      * @param arg net-snmp log message
      */
-    void
-    log_handler_(void* arg)
+    void log_handler_(void* arg)
       /*throw (eh::Exception)*/;
 
     /**
@@ -299,9 +254,7 @@ namespace SNMPAgentX
      * @param curoid corresponding oid for the node
      * @param length length of the oid
      */
-    void
-    list_values_(RootInfo& root, std::string prefix,
-      void* node, void* curoid, size_t length)
+    void list_values_(RootInfo& root, std::string prefix, void* node, void* curoid, size_t length)
       /*throw (eh::Exception)*/;
 
 
@@ -319,15 +272,13 @@ namespace SNMPAgentX
   class SNMPAgentAsync
   {
   public:
-    typedef GenericSNMPAgent::Exception Exception;
+    using Exception = GenericSNMPAgent::Exception;
 
     /**
      * Destructor
      * Terminates working thread and waits for its termination.
      */
-    virtual
-    ~SNMPAgentAsync()
-      noexcept;
+    virtual ~SNMPAgentAsync() noexcept;
 
   protected:
     /**
@@ -355,20 +306,15 @@ namespace SNMPAgentX
       /**
        * Runs main_loop_().
        */
-      virtual
-      void
-      work()
-        noexcept;
+      virtual void work() noexcept;
 
     protected:
       /**
        * Destructor
        */
-      virtual
-      ~SNMPJob()
-        noexcept;
+      virtual ~SNMPJob() noexcept;
     };
-    typedef ReferenceCounting::FixedPtr<SNMPJob> SNMPJob_var;
+    using SNMPJob_var = ReferenceCounting::FixedPtr<SNMPJob>;
 
     /**
      * Constructor
@@ -386,12 +332,9 @@ namespace SNMPAgentX
   class ValuesProcessor
   {
   public:
-    explicit
-    ValuesProcessor(unsigned id)
-      noexcept;
+    explicit ValuesProcessor(unsigned id) noexcept;
 
-    void
-    register_ids(GenericSNMPAgent* agent) const
+    void register_ids(GenericSNMPAgent* agent) const
       /*throw (eh::Exception)*/;
 
     bool
@@ -437,9 +380,7 @@ namespace SNMPAgentX
     /**
      * Destructor
      */
-    virtual
-    ~SNMPStatsGen()
-      noexcept;
+    virtual ~SNMPStatsGen() noexcept;
 
     class SNMPStatsImplJob : public SNMPJob
     {
@@ -452,9 +393,7 @@ namespace SNMPAgentX
         /*throw (eh::Exception, Exception)*/;
 
     protected:
-      virtual
-      ~SNMPStatsImplJob()
-        noexcept;
+      virtual ~SNMPStatsImplJob() noexcept;
 
       /**
        * Processing GET request on previously bound oid by looking for the
@@ -480,8 +419,8 @@ namespace SNMPAgentX
    * Implementation of SNMP AgentX subagent using Generics::Values as
    * a container of values for bound variables
    */
-  typedef SNMPStatsGen<Generics::Values> SNMPStatsImpl;
-  typedef ReferenceCounting::QualPtr<SNMPStatsImpl> SNMPStatsImpl_var;
+  using SNMPStatsImpl = SNMPStatsGen<Generics::Values>;
+  using SNMPStatsImpl_var = ReferenceCounting::QualPtr<SNMPStatsImpl>;
 }
 
 //
@@ -494,14 +433,12 @@ namespace SNMPAgentX
   // GenericSNMPAgent::VariableInfo class
   //
 
-  inline
-  GenericSNMPAgent::VariableInfo::VariableInfo()
+  inline GenericSNMPAgent::VariableInfo::VariableInfo()
     /*throw (eh::Exception)*/
   {
   }
 
-  inline
-  GenericSNMPAgent::VariableInfo::VariableInfo(const VariableInfo& info)
+  inline GenericSNMPAgent::VariableInfo::VariableInfo(const VariableInfo& info)
     /*throw (eh::Exception)*/
     : root(info.root), oid_length(info.oid_length),
       oid(info.oid_length * OID_SIZE), name(info.name.text()), type(info.type)
@@ -574,8 +511,7 @@ namespace SNMPAgentX
           return false;
         }
         char str[256];
-        set_variable(variable,
-          String::SubString(str, snprintf(str, sizeof(str), "%f", value)));
+        set_variable(variable, String::SubString(str, snprintf(str, sizeof(str), "%f", value)));
       }
       catch (const Generics::Values::InvalidType&)
       {
@@ -598,15 +534,13 @@ namespace SNMPAgentX
   //
 
   template <typename Values>
-  ValuesProcessor<Values>::ValuesProcessor(unsigned id)
-    noexcept
+  ValuesProcessor<Values>::ValuesProcessor(unsigned id) noexcept
     : id_(id)
   {
   }
 
   template <typename Values>
-  void
-  ValuesProcessor<Values>::register_ids(GenericSNMPAgent* agent) const
+  void ValuesProcessor<Values>::register_ids(GenericSNMPAgent* agent) const
     /*throw (eh::Exception)*/
   {
     if (const GenericSNMPAgent::RootInfo* root = agent->get_rootinfo())
@@ -622,8 +556,7 @@ namespace SNMPAgentX
     unsigned /*size*/, const unsigned* /*ids*/, const Values* values) const
     /*throw (eh::Exception)*/
   {
-    return GenericSNMPAgent::set_variable_from_values(
-      variable, info, *values);
+    return GenericSNMPAgent::set_variable_from_values( variable, info, *values);
   }
 
 
@@ -648,16 +581,14 @@ namespace SNMPAgentX
   template <typename Values, typename Processor>
   bool
   SNMPStatsGen<Values, Processor>::SNMPStatsImplJob::
-    process_variable_(void* variable, const VariableInfo& info,
-    unsigned size, const unsigned* ids)
+    process_variable_(void* variable, const VariableInfo& info, unsigned size, const unsigned* ids)
     /*throw (eh::Exception, Exception)*/
   {
     return processor_.process_variable(variable, info, size, ids, stats_);
   }
 
   template <typename Values, typename Processor>
-  SNMPStatsGen<Values, Processor>::SNMPStatsImplJob::~SNMPStatsImplJob()
-    noexcept
+  SNMPStatsGen<Values, Processor>::SNMPStatsImplJob::~SNMPStatsImplJob() noexcept
   {
   }
 
@@ -680,8 +611,7 @@ namespace SNMPAgentX
   }
 
   template <typename Values, typename Processor>
-  SNMPStatsGen<Values, Processor>::~SNMPStatsGen()
-    noexcept
+  SNMPStatsGen<Values, Processor>::~SNMPStatsGen() noexcept
   {
   }
 }

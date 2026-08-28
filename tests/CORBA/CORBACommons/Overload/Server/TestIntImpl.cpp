@@ -12,8 +12,7 @@
 namespace CORBATest
 {
   TestIntImpl::TestIntImpl(int seq3, int seq2, int size) noexcept
-    : CORBACommons::ProcessStatsImpl(Generics::Values_var(
-        new Generics::Values).in()),
+    : CORBACommons::ProcessStatsImpl(Generics::Values_var( new Generics::Values).in()),
       received_requests(0), timeout_(0),
       seq3_(seq3), seq2_(seq2), size_(size)
   {
@@ -29,16 +28,14 @@ namespace CORBATest
     st.set("total fee", 0.0);
     st.set("received_requests", 0ul);
     st.set("failed_requests", 0l);
-    st.set_as_string("start time",
-      Generics::Time::get_time_of_day().get_gm_time());
+    st.set_as_string("start time", Generics::Time::get_time_of_day().get_gm_time());
   }
 
   TestIntImpl::~TestIntImpl() noexcept
   {
   }
 
-  void
-  TestIntImpl::test(const OctetSeq& in_seq) noexcept
+  void TestIntImpl::test(const OctetSeq& in_seq) noexcept
   {
     stats().add("received_requests", 1ul);
 
@@ -49,8 +46,7 @@ namespace CORBATest
       if (in_seq[i] != i % 256)
       {
         Stream::Dynamic ostr(4096);
-        ostr << "Invalid array of length " << PARAM_LEN << " at element " <<
-          i << "\n";
+        ostr << "Invalid array of length " << PARAM_LEN << " at element " << i << "\n";
         std::cerr << ostr.str();
         for (CORBA::ULong j = 0; j < PARAM_LEN; ++j)
         {
@@ -80,14 +76,12 @@ namespace CORBATest
     }
   }
 
-  void
-  TestIntImpl::oneway_test(const OctetSeq& in_seq) noexcept
+  void TestIntImpl::oneway_test(const OctetSeq& in_seq) noexcept
   {
     test(in_seq);
   }
 
-  Seq3*
-  TestIntImpl::memory_test() /*throw (eh::Exception)*/
+  Seq3* TestIntImpl::memory_test() /*throw (eh::Exception)*/
   {
     print_memory(false);
 
@@ -108,8 +102,7 @@ namespace CORBATest
     return seq3._retn();
   }
 
-  void
-  TestIntImpl::print_memory(CORBA::Boolean full) noexcept
+  void TestIntImpl::print_memory(CORBA::Boolean full) noexcept
   {
     unsigned long vsize, rss;
 
@@ -117,8 +110,7 @@ namespace CORBATest
 
     struct mallinfo info = mallinfo();
     std::cout << "vsize " << (vsize >> 20) << " rss " << (rss >> 20) <<
-      " allocated " << (info.uordblks >> 20) << " free " <<
-      (info.fordblks >> 20) << std::endl;
+      " allocated " << (info.uordblks >> 20) << " free " << (info.fordblks >> 20) << std::endl;
 
     if (full)
     {

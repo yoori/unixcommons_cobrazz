@@ -37,7 +37,7 @@ namespace XMLStrings
 
 namespace
 {
-  typedef std::list<std::string> CertificateSeq;
+  using CertificateSeq = std::list<std::string>;
 
   inline void
   parse_certificate_seq(const char* certificates,
@@ -48,8 +48,7 @@ namespace
     std::string::size_type begin_word = 0;
     std::string::size_type end_word;
 
-    while ((end_word = CERTIFICATE_SEQ_S.find(';', begin_word)) !=
-      std::string::npos)
+    while ((end_word = CERTIFICATE_SEQ_S.find(';', begin_word)) != std::string::npos)
     {
       certificate_seq.emplace_back(
         CERTIFICATE_SEQ_S.begin() + begin_word,
@@ -57,9 +56,7 @@ namespace
         begin_word = end_word + 1;
     }
 
-    certificate_seq.emplace_back(
-      CERTIFICATE_SEQ_S.begin() + begin_word,
-        CERTIFICATE_SEQ_S.end());
+    certificate_seq.emplace_back( CERTIFICATE_SEQ_S.begin() + begin_word, CERTIFICATE_SEQ_S.end());
   }
 }
 
@@ -75,15 +72,13 @@ namespace CORBAConfigParser
     if (!corba_config_elem)
     {
       Stream::Error ostr;
-      ostr << FNS << "Node " << XMLStrings::CORBA_CONFIG <<
-        " is not an element.";
+      ostr << FNS << "Node " << XMLStrings::CORBA_CONFIG << " is not an element.";
       throw Exception(ostr);
     }
 
     unsigned int ival;
 
-    if (XMLUtility::get_attribute(corba_config_elem,
-      XMLStrings::THREADING_POOL_ATTR, ival))
+    if (XMLUtility::get_attribute(corba_config_elem, XMLStrings::THREADING_POOL_ATTR, ival))
     {
       corba_config.thread_pool = ival;
     }
@@ -91,8 +86,7 @@ namespace CORBAConfigParser
     for (DOMNode* child = corba_config_elem->getFirstChild(); child;
       child = child->getNextSibling())
     {
-      if (XMLUtility::has_name(child, XMLStrings::ENDPOINT_CONFIG,
-        xml_namespace))
+      if (XMLUtility::has_name(child, XMLStrings::ENDPOINT_CONFIG, xml_namespace))
       {
         CORBACommons::EndpointConfig endpoint_config;
         read_endpoint(child, endpoint_config, xml_namespace);
@@ -111,15 +105,13 @@ namespace CORBAConfigParser
     if (!corba_config_elem)
     {
       Stream::Error ostr;
-      ostr << FNS << "Node " << XMLStrings::CORBA_CONFIG <<
-        " is not an element.";
+      ostr << FNS << "Node " << XMLStrings::CORBA_CONFIG << " is not an element.";
       throw Exception(ostr);
     }
 
     unsigned int ival;
 
-    if (XMLUtility::get_attribute(corba_config_elem,
-      XMLStrings::TIMEOUT_ATTR, ival))
+    if (XMLUtility::get_attribute(corba_config_elem, XMLStrings::TIMEOUT_ATTR, ival))
     {
       corba_config.timeout = Generics::Time(ival);
     }
@@ -136,16 +128,14 @@ namespace CORBAConfigParser
       if (!endpoint_config_elem)
       {
         Stream::Error ostr;
-        ostr << FNS << "Node " << XMLStrings::ENDPOINT_CONFIG <<
-          " is not an element.";
+        ostr << FNS << "Node " << XMLStrings::ENDPOINT_CONFIG << " is not an element.";
         throw Exception(ostr);
       }
 
       std::string val;
       unsigned long ival;
 
-      if (XMLUtility::get_attribute(endpoint_config_elem,
-        XMLStrings::HOST_ATTR, val))
+      if (XMLUtility::get_attribute(endpoint_config_elem, XMLStrings::HOST_ATTR, val))
       {
         endpoint_config.host = val;
       }
@@ -155,15 +145,13 @@ namespace CORBAConfigParser
         char canonical_host_name[MAXHOSTNAMELEN + 1];
         if (gethostname(canonical_host_name, MAXHOSTNAMELEN) < 0)
         {
-          eh::throw_errno_exception<Exception>(FNE,
-            "Failed to determine canonical host name");
+          eh::throw_errno_exception<Exception>(FNE, "Failed to determine canonical host name");
         }
 
         endpoint_config.host = canonical_host_name;
       }
 
-      if (XMLUtility::get_attribute(endpoint_config_elem,
-        XMLStrings::IOR_NAMES_ATTR, val))
+      if (XMLUtility::get_attribute(endpoint_config_elem, XMLStrings::IOR_NAMES_ATTR, val))
       {
         endpoint_config.ior_names = val;
       }
@@ -172,8 +160,7 @@ namespace CORBAConfigParser
         endpoint_config.ior_names = endpoint_config.host;
       }
 
-      if (XMLUtility::get_attribute(endpoint_config_elem,
-        XMLStrings::PORT_ATTR, ival))
+      if (XMLUtility::get_attribute(endpoint_config_elem, XMLStrings::PORT_ATTR, ival))
       {
         endpoint_config.port = ival;
       }
@@ -185,11 +172,9 @@ namespace CORBAConfigParser
       }
     }
 
-    for (DOMNode* child = node->getFirstChild(); child;
-      child = child->getNextSibling())
+    for (DOMNode* child = node->getFirstChild(); child; child = child->getNextSibling())
     {
-      if (XMLUtility::has_name(child, XMLStrings::OBJECT_CONFIG,
-        xml_namespace))
+      if (XMLUtility::has_name(child, XMLStrings::OBJECT_CONFIG, xml_namespace))
       {
         std::string name;
         std::string ex_name;
@@ -198,15 +183,13 @@ namespace CORBAConfigParser
         if (!object_config_elem)
         {
           Stream::Error ostr;
-          ostr << FNS << "Node " << XMLStrings::OBJECT_CONFIG <<
-            " is not an element.";
+          ostr << FNS << "Node " << XMLStrings::OBJECT_CONFIG << " is not an element.";
           throw Exception(ostr);
         }
 
         std::string val;
 
-        if (XMLUtility::get_attribute(object_config_elem,
-          XMLStrings::INTERNAL_NAME_ATTR, val))
+        if (XMLUtility::get_attribute(object_config_elem, XMLStrings::INTERNAL_NAME_ATTR, val))
         {
           name = val;
         }
@@ -214,13 +197,11 @@ namespace CORBAConfigParser
         {
           Stream::Error ostr;
           ostr << FNS << "In " << XMLStrings::OBJECT_CONFIG <<
-            " not defined " << XMLStrings::INTERNAL_NAME_ATTR <<
-            " attribute.";
+            " not defined " << XMLStrings::INTERNAL_NAME_ATTR << " attribute.";
           throw Exception(ostr);
         }
 
-        if (XMLUtility::get_attribute(object_config_elem,
-          XMLStrings::EXTERNAL_NAME_ATTR, val))
+        if (XMLUtility::get_attribute(object_config_elem, XMLStrings::EXTERNAL_NAME_ATTR, val))
         {
           ex_name = val;
         }
@@ -228,15 +209,13 @@ namespace CORBAConfigParser
         {
           Stream::Error ostr;
           ostr << FNS << "In " << XMLStrings::OBJECT_CONFIG <<
-            " not defined " << XMLStrings::EXTERNAL_NAME_ATTR <<
-            " attribute.";
+            " not defined " << XMLStrings::EXTERNAL_NAME_ATTR << " attribute.";
           throw Exception(ostr);
         }
 
         endpoint_config.objects[name].insert(ex_name);
       }
-      else if (XMLUtility::has_name(child, XMLStrings::SECURE_CONFIG,
-        xml_namespace))
+      else if (XMLUtility::has_name(child, XMLStrings::SECURE_CONFIG, xml_namespace))
       {
         read_secure_params(child, endpoint_config.secure_connection_config);
       }
@@ -249,16 +228,14 @@ namespace CORBAConfigParser
     /*throw (eh::Exception, Exception)*/
   {
     // read attributes
-    DOMElement* secure_connection_config_elem =
-      dynamic_cast<DOMElement*>(node);
+    DOMElement* secure_connection_config_elem = dynamic_cast<DOMElement*>(node);
 
     std::string key;
     std::string certificate;
     std::string pass_word;
     std::string ca;
 
-    if (!XMLUtility::get_attribute(secure_connection_config_elem,
-      XMLStrings::KEY_ATTR, key))
+    if (!XMLUtility::get_attribute(secure_connection_config_elem, XMLStrings::KEY_ATTR, key))
     {
       Stream::Error ostr;
       ostr << FNS << "In " << XMLStrings::SECURE_CONFIG << " not defined " <<
@@ -316,18 +293,15 @@ namespace CORBAConfigParser
     if (!elem)
     {
       Stream::Error ostr;
-      ostr << FNS << "Node " << XMLStrings::CORBA_OBJECT <<
-        " is not an element.";
+      ostr << FNS << "Node " << XMLStrings::CORBA_OBJECT << " is not an element.";
       throw Exception(ostr);
     }
 
     corba_object_ref.type = CORBACommons::CorbaObjectRef::CT_NON_SECURE;
 
-    for (DOMNode* child = node->getFirstChild(); child;
-      child = child->getNextSibling())
+    for (DOMNode* child = node->getFirstChild(); child; child = child->getNextSibling())
     {
-      if (XMLUtility::has_name(child, XMLStrings::SECURE_CONFIG,
-        xml_namespace))
+      if (XMLUtility::has_name(child, XMLStrings::SECURE_CONFIG, xml_namespace))
       {
         corba_object_ref.type = CORBACommons::CorbaObjectRef::CT_SECURE;
         read_secure_params(child, corba_object_ref.secure_connection_config);
@@ -345,8 +319,7 @@ namespace CORBAConfigParser
     if (!elem)
     {
       Stream::Error ostr;
-      ostr << FNS << "Node " << XMLStrings::CORBA_OBJECT <<
-        " is not an element.";
+      ostr << FNS << "Node " << XMLStrings::CORBA_OBJECT << " is not an element.";
       throw Exception(ostr);
     }
 

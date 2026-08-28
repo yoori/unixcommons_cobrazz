@@ -16,8 +16,7 @@ private:
     static
     void
     func(DecimalType& res, const DecimalType& /*arg1*/,
-      const DecimalType& arg2) /*throw (eh::Exception)*/
-      __attribute__((always_inline))
+      const DecimalType& arg2) /*throw (eh::Exception)*/ __attribute__((always_inline))
     {
       res = arg2;
     }
@@ -25,9 +24,7 @@ private:
 
   struct Add
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -37,9 +34,7 @@ private:
 
   struct Sub
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -49,9 +44,7 @@ private:
 
   struct MulF
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -61,9 +54,7 @@ private:
 
   struct MulR
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -73,9 +64,7 @@ private:
 
   struct MulC
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -85,9 +74,7 @@ private:
 
   struct DivF
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
     {
       res = DecimalType::div(arg1, arg2, DDR_FLOOR);
@@ -96,9 +83,7 @@ private:
 
   struct DivC
   {
-    static
-    void
-    func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
+    static void func(DecimalType& res, const DecimalType& arg1, const DecimalType& arg2)
       /*throw (eh::Exception)*/
       __attribute__((always_inline))
     {
@@ -111,8 +96,7 @@ private:
     static
     void
     func(DecimalType& res, const DecimalType& arg1,
-      const DecimalType& arg2) /*throw (eh::Exception)*/
-      __attribute__((always_inline))
+      const DecimalType& arg2) /*throw (eh::Exception)*/ __attribute__((always_inline))
     {
       DecimalType::div(arg1, arg2, res);
     }
@@ -123,8 +107,7 @@ private:
     static
     void
     func(DecimalType& res, const DecimalType& /*arg1*/,
-      const DecimalType& arg2) /*throw (eh::Exception)*/
-      __attribute__((always_inline))
+      const DecimalType& arg2) /*throw (eh::Exception)*/ __attribute__((always_inline))
     {
       res = arg2;
       res.ceil(1);
@@ -132,8 +115,7 @@ private:
   };
 
 public:
-  explicit
-  PerformanceTestSuite(const std::string& name) /*throw (eh::Exception)*/
+  explicit PerformanceTestSuite(const std::string& name) /*throw (eh::Exception)*/
     : name_(name), max_length_(0)
   {
     add_test_case_<Empty>("Empty1");
@@ -149,14 +131,12 @@ public:
     add_test_case_<Ceil>("Ceil");
   }
 
-  void
-  run() /*throw (eh::Exception)*/
+  void run() /*throw (eh::Exception)*/
   {
     set_up_();
     std::cout << "Run " << name_ << std::endl;
 
-    for (typename Cases::iterator i = test_cases_.begin();
-      i != test_cases_.end(); ++i)
+    for (typename Cases::iterator i = test_cases_.begin(); i != test_cases_.end(); ++i)
     {
       run_(*i);
     }
@@ -165,13 +145,13 @@ public:
 private:
   const std::string name_;
 
-  typedef void (*test_func)(const DecimalType* data, DecimalType* sample);
+  using test_func = void (*)(const DecimalType* data, DecimalType* sample);
   struct TestCase
   {
     test_func func;
     std::string name;
   };
-  typedef std::vector<TestCase> Cases;
+  using Cases = std::vector<TestCase>;
 
   Cases test_cases_;
   size_t max_length_;
@@ -186,9 +166,7 @@ private:
 private:
 
   template <typename Op>
-  static
-  void
-  wrapper_(const DecimalType* data, DecimalType* sample)
+  static void wrapper_(const DecimalType* data, DecimalType* sample)
     /*throw (eh::Exception)*/
   {
     for (int i = 0; i < SAMPLE_RUNS; ++i)
@@ -200,16 +178,14 @@ private:
   }
 
   template <typename Op>
-  void
-  add_test_case_(const char* case_name) /*throw (eh::Exception)*/
+  void add_test_case_(const char* case_name) /*throw (eh::Exception)*/
   {
     TestCase test_case = { wrapper_<Op>, case_name };
     max_length_ = std::max(test_case.name.size(), max_length_);
     test_cases_.push_back(test_case);
   }
 
-  void
-  run_(TestCase& test_case) /*throw (eh::Exception)*/
+  void run_(TestCase& test_case) /*throw (eh::Exception)*/
   {
     Generics::CPUTimer timer;
     timer.start();
@@ -223,8 +199,7 @@ private:
     std::cout << timer.elapsed_time() << std::endl;
   }
 
-  void
-  set_up_() /*throw (eh::Exception)*/
+  void set_up_() /*throw (eh::Exception)*/
   {
     test_data_[0] = DecimalType(false, 1001, 1);
     test_data_[1] = DecimalType(1.0001);
@@ -236,20 +211,15 @@ private:
 
 
 template <typename DecimalType>
-void
-perfomance_test(const char* name) /*throw (eh::Exception)*/
+void perfomance_test(const char* name) /*throw (eh::Exception)*/
 {
   PerformanceTestSuite<DecimalType> test(name);
   test.run();
 }
 
-void
-perfomance_test() /*throw (eh::Exception)*/
+void perfomance_test() /*throw (eh::Exception)*/
 {
-  perfomance_test<Generics::Decimal<uint64_t, 36, 16> >(
-    "Decimal<uint64_t,36,16>");
-  perfomance_test<Generics::Decimal<uint64_t, 18, 8> >(
-    "Decimal<uint64_t,18,8>");
-  perfomance_test<Generics::SimpleDecimal<uint64_t, 18, 8> >(
-    "SimpleDecimal<uint64_t,18,8>");
+  perfomance_test<Generics::Decimal<uint64_t, 36, 16> >( "Decimal<uint64_t,36,16>");
+  perfomance_test<Generics::Decimal<uint64_t, 18, 8> >( "Decimal<uint64_t,18,8>");
+  perfomance_test<Generics::SimpleDecimal<uint64_t, 18, 8> >( "SimpleDecimal<uint64_t,18,8>");
 }

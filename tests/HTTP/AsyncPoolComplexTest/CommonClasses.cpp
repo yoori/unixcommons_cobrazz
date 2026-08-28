@@ -6,8 +6,7 @@
 // class CallBackProxy
 //
 
-CallBackProxy::CallBackProxy(Sync::Semaphore& finish_semaphore,
-                             HTTP::ResponseCallback *p_impl)
+CallBackProxy::CallBackProxy(Sync::Semaphore& finish_semaphore, HTTP::ResponseCallback *p_impl)
   /*throw(eh::Exception)*/
   : p_impl_(ReferenceCounting::add_ref(p_impl)),
     finish_semaphore_(finish_semaphore)
@@ -19,8 +18,7 @@ CallBackProxy::~CallBackProxy() noexcept
   finish_semaphore_.release();
 }
 
-void
-CallBackProxy::quick_on_response(const HTTP::ResponseInformation& data) noexcept
+void CallBackProxy::quick_on_response(const HTTP::ResponseInformation& data) noexcept
 {
   p_impl_->quick_on_response(data);
 }
@@ -32,15 +30,13 @@ CallBackProxy::quick_on_error(const String::SubString& description,
   p_impl_->quick_on_error(description, data);
 }
 
-void
-CallBackProxy::on_response(const HTTP::ResponseInformation& data) noexcept
+void CallBackProxy::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   p_impl_->on_response(data);
 }
 
 void
-CallBackProxy::on_error(const String::SubString& description,
-                        const HTTP::RequestInformation& data)
+CallBackProxy::on_error(const String::SubString& description, const HTTP::RequestInformation& data)
   noexcept
 {
   p_impl_->on_error(description, data);
@@ -59,13 +55,11 @@ CheckUpCallback::CheckUpCallback(HTTP::PoolPolicy* policy,
 {
 }
 
-void
-CheckUpCallback::on_response(const HTTP::ResponseInformation& data) noexcept
+void CheckUpCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   SimpleCounterCallback::on_response(data);
 
-  const std::string& CHECKUP_STR =
-    data.method() == HTTP::HM_GET ? GET_STR_ : POST_STR_;
+  const std::string& CHECKUP_STR = data.method() == HTTP::HM_GET ? GET_STR_ : POST_STR_;
 
   String::SubString body(data.body());
   String::SubString::SizeType beg = body.find(PATTERN_BEG_);
@@ -91,16 +85,14 @@ CheckUpCallback::on_error(const String::SubString& descr,
   SimpleCounterCallback::on_error(descr, data);
 }
 
-void
-CheckUpCallback::print_stat(std::ostream& ostr) /*throw (eh::Exception)*/
+void CheckUpCallback::print_stat(std::ostream& ostr) /*throw (eh::Exception)*/
 {
   SimpleCounterCallback::print_stat(ostr);
   ostr << "Check up: ";
   response_checkup_.print(ostr);
 }
 
-const TestCommons::Counter&
-CheckUpCallback::get_checkup_counter() const noexcept
+const TestCommons::Counter& CheckUpCallback::get_checkup_counter() const noexcept
 {
   return response_checkup_;
 }
@@ -118,21 +110,18 @@ CTTestInterface::CTTestInterface(HTTP::HttpInterface* pool,
     unsigned int tasks_per_test, unsigned int functors_per_task)
   /*throw (eh::Exception)*/:
     pool_(ReferenceCounting::add_ref(pool)),
-    run_period_(making_requests_duration < test_duration?
-                making_requests_duration: test_duration),
+    run_period_(making_requests_duration < test_duration? making_requests_duration: test_duration),
     tasks_count_(tasks_per_test),
     functors_count_(functors_per_task)
 {
 }
 
-const std::string
-CTTestInterface::additional_http_query() /*throw (eh::Exception)*/
+const std::string CTTestInterface::additional_http_query() /*throw (eh::Exception)*/
 {
   return std::string();
 }
 
-void
-CTTestInterface::execute() noexcept
+void CTTestInterface::execute() noexcept
 {
   try
   {
@@ -180,12 +169,12 @@ CTTestInterface::is_error(const char* test_name, const TestCommons::Counter* add
               << " instead of " << added << std::endl;
     return true;
   }
+
   if (checkup_counter && checkup_counter->failed())
   {
     std::cerr << "[ERROR] " << test_name << " failed. Description: "
               << "Some requests were invalid ( " << checkup_counter->succeeded()
-              << " succeeded and " << checkup_counter->failed() << " failed )"
-              << std::endl;
+              << " succeeded and " << checkup_counter->failed() << " failed )" << std::endl;
     return true;
   }
 

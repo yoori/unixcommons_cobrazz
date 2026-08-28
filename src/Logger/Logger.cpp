@@ -20,14 +20,12 @@ namespace Logging
   {
   }
 
-  unsigned long
-  SimpleLoggerHolder::log_level() noexcept
+  unsigned long SimpleLoggerHolder::log_level() noexcept
   {
     return logger_->log_level();
   }
 
-  void
-  SimpleLoggerHolder::log_level(unsigned long value) noexcept
+  void SimpleLoggerHolder::log_level(unsigned long value) noexcept
   {
     logger_->log_level(value);
   }
@@ -54,8 +52,7 @@ namespace Logging
   {
   }
 
-  void
-  LoggerHolder::logger(Logger* new_logger) noexcept
+  void LoggerHolder::logger(Logger* new_logger) noexcept
   {
     QLogger_var nl(ReferenceCounting::add_ref(new_logger));
     {
@@ -65,14 +62,12 @@ namespace Logging
     }
   }
 
-  unsigned long
-  LoggerHolder::log_level() noexcept
+  unsigned long LoggerHolder::log_level() noexcept
   {
     return log_level_;
   }
 
-  void
-  LoggerHolder::log_level(unsigned long value) noexcept
+  void LoggerHolder::log_level(unsigned long value) noexcept
   {
     Sync::PosixSpinGuard guard(mutex_);
     if (has_logger_())

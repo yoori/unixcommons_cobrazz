@@ -5,15 +5,12 @@
 #include <String/UTF8Category.hpp>
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  namespace Korean
   {
-    namespace Korean
-    {
-      typedef const String::StringManip::InverseCategory<
-        String::Utf8Category> NotHangul;
-      extern NotHangul NOT_HANGUL;
-    }
+    using NotHangul = const String::StringManip::InverseCategory<
+      String::Utf8Category>;
+    extern NotHangul NOT_HANGUL;
   }
 }

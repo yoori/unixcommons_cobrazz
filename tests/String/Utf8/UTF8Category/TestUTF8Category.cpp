@@ -10,35 +10,29 @@ namespace
 {
   DECLARE_EXCEPTION(TestException, eh::DescriptiveException);
   const char SAMPLE[] = "Example for test 12345h lowerUPPER";
-  const Utf8Category* CATEGORIES[] =
-  {
+  const Utf8Category* CATEGORIES[] = {
     &UNICODE_SPACES, &UNICODE_DIGITS, &UNICODE_LETTERS, &UNICODE_LOWER_LETTERS,
     &UNICODE_UPPER_LETTERS
   };
 
   CharCategory LOWER("a-z");
   CharCategory UPPER("A-Z");
-  const CharCategory* CHAR_CATEGORIES[] =
-  {
+  const CharCategory* CHAR_CATEGORIES[] = {
     &SPACE, &NUMBER, &ALPHA, &LOWER, &UPPER
   };
 }
 
 template <typename Categories>
-void
-rfind_test(const Categories& CATEGORIES) /*throw (eh::Exception)*/
+void rfind_test(const Categories& CATEGORIES) /*throw (eh::Exception)*/
 {
   const char FUN[] = "rfind_test(): ";
   const char* const FROM = SAMPLE + sizeof(SAMPLE) - 1;
-  int STANDARD_OFFSETS[] =
-  {
+  int STANDARD_OFFSETS[] = {
     23, 33, 21, 33, 33, 23, 28, 33, 33, 28
   };
 
   const char* result;
-  for (std::size_t i = 0;
-    i < 2 * sizeof(CATEGORIES) / sizeof(CATEGORIES[0]);
-    i += 2)
+  for (std::size_t i = 0; i < 2 * sizeof(CATEGORIES) / sizeof(CATEGORIES[0]); i += 2)
   {
     result = CATEGORIES[i / 2]->rfind_owned(FROM, SAMPLE);
     if (result - SAMPLE != STANDARD_OFFSETS[i])
@@ -50,8 +44,7 @@ rfind_test(const Categories& CATEGORIES) /*throw (eh::Exception)*/
       }
       else
       {
-        std::cerr << ", awaiting " << STANDARD_OFFSETS[i] << ", fact="
-          << result - SAMPLE;
+        std::cerr << ", awaiting " << STANDARD_OFFSETS[i] << ", fact=" << result - SAMPLE;
       }
       std::cerr << std::endl;
     }
@@ -65,50 +58,42 @@ rfind_test(const Categories& CATEGORIES) /*throw (eh::Exception)*/
         }
         else
         {
-          std::cerr << ", awaiting " << STANDARD_OFFSETS[i] << ", fact="
-            << result - SAMPLE;
+          std::cerr << ", awaiting " << STANDARD_OFFSETS[i] << ", fact=" << result - SAMPLE;
         }
         std::cerr << std::endl;
     }
   }
 }
 
-void
-finishers_test() /*throw (eh::Exception)*/
+void finishers_test() /*throw (eh::Exception)*/
 {
   const char FUN[] = "finishers_test(): ";
   const char* const FROM = SAMPLE + sizeof(SAMPLE) - 1;
-  const char*
-  result = UNICODE_TITLE_LETTERS.rfind_owned(FROM, SAMPLE);
+  const char* result = UNICODE_TITLE_LETTERS.rfind_owned(FROM, SAMPLE);
   if (result != FROM)
   {
-    std::cerr << FUN << "Fail: incorrect not found value, offset="
-      << result - SAMPLE << std::endl;
+    std::cerr << FUN << "Fail: incorrect not found value, offset=" << result - SAMPLE << std::endl;
   }
   result = REGEX_META.rfind_owned(FROM, SAMPLE);
   if (result != FROM)
   {
-    std::cerr << FUN << "Fail: incorrect not found value, offset="
-      << result - SAMPLE << std::endl;
+    std::cerr << FUN << "Fail: incorrect not found value, offset=" << result - SAMPLE << std::endl;
   }
   Utf8Category unicode_cat("A-Za-z0-9 ");
   result = unicode_cat.rfind_nonowned(FROM, SAMPLE);
   if (result != FROM)
   {
-    std::cerr << FUN << "Fail: incorrect not found value, offset="
-      << result - SAMPLE << std::endl;
+    std::cerr << FUN << "Fail: incorrect not found value, offset=" << result - SAMPLE << std::endl;
   }
   CharCategory cat("A-Za-z0-9 ");
   result = cat.rfind_nonowned(FROM, SAMPLE);
   if (result != FROM)
   {
-    std::cerr << FUN << "Fail: incorrect not found value, offset="
-      << result - SAMPLE << std::endl;
+    std::cerr << FUN << "Fail: incorrect not found value, offset=" << result - SAMPLE << std::endl;
   }
 }
 
-int
-main(int /*argc*/, char* /*argv*/[])
+int main(int /*argc*/, char* /*argv*/[])
 {
   try
   {

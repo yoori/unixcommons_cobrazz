@@ -17,8 +17,7 @@ ProxyInjectorModule::~ProxyInjectorModule() noexcept
 {
 }
 
-void
-ProxyInjectorModule::insert_filter(request_rec* r) noexcept
+void ProxyInjectorModule::insert_filter(request_rec* r) noexcept
 {
   try
   {
@@ -40,8 +39,7 @@ ProxyInjectorModule::InjectorFilter::InjectorFilter(request_rec* r) noexcept
 }
 
 apr_status_t
-ProxyInjectorModule::InjectorFilter::filter(
-  ap_filter_t* f, apr_bucket_brigade* bb) noexcept
+ProxyInjectorModule::InjectorFilter::filter( ap_filter_t* f, apr_bucket_brigade* bb) noexcept
 {
   request_rec* r = f->r;
 
@@ -62,8 +60,7 @@ ProxyInjectorModule::InjectorFilter::filter(
       char* buf = apr_pstrdup(r->pool, TEXT_TO_INSERT);
 
       apr_bucket* text_bucket =
-        apr_bucket_pool_create(buf, strlen(TEXT_TO_INSERT),
-                               r->pool, f->c->bucket_alloc);
+        apr_bucket_pool_create(buf, strlen(TEXT_TO_INSERT), r->pool, f->c->bucket_alloc);
       APR_BRIGADE_INSERT_TAIL(bb_, text_bucket);
 
       APR_BUCKET_REMOVE(e);

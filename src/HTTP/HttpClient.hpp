@@ -8,11 +8,9 @@
 
 namespace HTTP
 {
-  typedef Sync::MutexRefPtr<HTTP::ClientCookieFacility>
-    CookiePoolPtr;
-  typedef ReferenceCounting::QualPtr<CookiePoolPtr> CookiePool_var;
+  using CookiePoolPtr = Sync::MutexRefPtr<HTTP::ClientCookieFacility>;
+  using CookiePool_var = ReferenceCounting::QualPtr<CookiePoolPtr>;
 
-  HttpInterface*
-  CreateCookieClient(HttpInterface* pool, CookiePoolPtr* cookie)
+  HttpInterface* CreateCookieClient(HttpInterface* pool, CookiePoolPtr* cookie)
     /*throw (eh::Exception)*/;
 }

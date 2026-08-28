@@ -5,22 +5,16 @@
 #include <String/UTF8IsProperty.hpp>
 #include <Generics/Rand.hpp>
 
-void
-check_flatten() /*throw (eh::Exception)*/;
+void check_flatten() /*throw (eh::Exception)*/;
 
 class TestFlattenCaseGenerator
 {
 public:
-  void
-  generate() /*throw (eh::Exception)*/;
+  void generate() /*throw (eh::Exception)*/;
 
-  void
-  check() /*throw (eh::Exception)*/;
+  void check() /*throw (eh::Exception)*/;
 
-  static void
-  checking(const std::string& res,
-           const std::string& src,
-           const char *standard)
+  static void checking(const std::string& res, const std::string& src, const char *standard)
     /*throw (eh::Exception)*/;
 
 private:
@@ -28,17 +22,14 @@ private:
   std::string standard_;
 };
 
-void
-check_random_flatten() /*throw (eh::Exception)*/;
+void check_random_flatten() /*throw (eh::Exception)*/;
 
-void
-check_compare_caseless() /*throw (eh::Exception)*/;
+void check_compare_caseless() /*throw (eh::Exception)*/;
 
 //
 // Test body below
 //
-int
-main()
+int main()
 {
   try
   {
@@ -66,8 +57,7 @@ main()
 
 using namespace String::AsciiStringManip;
 
-void
-TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
+void TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
 {
   standard_.clear();
   input_.clear();
@@ -94,16 +84,14 @@ TestFlattenCaseGenerator::generate() /*throw (eh::Exception)*/
   }
 }
 
-void
-TestFlattenCaseGenerator::check() /*throw (eh::Exception)*/
+void TestFlattenCaseGenerator::check() /*throw (eh::Exception)*/
 {
   std::string dest;
   String::AsciiStringManip::flatten(dest, input_);
   if (dest != standard_)
   {
     std::cerr << "flatten functional doesn't work: input=" << input_ << std::endl
-      << "result=" << dest << std::endl << "standard="
-      << standard_ << std::endl;
+      << "result=" << dest << std::endl << "standard=" << standard_ << std::endl;
   }
 }
 
@@ -115,15 +103,12 @@ TestFlattenCaseGenerator::checking(const std::string& res,
 {
   if (res != standard)
   {
-    std::cerr << "flatten functional trouble:\n"
-      << "Source: " << src << std::endl
-      << "Result: " << res << std::endl
-      << "Standard: " << standard << std::endl;
+    std::cerr << "flatten functional trouble:\n" << "Source: " << src << std::endl
+      << "Result: " << res << std::endl << "Standard: " << standard << std::endl;
   }
 }
 
-void
-check_random_flatten() /*throw (eh::Exception)*/
+void check_random_flatten() /*throw (eh::Exception)*/
 {
   TestFlattenCaseGenerator checker;
   for (std::size_t i = 0; i < 100; ++i)
@@ -133,14 +118,12 @@ check_random_flatten() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_flatten() /*throw (eh::Exception)*/
+void check_flatten() /*throw (eh::Exception)*/
 {
   std::string dest;
 
   std::string src("Test   \t  _Rpl\t  . ");
-  String::AsciiStringManip::flatten(
-    dest, src, String::SubString("R", 1));
+  String::AsciiStringManip::flatten( dest, src, String::SubString("R", 1));
   std::cout << "Source: " << src << std::endl;
   std::cout << "Result: " << dest << std::endl;
   TestFlattenCaseGenerator::checking(dest, src, "TestR_RplR.R");
@@ -149,24 +132,25 @@ check_flatten() /*throw (eh::Exception)*/
   TestFlattenCaseGenerator::checking(dest, src, "Test _Rpl . ");
 }
 
-void
-check_compare_caseless() /*throw (eh::Exception)*/
+void check_compare_caseless() /*throw (eh::Exception)*/
 {
   const String::SubString S1("A\0A", 4);
   const String::SubString S2("a\0b", 4);
   const String::SubString S3("a\0a", 4);
-  
+
   const char FUN[] = "check_compare_caseless(): ";
   std::cout << FUN << "started" << std::endl;
-  
+
   if (String::AsciiStringManip::Caseless(S1).compare(S2) >= 0)
   {
     std::cerr << FUN << "fail 1" << std::endl;
   }
+
   if (String::AsciiStringManip::Caseless(S1).compare(S3) != 0)
   {
     std::cerr << FUN << "fail 2" << std::endl;
   }
+
   if (String::AsciiStringManip::Caseless(S2).compare(S3) <= 0)
   {
     std::cerr << FUN << "fail 3" << std::endl;

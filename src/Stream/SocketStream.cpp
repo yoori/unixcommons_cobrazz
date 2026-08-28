@@ -34,14 +34,12 @@ namespace Stream
   {
   }
 
-  std::streamsize
-  SocketStreambuf::showmanyc()
+  std::streamsize SocketStreambuf::showmanyc()
   {
     return egptr() - gptr();
   }
 
-  SocketStreambuf::int_type
-  SocketStreambuf::underflow()
+  SocketStreambuf::int_type SocketStreambuf::underflow()
   {
     if (gptr() < egptr())
     {
@@ -54,8 +52,7 @@ namespace Stream
       num_putback = PUTBACK_SIZE;
     }
 
-    memmove(in_buffer_.get() + (PUTBACK_SIZE - num_putback),
-      gptr() - num_putback, num_putback);
+    memmove(in_buffer_.get() + (PUTBACK_SIZE - num_putback), gptr() - num_putback, num_putback);
 
     int num = sock_stream_.recv(in_buffer_.get() + PUTBACK_SIZE,
       IN_BUFFER_SIZE - PUTBACK_SIZE, recv_timeout_.get());
@@ -78,8 +75,7 @@ namespace Stream
   // SocketInStream
   //
 
-  SocketInStream::SocketInStream(ACE_SOCK_Stream& sock_stream,
-    const Generics::Time* recv_timeout)
+  SocketInStream::SocketInStream(ACE_SOCK_Stream& sock_stream, const Generics::Time* recv_timeout)
     : std::basic_istream<char, std::char_traits<char> >(0),
       buf_(sock_stream, std::ios_base::in, 0, recv_timeout)
   {

@@ -16,19 +16,19 @@ namespace ReferenceCounting
   class List : protected std::list<T, Allocator>
   {
   public:
-    typedef std::list<T, Allocator> Base;
+    using Base = std::list<T, Allocator>;
 
-    typedef typename Base::value_type value_type;
-    typedef typename Base::pointer pointer;
-    typedef typename Base::const_pointer const_pointer;
-    typedef typename Base::reference reference;
-    typedef typename Base::const_reference const_reference;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
-    typedef typename Base::size_type size_type;
-    typedef typename Base::difference_type difference_type;
+    using value_type = typename Base::value_type;
+    using pointer = typename Base::pointer;
+    using const_pointer = typename Base::const_pointer;
+    using reference = typename Base::reference;
+    using const_reference = typename Base::const_reference;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
+    using size_type = typename Base::size_type;
+    using difference_type = typename Base::difference_type;
 
     using Base::begin;
     using Base::end;
@@ -65,52 +65,34 @@ namespace ReferenceCounting
     template <typename InputIterator>
     List(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    List&
-    operator =(List& l) /*throw (eh::Exception)*/;
-    List&
-    operator =(List&& l) noexcept;
+    List& operator =(List& l) /*throw (eh::Exception)*/;
+    List& operator =(List&& l) noexcept;
 
-    void
-    assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
+    void assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
+    void assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    void
-    push_front(value_type& x) /*throw (eh::Exception)*/;
-    void
-    push_front(value_type&& x) /*throw (eh::Exception)*/;
-    void
-    push_back(value_type& x) /*throw (eh::Exception)*/;
-    void
-    push_back(value_type&& x) /*throw (eh::Exception)*/;
+    void push_front(value_type& x) /*throw (eh::Exception)*/;
+    void push_front(value_type&& x) /*throw (eh::Exception)*/;
+    void push_back(value_type& x) /*throw (eh::Exception)*/;
+    void push_back(value_type&& x) /*throw (eh::Exception)*/;
 
-    iterator
-    insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
-    iterator
-    insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
-    void
-    insert(iterator position, size_type n, value_type& x)
+    iterator insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
+    void insert(iterator position, size_type n, value_type& x)
       /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    insert(iterator position, InputIterator first, InputIterator last)
+    void insert(iterator position, InputIterator first, InputIterator last)
       /*throw (eh::Exception)*/;
 
-    void
-    splice(iterator position, List&& l) noexcept;
-    void
-    splice(iterator position, List&& l, iterator i) noexcept;
-    void
-    splice(iterator position, List&& l, iterator first, iterator last)
-      noexcept;
+    void splice(iterator position, List&& l) noexcept;
+    void splice(iterator position, List&& l, iterator i) noexcept;
+    void splice(iterator position, List&& l, iterator first, iterator last) noexcept;
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
-    void
-    swap(List&& l) noexcept;
+    void swap(List&& l) noexcept;
 #else
-    void
-    swap(List& l) noexcept;
+    void swap(List& l) noexcept;
 #endif
   };
 }
@@ -175,8 +157,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::assign(size_type n, value_type& x)
+  void List<T, Allocator>::assign(size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     iterator i = begin();
@@ -184,6 +165,7 @@ namespace ReferenceCounting
     {
       *i = x;
     }
+
     if (n)
     {
       while (n--)
@@ -199,8 +181,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   template <typename InputIterator>
-  void
-  List<T, Allocator>::assign(InputIterator first, InputIterator last)
+  void List<T, Allocator>::assign(InputIterator first, InputIterator last)
     /*throw (eh::Exception)*/
   {
     iterator i = begin();
@@ -208,6 +189,7 @@ namespace ReferenceCounting
     {
       *i = *first;
     }
+
     if (first != last)
     {
       do
@@ -224,29 +206,25 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::push_front(value_type& x) /*throw (eh::Exception)*/
+  void List<T, Allocator>::push_front(value_type& x) /*throw (eh::Exception)*/
   {
     emplace_front(x);
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::push_front(value_type&& x) /*throw (eh::Exception)*/
+  void List<T, Allocator>::push_front(value_type&& x) /*throw (eh::Exception)*/
   {
     emplace_front(std::move(x));
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
+  void List<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
   {
     emplace_back(x);
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
+  void List<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
   {
     emplace_back(std::move(x));
   }
@@ -268,8 +246,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::insert(iterator position, size_type n, value_type& x)
+  void List<T, Allocator>::insert(iterator position, size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     splice(position, List(n, x));
@@ -285,39 +262,33 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::splice(iterator position, List&& l) noexcept
+  void List<T, Allocator>::splice(iterator position, List&& l) noexcept
   {
     Base::splice(position, std::move(l));
   }
 
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::splice(iterator position, List&& l, iterator i)
-    noexcept
+  void List<T, Allocator>::splice(iterator position, List&& l, iterator i) noexcept
   {
     Base::splice(position, std::move(l), i);
   }
 
   template <typename T, typename Allocator>
   void
-  List<T, Allocator>::splice(iterator position, List&& l, iterator first,
-    iterator last) noexcept
+  List<T, Allocator>::splice(iterator position, List&& l, iterator first, iterator last) noexcept
   {
     Base::splice(position, std::move(l), first, last);
   }
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::swap(List&& l) noexcept
+  void List<T, Allocator>::swap(List&& l) noexcept
   {
     Base::swap(std::move(l));
   }
 #else
   template <typename T, typename Allocator>
-  void
-  List<T, Allocator>::swap(List& l) noexcept
+  void List<T, Allocator>::swap(List& l) noexcept
   {
     Base::swap(l);
   }
@@ -325,23 +296,20 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Allocator>
-  void
-  swap(List<T, Allocator>& x, List<T, Allocator>& y) noexcept
+  void swap(List<T, Allocator>& x, List<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  swap(List<T, Allocator>&& x, List<T, Allocator>& y) noexcept
+  void swap(List<T, Allocator>&& x, List<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
-  void
-  swap(List<T, Allocator>& x, List<T, Allocator>&& y) noexcept
+  void swap(List<T, Allocator>& x, List<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

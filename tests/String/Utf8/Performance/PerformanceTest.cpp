@@ -27,8 +27,7 @@ namespace
   const char ut8_multilang[] = "전세계의호텔 Стартовая строка English "
                                "امودود ЛВВЫРАЛЫ 13122125234378";
 
-  const char* const TEXT_CORPUS[] =
-  {
+  const char* const TEXT_CORPUS[] = {
     // ASCII text 1 byte into code point sequence
     "The multiply operation creates five separate copies"
     " of the 8-bit byte pattern to fan-out into a 64-bit"
@@ -75,12 +74,17 @@ namespace
     " 𐐲𐑂 𐐼𐐮𐑁𐑉𐐲𐑌𐐻 𐐯𐑌𐐿𐐬𐐼𐐨𐑍 𐑅𐐮𐑅𐐻𐐲𐑋𐑆 𐑁𐐬𐑉 𐐲𐑅𐐴𐑌𐐨𐑍 "
     "𐑄𐐨𐑆 𐑌𐐲𐑋𐐺𐑉𐑆. 𐐤𐐬 𐑅𐐨𐑍𐑊 𐐯𐑌𐐿𐐬𐐼𐐨𐑍 𐐿𐐳𐐼",
     // Synthetic text, 4 bytes into code point representation
-    "𚐜𚐝𚐞𚐟𚐠𚐡𚐢𚐣𚐤𚐥𚐦𚐧𚐨𚐩𚐪𚐫𚐬𚐭𚐮𚐯𚐰𚐱𚐲𚐳𚐴𚐵𚐶𚐷𚐸𚐹𚐺𚐻𚐼𚐽"
-    "𚐾𚐿𚑀𚑁𚑂𚑃𚑄𚑅𚑆𚑇𚑈𚑉𚑊𚑋𚑌𚑍𚑎𚑏𚑐𚑑𚑒𚑓𚑔𚑕𚑖𚑗𚑘𚑙𚑚𚑛𚑜𚑝𚑞𚑟"
-    "𚑠𚑡𚑢𚑣𚑤𚑥𚑦𚑧𚑨𚑩𚑪𚑫𚑬𚑭𚑮𚑯𚑰𚑱𚑲𚑳𚑴𚑵𚑶𚑷𚑸𚑹𚑺𚑻𚑼𚑽𚑾𚑿𚒀𚒁"
-    "𚒂𚒃𚒄𚒅𚒆𚒇𚒈𚒉𚒊𚒋𚒌𚒍𚒎𚒏𚒐𚒑𚒒𚒓𚒔𚒕𚒖𚒗𚒘𚒙𚒚𚒛𚒜𚒝𚒞𚒟𚒠𚒡𚒢𚒣"
-    "𚒤𚒥𚒦𚒧𚒨𚒩𚒪𚒫𚒬𚒭𚒮𚒯𚒰𚒱𚒲𚒳𚒴𚒵𚒶𚒷𚒸𚒹𚒺𚒻𚒼𚒽𚒾",
-//    0
+    "𚐜𚐝𚐞𚐟𚐠𚐡𚐢𚐣𚐤𚐥𚐦𚐧𚐨𚐩𚐪𚐫𚐬𚐭𚐮𚐯𚐰𚐱𚐲"
+    "𚐳𚐴𚐵𚐶𚐷𚐸𚐹𚐺𚐻𚐼𚐽"
+    "𚐾𚐿𚑀𚑁𚑂𚑃𚑄𚑅𚑆𚑇𚑈𚑉𚑊𚑋𚑌𚑍𚑎𚑏𚑐𚑑𚑒𚑓𚑔"
+    "𚑕𚑖𚑗𚑘𚑙𚑚𚑛𚑜𚑝𚑞𚑟"
+    "𚑠𚑡𚑢𚑣𚑤𚑥𚑦𚑧𚑨𚑩𚑪𚑫𚑬𚑭𚑮𚑯𚑰𚑱𚑲𚑳𚑴𚑵𚑶"
+    "𚑷𚑸𚑹𚑺𚑻𚑼𚑽𚑾𚑿𚒀𚒁"
+    "𚒂𚒃𚒄𚒅𚒆𚒇𚒈𚒉𚒊𚒋𚒌𚒍𚒎𚒏𚒐𚒑𚒒𚒓𚒔𚒕𚒖𚒗𚒘"
+    "𚒙𚒚𚒛𚒜𚒝𚒞𚒟𚒠𚒡𚒢𚒣"
+    "𚒤𚒥𚒦𚒧𚒨𚒩𚒪𚒫𚒬𚒭𚒮𚒯𚒰𚒱𚒲𚒳𚒴𚒵𚒶𚒷𚒸𚒹𚒺"
+    "𚒻𚒼𚒽𚒾",
+    //    0
 
   };
 
@@ -88,27 +92,23 @@ namespace
   {
   public:
     template<typename Arg1, typename Arg2>
-    void
-    test_equal(const Arg1& a, const Arg2& b) const /*throw (eh::Exception)*/;
+    void test_equal(const Arg1& a, const Arg2& b) const /*throw (eh::Exception)*/;
 
-    void
-    set_operation(const char* name) /*throw (eh::Exception)*/;
+    void set_operation(const char* name) /*throw (eh::Exception)*/;
 
-    void
-    set_operand(const char* source_string) /*throw (eh::Exception)*/;
+    void set_operand(const char* source_string) /*throw (eh::Exception)*/;
   private:
     std::string operation_;
     std::string operand_;
   } test_context;
 
 
-  typedef bool PropertyFun(const char*);
+  using PropertyFun = bool (const char*);
 
   class UTF8IsPropertyOnStringPerformance
   {
   public:
-    long long
-    operator () () const /*throw (eh::Exception)*/;
+    long long operator () () const /*throw (eh::Exception)*/;
 
     UTF8IsPropertyOnStringPerformance(const char* str, PropertyFun f)
       /*throw (TestException)*/;
@@ -117,13 +117,12 @@ namespace
     PropertyFun* function_;
   };
 
-  typedef std::size_t CountingFunction(char);
+  using CountingFunction = std::size_t (char);
 
   class CountingPerformanceFunctor
   {
   public:
-    long long
-    operator () () const /*throw (eh::Exception)*/;
+    long long operator () () const /*throw (eh::Exception)*/;
 
     CountingPerformanceFunctor(CountingFunction f) noexcept;
   private:
@@ -131,7 +130,7 @@ namespace
   };
 
   // context object
-  typedef void (*Measure)(std::string &result);
+  using Measure = void (*)(std::string &result);
 
   // Functor for profiling
   class ProfFunctor
@@ -140,8 +139,7 @@ namespace
     ProfFunctor(Measure pf, std::string& result)
       /*throw (eh::Exception)*/;
 
-    long long
-    operator () () /*throw (eh::Exception)*/;
+    long long operator () () /*throw (eh::Exception)*/;
   private:
     Measure measuring_functor_;
     std::string& result_;
@@ -154,15 +152,14 @@ namespace
     const char NAME[32];
   };
 
-  CountingTestCase counting_test_cases[] =
-  {
+  CountingTestCase counting_test_cases[] = {
     {&Test::get_octet_count_if, "get_octet_count_if"},
     {&Test::get_octet_count_inside_static, "get_octet_count_inside_static"},
     {&Test::get_octet_count_inside, "get_octet_count_inside"},
     {&Test::get_octet_count_outdoor, "get_octet_count_outdoor"},
   };
 
-  typedef void ElementalTestingFunction(std::string&);
+  using ElementalTestingFunction = void (std::string&);
 
   struct SingleTestCase
   {
@@ -170,7 +167,7 @@ namespace
     const char NAME[32];
   };
 
-  typedef bool IsFunction(const char* str);
+  using IsFunction = bool (const char* str);
 
   struct TestIsPropertyCases
   {
@@ -178,11 +175,9 @@ namespace
     const char  name[32];
   };
 
-  inline bool
-  empty(const char*) noexcept;
+  inline bool empty(const char*) noexcept;
 
-  TestIsPropertyCases test_is_property_cases[] =
-  {
+  TestIsPropertyCases test_is_property_cases[] = {
     {&empty, "empty"},
     {&String::is_digit, "is_digit"},
     {&String::is_letter, "is_letter"},
@@ -199,26 +194,22 @@ namespace
 using namespace String;
 
 template<typename Arg1, typename Arg2>
-void
-TestContext::test_equal(const Arg1& a, const Arg2& b) const
+void TestContext::test_equal(const Arg1& a, const Arg2& b) const
   /*throw (eh::Exception)*/
 {
   if (a != b)
   {
-    std::cerr << "Requirements fail on operation: "
-      << operation_ << ".\nInput source = " <<
+    std::cerr << "Requirements fail on operation: " << operation_ << ".\nInput source = " <<
       operand_ << "\nValue " << a << "!=" << b << std::endl;
   }
 }
 
-void
-TestContext::set_operation(const char* name) /*throw (eh::Exception)*/
+void TestContext::set_operation(const char* name) /*throw (eh::Exception)*/
 {
   operation_ = name;
 }
 
-void
-TestContext::set_operand(const char* source_string) /*throw (eh::Exception)*/
+void TestContext::set_operand(const char* source_string) /*throw (eh::Exception)*/
 {
   operand_ = source_string;
 }
@@ -228,16 +219,14 @@ TestContext::set_operand(const char* source_string) /*throw (eh::Exception)*/
  * each UTF8 sequence.
  */
 
-long long
-UTF8IsPropertyOnStringPerformance::operator () () const
+long long UTF8IsPropertyOnStringPerformance::operator () () const
   /*throw (eh::Exception)*/
 {
   Generics::CPUTimer tmr;
   tmr.start();
   for (std::size_t i = 0; i < RepetitionCount; ++i)
   {
-    for (const char* p = ORIGINAL_STRING_; *p;
-      p+=String::UTF8Handler::get_octet_count(*p))
+    for (const char* p = ORIGINAL_STRING_; *p; p+=String::UTF8Handler::get_octet_count(*p))
     {
       function_(p);
     }
@@ -259,24 +248,19 @@ UTF8IsPropertyOnStringPerformance::UTF8IsPropertyOnStringPerformance(
 
 namespace
 {
-  inline bool
-  empty(const char*) noexcept
+  inline bool empty(const char*) noexcept
   {
     return false;
   }
 }
 
-void
-is_property_performance_test() /*throw (eh::Exception)*/
+void is_property_performance_test() /*throw (eh::Exception)*/
 {
   double std_dev = 0.;
-  std::cout << "IsProperty evaluation parameters:"
-    << std::fixed << std::endl;
+  std::cout << "IsProperty evaluation parameters:" << std::fixed << std::endl;
   // Do rc - series and compute average and dispersion
   const std::size_t rc = 10;
-  for (std::size_t i = 0;
-       i < sizeof(TEXT_CORPUS) / sizeof(TEXT_CORPUS[0]);
-       ++i)
+  for (std::size_t i = 0; i < sizeof(TEXT_CORPUS) / sizeof(TEXT_CORPUS[0]); ++i)
   {
     std::cout << "Sample number " << i+1 << std::endl;
     for (std::size_t j = 0;
@@ -284,8 +268,7 @@ is_property_performance_test() /*throw (eh::Exception)*/
              sizeof(test_is_property_cases[0]);
          ++j)
     {
-      std::cout << '\t' << test_is_property_cases[j].name << '='
-        << Test::acc_avg(rc,
+      std::cout << '\t' << test_is_property_cases[j].name << '=' << Test::acc_avg(rc,
           UTF8IsPropertyOnStringPerformance(TEXT_CORPUS[i],
             test_is_property_cases[j].checking_call),
           std_dev);
@@ -300,36 +283,31 @@ is_property_performance_test() /*throw (eh::Exception)*/
 // All methods must initialize input per each call.
 //////////////////////////////////////////////////////////////////////////
 
-void
-new_copy_to_Lower(std::string &result) /*throw (eh::Exception)*/
+void new_copy_to_Lower(std::string &result) /*throw (eh::Exception)*/
 {
   sstr = str;
   case_change<Lower>(sstr, result);
 }
 
-void
-new_copy_to_Upper(std::string &result) /*throw (eh::Exception)*/
+void new_copy_to_Upper(std::string &result) /*throw (eh::Exception)*/
 {
   sstr = str;
   case_change<Upper>(sstr, result);
 }
 
-void
-new_copy_to_Uniform(std::string &result) /*throw (eh::Exception)*/
+void new_copy_to_Uniform(std::string &result) /*throw (eh::Exception)*/
 {
   sstr = str;
   case_change<Uniform>(sstr, result);
 }
 
-void
-new_copy_to_Simplify(std::string &result) /*throw (eh::Exception)*/
+void new_copy_to_Simplify(std::string &result) /*throw (eh::Exception)*/
 {
   sstr = str;
   case_change<Simplify>(sstr, result);
 }
 
-SingleTestCase single_test_cases[] =
-{
+SingleTestCase single_test_cases[] = {
   {&new_copy_to_Lower, "new_copy_to_Lower"},
   {&new_copy_to_Uniform, "new_copy_to_Uniform"},
   // reset previous result, because lower functions != upper functions.
@@ -346,8 +324,7 @@ ProfFunctor::ProfFunctor(Measure pf, std::string& result)
 {
 }
 
-long long
-ProfFunctor::operator()() /*throw (eh::Exception)*/
+long long ProfFunctor::operator()() /*throw (eh::Exception)*/
 {
   timer_.start();
   for (std::size_t i = 0; i < RepetitionCount; ++i)
@@ -358,8 +335,7 @@ ProfFunctor::operator()() /*throw (eh::Exception)*/
   return timer_.elapsed_time().microseconds();
 }
 
-void
-single_performance_test() /*throw (eh::Exception)*/
+void single_performance_test() /*throw (eh::Exception)*/
 {
   double std_dev = 0.;
   std::string result;
@@ -368,23 +344,18 @@ single_performance_test() /*throw (eh::Exception)*/
   // Do rc - series and compute average and dispersion
   const std::size_t rc = 10;
   std::string prev_result;
-  for (std::size_t i = 0;
-       i < sizeof(TEXT_CORPUS) / sizeof(TEXT_CORPUS[0]);
-       ++i)
+  for (std::size_t i = 0; i < sizeof(TEXT_CORPUS) / sizeof(TEXT_CORPUS[0]); ++i)
   {
     std::cout << "Process text from corpus number " << i+1 << std::endl;
     str = TEXT_CORPUS[i];
     test_context.set_operand(TEXT_CORPUS[i]);
 
-    for (std::size_t j = 0;
-         j < sizeof(single_test_cases) / sizeof(single_test_cases[0]);
-         ++j)
+    for (std::size_t j = 0; j < sizeof(single_test_cases) / sizeof(single_test_cases[0]); ++j)
     {
       test_context.set_operation(single_test_cases[j].NAME);
       std::cout << std::fixed << std::showpoint << std::setprecision(2);
       std::cout << '\t' << single_test_cases[j].NAME << '='
-        << Test::acc_avg(rc, ProfFunctor(
-        single_test_cases[j].checking_call, result), std_dev);
+        << Test::acc_avg(rc, ProfFunctor( single_test_cases[j].checking_call, result), std_dev);
       std::cout << " Standard deviation=" << std_dev << std::endl;
 #if 0
       if (prev_result.empty())
@@ -396,6 +367,7 @@ single_performance_test() /*throw (eh::Exception)*/
         test_context.test_equal(prev_result, result);
         prev_result = result;
       }
+
       if (j == 5)
       {
         // and next we want test to_lower methods and clear previous
@@ -411,60 +383,48 @@ single_performance_test() /*throw (eh::Exception)*/
 //////////////////////////////////////////////////////////////////////////
 // Arrays versus if
 
-long long
-CountingPerformanceFunctor::operator () () const
+long long CountingPerformanceFunctor::operator () () const
   /*throw (eh::Exception)*/
 {
   Generics::CPUTimer tmr;
   tmr.start();
   for (std::size_t i = 0; i < RepetitionCount; ++i)
   {
-    for (std::string::const_iterator it(sstr.begin()); it != sstr.end();
-      it+=function_(*it));
+    for (std::string::const_iterator it(sstr.begin()); it != sstr.end(); it+=function_(*it));
   }
   tmr.stop();
   return tmr.elapsed_time().microseconds();
 }
 
-CountingPerformanceFunctor::CountingPerformanceFunctor(
-  CountingFunction f) noexcept
+CountingPerformanceFunctor::CountingPerformanceFunctor( CountingFunction f) noexcept
   : function_(f)
 {
 }
 
-void
-test_octets_counting() /*throw (eh::Exception)*/
+void test_octets_counting() /*throw (eh::Exception)*/
 {
   using namespace Test;
   const std::size_t rc=10;
   double std_dev = 0.;
 
-  for (std::size_t i = 0;
-       i < sizeof(counting_test_cases) / sizeof(counting_test_cases[0]);
-       ++i)
+  for (std::size_t i = 0; i < sizeof(counting_test_cases) / sizeof(counting_test_cases[0]); ++i)
   {
     std::cout << '\t' << counting_test_cases[i].NAME << '='
-    << acc_avg(rc,
-         CountingPerformanceFunctor(counting_test_cases[i].checking_call),
-         std_dev);
+    << acc_avg(rc, CountingPerformanceFunctor(counting_test_cases[i].checking_call), std_dev);
     std::cout << " Standard deviation=" << std_dev << std::endl;
   }
 }
 
-void
-performance_arrays_test() /*throw (eh::Exception)*/
+void performance_arrays_test() /*throw (eh::Exception)*/
 {
   std::cout << "If versus Arrays testing..." << std::endl;
   std::cout << "get_octets performance for ASCII input:" << std::endl;
   sstr = ascii;   test_octets_counting();
-  std::cout << "get_octets performance for 2-bytes octets input:"
-    << std::endl;
+  std::cout << "get_octets performance for 2-bytes octets input:" << std::endl;
   sstr = utf8_2bytes;  test_octets_counting();
-  std::cout << "get_octets performance for 3-bytes octets input:"
-    << std::endl;
+  std::cout << "get_octets performance for 3-bytes octets input:" << std::endl;
   sstr = utf8_3bytes;  test_octets_counting();
-  std::cout << "get_octets performance for multilingual octets input:"
-    << std::endl;
+  std::cout << "get_octets performance for multilingual octets input:" << std::endl;
   sstr = ut8_multilang;  test_octets_counting();
 }
 
@@ -475,11 +435,9 @@ performance_arrays_test() /*throw (eh::Exception)*/
 //////////////////////////////////////////////////////////////////////////
 // Special feature for command line interception.
 //
-int
-main(int argc, char *argv[] )
+int main(int argc, char *argv[] )
 {
-  std::cout << "UTF-8 API performance test started..."
-    << std::endl;
+  std::cout << "UTF-8 API performance test started..." << std::endl;
   try
   {
     if (argc > 1)

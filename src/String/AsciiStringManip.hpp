@@ -11,459 +11,400 @@
 
 #include <String/SubString.hpp>
 
-//#define CHAR_MIN 
+//#define CHAR_MIN
 
-namespace String
+/**
+ * Contain routines that manipulate only with ASCII encoded data.
+ * Bytes range in 0-127.
+ */
+namespace String::AsciiStringManip
 {
+  extern const char HEX_DIGITS[]; // = "0123456789ABCDEF";
+
   /**
-   * Contain routines that manipulate only with ASCII encoded data.
-   * Bytes range in 0-127.
+   * these functions don't use stdlib codepage and
+   * affect only for (0-127) chars.
    */
-  namespace AsciiStringManip
+  char to_lower(char ch) noexcept __attribute__((always_inline));
+
+  char to_upper(char ch) noexcept __attribute__((always_inline));
+
+  void to_lower(std::string& dest) noexcept __attribute__((always_inline));
+
+  void to_upper(std::string& dest) noexcept __attribute__((always_inline));
+
+  template <typename Iterator>
+  void to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
+    __attribute__((always_inline));
+
+  template <typename Iterator>
+  void to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
+    __attribute__((always_inline));
+
+  namespace Category
   {
-    extern const char HEX_DIGITS[]; // = "0123456789ABCDEF";
-
     /**
-     * these functions don't use stdlib codepage and
-     * affect only for (0-127) chars.
+     * Category inherits a predicate and allows to search strings
+     * for belong/nonbelong chars
      */
-    char
-    to_lower(char ch) noexcept
-      __attribute__((always_inline));
-
-    char
-    to_upper(char ch) noexcept
-      __attribute__((always_inline));
-
-    void
-    to_lower(std::string& dest) noexcept
-      __attribute__((always_inline));
-
-    void
-    to_upper(std::string& dest) noexcept
-      __attribute__((always_inline));
-
-    template <typename Iterator>
-    void
-    to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
-      __attribute__((always_inline));
-
-    template <typename Iterator>
-    void
-    to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
-      __attribute__((always_inline));
-
-    namespace Category
-    {
-      /**
-       * Category inherits a predicate and allows to search strings
-       * for belong/nonbelong chars
-       */
-      template <typename Predicate>
-      struct Category :
-        public std::unary_function<char, bool>,
-        public Predicate
-      {
-      public:
-        /**
-         * Constructor
-         * Calls default constructor of Predicate
-         */
-        Category() /*throw (eh::Exception)*/;
-
-        /**
-         * Constructor
-         * Calls constructor of Predicate with data
-         * @param data data for constructor of Predicate
-         */
-        template <typename... T>
-        explicit
-        Category(T... data) /*throw (eh::Exception)*/;
-
-        /**
-         * Checks if character is in the set
-         * @param ch character to test
-         * @return Presence of the character in the set
-         */
-        bool
-        is_owned(char ch) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Checks category for emptiness
-         * @return true if category has no symbol inside
-         */
-        bool
-        empty() const noexcept;
-
-        /**
-         * Finds the first character in the string which belongs to the set
-         * @param str the string to search in
-         * @return Pointer to found character or NULL if none
-         */
-        const char*
-        find_owned(const char* str) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Finds the first character in the string which belongs to the set
-         * @param begin beginning of the string to search in
-         * @param end end of the string to search in
-         * @param octets_length used for storing length of symbol in octets
-         * @return Pointer to found character or end if none
-         */
-        const char*
-        find_owned(const char* begin, const char* end,
-          unsigned long* octets_length = 0) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Finds the first character in the string which doesn't belong
-         * to the set
-         * @param str the string to search in
-         * @return Pointer to found character or NULL if none
-         */
-        const char*
-        find_nonowned(const char* str) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Finds the first character in the string which does not belong
-         * to the set
-         * @param begin beginning of the string to search in
-         * @param end end of the string to search in
-         * @return Pointer to found character or end if none
-         */
-        const char*
-        find_nonowned(const char* begin, const char* end) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Finds the last character in the string which belongs to the set
-         * @param pos The pointer to char beyond the string to search in
-         * @param start The pointer to begin of the string to search in.
-         * Interval [start, pos) will be looked in.
-         * @return Pointer to found character or original value of pos if
-         * none.
-         */
-        const char*
-        rfind_owned(const char* pos, const char* start) const noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Finds the last character in the string which does not belong
-         * to the set
-         * @param pos The pointer to char beyond  the string to search in
-         * @param start The pointer to begin of the string to search in.
-         * Interval [start, pos) will be looked in.
-         * @return Pointer to found character or original value of pos if
-         * none.
-         */
-        const char*
-        rfind_nonowned(const char* pos, const char* start) const noexcept
-          __attribute__((always_inline));
-      };
-
-      /**
-       * Predicate for Category
-       * Contains a table of symbols inside
-       */
-      class CharTable
-      {
-      public:
-        /**
-         * Default constructor.
-         * Does not initialize the object.
-         */
-        CharTable()
-          noexcept
-          __attribute__((always_inline));
-
-        /**
-         * Constructor
-         * @param str List of characters in the set. '-' may be used for
-         * ranges. To specify dash character it should be the first or the
-         * last in the passed string or within a range
-         * @param check_zero If nul character should be included in the set
-         */
-        explicit
-        CharTable(const char* str, bool check_zero = false)
-          noexcept;
-
-        /**
-         * Constructor
-         * Created object is a union of passed ones
-         * @param first first object to unite
-         * @param second second object to unite
-         */
-        CharTable(const CharTable& first, const CharTable& second)
-          noexcept;
-
-        /**
-         * Constructor
-         * Created object is a union of passed ones
-         * @param first first object to unite
-         * @param second second object to unite
-         * @param third third object to unite
-         */
-        CharTable(const CharTable& first, const CharTable& second,
-          const CharTable& third)
-          noexcept;
-
-        /**
-         * Constructor
-         * Created object is a predicate result
-         * @param predicate predicate for initialization
-         */
-        template <typename Predicate>
-        explicit
-        CharTable(Predicate predicate) noexcept;
-
-        bool
-        operator ()(char ch) const noexcept
-          __attribute__((always_inline));
-
-      private:
-        bool table_[256];
-      };
-
-      /**
-       * Predicate for Category
-       * Checks the one symbol
-       */
-      template <const char SYMBOL>
-      struct Char1
-      {
-        /**
-         * Checks if ch equals to SYMBOL
-         * @return if ch equals to SYMBOL
-         */
-        bool
-        operator ()(char ch) const noexcept
-          __attribute__((always_inline));
-      };
-
-      /**
-       * Predicate for Category
-       * Checks the two symbols
-       */
-      template <const char SYMBOL1, const char SYMBOL2>
-      struct Char2
-      {
-        /**
-         * Checks if ch equals to SYMBOL1 or SYMBOL2
-         * @return if ch equals to SYMBOL1 or SYMBOL2
-         */
-        bool
-        operator ()(char ch) const noexcept
-          __attribute__((always_inline));
-      };
-
-      /**
-       * Predicate for Category
-       * Checks the three symbols
-       */
-      template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
-      struct Char3
-      {
-        /**
-         * Checks if ch equals to SYMBOL1, SYMBOL2 or SYMBOL3
-         * @return if ch equals to SYMBOL1, SYMBOL2 or SYMBOL3
-         */
-        bool
-        operator ()(char ch) const noexcept
-          __attribute__((always_inline));
-      };
-    }
-
-    // Quick access classes for different Categories
-    typedef Category::Category<Category::CharTable> CharCategory;
-    template <const char SYMBOL>
-    struct Char1Category: public Category::Category<Category::Char1<SYMBOL> >
-    {};
-
-    template <>
-    struct Char1Category<'\t'>: public Category::Category<Category::Char1<'\t'> >
-    {
-      using Base = String::AsciiStringManip::Category::Category<
-        String::AsciiStringManip::Category::Char1<'\t'> >;
-      using Base::find_owned;
-
-      const char*
-      find_owned(
-        const char* begin,
-        const char* end,
-        unsigned long* octets_length = 0) const noexcept
-      {
-        const char* result = static_cast<const char*>(memchr(begin, '\t', end - begin));
-        if (!result)
-        {
-          return end;
-        }
-
-        if (octets_length)
-        {
-          *octets_length = 1;
-        }
-        return result;
-      }
-    };
-
-    template <const char SYMBOL1, const char SYMBOL2>
-    struct Char2Category :
-      public Category::Category<Category::Char2<SYMBOL1, SYMBOL2> >
-    {};
-
-    template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
-    struct Char3Category :
-      public Category::Category<Category::Char3<SYMBOL1, SYMBOL2, SYMBOL3> >
-    {};
-
-    /// Small and capital Latin letters.
-    extern const CharCategory ALPHA;
-    /// Arabic numerals
-    extern const CharCategory NUMBER;
-    /// Arabic numerals and Latin letters
-    extern const CharCategory ALPHA_NUM;
-    /// Numerals used in octal notation
-    extern const CharCategory OCTAL_NUMBER;
-    /// Numerals and letters used in hexadecimal notation
-    extern const CharCategory HEX_NUMBER;
-    /// Space characters
-    extern const CharCategory SPACE;
-    /// Symbols are used in regular expressions.
-    extern const CharCategory REGEX_META;
-
-    typedef const Char1Category<':'> SepColon;
-    typedef const Char1Category<','> SepComma;
-    typedef const Char1Category<'.'> SepPeriod;
-    typedef const Char1Category<'-'> SepMinus;
-    typedef const Char1Category<';'> SepSemCol;
-    typedef const Char1Category<'&'> SepAmp;
-    typedef const Char1Category<' '> SepSpace;
-    typedef const Char1Category<'='> SepEq;
-    typedef const Char1Category<'/'> SepSlash;
-    typedef const Char1Category<'#'> SepHash;
-    typedef const Char1Category<'|'> SepBar;
-    typedef const Char1Category<'\n'> SepNL;
-    typedef const Char1Category<'\t'> SepTab;
-    typedef const Char1Category<'_'> SepUnderscore;
-
-    /**
-     * Finds and replaces all sequences of chars from CharCategory
-     * to replace string.
-     * @param dest result put here.
-     * @param str source string
-     * @param replacement string that replace sequences of.
-     * @param to_replace all sequences of chars from this category, will
-     * be replaced by replace.
-     */
-    void
-    flatten(std::string& dest, const String::SubString& str,
-      const SubString& replacement = SubString(" ", 1),
-      const CharCategory& to_replace = SPACE)
-      /*throw (eh::Exception)*/;
-
-    /**
-     * Helper object to compare ASCII strings caselessly.
-     */
-    struct Caseless
+    template <typename Predicate>
+    struct Category :
+      public std::unary_function<char, bool>,
+      public Predicate
     {
     public:
       /**
-       * Constructor.
-       * Calls strlen().
-       * @param str string to store for comparison
+       * Constructor
+       * Calls default constructor of Predicate
        */
-      explicit
-      Caseless(const char* str) noexcept;
+      Category() /*throw (eh::Exception)*/;
+
       /**
        * Constructor
-       * @param str string to store for comparison
+       * Calls constructor of Predicate with data
+       * @param data data for constructor of Predicate
        */
-      explicit
-      Caseless(const SubString& str) noexcept;
+      template <typename... T>
+      explicit Category(T... data) /*throw (eh::Exception)*/;
 
       /**
-       * Compares the stored string with the given one.
-       * @param str string to compare with
-       * @return return an integer less than, equal to,
-       * or greater than zero, if the stored string is found,
-       * respectively, to be less than, to match, or be
-       * greater than str
+       * Checks if character is in the set
+       * @param ch character to test
+       * @return Presence of the character in the set
        */
-      int
-      compare(const SubString& str) const noexcept;
+      bool is_owned(char ch) const noexcept __attribute__((always_inline));
 
       /**
-       * Checks SubStrings on equality ignoring letters case.
-       * @param str string to compare with
-       * @return true if lengths of string are equal and
-       * the content of stored string equals to str
-       * ignoring case, false if not.
+       * Checks category for emptiness
+       * @return true if category has no symbol inside
        */
-      bool
-      equal(const SubString& str) const noexcept;
+      bool empty() const noexcept;
 
       /**
-       * Checks if str begins from the stored string.
-       * @param str string to check
-       * @return true if str size is not less than the stored string
-       * size and those first letters are equal ignoring case.
+       * Finds the first character in the string which belongs to the set
+       * @param str the string to search in
+       * @return Pointer to found character or NULL if none
        */
-      bool
-      start(const SubString& str) const noexcept;
+      const char* find_owned(const char* str) const noexcept __attribute__((always_inline));
 
-      SubString str;
+      /**
+       * Finds the first character in the string which belongs to the set
+       * @param begin beginning of the string to search in
+       * @param end end of the string to search in
+       * @param octets_length used for storing length of symbol in octets
+       * @return Pointer to found character or end if none
+       */
+      const char*
+      find_owned(const char* begin, const char* end,
+        unsigned long* octets_length = 0) const noexcept
+        __attribute__((always_inline));
+
+      /**
+       * Finds the first character in the string which doesn't belong
+       * to the set
+       * @param str the string to search in
+       * @return Pointer to found character or NULL if none
+       */
+      const char* find_nonowned(const char* str) const noexcept __attribute__((always_inline));
+
+      /**
+       * Finds the first character in the string which does not belong
+       * to the set
+       * @param begin beginning of the string to search in
+       * @param end end of the string to search in
+       * @return Pointer to found character or end if none
+       */
+      const char* find_nonowned(const char* begin, const char* end) const noexcept
+        __attribute__((always_inline));
+
+      /**
+       * Finds the last character in the string which belongs to the set
+       * @param pos The pointer to char beyond the string to search in
+       * @param start The pointer to begin of the string to search in.
+       * Interval [start, pos) will be looked in.
+       * @return Pointer to found character or original value of pos if
+       * none.
+       */
+      const char* rfind_owned(const char* pos, const char* start) const noexcept
+        __attribute__((always_inline));
+
+      /**
+       * Finds the last character in the string which does not belong
+       * to the set
+       * @param pos The pointer to char beyond  the string to search in
+       * @param start The pointer to begin of the string to search in.
+       * Interval [start, pos) will be looked in.
+       * @return Pointer to found character or original value of pos if
+       * none.
+       */
+      const char* rfind_nonowned(const char* pos, const char* start) const noexcept
+        __attribute__((always_inline));
     };
 
     /**
-     * Converts unsigned char to char
-     * @param ch unsigned char value
-     * @return the corresponding char value
+     * Predicate for Category
+     * Contains a table of symbols inside
      */
-    char
-    convert(unsigned char ch) noexcept
-      __attribute__((always_inline));
+    class CharTable
+    {
+    public:
+      /**
+       * Default constructor.
+       * Does not initialize the object.
+       */
+      CharTable() noexcept __attribute__((always_inline));
+
+      /**
+       * Constructor
+       * @param str List of characters in the set. '-' may be used for
+       * ranges. To specify dash character it should be the first or the
+       * last in the passed string or within a range
+       * @param check_zero If nul character should be included in the set
+       */
+      explicit CharTable(const char* str, bool check_zero = false) noexcept;
+
+      /**
+       * Constructor
+       * Created object is a union of passed ones
+       * @param first first object to unite
+       * @param second second object to unite
+       */
+      CharTable(const CharTable& first, const CharTable& second) noexcept;
+
+      /**
+       * Constructor
+       * Created object is a union of passed ones
+       * @param first first object to unite
+       * @param second second object to unite
+       * @param third third object to unite
+       */
+      CharTable(const CharTable& first, const CharTable& second, const CharTable& third) noexcept;
+
+      /**
+       * Constructor
+       * Created object is a predicate result
+       * @param predicate predicate for initialization
+       */
+      template <typename Predicate>
+      explicit CharTable(Predicate predicate) noexcept;
+
+      bool operator ()(char ch) const noexcept __attribute__((always_inline));
+
+    private:
+      bool table_[256];
+    };
 
     /**
-     * Converts [0-9a-fA-F] to the corresponding numeric value
-     * @param ch hex digit
-     * @return corresponding number
+     * Predicate for Category
+     * Checks the one symbol
      */
-    unsigned char
-    hex_to_int(char ch) noexcept
-      __attribute__((always_inline));
+    template <const char SYMBOL>
+    struct Char1
+    {
+      /**
+       * Checks if ch equals to SYMBOL
+       * @return if ch equals to SYMBOL
+       */
+      bool operator ()(char ch) const noexcept __attribute__((always_inline));
+    };
 
     /**
-     * Converts to hex digits in char
-     * @param major major hex digit
-     * @param minor minor hex digit
-     * @return corresponding char value
+     * Predicate for Category
+     * Checks the two symbols
      */
-    char
-    hex_to_char(char major, char minor) noexcept
-      __attribute__((always_inline));
+    template <const char SYMBOL1, const char SYMBOL2>
+    struct Char2
+    {
+      /**
+       * Checks if ch equals to SYMBOL1 or SYMBOL2
+       * @return if ch equals to SYMBOL1 or SYMBOL2
+       */
+      bool operator ()(char ch) const noexcept __attribute__((always_inline));
+    };
 
     /**
-     * Converts sizeof(Integer) * 2 hex digits into integer
-     * @param data hex digits
-     * @param value corresponding value
+     * Predicate for Category
+     * Checks the three symbols
      */
-    template <typename Integer>
-    void
-    hex_to_integer(const char* data, Integer& value) noexcept
-      __attribute__((always_inline));
-
-    /**
-     * Converts hex string into data
-     * @param data hex string
-     * @param buf resulted data
-     */
-    void
-    hex_to_buf(const SubString& data, char* buf) noexcept
-      __attribute__((always_inline));
+    template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
+    struct Char3
+    {
+      /**
+       * Checks if ch equals to SYMBOL1, SYMBOL2 or SYMBOL3
+       * @return if ch equals to SYMBOL1, SYMBOL2 or SYMBOL3
+       */
+      bool operator ()(char ch) const noexcept __attribute__((always_inline));
+    };
   }
+
+  // Quick access classes for different Categories
+  using CharCategory = Category::Category<Category::CharTable>;
+  template <const char SYMBOL>
+  struct Char1Category: public Category::Category<Category::Char1<SYMBOL> >
+  {};
+
+  template <>
+  struct Char1Category<'\t'>: public Category::Category<Category::Char1<'\t'> >
+  {
+    using Base = String::AsciiStringManip::Category::Category<
+      String::AsciiStringManip::Category::Char1<'\t'> >;
+    using Base::find_owned;
+
+    const char*
+    find_owned( const char* begin, const char* end, unsigned long* octets_length = 0) const noexcept
+    {
+      const char* result = static_cast<const char*>(memchr(begin, '\t', end - begin));
+      if (!result)
+      {
+        return end;
+      }
+
+      if (octets_length)
+      {
+        *octets_length = 1;
+      }
+      return result;
+    }
+  };
+
+  template <const char SYMBOL1, const char SYMBOL2>
+  struct Char2Category :
+    public Category::Category<Category::Char2<SYMBOL1, SYMBOL2> >
+  {};
+
+  template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
+  struct Char3Category :
+    public Category::Category<Category::Char3<SYMBOL1, SYMBOL2, SYMBOL3> >
+  {};
+
+  /// Small and capital Latin letters.
+  extern const CharCategory ALPHA;
+  /// Arabic numerals
+  extern const CharCategory NUMBER;
+  /// Arabic numerals and Latin letters
+  extern const CharCategory ALPHA_NUM;
+  /// Numerals used in octal notation
+  extern const CharCategory OCTAL_NUMBER;
+  /// Numerals and letters used in hexadecimal notation
+  extern const CharCategory HEX_NUMBER;
+  /// Space characters
+  extern const CharCategory SPACE;
+  /// Symbols are used in regular expressions.
+  extern const CharCategory REGEX_META;
+
+  using SepColon = const Char1Category<':'>;
+  using SepComma = const Char1Category<','>;
+  using SepPeriod = const Char1Category<'.'>;
+  using SepMinus = const Char1Category<'-'>;
+  using SepSemCol = const Char1Category<';'>;
+  using SepAmp = const Char1Category<'&'>;
+  using SepSpace = const Char1Category<' '>;
+  using SepEq = const Char1Category<'='>;
+  using SepSlash = const Char1Category<'/'>;
+  using SepHash = const Char1Category<'#'>;
+  using SepBar = const Char1Category<'|'>;
+  using SepNL = const Char1Category<'\n'>;
+  using SepTab = const Char1Category<'\t'>;
+  using SepUnderscore = const Char1Category<'_'>;
+
+  /**
+   * Finds and replaces all sequences of chars from CharCategory
+   * to replace string.
+   * @param dest result put here.
+   * @param str source string
+   * @param replacement string that replace sequences of.
+   * @param to_replace all sequences of chars from this category, will
+   * be replaced by replace.
+   */
+  void
+  flatten(std::string& dest, const String::SubString& str,
+    const SubString& replacement = SubString(" ", 1), const CharCategory& to_replace = SPACE)
+    /*throw (eh::Exception)*/;
+
+  /**
+   * Helper object to compare ASCII strings caselessly.
+   */
+  struct Caseless
+  {
+  public:
+    /**
+     * Constructor.
+     * Calls strlen().
+     * @param str string to store for comparison
+     */
+    explicit Caseless(const char* str) noexcept;
+    /**
+     * Constructor
+     * @param str string to store for comparison
+     */
+    explicit Caseless(const SubString& str) noexcept;
+
+    /**
+     * Compares the stored string with the given one.
+     * @param str string to compare with
+     * @return return an integer less than, equal to,
+     * or greater than zero, if the stored string is found,
+     * respectively, to be less than, to match, or be
+     * greater than str
+     */
+    int compare(const SubString& str) const noexcept;
+
+    /**
+     * Checks SubStrings on equality ignoring letters case.
+     * @param str string to compare with
+     * @return true if lengths of string are equal and
+     * the content of stored string equals to str
+     * ignoring case, false if not.
+     */
+    bool equal(const SubString& str) const noexcept;
+
+    /**
+     * Checks if str begins from the stored string.
+     * @param str string to check
+     * @return true if str size is not less than the stored string
+     * size and those first letters are equal ignoring case.
+     */
+    bool start(const SubString& str) const noexcept;
+
+    SubString str;
+  };
+
+  /**
+   * Converts unsigned char to char
+   * @param ch unsigned char value
+   * @return the corresponding char value
+   */
+  char convert(unsigned char ch) noexcept __attribute__((always_inline));
+
+  /**
+   * Converts [0-9a-fA-F] to the corresponding numeric value
+   * @param ch hex digit
+   * @return corresponding number
+   */
+  unsigned char hex_to_int(char ch) noexcept __attribute__((always_inline));
+
+  /**
+   * Converts to hex digits in char
+   * @param major major hex digit
+   * @param minor minor hex digit
+   * @return corresponding char value
+   */
+  char hex_to_char(char major, char minor) noexcept __attribute__((always_inline));
+
+  /**
+   * Converts sizeof(Integer) * 2 hex digits into integer
+   * @param data hex digits
+   * @param value corresponding value
+   */
+  template <typename Integer>
+  void hex_to_integer(const char* data, Integer& value) noexcept __attribute__((always_inline));
+
+  /**
+   * Converts hex string into data
+   * @param data hex string
+   * @param buf resulted data
+   */
+  void hex_to_buf(const SubString& data, char* buf) noexcept __attribute__((always_inline));
 }
 
 namespace String::AsciiStringManip
@@ -492,8 +433,7 @@ namespace String::AsciiStringManip
     char* out = &dest[0];
     const char* current;
 
-    for (const char* first = str.begin(), * const LAST = str.end();
-      first != LAST;)
+    for (const char* first = str.begin(), * const LAST = str.end(); first != LAST;)
     {
       current = to_replace.find_owned(first, LAST);
       // last if haven't spaces
@@ -510,24 +450,18 @@ namespace String::AsciiStringManip
     dest.resize(out - &dest[0]);
   }
 
-  inline
-  char
-  to_lower(char ch) noexcept
+  inline char to_lower(char ch) noexcept
   {
     return Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(ch)];
   }
 
-  inline
-  char
-  to_upper(char ch) noexcept
+  inline char to_upper(char ch) noexcept
   {
     return Tables::ASCII_TOUPPER_TABLE[static_cast<uint8_t>(ch)];
   }
 
   template <typename Iterator>
-  inline
-  void
-  to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
+  inline void to_lower(Iterator first, Iterator last) /*throw (eh::Exception)*/
   {
     for (; first != last; ++first)
     {
@@ -537,9 +471,7 @@ namespace String::AsciiStringManip
   }
 
   template <typename Iterator>
-  inline
-  void
-  to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
+  inline void to_upper(Iterator first, Iterator last) /*throw (eh::Exception)*/
   {
     for (; first != last; ++first)
     {
@@ -548,9 +480,7 @@ namespace String::AsciiStringManip
     }
   }
 
-  inline
-  void
-  to_lower(std::string& dest) noexcept
+  inline void to_lower(std::string& dest) noexcept
   {
     if (!dest.empty())
     {
@@ -559,9 +489,7 @@ namespace String::AsciiStringManip
     }
   }
 
-  inline
-  void
-  to_upper(std::string& dest) noexcept
+  inline void to_upper(std::string& dest) noexcept
   {
     if (!dest.empty())
     {
@@ -570,21 +498,17 @@ namespace String::AsciiStringManip
     }
   }
 
-  inline
-  Caseless::Caseless(const char* str) noexcept
+  inline Caseless::Caseless(const char* str) noexcept
     : str(str)
   {
   }
 
-  inline
-  Caseless::Caseless(const SubString& str) noexcept
+  inline Caseless::Caseless(const SubString& str) noexcept
     : str(str)
   {
   }
 
-  inline
-  int
-  Caseless::compare(const SubString& str) const noexcept
+  inline int Caseless::compare(const SubString& str) const noexcept
   {
     const char* str1 = this->str.data();
     const char* str2 = str.data();
@@ -595,8 +519,7 @@ namespace String::AsciiStringManip
     {
       while (len--)
       {
-        int result = static_cast<int>(Tables::ASCII_TOLOWER_TABLE[
-          static_cast<uint8_t>(*str1++)]) -
+        int result = static_cast<int>(Tables::ASCII_TOLOWER_TABLE[ static_cast<uint8_t>(*str1++)]) -
           Tables::ASCII_TOLOWER_TABLE[static_cast<uint8_t>(*str2++)];
         if (result)
         {
@@ -608,9 +531,7 @@ namespace String::AsciiStringManip
     return len1 != len2 ? len1 < len2 ? -1 : 1 : 0;
   }
 
-  inline
-  bool
-  Caseless::equal(const SubString& str) const noexcept
+  inline bool Caseless::equal(const SubString& str) const noexcept
   {
     const char* str1 = str.data();
     const char* str2 = this->str.data();
@@ -619,6 +540,7 @@ namespace String::AsciiStringManip
     {
       return false;
     }
+
     if (str1 == str2 || !len)
     {
       return true;
@@ -636,41 +558,27 @@ namespace String::AsciiStringManip
     return false;
   }
 
-  inline
-  bool
-  Caseless::start(const SubString& str) const noexcept
+  inline bool Caseless::start(const SubString& str) const noexcept
   {
     return equal(str.substr(0, this->str.size()));
   }
 
-  inline
-  bool
-  operator ==(const SubString& str, const Caseless& cl)
-    noexcept
+  inline bool operator ==(const SubString& str, const Caseless& cl) noexcept
   {
     return cl.equal(str);
   }
 
-  inline
-  bool
-  operator ==(const Caseless& cl, const SubString& str)
-    noexcept
+  inline bool operator ==(const Caseless& cl, const SubString& str) noexcept
   {
     return str == cl;
   }
 
-  inline
-  bool
-  operator !=(const SubString& str, const Caseless& cl)
-    noexcept
+  inline bool operator !=(const SubString& str, const Caseless& cl) noexcept
   {
     return !(str == cl);
   }
 
-  inline
-  bool
-  operator !=(const Caseless& cl, const SubString& str)
-    noexcept
+  inline bool operator !=(const Caseless& cl, const SubString& str) noexcept
   {
     return str != cl;
   }
@@ -694,16 +602,13 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    bool
-    Category<Predicate>::is_owned(char ch) const noexcept
+    inline bool Category<Predicate>::is_owned(char ch) const noexcept
     {
       return Predicate::operator ()(ch);
     }
 
     template <typename Predicate>
-    bool
-    Category<Predicate>::empty() const noexcept
+    bool Category<Predicate>::empty() const noexcept
     {
       for (char ch = std::numeric_limits<char>::min(); ; ch++)
       {
@@ -711,6 +616,7 @@ namespace String::AsciiStringManip
         {
           return false;
         }
+
         if (ch == std::numeric_limits<char>::max())
         {
           break;
@@ -720,9 +626,7 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    const char*
-    Category<Predicate>::find_owned(const char* str) const noexcept
+    inline const char* Category<Predicate>::find_owned(const char* str) const noexcept
     {
       for (char ch; (ch = *str) != '\0'; str++)
       {
@@ -756,10 +660,7 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    const char*
-    Category<Predicate>::find_nonowned(const char* str) const
-      noexcept
+    inline const char* Category<Predicate>::find_nonowned(const char* str) const noexcept
     {
       for (char ch; (ch = *str) != '\0'; str++)
       {
@@ -772,10 +673,7 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    const char*
-    Category<Predicate>::find_nonowned(const char* str,
-      const char* end) const
+    inline const char* Category<Predicate>::find_nonowned(const char* str, const char* end) const
       noexcept
     {
       for (; str != end; ++str)
@@ -789,10 +687,7 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    const char*
-    Category<Predicate>::rfind_owned(const char* pos,
-      const char* start) const
+    inline const char* Category<Predicate>::rfind_owned(const char* pos, const char* start) const
       noexcept
     {
       const char* const NOT_FOUND = pos;
@@ -807,10 +702,7 @@ namespace String::AsciiStringManip
     }
 
     template <typename Predicate>
-    inline
-    const char*
-    Category<Predicate>::rfind_nonowned(const char* pos,
-      const char* start) const
+    inline const char* Category<Predicate>::rfind_nonowned(const char* pos, const char* start) const
       noexcept
     {
       const char* const NOT_FOUND = pos;
@@ -829,8 +721,7 @@ namespace String::AsciiStringManip
     // CharTable class
     //
 
-    inline
-    CharTable::CharTable() noexcept
+    inline CharTable::CharTable() noexcept
     {
     }
 
@@ -843,9 +734,7 @@ namespace String::AsciiStringManip
       }
     }
 
-    inline
-    bool
-    CharTable::operator ()(char ch) const noexcept
+    inline bool CharTable::operator ()(char ch) const noexcept
     {
       return table_[static_cast<uint8_t>(ch)];
     }
@@ -856,9 +745,7 @@ namespace String::AsciiStringManip
     //
 
     template <const char SYMBOL>
-    inline
-    bool
-    Char1<SYMBOL>::operator ()(char ch) const noexcept
+    inline bool Char1<SYMBOL>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL;
     }
@@ -869,9 +756,7 @@ namespace String::AsciiStringManip
     //
 
     template <const char SYMBOL1, const char SYMBOL2>
-    inline
-    bool
-    Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const noexcept
+    inline bool Char2<SYMBOL1, SYMBOL2>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL1 || ch == SYMBOL2;
     }
@@ -882,39 +767,29 @@ namespace String::AsciiStringManip
     //
 
     template <const char SYMBOL1, const char SYMBOL2, const char SYMBOL3>
-    inline
-    bool
-    Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const noexcept
+    inline bool Char3<SYMBOL1, SYMBOL2, SYMBOL3>::operator ()(char ch) const noexcept
     {
       return ch == SYMBOL1 || ch == SYMBOL2 || ch == SYMBOL3;
     }
   }
 
-  inline
-  char
-  convert(unsigned char ch) noexcept
+  inline char convert(unsigned char ch) noexcept
   {
     return static_cast<const char&>(ch);
   }
 
-  inline
-  unsigned char
-  hex_to_int(char ch) noexcept
+  inline unsigned char hex_to_int(char ch) noexcept
   {
     return ch <= '9' ? ch - '0' : (ch & 0x0F) + 9;
   }
 
-  inline
-  char
-  hex_to_char(char major, char minor) noexcept
+  inline char hex_to_char(char major, char minor) noexcept
   {
     return convert((hex_to_int(major) << 4) | hex_to_int(minor));
   }
 
   template <typename Integer>
-  inline
-  void
-  hex_to_integer(const char* data, Integer& value) noexcept
+  inline void hex_to_integer(const char* data, Integer& value) noexcept
   {
     assert(!std::numeric_limits<Integer>::is_signed);
     value = 0;
@@ -925,9 +800,7 @@ namespace String::AsciiStringManip
     }
   }
 
-  inline
-  void
-  hex_to_buf(const SubString& data, char* buf) noexcept
+  inline void hex_to_buf(const SubString& data, char* buf) noexcept
   {
     assert(!(data.size() & 1));
     for (size_t i = 0; i < data.size(); i += 2)

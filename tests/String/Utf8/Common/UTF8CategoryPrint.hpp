@@ -10,7 +10,6 @@
 
 namespace String
 {
-
   class Utf8CategoryPrintable : public Utf8Category
   {
   public:
@@ -22,28 +21,23 @@ namespace String
     /**
      * empty
      */
-    virtual
-    ~Utf8CategoryPrintable() noexcept;
+    virtual ~Utf8CategoryPrintable() noexcept;
 
     /**
      * Print internal N-arc tree of Utf8Category to C++ structs.
      * @param name - C++ identifier for main tree naming.
      */
-    void
-    print_to_cpp(const char* name) /*throw (eh::Exception)*/;
+    void print_to_cpp(const char* name) /*throw (eh::Exception)*/;
 
     virtual void
-    print_finish_leaf(UnicodeProperty::TreeLeaf leaf,
-      char* current_prefix, unsigned current_depth)
+    print_finish_leaf(UnicodeProperty::TreeLeaf leaf, char* current_prefix, unsigned current_depth)
       /*throw (eh::Exception)*/;
 
-    virtual const UnicodeProperty::Node*
-    modificator() noexcept;
+    virtual const UnicodeProperty::Node* modificator() noexcept;
 
     class FinishObjectsPool;
 
-    virtual FinishObjectsPool*
-    get_pool() const noexcept;
+    virtual FinishObjectsPool* get_pool() const noexcept;
 
     /**
      * Don't necessary use duplication objects as tree endings.
@@ -57,18 +51,15 @@ namespace String
        * nothing.
        */
       virtual bool
-      insert(const UnicodeProperty::TreeLeaf* value,
-        char* current_prefix, unsigned current_depth)
+      insert(const UnicodeProperty::TreeLeaf* value, char* current_prefix, unsigned current_depth)
         /*throw (eh::Exception)*/;
 
       /**
        * Print pool content to C++ declarations.
        */
-      virtual void
-      print_to_cpp() const /*throw (eh::Exception)*/;
+      virtual void print_to_cpp() const /*throw (eh::Exception)*/;
 
-      virtual
-      ~FinishObjectsPool() noexcept {}
+      virtual ~FinishObjectsPool() noexcept {}
     };
 
   private:
@@ -99,11 +90,9 @@ namespace String
       /**
        * Clearance internal state to zero out position.
        */
-      static void
-      reset() noexcept;
+      static void reset() noexcept;
     private:
-      static std::size_t
-      current_length_(std::size_t add, bool reset = false) noexcept;
+      static std::size_t current_length_(std::size_t add, bool reset = false) noexcept;
 
       std::size_t additional_length_;
     };
@@ -118,8 +107,7 @@ namespace String
       ~NamespaceDecorator_() noexcept;
     };
 
-    unsigned
-    get_size_() noexcept;
+    unsigned get_size_() noexcept;
 
     /**
      * Recursively round the
@@ -147,7 +135,7 @@ namespace String
   class Utf8CategoryExtendedPrintable : public Utf8CategoryPrintable
   {
   public:
-    typedef std::map<UnicodeSymbol, uint8_t> SymbolProperties;
+    using SymbolProperties = std::map<UnicodeSymbol, uint8_t>;
 
     /**
      * Get additional info linked with UnicodeSymbol
@@ -155,22 +143,17 @@ namespace String
     Utf8CategoryExtendedPrintable(SymbolProperties& add_info)
       /*throw (eh::Exception)*/;
 
-    virtual
-    ~Utf8CategoryExtendedPrintable() noexcept;
+    virtual ~Utf8CategoryExtendedPrintable() noexcept;
 
     virtual void
-    print_finish_leaf(UnicodeProperty::TreeLeaf leaf,
-      char* current_prefix, unsigned current_depth)
+    print_finish_leaf(UnicodeProperty::TreeLeaf leaf, char* current_prefix, unsigned current_depth)
       /*throw (eh::Exception)*/;
 
-    void
-    print_finishers_to_cpp() /*throw (eh::Exception)*/;
+    void print_finishers_to_cpp() /*throw (eh::Exception)*/;
 
-    virtual const UnicodeProperty::Node*
-    modificator() noexcept;
+    virtual const UnicodeProperty::Node* modificator() noexcept;
 
-    virtual FinishObjectsPool*
-    get_pool() const noexcept;
+    virtual FinishObjectsPool* get_pool() const noexcept;
 
     class FinishDataObjectsPool : public FinishObjectsPool
     {
@@ -178,39 +161,32 @@ namespace String
       FinishDataObjectsPool(SymbolProperties& add_info)
         /*throw (eh::Exception)*/;
 
-      virtual
-      ~FinishDataObjectsPool() noexcept;
+      virtual ~FinishDataObjectsPool() noexcept;
 
       /**
        * @param try put into pool, if already exist there - then
        * nothing.
        */
       virtual bool
-      insert(const UnicodeProperty::TreeLeaf* value,
-        char* current_prefix, unsigned current_depth)
+      insert(const UnicodeProperty::TreeLeaf* value, char* current_prefix, unsigned current_depth)
         /*throw (eh::Exception)*/;
 
       /**
        * Print pool content to C++ declarations.
        */
-      virtual void
-      print_to_cpp() const /*throw (eh::Exception)*/;
+      virtual void print_to_cpp() const /*throw (eh::Exception)*/;
 
       struct TreeLeaf
       {
-        bool
-        operator <(const TreeLeaf& rhs) const noexcept;
+        bool operator <(const TreeLeaf& rhs) const noexcept;
 
-        static bool
-        compare(const TreeLeaf& left, const TreeLeaf& right) noexcept;
+        static bool compare(const TreeLeaf& left, const TreeLeaf& right) noexcept;
 
         unsigned char raw_data[64];
         std::size_t name_val;
       };
 
-      const TreeLeaf&
-      get_leaf(char* current_prefix,
-        unsigned current_depth) const
+      const TreeLeaf& get_leaf(char* current_prefix, unsigned current_depth) const
         /*throw (eh::Exception)*/;
 
     private:
@@ -221,7 +197,7 @@ namespace String
 
       SymbolProperties& add_info_;
 
-      typedef std::set<TreeLeaf> ObjectsContainer;
+      using ObjectsContainer = std::set<TreeLeaf>;
       ObjectsContainer ranges_;
       // using to naming objects
       static std::size_t object_counter_;
@@ -250,8 +226,7 @@ namespace String
     object_counter_ = 0;
 
   const UnicodeProperty::TreeNode
-    Utf8CategoryExtendedPrintable::ALL_TREE_STOP =
-  {
+    Utf8CategoryExtendedPrintable::ALL_TREE_STOP = {
     &UnicodeProperty::TREE_STOP, &UnicodeProperty::TREE_STOP,
     &UnicodeProperty::TREE_STOP, &UnicodeProperty::TREE_STOP,
     &UnicodeProperty::TREE_STOP, &UnicodeProperty::TREE_STOP,
@@ -290,14 +265,12 @@ namespace String
   // class Utf8CategoryPrintable
   //
 
-  inline
-  Utf8CategoryPrintable::Utf8CategoryPrintable() /*throw (eh::Exception)*/
+  inline Utf8CategoryPrintable::Utf8CategoryPrintable() /*throw (eh::Exception)*/
     : Utf8Category(Utf8Set::Utf8Chars())
   {
   }
 
-  inline void
-  Utf8CategoryPrintable::print_to_cpp(const char* name)
+  inline void Utf8CategoryPrintable::print_to_cpp(const char* name)
     /*throw (eh::Exception)*/
   {
     std::cout << "#include <String/UTF8IsProperty.hpp>\n" << std::endl;
@@ -324,14 +297,12 @@ namespace String
   {
   }
 
-  const UnicodeProperty::Node*
-  Utf8CategoryPrintable::modificator() noexcept
+  const UnicodeProperty::Node* Utf8CategoryPrintable::modificator() noexcept
   {
     return &UnicodeProperty::TREE_STOP;
   }
 
-  Utf8CategoryPrintable::FinishObjectsPool*
-  Utf8CategoryPrintable::get_pool() const noexcept
+  Utf8CategoryPrintable::FinishObjectsPool* Utf8CategoryPrintable::get_pool() const noexcept
   {
     return pool_.get();
   }
@@ -341,8 +312,7 @@ namespace String
   //
 
   std::unique_ptr<Utf8CategoryPrintable::FinishObjectsPool>
-    Utf8CategoryPrintable::pool_(new
-      Utf8CategoryPrintable::FinishObjectsPool);
+    Utf8CategoryPrintable::pool_(new Utf8CategoryPrintable::FinishObjectsPool);
 
   inline bool
   Utf8CategoryPrintable::FinishObjectsPool::insert(
@@ -352,8 +322,7 @@ namespace String
     return *value != 0;
   }
 
-  inline void
-  Utf8CategoryPrintable::FinishObjectsPool::print_to_cpp() const
+  inline void Utf8CategoryPrintable::FinishObjectsPool::print_to_cpp() const
     /*throw (eh::Exception)*/
   {
   }
@@ -362,22 +331,18 @@ namespace String
   // Utf8CategoryExtendedPrintable class
   //
 
-  Utf8CategoryExtendedPrintable::Utf8CategoryExtendedPrintable(
-    SymbolProperties& add_info)
+  Utf8CategoryExtendedPrintable::Utf8CategoryExtendedPrintable( SymbolProperties& add_info)
     /*throw (eh::Exception)*/
   {
-    data_objects_pool_.reset(new
-      Utf8CategoryExtendedPrintable::FinishDataObjectsPool(add_info));
+    data_objects_pool_.reset(new Utf8CategoryExtendedPrintable::FinishDataObjectsPool(add_info));
   }
 
-  const UnicodeProperty::Node*
-  Utf8CategoryExtendedPrintable::modificator() noexcept
+  const UnicodeProperty::Node* Utf8CategoryExtendedPrintable::modificator() noexcept
   {
     return &*ALL_TREE_STOP;
   }
 
-  Utf8CategoryPrintable::FinishObjectsPool*
-  Utf8CategoryExtendedPrintable::get_pool() const noexcept
+  Utf8CategoryPrintable::FinishObjectsPool* Utf8CategoryExtendedPrintable::get_pool() const noexcept
   {
     return data_objects_pool_.get();
   }
@@ -407,14 +372,12 @@ namespace String
     else
     {
       FormatGuard_ fg(10);
-      std::cout << "LEAF_" << std::setw(2) << std::hex <<
-        data_objects_pool_->
+      std::cout << "LEAF_" << std::setw(2) << std::hex << data_objects_pool_->
           get_leaf(current_prefix, current_depth).name_val << ", ";
     }
   }
 
-  inline void
-  Utf8CategoryExtendedPrintable::print_finishers_to_cpp() /*throw (eh::Exception)*/
+  inline void Utf8CategoryExtendedPrintable::print_finishers_to_cpp() /*throw (eh::Exception)*/
   {
     Stream::FlagsSaver save_flags(std::cout);
     std::cout << std::uppercase;
@@ -475,8 +438,7 @@ namespace String
     {
       return false;
     }
-    std::pair<ObjectsContainer::iterator, bool> inserted =
-      ranges_.insert(leaf);
+    std::pair<ObjectsContainer::iterator, bool> inserted = ranges_.insert(leaf);
     if (inserted.second)
     {
       std::ostringstream ost;
@@ -500,17 +462,15 @@ namespace String
     return *it;
   }
 
-  inline void
-  Utf8CategoryExtendedPrintable::FinishDataObjectsPool::print_to_cpp() const
+  inline void Utf8CategoryExtendedPrintable::FinishDataObjectsPool::print_to_cpp() const
     /*throw (eh::Exception)*/
   {
-    typedef std::vector<TreeLeaf> NameSorter;
+    using NameSorter = std::vector<TreeLeaf>;
     NameSorter sorter(ranges_.begin(), ranges_.end());
     std::sort(sorter.begin(), sorter.end(), TreeLeaf::compare);
 
     NamespaceDecorator_ guard;
-    for (NameSorter::const_iterator it(sorter.begin());
-      it != sorter.end(); ++it)
+    for (NameSorter::const_iterator it(sorter.begin()); it != sorter.end(); ++it)
     {
       std::cout << "    static AllTreeLeaf LEAF_" << std::setw(2)
         << std::hex << (*it).name_val << " =\n    {";
@@ -547,8 +507,7 @@ namespace String
   // class Utf8CategoryPrintable::FormatGuard_
   //
 
-  inline
-  Utf8CategoryPrintable::FormatGuard_::FormatGuard_(size_t len) noexcept
+  inline Utf8CategoryPrintable::FormatGuard_::FormatGuard_(size_t len) noexcept
     : additional_length_(len)
   {
     if (current_length_(0) + additional_length_ > 70)
@@ -558,14 +517,12 @@ namespace String
     }
   }
 
-  inline
-  Utf8CategoryPrintable::FormatGuard_::~FormatGuard_() noexcept
+  inline Utf8CategoryPrintable::FormatGuard_::~FormatGuard_() noexcept
   {
     current_length_(additional_length_);
   }
 
-  inline void
-  Utf8CategoryPrintable::FormatGuard_::reset() noexcept
+  inline void Utf8CategoryPrintable::FormatGuard_::reset() noexcept
   {
     current_length_(0, true);
   }
@@ -589,18 +546,13 @@ namespace String
   // class Utf8CategoryPrintable::NamespaceDecorator_
   //
 
-  inline
-  Utf8CategoryPrintable::NamespaceDecorator_::NamespaceDecorator_()
+  inline Utf8CategoryPrintable::NamespaceDecorator_::NamespaceDecorator_()
     /*throw (eh::Exception)*/
   {
-    std::cout << std::endl
-      << "namespace String\n{\n  namespace UnicodeProperty\n  {"
-      << std::endl;
+    std::cout << std::endl << "namespace String\n{\n  namespace UnicodeProperty\n  {" << std::endl;
   }
 
-  inline
-  Utf8CategoryPrintable::NamespaceDecorator_::~NamespaceDecorator_()
-    noexcept
+  inline Utf8CategoryPrintable::NamespaceDecorator_::~NamespaceDecorator_() noexcept
   {
     std::cout
       << "\n  } // namespace UnicodeProperty\n} // namespace String"
@@ -614,15 +566,12 @@ namespace String
 
   std::size_t Utf8CategoryPrintable::memory_used_ = 0;
 
-  inline unsigned
-  Utf8CategoryPrintable::get_size_() noexcept
+  inline unsigned Utf8CategoryPrintable::get_size_() noexcept
   {
     return UTF8Handler::get_octet_count(*current_symbol_);
   }
 
-  void
-  Utf8CategoryPrintable::print_finish_leaf(
-    UnicodeProperty::TreeLeaf leaf, char*, unsigned)
+  void Utf8CategoryPrintable::print_finish_leaf( UnicodeProperty::TreeLeaf leaf, char*, unsigned)
     /*throw (eh::Exception)*/
   {
     FormatGuard_ fg(22);
@@ -656,8 +605,7 @@ namespace String
       {
         if (size == rec_depth + 2)
         {
-          notempty[i] = get_pool()->insert(&current_ch->leaf,
-            current_symbol_, rec_depth + 1);
+          notempty[i] = get_pool()->insert(&current_ch->leaf, current_symbol_, rec_depth + 1);
         }
         else
         {
@@ -665,6 +613,7 @@ namespace String
           {
             current_ch = modificator();
           }
+
           if (current_ch->node == 0)
           {
             notempty[i] = false;
@@ -680,11 +629,9 @@ namespace String
             for (unsigned j = 0; j <= rec_depth; j++)
             {
               ostr << "_" << std::uppercase << std::setw(2) << std::hex <<
-                static_cast<unsigned>(
-                  static_cast<unsigned char>(current_symbol_[j]));
+                static_cast<unsigned>( static_cast<unsigned char>(current_symbol_[j]));
             }
-            notempty[i] = print_to_cpp_(current_ch->node,
-              ostr.str().c_str(), 64, rec_depth + 1);
+            notempty[i] = print_to_cpp_(current_ch->node, ostr.str().c_str(), 64, rec_depth + 1);
           }
         }
       }
@@ -696,10 +643,8 @@ namespace String
       return false;
     }
 
-    std::cout << "    " <<
-      (rec_depth ? "static Tree" : "TreeStart") <<
-      "Node " << name << " =" << std::endl << "    {" << std::endl <<
-      "      ";
+    std::cout << "    " << (rec_depth ? "static Tree" : "TreeStart") <<
+      "Node " << name << " =" << std::endl << "    {" << std::endl << "      ";
     for (std::size_t i = 0; i < arr_len; ++i)
     {
       current_symbol_[rec_depth] = (arr_len != 64) ? i : 0x80 + i;
@@ -719,6 +664,7 @@ namespace String
           {
             current_ch = modificator();
           }
+
           if (current_ch->node == &UnicodeProperty::TREE_STOP)
           {
             FormatGuard_ fg(12);
@@ -731,8 +677,7 @@ namespace String
             for (unsigned j = 0; j <= rec_depth; j++)
             {
               ostr << "_" << std::uppercase << std::setw(2) << std::hex <<
-                static_cast<unsigned>(
-                  static_cast<unsigned char>(current_symbol_[j]));
+                static_cast<unsigned>( static_cast<unsigned char>(current_symbol_[j]));
             }
             ostr << ", ";
             const std::string& str = ostr.str();
@@ -745,8 +690,7 @@ namespace String
       {
         if (size)
         { // FinishNode
-          print_finish_leaf(current_ch->leaf,
-          current_symbol_, rec_depth + 1);
+          print_finish_leaf(current_ch->leaf, current_symbol_, rec_depth + 1);
         }
       }
     }

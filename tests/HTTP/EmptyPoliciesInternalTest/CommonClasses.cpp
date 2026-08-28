@@ -17,8 +17,7 @@ PoliciesTestInterface::~PoliciesTestInterface() noexcept
 {
 }
 
-void
-PoliciesTestInterface::execute() noexcept
+void PoliciesTestInterface::execute() noexcept
 {
   exec_init_();
   exec_main_();
@@ -36,8 +35,7 @@ PoliciesTestInterface::execute() noexcept
 
 Sync::PosixMutex CheckSimpleEmptyCommons::dump_mutex_;
 
-CheckSimpleEmptyCommons::CheckSimpleEmptyCommons(
-    unsigned int closure_delay_value) noexcept:
+CheckSimpleEmptyCommons::CheckSimpleEmptyCommons( unsigned int closure_delay_value) noexcept:
   closure_delay_value_(closure_delay_value)
 {
 }
@@ -61,21 +59,18 @@ CheckSimpleEmptyCommons::set_history_event_(Identifier id,
   {
     StateHistory* tail = &(h_it->second);
     while (tail->next != 0) tail = tail->next;
-    tail->next = new StateHistory(
-      type, result, state, Generics::Time::get_time_of_day());
+    tail->next = new StateHistory( type, result, state, Generics::Time::get_time_of_day());
   }
 
   cur_history_ = &h_it->second;
 }
 
-void
-CheckSimpleEmptyCommons::remove_history_(Identifier id) /*throw (eh::Exception)*/
+void CheckSimpleEmptyCommons::remove_history_(Identifier id) /*throw (eh::Exception)*/
 {
   Histories::iterator h_it = histories_.find(id);
   if (h_it != histories_.end())
   {
-    completed_histories_.push_back(std::pair<Identifier, StateHistory>
-      (h_it->first, h_it->second));
+    completed_histories_.push_back(std::pair<Identifier, StateHistory> (h_it->first, h_it->second));
     histories_.erase(h_it);
     cur_history_ = nullptr;
   }
@@ -157,10 +152,8 @@ CheckSimpleEmptyCommons::print_state_history(const char* prefix,
 
   Sync::PosixGuard guard(dump_mutex_);
 
-  out << prefix << '\t' << addr
-      << "\ttime: " << obj.time 
-      << "\tresult: " << obj.result
-      << "\tstate: ";
+  out << prefix << '\t' << addr << "\ttime: " << obj.time
+      << "\tresult: " << obj.result << "\tstate: ";
   switch (obj.state)
   {
     case StateInfo::ACTIVE_AWAITING: out << "ACTIVE_AWAITING"; break;
@@ -195,21 +188,17 @@ CheckSimpleEmptyCommons::StateHistory::~StateHistory() noexcept
   delete next;
 }
 
-bool
-CheckSimpleEmptyCommons::StateHistory::operator== (
-  const StateHistory& src) const noexcept
+bool CheckSimpleEmptyCommons::StateHistory::operator== ( const StateHistory& src) const noexcept
 {
   //Ignoring any result equals -1
   if (result == -1 || src.result == -1)
   {
     bool wait = result == src.result && next != src.next;
-    const StateHistory* next_to_check =
-      (wait && next) || (!wait && result == -1) ? next : this;
+    const StateHistory* next_to_check = (wait && next) || (!wait && result == -1) ? next : this;
     const StateHistory* src_next_to_check =
       (wait && src.next) || (!wait && src.result == -1) ? src.next : &src;
 
-    return (!next_to_check && !src_next_to_check) ||
-      (next_to_check && src_next_to_check &&
+    return (!next_to_check && !src_next_to_check) || (next_to_check && src_next_to_check &&
         *next_to_check == *src_next_to_check);
   }
 
@@ -221,15 +210,13 @@ CheckSimpleEmptyCommons::StateHistory::operator== (
 // class CheckSimpleEmptyThread
 //
 
-CheckSimpleEmptyThread::CheckSimpleEmptyThread(
-    unsigned short closure_delay) noexcept:
+CheckSimpleEmptyThread::CheckSimpleEmptyThread( unsigned short closure_delay) noexcept:
   PoolPolicySimpleEmptyThread(closure_delay),
   CheckSimpleEmptyCommons(closure_delay)
 {
 }
 
-int
-CheckSimpleEmptyThread::when_close_thread(Identifier thread) noexcept
+int CheckSimpleEmptyThread::when_close_thread(Identifier thread) noexcept
 {
   int res = PoolPolicySimpleEmptyThread::when_close_thread(thread);
   StateInfo::States state = get_thread_state(thread);
@@ -277,8 +264,7 @@ CheckSimpleEmptyThread::check_thread_connection_added(
   }
 }
 
-void
-CheckSimpleEmptyThread::check_choose_thread(Identifier thread) noexcept
+void CheckSimpleEmptyThread::check_choose_thread(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -287,8 +273,7 @@ CheckSimpleEmptyThread::check_choose_thread(Identifier thread) noexcept
   }
 }
 
-void
-CheckSimpleEmptyThread::check_thread_added(Identifier thread) noexcept
+void CheckSimpleEmptyThread::check_thread_added(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -297,8 +282,7 @@ CheckSimpleEmptyThread::check_thread_added(Identifier thread) noexcept
   }
 }
 
-void
-CheckSimpleEmptyThread::check_thread_removed(Identifier thread) noexcept
+void CheckSimpleEmptyThread::check_thread_removed(Identifier thread) noexcept
 {
   StateInfo::States state = get_thread_state(thread);
   if (state != INT_MAX)
@@ -317,15 +301,13 @@ CheckSimpleEmptyThread::get_thr_history() noexcept
 // class CheckSimpleEmptyConnection
 //
 
-CheckSimpleEmptyConnection::CheckSimpleEmptyConnection(
-    unsigned short closure_delay) noexcept:
+CheckSimpleEmptyConnection::CheckSimpleEmptyConnection( unsigned short closure_delay) noexcept:
   HTTP::PoolPolicySimpleEmptyConnection(closure_delay),
   CheckSimpleEmptyCommons(closure_delay)
 {
 }
 
-int
-CheckSimpleEmptyConnection::when_close_connection(Identifier connection) noexcept
+int CheckSimpleEmptyConnection::when_close_connection(Identifier connection) noexcept
 {
   int res = PoolPolicySimpleEmptyConnection::when_close_connection(connection);
   StateInfo::States state = get_connection_state(connection);
@@ -425,9 +407,7 @@ CheckSimpleDecider::CheckSimpleDecider(int connections_per_server,
 {
 }
 
-inline
-HTTP::PoolPolicyCommon::Identifier
-CheckSimpleDecider::choose_thread() noexcept
+inline HTTP::PoolPolicyCommon::Identifier CheckSimpleDecider::choose_thread() noexcept
 {
   Identifier thread = PoolPolicySimpleDecider::choose_thread();
   thr_policy_.check_choose_thread(thread);
@@ -436,8 +416,7 @@ CheckSimpleDecider::choose_thread() noexcept
 
 inline
 HTTP::PoolPolicyCommon::Identifier
-CheckSimpleDecider::choose_connection(
-  Identifier server, Identifier request) noexcept
+CheckSimpleDecider::choose_connection( Identifier server, Identifier request) noexcept
 {
   Identifier conn = PoolPolicySimpleDecider::choose_connection(server, request);
   conn_policy_.check_choose_connection(conn, server, request);
@@ -454,18 +433,14 @@ CheckSimpleDecider::connection_request_added(Identifier server,
 }
 
 inline
-void
-CheckSimpleDecider::thread_connection_added(
-  Identifier thread, Identifier connection) noexcept
+void CheckSimpleDecider::thread_connection_added( Identifier thread, Identifier connection) noexcept
 {
   PoolPolicySimpleStatistics::thread_connection_added(thread, connection);
   thr_policy_.check_thread_connection_added(thread, connection);
 }
 
 inline
-void
-CheckSimpleDecider::server_connection_added(
-  Identifier server, Identifier connection) noexcept
+void CheckSimpleDecider::server_connection_added( Identifier server, Identifier connection) noexcept
 {
   PoolPolicySimpleStatistics::server_connection_added(server, connection);
   conn_policy_.check_server_connection_added(server, connection);
@@ -473,24 +448,19 @@ CheckSimpleDecider::server_connection_added(
 
 inline
 void
-CheckSimpleDecider::server_connection_removed(
-  Identifier server, Identifier connection) noexcept
+CheckSimpleDecider::server_connection_removed( Identifier server, Identifier connection) noexcept
 {
   conn_policy_.check_server_connection_removed(server, connection);
   PoolPolicySimpleStatistics::server_connection_removed(server, connection);
 }
 
-inline
-void
-CheckSimpleDecider::thread_added(Identifier thread) noexcept
+inline void CheckSimpleDecider::thread_added(Identifier thread) noexcept
 {
   PoolPolicySimpleStatistics::thread_added(thread);
   thr_policy_.check_thread_added(thread);
 }
 
-inline
-void
-CheckSimpleDecider::thread_removed(Identifier thread) noexcept
+inline void CheckSimpleDecider::thread_removed(Identifier thread) noexcept
 {
   thr_policy_.check_thread_removed(thread);
   PoolPolicySimpleStatistics::thread_removed(thread);
@@ -504,9 +474,7 @@ ConnThrScenarios::ConnThrScenarios() /*throw(eh::Exception)*/
 {
 }
 
-inline
-void
-ConnThrScenarios::add_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
+inline void ConnThrScenarios::add_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
 {
   if (new_scen.object_type == CheckSimpleEmptyCommons::OT_CONNECTION)
   {
@@ -529,7 +497,7 @@ ConnThrScenarios::add_scenario(CheckSimpleEmptyCommons::ObjectType type,
     return;
   }
 
-  std::unique_ptr<Scenario> scen( 
+  std::unique_ptr<Scenario> scen(
     new Scenario(type, new_scen[0].first, new_scen[0].second, Generics::Time(0)));
 
   Scenario* scen_ptr = scen.get();
@@ -543,8 +511,7 @@ ConnThrScenarios::add_scenario(CheckSimpleEmptyCommons::ObjectType type,
   add_scenario(*scen);
 }
 
-bool
-ConnThrScenarios::check_conn_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
+bool ConnThrScenarios::check_conn_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
 {
   size_t end = conn_scenarios_.size();
   for (size_t ind = 0; ind < end; ++ind)
@@ -559,8 +526,7 @@ ConnThrScenarios::check_conn_scenario(const Scenario& new_scen) /*throw(eh::Exce
   return false;
 }
 
-bool
-ConnThrScenarios::check_thr_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
+bool ConnThrScenarios::check_thr_scenario(const Scenario& new_scen) /*throw(eh::Exception)*/
 {
   size_t end = thr_scenarios_.size();
   for (size_t ind = 0; ind < end; ++ind)
@@ -575,20 +541,17 @@ ConnThrScenarios::check_thr_scenario(const Scenario& new_scen) /*throw(eh::Excep
   return false;
 }
 
-const ConnThrScenarios::ScenariosCompleted&
-ConnThrScenarios::conn_scens_completed() noexcept
+const ConnThrScenarios::ScenariosCompleted& ConnThrScenarios::conn_scens_completed() noexcept
 {
   return conn_scens_completed_;
 }
 
-const ConnThrScenarios::ScenariosCompleted&
-ConnThrScenarios::thr_scens_completed() noexcept
+const ConnThrScenarios::ScenariosCompleted& ConnThrScenarios::thr_scens_completed() noexcept
 {
   return thr_scens_completed_;
 }
 
-bool
-ConnThrScenarios::all_completed(std::ostringstream& log) /*throw(eh::Exception)*/
+bool ConnThrScenarios::all_completed(std::ostringstream& log) /*throw(eh::Exception)*/
 {
   int uncompleted = 0;
   size_t ind = 0;
@@ -616,8 +579,7 @@ ConnThrScenarios::all_completed(std::ostringstream& log) /*throw(eh::Exception)*
   return uncompleted == 0;
 }
 
-void
-ConnThrScenarios::print_scenario(std::ostream& log, const Scenario* scen)
+void ConnThrScenarios::print_scenario(std::ostream& log, const Scenario* scen)
   /*throw(eh::Exception)*/
 {
   do

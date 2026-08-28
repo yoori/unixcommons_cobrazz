@@ -45,8 +45,7 @@ namespace
 
   JsonEscape::SimdLevel selected_simd_level = JsonEscape::SimdLevel::AUTO;
 
-  CpuUsage
-  get_cpu_usage()
+  CpuUsage get_cpu_usage()
   {
     rusage usage;
     if (getrusage(RUSAGE_SELF, &usage) != 0)
@@ -61,8 +60,7 @@ namespace
         static_cast<double>(usage.ru_stime.tv_usec) / 1000000.0};
   }
 
-  double
-  get_wall_time()
+  double get_wall_time()
   {
     timespec ts;
     if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
@@ -74,8 +72,7 @@ namespace
       static_cast<double>(ts.tv_nsec) / 1000000000.0;
   }
 
-  uint64_t
-  parse_uint(const char* value, const char* option)
+  uint64_t parse_uint(const char* value, const char* option)
   {
     char* end = 0;
     const unsigned long long result = std::strtoull(value, &end, 10);
@@ -87,8 +84,7 @@ namespace
     return result;
   }
 
-  JsonEscape::SimdLevel
-  parse_simd_level(const char* value)
+  JsonEscape::SimdLevel parse_simd_level(const char* value)
   {
     if (std::strcmp(value, "auto") == 0)
     {
@@ -106,8 +102,7 @@ namespace
     {
       return JsonEscape::SimdLevel::AVX2;
     }
-    else if (std::strcmp(value, "avx512") == 0 ||
-      std::strcmp(value, "avx512bw") == 0)
+    else if (std::strcmp(value, "avx512") == 0 || std::strcmp(value, "avx512bw") == 0)
     {
       return JsonEscape::SimdLevel::AVX512BW;
     }
@@ -115,8 +110,7 @@ namespace
     throw std::runtime_error(std::string("invalid --simd: ") + value);
   }
 
-  Options
-  parse_options(int argc, char* argv[])
+  Options parse_options(int argc, char* argv[])
   {
     Options options;
 
@@ -126,10 +120,8 @@ namespace
 
       if (std::strcmp(arg, "--help") == 0)
       {
-        std::cout
-          << "Usage: " << argv[0] << " [--count N] [--size N]"
-          << " [--input-count N]"
-          << " [--simd auto|scalar|sse2|avx2|avx512bw]" << std::endl;
+        std::cout << "Usage: " << argv[0] << " [--count N] [--size N]"
+          << " [--input-count N]" << " [--simd auto|scalar|sse2|avx2|avx512bw]" << std::endl;
         std::exit(0);
       }
       else if (std::strncmp(arg, "--count=", 8) == 0)
@@ -198,22 +190,19 @@ namespace
     return options;
   }
 
-  std::string
-  format_float(double value)
+  std::string format_float(double value)
   {
     std::ostringstream out;
     out << std::fixed << std::setprecision(6) << value;
     return out.str();
   }
 
-  std::string
-  make_base_input(size_t size, size_t index)
+  std::string make_base_input(size_t size, size_t index)
   {
     std::string input;
     input.reserve(size);
 
-    static const char alphabet[] =
-      "abcdefghijklmnopqrstuvwxyz"
+    static const char alphabet[] = "abcdefghijklmnopqrstuvwxyz"
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "0123456789"
       ".:/?&=_-";
@@ -226,8 +215,7 @@ namespace
     return input;
   }
 
-  std::vector<std::string>
-  make_inputs(const char* scenario, const Options& options)
+  std::vector<std::string> make_inputs(const char* scenario, const Options& options)
   {
     std::vector<std::string> inputs;
     inputs.reserve(options.input_count);
@@ -258,12 +246,10 @@ namespace
       }
       else if (std::strcmp(scenario, "utf8") == 0)
       {
-        static const char utf8[] =
-          "\xD1\x80\xD1\x83\xD1\x82\xD1\x83\xD0\xB1\xD0\xB5.";
+        static const char utf8[] = "\xD1\x80\xD1\x83\xD1\x82\xD1\x83\xD0\xB1\xD0\xB5.";
         for (size_t i = 0; i < input.size(); i += 64)
         {
-          const size_t copy_size =
-            std::min(sizeof(utf8) - 1, input.size() - i);
+          const size_t copy_size = std::min(sizeof(utf8) - 1, input.size() - i);
           std::memcpy(&input[i], utf8, copy_size);
         }
       }
@@ -278,14 +264,11 @@ namespace
     return inputs;
   }
 
-  void
-  old_json_escape_append(std::string& dest, const String::SubString& src)
+  void old_json_escape_append(std::string& dest, const String::SubString& src)
   {
-    static const String::AsciiStringManip::CharCategory NON_JSON(
-      "\\\"\n\r\x01-\x1F", true);
+    static const String::AsciiStringManip::CharCategory NON_JSON( "\\\"\n\r\x01-\x1F", true);
 
-    static const String::SubString REPL[] =
-    {
+    static const String::SubString REPL[] = {
       String::SubString("\\u0000", 6),
       String::SubString("\\u0001", 6),
       String::SubString("\\u0002", 6),
@@ -355,8 +338,7 @@ namespace
     }
   }
 
-  void
-  new_json_escape_append(std::string& dest, const String::SubString& src)
+  void new_json_escape_append(std::string& dest, const String::SubString& src)
   {
     JsonEscape::json_escape_append(dest, src, selected_simd_level);
   }
@@ -389,10 +371,7 @@ namespace
   }
 
   Measurement
-  measure(
-    EscapeFunction escape,
-    const std::vector<std::string>& inputs,
-    const Options& options)
+  measure( EscapeFunction escape, const std::vector<std::string>& inputs, const Options& options)
   {
     std::string dest;
     dest.reserve(options.size * 6);
@@ -414,8 +393,7 @@ namespace
       checksum};
   }
 
-  void
-  verify(const std::vector<std::string>& inputs)
+  void verify(const std::vector<std::string>& inputs)
   {
     std::string old_result;
     std::string new_result;
@@ -425,12 +403,8 @@ namespace
       old_result.clear();
       new_result.clear();
 
-      old_json_escape_append(
-        old_result,
-        String::SubString(input.data(), input.size()));
-      new_json_escape_append(
-        new_result,
-        String::SubString(input.data(), input.size()));
+      old_json_escape_append( old_result, String::SubString(input.data(), input.size()));
+      new_json_escape_append( new_result, String::SubString(input.data(), input.size()));
 
       if (old_result != new_result)
       {
@@ -439,49 +413,38 @@ namespace
     }
   }
 
-  void
-  print_measurement(const char* name, const Measurement& result, uint64_t count)
+  void print_measurement(const char* name, const Measurement& result, uint64_t count)
   {
     const double cpu = result.user_cpu + result.sys_cpu;
 
-    std::cout
-      << name << ":\n"
-      << "  wall_sec=" << format_float(result.wall) << '\n'
+    std::cout << name << ":\n" << "  wall_sec=" << format_float(result.wall) << '\n'
       << "  cpu_sec=" << format_float(cpu) << '\n'
       << "  user_cpu_sec=" << format_float(result.user_cpu) << '\n'
-      << "  sys_cpu_sec=" << format_float(result.sys_cpu) << '\n'
-      << "  ns_per_call_cpu="
+      << "  sys_cpu_sec=" << format_float(result.sys_cpu) << '\n' << "  ns_per_call_cpu="
       << format_float(cpu * 1000000000.0 / static_cast<double>(count)) << '\n'
       << "  checksum=" << result.checksum << '\n';
   }
 
-  void
-  run_scenario(const char* scenario, const Options& options)
+  void run_scenario(const char* scenario, const Options& options)
   {
     const std::vector<std::string> inputs = make_inputs(scenario, options);
     verify(inputs);
 
-    const Measurement old_result =
-      measure(old_json_escape_append, inputs, options);
-    const Measurement new_result =
-      measure(new_json_escape_append, inputs, options);
+    const Measurement old_result = measure(old_json_escape_append, inputs, options);
+      const Measurement new_result = measure(new_json_escape_append, inputs, options);
 
     const double old_cpu = old_result.user_cpu + old_result.sys_cpu;
     const double new_cpu = new_result.user_cpu + new_result.sys_cpu;
 
-    std::cout
-      << '\n'
-      << scenario << ":\n";
+    std::cout << '\n' << scenario << ":\n";
     print_measurement("old", old_result, options.count);
     print_measurement("new", new_result, options.count);
-    std::cout
-      << "new_to_old_cpu_ratio=" << format_float(new_cpu / old_cpu) << '\n'
+    std::cout << "new_to_old_cpu_ratio=" << format_float(new_cpu / old_cpu) << '\n'
       << "old_to_new_cpu_ratio=" << format_float(old_cpu / new_cpu) << '\n';
   }
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
@@ -493,12 +456,9 @@ main(int argc, char* argv[])
         JsonEscape::default_simd_level() :
         options.simd_level;
 
-    std::cout
-      << "count=" << options.count << '\n'
-      << "size=" << options.size << '\n'
-      << "input_count=" << options.input_count << '\n'
-      << "simd=" << JsonEscape::simd_level_name(effective_simd_level) << '\n'
-      << "default_simd="
+    std::cout << "count=" << options.count << '\n'
+      << "size=" << options.size << '\n' << "input_count=" << options.input_count << '\n'
+      << "simd=" << JsonEscape::simd_level_name(effective_simd_level) << '\n' << "default_simd="
       << JsonEscape::simd_level_name(JsonEscape::default_simd_level()) << '\n';
 
     run_scenario("clean", options);

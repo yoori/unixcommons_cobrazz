@@ -9,13 +9,11 @@
 static char saved_identity[1024];
 
 JNIEXPORT jstring JNICALL
-Java_com_phorm_oix_logging_UnixcommonsSyslog_init(
-  JNIEnv* env, jobject /*cls*/, jstring identity)
+Java_com_phorm_oix_logging_UnixcommonsSyslog_init( JNIEnv* env, jobject /*cls*/, jstring identity)
 {
   {
     JavaCommons::StrPtr ident(env, identity);
-    String::StringManip::strlcpy(saved_identity, ident.c_str(),
-      sizeof(saved_identity));
+    String::StringManip::strlcpy(saved_identity, ident.c_str(), sizeof(saved_identity));
   }
   openlog(saved_identity, LOG_PID | LOG_CONS, LOG_USER);
   return env->NewStringUTF("INIT_SUCCESS");

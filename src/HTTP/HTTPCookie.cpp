@@ -18,22 +18,19 @@ namespace
 
 
   template <typename Type1, typename Type2>
-  void
-  assign(Type1& dst, const Type2& src) /*throw (eh::Exception)*/
+  void assign(Type1& dst, const Type2& src) /*throw (eh::Exception)*/
   {
     dst = src;
   }
 
-  void
-  assign(std::string& dst, const String::SubString& src)
+  void assign(std::string& dst, const String::SubString& src)
     /*throw (eh::Exception)*/
   {
     src.assign_to(dst);
   }
 
   template <typename InvalidArgument>
-  Generics::Time
-  get_expires(const String::SubString& value)
+  Generics::Time get_expires(const String::SubString& value)
     /*throw (eh::Exception, Generics::Time::Exception, InvalidArgument)*/
   {
     std::string week_day;
@@ -64,6 +61,7 @@ namespace
         {
           throw InvalidArgument(token);
         }
+
         if (tokenizer.get_token(token))
         {
           month = Generics::Time::month(token) + 1;
@@ -77,6 +75,7 @@ namespace
             {
               throw InvalidArgument(token);
             }
+
             if (year < 100)
             {
               year += 2000;
@@ -85,8 +84,7 @@ namespace
         }
       }
 
-      if (day < 1 || day > 31 || month < 1 || month > 12 ||
-        year < 1900)
+      if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900)
       {
         Stream::Error ostr;
         ostr << FNS << "invalid date " << date;
@@ -109,6 +107,7 @@ namespace
         {
           throw InvalidArgument(token.data(), token.size());
         }
+
         if (tokenizer.get_token(token))
         {
           Stream::Parser parser(token);
@@ -117,6 +116,7 @@ namespace
           {
             throw InvalidArgument(token.data(), token.size());
           }
+
           if (tokenizer.get_token(token))
           {
             Stream::Parser parser(token);
@@ -130,12 +130,10 @@ namespace
       }
     }
 
-    return Generics::ExtendedTime(year, month, day,
-      hours, minutes, seconds, 0);
+    return Generics::ExtendedTime(year, month, day, hours, minutes, seconds, 0);
   }
 
-  template <typename Exception, typename InvalidArgument,
-    typename CookieDef>
+  template <typename Exception, typename InvalidArgument, typename CookieDef>
   void
   parse_value(std::list<CookieDef>& list,
     const HTTP::HTTPAddress& url_address, const String::SubString& HEADER,
@@ -146,7 +144,7 @@ namespace
     String::SubString::ConstReverseIterator sep)
     /*throw (Exception, InvalidArgument, eh::Exception)*/
   {
-    typedef std::list<CookieDef> Container;
+    using Container = std::list<CookieDef>;
 
     String::SubString name;
     String::SubString value;
@@ -165,8 +163,7 @@ namespace
     }
 
 #if TRACE_COOKIE == 1
-    std::cerr << FNS << "'" <<
-      String::SubString(itor.base(), cookie_end.base()) << "' => '" <<
+    std::cerr << FNS << "'" << String::SubString(itor.base(), cookie_end.base()) << "' => '" <<
       name << "' = '" << value << "'" << std::endl;
 #endif
 
@@ -200,8 +197,7 @@ namespace
         {
           Stream::Error ostr;
           ostr << FNS << "\tTime::Exception has been caught during "
-            "parsing header:" << std::endl <<
-            "\t\"Set-Cookie: " << HEADER << "\"" << std::endl <<
+            "parsing header:" << std::endl << "\t\"Set-Cookie: " << HEADER << "\"" << std::endl <<
             "Description:" << std::endl << ex.what() << std::endl;
 
           throw InvalidArgument(ostr);
@@ -224,12 +220,10 @@ namespace
         }
 
 #if TRACE_COOKIE == 1
-        std::cerr << FNS << std::endl <<
-          "  cookie.secure '" << cookie.secure << "'\n"
+        std::cerr << FNS << std::endl << "  cookie.secure '" << cookie.secure << "'\n"
           "  cookie.path '" << cookie.path << "'\n"
           "  cookie.domain '" << cookie.domain << "'\n"
-          "  cookie.expires '" << HTTP::cookie_date(cookie.expires) <<
-          "'\n";
+          "  cookie.expires '" << HTTP::cookie_date(cookie.expires) << "'\n";
         if (expired)
         {
           std::cerr << "  EXPIRED\n";
@@ -251,8 +245,7 @@ namespace
 
       for (it = list.begin(); it != list.end(); ++it)
       {
-        if (it->domain ==
-          String::AsciiStringManip::Caseless(cookie.domain) &&
+        if (it->domain == String::AsciiStringManip::Caseless(cookie.domain) &&
           it->path == cookie.path && it->name == cookie.name)
         {
           if (expired && !keep_expired)
@@ -286,15 +279,13 @@ namespace
     }
   }
 
-  template <typename Exception, typename InvalidArgument,
-    typename CookieDef, typename HeaderList>
+  template <typename Exception, typename InvalidArgument, typename CookieDef, typename HeaderList>
   void
   load_from_headers(std::list<CookieDef>& list, const HeaderList& headers,
     const HTTP::HTTPAddress& url_address, bool keep_expired = false)
     /*throw (Exception, InvalidArgument, eh::Exception)*/
   {
-    for (typename HeaderList::const_iterator it(headers.begin());
-      it != headers.end(); ++it)
+    for (typename HeaderList::const_iterator it(headers.begin()); it != headers.end(); ++it)
     {
       if (it->name != SET_COOKIE)
       {
@@ -304,8 +295,7 @@ namespace
       const String::SubString HEADER(it->value);
 
 #if TRACE_COOKIE == 1
-      std::cerr << FNS <<
-        "header '" << HEADER << "', url '" << url_address.url() << "'\n";
+      std::cerr << FNS << "header '" << HEADER << "', url '" << url_address.url() << "'\n";
 #endif
 
       CookieDef cookie;
@@ -318,8 +308,7 @@ namespace
       bool has_sep = false;
       String::SubString::ConstReverseIterator sep,
         cookie_end(HEADER.rbegin());
-      for (String::SubString::ConstReverseIterator itor(cookie_end);;
-        ++itor)
+      for (String::SubString::ConstReverseIterator itor(cookie_end);; ++itor)
       {
         if (itor == HEADER.rend() || *itor == ';')
         {
@@ -349,18 +338,16 @@ namespace
   }
 
   template <typename CookieDef>
-  void
-  expire(std::list<CookieDef>& list, bool session_cookies)
+  void expire(std::list<CookieDef>& list, bool session_cookies)
     /*throw (eh::Exception)*/
   {
-    typedef std::list<CookieDef> Container;
+    using Container = std::list<CookieDef>;
 
     Generics::Time cur_time(Generics::Time::get_time_of_day());
 
     for (typename Container::iterator it = list.begin(); it != list.end();)
     {
-      if (it->expires == Generics::Time::ZERO ? session_cookies :
-        it->expires < cur_time)
+      if (it->expires == Generics::Time::ZERO ? session_cookies : it->expires < cur_time)
       {
         it = list.erase(it);
       }
@@ -372,18 +359,15 @@ namespace
   }
 
   template <typename CookieDef>
-  std::string
-  cookie_header(std::list<CookieDef>& list,
-    const HTTP::HTTPAddress& url_address)
+  std::string cookie_header(std::list<CookieDef>& list, const HTTP::HTTPAddress& url_address)
     /*throw (eh::Exception)*/
   {
-    typedef std::list<CookieDef> Container;
+    using Container = std::list<CookieDef>;
 
     Stream::Dynamic result(4096);
     bool is_empty = true;
 
-    for (typename Container::const_iterator it = list.begin();
-      it != list.end(); ++it)
+    for (typename Container::const_iterator it = list.begin(); it != list.end(); ++it)
     {
       size_t domain_len = it->domain.size();
       String::SubString host(url_address.host());
@@ -418,15 +402,12 @@ namespace
   }
 
   template <typename CookieDef>
-  void
-  set_cookie_header_plain(std::list<CookieDef>& list,
-    HTTP::HeaderList& headers)
+  void set_cookie_header_plain(std::list<CookieDef>& list, HTTP::HeaderList& headers)
     /*throw (eh::Exception)*/
   {
-    typedef std::list<CookieDef> Container;
+    using Container = std::list<CookieDef>;
 
-    for (typename Container::const_iterator it = list.begin();
-      it != list.end(); ++it)
+    for (typename Container::const_iterator it = list.begin(); it != list.end(); ++it)
     {
       std::string header;
       HTTP::cookie_header_plain(*it, header);
@@ -435,11 +416,10 @@ namespace
   }
 
   template <typename CookieDef>
-  void
-  set_cookie_header(std::list<CookieDef>& list, HTTP::HeaderList& headers)
+  void set_cookie_header(std::list<CookieDef>& list, HTTP::HeaderList& headers)
     /*throw (eh::Exception)*/
   {
-    typedef std::list<HTTP::CookieDef> Container;
+    using Container = std::list<HTTP::CookieDef>;
 
     Container cookies(list.begin(), list.end());
 
@@ -502,8 +482,7 @@ namespace
   struct CookieSep
   {
     const char*
-    find_owned(const char* begin, const char* end,
-      unsigned long* octets_length) noexcept
+    find_owned(const char* begin, const char* end, unsigned long* octets_length) noexcept
     {
       for (const char* next; begin != end; begin = next)
       {
@@ -512,10 +491,12 @@ namespace
         {
           continue;
         }
+
         if (next == end)
         {
           break;
         }
+
         if (*next == ' ')
         {
           *octets_length = 2;
@@ -538,13 +519,10 @@ namespace HTTP
   }
 
   template <typename HeaderList>
-  void
-  CookieList::load_from_headers_(const HeaderList& headers,
-    bool replace_duplicate)
+  void CookieList::load_from_headers_(const HeaderList& headers, bool replace_duplicate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    for (typename HeaderList::const_iterator it(headers.begin());
-      it != headers.end(); ++it)
+    for (typename HeaderList::const_iterator it(headers.begin()); it != headers.end(); ++it)
     {
       if (it->name != COOKIE)
       {
@@ -595,8 +573,7 @@ namespace HTTP
         String::StringManip::trim(value);
 
 #if TRACE_COOKIE == 1
-        std::cerr << FNS << std::endl <<
-          "  cookie.name '" << name << "'\n"
+        std::cerr << FNS << std::endl << "  cookie.name '" << name << "'\n"
           "  cookie.value '" << value << "'\n";
 #endif
 
@@ -621,24 +598,19 @@ namespace HTTP
     }
   }
 
-  void
-  CookieList::load_from_headers(const SubHeaderList& headers,
-    bool replace_duplicate)
+  void CookieList::load_from_headers(const SubHeaderList& headers, bool replace_duplicate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     load_from_headers_(headers, replace_duplicate);
   }
 
-  void
-  CookieList::load_from_headers(const HeaderList& headers,
-    bool replace_duplicate)
+  void CookieList::load_from_headers(const HeaderList& headers, bool replace_duplicate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     load_from_headers_(headers, replace_duplicate);
   }
 
-  std::string
-  CookieList::cookie_header() /*throw (eh::Exception)*/
+  std::string CookieList::cookie_header() /*throw (eh::Exception)*/
   {
     Stream::Dynamic result(4096);
     bool is_empty = true;
@@ -677,43 +649,36 @@ namespace HTTP
     const HTTP::HTTPAddress& url_address)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    ::load_from_headers<Exception, InvalidArgument>(*this, headers,
-      url_address, keep_expired_);
+    ::load_from_headers<Exception, InvalidArgument>(*this, headers, url_address, keep_expired_);
   }
 
   void
-  CookieDefList::load_from_headers(const HeaderList& headers,
-    const HTTP::HTTPAddress& url_address)
+  CookieDefList::load_from_headers(const HeaderList& headers, const HTTP::HTTPAddress& url_address)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    ::load_from_headers<Exception, InvalidArgument>(*this, headers,
-      url_address, keep_expired_);
+    ::load_from_headers<Exception, InvalidArgument>(*this, headers, url_address, keep_expired_);
   }
 
-  std::string
-  CookieDefList::cookie_header(const HTTPAddress& url_address)
+  std::string CookieDefList::cookie_header(const HTTPAddress& url_address)
     /*throw (eh::Exception)*/
   {
     expire_();
     return ::cookie_header(*this, url_address);
   }
 
-  void
-  CookieDefList::set_cookie_header_plain(HeaderList& headers)
+  void CookieDefList::set_cookie_header_plain(HeaderList& headers)
     /*throw (eh::Exception)*/
   {
     ::set_cookie_header_plain(*this, headers);
   }
 
-  void
-  CookieDefList::set_cookie_header(HeaderList& headers)
+  void CookieDefList::set_cookie_header(HeaderList& headers)
     /*throw (eh::Exception)*/
   {
     ::set_cookie_header(*this, headers);
   }
 
-  void
-  CookieDefList::expire_(bool session_cookies) /*throw (eh::Exception)*/
+  void CookieDefList::expire_(bool session_cookies) /*throw (eh::Exception)*/
   {
     if (keep_expired_)
     {
@@ -737,8 +702,7 @@ namespace HTTP
     const HTTP::HTTPAddress& url_address)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    ::load_from_headers<Exception, InvalidArgument>(*this, headers,
-      url_address);
+    ::load_from_headers<Exception, InvalidArgument>(*this, headers, url_address);
   }
 
   void
@@ -746,34 +710,29 @@ namespace HTTP
     const HTTP::HTTPAddress& url_address)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    ::load_from_headers<Exception, InvalidArgument>(*this, headers,
-      url_address);
+    ::load_from_headers<Exception, InvalidArgument>(*this, headers, url_address);
   }
 
-  std::string
-  ClientCookieFacility::cookie_header(const HTTPAddress& url_address)
+  std::string ClientCookieFacility::cookie_header(const HTTPAddress& url_address)
     /*throw (eh::Exception)*/
   {
     expire_();
     return ::cookie_header(*this, url_address);
   }
 
-  void
-  ClientCookieFacility::set_cookie_header_plain(HeaderList& headers)
+  void ClientCookieFacility::set_cookie_header_plain(HeaderList& headers)
     /*throw (eh::Exception)*/
   {
     ::set_cookie_header_plain(*this, headers);
   }
 
-  void
-  ClientCookieFacility::set_cookie_header(HeaderList& headers)
+  void ClientCookieFacility::set_cookie_header(HeaderList& headers)
     /*throw (eh::Exception)*/
   {
     ::set_cookie_header(*this, headers);
   }
 
-  void
-  ClientCookieFacility::expire_(bool session_cookies) /*throw (eh::Exception)*/
+  void ClientCookieFacility::expire_(bool session_cookies) /*throw (eh::Exception)*/
   {
     ::expire(*this, session_cookies);
   }

@@ -21,24 +21,23 @@ namespace ReferenceCounting
       typename Helper::Allocator<std::pair<const Key, T>, Allocator>>
   {
   public:
-    typedef std::unordered_map<Key, T,
+    using Base = std::unordered_map<Key, T,
       Helper::HashFunForHashAdapter<Key>, EqualKey,
-      typename Helper::Allocator<std::pair<const Key, T>, Allocator>>
-      Base;
+      typename Helper::Allocator<std::pair<const Key, T>, Allocator>>;
 
-    typedef typename Base::key_type key_type;
-    typedef typename Base::mapped_type mapped_type;
-    typedef typename Base::value_type value_type;
-    typedef typename Base::hasher hasher;
-    typedef typename Base::key_equal key_equal;
-    typedef typename Base::pointer pointer;
-    typedef typename Base::const_pointer const_pointer;
-    typedef typename Base::reference reference;
-    typedef typename Base::const_reference const_reference;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::size_type size_type;
-    typedef typename Base::difference_type difference_type;
+    using key_type = typename Base::key_type;
+    using mapped_type = typename Base::mapped_type;
+    using value_type = typename Base::value_type;
+    using hasher = typename Base::hasher;
+    using key_equal = typename Base::key_equal;
+    using pointer = typename Base::pointer;
+    using const_pointer = typename Base::const_pointer;
+    using reference = typename Base::reference;
+    using const_reference = typename Base::const_reference;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using size_type = typename Base::size_type;
+    using difference_type = typename Base::difference_type;
 
     using Base::begin;
     using Base::end;
@@ -58,8 +57,7 @@ namespace ReferenceCounting
     using Base::count;
     using Base::equal_range;
 
-    explicit
-    HashTable(size_type n = 10) /*throw (eh::Exception)*/;
+    explicit HashTable(size_type n = 10) /*throw (eh::Exception)*/;
     HashTable(HashTable& h) /*throw (eh::Exception)*/;
     HashTable(const HashTable&) = delete;
     HashTable(HashTable&& h) noexcept;
@@ -67,34 +65,26 @@ namespace ReferenceCounting
     HashTable(InputIterator first, InputIterator last, size_type n = 10)
       /*throw (eh::Exception)*/;
 
-    HashTable&
-    operator =(HashTable& h) /*throw (eh::Exception)*/;
-    HashTable&
-    operator =(HashTable&& h) noexcept;
+    HashTable& operator =(HashTable& h) /*throw (eh::Exception)*/;
+    HashTable& operator =(HashTable&& h) noexcept;
 
     std::pair<iterator, bool>
     insert(value_type& x) /*throw (eh::Exception)*/;
     std::pair<iterator, bool>
     insert(value_type&& x) /*throw (eh::Exception)*/;
-    iterator
-    insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
-    iterator
-    insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    insert(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
+    void insert(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
-    void
-    swap(HashTable&& h) noexcept;
+    void swap(HashTable&& h) noexcept;
 #else
-    void
-    swap(HashTable& h) noexcept;
+    void swap(HashTable& h) noexcept;
 #endif
 
   private:
-    value_type
-    value_type_(value_type& x) /*throw (eh::Exception)*/;
+    value_type value_type_(value_type& x) /*throw (eh::Exception)*/;
   };
 
   template <typename Allocator = std::allocator<char>,
@@ -104,7 +94,7 @@ namespace ReferenceCounting
     template <typename Key, typename T>
     struct Rebind
     {
-      typedef HashTable<Key, T, EqualKey<Key>, Allocator> Type;
+      using Type = HashTable<Key, T, EqualKey<Key>, Allocator>;
     };
   };
 }
@@ -127,8 +117,7 @@ namespace ReferenceCounting
   }
 
   template <typename Key, typename T, typename EqualKey, typename Allocator>
-  HashTable<Key, T, EqualKey, Allocator>::HashTable(HashTable&& h)
-    noexcept
+  HashTable<Key, T, EqualKey, Allocator>::HashTable(HashTable&& h) noexcept
     : Base(std::move(h))
   {
   }
@@ -156,8 +145,7 @@ namespace ReferenceCounting
 
   template <typename Key, typename T, typename EqualKey, typename Allocator>
   HashTable<Key, T, EqualKey, Allocator>&
-  HashTable<Key, T, EqualKey, Allocator>::operator =(HashTable&& h)
-    noexcept
+  HashTable<Key, T, EqualKey, Allocator>::operator =(HashTable&& h) noexcept
   {
     Base::operator =(std::move(h));
     return *this;
@@ -209,15 +197,13 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename Key, typename T, typename EqualKey, typename Allocator>
-  void
-  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable&& h) noexcept
+  void HashTable<Key, T, EqualKey, Allocator>::swap(HashTable&& h) noexcept
   {
     Base::swap(std::move(h));
   }
 #else
   template <typename Key, typename T, typename EqualKey, typename Allocator>
-  void
-  HashTable<Key, T, EqualKey, Allocator>::swap(HashTable& h) noexcept
+  void HashTable<Key, T, EqualKey, Allocator>::swap(HashTable& h) noexcept
   {
     Base::swap(h);
   }

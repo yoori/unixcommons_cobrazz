@@ -31,19 +31,19 @@ bool g_testSeed        = false;
 //-----------------------------------------------------------------------------
 // This is the hard-coded list of hashes that SMHasher can test.
 
-HashInfo g_hardcoded_hashes[] =
-{
-  { DoNothingHash,        32, 0x00000000, "donothing32", "Do-Nothing function (only valid for measuring call overhead)", 0 },
-  { DoNothingHash,        64, 0x00000000, "donothing64", "Do-Nothing function (only valid for measuring call overhead)", 0 },
-  { DoNothingHash,       128, 0x00000000, "donothing128", "Do-Nothing function (only valid for measuring call overhead)", 0 },
+HashInfo g_hardcoded_hashes[] = {
+  {DoNothingHash, 32, 0x00000000, "donothing32",
+    "Do-Nothing function (only valid for measuring call overhead)", 0},
+  {DoNothingHash, 64, 0x00000000, "donothing64",
+    "Do-Nothing function (only valid for measuring call overhead)", 0},
+  {DoNothingHash, 128, 0x00000000, "donothing128",
+    "Do-Nothing function (only valid for measuring call overhead)", 0},
 
 };
 
 Hashes::Hashes()
 {
-  for (std::size_t i = 0;
-    i < sizeof(g_hardcoded_hashes) / sizeof(g_hardcoded_hashes[0]);
-    ++i)
+  for (std::size_t i = 0; i < sizeof(g_hardcoded_hashes) / sizeof(g_hardcoded_hashes[0]); ++i)
   {
     push_back(g_hardcoded_hashes[i]);
   }
@@ -53,9 +53,9 @@ Hashes g_hashes;
 
 HashInfo * findHash ( const char * name )
 {
-  for(size_t i = 0; i < g_hashes.size(); i++)
+  for (size_t i = 0; i < g_hashes.size(); i++)
   {
-    if(_stricmp(name,g_hashes[i].name.c_str()) == 0) return &g_hashes[i];
+    if (_stricmp(name,g_hashes[i].name.c_str()) == 0) return &g_hashes[i];
   }
 
   return NULL;
@@ -68,18 +68,18 @@ void SelfTest ( void )
 {
   bool pass = true;
 
-  for(size_t i = 0; i < g_hashes.size(); i++)
+  for (size_t i = 0; i < g_hashes.size(); i++)
   {
     HashInfo * info = & g_hashes[i];
 
     pass &= VerificationTest(info->hash,info->hashbits,info->verification,false);
   }
 
-  if(!pass)
+  if (!pass)
   {
     printf("Self-test FAILED!\n");
 
-    for(size_t i = 0; i < g_hashes.size(); i++)
+    for (size_t i = 0; i < g_hashes.size(); i++)
     {
       HashInfo * info = & g_hashes[i];
 
@@ -104,7 +104,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   //-----------------------------------------------------------------------------
   // Sanity tests
 
-  if(g_testSanity || g_testAll)
+  if (g_testSanity || g_testAll)
   {
     printf("[[[ Sanity Tests ]]]\n\n");
 
@@ -117,18 +117,19 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   //-----------------------------------------------------------------------------
   // Speed tests
 
-  if(g_testSpeed || g_testAll)
+  if (g_testSpeed || g_testAll)
   {
     printf("[[[ Speed Tests ]]]\n\n");
 
     BulkSpeedTest(info->hash,info->verification);
     printf("\n");
 
-    for(int i = 1; i < 32; i++)
+    for (int i = 1; i < 32; i++)
     {
       double cycles;
 
-      TinySpeedTest(hashfunc<hashtype>(info->hash),sizeof(hashtype),i,info->verification,true,cycles);
+      TinySpeedTest(
+        hashfunc<hashtype>(info->hash), sizeof(hashtype), i, info->verification, true, cycles);
     }
 
     printf("\n");
@@ -137,7 +138,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   //-----------------------------------------------------------------------------
   // Differential tests
 
-  if(g_testDiff || g_testAll)
+  if (g_testDiff || g_testAll)
   {
     printf("[[[ Differential Tests ]]]\n\n");
 
@@ -148,14 +149,14 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     result &= DiffTest< Blob<128>, hashtype >(hash,4,1000,dumpCollisions);
     result &= DiffTest< Blob<256>, hashtype >(hash,3,1000,dumpCollisions);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Differential-distribution tests
 
-  if(g_testDiffDist /*|| g_testAll*/)
+  if (g_testDiffDist /*|| g_testAll*/)
   {
     printf("[[[ Differential Distribution Tests ]]]\n\n");
 
@@ -169,7 +170,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   //-----------------------------------------------------------------------------
   // Avalanche tests
 
-  if(g_testAvalanche || g_testAll)
+  if (g_testAvalanche || g_testAll)
   {
     printf("[[[ Avalanche Tests ]]]\n\n");
 
@@ -195,7 +196,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     result &= AvalancheTest< Blob<144>, hashtype > (hash,300000);
     result &= AvalancheTest< Blob<152>, hashtype > (hash,300000);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
@@ -203,7 +204,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   // Bit Independence Criteria. Interesting, but doesn't tell us much about
   // collision or distribution.
 
-  if(g_testBIC)
+  if (g_testBIC)
   {
     printf("[[[ Bit Independence Criteria ]]]\n\n");
 
@@ -212,14 +213,14 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     //result &= BicTest<uint64_t,hashtype>(hash,2000000);
     BicTest3<Blob<88>,hashtype>(hash,2000000);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Cyclic' - keys of the form "abcdabcdabcd..."
 
-  if(g_testCyclic || g_testAll)
+  if (g_testCyclic || g_testAll)
   {
     printf("[[[ Keyset 'Cyclic' Tests ]]]\n\n");
 
@@ -232,7 +233,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     result &= CyclicKeyTest<hashtype>(hash,sizeof(hashtype)+3,8,10000000,drawDiagram);
     result &= CyclicKeyTest<hashtype>(hash,sizeof(hashtype)+4,8,10000000,drawDiagram);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
@@ -241,26 +242,26 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
 
   // This generates some huge keysets, 128-bit tests will take ~1.3 gigs of RAM.
 
-  if(g_testTwoBytes || g_testAll)
+  if (g_testTwoBytes || g_testAll)
   {
     printf("[[[ Keyset 'TwoBytes' Tests ]]]\n\n");
 
     bool result = true;
     bool drawDiagram = false;
 
-    for(int i = 4; i <= 20; i += 4)
+    for (int i = 4; i <= 20; i += 4)
     {
       result &= TwoBytesTest2<hashtype>(hash,i,drawDiagram);
     }
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Sparse' - keys with all bits 0 except a few
 
-  if(g_testSparse || g_testAll)
+  if (g_testSparse || g_testAll)
   {
     printf("[[[ Keyset 'Sparse' Tests ]]]\n\n");
 
@@ -276,14 +277,14 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     result &= SparseKeyTest< 256,hashtype>(hash,3,true,true,true,drawDiagram);
     result &= SparseKeyTest<2048,hashtype>(hash,2,true,true,true,drawDiagram);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Permutation' - all possible combinations of a set of blocks
 
-  if(g_testPermutation || g_testAll)
+  if (g_testPermutation || g_testAll)
   {
     {
       // This one breaks lookup3, surprisingly
@@ -293,16 +294,16 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
       bool result = true;
       bool drawDiagram = false;
 
-      uint32_t blocks[] =
-      {
+      uint32_t blocks[] = {
         0x00000000,
 
         0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000005, 0x00000006, 0x00000007,
       };
 
-      result &= CombinationKeyTest<hashtype>(hash,8,blocks,sizeof(blocks) / sizeof(uint32_t),true,true,drawDiagram);
+      result &= CombinationKeyTest<hashtype>(
+        hash, 8, blocks, sizeof(blocks) / sizeof(uint32_t), true, true, drawDiagram);
 
-      if(!result) printf("*********FAIL*********\n");
+      if (!result) printf("*********FAIL*********\n");
       printf("\n");
     }
 
@@ -312,16 +313,16 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
       bool result = true;
       bool drawDiagram = false;
 
-      uint32_t blocks[] =
-      {
+      uint32_t blocks[] = {
         0x00000000,
 
         0x20000000, 0x40000000, 0x60000000, 0x80000000, 0xA0000000, 0xC0000000, 0xE0000000
       };
 
-      result &= CombinationKeyTest<hashtype>(hash,8,blocks,sizeof(blocks) / sizeof(uint32_t),true,true,drawDiagram);
+      result &= CombinationKeyTest<hashtype>(
+        hash, 8, blocks, sizeof(blocks) / sizeof(uint32_t), true, true, drawDiagram);
 
-      if(!result) printf("*********FAIL*********\n");
+      if (!result) printf("*********FAIL*********\n");
       printf("\n");
     }
 
@@ -331,16 +332,16 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
       bool result = true;
       bool drawDiagram = false;
 
-      uint32_t blocks[] =
-      {
+      uint32_t blocks[] = {
         0x00000000,
 
         0x80000000,
       };
 
-      result &= CombinationKeyTest<hashtype>(hash,20,blocks,sizeof(blocks) / sizeof(uint32_t),true,true,drawDiagram);
+      result &= CombinationKeyTest<hashtype>(
+        hash, 20, blocks, sizeof(blocks) / sizeof(uint32_t), true, true, drawDiagram);
 
-      if(!result) printf("*********FAIL*********\n");
+      if (!result) printf("*********FAIL*********\n");
       printf("\n");
     }
 
@@ -350,16 +351,16 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
       bool result = true;
       bool drawDiagram = false;
 
-      uint32_t blocks[] =
-      {
+      uint32_t blocks[] = {
         0x00000000,
 
         0x00000001,
       };
 
-      result &= CombinationKeyTest<hashtype>(hash,20,blocks,sizeof(blocks) / sizeof(uint32_t),true,true,drawDiagram);
+      result &= CombinationKeyTest<hashtype>(
+        hash, 20, blocks, sizeof(blocks) / sizeof(uint32_t), true, true, drawDiagram);
 
-      if(!result) printf("*********FAIL*********\n");
+      if (!result) printf("*********FAIL*********\n");
       printf("\n");
     }
 
@@ -369,8 +370,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
       bool result = true;
       bool drawDiagram = false;
 
-      uint32_t blocks[] =
-      {
+      uint32_t blocks[] = {
         0x00000000,
 
         0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000005, 0x00000006, 0x00000007,
@@ -378,9 +378,10 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
         0x80000000, 0x40000000, 0xC0000000, 0x20000000, 0xA0000000, 0x60000000, 0xE0000000
       };
 
-      result &= CombinationKeyTest<hashtype>(hash,6,blocks,sizeof(blocks) / sizeof(uint32_t),true,true,drawDiagram);
+      result &= CombinationKeyTest<hashtype>(
+        hash, 6, blocks, sizeof(blocks) / sizeof(uint32_t), true, true, drawDiagram);
 
-      if(!result) printf("*********FAIL*********\n");
+      if (!result) printf("*********FAIL*********\n");
       printf("\n");
     }
   }
@@ -391,7 +392,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
   // Skip distribution test for these - they're too easy to distribute well,
   // and it generates a _lot_ of testing
 
-  if(g_testWindow || g_testAll)
+  if (g_testWindow || g_testAll)
   {
     printf("[[[ Keyset 'Window' Tests ]]]\n\n");
 
@@ -400,16 +401,17 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     bool testDistribution = false;
     bool drawDiagram = false;
 
-    result &= WindowedKeyTest< Blob<hashbits*2>, hashtype > ( hash, 20, testCollision, testDistribution, drawDiagram );
+    result &= WindowedKeyTest<Blob<hashbits * 2>, hashtype>(
+      hash, 20, testCollision, testDistribution, drawDiagram);
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Text'
 
-  if(g_testText || g_testAll)
+  if (g_testText || g_testAll)
   {
     printf("[[[ Keyset 'Text' Tests ]]]\n\n");
 
@@ -422,14 +424,14 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
     result &= TextKeyTest( hash, "FooBar", alnum,4, "",       drawDiagram );
     result &= TextKeyTest( hash, "",       alnum,4, "FooBar", drawDiagram );
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Zeroes'
 
-  if(g_testZeroes || g_testAll)
+  if (g_testZeroes || g_testAll)
   {
     printf("[[[ Keyset 'Zeroes' Tests ]]]\n\n");
 
@@ -438,14 +440,14 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
 
     result &= ZeroKeyTest<hashtype>( hash, drawDiagram );
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 
   //-----------------------------------------------------------------------------
   // Keyset 'Seed'
 
-  if(g_testSeed || g_testAll)
+  if (g_testSeed || g_testAll)
   {
     printf("[[[ Keyset 'Seed' Tests ]]]\n\n");
 
@@ -454,7 +456,7 @@ void test ( hashfunc<hashtype> hash, HashInfo * info )
 
     result &= SeedTest<hashtype>( hash, 1000000, drawDiagram );
 
-    if(!result) printf("*********FAIL*********\n");
+    if (!result) printf("*********FAIL*********\n");
     printf("\n");
   }
 }
@@ -483,7 +485,7 @@ void testHash ( const char * name )
 {
   HashInfo * pInfo = findHash(name);
 
-  if(pInfo == NULL)
+  if (pInfo == NULL)
   {
     printf("Invalid hash '%s' specified\n",name);
     return;
@@ -492,19 +494,19 @@ void testHash ( const char * name )
   {
     g_hashUnderTest = pInfo;
 
-    if(pInfo->hashbits == 32)
+    if (pInfo->hashbits == 32)
     {
       test<uint32_t>( VerifyHash, pInfo );
     }
-    else if(pInfo->hashbits == 64)
+    else if (pInfo->hashbits == 64)
     {
       test<uint64_t>( pInfo->hash, pInfo );
     }
-    else if(pInfo->hashbits == 128)
+    else if (pInfo->hashbits == 128)
     {
       test<uint128_t>( pInfo->hash, pInfo );
     }
-    else if(pInfo->hashbits == 256)
+    else if (pInfo->hashbits == 256)
     {
       test<uint256_t>( pInfo->hash, pInfo );
     }

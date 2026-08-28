@@ -16,19 +16,19 @@ namespace ReferenceCounting
   class Deque : protected std::deque<T, Allocator>
   {
   public:
-    typedef std::deque<T, Allocator> Base;
+    using Base = std::deque<T, Allocator>;
 
-    typedef typename Base::value_type value_type;
-    typedef typename Base::pointer pointer;
-    typedef typename Base::const_pointer const_pointer;
-    typedef typename Base::reference reference;
-    typedef typename Base::const_reference const_reference;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
-    typedef typename Base::size_type size_type;
-    typedef typename Base::difference_type difference_type;
+    using value_type = typename Base::value_type;
+    using pointer = typename Base::pointer;
+    using const_pointer = typename Base::const_pointer;
+    using reference = typename Base::reference;
+    using const_reference = typename Base::const_reference;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
+    using size_type = typename Base::size_type;
+    using difference_type = typename Base::difference_type;
 
     using Base::begin;
     using Base::end;
@@ -62,54 +62,37 @@ namespace ReferenceCounting
     template <typename InputIterator>
     Deque(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    Deque&
-    operator =(Deque& d) /*throw (eh::Exception)*/;
-    Deque&
-    operator =(Deque&& d) noexcept;
+    Deque& operator =(Deque& d) /*throw (eh::Exception)*/;
+    Deque& operator =(Deque&& d) noexcept;
 
-    void
-    assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
+    void assign(size_type n, value_type& x) /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
+    void assign(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    void
-    resize(size_type n) /*throw (eh::Exception)*/;
-    void
-    resize(size_type n, value_type& v) /*throw (eh::Exception)*/;
+    void resize(size_type n) /*throw (eh::Exception)*/;
+    void resize(size_type n, value_type& v) /*throw (eh::Exception)*/;
 
-    void
-    push_front(value_type& x) /*throw (eh::Exception)*/;
-    void
-    push_front(value_type&& x) /*throw (eh::Exception)*/;
-    void
-    push_back(value_type& x) /*throw (eh::Exception)*/;
-    void
-    push_back(value_type&& x) /*throw (eh::Exception)*/;
+    void push_front(value_type& x) /*throw (eh::Exception)*/;
+    void push_front(value_type&& x) /*throw (eh::Exception)*/;
+    void push_back(value_type& x) /*throw (eh::Exception)*/;
+    void push_back(value_type&& x) /*throw (eh::Exception)*/;
 
-    iterator
-    insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
-    iterator
-    insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
-    void
-    insert(iterator position, size_type n, value_type& x)
+    iterator insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
+    void insert(iterator position, size_type n, value_type& x)
       /*throw (eh::Exception)*/;
     template <typename InputIterator>
-    void
-    insert(iterator position, InputIterator first, InputIterator last)
+    void insert(iterator position, InputIterator first, InputIterator last)
       /*throw (eh::Exception)*/;
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
-    void
-    swap(Deque&& d) noexcept;
+    void swap(Deque&& d) noexcept;
 #else
-    void
-    swap(Deque& d) noexcept;
+    void swap(Deque& d) noexcept;
 #endif
 
   private:
-    size_type
-    resize_(size_type n) /*throw (eh::Exception)*/;
+    size_type resize_(size_type n) /*throw (eh::Exception)*/;
   };
 }
 
@@ -172,8 +155,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::assign(size_type n, value_type& x)
+  void Deque<T, Allocator>::assign(size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     n = resize_(n);
@@ -189,8 +171,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Allocator>
   template <typename InputIterator>
-  void
-  Deque<T, Allocator>::assign(InputIterator first, InputIterator last)
+  void Deque<T, Allocator>::assign(InputIterator first, InputIterator last)
     /*throw (eh::Exception)*/
   {
     size_type n = std::distance(first, last);
@@ -208,8 +189,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::resize(size_type n) /*throw (eh::Exception)*/
+  void Deque<T, Allocator>::resize(size_type n) /*throw (eh::Exception)*/
   {
     for (n = resize_(n); n--;)
     {
@@ -218,8 +198,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::resize(size_type n, value_type& x)
+  void Deque<T, Allocator>::resize(size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     for (n = resize_(n); n--;)
@@ -229,29 +208,25 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::push_front(value_type& x) /*throw (eh::Exception)*/
+  void Deque<T, Allocator>::push_front(value_type& x) /*throw (eh::Exception)*/
   {
     emplace_front(x);
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::push_front(value_type&& x) /*throw (eh::Exception)*/
+  void Deque<T, Allocator>::push_front(value_type&& x) /*throw (eh::Exception)*/
   {
     emplace_front(std::move(x));
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
+  void Deque<T, Allocator>::push_back(value_type& x) /*throw (eh::Exception)*/
   {
     emplace_back(x);
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
+  void Deque<T, Allocator>::push_back(value_type&& x) /*throw (eh::Exception)*/
   {
     emplace_back(std::move(x));
   }
@@ -273,8 +248,7 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::insert(iterator position, size_type n, value_type& x)
+  void Deque<T, Allocator>::insert(iterator position, size_type n, value_type& x)
     /*throw (eh::Exception)*/
   {
     if (!n)
@@ -346,15 +320,13 @@ namespace ReferenceCounting
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::swap(Deque&& d) noexcept
+  void Deque<T, Allocator>::swap(Deque&& d) noexcept
   {
     Base::swap(std::move(d));
   }
 #else
   template <typename T, typename Allocator>
-  void
-  Deque<T, Allocator>::swap(Deque& d) noexcept
+  void Deque<T, Allocator>::swap(Deque& d) noexcept
   {
     Base::swap(d);
   }
@@ -378,23 +350,20 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Allocator>
-  void
-  swap(Deque<T, Allocator>& x, Deque<T, Allocator>& y) noexcept
+  void swap(Deque<T, Allocator>& x, Deque<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ == 4
   template <typename T, typename Allocator>
-  void
-  swap(Deque<T, Allocator>&& x, Deque<T, Allocator>& y) noexcept
+  void swap(Deque<T, Allocator>&& x, Deque<T, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename T, typename Allocator>
-  void
-  swap(Deque<T, Allocator>& x, Deque<T, Allocator>&& y) noexcept
+  void swap(Deque<T, Allocator>& x, Deque<T, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

@@ -1,5 +1,5 @@
 // Generics::uuid test
-// First stage check uuids 
+// First stage check uuids
 // 1. start some threads
 // 2. generate in every thread N=20 uuids.
 // 3. dump uuids into general place - all_uids
@@ -20,36 +20,31 @@ DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 struct UuidGenerator
 {
-  void 
-  operator()() /*throw (eh::Exception)*/;
+  void operator()() /*throw (eh::Exception)*/;
 
-  void
-  check() /*throw (eh::Exception)*/;
+  void check() /*throw (eh::Exception)*/;
 private:
-  typedef Sync::PosixMutex Mutex_;
-  typedef Sync::PosixGuard Guard_;
-  typedef std::vector<Generics::Uuid> AllUidsType;
+  using Mutex_ = Sync::PosixMutex;
+  using Guard_ = Sync::PosixGuard;
+  using AllUidsType = std::vector<Generics::Uuid>;
 
   AllUidsType  all_uids;
   Mutex_ mutex_;
 };
 
-void
-uuid_test() /*throw (eh::Exception)*/
+void uuid_test() /*throw (eh::Exception)*/
 {
   try
   {
     std::cout << "Uuid generation test started.." << std::endl;
 
     UuidGenerator uuids;
-    TestCommons::MTTester<UuidGenerator&> mt_tester(
-      uuids, 10);
+    TestCommons::MTTester<UuidGenerator&> mt_tester( uuids, 10);
 
     mt_tester.run(1000, 0, 1000);
     uuids.check();
 
-    const uint8_t data[] =
-    {
+    const uint8_t data[] = {
       0x40, 0x40, 0x40, 0x40,
       0x50, 0x50, 0x60, 0x60,
       0x60, 0x60, 0x60, 0x60,
@@ -71,22 +66,14 @@ uuid_test() /*throw (eh::Exception)*/
     }
 
 #if 0
-    std::cout << "Testing output formats:\n"
-    << "default output " << u << std::endl
-    << Generics::Uuid::ascii
-    << "default ascii output " << u << std::endl
-    << "With braces = "
-    << Generics::Uuid::showbraces << u << std::endl
-    << "and dashes " << Generics::Uuid::showdashes << u
-    << std::endl
-    << "without braces = " << Generics::Uuid::noshowbraces << u
-    << std::endl
+    std::cout << "Testing output formats:\n" << "default output " << u << std::endl
+    << Generics::Uuid::ascii << "default ascii output " << u << std::endl
+    << "With braces = " << Generics::Uuid::showbraces << u << std::endl
+    << "and dashes " << Generics::Uuid::showdashes << u << std::endl
+    << "without braces = " << Generics::Uuid::noshowbraces << u << std::endl
     << "and dashes " << Generics::Uuid::noshowdashes << u << std::endl
-    << "standard base64 encoding put into stream "
-    << Generics::Uuid::base64
-    << u << std::endl
-    << "right string " << ETHALON << std::endl
-    << "Testing input formats:\n";
+    << "standard base64 encoding put into stream " << Generics::Uuid::base64
+    << u << std::endl << "right string " << ETHALON << std::endl << "Testing input formats:\n";
 
     char* ev = getenv("TEST_SRC_DIR");
     std::string test_file(ev ? ev : "tests/Generics/Uuid");
@@ -99,8 +86,7 @@ uuid_test() /*throw (eh::Exception)*/
     {
       ufs >> Generics::Uuid::ascii;
       ufs >> uf;
-      std::cout << "Read uuid1 = " << Generics::Uuid::ascii << uf
-        << std::endl;
+      std::cout << "Read uuid1 = " << Generics::Uuid::ascii << uf << std::endl;
       ufs >> uf;
       std::cout << "Read uuid2 = " << uf << std::endl;
       ufs >> Generics::Uuid::base64;
@@ -115,6 +101,7 @@ uuid_test() /*throw (eh::Exception)*/
         }
       }
     }
+
     if (!all_done)
     {
       throw Exception("Weren't complete all input stream tests");
@@ -140,8 +127,7 @@ public:
   SignedUuidTest(const char* pr, const char* pu)
     /*throw (eh::Exception)*/;
 
-  void
-  operator ()() const /*throw (eh::Exception)*/;
+  void operator ()() const /*throw (eh::Exception)*/;
 
 private:
   Generics::SignedUuidGenerator gen_;
@@ -154,8 +140,7 @@ SignedUuidTest::SignedUuidTest(const char* pr, const char* pu)
 {
 }
 
-void
-SignedUuidTest::operator ()() const /*throw (eh::Exception)*/
+void SignedUuidTest::operator ()() const /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 10000; i++)
   {
@@ -170,14 +155,12 @@ SignedUuidTest::operator ()() const /*throw (eh::Exception)*/
     Generics::SignedUuid u3(p.construct());
     if (u3.uuid() != u2.uuid())
     {
-      std::cerr << "FAIL: probe '" << u3.str() << "' is not '" <<
-        u2.str() << "'\n";
+      std::cerr << "FAIL: probe '" << u3.str() << "' is not '" << u2.str() << "'\n";
     }
   }
 }
 
-void
-signed_uuid_test() /*throw (eh::Exception)*/
+void signed_uuid_test() /*throw (eh::Exception)*/
 {
   ERR_load_crypto_strings();
   const char* root = getenv("TEST_TOP_SRC_DIR");
@@ -199,6 +182,7 @@ signed_uuid_test() /*throw (eh::Exception)*/
     {
       std::cerr << "Verified uuid is not the same\n";
     }
+
     if (u1.str() != u2.str())
     {
       std::cerr << "Strings for uuids are not the same\n";
@@ -244,8 +228,7 @@ signed_uuid_test() /*throw (eh::Exception)*/
 // Test body below
 //
 
-int
-main()
+int main()
 {
   try
   {
@@ -262,10 +245,9 @@ main()
 //////////////////////////////////////////////////////////////////////////
 // Implementations
 
-void 
-UuidGenerator::operator()() /*throw (eh::Exception)*/
+void UuidGenerator::operator()() /*throw (eh::Exception)*/
 {
-  typedef std::tr1::array<Generics::Uuid, 25> container;
+  using container = std::tr1::array<Generics::Uuid, 25>;
   std::unique_ptr<container> armada(new container);
   for (container::iterator it = armada->begin(); it != armada->end(); ++it)
     *it = Generics::Uuid::create_random_based();
@@ -273,8 +255,7 @@ UuidGenerator::operator()() /*throw (eh::Exception)*/
   all_uids.insert(all_uids.begin(), armada->begin(), armada->end());
 }
 
-void
-UuidGenerator::check() /*throw (eh::Exception)*/
+void UuidGenerator::check() /*throw (eh::Exception)*/
 {
   std::sort(all_uids.begin(), all_uids.end());
   std::cout << "Unique check: ";
@@ -283,16 +264,13 @@ UuidGenerator::check() /*throw (eh::Exception)*/
   {
     ++it;
   }
-  for (AllUidsType::const_iterator pit = all_uids.begin();
-    it != all_uids.end(); ++it, ++pit )
+  for (AllUidsType::const_iterator pit = all_uids.begin(); it != all_uids.end(); ++it, ++pit )
   {
     if (*it == *pit)
     {
       Stream::Error ostr;
-      ostr << "uuid duplication. We must improve generation algorithm."
-        << std::endl
-        << "N1=" << pit-all_uids.begin() << " uuid1=" << *pit
-        << std::endl
+      ostr << "uuid duplication. We must improve generation algorithm." << std::endl
+        << "N1=" << pit-all_uids.begin() << " uuid1=" << *pit << std::endl
         << "N2=" << it-all_uids.begin() << " uuid1=" << *it;
       throw Exception(ostr);
     }

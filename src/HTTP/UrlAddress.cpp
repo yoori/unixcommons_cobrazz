@@ -36,21 +36,16 @@ namespace
   const String::AsciiStringManip::CharCategory NON_COMPLIANT("{}|^~[]`");
 
   // Url splitting
-  const String::AsciiStringManip::CharCategory
-    URL_PARSER_SCHEME_END(":/?#");
-  typedef const String::AsciiStringManip::Char3Category<'/', '?', '#'>
-    UrlParserAuthorityEnd;
+  const String::AsciiStringManip::CharCategory URL_PARSER_SCHEME_END(":/?#");
+  using UrlParserAuthorityEnd = const String::AsciiStringManip::Char3Category<'/', '?', '#'>;
   UrlParserAuthorityEnd URL_PARSER_AUTORITY_END{};
-  typedef const String::AsciiStringManip::Char2Category<'?', '#'>
-    UrlParserPathEnd;
+  using UrlParserPathEnd = const String::AsciiStringManip::Char2Category<'?', '#'>;
   UrlParserPathEnd URL_PARSER_PATH_END{};
-  typedef const String::AsciiStringManip::Char1Category<'#'>
-    UrlParserQueryEnd;
+  using UrlParserQueryEnd = const String::AsciiStringManip::Char1Category<'#'>;
   UrlParserQueryEnd URL_PARSER_QUERY_END{};
 
   // Part 3.1
-  const String::AsciiStringManip::CharCategory& SCHEME_FIRST(
-    String::AsciiStringManip::ALPHA);
+  const String::AsciiStringManip::CharCategory& SCHEME_FIRST( String::AsciiStringManip::ALPHA);
   const String::AsciiStringManip::CharCategory SCHEME_NOT_FIRST(
     String::AsciiStringManip::ALPHA_NUM,
     String::AsciiStringManip::CharCategory("-+."));
@@ -62,13 +57,10 @@ namespace
     String::AsciiStringManip::CharCategory(":"));
 
   // Part 3.2.2 is too wide for DNS, using special per-label checks
-  const String::AsciiStringManip::CharCategory HOST(
-    UNRESERVED,
-    SUB_DELIMS);
+  const String::AsciiStringManip::CharCategory HOST( UNRESERVED, SUB_DELIMS);
 
   // Part 3.2.3
-  const String::AsciiStringManip::CharCategory& PORT(
-    String::AsciiStringManip::NUMBER);
+  const String::AsciiStringManip::CharCategory& PORT( String::AsciiStringManip::NUMBER);
 
   // Part 3.3 (Simplified)
   const String::AsciiStringManip::CharCategory PATH(
@@ -116,8 +108,7 @@ namespace
   const size_t MAX_HOSTNAME_SIZE = 255;
 
   const char LABEL_SEPARATOR = '.';
-  typedef const String::AsciiStringManip::Char1Category<LABEL_SEPARATOR>
-    LabelSeparatorCategory;
+  using LabelSeparatorCategory = const String::AsciiStringManip::Char1Category<LABEL_SEPARATOR>;
 
   // 3.5 of RFC1034 and 2.1 of RFC1123.
   // Also non-standard underscore is included.
@@ -149,8 +140,8 @@ namespace
       {
         return str;
       }
-      if (end - str < 3 ||
-        !String::AsciiStringManip::HEX_NUMBER(str[1]) ||
+
+      if (end - str < 3 || !String::AsciiStringManip::HEX_NUMBER(str[1]) ||
         !String::AsciiStringManip::HEX_NUMBER(str[2]))
       {
         return str;
@@ -186,8 +177,7 @@ namespace
     const String::SubString& scheme, const String::SubString& host,
     std::string& error, bool strict) /*throw (eh::Exception)*/
   {
-    if (scheme != HTTP_SCHEME && scheme != HTTPS_SCHEME &&
-      (strict || !scheme.empty()))
+    if (scheme != HTTP_SCHEME && scheme != HTTPS_SCHEME && (strict || !scheme.empty()))
     {
       return make_invalid(error, "unexpected protocol in url", url);
     }
@@ -207,12 +197,10 @@ namespace
     return host.empty() && scheme != HTTP_SCHEME && scheme != HTTPS_SCHEME;
   }
 
-  void
-  http_add_scheme(std::string& fixed_url, const String::SubString& url)
+  void http_add_scheme(std::string& fixed_url, const String::SubString& url)
     /*throw (eh::Exception)*/
   {
-    fixed_url.reserve(HTTP_SCHEME.str.size() +
-      SCHEME_AUTHORITY_MEDIATOR.size() + url.size());
+    fixed_url.reserve(HTTP_SCHEME.str.size() + SCHEME_AUTHORITY_MEDIATOR.size() + url.size());
     HTTP_SCHEME.str.append_to(fixed_url);
     SCHEME_AUTHORITY_MEDIATOR.append_to(fixed_url);
     url.append_to(fixed_url);
@@ -224,8 +212,7 @@ namespace
     std::string& new_part) /*throw (eh::Exception)*/
   {
     const char* const END = part.end();
-    const char* str = find_invalid(part.begin(), END,
-      checker);
+    const char* str = find_invalid(part.begin(), END, checker);
     if (str == END)
     {
       return false;
@@ -255,8 +242,7 @@ namespace
 
   struct PartCheckInfo
   {
-    PartCheckInfo(String::SubString& part,
-      const String::AsciiStringManip::CharCategory& checker)
+    PartCheckInfo(String::SubString& part, const String::AsciiStringManip::CharCategory& checker)
       /*throw (eh::Exception)*/;
 
     String::SubString& part;
@@ -278,8 +264,7 @@ namespace
   {
     result.clear();
     result.reserve(str.length());
-    for (String::SubString::ConstPointer itor(str.begin());
-      itor != str.end(); ++itor)
+    for (String::SubString::ConstPointer itor(str.begin()); itor != str.end(); ++itor)
     {
       if (*itor == '%')
       {
@@ -308,17 +293,14 @@ namespace
     }
   }
 
-  void
-  unmime_all(const String::SubString& src, std::string& dst)
+  void unmime_all(const String::SubString& src, std::string& dst)
     /*throw (eh::Exception)*/
   {
     dst.clear();
     dst.reserve(src.size());
-    for (String::SubString::ConstPointer it = src.begin();
-      it != src.end(); it++)
+    for (String::SubString::ConstPointer it = src.begin(); it != src.end(); it++)
     {
-      if (*it == '%' && src.end() - it >= 3 &&
-        String::AsciiStringManip::HEX_NUMBER(it[1]) &&
+      if (*it == '%' && src.end() - it >= 3 && String::AsciiStringManip::HEX_NUMBER(it[1]) &&
         String::AsciiStringManip::HEX_NUMBER(it[2]))
       {
         dst.push_back(String::AsciiStringManip::hex_to_char(it[1], it[2]));
@@ -335,13 +317,11 @@ namespace
   class IDNA0 : private Generics::Uncopyable
   {
   public:
-    explicit
-    IDNA0(std::string& ascii, bool* idna_label = nullptr) noexcept;
+    explicit IDNA0(std::string& ascii, bool* idna_label = nullptr) noexcept;
 
     ~IDNA0() noexcept;
 
-    void
-    append(const String::SubString& label)
+    void append(const String::SubString& label)
       /*throw (BrowserAddress::IDNAError)*/;
 
   private:
@@ -360,20 +340,18 @@ namespace
     String::AsciiStringManip::to_lower(ascii_);
   }
 
-  void
-  IDNA0::append(const String::SubString& label)
+  void IDNA0::append(const String::SubString& label)
     /*throw (BrowserAddress::IDNAError)*/
   {
     if (IDNA_PREFIX.start(label))
     {
-      if(idna_label_)
+      if (idna_label_)
       {
         *idna_label_ = true;
         return;
       }
 
-      throw HTTP::BrowserAddress::IDNAError(
-        "Possibly IDNA label");
+      throw HTTP::BrowserAddress::IDNAError( "Possibly IDNA label");
     }
   }
 
@@ -382,8 +360,7 @@ namespace
   public:
     IDNA2008(std::string& ascii, std::string& unicode) noexcept;
 
-    void
-    append(const String::WSubString& label)
+    void append(const String::WSubString& label)
       /*throw (eh::Exception, BrowserAddress::IDNAError)*/;
 
   private:
@@ -391,8 +368,7 @@ namespace
     decode_(const String::WSubString& lab, std::string& alabel,
       std::wstring& decoded, String::WSubString& wlab, bool& unicode)
       /*throw (eh::Exception, BrowserAddress::IDNAError)*/;
-    bool
-    encode_(const String::WSubString& wlabel, bool unicode)
+    bool encode_(const String::WSubString& wlabel, bool unicode)
       /*throw (eh::Exception, BrowserAddress::IDNAError)*/;
 
     std::string& ascii_;
@@ -434,8 +410,7 @@ namespace
         throw BrowserAddress::IDNAError(ostr);
       }
 
-      if (!IDNA_PREFIX.start(alabel) ||
-        alabel.size() == IDNA_PREFIX.str.size() ||
+      if (!IDNA_PREFIX.start(alabel) || alabel.size() == IDNA_PREFIX.str.size() ||
         *IDNA_ALLOWED.find_nonowned(alabel.c_str()) ||
         !String::StringManip::punycode_decode(
           String::SubString(alabel).substr(IDNA_PREFIX.str.size()),
@@ -445,8 +420,7 @@ namespace
       }
 
       std::wstring normalized;
-      if (!String::lower_and_normalize(decoded, normalized, false) ||
-        normalized.empty())
+      if (!String::lower_and_normalize(decoded, normalized, false) || normalized.empty())
       {
         return true;
       }
@@ -458,12 +432,10 @@ namespace
     return false;
   }
 
-  bool
-  IDNA2008::encode_(const String::WSubString& wlabel, bool unicode)
+  bool IDNA2008::encode_(const String::WSubString& wlabel, bool unicode)
     /*throw (eh::Exception, BrowserAddress::IDNAError)*/
   {
-    if (wlabel[0] == IDNA_DELIMITER ||
-      wlabel[wlabel.size() - 1] == IDNA_DELIMITER)
+    if (wlabel[0] == IDNA_DELIMITER || wlabel[wlabel.size() - 1] == IDNA_DELIMITER)
     {
       if (unicode)
       {
@@ -485,8 +457,7 @@ namespace
     {
       if (unicode)
       {
-        throw BrowserAddress::IDNAError(
-          "Invalid symbols in the encoded label");
+        throw BrowserAddress::IDNAError( "Invalid symbols in the encoded label");
       }
       return false;
     }
@@ -495,19 +466,16 @@ namespace
     {
       if (unicode)
       {
-        throw BrowserAddress::IDNAError(
-          "Extra hyphens in the encoded label");
+        throw BrowserAddress::IDNAError( "Extra hyphens in the encoded label");
       }
       return false;
     }
 
-    for (String::WSubString::ConstPointer itor(wlabel.begin());
-      itor != wlabel.end(); ++itor)
+    for (String::WSubString::ConstPointer itor(wlabel.begin()); itor != wlabel.end(); ++itor)
     {
       char buf[16];
       unsigned long octets_count;
-      if (!String::UTF8Handler::ulong_to_utf8_char(*itor, buf,
-        octets_count))
+      if (!String::UTF8Handler::ulong_to_utf8_char(*itor, buf, octets_count))
       {
         if (unicode)
         {
@@ -526,8 +494,7 @@ namespace
     return true;
   }
 
-  void
-  IDNA2008::append(const String::WSubString& label)
+  void IDNA2008::append(const String::WSubString& label)
     /*throw (eh::Exception, BrowserAddress::IDNAError)*/
   {
     std::string alabel;
@@ -543,8 +510,7 @@ namespace
       }
 
       bool has_nonascii = false;
-      for (String::WSubString::ConstPointer itor(wlabel.begin());
-        itor != wlabel.end(); ++itor)
+      for (String::WSubString::ConstPointer itor(wlabel.begin()); itor != wlabel.end(); ++itor)
       {
         if (*itor >= 0x80)
         {
@@ -568,6 +534,7 @@ namespace
         {
           adecoded.push_back(static_cast<char>(wlabel[i]));
         }
+
         if (!is_valid_chars(adecoded, HOST))
         {
           alabel.push_back(LABEL_SEPARATOR);
@@ -593,24 +560,20 @@ namespace
   }
 
 
-  std::string
-  convert_label(const String::WSubString& label)
+  std::string convert_label(const String::WSubString& label)
   {
     std::string utf8;
     String::StringManip::wchar_to_utf8(label, utf8);
     return utf8;
   }
 
-  const String::SubString&
-  convert_label(const String::SubString& label)
+  const String::SubString& convert_label(const String::SubString& label)
   {
     return label;
   }
 
   template <typename SubStringT, typename Dest>
-  void
-  idna_label_convert(const String::SubString& host,
-    const SubStringT& normalized, Dest&& dst)
+  void idna_label_convert(const String::SubString& host, const SubStringT& normalized, Dest&& dst)
     /*throw (eh::Exception, BrowserAddress::IDNAError)*/
   {
     typename SubStringT::SizeType last = 0, pos;
@@ -639,8 +602,7 @@ namespace
       if (label.size() > MAX_HOSTNAME_LABEL_SIZE)
       {
         Stream::Error ostr;
-        ostr << FNS << "Label '" << convert_label(label) <<
-          "' in '" << host << "' is too large";
+        ostr << FNS << "Label '" << convert_label(label) << "' in '" << host << "' is too large";
         throw BrowserAddress::IDNAError(ostr);
       }
 
@@ -651,18 +613,14 @@ namespace
       catch (const BrowserAddress::IDNAError& ex)
       {
         Stream::Error ostr;
-        ostr << FNS << "Problem with label '" <<
-          convert_label(label) << "' in '" << host <<
+        ostr << FNS << "Problem with label '" << convert_label(label) << "' in '" << host <<
           "': " << ex.what();
         throw BrowserAddress::IDNAError(ostr);
       }
     }
   }
 
-  bool
-  try_normalize_simple_ascii_host(
-    const String::SubString& host,
-    std::string& ascii)
+  bool try_normalize_simple_ascii_host( const String::SubString& host, std::string& ascii)
     /*throw (BrowserAddress::IDNAError)*/
   {
     std::size_t label_size = 0;
@@ -672,12 +630,12 @@ namespace
     ascii.resize(host.size());
     char* res = &ascii[0];
 
-    for(String::SubString::SizeType i = 0; i < host.size(); ++i)
+    for (String::SubString::SizeType i = 0; i < host.size(); ++i)
     {
       const char ch = host[i];
-      if(ch == LABEL_SEPARATOR)
+      if (ch == LABEL_SEPARATOR)
       {
-        if(label_size == 0)
+        if (label_size == 0)
         {
           Stream::Error ostr;
           ostr << FNS << "Empty label in '" << host << "'";
@@ -690,11 +648,11 @@ namespace
         continue;
       }
 
-      if(ch >= 'A' && ch <= 'Z')
+      if (ch >= 'A' && ch <= 'Z')
       {
         *res++ = ch - 'A' + 'a';
       }
-      else if((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'))
+      else if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'))
       {
         *res++ = ch;
       }
@@ -706,7 +664,7 @@ namespace
 
       ++label_size;
       last_is_separator = false;
-      if(label_size > MAX_HOSTNAME_LABEL_SIZE)
+      if (label_size > MAX_HOSTNAME_LABEL_SIZE)
       {
         Stream::Error ostr;
         ostr << FNS << "Label in '" << host << "' is too large";
@@ -716,7 +674,7 @@ namespace
 
     ascii.resize(res - &ascii[0]);
 
-    if(ascii.empty() || (!last_is_separator && label_size == 0))
+    if (ascii.empty() || (!last_is_separator && label_size == 0))
     {
       throw BrowserAddress::IDNAError("Host name is empty");
     }
@@ -731,7 +689,7 @@ namespace
   {
     if (host.empty())
     {
-      if(!throw_error)
+      if (!throw_error)
       {
         return false;
       }
@@ -741,7 +699,7 @@ namespace
 
     if (host.size() >= MAX_HOSTNAME_SIZE)
     {
-      if(!throw_error)
+      if (!throw_error)
       {
         return false;
       }
@@ -756,13 +714,11 @@ namespace
     size_t whost_size = 0;
     for (String::SubString::SizeType i = 0; i < host.size();)
     {
-      unsigned long octet_count =
-        String::UTF8Handler::get_octet_count(host[i]);
+      unsigned long octet_count = String::UTF8Handler::get_octet_count(host[i]);
       wchar_t wch;
-      if (!String::UTF8Handler::utf8_char_to_wchar(&host[i],
-        octet_count, wch))
+      if (!String::UTF8Handler::utf8_char_to_wchar(&host[i], octet_count, wch))
       {
-        if(!throw_error)
+        if (!throw_error)
         {
           return false;
         }
@@ -789,11 +745,8 @@ namespace
       {
         host.assign_to(ascii);
         bool idna_label = false;
-        idna_label_convert(
-          host,
-          host,
-          IDNA0(ascii, throw_error ? nullptr : &idna_label));
-        if(!idna_label)
+        idna_label_convert( host, host, IDNA0(ascii, throw_error ? nullptr : &idna_label));
+        if (!idna_label)
         {
           unicode = ascii;
           return true;
@@ -804,7 +757,7 @@ namespace
       }
       catch (const BrowserAddress::IDNAError&)
       {
-        if(!throw_error)
+        if (!throw_error)
         {
           ascii.clear();
           unicode.clear();
@@ -818,7 +771,7 @@ namespace
       }
       catch (const eh::Exception&)
       {
-        if(!throw_error)
+        if (!throw_error)
         {
           ascii.clear();
           unicode.clear();
@@ -830,10 +783,9 @@ namespace
     }
 
     std::wstring normalized;
-    if (!String::lower_and_normalize(
-      String::WSubString(whost, whost_size), normalized, true))
+    if (!String::lower_and_normalize( String::WSubString(whost, whost_size), normalized, true))
     {
-      if(!throw_error)
+      if (!throw_error)
       {
         ascii.clear();
         unicode.clear();
@@ -844,9 +796,10 @@ namespace
       ostr << FNS << "Normalization of host name '" << host << "' failed";
       throw BrowserAddress::IDNAError(ostr);
     }
+
     if (normalized.empty())
     {
-      if(!throw_error)
+      if (!throw_error)
       {
         ascii.clear();
         unicode.clear();
@@ -854,25 +807,22 @@ namespace
       }
 
       Stream::Error ostr;
-      ostr << FNS << "Empty host name '" << host <<
-        "' after normalization";
+      ostr << FNS << "Empty host name '" << host << "' after normalization";
       throw BrowserAddress::IDNAError(ostr);
     }
 
-    bool last_is_sep =
-      normalized[normalized.size() - 1] == LABEL_SEPARATOR;
+    bool last_is_sep = normalized[normalized.size() - 1] == LABEL_SEPARATOR;
 
     ascii.reserve(normalized.size() * 4 + 1);
     unicode.reserve(normalized.size() * 4 + 1);
 
     try
     {
-      idna_label_convert(host, String::WSubString(normalized),
-        IDNA2008(ascii, unicode));
+      idna_label_convert(host, String::WSubString(normalized), IDNA2008(ascii, unicode));
     }
     catch (const BrowserAddress::IDNAError&)
     {
-      if(throw_error)
+      if (throw_error)
       {
         throw;
       }
@@ -883,7 +833,7 @@ namespace
     }
     catch (const eh::Exception&)
     {
-      if(throw_error)
+      if (throw_error)
       {
         throw;
       }
@@ -895,7 +845,7 @@ namespace
 
     if (ascii.size() >= MAX_HOSTNAME_SIZE)
     {
-      if(!throw_error)
+      if (!throw_error)
       {
         ascii.clear();
         unicode.clear();
@@ -922,7 +872,7 @@ namespace
     std::string& error)
     /*throw (eh::Exception)*/
   {
-    if(!idna_normalize_host(host, ascii, unicode, false))
+    if (!idna_normalize_host(host, ascii, unicode, false))
     {
       error = "Invalid host name";
       error.append(" in url '");
@@ -969,8 +919,7 @@ namespace HTTP
   // ExtendedUrlParts class
   //
 
-  void
-  ExtendedUrlParts::clear() noexcept
+  void ExtendedUrlParts::clear() noexcept
   {
     has_scheme = false;
     scheme.clear();
@@ -989,8 +938,7 @@ namespace HTTP
     authority.clear();
   }
 
-  void
-  ExtendedUrlParts::split_url(const String::SubString& url)
+  void ExtendedUrlParts::split_url(const String::SubString& url)
     /*throw (eh::Exception)*/
   {
     clear();
@@ -1071,8 +1019,7 @@ namespace HTTP
     // Split authority into userinfo, host and port
     if (!authority.empty())
     {
-      String::SubString::SizeType host_begin =
-        authority.find(USERINFO_SEPARATOR);
+      String::SubString::SizeType host_begin = authority.find(USERINFO_SEPARATOR);
       if (host_begin != String::SubString::NPOS)
       {
         if (host_begin != 0)
@@ -1087,20 +1034,18 @@ namespace HTTP
         host_begin = 0;
       }
 
-      String::SubString::SizeType host_end =
-        authority.rfind(PORT_SEPARATOR);
-      if (host_end != String::SubString::NPOS && host_begin &&
-        host_end < host_begin)
+      String::SubString::SizeType host_end = authority.rfind(PORT_SEPARATOR);
+      if (host_end != String::SubString::NPOS && host_begin && host_end < host_begin)
       {
         host_end = String::SubString::NPOS;
       }
+
       if (host_end != String::SubString::NPOS)
       {
         if (host_end != authority.length() - PORT_SEPARATOR_SIZE)
         {
           has_port = true;
-          port.assign(authority, host_end + PORT_SEPARATOR_SIZE,
-            authority.length() - host_end);
+          port.assign(authority, host_end + PORT_SEPARATOR_SIZE, authority.length() - host_end);
         }
       }
       else
@@ -1116,8 +1061,7 @@ namespace HTTP
   // URLPartsChecker class
   //
 
-  bool
-  URLPartsChecker::operator ()(const String::SubString& url,
+  bool URLPartsChecker::operator ()(const String::SubString& url,
     const UrlParts& parts, std::string& error) /*throw (eh::Exception)*/
   {
     // Check scheme
@@ -1140,11 +1084,11 @@ namespace HTTP
     // Check host
     if (!parts.host.empty())
     {
-      if (parts.host.size() > MAX_HOSTNAME_SIZE ||
-        !is_valid_chars(parts.host, HOST))
+      if (parts.host.size() > MAX_HOSTNAME_SIZE || !is_valid_chars(parts.host, HOST))
       {
         return make_invalid(error, "host in url", url);
       }
+
       if (parts.host.size())
       {
         String::StringManip::Splitter<LabelSeparatorCategory, true> labels(
@@ -1155,17 +1099,15 @@ namespace HTTP
         {
           if (!label.size() || label.size() > MAX_HOSTNAME_LABEL_SIZE)
           {
-            return make_invalid(error,
-              "length of host's label in url", url);
+            return make_invalid(error, "length of host's label in url", url);
           }
+
           if (!LABEL_FIRST_LAST(label[0]) ||
-            (label.size() > 1 && !LABEL_FIRST_LAST(*(label.end() - 1))) ||
-            (label.size() > 2 &&
+            (label.size() > 1 && !LABEL_FIRST_LAST(*(label.end() - 1))) || (label.size() > 2 &&
               !is_valid_chars(label.substr(1, label.size() - 2),
                 LABEL_MIDDLE)))
           {
-            return make_invalid(error,
-              "characters in host's label in url", url);
+            return make_invalid(error, "characters in host's label in url", url);
           }
         }
       }
@@ -1193,8 +1135,7 @@ namespace HTTP
       // Simplified check
       if ((!parts.host.empty() ? parts.path[0] != PATH_SEPARATOR :
         parts.path[0] == PATH_SEPARATOR && parts.path.size() > 1 &&
-        parts.path[1] == PATH_SEPARATOR) ||
-        !is_valid_encoded(parts.path, PATH))
+        parts.path[1] == PATH_SEPARATOR) || !is_valid_encoded(parts.path, PATH))
       {
         return make_invalid(error, "path in url", url);
       }
@@ -1225,8 +1166,7 @@ namespace HTTP
   // URLChecker class
   //
 
-  bool
-  URLChecker::operator ()(const String::SubString& url)
+  bool URLChecker::operator ()(const String::SubString& url)
     /*throw (eh::Exception)*/
   {
     ExtendedUrlParts parts;
@@ -1269,17 +1209,15 @@ namespace HTTP
     move_from_(std::move(another));
   }
 
-  URLAddress&
-  URLAddress::operator =(const URLAddress& another) /*throw (eh::Exception)*/
+  URLAddress& URLAddress::operator =(const URLAddress& another) /*throw (eh::Exception)*/
   {
     assign_url_parts_(another.parts_, false);
     return *this;
   }
 
-  URLAddress&
-  URLAddress::operator =(URLAddress&& another) /*throw (eh::Exception)*/
+  URLAddress& URLAddress::operator =(URLAddress&& another) /*throw (eh::Exception)*/
   {
-    if(this != &another)
+    if (this != &another)
     {
       move_from_(std::move(another));
     }
@@ -1287,12 +1225,11 @@ namespace HTTP
     return *this;
   }
 
-  void
-  URLAddress::move_from_(URLAddress&& another) /*throw (eh::Exception)*/
+  void URLAddress::move_from_(URLAddress&& another) /*throw (eh::Exception)*/
   {
     url_ = std::move(another.url_);
     parts_.clear();
-    if(!url_.empty())
+    if (!url_.empty())
     {
       parts_.split_url(url_);
     }
@@ -1300,8 +1237,7 @@ namespace HTTP
     another.parts_.clear();
   }
 
-  void
-  URLAddress::url_without_check_(const String::SubString& value)
+  void URLAddress::url_without_check_(const String::SubString& value)
     /*throw (eh::Exception)*/
   {
     url_.clear();
@@ -1317,35 +1253,30 @@ namespace HTTP
     parts_.split_url(url_);
   }
 
-  void
-  URLAddress::specific_checks_()
+  void URLAddress::specific_checks_()
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
   }
 
-  void
-  URLAddress::url(const String::SubString& value)
+  void URLAddress::url(const String::SubString& value)
     /*throw (eh::Exception, Exception, InvalidURL)*/
   {
     assign_(value);
   }
 
-  void
-  URLAddress::url(std::string_view value)
+  void URLAddress::url(std::string_view value)
     /*throw (eh::Exception, Exception, InvalidURL)*/
   {
     assign_(String::SubString(value.data(), value.size()));
   }
 
-  void
-  URLAddress::url(const std::string& value)
+  void URLAddress::url(const std::string& value)
     /*throw (eh::Exception, Exception, InvalidURL)*/
   {
     url(std::string_view(value.data(), value.size()));
   }
 
-  void
-  URLAddress::assign_(const String::SubString& value)
+  void URLAddress::assign_(const String::SubString& value)
     /*throw (eh::Exception, Exception, InvalidURL)*/
   {
     url_without_check_(value);
@@ -1362,8 +1293,7 @@ namespace HTTP
     }
   }
 
-  void
-  URLAddress::assign_url_parts_(const UrlParts& parts, bool check)
+  void URLAddress::assign_url_parts_(const UrlParts& parts, bool check)
     /*throw (eh::Exception, InvalidURL)*/
   {
     // Assemble url
@@ -1376,8 +1306,7 @@ namespace HTTP
       parts.scheme.assign_to(new_url);
       new_url += SCHEME_SUFFIX;
     }
-    bool has_authority =
-      parts.has_userinfo || !parts.host.empty() || parts.has_port;
+    bool has_authority = parts.has_userinfo || !parts.host.empty() || parts.has_port;
     size_t authority_size = 0;
     if (has_authority)
     {
@@ -1403,6 +1332,7 @@ namespace HTTP
       new_url += QUERY_SEPARATOR;
       parts.query.append_to(new_url);
     }
+
     if (parts.has_fragment)
     {
       new_url += FRAGMENT_SEPARATOR;
@@ -1447,12 +1377,13 @@ namespace HTTP
         parts_.userinfo = parts_.authority.substr(0, parts.userinfo.size());
         host_begin += USERINFO_SEPARATOR_SIZE;
       }
+
       if (!parts.host.empty())
       {
         parts_.has_host = true;
-        parts_.host =
-          parts_.authority.substr(host_begin, parts.host.size());
+        parts_.host = parts_.authority.substr(host_begin, parts.host.size());
       }
+
       if (parts.has_port)
       {
         parts_.has_port = true;
@@ -1481,8 +1412,7 @@ namespace HTTP
     }
   }
 
-  URLAddress*
-  URLAddress::create_address(const String::SubString& url)
+  URLAddress* URLAddress::create_address(const String::SubString& url)
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
     if (url.empty())
@@ -1491,6 +1421,7 @@ namespace HTTP
       ostr << FNS << "url is empty";
       throw InvalidURL(ostr);
     }
+
     if (HTTP_PREFIX.start(url) || HTTPS_PREFIX.start(url))
     {
       return new HTTPAddress(url);
@@ -1504,8 +1435,7 @@ namespace HTTP
   // HTTPChecker class
   //
 
-  bool
-  HTTPChecker::operator ()(const String::SubString& url, std::string* error,
+  bool HTTPChecker::operator ()(const String::SubString& url, std::string* error,
     bool strict) /*throw (eh::Exception)*/
   {
     ExtendedUrlParts parts;
@@ -1527,8 +1457,8 @@ namespace HTTP
       http_add_scheme(fixed_url, url);
       parts.split_url(fixed_url);
     }
-    if (!process_parts_(url, parts, error_ref, strict) ||
-      !check_http_url_components(
+
+    if (!process_parts_(url, parts, error_ref, strict) || !check_http_url_components(
         url, parts.scheme, parts.host, error_ref, strict))
     {
       return false;
@@ -1590,8 +1520,7 @@ namespace HTTP
     : URLAddress(), strict_(false), port_number_(0), secure_(false),
       default_port_(true)
   {
-    set_(secure, userinfo, host, port ? port : get_default_port_(secure),
-      path, query, fragment);
+    set_(secure, userinfo, host, port ? port : get_default_port_(secure), path, query, fragment);
   }
 
   HTTPAddress::HTTPAddress(HTTPAddress&& another) /*throw (eh::Exception)*/
@@ -1602,10 +1531,9 @@ namespace HTTP
       default_port_(another.default_port_)
   {}
 
-  HTTPAddress&
-  HTTPAddress::operator =(HTTPAddress&& another) /*throw (eh::Exception)*/
+  HTTPAddress& HTTPAddress::operator =(HTTPAddress&& another) /*throw (eh::Exception)*/
   {
-    if(this != &another)
+    if (this != &another)
     {
       URLAddress::operator =(std::move(another));
       strict_ = another.strict_;
@@ -1617,8 +1545,7 @@ namespace HTTP
     return *this;
   }
 
-  int
-  HTTPAddress::get_default_port_(bool secure) noexcept
+  int HTTPAddress::get_default_port_(bool secure) noexcept
   {
     return secure ? DEFAULT_HTTPS_PORT : DEFAULT_HTTP_PORT;
   }
@@ -1652,8 +1579,7 @@ namespace HTTP
     assign_url_parts_(parts, true);
   }
 
-  void
-  HTTPAddress::assign_(const String::SubString& http_url)
+  void HTTPAddress::assign_(const String::SubString& http_url)
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
     if (http_url.empty())
@@ -1690,8 +1616,7 @@ namespace HTTP
     }
   }
 
-  void
-  HTTPAddress::specific_checks_()
+  void HTTPAddress::specific_checks_()
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
     if (!strict_ && http_url_needs_prefix(scheme(), host()))
@@ -1705,8 +1630,7 @@ namespace HTTP
 
     {
       std::string error;
-      if (!check_http_url_components(
-        url(), scheme(), host(), error, strict_))
+      if (!check_http_url_components( url(), scheme(), host(), error, strict_))
       {
         Stream::Error ostr;
         ostr << FNS << error;
@@ -1716,8 +1640,7 @@ namespace HTTP
 
     UrlParts new_parts(parts_);
 
-    PartCheckInfo parts[] =
-    {
+    PartCheckInfo parts[] = {
       PartCheckInfo(new_parts.userinfo, USER_INFO),
       PartCheckInfo(new_parts.path, PATH),
       PartCheckInfo(new_parts.query, QUERY),
@@ -1726,8 +1649,7 @@ namespace HTTP
 
     if (!strict_)
     {
-      for (PartCheckInfo* part = parts;
-        part != parts + sizeof(parts) / sizeof(*parts); part++)
+      for (PartCheckInfo* part = parts; part != parts + sizeof(parts) / sizeof(*parts); part++)
       {
         if (http_fix_part(part->part, part->CHECKER, part->new_part))
         {
@@ -1743,15 +1665,13 @@ namespace HTTP
     }
   }
 
-  bool
-  HTTPAddress::additional_checks_()
+  bool HTTPAddress::additional_checks_()
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
     return false;
   }
 
-  const std::string&
-  HTTPAddress::get_view(unsigned long flags, std::string& str) const
+  const std::string& HTTPAddress::get_view(unsigned long flags, std::string& str) const
     /*throw (eh::Exception)*/
   {
     str.clear();
@@ -1765,37 +1685,40 @@ namespace HTTP
       }
       str += AUTHORITY_PREFIX;
     }
+
     if (flags & VW_HOSTNAME)
     {
-      if ((flags & VW_HOSTNAME_WWW) == VW_HOSTNAME_WWW &&
-        !WWW.start(host()))
+      if ((flags & VW_HOSTNAME_WWW) == VW_HOSTNAME_WWW && !WWW.start(host()))
       {
         WWW.str.append_to(str);
       }
       host().append_to(str);
     }
+
     if ((flags & VW_PORT) || (!default_port_ && (flags & VW_NDEF_PORT)))
     {
       char port[8] = ":";
       snprintf(port + 1, sizeof(port) - 1, "%hu", port_number_);
       str += port;
     }
+
     if (flags & VW_PATH)
     {
       const String::SubString& path_ref = path();
       size_t path_len = path_ref.size();
-      if ((flags & VW_STRIP_PATH) == VW_STRIP_PATH &&
-        path_ref[path_len - 1] == PATH_SEPARATOR)
+      if ((flags & VW_STRIP_PATH) == VW_STRIP_PATH && path_ref[path_len - 1] == PATH_SEPARATOR)
       {
         path_len -= PATH_SEPARATOR_SIZE;
       }
       str.append(path_ref.data(), path_len);
     }
+
     if (flags & VW_QUERY && parts_.has_query)
     {
       str += QUERY_SEPARATOR;
       query().append_to(str);
     }
+
     if (flags & VW_FRAGMENT && parts_.has_fragment)
     {
       str += FRAGMENT_SEPARATOR;
@@ -1833,8 +1756,7 @@ namespace HTTP
     return true;
   }
 
-  bool
-  BrowserChecker::operator ()(const String::SubString& url, std::string* error)
+  bool BrowserChecker::operator ()(const String::SubString& url, std::string* error)
     /*throw (eh::Exception)*/
   {
     return HTTPChecker::operator()(url, error, false);
@@ -1890,11 +1812,10 @@ namespace HTTP
       encoded_host_(std::move(another.encoded_host_))
   {}
 
-  BrowserAddress&
-  BrowserAddress::operator =(BrowserAddress&& another)
+  BrowserAddress& BrowserAddress::operator =(BrowserAddress&& another)
     /*throw (eh::Exception)*/
   {
-    if(this != &another)
+    if (this != &another)
     {
       HTTPAddress::operator =(std::move(another));
       decoded_host_ = std::move(another.decoded_host_);
@@ -1904,8 +1825,7 @@ namespace HTTP
     return *this;
   }
 
-  void
-  BrowserAddress::process_host_(const String::SubString& host)
+  void BrowserAddress::process_host_(const String::SubString& host)
     /*throw (InvalidURL, eh::Exception)*/
   {
     std::string error;
@@ -1918,8 +1838,7 @@ namespace HTTP
     parts_.host = encoded_host_;
   }
 
-  bool
-  BrowserAddress::additional_checks_()
+  bool BrowserAddress::additional_checks_()
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
     process_host_(parts_.host);
@@ -1931,8 +1850,7 @@ namespace HTTP
   // Functions
   //
 
-  std::string
-  normalize_http_address(const String::SubString& url) /*throw (eh::Exception)*/
+  std::string normalize_http_address(const String::SubString& url) /*throw (eh::Exception)*/
   {
     std::string norm;
 
@@ -1958,8 +1876,7 @@ namespace HTTP
     return norm;
   }
 
-  std::string
-  keywords_from_http_address(const String::SubString& url)
+  std::string keywords_from_http_address(const String::SubString& url)
     /*throw (eh::Exception)*/
   {
     ExtendedUrlParts parts;
@@ -1985,7 +1902,7 @@ namespace HTTP
       keywords.push_back(QUERY_SEPARATOR);
       keywords.append(tmp);
 
-      if(!tmp.empty())
+      if (!tmp.empty())
       {
         unmime_all(tmp, tmp2);
         keywords.push_back(QUERY_SEPARATOR);

@@ -55,13 +55,11 @@ struct TimeFunctor
   mutable Generics::Time max_time;
 };
 
-bool
-check(Generics::Time& time, const char* expected_res, const char* operation)
+bool check(Generics::Time& time, const char* expected_res, const char* operation)
   /*throw (eh::Exception)*/;
 
 
-void
-check_manipulations() /*throw (eh::Exception)*/
+void check_manipulations() /*throw (eh::Exception)*/
 {
   //
   // -1 < time < 1
@@ -123,8 +121,7 @@ check_manipulations() /*throw (eh::Exception)*/
   check(time *= -3000, "9000703:701000", "-3000:234567 * -3000");
 }
 
-bool
-check(Generics::Time& time, const char* expected_res, const char* operation)
+bool check(Generics::Time& time, const char* expected_res, const char* operation)
   /*throw (eh::Exception)*/
 {
   std::string expected(expected_res);
@@ -134,8 +131,7 @@ check(Generics::Time& time, const char* expected_res, const char* operation)
   ostr << time;
   if (ostr.str() != expected)
   {
-    std::cerr << ostr.str()
-              << ": wrong (expected: " << expected_res
+    std::cerr << ostr.str() << ": wrong (expected: " << expected_res
               << ") //operation: " << operation
               << std::endl;
     return false;
@@ -148,12 +144,10 @@ check(Generics::Time& time, const char* expected_res, const char* operation)
   }
 }
 
-void
-check_format() /*throw (eh::Exception)*/
+void check_format() /*throw (eh::Exception)*/
 {
   Generics::ExtendedTime time(2345, 10, 12, 13, 24, 56, 89987);
-  const char FORMAT[] =
-    "%H:%M:%S.%q %d.%m.%Y %F %T %d.%B.%Y %H:%M:%S.%q %z";
+  const char FORMAT[] = "%H:%M:%S.%q %d.%m.%Y %F %T %d.%B.%Y %H:%M:%S.%q %z";
   std::string formatted = time.format(FORMAT);
   const std::string EXPECTED1(
     "13:24:56.089987 12.10.2345 2345-10-12 13:24:56 "
@@ -164,38 +158,32 @@ check_format() /*throw (eh::Exception)*/
   if (formatted != EXPECTED1)
   {
     std::cerr << "Invalid Generics::ExtendedTime::format() behaviour: "
-      "expected '" << EXPECTED1 << "' but got '" << formatted << "'" <<
-      std::endl;
+      "expected '" << EXPECTED1 << "' but got '" << formatted << "'" << std::endl;
   }
   time.timezone = Generics::Time::TZ_LOCAL;
   formatted = time.format(FORMAT);
   if (formatted != EXPECTED2)
   {
     std::cerr << "Invalid Generics::ExtendedTime::format() behaviour: "
-      "expected '" << EXPECTED2 << "' but got '" << formatted << "'" <<
-      std::endl;
+      "expected '" << EXPECTED2 << "' but got '" << formatted << "'" << std::endl;
   }
 }
 
-void
-check_set() /*throw (eh::Exception)*/
+void check_set() /*throw (eh::Exception)*/
 {
   Generics::ExtendedTime time(2345, 10, 12, 13, 24, 56, 89987);
-  const char FORMAT[] =
-    "%H:%M:%S.%q %d.%m.%Y %d.%B.%Y %H:%M:%S.%q";
+  const char FORMAT[] = "%H:%M:%S.%q %d.%m.%Y %d.%B.%Y %H:%M:%S.%q";
   std::string formatted = time.format(FORMAT);
   Generics::Time t1(formatted, FORMAT, false);
   Generics::Time t2(formatted, FORMAT, true);
   if (time != t1 || time != t2)
   {
     std::cerr << "Invalid Generics::Time::set() behaviour: "
-      "expected " << time << " but got " << t1 << " and " << t2 <<
-      std::endl;
+      "expected " << time << " but got " << t1 << " and " << t2 << std::endl;
   }
 }
 
-void
-check_input() /*throw (eh::Exception)*/
+void check_input() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 1000; i++)
   {
@@ -207,48 +195,39 @@ check_input() /*throw (eh::Exception)*/
     str >> got;
     if (!str.eof() || any != got)
     {
-      std::cerr << "check_input(): failed to input timestamp " << any <<
-        std::endl;
+      std::cerr << "check_input(): failed to input timestamp " << any << std::endl;
     }
   }
 }
 
-void
-check_output() /*throw (eh::Exception)*/
+void check_output() /*throw (eh::Exception)*/
 {
-  const Generics::Time TEST_TIME(
-    String::SubString("20110405141336"), "%Y%m%d%H");
-  const char VALID_RESULT[] =
-    "......................1302012000:000000 (sec:usec)TEXT";
+  const Generics::Time TEST_TIME( String::SubString("20110405141336"), "%Y%m%d%H");
+  const char VALID_RESULT[] = "......................1302012000:000000 (sec:usec)TEXT";
 
   Stream::Error ostr;
   ostr << std::setw(50) << std::setfill('.') << TEST_TIME << "TEXT";
   if (ostr.str() != VALID_RESULT)
   {
-    std::cerr << "FAIL: Generics::Time incorrectly formatted\n"
-      << ostr.str() << std::endl;
+    std::cerr << "FAIL: Generics::Time incorrectly formatted\n" << ostr.str() << std::endl;
   }
 }
 
-static const int DAYS[12] =
-  { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+static const int DAYS[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static const tm ZTM = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static const Generics::ExtendedTime ZET(ZTM, 0, Generics::Time::TZ_GMT);
 
-void
-rand_time(Generics::ExtendedTime& et) noexcept
+void rand_time(Generics::ExtendedTime& et) noexcept
 {
   et.tm_year = Generics::safe_rand(70, 199);
   et.tm_mon = Generics::safe_rand(12);
-  et.tm_mday = Generics::safe_rand(DAYS[et.tm_mon] +
-    !((et.tm_year & 3) || et.tm_mon != 2)) + 1;
+  et.tm_mday = Generics::safe_rand(DAYS[et.tm_mon] + !((et.tm_year & 3) || et.tm_mon != 2)) + 1;
   et.tm_hour = Generics::safe_rand(24);
   et.tm_min = Generics::safe_rand(60);
   et.tm_sec = Generics::safe_rand(60);
 }
 
-void
-check_time_to_gm() /*throw (eh::Exception)*/
+void check_time_to_gm() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 1000; i++)
   {
@@ -259,14 +238,12 @@ check_time_to_gm() /*throw (eh::Exception)*/
     ref = timegm(&et);
     if (res != ref)
     {
-      std::cerr << et << " produced " << res << " instead of " <<
-        ref << "\n";
+      std::cerr << et << " produced " << res << " instead of " << ref << "\n";
     }
   }
 }
 
-void
-check_gm_to_time() /*throw (eh::Exception)*/
+void check_gm_to_time() /*throw (eh::Exception)*/
 {
   for (int i = 0; i < 1000; i++)
   {
@@ -281,14 +258,12 @@ check_gm_to_time() /*throw (eh::Exception)*/
       res.tm_mon != ref.tm_mon || res.tm_year != ref.tm_year ||
       res.tm_yday != ref.tm_yday || res.tm_wday != ref.tm_wday)
     {
-      std::cerr << time << " (" << et << ") produced " << res <<
-        " instead of " << ref << "\n";
+      std::cerr << time << " (" << et << ") produced " << res << " instead of " << ref << "\n";
     }
   }
 }
 
-int
-main()
+int main()
 {
   try
   {
@@ -307,15 +282,11 @@ main()
       TimeFunctor functor;
       TestCommons::MTTester<TimeFunctor&> mt_tester(functor, 1);
       mt_tester.run(100, 100);
-      std::cout
-        << "performance metering: max-time = "
-        << functor.max_time << std::endl;
+      std::cout << "performance metering: max-time = " << functor.max_time << std::endl;
       if (functor.max_time >= Generics::Time(1) / 100)
       {
-        std::cerr
-          << "max time of 2*gettimeofday execution is big (more than 0.01): "
-          << functor.max_time
-          << std::endl;
+        std::cerr << "max time of 2*gettimeofday execution is big (more than 0.01): "
+          << functor.max_time << std::endl;
       }
     }
 
@@ -326,9 +297,7 @@ main()
       mt_tester.run(100, 100);
       if (functor.error)
       {
-        std::cerr
-          << "found negative time metering (gettimeofday isn't monotonic)."
-          << std::endl;
+        std::cerr << "found negative time metering (gettimeofday isn't monotonic)." << std::endl;
       }
     }
 

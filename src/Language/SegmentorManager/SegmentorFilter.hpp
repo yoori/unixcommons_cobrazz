@@ -11,262 +11,249 @@
 #include <Language/SegmentorCommons/SegmentorCommons.hpp>
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  template <typename Category>
+  class FilterSegmentor : public SegmentorInterface
   {
-    template <typename Category>
-    class FilterSegmentor : public SegmentorInterface
-    {
-    public:
-      FilterSegmentor(const SegmentorInterface* segmentor,
-        const Category& filter) noexcept;
+  public:
+    FilterSegmentor(const SegmentorInterface* segmentor, const Category& filter) noexcept;
 
-      virtual
-      void
-      segmentation(WordsList& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/;
+    virtual
+    void
+    segmentation(WordsList& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/;
 
-      virtual
-      void
-      put_spaces(std::string& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/;
+    virtual
+    void
+    put_spaces(std::string& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/;
 
-    protected:
-      virtual
-      ~FilterSegmentor() noexcept;
+  protected:
+    virtual ~FilterSegmentor() noexcept;
 
-    private:
-      const SegmentorInterface_var SEGMENTOR_;
-      const Category& FILTER_;
-    };
+  private:
+    const SegmentorInterface_var SEGMENTOR_;
+    const Category& FILTER_;
+  };
 
-    template <typename Segmentor, typename CategoryWrapper>
-    class AutomaticFilterSegmentor :
-      public FilterSegmentor<typename CategoryWrapper::CategoryType>
-    {
-    public:
-      AutomaticFilterSegmentor() /*throw (eh::Exception)*/;
-      template <typename T>
-      AutomaticFilterSegmentor(T data) /*throw (eh::Exception)*/;
-      template <typename T1, typename T2>
-      AutomaticFilterSegmentor(T1 data1, T2 data2) /*throw (eh::Exception)*/;
-      template <typename T1, typename T2, typename T3>
-      AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3)
-        /*throw (eh::Exception)*/;
-      template <typename T1, typename T2, typename T3, typename T4>
-      AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3, T4 data4)
-        /*throw (eh::Exception)*/;
+  template <typename Segmentor, typename CategoryWrapper>
+  class AutomaticFilterSegmentor :
+    public FilterSegmentor<typename CategoryWrapper::CategoryType>
+  {
+  public:
+    AutomaticFilterSegmentor() /*throw (eh::Exception)*/;
+    template <typename T>
+    AutomaticFilterSegmentor(T data) /*throw (eh::Exception)*/;
+    template <typename T1, typename T2>
+    AutomaticFilterSegmentor(T1 data1, T2 data2) /*throw (eh::Exception)*/;
+    template <typename T1, typename T2, typename T3>
+    AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3)
+      /*throw (eh::Exception)*/;
+    template <typename T1, typename T2, typename T3, typename T4>
+    AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3, T4 data4)
+      /*throw (eh::Exception)*/;
 
-    protected:
-      virtual
-      ~AutomaticFilterSegmentor() noexcept;
-    };
-  }
+  protected:
+    virtual ~AutomaticFilterSegmentor() noexcept;
+  };
 }
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  //
+  // FilterSegmentor class
+  //
+
+  template <typename Category>
+  FilterSegmentor<Category>::FilterSegmentor(
+    const SegmentorInterface* segmentor,
+    const Category& filter) noexcept
+    : SEGMENTOR_(ReferenceCounting::add_ref(segmentor)),
+      FILTER_(filter)
   {
-    //
-    // FilterSegmentor class
-    //
+  }
 
-    template <typename Category>
-    FilterSegmentor<Category>::FilterSegmentor(
-      const SegmentorInterface* segmentor,
-      const Category& filter) noexcept
-      : SEGMENTOR_(ReferenceCounting::add_ref(segmentor)),
-        FILTER_(filter)
+  template <typename Category>
+  FilterSegmentor<Category>::~FilterSegmentor() noexcept
+  {
+  }
+
+  template <typename Category>
+  void
+  FilterSegmentor<Category>::segmentation(WordsList& result,
+    const char* phrase, size_t phrase_len) const /*throw (SegmException)*/
+  {
+    result.clear();
+
+    if (!phrase || !phrase_len)
     {
+      return;
     }
 
-    template <typename Category>
-    FilterSegmentor<Category>::~FilterSegmentor() noexcept
+    try
     {
-    }
-
-    template <typename Category>
-    void
-    FilterSegmentor<Category>::segmentation(WordsList& result,
-      const char* phrase, size_t phrase_len) const /*throw (SegmException)*/
-    {
-      result.clear();
-
-      if (!phrase || !phrase_len)
+      String::SubString input(phrase, phrase_len);
+      String::StringManip::Splitter<const Category&> tokenizer( input, FILTER_);
+      const char* pos = input.begin();
+      String::SubString token;
+      while (tokenizer.get_token(token))
       {
-        return;
-      }
-
-      try
-      {
-        String::SubString input(phrase, phrase_len);
-        String::StringManip::Splitter<const Category&> tokenizer(
-          input, FILTER_);
-        const char* pos = input.begin();
-        String::SubString token;
-        while (tokenizer.get_token(token))
+        if (token.begin() != pos)
         {
-          if (token.begin() != pos)
-          {
-            result.emplace_back(pos, token.begin());
-          }
-
-          WordsList tmp;
-          SEGMENTOR_->segmentation(tmp, token.begin(), token.length());
-          result.splice(result.end(), tmp);
-
-          pos = token.end();
+          result.emplace_back(pos, token.begin());
         }
 
-        if (tokenizer.is_error())
+        WordsList tmp;
+        SEGMENTOR_->segmentation(tmp, token.begin(), token.length());
+        result.splice(result.end(), tmp);
+
+        pos = token.end();
+      }
+
+      if (tokenizer.is_error())
+      {
+        Stream::Error error;
+        error << FNS << "invalid UTF-8 character in the input: " << input;
+        throw SegmException(error);
+      }
+
+      if (pos != input.end())
+      {
+        result.emplace_back(pos, input.end());
+      }
+    }
+    catch (const SegmException&)
+    {
+      throw;
+    }
+    catch (const eh::Exception& ex)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "eh::Exception caught: " << ex.what();
+      throw SegmException(ostr);
+    }
+    catch (...)
+    {
+      Stream::Error ostr;
+      ostr << FNS << "unknown exception caught";
+      throw SegmException(ostr);
+    }
+  }
+
+  template <typename Category>
+  void
+  FilterSegmentor<Category>::put_spaces(std::string& res,
+    const char* phrase, size_t phrase_len) const /*throw (SegmException)*/
+  {
+    try
+    {
+      String::SubString input(phrase, phrase_len);
+      String::StringManip::Splitter<const Category&> tokenizer( input, FILTER_);
+      const char* pos = input.begin();
+
+      std::string result;
+      result.reserve(2 * input.size());
+
+      String::SubString token;
+      while (tokenizer.get_token(token))
+      {
+        if (token.begin() != pos)
         {
-          Stream::Error error;
-          error << FNS << "invalid UTF-8 character in the input: " << input;
-          throw SegmException(error);
+          Language::Segmentor::append(result, String::SubString(pos, token.begin()));
         }
 
-        if (pos != input.end())
-        {
-          result.emplace_back(pos, input.end());
-        }
+        std::string tmp;
+        SEGMENTOR_->put_spaces(tmp, token.begin(), token.length());
+        Language::Segmentor::append(result, tmp);
+
+        pos = token.end();
       }
-      catch (const SegmException&)
+
+      if (pos != input.end())
       {
-        throw;
+        Language::Segmentor::append(result, String::SubString(pos, input.end()));
       }
-      catch (const eh::Exception& ex)
-      {
-        Stream::Error ostr;
-        ostr << FNS << "eh::Exception caught: " << ex.what();
-        throw SegmException(ostr);
-      }
-      catch (...)
-      {
-        Stream::Error ostr;
-        ostr << FNS << "unknown exception caught";
-        throw SegmException(ostr);
-      }
-    }
 
-    template <typename Category>
-    void
-    FilterSegmentor<Category>::put_spaces(std::string& res,
-      const char* phrase, size_t phrase_len) const /*throw (SegmException)*/
+      result.swap(res);
+    }
+    catch (const SegmException&)
     {
-      try
-      {
-        String::SubString input(phrase, phrase_len);
-        String::StringManip::Splitter<const Category&> tokenizer(
-          input, FILTER_);
-        const char* pos = input.begin();
-
-        std::string result;
-        result.reserve(2 * input.size());
-
-        String::SubString token;
-        while (tokenizer.get_token(token))
-        {
-          if (token.begin() != pos)
-          {
-            Language::Segmentor::append(result,
-              String::SubString(pos, token.begin()));
-          }
-
-          std::string tmp;
-          SEGMENTOR_->put_spaces(tmp, token.begin(), token.length());
-          Language::Segmentor::append(result, tmp);
-
-          pos = token.end();
-        }
-
-        if (pos != input.end())
-        {
-          Language::Segmentor::append(result,
-            String::SubString(pos, input.end()));
-        }
-
-        result.swap(res);
-      }
-      catch (const SegmException&)
-      {
-        throw;
-      }
-      catch (const eh::Exception& ex)
-      {
-        Stream::Error ostr;
-        ostr << FNS << "eh::Exception caught: " << ex.what();
-        throw SegmException(ostr);
-      }
-      catch (...)
-      {
-        Stream::Error ostr;
-        ostr << FNS << "unknown exception caught";
-        throw SegmException(ostr);
-      }
+      throw;
     }
-
-
-    //
-    // AutomaticFilterSegmentor class
-    //
-
-    template <typename Segmentor, typename CategoryWrapper>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      AutomaticFilterSegmentor() /*throw (eh::Exception)*/
-      : FilterSegmentor<typename CategoryWrapper::CategoryType>(
-          SegmentorInterface_var(new Segmentor()),
-          CategoryWrapper::INVALID_SYMBOLS)
+    catch (const eh::Exception& ex)
     {
+      Stream::Error ostr;
+      ostr << FNS << "eh::Exception caught: " << ex.what();
+      throw SegmException(ostr);
     }
-
-    template <typename Segmentor, typename CategoryWrapper>
-    template <typename T>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      AutomaticFilterSegmentor(T data) /*throw (eh::Exception)*/
-      : FilterSegmentor<typename CategoryWrapper::CategoryType>(
-          SegmentorInterface_var(new Segmentor(data)),
-          CategoryWrapper::INVALID_SYMBOLS)
+    catch (...)
     {
+      Stream::Error ostr;
+      ostr << FNS << "unknown exception caught";
+      throw SegmException(ostr);
     }
+  }
 
-    template <typename Segmentor, typename CategoryWrapper>
-    template <typename T1, typename T2>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      AutomaticFilterSegmentor(T1 data1, T2 data2) /*throw (eh::Exception)*/
-      : FilterSegmentor<typename CategoryWrapper::CategoryType>(
-          SegmentorInterface_var(new Segmentor(data1, data2)),
-          CategoryWrapper::INVALID_SYMBOLS)
-    {
-    }
 
-    template <typename Segmentor, typename CategoryWrapper>
-    template <typename T1, typename T2, typename T3>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3)
-      /*throw (eh::Exception)*/
-      : FilterSegmentor<typename CategoryWrapper::CategoryType>(
-          SegmentorInterface_var(new Segmentor(data1, data2, data3)),
-          CategoryWrapper::INVALID_SYMBOLS)
-    {
-    }
+  //
+  // AutomaticFilterSegmentor class
+  //
 
-    template <typename Segmentor, typename CategoryWrapper>
-    template <typename T1, typename T2, typename T3, typename T4>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3, T4 data4)
-      /*throw (eh::Exception)*/
-      : FilterSegmentor<typename CategoryWrapper::CategoryType>(
-          SegmentorInterface_var(new Segmentor(data1, data2, data3, data4)),
-          CategoryWrapper::INVALID_SYMBOLS)
-    {
-    }
+  template <typename Segmentor, typename CategoryWrapper>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    AutomaticFilterSegmentor() /*throw (eh::Exception)*/
+    : FilterSegmentor<typename CategoryWrapper::CategoryType>(
+        SegmentorInterface_var(new Segmentor()),
+        CategoryWrapper::INVALID_SYMBOLS)
+  {
+  }
 
-    template <typename Segmentor, typename CategoryWrapper>
-    AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
-      ~AutomaticFilterSegmentor() noexcept
-    {
-    }
+  template <typename Segmentor, typename CategoryWrapper>
+  template <typename T>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    AutomaticFilterSegmentor(T data) /*throw (eh::Exception)*/
+    : FilterSegmentor<typename CategoryWrapper::CategoryType>(
+        SegmentorInterface_var(new Segmentor(data)),
+        CategoryWrapper::INVALID_SYMBOLS)
+  {
+  }
+
+  template <typename Segmentor, typename CategoryWrapper>
+  template <typename T1, typename T2>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    AutomaticFilterSegmentor(T1 data1, T2 data2) /*throw (eh::Exception)*/
+    : FilterSegmentor<typename CategoryWrapper::CategoryType>(
+        SegmentorInterface_var(new Segmentor(data1, data2)),
+        CategoryWrapper::INVALID_SYMBOLS)
+  {
+  }
+
+  template <typename Segmentor, typename CategoryWrapper>
+  template <typename T1, typename T2, typename T3>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3)
+    /*throw (eh::Exception)*/
+    : FilterSegmentor<typename CategoryWrapper::CategoryType>(
+        SegmentorInterface_var(new Segmentor(data1, data2, data3)),
+        CategoryWrapper::INVALID_SYMBOLS)
+  {
+  }
+
+  template <typename Segmentor, typename CategoryWrapper>
+  template <typename T1, typename T2, typename T3, typename T4>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    AutomaticFilterSegmentor(T1 data1, T2 data2, T3 data3, T4 data4)
+    /*throw (eh::Exception)*/
+    : FilterSegmentor<typename CategoryWrapper::CategoryType>(
+        SegmentorInterface_var(new Segmentor(data1, data2, data3, data4)),
+        CategoryWrapper::INVALID_SYMBOLS)
+  {
+  }
+
+  template <typename Segmentor, typename CategoryWrapper>
+  AutomaticFilterSegmentor<Segmentor, CategoryWrapper>::
+    ~AutomaticFilterSegmentor() noexcept
+  {
   }
 }

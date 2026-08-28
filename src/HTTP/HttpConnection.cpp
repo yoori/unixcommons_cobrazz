@@ -20,20 +20,17 @@
 
 namespace
 {
-  void
-  throw_exception(String::SubString function, const char* description)
+  void throw_exception(String::SubString function, const char* description)
     /*throw (HTTP::HTTP_Connection::Timeout,
       HTTP::HTTP_Connection::Exception)*/
   {
     if (errno == ETIME)
     {
-      eh::throw_errno_exception<HTTP::HTTP_Connection::Timeout>(
-        function, "(): ", description);
+      eh::throw_errno_exception<HTTP::HTTP_Connection::Timeout>( function, "(): ", description);
     }
     else
     {
-      eh::throw_errno_exception<HTTP::HTTP_Connection::Exception>(
-        function, "(): ", description);
+      eh::throw_errno_exception<HTTP::HTTP_Connection::Exception>( function, "(): ", description);
     }
   }
 }
@@ -83,8 +80,7 @@ namespace HTTP
         ACE_INET_Addr(proxy_port_, proxy_host_.c_str());
     }
 
-    ACE_Time_Value connect_timeout_ace(
-      connect_timeout ? *connect_timeout : Generics::Time());
+    ACE_Time_Value connect_timeout_ace( connect_timeout ? *connect_timeout : Generics::Time());
     ACE_SOCK_Connector connector;
     if (connector.connect(stream_, inet_addr,
       connect_timeout ? &connect_timeout_ace : 0, local_ip) == -1)
@@ -161,8 +157,7 @@ namespace HTTP
       if (!params.empty())
       {
         std::ostringstream params_str;
-        for (HTTP::ParamList::const_iterator it = params.begin();
-          it != params.end(); ++it)
+        for (HTTP::ParamList::const_iterator it = params.begin(); it != params.end(); ++it)
         {
           if (it != params.begin())
           {
@@ -209,8 +204,7 @@ namespace HTTP
       // headers
 
       bool add_host_hdr = true;
-      for (HTTP::HeaderList::iterator it = headers.begin();
-        it != headers.end(); ++it)
+      for (HTTP::HeaderList::iterator it = headers.begin(); it != headers.end(); ++it)
       {
         request << it->name << ": " << it->value << "\r\n";
 
@@ -236,8 +230,7 @@ namespace HTTP
 
       const std::string& request_string = request.str();
       ssize_t request_len = request_string.length();
-      ACE_Time_Value send_timeout_ace(
-        send_timeout ? *send_timeout : Generics::Time());
+      ACE_Time_Value send_timeout_ace( send_timeout ? *send_timeout : Generics::Time());
       if (stream_.send_n(request_string.data(), request_len,
         send_timeout ? &send_timeout_ace : 0) != request_len)
       {
@@ -249,8 +242,7 @@ namespace HTTP
       while (body_ptr)
       {
         if (stream_.send_n(body_ptr->base(), body_ptr->size(),
-          send_timeout ? &send_timeout_ace : 0) !=
-            static_cast<ssize_t>(body_ptr->size()))
+          send_timeout ? &send_timeout_ace : 0) != static_cast<ssize_t>(body_ptr->size()))
         {
           throw_exception(FNB, "failed to send data");
         }
@@ -267,8 +259,7 @@ namespace HTTP
 
       if (need_response)
       {
-        status = parse_response(headers, body, recv_timeout, bytes_rcvd,
-          response_latency);
+        status = parse_response(headers, body, recv_timeout, bytes_rcvd, response_latency);
       }
 
       stream_.close();

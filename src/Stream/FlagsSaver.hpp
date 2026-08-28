@@ -14,16 +14,15 @@ namespace Stream
   class FlagsSaver : Generics::Uncopyable
   {
   public:
-    typedef ::std::ios_base StateType;
-    typedef ::std::ios_base::fmtflags AspectType;
+    using StateType = ::std::ios_base;
+    using AspectType = ::std::ios_base::fmtflags;
 
     /**
      * Constructor
      * @param s Independent from the national characteristics
      * the state of input-output to be saved
      */
-    explicit
-    FlagsSaver(StateType &s) noexcept;
+    explicit FlagsSaver(StateType &s) noexcept;
 
     /**
      * Constructor
@@ -41,8 +40,7 @@ namespace Stream
     /**
      * Restore state of stream
      */
-    void
-    restore() noexcept;
+    void restore() noexcept;
 
   private:
     StateType& state_;
@@ -60,27 +58,22 @@ namespace Stream
   //  class FlagsSaver
   //
 
-  inline
-  FlagsSaver::FlagsSaver(StateType &state) noexcept
+  inline FlagsSaver::FlagsSaver(StateType &state) noexcept
     : state_(state), ASPECT_(state.flags())
   {
   }
 
-  inline
-  FlagsSaver::FlagsSaver(StateType& state, const AspectType& aspect) noexcept
+  inline FlagsSaver::FlagsSaver(StateType& state, const AspectType& aspect) noexcept
     : state_(state), ASPECT_(state.flags(aspect))
   {
   }
 
-  inline
-  void
-  FlagsSaver::restore() noexcept
+  inline void FlagsSaver::restore() noexcept
   {
     state_.flags(ASPECT_);
   }
 
-  inline
-  FlagsSaver::~FlagsSaver() noexcept
+  inline FlagsSaver::~FlagsSaver() noexcept
   {
     restore();
   }

@@ -62,9 +62,9 @@ public:
 
 private:
 
-  typedef Sync::PosixRWLock Mutex_;
-  typedef Sync::PosixRGuard Read_Guard_;
-  typedef Sync::PosixWGuard Write_Guard_;
+  using Mutex_ = Sync::PosixRWLock;
+  using Read_Guard_ = Sync::PosixRGuard;
+  using Write_Guard_ = Sync::PosixWGuard;
 
   mutable Mutex_ lock_;
 

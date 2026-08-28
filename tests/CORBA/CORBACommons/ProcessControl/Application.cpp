@@ -23,8 +23,7 @@ Application::~Application() noexcept
   }
 }
 
-void
-Application::init(int& argc, char** argv)
+void Application::init(int& argc, char** argv)
   /*throw(InvalidArgument, Exception, eh::Exception)*/
 {
   std::cout << "Initializing ...\n";
@@ -37,7 +36,7 @@ Application::init(int& argc, char** argv)
 
     orb_ = CORBA::ORB_init(argc, argv);
 
-    if(CORBA::is_nil(orb_))
+    if (CORBA::is_nil(orb_))
     {
       throw InvalidArgument("Application::init: CORBA::ORB_init failed");
     }
@@ -49,7 +48,7 @@ Application::init(int& argc, char** argv)
 
     CORBA::Object_var obj = orb_->resolve_initial_references("RootPOA");
 
-    if(CORBA::is_nil(obj.in()))
+    if (CORBA::is_nil(obj.in()))
     {
       throw Exception("Application::init: CORBA::ORB::"
                       "resolve_initial_references(RootPOA) failed");
@@ -57,47 +56,39 @@ Application::init(int& argc, char** argv)
 
     poa = PortableServer::POA::_narrow(obj.in());
 
-    if(CORBA::is_nil(poa.in()))
+    if (CORBA::is_nil(poa.in()))
     {
-      throw Exception("Application::init: "
-                      "PortableServer::POA::_narrow failed");
+      throw Exception("Application::init: " "PortableServer::POA::_narrow failed");
     }
 
     std::cout << "  obtaining POAManager\n";
     poa_manager = poa->the_POAManager();
 
-    if(CORBA::is_nil(poa_manager.in()))
+    if (CORBA::is_nil(poa_manager.in()))
     {
-      throw Exception("Application::init: "
-                      "PortableServer::POA::the_POAManager failed");
+      throw Exception("Application::init: " "PortableServer::POA::the_POAManager failed");
     }
 
     CORBA::PolicyList policies;
     policies.length(2);
 
-    policies[0] =
-      poa->create_lifespan_policy(PortableServer::PERSISTENT);
+    policies[0] = poa->create_lifespan_policy(PortableServer::PERSISTENT);
 
-    policies[1] =
-      poa->create_id_assignment_policy(PortableServer::USER_ID);
+    policies[1] = poa->create_id_assignment_policy(PortableServer::USER_ID);
 
     std::cout << "  creating ProcessControlPOA\n";
-    server_poa_ = poa->create_POA("ProcessControlPOA",
-                                 poa_manager.in(),
-                                 policies);
+    server_poa_ = poa->create_POA("ProcessControlPOA", poa_manager.in(), policies);
 
     policies[0]->destroy();
     policies[1]->destroy();
 
-    if(CORBA::is_nil(server_poa_.in()))
+    if (CORBA::is_nil(server_poa_.in()))
     {
-      throw Exception("Application::init: "
-                      "PortableServer::POA::create_POA failed");
+      throw Exception("Application::init: " "PortableServer::POA::create_POA failed");
     }
 
     process_control_name_ = "ProcessControl";
-    process_control_id_ = PortableServer::string_to_ObjectId(
-      process_control_name_);
+    process_control_id_ = PortableServer::string_to_ObjectId( process_control_name_);
 
     std::cout << "  creating ProcessControl servant\n";
 
@@ -111,15 +102,13 @@ Application::init(int& argc, char** argv)
     std::cout << "  activating POPManager\n";
     poa_manager->activate();
 
-    CORBA::Object_var object =
-      server_poa_->id_to_reference(process_control_id_);
+    CORBA::Object_var object = server_poa_->id_to_reference(process_control_id_);
 
     std::cout << "  resolving IORTable\n";
 
-    CORBA::Object_var table_obj =
-      orb_->resolve_initial_references("IORTable");
+    CORBA::Object_var table_obj = orb_->resolve_initial_references("IORTable");
 
-    if(CORBA::is_nil(table_obj))
+    if (CORBA::is_nil(table_obj))
     {
       throw Exception("Application::init: CORBA::ORB::"
                       "resolve_initial_references(IORTable) failed");
@@ -129,8 +118,7 @@ Application::init(int& argc, char** argv)
 
     if (CORBA::is_nil(ior_table_.in()))
     {
-      throw Exception("Application::init: "
-                      "IORTable::Table::_narrow failed");
+      throw Exception("Application::init: " "IORTable::Table::_narrow failed");
     }
 
     std::cout << "  binding ProcessControl with IORTable\n";
@@ -143,8 +131,7 @@ Application::init(int& argc, char** argv)
     destroy();
 
     std::ostringstream ostr;
-    ostr << "Application::init: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::init: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
@@ -156,13 +143,12 @@ Application::init(int& argc, char** argv)
 
 }
 
-void
-Application::run()
+void Application::run()
   /*throw(InvalidOperationOrder, Exception, eh::Exception)*/
 {
   try
   {
-    if(CORBA::is_nil(orb_))
+    if (CORBA::is_nil(orb_))
     {
       throw InvalidOperationOrder("Application::run: orb not constructed");
     }
@@ -176,7 +162,7 @@ Application::run()
     CORBACommons::ProcessControlImpl* process_control =
       dynamic_cast<CORBACommons::ProcessControlImpl*>(servant_.in());
 
-    if(process_control == 0)
+    if (process_control == 0)
     {
       throw Exception("Application::run: dynamic_cast<CORBACommons::"
                       "ProcessControlImpl*> failed");
@@ -187,20 +173,18 @@ Application::run()
   catch(const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
 
 }
 
-void
-Application::destroy() /*throw(eh::Exception)*/
+void Application::destroy() /*throw(eh::Exception)*/
 {
   try
   {
-    if(!CORBA::is_nil(orb_))
+    if (!CORBA::is_nil(orb_))
     {
       std::cout << "Cleaning up ...\n";
 
@@ -227,15 +211,13 @@ Application::destroy() /*throw(eh::Exception)*/
   catch(const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   int result = 1;
 
@@ -261,4 +243,3 @@ main(int argc, char** argv)
 
   return result;
 }
-

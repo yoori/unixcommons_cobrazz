@@ -33,7 +33,7 @@ void MixVCode ( const void * blob, int len );
 
 //-----------------------------------------------------------------------------
 
-typedef void (*pfHash) ( const void * blob, const int len, const uint32_t seed, void * out );
+using pfHash = void (*) ( const void * blob, const int len, const uint32_t seed, void * out );
 
 struct ByteVec : public std::vector<uint8_t>
 {
@@ -117,7 +117,7 @@ struct KeyCallback
 template<typename hashtype>
 struct HashCallback : public KeyCallback
 {
-  typedef std::vector<hashtype> hashvec;
+  using hashvec = std::vector<hashtype>;
 
   HashCallback ( pfHash hash, hashvec & hashes ) : m_hashes(hashes), m_pfHash(hash)
   {
@@ -153,8 +153,8 @@ private:
 template<typename hashtype>
 struct CollisionCallback : public KeyCallback
 {
-  typedef HashSet<hashtype> hashset;
-  typedef CollisionMap<hashtype,ByteVec> collmap;
+  using hashset = HashSet<hashtype>;
+  using collmap = CollisionMap<hashtype,ByteVec>;
 
   CollisionCallback ( pfHash hash, hashset & collisions, collmap & cmap )
   : m_pfHash(hash),
@@ -169,7 +169,7 @@ struct CollisionCallback : public KeyCallback
 
     m_pfHash(key,len,0,&h);
 
-    if(m_collisions.count(h))
+    if (m_collisions.count(h))
     {
       m_collmap[h].push_back( ByteVec(key,len) );
     }
@@ -195,7 +195,7 @@ public:
 
   Blob()
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] = 0;
     }
@@ -203,7 +203,7 @@ public:
 
   Blob ( int x )
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] = 0;
     }
@@ -213,7 +213,7 @@ public:
 
   Blob ( const Blob & k )
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] = k.bytes[i];
     }
@@ -221,7 +221,7 @@ public:
 
   Blob & operator = ( const Blob & k )
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] = k.bytes[i];
     }
@@ -241,12 +241,12 @@ public:
 
     len = len > sizeof(bytes) ? sizeof(bytes) : len;
 
-    for(size_t i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
     {
       bytes[i] = k[i];
     }
 
-    for(size_t i = len; i < sizeof(bytes); i++)
+    for (size_t i = len; i < sizeof(bytes); i++)
     {
       bytes[i] = 0;
     }
@@ -267,10 +267,10 @@ public:
 
   bool operator < ( const Blob & k ) const
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
-      if(bytes[i] < k.bytes[i]) return true;
-      if(bytes[i] > k.bytes[i]) return false;
+      if (bytes[i] < k.bytes[i]) return true;
+      if (bytes[i] > k.bytes[i]) return false;
     }
 
     return false;
@@ -278,9 +278,9 @@ public:
 
   bool operator == ( const Blob & k ) const
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
-      if(bytes[i] != k.bytes[i]) return false;
+      if (bytes[i] != k.bytes[i]) return false;
     }
 
     return true;
@@ -298,7 +298,7 @@ public:
   {
     Blob t;
 
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       t.bytes[i] = bytes[i] ^ k.bytes[i];
     }
@@ -308,7 +308,7 @@ public:
 
   Blob & operator ^= ( const Blob & k )
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] ^= k.bytes[i];
     }
@@ -323,7 +323,7 @@ public:
 
   Blob & operator &= ( const Blob & k )
   {
-    for(size_t i = 0; i < sizeof(bytes); i++)
+    for (size_t i = 0; i < sizeof(bytes); i++)
     {
       bytes[i] &= k.bytes[i];
     }
@@ -368,7 +368,7 @@ private:
   uint8_t bytes[(_bits+7)/8];
 };
 
-typedef Blob<128> uint128_t;
-typedef Blob<256> uint256_t;
+using uint128_t = Blob<128>;
+using uint256_t = Blob<256>;
 
 //-----------------------------------------------------------------------------

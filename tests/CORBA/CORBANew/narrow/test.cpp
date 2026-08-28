@@ -4,10 +4,8 @@
 class Echo_i : virtual public POA_Echo1, virtual public POA_Echo2
 {
 public:
-  virtual char*
-  echoString(const char* message) noexcept;
-  virtual CORBA::Long
-  echoLong(CORBA::Long message) noexcept;
+  virtual char* echoString(const char* message) noexcept;
+  virtual CORBA::Long echoLong(CORBA::Long message) noexcept;
 
     virtual void invoke (CORBA::StaticServerRequest_ptr req)
     {
@@ -31,7 +29,8 @@ public:
         return POA_Echo2::_get_interface();
       }
     }
-    virtual CORBA::RepositoryId _primary_interface (const PortableServer::ObjectId & id, PortableServer::POA_ptr poa)
+    virtual CORBA::RepositoryId _primary_interface(
+      const PortableServer::ObjectId& id, PortableServer::POA_ptr poa)
     {
       return POA_Echo2::_primary_interface(id, poa);
     }
@@ -72,20 +71,17 @@ public:
 
 };
 
-char*
-Echo_i::echoString(const char* message) noexcept
+char* Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }
 
-CORBA::Long
-Echo_i::echoLong(CORBA::Long message) noexcept
+CORBA::Long Echo_i::echoLong(CORBA::Long message) noexcept
 {
   return message;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 

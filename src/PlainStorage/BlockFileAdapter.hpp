@@ -7,7 +7,7 @@
 
 namespace PlainStorage
 {
-  typedef u_int32_t BlockIndex;
+  using BlockIndex = u_int32_t;
 
   /**
    * ReadBlockFileAdapter
@@ -20,7 +20,7 @@ namespace PlainStorage
   {
     friend class ReadBlockStruct;
   public:
-    typedef u_int64_t FileOffset;
+    using FileOffset = u_int64_t;
 
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
     DECLARE_EXCEPTION(PosixException, Exception);
@@ -53,37 +53,32 @@ namespace PlainStorage
        * Exclude service fields from shared memory and return
        * pointer to user data
        * @return pointer to content of block
-       */ 
-      const void*
-      read_content() const noexcept;
+       */
+      const void* read_content() const noexcept;
 
       /**
        * Size of data may be not equal to mapped block size, i.e. block
        * with last portion of file
        * @return size of data in block
        */
-      unsigned long
-      size() const noexcept;
+      unsigned long size() const noexcept;
 
       /**
        * @return index of current block
        */
-      BlockIndex
-      index() const noexcept;
+      BlockIndex index() const noexcept;
 
       /**
        * Index of next block stored into allocated shared memory
        * @return index of next block: 0 if next block non exist
        */
-      BlockIndex
-      next_index() const noexcept;
+      BlockIndex next_index() const noexcept;
 
       /**
        * Continue reading, load next part of file
        * @return resolved next block, 0 if next block non exist
        */
-      ReadBlockStruct*
-      read_next() /*throw (eh::Exception)*/;
+      ReadBlockStruct* read_next() /*throw (eh::Exception)*/;
 
     protected:
 
@@ -94,8 +89,8 @@ namespace PlainStorage
       class BlockHeader
       {
       public:
-        typedef uint32_t FieldType;
-        typedef const uint32_t ConstFieldType;
+        using FieldType = uint32_t;
+        using ConstFieldType = const uint32_t;
       private:
         enum PlainBlockHeader
         {
@@ -107,30 +102,23 @@ namespace PlainStorage
           BH_NUMBER_FIELDS
         };
         /// suppose that data stored continuously in arrays
-        typedef FieldType BlockHeaderBody[BH_NUMBER_FIELDS];
+        using BlockHeaderBody = FieldType[BH_NUMBER_FIELDS];
         BlockHeaderBody data_;
       public:
         /// sizeof of header (header service fields)
-        static const std::size_t BLOCK_HEADER_SIZE =
-          sizeof(BlockHeaderBody);
+        static const std::size_t BLOCK_HEADER_SIZE = sizeof(BlockHeaderBody);
 
-        FieldType
-        next_index() const noexcept;
+        FieldType next_index() const noexcept;
 
-        FieldType&
-        next_index() noexcept;
+        FieldType& next_index() noexcept;
 
-        FieldType
-        size() const noexcept;
+        FieldType size() const noexcept;
 
-        FieldType&
-        size() noexcept;
+        FieldType& size() noexcept;
 
-        void*
-        content() noexcept;
+        void* content() noexcept;
 
-        const void*
-        content() const noexcept;
+        const void* content() const noexcept;
       };
 
       /**
@@ -152,8 +140,7 @@ namespace PlainStorage
       /**
        * Deletes shared memory if it was allocated
        */
-      virtual
-      ~ReadBlockStruct() noexcept;
+      virtual ~ReadBlockStruct() noexcept;
 
       /// Variable to delete shared memory when object will be destroy
       ReadBlockFileAdapter* read_block_file_adapter_;
@@ -163,45 +150,39 @@ namespace PlainStorage
 //      void* content_;
       BlockHeader* content_;
     };
-    typedef ReferenceCounting::SmartPtr<ReadBlockStruct> ReadBlockStruct_var;
+    using ReadBlockStruct_var = ReferenceCounting::SmartPtr<ReadBlockStruct>;
 
     /**
      * Constructor
      * @param filename The name of file to be open
      * @param block_size The size of Data block
      */
-    ReadBlockFileAdapter(
-      const char* filename,
-      unsigned long block_size)
+    ReadBlockFileAdapter( const char* filename, unsigned long block_size)
       /*throw (eh::Exception)*/;
 
     /**
      * Close file if it has been opened
      */
-    virtual
-    ~ReadBlockFileAdapter() noexcept;
+    virtual ~ReadBlockFileAdapter() noexcept;
 
     /**
      * make function for ReadBlockStructs
      * @param block_index The index of the Data block to be put in memory
      * @return The pointer to accessor to mapped Data block
      */
-    ReadBlockStruct*
-    get_block(BlockIndex block_index) /*throw (eh::Exception)*/;
+    ReadBlockStruct* get_block(BlockIndex block_index) /*throw (eh::Exception)*/;
 
     /**
      * @return Shared memory block size - size of reserved fields
      */
-    unsigned long
-    block_data_size() const /*throw (eh::Exception)*/;
+    unsigned long block_data_size() const /*throw (eh::Exception)*/;
 
     /**
      * @return file size divided on size of elemental portion of shared memory
      * used to store file. I.e. maximum number of blocks need to hold file in
      * memory
      */
-    BlockIndex
-    max_block_index() const /*throw (eh::Exception)*/;
+    BlockIndex max_block_index() const /*throw (eh::Exception)*/;
 
   protected:
 
@@ -211,22 +192,19 @@ namespace PlainStorage
      */
     ReadBlockFileAdapter(unsigned long block_size) /*throw (eh::Exception)*/;
 
-    void*
-    read_resolve_block_(BlockIndex index)
+    void* read_resolve_block_(BlockIndex index)
       /*throw (PosixException, eh::Exception)*/;
 
     /**
      * deletes the mappings for the specified address pointer
      */
-    void
-    read_unresolve_block_(void* content)
+    void read_unresolve_block_(void* content)
       /*throw (PosixException, eh::Exception)*/;
 
     /**
      * Open file in read only mode
      */
-    void
-    open_file_(const char* filename) /*throw (PosixException, eh::Exception)*/;
+    void open_file_(const char* filename) /*throw (PosixException, eh::Exception)*/;
 
     /// Description of opened file
     int file_desc_;
@@ -257,9 +235,8 @@ namespace PlainStorage
        * Exclude service fields from shared memory and return
        * pointer to user data
        * @return pointer to content of block
-       */ 
-      void*
-      content() const noexcept;
+       */
+      void* content() const noexcept;
 
       /**
        * @return size of user data in block
@@ -270,15 +247,13 @@ namespace PlainStorage
        * set size of data in block, size must be < block size
        * @param sz Size of used data that will store in the block
        */
-      void
-      size(unsigned long sz) noexcept;
+      void size(unsigned long sz) noexcept;
 
       /**
        * @return The size of memory in Data block available for user.
        * The size of the block minus the size of the service fields
        */
-      unsigned long
-      available_size() const /*throw (eh::Exception)*/;
+      unsigned long available_size() const /*throw (eh::Exception)*/;
 
       /**
        * Index of next block stored into allocated shared memory
@@ -290,31 +265,25 @@ namespace PlainStorage
        * Save index of next block in the beginning of shared memory
        * @param next_block Number of index to be saved
        */
-      void
-      next_index(BlockIndex next_block) noexcept;
+      void next_index(BlockIndex next_block) noexcept;
 
       /**
        * @return resolved next block, 0 if next block non exist
        */
-      WriteBlockStruct*
-      next() /*throw (eh::Exception)*/;
+      WriteBlockStruct* next() /*throw (eh::Exception)*/;
 
     protected:
-      WriteBlockStruct(
-        WriteBlockFileAdapter* block_file_adapter,
-        BlockIndex block_index)
+      WriteBlockStruct( WriteBlockFileAdapter* block_file_adapter, BlockIndex block_index)
         /*throw (eh::Exception)*/;
 
       /**
        * Deletes shared memory if it was allocated
        */
-      virtual
-      ~WriteBlockStruct() noexcept;
+      virtual ~WriteBlockStruct() noexcept;
 
       WriteBlockFileAdapter* write_block_file_adapter_;
     };
-    typedef ReferenceCounting::SmartPtr<WriteBlockStruct>
-      WriteBlockStruct_var;
+    using WriteBlockStruct_var = ReferenceCounting::SmartPtr<WriteBlockStruct>;
 
     /**
      * Possible modes of opening files, all files open for read-write
@@ -338,17 +307,14 @@ namespace PlainStorage
       OpenType open_type = OT_OPEN_OR_CREATE)
       /*throw (eh::Exception)*/;
 
-    WriteBlockStruct*
-    get_block(BlockIndex block_index) /*throw (eh::Exception)*/;
+    WriteBlockStruct* get_block(BlockIndex block_index) /*throw (eh::Exception)*/;
 
-    ReadBlockStruct*
-    get_read_block(BlockIndex block_index) /*throw (eh::Exception)*/;
+    ReadBlockStruct* get_read_block(BlockIndex block_index) /*throw (eh::Exception)*/;
 
     /**
      * Empty virtual destructor
      */
-    virtual
-    ~WriteBlockFileAdapter() noexcept;
+    virtual ~WriteBlockFileAdapter() noexcept;
 
   protected:
     /**
@@ -359,9 +325,7 @@ namespace PlainStorage
      *   initialize data
      * @return Pointer to shared memory with Data block by index
      */
-    void*
-    write_resolve_block_(
-      BlockIndex index, bool& need_to_init)
+    void* write_resolve_block_( BlockIndex index, bool& need_to_init)
       /*throw (PosixException, eh::Exception)*/;
 
     /**
@@ -370,30 +334,26 @@ namespace PlainStorage
      * by pointer
      * @param content Pointer to shared memory to do unmap
      */
-    void
-    write_unresolve_block_(void* content)
+    void write_unresolve_block_(void* content)
       /*throw (PosixException, eh::Exception)*/;
 
     /**
      * Open file in read-write mode and with given type
      */
-    void
-    open_file_(const char* filename, OpenType open_type)
+    void open_file_(const char* filename, OpenType open_type)
       /*throw (BadParam, PosixException, eh::Exception)*/;
 
     /**
      * @return number of shared memory blocks need to hold file
      */
-    BlockIndex
-    size_file_() const noexcept;
+    BlockIndex size_file_() const noexcept;
 
     /**
      * Use to extend file while allocate shared memory for writing data.
      * @param new_size_in_blocks Usually, currently allocated block index + 1, to
      * resize file to current size + block size.
      */
-    void
-    resize_file_(BlockIndex new_size_in_blocks)
+    void resize_file_(BlockIndex new_size_in_blocks)
       /*throw (FileOpenFailure, PosixException, eh::Exception)*/;
   };
 
@@ -408,34 +368,22 @@ namespace PlainStorage
   // ReadBlockFileAdapter::ReadBlockStruct
   //
 
-  inline
-  const void*
-  ReadBlockFileAdapter::ReadBlockStruct::read_content() const
-    noexcept
+  inline const void* ReadBlockFileAdapter::ReadBlockStruct::read_content() const noexcept
   {
     return content_->content();
   }
 
-  inline
-  unsigned long
-  ReadBlockFileAdapter::ReadBlockStruct::size() const
-    noexcept
+  inline unsigned long ReadBlockFileAdapter::ReadBlockStruct::size() const noexcept
   {
     return content_->size();
   }
 
-  inline
-  BlockIndex
-  ReadBlockFileAdapter::ReadBlockStruct::index() const
-    noexcept
+  inline BlockIndex ReadBlockFileAdapter::ReadBlockStruct::index() const noexcept
   {
     return block_index_;
   }
 
-  inline
-  BlockIndex
-  ReadBlockFileAdapter::ReadBlockStruct::next_index() const
-    noexcept
+  inline BlockIndex ReadBlockFileAdapter::ReadBlockStruct::next_index() const noexcept
   {
     return content_->next_index();
   }
@@ -444,44 +392,30 @@ namespace PlainStorage
   // WriteBlockFileAdapter class
   //
 
-  inline
-  void*
-  WriteBlockFileAdapter::WriteBlockStruct::content() const
-    noexcept
+  inline void* WriteBlockFileAdapter::WriteBlockStruct::content() const noexcept
   {
     return content_->content();
   }
 
-  inline
-  void
-  WriteBlockFileAdapter::WriteBlockStruct::size(
-    unsigned long new_size)
-    noexcept
+  inline void WriteBlockFileAdapter::WriteBlockStruct::size( unsigned long new_size) noexcept
   {
     content_->size() = new_size;
   }
 
-  inline
-  unsigned long
-  WriteBlockFileAdapter::WriteBlockStruct::available_size() const
+  inline unsigned long WriteBlockFileAdapter::WriteBlockStruct::available_size() const
     /*throw (eh::Exception)*/
   {
     return write_block_file_adapter_->block_data_size();
   }
 
-  inline
-  void
-  WriteBlockFileAdapter::WriteBlockStruct::next_index(
-    BlockIndex new_next_index)
+  inline void WriteBlockFileAdapter::WriteBlockStruct::next_index( BlockIndex new_next_index)
     noexcept
   {
     content_->next_index() = new_next_index;
   }
 
   inline
-  ReadBlockFileAdapter::ReadBlockFileAdapter(
-    const char* file_name,
-    unsigned long block_size)
+  ReadBlockFileAdapter::ReadBlockFileAdapter( const char* file_name, unsigned long block_size)
     /*throw (eh::Exception)*/
     : file_desc_(-1),
       map_page_size_(0),
@@ -492,8 +426,7 @@ namespace PlainStorage
   }
 
   inline
-  WriteBlockFileAdapter::WriteBlockStruct*
-  WriteBlockFileAdapter::get_block(BlockIndex block_index)
+  WriteBlockFileAdapter::WriteBlockStruct* WriteBlockFileAdapter::get_block(BlockIndex block_index)
     /*throw (eh::Exception)*/
   {
     return new WriteBlockStruct(this, block_index);
@@ -507,18 +440,14 @@ namespace PlainStorage
     return ReadBlockFileAdapter::get_block(block_index);
   }
 
-  inline
-  BlockIndex
-  WriteBlockFileAdapter::size_file_() const
-    noexcept
+  inline BlockIndex WriteBlockFileAdapter::size_file_() const noexcept
   {
     return file_size_ / map_page_size_;
   }
 
   inline
   ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::FieldType
-  ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::next_index() const
-    noexcept
+  ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::next_index() const noexcept
   {
     return data_[BH_NEXT_INDEX];
   }
@@ -544,47 +473,36 @@ namespace PlainStorage
     return data_[BH_USED_SIZE];
   }
 
-  inline
-  void*
-  ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::content() noexcept
+  inline void* ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::content() noexcept
   {
     return &data_[BH_NUMBER_FIELDS];
   }
 
-  inline
-  const void*
-  ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::content() const noexcept
+  inline const void* ReadBlockFileAdapter::ReadBlockStruct::BlockHeader::content() const noexcept
   {
     return &data_[BH_NUMBER_FIELDS];
   }
 
-  inline
-  ReadBlockFileAdapter::ReadBlockFileAdapter(
-    unsigned long block_size)
+  inline ReadBlockFileAdapter::ReadBlockFileAdapter( unsigned long block_size)
     /*throw (eh::Exception)*/
     : block_size_(block_size)
   {
   }
 
   inline
-  ReadBlockFileAdapter::ReadBlockStruct*
-  ReadBlockFileAdapter::get_block(BlockIndex block_index)
+  ReadBlockFileAdapter::ReadBlockStruct* ReadBlockFileAdapter::get_block(BlockIndex block_index)
     /*throw (eh::Exception)*/
   {
     return new ReadBlockStruct(this, block_index);
   }
 
-  inline
-  unsigned long
-  ReadBlockFileAdapter::block_data_size() const
+  inline unsigned long ReadBlockFileAdapter::block_data_size() const
     /*throw (eh::Exception)*/
   {
     return block_size_ - ReadBlockStruct::BlockHeader::BLOCK_HEADER_SIZE;
   }
 
-  inline
-  BlockIndex
-  ReadBlockFileAdapter::max_block_index() const
+  inline BlockIndex ReadBlockFileAdapter::max_block_index() const
     /*throw (eh::Exception)*/
   {
     return file_size_ / map_page_size_;
@@ -605,9 +523,7 @@ namespace PlainStorage
     open_file_(filename, open_type);
   }
 
-  inline
-  WriteBlockFileAdapter::~WriteBlockFileAdapter()
-    noexcept
+  inline WriteBlockFileAdapter::~WriteBlockFileAdapter() noexcept
   {
   }
 

@@ -33,8 +33,7 @@ namespace
   // Using in test for MemBuf creation.
   Base_var current_test_allocator;
 
-  const char* NAME_ALLOCATORS[] =
-  {
+  const char* NAME_ALLOCATORS[] = {
     "Default",
     "PoolBlocksAllocator",
     "PoolListAllocator",
@@ -47,17 +46,16 @@ namespace
 class TestStategyGenerator : Uncopyable
 {
 public:
-  struct Memory 
+  struct Memory
   {
     std::size_t high;
     std::size_t low;
     std::size_t value;
-    void
-    swap(Memory& right) noexcept;
+    void swap(Memory& right) noexcept;
   };
 
-  typedef std::vector<Memory> TestStrategy;
-  typedef std::vector<TestStrategy> AllStrategies;
+  using TestStrategy = std::vector<Memory>;
+  using AllStrategies = std::vector<TestStrategy>;
 
   TestStategyGenerator() noexcept;
 
@@ -66,8 +64,7 @@ public:
     std::size_t high,
     std::size_t threads = 1) /*throw (eh::Exception)*/;
 
-  const AllStrategies&
-  get() const noexcept;
+  const AllStrategies& get() const noexcept;
 
 private:
 
@@ -83,11 +80,10 @@ private:
      */
     RandomOnceAtRun(std::size_t random_data_len) noexcept;
 
-    std::size_t
-    operator() (std::size_t pos) const noexcept;
+    std::size_t operator() (std::size_t pos) const noexcept;
   private:
 
-    typedef std::vector<std::size_t> RandomData;
+    using RandomData = std::vector<std::size_t>;
     RandomData random_at_once_;
   };
 
@@ -102,16 +98,14 @@ TestStategyGenerator::TestStategyGenerator() noexcept
 {
 }
 
-void
-TestStategyGenerator::Memory::swap(Memory& right) noexcept
+void TestStategyGenerator::Memory::swap(Memory& right) noexcept
 {
   std::swap(high, right.high);
   std::swap(low, right.low);
   std::swap(value, right.value);
 }
 
-TestStategyGenerator::RandomOnceAtRun::RandomOnceAtRun(
-  std::size_t random_data_len) noexcept
+TestStategyGenerator::RandomOnceAtRun::RandomOnceAtRun( std::size_t random_data_len) noexcept
 {
   random_at_once_.reserve(random_data_len);
   for (std::size_t i = 1; i < random_data_len; ++i)
@@ -120,23 +114,18 @@ TestStategyGenerator::RandomOnceAtRun::RandomOnceAtRun(
   }
 }
 
-std::size_t
-TestStategyGenerator::RandomOnceAtRun::operator() (std::size_t pos) const
-  noexcept
+std::size_t TestStategyGenerator::RandomOnceAtRun::operator() (std::size_t pos) const noexcept
 {
   return random_at_once_[pos - 2];
 }
 
-const TestStategyGenerator::AllStrategies&
-TestStategyGenerator::get() const noexcept
+const TestStategyGenerator::AllStrategies& TestStategyGenerator::get() const noexcept
 {
   return memories_;
 }
 
 void
-TestStategyGenerator::generate_test_strategy(std::size_t low,
-                                             std::size_t high,
-                                             std::size_t threads)
+TestStategyGenerator::generate_test_strategy(std::size_t low, std::size_t high, std::size_t threads)
   /*throw (eh::Exception)*/
 {
   low_ = low;
@@ -158,7 +147,7 @@ TestStategyGenerator::generate_test_strategy(std::size_t low,
     }
   }
   // mixing part
-  
+
   for (std::size_t j = 0 ; j < threads; ++j)
   {
     RandomOnceAtRun mixer(thread_strategy_len);
@@ -176,14 +165,12 @@ public:
     const TestStategyGenerator::AllStrategies& ref)
     noexcept;
 
-  void
-  operator()() /*throw (eh::Exception)*/;
+  void operator()() /*throw (eh::Exception)*/;
 
   /**
    * Should reset multiplexer before new test cycle.
    */
-  void
-  reset() noexcept;
+  void reset() noexcept;
 
 private:
   const std::size_t METERS_;
@@ -205,20 +192,16 @@ MultiThreadPerformanceTest::MultiThreadPerformanceTest(
 {
 }
 
-void
-MultiThreadPerformanceTest::operator()() /*throw (eh::Exception)*/
+void MultiThreadPerformanceTest::operator()() /*throw (eh::Exception)*/
 {
   std::size_t my_strategy = __gnu_cxx::__exchange_and_add(&multiplexor_, 1);
-  const TestStategyGenerator::TestStrategy& buffer_sizes =
-    STRATEGY_[my_strategy];
+  const TestStategyGenerator::TestStrategy& buffer_sizes = STRATEGY_[my_strategy];
   for (std::size_t j = 0; j < METERS_; ++j)
   {
     for (std::size_t i = 0; i < BUFFERS_AMOUNT_; ++i)
     {
-      Generics::MemBuf tmp(buffer_sizes[i].value,
-        current_test_allocator.in());
-      Generics::MemBuf tmp2(buffer_sizes[i].value + 377,
-        current_test_allocator.in());
+      Generics::MemBuf tmp(buffer_sizes[i].value, current_test_allocator.in());
+      Generics::MemBuf tmp2(buffer_sizes[i].value + 377, current_test_allocator.in());
       tmp = std::move(tmp2);
       tmp2 = Generics::MemBuf(tmp);
       Generics::MemBuf tmp3(tmp);
@@ -226,8 +209,7 @@ MultiThreadPerformanceTest::operator()() /*throw (eh::Exception)*/
   }
 }
 
-void
-MultiThreadPerformanceTest::reset() noexcept
+void MultiThreadPerformanceTest::reset() noexcept
 {
   multiplexor_ = 0;
 }
@@ -238,11 +220,9 @@ do_performance_test(std::size_t threads,
                     std::size_t high,
                     TestStategyGenerator& strategist) /*throw (eh::Exception)*/
 {
-  std::cout << "\n\tSTART performance metering for " << threads
-    << " threads." << std::endl;
+  std::cout << "\n\tSTART performance metering for " << threads << " threads." << std::endl;
 
-  Generics::Allocator::Base_var ALLOCATORS[] =
-  {
+  Generics::Allocator::Base_var ALLOCATORS[] = {
     Generics::Allocator::Base_var(new Default),
     Generics::Allocator::Base_var(new ConstSizeArray(100, 1024 * 1024)),
     Generics::Allocator::Base_var(new VarSizeList(64 * 1024, 100)),
@@ -253,11 +233,9 @@ do_performance_test(std::size_t threads,
   strategist.generate_test_strategy(low, high, threads);
   MultiThreadPerformanceTest mtt(METERS, threads, strategist.get());
 
-  TestCommons::MTTester<MultiThreadPerformanceTest&>
-    mt_tester(mtt, threads);
+  TestCommons::MTTester<MultiThreadPerformanceTest&> mt_tester(mtt, threads);
 
-  std::cout << "LOW=" << low << ", HIGH=" << high
-    << std::endl;
+  std::cout << "LOW=" << low << ", HIGH=" << high << std::endl;
 
   CPUTimer timer;
 
@@ -270,9 +248,7 @@ do_performance_test(std::size_t threads,
 
   Time fake_allocators_time[4];
 
-  for (std::size_t i = 0;
-    i < sizeof(ALLOCATORS) / sizeof(ALLOCATORS[0]);
-    ++i)
+  for (std::size_t i = 0; i < sizeof(ALLOCATORS) / sizeof(ALLOCATORS[0]); ++i)
   {
     current_test_allocator = ALLOCATORS[i];
     std::cout.width(28);
@@ -290,8 +266,7 @@ do_performance_test(std::size_t threads,
     }
     std::cout << current_duration <<std::endl;
 
-    std::cout << "Cached: " << current_test_allocator->cached() <<
-      " Detailed: ";
+    std::cout << "Cached: " << current_test_allocator->cached() << " Detailed: ";
     current_test_allocator->print_cached(std::cout);
     std::cout << std::endl;
 
@@ -300,8 +275,7 @@ do_performance_test(std::size_t threads,
 
 }
 
-void
-collect_statistics() /*throw (eh::Exception)*/
+void collect_statistics() /*throw (eh::Exception)*/
 {
   TestStategyGenerator  strategist;
 
@@ -310,9 +284,8 @@ collect_statistics() /*throw (eh::Exception)*/
     std::size_t low;
     std::size_t high;
   };
-  
-  Task tasks[] =
-  {
+
+  Task tasks[] = {
     {8 * 1024, 16 * 1024}, {8 * 1024, 32 * 1024},
     {8 * 1024, 64 * 1024},{16 * 1024, 32 * 1024}, {64 * 1024, 256 * 1024},
 
@@ -341,20 +314,18 @@ collect_statistics() /*throw (eh::Exception)*/
   }
 }
 
-int
-main()
+int main()
 {
   std::cout << "MemBuf test started" << std::endl;
-  
+
   try
   {
-    std::cout << "Count of elemental test to perform " << BUFFERS_AMOUNT
-      << std::endl;
+    std::cout << "Count of elemental test to perform " << BUFFERS_AMOUNT << std::endl;
 
     std::cout << "Test passes " << METERS << std::endl;
 
     collect_statistics();
-    
+
     std::cout << "Test complete" << std::endl;
   }
   catch (const eh::Exception& e)

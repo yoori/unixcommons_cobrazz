@@ -31,29 +31,24 @@ public:
    * @param argc Number of arguments passed to utility process
    * @param argv Arguments passed to utility process
    */
-  int
-  run(int& argc, char** argv)
+  int run(int& argc, char** argv)
     /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
       CORBA::Exception)*/;
 
 private:
-  int
-  shutdown_(int argc, char** argv)
+  int shutdown_(int argc, char** argv)
     /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
       CORBA::Exception)*/;
 
-  int
-  probe_(int argc, char** argv)
+  int probe_(int argc, char** argv)
     /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
       CORBA::Exception)*/;
 
-  int
-  status_(int argc, char** argv)
+  int status_(int argc, char** argv)
     /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
       CORBA::Exception)*/;
 
-  int
-  control_(int argc, char** argv)
+  int control_(int argc, char** argv)
     /*throw (InvalidArgument, InvalidReference, Exception, eh::Exception,
       CORBA::Exception)*/;
 

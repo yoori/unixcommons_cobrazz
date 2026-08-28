@@ -8,12 +8,10 @@
 // General constants
 //
 
-const std::string ECHO_GET_STRING =
-  "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
+const std::string ECHO_GET_STRING = "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
   "body&glbfcap=0&referer=act.com&delay=";
-const std::string ECHO_POST_STRING =
-  "login=Petya%20Vasechkin&password=qq";
+const std::string ECHO_POST_STRING = "login=Petya%20Vasechkin&password=qq";
 
 //
 // BasicsTest
@@ -34,8 +32,7 @@ BasicsTestEmptyThreadPolicy::BasicsTestEmptyThreadPolicy(
 {
 }
 
-int
-BasicsTestEmptyThreadPolicy::when_close_thread(Identifier thread) noexcept
+int BasicsTestEmptyThreadPolicy::when_close_thread(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -93,8 +90,7 @@ BasicsTestEmptyThreadPolicy::check_thread_connection_added(
   catch(...) {};
 }
 
-void
-BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) noexcept
+void BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -122,8 +118,7 @@ BasicsTestEmptyThreadPolicy::check_choose_thread(Identifier thread) noexcept
   }
 }
 
-void
-BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) noexcept
+void BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -148,8 +143,7 @@ BasicsTestEmptyThreadPolicy::check_thread_added(Identifier thread) noexcept
   catch(...) {};
 }
 
-void
-BasicsTestEmptyThreadPolicy::check_thread_removed(Identifier thread) noexcept
+void BasicsTestEmptyThreadPolicy::check_thread_removed(Identifier thread) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -188,8 +182,7 @@ BasicsTestEmptyThreadPolicy::dynamic_states_checker_(const char* prefix,
   const void* addr, const StateHistory* prev_n_now) /*throw (eh::Exception)*/
 {
   std::ostringstream error_issues;
-  CheckSimpleEmptyCommons::dynamic_states_checker_(
-    prefix, addr, prev_n_now, error_issues);
+  CheckSimpleEmptyCommons::dynamic_states_checker_( prefix, addr, prev_n_now, error_issues);
   if (!error_issues.str().empty())
   {
     error_issues << '\n';
@@ -212,8 +205,7 @@ BasicsTestEmptyConnectionPolicy::BasicsTestEmptyConnectionPolicy(
 {
 }
 
-int
-BasicsTestEmptyConnectionPolicy::when_close_connection(Identifier connection) noexcept
+int BasicsTestEmptyConnectionPolicy::when_close_connection(Identifier connection) noexcept
 {
   Sync::PosixGuard guard(mutex_);
 
@@ -363,8 +355,7 @@ BasicsTestEmptyConnectionPolicy::dynamic_states_checker_(const char* prefix,
   const void* addr, const StateHistory* prev_n_now) /*throw (eh::Exception)*/
 {
   std::ostringstream error_issues;
-  CheckSimpleEmptyCommons::dynamic_states_checker_(
-    prefix, addr, prev_n_now, error_issues);
+  CheckSimpleEmptyCommons::dynamic_states_checker_( prefix, addr, prev_n_now, error_issues);
   if (!error_issues.str().empty())
   {
     error_issues << '\n';
@@ -400,8 +391,7 @@ BasicsTestPolicy::~BasicsTestPolicy() noexcept
 {
 }
 
-void
-BasicsTestPolicy::dump_errors(std::ostringstream& err_stream)
+void BasicsTestPolicy::dump_errors(std::ostringstream& err_stream)
   /*throw(eh::Exception)*/
 {
   if (!errors_.empty())
@@ -434,39 +424,32 @@ BasicsTest::~BasicsTest() noexcept
 {
 }
 
-void
-BasicsTest::init_(const char* pl_script_name, size_t serv_numb)
+void BasicsTest::init_(const char* pl_script_name, size_t serv_numb)
   /*throw (eh::Exception)*/
 {
   std::ostringstream base;
-  base << "http://" << servers_[serv_numb].first << ':' 
-       << servers_[serv_numb].second << "/cgi-bin/"
-       << pl_script_name << '?' << ECHO_GET_STRING;
+  base << "http://" << servers_[serv_numb].first << ':'
+       << servers_[serv_numb].second << "/cgi-bin/" << pl_script_name << '?' << ECHO_GET_STRING;
   http_request_ = base.str();
 }
 
-const char*
-BasicsTest::name() noexcept
+const char* BasicsTest::name() noexcept
 {
   return "BasicsTest";
 }
 
-void
-BasicsTest::exec_main_() noexcept
+void BasicsTest::exec_main_() noexcept
 {
   try
   {
     HTTP::PoolPolicy_var policy(ReferenceCounting::add_ref(policy_ptr_));
-    Generics::TaskRunner_var tests_runner(
-      new Generics::TaskRunner(policy_ptr_, 1));
-    HTTP::HttpActiveInterface_var pool(
-      HTTP::CreatePool(policy.in(), tests_runner));
+    Generics::TaskRunner_var tests_runner( new Generics::TaskRunner(policy_ptr_, 1));
+    HTTP::HttpActiveInterface_var pool( HTTP::CreatePool(policy.in(), tests_runner));
 
     tests_runner->activate_object();
     pool->activate_object();
 
-    SimpleCounterCallback_var my_cb(
-      new SimpleCounterCallback(policy.in()));
+    SimpleCounterCallback_var my_cb( new SimpleCounterCallback(policy.in()));
 
     scenario_(pool.in(), my_cb.in());
 
@@ -493,8 +476,7 @@ BasicsTest::exec_main_() noexcept
   }
 }
 
-void
-BasicsTest::exec_finish_() noexcept
+void BasicsTest::exec_finish_() noexcept
 {
   try
   {
@@ -540,33 +522,26 @@ BasicsTest::exec_finish_() noexcept
   }
 }
 
-inline
-void
-BasicsTest::callback_error_(SimpleCounterCallback* callback)
+inline void BasicsTest::callback_error_(SimpleCounterCallback* callback)
   /*throw(eh::Exception)*/
 {
   if (callback->get_counter().failed())
   {
-    error_ << callback->get_counter().failed()
-           << " requests failed\n";
+    error_ << callback->get_counter().failed() << " requests failed\n";
   }
 }
 
-void
-BasicsTest::print_stats(std::ostream& out) /*throw(eh::Exception)*/
+void BasicsTest::print_stats(std::ostream& out) /*throw(eh::Exception)*/
 {
   out << '\n' << name() << ":\n" << out_.str() << std::endl;
 }
 
-void
-BasicsTest::print_errors(std::ostream& out) /*throw(eh::Exception)*/
+void BasicsTest::print_errors(std::ostream& out) /*throw(eh::Exception)*/
 {
   if (!error_.str().empty())
   {
-    out << '\n' << name() << " ERRORS:\n"
-        << error_.str()
-        << "Test Log:\n" << log_.str()
-        << std::endl;
+    out << '\n' << name() << " ERRORS:\n" << error_.str()
+        << "Test Log:\n" << log_.str() << std::endl;
   }
 }
 
@@ -574,8 +549,7 @@ BasicsTest::print_errors(std::ostream& out) /*throw(eh::Exception)*/
 // class BasicsTest01
 //
 
-const char*
-BasicsTest01::scenario_descr() noexcept
+const char* BasicsTest01::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest01 scenario.\n"
          "  Params: 1 connection per server, 1 connection per thread.\n"
@@ -602,17 +576,15 @@ BasicsTest01::~BasicsTest01() noexcept
 {
 }
 
-const char*
-BasicsTest01::name() noexcept
+const char* BasicsTest01::name() noexcept
 {
   return "BasicsTest01";
 }
 
-void
-BasicsTest01::exec_init_() noexcept
+void BasicsTest01::exec_init_() noexcept
 {
-  typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
-  typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
+  using ScenarioArrayElem = ConnThrScenarios::ScenarioArrayElem;
+  using StateInfo = CheckSimpleEmptyCommons::StateInfo;
 
   const ScenarioArrayElem conn_scenario[] = {
     ScenarioArrayElem(-2, StateInfo::ACTIVE_AWAITING),
@@ -651,8 +623,7 @@ BasicsTest01::scenario_(HTTP::HttpActiveInterface* pool,
 // class BasicsTest02
 //
 
-const char*
-BasicsTest02::scenario_descr() noexcept
+const char* BasicsTest02::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest02 scenario.\n"
          "  Params: 2 connections per server, 2 connections per thread.\n"
@@ -696,17 +667,15 @@ BasicsTest02::~BasicsTest02() noexcept
 {
 }
 
-const char*
-BasicsTest02::name() noexcept
+const char* BasicsTest02::name() noexcept
 {
   return "BasicsTest02";
 }
 
-void
-BasicsTest02::exec_init_() noexcept
+void BasicsTest02::exec_init_() noexcept
 {
-  typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
-  typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
+  using ScenarioArrayElem = ConnThrScenarios::ScenarioArrayElem;
+  using StateInfo = CheckSimpleEmptyCommons::StateInfo;
 
   const ScenarioArrayElem conn_scenario1[] = {
     ScenarioArrayElem(-2, StateInfo::ACTIVE_AWAITING),
@@ -758,8 +727,7 @@ BasicsTest02::scenario_(HTTP::HttpActiveInterface* pool,
 // class BasicsTest03
 //
 
-const char*
-BasicsTest03::scenario_descr() noexcept
+const char* BasicsTest03::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest03 scenario.\n"
          "  Params: 2 connections per server, 2 connections per thread.\n"
@@ -826,17 +794,15 @@ BasicsTest03::~BasicsTest03() noexcept
 {
 }
 
-const char*
-BasicsTest03::name() noexcept
+const char* BasicsTest03::name() noexcept
 {
   return "BasicsTest03";
 }
 
-void
-BasicsTest03::exec_init_() noexcept
+void BasicsTest03::exec_init_() noexcept
 {
-  typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
-  typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
+  using ScenarioArrayElem = ConnThrScenarios::ScenarioArrayElem;
+  using StateInfo = CheckSimpleEmptyCommons::StateInfo;
 
   const ScenarioArrayElem conn_scenario1[] = {
     ScenarioArrayElem(-2, StateInfo::ACTIVE_AWAITING),
@@ -919,8 +885,7 @@ BasicsTest03::scenario_(HTTP::HttpActiveInterface* pool,
 // class BasicsTest04
 //
 
-const char*
-BasicsTest04::scenario_descr() noexcept
+const char* BasicsTest04::scenario_descr() noexcept
 {
   return "This is a description of BasicsTest04 scenario.\n"
          "  Params: 3 connections per server, 1 connections per thread.\n"
@@ -933,7 +898,7 @@ BasicsTest04::scenario_descr() noexcept
          "    see BasicsTest03 scenario\n"
          "  1 thread's scenario:\n"
          "    ACTIVE_AWAITING (is chosen)\n"
-         "    ACTIVE (got connection)\n"         
+         "    ACTIVE (got connection)\n"
          "    CLOSURE_AWAITING (there is no objects more and there is no other\n"
          "    threads/connections in this state)\n"
          "    CLOSURE_AWAITING (there is no objects more and there is no other\n"
@@ -965,17 +930,15 @@ BasicsTest04::~BasicsTest04() noexcept
 {
 }
 
-const char*
-BasicsTest04::name() noexcept
+const char* BasicsTest04::name() noexcept
 {
   return "BasicsTest04";
 }
 
-void
-BasicsTest04::exec_init_() noexcept
+void BasicsTest04::exec_init_() noexcept
 {
-  typedef ConnThrScenarios::ScenarioArrayElem ScenarioArrayElem;
-  typedef CheckSimpleEmptyCommons::StateInfo StateInfo;
+  using ScenarioArrayElem = ConnThrScenarios::ScenarioArrayElem;
+  using StateInfo = CheckSimpleEmptyCommons::StateInfo;
 
   const ScenarioArrayElem conn_scenario1[] = {
     ScenarioArrayElem(-2, StateInfo::ACTIVE_AWAITING),
@@ -1066,8 +1029,7 @@ BasicsTest04::scenario_(HTTP::HttpActiveInterface* pool,
 // class RandomLoadingTest
 //
 
-const char*
-RandomLoadingTest::scenario_descr() noexcept
+const char* RandomLoadingTest::scenario_descr() noexcept
 {
   return "This is a description of RandomLoadingTest. It is intended for\n"
          "  dynamic checking of states switchings (for both threads and connections).\n"
@@ -1096,14 +1058,12 @@ RandomLoadingTest::~RandomLoadingTest() noexcept
 {
 }
 
-const char*
-RandomLoadingTest::name() noexcept
+const char* RandomLoadingTest::name() noexcept
 {
   return "RandomLoadingTest";
 }
 
-void
-RandomLoadingTest::execute() noexcept
+void RandomLoadingTest::execute() noexcept
 {
   exec_main_();
 
@@ -1135,7 +1095,6 @@ RandomLoadingTest::scenario_(HTTP::HttpActiveInterface* pool,
   }
 }
 
-void
-RandomLoadingTest::exec_init_() noexcept
+void RandomLoadingTest::exec_init_() noexcept
 {
 }

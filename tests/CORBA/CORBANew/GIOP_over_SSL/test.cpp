@@ -8,18 +8,15 @@
 class Echo_i : public POA_Echo
 {
 public:
-  virtual char*
-  echoString(const char* message) noexcept;
+  virtual char* echoString(const char* message) noexcept;
 };
 
-char*
-Echo_i::echoString(const char* message) noexcept
+char* Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 #ifdef ORB_OMNI
   char ADDR[] = "giop:ssl:localhost:1025";
@@ -41,8 +38,7 @@ main(int argc, char** argv)
   sslContext::key_file = KEY;
   sslContext::key_file_password = PASSWORD;
 
-  const char* options[][2] =
-    {
+  const char* options[][2] = {
       { "endPoint", ADDR },
       { 0, 0 }
     };

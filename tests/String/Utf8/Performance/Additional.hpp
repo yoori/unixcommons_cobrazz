@@ -15,8 +15,7 @@ namespace Test
    * @param fun measure functor, that give results.
    */
   template<class Functor>
-  inline double
-  acc_avg(const std::size_t rep_count, Functor fun, double & std_dev)
+  inline double acc_avg(const std::size_t rep_count, Functor fun, double & std_dev)
     /*throw (eh::Exception)*/
   {
     if (!rep_count)
@@ -25,7 +24,7 @@ namespace Test
       return 0.;
     }
 
-    typedef std::vector<long long> data_type;
+    using data_type = std::vector<long long>;
     data_type samples;
     samples.reserve(rep_count);
     // compute sample
@@ -34,12 +33,10 @@ namespace Test
       samples.push_back( fun() );
     }
 
-    double acc = std::accumulate(samples.begin(), samples.end(),
-                static_cast<std::size_t>(0));
+    double acc = std::accumulate(samples.begin(), samples.end(), static_cast<std::size_t>(0));
     const double m_w = acc/rep_count;   // sample mean
     double variance = 0.;
-    for (data_type::const_iterator it = samples.begin();
-        it != samples.end(); ++it)
+    for (data_type::const_iterator it = samples.begin(); it != samples.end(); ++it)
     {
       variance += pow (*it-m_w, 2);
     }
@@ -68,14 +65,12 @@ namespace Test
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,5,5,5,5,6,6,0,0  //256
   };
 
-  inline std::size_t
-  get_octet_count_outdoor(char ch) noexcept
+  inline std::size_t get_octet_count_outdoor(char ch) noexcept
   {
     return trailingBytesUTF8[static_cast<unsigned char>(ch)];
   }
 
-  inline std::size_t
-  get_octet_count_inside(char ch) noexcept
+  inline std::size_t get_octet_count_inside(char ch) noexcept
   {
     const unsigned char trailingBytesForUTF8[256] = {
       1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, //32
@@ -91,8 +86,7 @@ namespace Test
     return trailingBytesForUTF8[static_cast<unsigned char>(ch)];
   }
 
-  inline std::size_t
-  get_octet_count_inside_static(char ch) noexcept
+  inline std::size_t get_octet_count_inside_static(char ch) noexcept
   {
     static const unsigned char trailingBytesForUTF8[256] = {
       1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, //32
@@ -108,8 +102,7 @@ namespace Test
     return trailingBytesForUTF8[static_cast<unsigned char>(ch)];
   }
 
-  inline std::size_t
-  get_octet_count_if(char ch) noexcept
+  inline std::size_t get_octet_count_if(char ch) noexcept
   {
     if ((ch & 0x80) == 0)
     {

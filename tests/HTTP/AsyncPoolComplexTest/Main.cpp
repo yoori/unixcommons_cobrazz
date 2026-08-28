@@ -24,22 +24,17 @@ void usage()
                "sending (for each test))\n"
                "FUNCTORS_PER_TASK = 4 (Num of functors responsible for requests's "
                "sending in each thread (for each test))\n"
-               "Current values are:\n"
-            << "TEST_DURATION = " << TEST_DURATION
+               "Current values are:\n" << "TEST_DURATION = " << TEST_DURATION
             << "\nMAKING_REQUESTS_DURATION = " << TEST_DURATION
             << "\nTASK_RUNNER_THR_COUNT = " << TEST_DURATION
             << "\nTASKS_PER_TEST = " << TEST_DURATION
-            << "\nFUNCTORS_PER_TASK = " << FUNCTORS_PER_TASK
-            << "\n\n"
-            << EchoTest::usage() << '\n'
-            << NonExistanceTest::usage() << '\n'
-            << BadAddressTest::usage() << '\n'
-            << BadRespTest::usage() << '\n'
+            << "\nFUNCTORS_PER_TASK = " << FUNCTORS_PER_TASK << "\n\n"
+            << EchoTest::usage() << '\n' << NonExistanceTest::usage() << '\n'
+            << BadAddressTest::usage() << '\n' << BadRespTest::usage() << '\n'
             << InterruptTest::usage() << std::endl;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   HTTP::HttpActiveInterface_var pool;
   Generics::TaskRunner_var tests_runner;
@@ -52,7 +47,7 @@ main(int argc, char* argv[])
       return 0;
     }
 
-    typedef ReferenceCounting::List<CTTestInterface_var> Tests;
+    using Tests = ReferenceCounting::List<CTTestInterface_var>;
 
     SimplePolicy* policy_ptr = new SimplePolicy;
     HTTP::PoolPolicy_var policy(policy_ptr);
@@ -138,14 +133,14 @@ main(int argc, char* argv[])
       pool->deactivate_object();
       pool->wait_object();
     }
+
     if (tests_runner.in())
     {
       tests_runner->deactivate_object();
       tests_runner->wait_object();
     }
 
-    std::cerr << "[ERROR]: main(2). eh::Exception caught: " <<
-      e.what() << std::endl;
+    std::cerr << "[ERROR]: main(2). eh::Exception caught: " << e.what() << std::endl;
 
     return 1;
   }

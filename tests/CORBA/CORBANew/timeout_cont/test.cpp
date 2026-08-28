@@ -8,10 +8,8 @@ class TestInt_i : public POA_TestInt
 {
 public:
   TestInt_i() noexcept;
-  virtual void
-  test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
-  virtual void
-  oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
+  virtual void test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
+  virtual void oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept;
 private:
   volatile _Atomic_word total;
 };
@@ -21,8 +19,7 @@ TestInt_i::TestInt_i() noexcept
 {
 }
 
-void
-TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) noexcept
+void TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) noexcept
 {
   unsigned sleep = 900 + rand() % 200;
   timeval tv = { sleep / 1000, (sleep % 1000) * 1000 };
@@ -44,14 +41,12 @@ TestInt_i::test(CORBA::Long number, const OctetSeq& in_seq) noexcept
   }
 }
 
-void
-TestInt_i::oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept
+void TestInt_i::oneway_test(CORBA::Long number, const OctetSeq& in_seq) noexcept
 {
   test(number, in_seq);
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 #if 0
   std::cout << getpid() << std::endl;
@@ -75,10 +70,15 @@ main(int argc, char** argv)
     execl("./test_client", "./test_client", (const char*)sior, NULL);
 #else
     FILE* file = fopen(".gdbinit", "w");
-    fprintf(file, "set args %s\ndirectory /home/konstantin_sadov/work/ACE_wrappers/ace\nbr main\nrun\n", (const char*) sior);
-    //fprintf(file, "br 'TAO_Transport::send_message_shared_i(TAO_Stub*, TAO_Transport::TAO_Message_Semantics, ACE_Message_Block const*, ACE_Time_Value*)'\n");
-    fprintf(file, "br 'TAO_Leader_Follower_Flushing_Strategy::flush_transport(TAO_Transport*, ACE_Time_Value*)'\n");
-    fprintf(file, "br 'TAO_Leader_Follower_Flushing_Strategy::flush_message(TAO_Transport*, TAO_Queued_Message*, ACE_Time_Value*)'\n");
+    fprintf(file,
+      "set args %s\ndirectory /home/konstantin_sadov/work/ACE_wrappers/ace\nbr main\nrun\n",
+      (const char*)sior);
+    // fprintf(file, "br 'TAO_Transport::send_message_shared_i(TAO_Stub*,
+    // TAO_Transport::TAO_Message_Semantics, ACE_Message_Block const*, ACE_Time_Value*)'\n");
+    fprintf(file, "br 'TAO_Leader_Follower_Flushing_Strategy::flush_transport(TAO_Transport*, "
+                  "ACE_Time_Value*)'\n");
+    fprintf(file, "br 'TAO_Leader_Follower_Flushing_Strategy::flush_message(TAO_Transport*, "
+                  "TAO_Queued_Message*, ACE_Time_Value*)'\n");
     fprintf(file, "cont\n");
     fclose(file);
     //execl("gdb", "gdb", "./test_client", NULL);

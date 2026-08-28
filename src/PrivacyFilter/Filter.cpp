@@ -10,8 +10,7 @@
 
 namespace
 {
-  const unsigned char EXPECTED_HASH[512 / 8] =
-  {
+  const unsigned char EXPECTED_HASH[512 / 8] = {
 #include "../../Data/Filter_ExpectedHash.ipp"
   };
 
@@ -20,12 +19,10 @@ namespace
   public:
     Filter() noexcept;
 
-    bool
-    filter() const noexcept;
+    bool filter() const noexcept;
 
   private:
-    bool
-    check_file(const char* file) noexcept;
+    bool check_file(const char* file) noexcept;
 
     bool filter_;
   };
@@ -34,19 +31,15 @@ namespace
   Filter::Filter() noexcept
     : filter_(true)
   {
-    check_file(getenv("loglevel_control")) ||
-      check_file("loglevel.control");
+    check_file(getenv("loglevel_control")) || check_file("loglevel.control");
   }
 
-  inline
-  bool
-  Filter::filter() const noexcept
+  inline bool Filter::filter() const noexcept
   {
     return filter_;
   }
 
-  bool
-  Filter::check_file(const char* file) noexcept
+  bool Filter::check_file(const char* file) noexcept
   {
     if (!file)
     {
@@ -88,22 +81,18 @@ namespace
 
 namespace PrivacyFilter
 {
-  bool
-  filter() noexcept
+  bool filter() noexcept
   {
     return global_filter.filter();
   }
 
-  const char*
-  filter(const char* original_message, const char* replace_message)
-    noexcept
+  const char* filter(const char* original_message, const char* replace_message) noexcept
   {
     return global_filter.filter() ? replace_message : original_message;
   }
 
   const String::SubString&
-  filter(const String::SubString& original_message,
-    const String::SubString& replace_message)
+  filter(const String::SubString& original_message, const String::SubString& replace_message)
     noexcept
   {
     return global_filter.filter() ? replace_message : original_message;

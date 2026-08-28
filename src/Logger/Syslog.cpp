@@ -5,115 +5,106 @@
 #include <Logger/Syslog.hpp>
 
 
-namespace Logging
+namespace Logging::Syslog
 {
-  namespace Syslog
+  namespace Helper
   {
-    namespace Helper
+    //
+    // Connection class
+    //
+
+    static Sync::PosixMutex mutex;
+    Connection* Connection::connection_;
+
+    Connection::Connection(Config&& config) /*throw (eh::Exception)*/
+      : config_(std::move(config))
     {
-      //
-      // Connection class
-      //
+      config_.formatter.reset();
+      openlog(config.openlog_identity.empty() ? 0 :
+        config.openlog_identity.c_str(),
+        config.openlog_option, config.openlog_facility);
+    }
 
-      static Sync::PosixMutex mutex;
-      Connection* Connection::connection_;
+    Connection::~Connection() noexcept
+    {
+      closelog();
+    }
 
-      Connection::Connection(Config&& config) /*throw (eh::Exception)*/
-        : config_(std::move(config))
+    void Connection::delete_this_() const noexcept
+    {
+      Sync::PosixGuard guard(mutex);
+      add_ref();
+      if (remove_ref_no_delete_())
       {
-        config_.formatter.reset();
-        openlog(config.openlog_identity.empty() ? 0 :
-          config.openlog_identity.c_str(),
-          config.openlog_option, config.openlog_facility);
+        connection_ = 0;
+        AtomicImpl::delete_this_();
       }
+    }
 
-      Connection::~Connection() noexcept
-      {
-        closelog();
-      }
+    Connection* Connection::connection(Config&& config)
+      /*throw (eh::Exception, Handler::Exception)*/
+    {
+      Sync::PosixGuard guard(mutex);
 
-      void
-      Connection::delete_this_() const noexcept
+      if (connection_)
       {
-        Sync::PosixGuard guard(mutex);
-        add_ref();
-        if (remove_ref_no_delete_())
+        if (config.openlog_option != connection_->config_.openlog_option ||
+          config.openlog_facility != connection_->config_.openlog_facility ||
+          config.openlog_identity != connection_->config_.openlog_identity)
         {
-          connection_ = 0;
-          AtomicImpl::delete_this_();
+          Stream::Error ostr;
+          ostr << FNS << "different connection configuration";
+          throw Handler::Exception(ostr);
         }
+
+        connection_->add_ref();
       }
-
-      Connection*
-      Connection::connection(Config&& config)
-        /*throw (eh::Exception, Handler::Exception)*/
+      else
       {
-        Sync::PosixGuard guard(mutex);
+        connection_ = new Connection(std::move(config));
+      }
+      return connection_;
+    }
 
-        if (connection_)
+
+    //
+    // Handler class
+    //
+
+    inline void Handler::publish(const LogRecord& record)
+      /*throw (Exception, eh::Exception)*/
+    {
+      FormatWrapper::Result line(formatter_.format(record));
+      if (char* str = const_cast<char*>(line.get()))
+      {
+        for (char* ptr = str; *ptr; ++ptr)
         {
-          if (config.openlog_option != connection_->config_.openlog_option ||
-            config.openlog_facility !=
-              connection_->config_.openlog_facility ||
-            config.openlog_identity != connection_->config_.openlog_identity)
+          if (*ptr == '\n' || *ptr == '\r')
           {
-            Stream::Error ostr;
-            ostr << FNS << "different connection configuration";
-            throw Handler::Exception(ostr);
+            *ptr = ' ';
           }
 
-          connection_->add_ref();
-        }
-        else
-        {
-          connection_ = new Connection(std::move(config));
-        }
-        return connection_;
-      }
-
-
-      //
-      // Handler class
-      //
-
-      inline
-      void
-      Handler::publish(const LogRecord& record)
-        /*throw (Exception, eh::Exception)*/
-      {
-        FormatWrapper::Result line(formatter_.format(record));
-        if (char* str = const_cast<char*>(line.get()))
-        {
-          for (char* ptr = str; *ptr; ++ptr)
+          if (ptr - str == 7 * 1024)
           {
-            if (*ptr == '\n' || *ptr == '\r')
-            {
-              *ptr = ' ';
-            }
-            if (ptr - str == 7 * 1024)
-            {
-              ptr[-4] = ' ';
-              ptr[-3] = '.';
-              ptr[-2] = '.';
-              ptr[-1] = '.';
-              *ptr = '\0';
-              break;
-            }
+            ptr[-4] = ' ';
+            ptr[-3] = '.';
+            ptr[-2] = '.';
+            ptr[-1] = '.';
+            *ptr = '\0';
+            break;
           }
-  
-          static const int CONVERT_TO_SYSLOG_SEVERITY[] =
-          {
-            LOG_ALERT, LOG_ALERT, LOG_CRIT, LOG_ERR, LOG_WARNING,
-            LOG_NOTICE, LOG_INFO
-          };
-
-          int priority =
-            (record.severity < sizeof(CONVERT_TO_SYSLOG_SEVERITY) 
-              / sizeof(CONVERT_TO_SYSLOG_SEVERITY[0]) ?
-                CONVERT_TO_SYSLOG_SEVERITY[record.severity] : LOG_DEBUG);
-
-          syslog(priority, "%s", str);
         }
+
+        static const int CONVERT_TO_SYSLOG_SEVERITY[] = {
+          LOG_ALERT, LOG_ALERT, LOG_CRIT, LOG_ERR, LOG_WARNING,
+          LOG_NOTICE, LOG_INFO
+        };
+
+        int priority = (record.severity < sizeof(CONVERT_TO_SYSLOG_SEVERITY)
+            / sizeof(CONVERT_TO_SYSLOG_SEVERITY[0]) ?
+              CONVERT_TO_SYSLOG_SEVERITY[record.severity] : LOG_DEBUG);
+
+        syslog(priority, "%s", str);
       }
     }
   }

@@ -29,17 +29,13 @@ class TestComposeActors
 public:
   DECLARE_EXCEPTION(TestFailed, eh::DescriptiveException);
 
-  virtual
-  ~TestComposeActors() noexcept;
+  virtual ~TestComposeActors() noexcept;
 
-  void
-  do_test() /*throw (eh::Exception, TestFailed)*/;
+  void do_test() /*throw (eh::Exception, TestFailed)*/;
 
-  void
-  do_negative_test() /*throw (eh::Exception, TestFailed)*/;
+  void do_negative_test() /*throw (eh::Exception, TestFailed)*/;
 
-  void
-  do_wait_test() /*throw (eh::Exception, TestFailed)*/;
+  void do_wait_test() /*throw (eh::Exception, TestFailed)*/;
 
 private:
   Generics::TaskRunner_var task_runner_;
@@ -59,7 +55,7 @@ private:
 //    Active   | Passive          | FAIL
 //    Active   | Active           | OK
 // 3. Add ActiveObject to Composite, its Active now.
-// 4. Check demands on behavior 
+// 4. Check demands on behavior
 //      Composite->deactivate() FAIL
 //      FailActiveObject->permit(); Composite->deactivate() OK
 //      Composite->wait() FAIL
@@ -80,44 +76,34 @@ class FailActiveObjectImpl : public virtual Generics::RefCountableActiveObject,
 public:
   FailActiveObjectImpl() noexcept;
 
-  void
-  activate_object() override
+  void activate_object() override
     /*throw (ActiveObject::AlreadyActive, Exception, eh::Exception)*/;
 
-  void
-  deactivate_object() override /*throw (Exception, eh::Exception)*/;
+  void deactivate_object() override /*throw (Exception, eh::Exception)*/;
 
-  void
-  wait_object() override /*throw (Exception, eh::Exception)*/;
+  void wait_object() override /*throw (Exception, eh::Exception)*/;
 
-  bool
-  active() const override /*throw (eh::Exception)*/;
+  bool active() const override /*throw (eh::Exception)*/;
 
-  void
-  permit_work(bool new_status) noexcept;
+  void permit_work(bool new_status) noexcept;
 
-  void
-  set_active(bool new_status) noexcept;
+  void set_active(bool new_status) noexcept;
 
 protected:
-  virtual
-  ~FailActiveObjectImpl() noexcept;
+  virtual ~FailActiveObjectImpl() noexcept;
 
 private:
   bool permit_pass_;
   bool active_;
 };
 
-typedef ReferenceCounting::QualPtr<FailActiveObjectImpl>
-  FailActiveObject_var;
+using FailActiveObject_var = ReferenceCounting::QualPtr<FailActiveObjectImpl>;
 
 class Waiter
 {
 public:
-  Waiter(Generics::RefCountableCompositeActiveObject* active_object, bool add_child)
-    noexcept;
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  Waiter(Generics::RefCountableCompositeActiveObject* active_object, bool add_child) noexcept;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
   ReferenceCounting::FixedPtr<Generics::RefCountableCompositeActiveObject>
@@ -142,8 +128,7 @@ FailActiveObjectImpl::~FailActiveObjectImpl() noexcept
 {
 }
 
-void
-FailActiveObjectImpl::activate_object()
+void FailActiveObjectImpl::activate_object()
   /*throw (ActiveObject::AlreadyActive, Exception, eh::Exception)*/
 {
   if (!permit_pass_)
@@ -153,8 +138,7 @@ FailActiveObjectImpl::activate_object()
   active_ = true;
 }
 
-void
-FailActiveObjectImpl::deactivate_object()
+void FailActiveObjectImpl::deactivate_object()
   /*throw (Exception, eh::Exception)*/
 {
   if (!permit_pass_)
@@ -163,8 +147,7 @@ FailActiveObjectImpl::deactivate_object()
   }
 }
 
-void
-FailActiveObjectImpl::wait_object() /*throw (Exception, eh::Exception)*/
+void FailActiveObjectImpl::wait_object() /*throw (Exception, eh::Exception)*/
 {
   if (!permit_pass_)
   {
@@ -173,20 +156,17 @@ FailActiveObjectImpl::wait_object() /*throw (Exception, eh::Exception)*/
   active_ = false;
 }
 
-bool
-FailActiveObjectImpl::active() const /*throw (eh::Exception)*/
+bool FailActiveObjectImpl::active() const /*throw (eh::Exception)*/
 {
   return active_;
 }
 
-void
-FailActiveObjectImpl::permit_work(bool new_status) noexcept
+void FailActiveObjectImpl::permit_work(bool new_status) noexcept
 {
   permit_pass_ = new_status;
 }
 
-void
-FailActiveObjectImpl::set_active(bool new_status) noexcept
+void FailActiveObjectImpl::set_active(bool new_status) noexcept
 {
   active_ = new_status;
 }

@@ -10,7 +10,7 @@ int main(int /*argc*/, char** /*argv*/)
 
     UServerUtils::MetricsHTTPProvider *m=new UServerUtils::MetricsHTTPProvider(cmp,8081,"/metrics");
     m->activate_object();
-    for(long i=0; i<1000; i++)
+    for (long i=0; i<1000; i++)
     {
         {
             std::map<std::string,std::string> m;

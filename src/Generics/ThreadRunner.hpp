@@ -23,18 +23,15 @@ namespace Generics
     /**
      * Work process for the job.
      */
-    virtual
-    void
-    work() noexcept = 0;
+    virtual void work() noexcept = 0;
 
   protected:
     /**
      * Destructor.
      */
-    virtual
-    ~ThreadJob() noexcept;
+    virtual ~ThreadJob() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<ThreadJob> ThreadJob_var;
+  using ThreadJob_var = ReferenceCounting::QualPtr<ThreadJob>;
 
 
   /**
@@ -46,22 +43,17 @@ namespace Generics
     /**
      * Called in the newly created thread.
      */
-    virtual
-    void
-    on_start() noexcept;
+    virtual void on_start() noexcept;
 
     /**
      * Called in the thread going to terminate.
      */
-    virtual
-    void
-    on_stop() noexcept;
+    virtual void on_stop() noexcept;
 
   protected:
-    virtual
-    ~ThreadCallback() noexcept;
+    virtual ~ThreadCallback() noexcept;
   };
-  typedef ReferenceCounting::SmartPtr<ThreadCallback> ThreadCallback_var;
+  using ThreadCallback_var = ReferenceCounting::SmartPtr<ThreadCallback>;
 
   /**
    * Creates several threads and executes specified job(s) in them.
@@ -83,9 +75,7 @@ namespace Generics
        * @param stack_size stack size for the thread.
        * @param thread_callback thread tuner callback
        */
-      explicit
-      Options(size_t stack_size = 0, ThreadCallback* thread_callback = 0)
-        noexcept;
+      explicit Options(size_t stack_size = 0, ThreadCallback* thread_callback = 0) noexcept;
 
       // Default stack size for threads
       static const size_t DEFAULT_STACK_SIZE = 1024 * 1024;
@@ -101,8 +91,7 @@ namespace Generics
      * @param number_of_jobs number of jobs to run concurrently.
      * @param options threads options
      */
-    ThreadRunner(ThreadJob* job, unsigned number_of_jobs,
-      const Options& options = Options())
+    ThreadRunner(ThreadJob* job, unsigned number_of_jobs, const Options& options = Options())
       /*throw (eh::Exception, PosixException)*/;
 
     /**
@@ -112,8 +101,7 @@ namespace Generics
      * @param options threads options
      */
     template <typename Functor>
-    ThreadRunner(unsigned number_of_jobs, Functor functor,
-      const Options& options = Options())
+    ThreadRunner(unsigned number_of_jobs, Functor functor, const Options& options = Options())
       /*throw (eh::Exception, PosixException)*/;
 
     /**
@@ -123,8 +111,7 @@ namespace Generics
      * @param options threads options
      */
     template <typename ForwardIterator>
-    ThreadRunner(ForwardIterator begin, ForwardIterator end,
-      const Options& options = Options())
+    ThreadRunner(ForwardIterator begin, ForwardIterator end, const Options& options = Options())
       /*throw (eh::Exception, PosixException)*/;
 
     /**
@@ -137,54 +124,44 @@ namespace Generics
      * Number of jobs to execute
      * @return number of jobs
      */
-    unsigned
-    number_of_jobs() const noexcept;
+    unsigned number_of_jobs() const noexcept;
 
     /**
      * Return number of jobs running. Thread unsafe.
      * @return jobs running number
      */
-    unsigned
-    running() const noexcept;
+    unsigned running() const noexcept;
 
     /**
      * Creates threads and runs the jobs. If creation of a thread fails,
      * no jobs will run. Thread unsafe.
      * @param to_start number of thread to start (0 - all of them)
      */
-    void
-    start(unsigned to_start = 0)
+    void start(unsigned to_start = 0)
       /*throw (AlreadyStarted, PosixException, eh::Exception)*/;
 
     /**
      * Creates an additional thread if any is left. Thread unsafe.
      */
-    void
-    start_one() /*throw (AlreadyStarted, PosixException)*/;
+    void start_one() /*throw (AlreadyStarted, PosixException)*/;
 
     /**
      * Waits for termination of previously started threads.
      * Thread unsafe.
      */
-    void
-    wait_for_completion() /*throw (PosixException)*/;
+    void wait_for_completion() /*throw (PosixException)*/;
 
   private:
-    static
-    void*
-    thread_func_(void* arg) noexcept;
+    static void* thread_func_(void* arg) noexcept;
 
-    void
-    thread_func_(ThreadJob& job) noexcept;
+    void thread_func_(ThreadJob& job) noexcept;
 
-    void
-    start_one_thread_() /*throw (PosixException)*/;
+    void start_one_thread_() /*throw (PosixException)*/;
 
     class PThreadAttr
     {
     public:
-      explicit
-      PThreadAttr(size_t stack_size) /*throw (PosixException)*/;
+      explicit PThreadAttr(size_t stack_size) /*throw (PosixException)*/;
       ~PThreadAttr() noexcept;
       operator pthread_attr_t*() noexcept;
 
@@ -217,16 +194,12 @@ namespace Generics
   // ThreadRunner class
   //
 
-  inline
-  unsigned
-  ThreadRunner::number_of_jobs() const noexcept
+  inline unsigned ThreadRunner::number_of_jobs() const noexcept
   {
     return number_of_jobs_;
   }
 
-  inline
-  unsigned
-  ThreadRunner::running() const noexcept
+  inline unsigned ThreadRunner::running() const noexcept
   {
     return number_running_;
   }

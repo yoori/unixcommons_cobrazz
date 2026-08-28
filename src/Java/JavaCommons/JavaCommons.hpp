@@ -18,8 +18,7 @@ namespace JavaCommons
     StrPtr(JNIEnv* env, jstring jstr) /*throw (Exception)*/;
     ~StrPtr() noexcept;
 
-    const char*
-    c_str() const noexcept;
+    const char* c_str() const noexcept;
 
   private:
     JNIEnv* env_;
@@ -30,8 +29,7 @@ namespace JavaCommons
 
 namespace JavaCommons
 {
-  inline
-  StrPtr::StrPtr(JNIEnv* env, jstring jstr) /*throw (Exception)*/
+  inline StrPtr::StrPtr(JNIEnv* env, jstring jstr) /*throw (Exception)*/
     : env_(env), jstr_(jstr), str_(env->GetStringUTFChars(jstr, 0))
   {
     if (!str_)
@@ -42,15 +40,12 @@ namespace JavaCommons
     }
   }
 
-  inline
-  StrPtr::~StrPtr() noexcept
+  inline StrPtr::~StrPtr() noexcept
   {
     env_->ReleaseStringUTFChars(jstr_, str_);
   }
 
-  inline
-  const char*
-  StrPtr::c_str() const noexcept
+  inline const char* StrPtr::c_str() const noexcept
   {
     return str_;
   }

@@ -13,49 +13,27 @@ namespace String
   template <typename CharType>
   struct CharTraits : public ::std::char_traits<CharType>
   {
-    static
-    int
-    compare(const CharType* str1, const CharType* str2, size_t size)
-      noexcept;
+    static int compare(const CharType* str1, const CharType* str2, size_t size) noexcept;
 
-    static
-    const CharType*
-    find(const CharType* str, size_t size, const CharType& ch)
-      noexcept;
+    static const CharType* find(const CharType* str, size_t size, const CharType& ch) noexcept;
 
-    static
-    CharType*
-    copy(CharType* str1, const CharType* str2, size_t size)
-      noexcept;
+    static CharType* copy(CharType* str1, const CharType* str2, size_t size) noexcept;
   };
 
   template <typename CharType>
   struct CheckerNone
   {
-    typedef eh::Exception OutOfRange;
-    typedef eh::Exception LogicError;
+    using OutOfRange = eh::Exception;
+    using LogicError = eh::Exception;
 
-    static
-    void
-    check_position(size_t length, size_t pos, const char* error_func)
+    static void check_position(size_t length, size_t pos, const char* error_func) noexcept;
+
+    static void check_pointer(const CharType* ptr, const char* error_func) noexcept;
+
+    static void check_pointer(const CharType* begin, const CharType* end, const char* error_func)
       noexcept;
 
-    static
-    void
-    check_pointer(const CharType* ptr, const char* error_func)
-      noexcept;
-
-    static
-    void
-    check_pointer(const CharType* begin, const CharType* end,
-      const char* error_func)
-      noexcept;
-
-    static
-    void
-    check_pointer(const CharType* ptr, size_t count,
-      const char* error_func)
-      noexcept;
+    static void check_pointer(const CharType* ptr, size_t count, const char* error_func) noexcept;
   };
 
   template <typename CharType>
@@ -79,9 +57,7 @@ namespace String
      * position requested.
      * @return pos if pos have correct value, else raise exception.
      */
-    static
-    void
-    check_position(size_t length, size_t pos, const char* error_func)
+    static void check_position(size_t length, size_t pos, const char* error_func)
       /*throw (OutOfRange)*/;
 
     /**
@@ -89,9 +65,7 @@ namespace String
      * @param ptr pointer to be checked
      * @param error_func used to create exception if ptr = 0
      */
-    static
-    void
-    check_pointer(const CharType* ptr, const char* error_func)
+    static void check_pointer(const CharType* ptr, const char* error_func)
       /*throw (LogicError)*/;
 
     /**
@@ -100,10 +74,7 @@ namespace String
      * @param end pointer to the end of data to be checked
      * @param error_func used to create exception if ptr = 0
      */
-    static
-    void
-    check_pointer(const CharType* begin, const CharType* end,
-      const char* error_func)
+    static void check_pointer(const CharType* begin, const CharType* end, const char* error_func)
       /*throw (LogicError)*/;
 
     /**
@@ -112,10 +83,7 @@ namespace String
      * @param count string length to be checked
      * @param error_func used to create exception if ptr = 0
      */
-    static
-    void
-    check_pointer(const CharType* ptr, size_t count,
-      const char* error_func)
+    static void check_pointer(const CharType* ptr, size_t count, const char* error_func)
       /*throw (LogicError)*/;
 
   private:
@@ -123,9 +91,7 @@ namespace String
      * Simply throw LogicError
      * @param error_func used to create LogicError
      */
-    static
-    void
-    throw_logic_error_(const char* error_func)
+    static void throw_logic_error_(const char* error_func)
       /*throw (LogicError)*/;
   };
 
@@ -143,17 +109,17 @@ namespace String
   class BasicSubString
   {
   public:
-    typedef typename Checker::OutOfRange OutOfRange;
-    typedef typename Checker::LogicError LogicError;
+    using OutOfRange = typename Checker::OutOfRange;
+    using LogicError = typename Checker::LogicError;
 
     // typedefs
     using SizeType = size_t;
     using DifferenceType = ptrdiff_t;
-    typedef CharType* Pointer;
-    typedef const CharType* ConstPointer;
-    typedef CharType& Reference;
-    typedef const CharType& ConstReference;
-    typedef CharType ValueType;
+    using Pointer = CharType*;
+    using ConstPointer = const CharType*;
+    using Reference = CharType&;
+    using ConstReference = const CharType&;
+    using ValueType = CharType;
     using BasicStringValueType = typename ::std::remove_const<ValueType>::type;
     using BasicString = ::std::basic_string<BasicStringValueType>;
     using ConstReverseIterator = ::std::reverse_iterator<ConstPointer>;
@@ -197,17 +163,13 @@ namespace String
      * length to the object but using of this constructor.
      * @param ptr beginning pointer of the string
      */
-    explicit
-    BasicSubString(Pointer ptr)
+    explicit BasicSubString(Pointer ptr)
       /*throw (LogicError)*/;
 
     /**
      * Construct an empty SubString.
      */
-    explicit
-    constexpr
-    BasicSubString()
-      noexcept;
+    explicit constexpr BasicSubString() noexcept;
 
     /**
      * Constructor to avoid error code BasicSubString(0, 12345),
@@ -225,38 +187,28 @@ namespace String
      * Get pointer to the content of a SubString as an array of characters.
      * @return pointer to begin of array.
      */
-    ConstPointer
-    data() const
-      noexcept;
+    ConstPointer data() const noexcept;
 
     /**
      * @return length of SubString
      */
-    SizeType
-    length() const
-      noexcept;
+    SizeType length() const noexcept;
 
     /**
      * @return the current number of elements in a SubString.
      */
-    SizeType
-    size() const
-      noexcept;
+    SizeType size() const noexcept;
 
     /**
      * @return the maximum number of characters a string could contain.
      */
-    SizeType
-    max_size() const
-      noexcept;
+    SizeType max_size() const noexcept;
 
     /**
      * Tests whether the substring contains characters or not.
      * @return substring emptiness status
      */
-    bool
-    empty() const
-      noexcept;
+    bool empty() const noexcept;
 
     /**
      * Returns a const reference to the element at a specified location
@@ -264,8 +216,7 @@ namespace String
      * @param pos specified index in a SubString.
      * @return const reference to SubString character.
      */
-    ConstReference
-    at(SizeType pos) const
+    ConstReference at(SizeType pos) const
       /*throw (OutOfRange)*/;
 
     /**
@@ -274,57 +225,44 @@ namespace String
      * @param pos specified index in a SubString.
      * @return reference to SubString character.
      */
-    Reference
-    at(SizeType pos)
+    Reference at(SizeType pos)
       /*throw (OutOfRange)*/;
 
     /**
      * Get begin pointer of SubString, on empty SubString equal 0.
      * @return a const iterator addressing the first element in the string.
      */
-    ConstPointer
-    cbegin() const
-      noexcept;
+    ConstPointer cbegin() const noexcept;
 
     /**
      * Get begin pointer of SubString, on empty SubString equal 0.
      * @return a const iterator addressing the first element in the string.
      */
-    ConstPointer
-    begin() const
-      noexcept;
+    ConstPointer begin() const noexcept;
 
     /**
      * Get begin pointer of SubString, on empty SubString equal 0.
      * @return an iterator addressing the first element in the string.
      */
-    Pointer
-    begin()
-      noexcept;
+    Pointer begin() noexcept;
 
     /**
      * @return a const iterator that addresses the location succeeding
      * the last element in a string.
      */
-    ConstPointer
-    cend() const
-      noexcept;
+    ConstPointer cend() const noexcept;
 
     /**
      * @return a const iterator that addresses the location succeeding
      * the last element in a string.
      */
-    ConstPointer
-    end() const
-      noexcept;
+    ConstPointer end() const noexcept;
 
     /**
      * @return an iterator that addresses the location succeeding
      * the last element in a string.
      */
-    Pointer
-    end()
-      noexcept;
+    Pointer end() noexcept;
 
     /**
      * Determines the effective length rlen of the strings to compare as
@@ -346,9 +284,7 @@ namespace String
      *    size() == str.size()  0
      *    size() > str.size()   > 0
      */
-    int
-    compare(const BasicSubString& str) const
-      noexcept;
+    int compare(const BasicSubString& str) const noexcept;
 
     /**
      * Compare substring of *this with provided SubString.
@@ -359,8 +295,7 @@ namespace String
      * if the requested part of *this is found,
      * respectively, to be less than, to match, or to be greater than str.
      */
-    int
-    compare(SizeType pos1, SizeType count1, const BasicSubString& str) const
+    int compare(SizeType pos1, SizeType count1, const BasicSubString& str) const
       /*throw (OutOfRange)*/;
 
     /**
@@ -388,8 +323,7 @@ namespace String
      * if *this is found, respectively, to be less than,
      * to match, or be greater than zero-terminated string.
      */
-    int
-    compare(ConstPointer str) const
+    int compare(ConstPointer str) const
       /*throw (LogicError)*/;
 
     /**
@@ -402,8 +336,7 @@ namespace String
      * if the requested part of *this is found, respectively, to be less than,
      * to match, or be greater than the zero-terminated string.
      */
-    int
-    compare(SizeType pos1, SizeType count1, ConstPointer str) const
+    int compare(SizeType pos1, SizeType count1, ConstPointer str) const
       /*throw (LogicError)*/;
 
     /**
@@ -417,9 +350,7 @@ namespace String
      * if the requested part of *this is found, respectively, to be less than,
      * to match, or be greater than string str with length count2.
      */
-    int
-    compare(SizeType pos1, SizeType count1, ConstPointer str,
-      SizeType count2) const
+    int compare(SizeType pos1, SizeType count1, ConstPointer str, SizeType count2) const
       /*throw (LogicError)*/;
 
     /**
@@ -427,8 +358,7 @@ namespace String
      * @param str zero-terminated string to be compared with this.
      * @return true if SubString equal str, else return false
      */
-    bool
-    equal(ConstPointer str) const
+    bool equal(ConstPointer str) const
       /*throw (LogicError)*/;
 
     /**
@@ -437,9 +367,7 @@ namespace String
      * @param str BasicSubString to be compared with this.
      * @return true if this equal str, else return false
      */
-    bool
-    equal(const BasicSubString& str) const
-      noexcept;
+    bool equal(const BasicSubString& str) const noexcept;
 
     /**
      * Copies at most a specified number of characters from an indexed
@@ -451,8 +379,7 @@ namespace String
      * copies are to be made.
      * @return the number of characters actually copied.
      */
-    SizeType
-    copy(BasicStringValueType* ptr, SizeType count, SizeType pos = 0) const
+    SizeType copy(BasicStringValueType* ptr, SizeType count, SizeType pos = 0) const
       /*throw (OutOfRange, LogicError)*/;
 
     // Finders
@@ -464,12 +391,9 @@ namespace String
      * @return position in SubString if the character found,
      * NPOS if not.
      */
-    SizeType
-    find(ValueType ch, SizeType pos = 0) const
-      noexcept;
+    SizeType find(ValueType ch, SizeType pos = 0) const noexcept;
 
-    SizeType
-    find(ConstPointer ptr, SizeType pos = 0) const
+    SizeType find(ConstPointer ptr, SizeType pos = 0) const
       /*throw (LogicError)*/;
 
     /**
@@ -482,8 +406,7 @@ namespace String
      * @param count Number of characters from ptr to search for.
      * @return Index of start of first occurrence.
      */
-    SizeType
-    find(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType find(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
     /**
@@ -495,9 +418,7 @@ namespace String
      * @param pos Index of character to search from (default 0).
      * @return Index of start of first occurrence.
      */
-    SizeType
-    find(const BasicSubString& str, SizeType pos = 0) const
-      noexcept;
+    SizeType find(const BasicSubString& str, SizeType pos = 0) const noexcept;
 
     /**
      * Find last position of a character
@@ -507,12 +428,9 @@ namespace String
      * @param pos index of character to search back from (default end).
      * @return index of last occurrence if found, NPOS if not found.
      */
-    SizeType
-    rfind(ValueType ch, SizeType pos = NPOS) const
-      noexcept;
+    SizeType rfind(ValueType ch, SizeType pos = NPOS) const noexcept;
 
-    SizeType
-    rfind(ConstPointer ptr, SizeType pos = NPOS) const
+    SizeType rfind(ConstPointer ptr, SizeType pos = NPOS) const
       /*throw (LogicError)*/;
 
     /**
@@ -525,8 +443,7 @@ namespace String
      * @param count Number of characters from ptr to search for.
      * @return Index of start of last occurrence.
      */
-    SizeType
-    rfind(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType rfind(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
     /**
@@ -538,131 +455,93 @@ namespace String
      * @param pos Index of character to search back from (default end).
      * @return Index of start of last occurrence.
      */
-    SizeType
-    rfind(const BasicSubString& str, SizeType pos = NPOS) const
-      noexcept;
+    SizeType rfind(const BasicSubString& str, SizeType pos = NPOS) const noexcept;
 
     /**
      * Searches through a string for the first character that matches
      * any element of a specified string.
      */
-    SizeType
-    find_first_of(ValueType ch, SizeType pos = 0) const
-      noexcept;
+    SizeType find_first_of(ValueType ch, SizeType pos = 0) const noexcept;
 
-    SizeType
-    find_first_of(ConstPointer ptr, SizeType pos = 0) const
+    SizeType find_first_of(ConstPointer ptr, SizeType pos = 0) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_first_of(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType find_first_of(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_first_of(const BasicSubString& str, SizeType pos = 0) const
-      noexcept;
+    SizeType find_first_of(const BasicSubString& str, SizeType pos = 0) const noexcept;
 
     /**
      * Searches through a string for the first character that is not
      * any element of a specified string.
      */
-    SizeType
-    find_first_not_of(ValueType ch, SizeType pos = 0) const
-      noexcept;
+    SizeType find_first_not_of(ValueType ch, SizeType pos = 0) const noexcept;
 
-    SizeType
-    find_first_not_of(ConstPointer ptr, SizeType pos = 0) const
+    SizeType find_first_not_of(ConstPointer ptr, SizeType pos = 0) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_first_not_of(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType find_first_not_of(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_first_not_of(const BasicSubString& str, SizeType pos = 0) const
-      noexcept;
+    SizeType find_first_not_of(const BasicSubString& str, SizeType pos = 0) const noexcept;
 
     /**
      * Searches through a string for the last character that is an
      * element of a specified string.
      */
-    SizeType
-    find_last_of(ValueType ch, SizeType pos = NPOS) const
-      noexcept;
+    SizeType find_last_of(ValueType ch, SizeType pos = NPOS) const noexcept;
 
-    SizeType
-    find_last_of(ConstPointer ptr, SizeType pos = NPOS) const
+    SizeType find_last_of(ConstPointer ptr, SizeType pos = NPOS) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_last_of(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType find_last_of(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_last_of(const BasicSubString& str, SizeType pos = NPOS) const
-      noexcept;
+    SizeType find_last_of(const BasicSubString& str, SizeType pos = NPOS) const noexcept;
 
     /**
      * Searches through a string for the last character that is not any
      * element of a specified string.
      */
-    SizeType
-    find_last_not_of(ValueType ch, SizeType pos = NPOS) const
-      noexcept;
+    SizeType find_last_not_of(ValueType ch, SizeType pos = NPOS) const noexcept;
 
-    SizeType
-    find_last_not_of(ConstPointer ptr, SizeType pos = NPOS) const
+    SizeType find_last_not_of(ConstPointer ptr, SizeType pos = NPOS) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_last_not_of(ConstPointer ptr, SizeType pos, SizeType count) const
+    SizeType find_last_not_of(ConstPointer ptr, SizeType pos, SizeType count) const
       /*throw (LogicError)*/;
 
-    SizeType
-    find_last_not_of(const BasicSubString& str, SizeType pos = NPOS) const
-      noexcept;
+    SizeType find_last_not_of(const BasicSubString& str, SizeType pos = NPOS) const noexcept;
 
     /**
      *  Returns an iterator to the first element in a reversed string.
      */
-    ConstReverseIterator
-    crbegin() const
-      noexcept;
+    ConstReverseIterator crbegin() const noexcept;
 
     /**
      *  Returns an iterator to the first element in a reversed string.
      */
-    ConstReverseIterator
-    rbegin() const
-      noexcept;
+    ConstReverseIterator rbegin() const noexcept;
 
     /**
      * non-const version
      * @return an iterator to the first element in a reversed string.
      */
-    ReverseIterator
-    rbegin()
-      noexcept;
+    ReverseIterator rbegin() noexcept;
 
     /**
      * Returns an iterator that points just beyond the last element
      * in a reversed string.
      */
-    ConstReverseIterator
-    crend() const
-      noexcept;
+    ConstReverseIterator crend() const noexcept;
 
     /**
      * Returns an iterator that points just beyond the last element
      * in a reversed string.
      */
-    ConstReverseIterator
-    rend() const
-      noexcept;
+    ConstReverseIterator rend() const noexcept;
 
-    ReverseIterator
-    rend()
-      noexcept;
+    ReverseIterator rend() noexcept;
 
     /**
      * Copies a substring of at most some number of characters from
@@ -672,8 +551,7 @@ namespace String
      * @return BasicSubString object that coverage part of original
      * object.
      */
-    BasicSubString
-    substr(SizeType pos = 0, SizeType count = NPOS) const
+    BasicSubString substr(SizeType pos = 0, SizeType count = NPOS) const
       /*throw (OutOfRange)*/;
 
     /**
@@ -683,8 +561,7 @@ namespace String
      * @param count number of elements in SubString.
      * @return reference on self
      */
-    BasicSubString&
-    assign(Pointer ptr, SizeType count)
+    BasicSubString& assign(Pointer ptr, SizeType count)
       /*throw (LogicError)*/;
 
     /**
@@ -694,8 +571,7 @@ namespace String
      * @param end pointer to the element beyond the last of that string
      * @return reference on self
      */
-    BasicSubString&
-    assign(Pointer begin, Pointer end)
+    BasicSubString& assign(Pointer begin, Pointer end)
       /*throw (LogicError)*/;
 
     /**
@@ -706,8 +582,7 @@ namespace String
      * @param count number of elements to store in SubString.
      * @return reference on self
      */
-    BasicSubString&
-    assign(const BasicSubString& str, SizeType pos, SizeType count)
+    BasicSubString& assign(const BasicSubString& str, SizeType pos, SizeType count)
       /*throw (OutOfRange)*/;
 
     /**
@@ -715,16 +590,12 @@ namespace String
      * @param str source SubString
      * @return reference on self
      */
-    BasicSubString&
-    assign(const BasicSubString& str)
-      noexcept;
+    BasicSubString& assign(const BasicSubString& str) noexcept;
 
     /**
      * Makes SubString empty.
      */
-    void
-    clear()
-      noexcept;
+    void clear() noexcept;
 
     /**
      * Removes a count number of elements in a SubString from front.
@@ -734,9 +605,7 @@ namespace String
      * remove all.
      * @return reference on self.
      */
-    BasicSubString&
-    erase_front(SizeType count = NPOS)
-      noexcept;
+    BasicSubString& erase_front(SizeType count = NPOS) noexcept;
 
     /**
      * Removes a count number of elements in a SubString from back.
@@ -746,17 +615,13 @@ namespace String
      * remove all.
      * @return reference on self.
      */
-    BasicSubString&
-    erase_back(SizeType count = NPOS)
-      noexcept;
+    BasicSubString& erase_back(SizeType count = NPOS) noexcept;
 
     /**
      * Exchange the contents of two strings.
      * @param right object to exchange with *this.
      */
-    void
-    swap(BasicSubString& right)
-      noexcept;
+    void swap(BasicSubString& right) noexcept;
 
     // Operators
     /**
@@ -776,8 +641,7 @@ namespace String
      * @param pos specified index in a SubString.
      * @return const reference to SubString character.
      */
-    ConstReference
-    operator [](SizeType pos) const
+    ConstReference operator [](SizeType pos) const
       /*throw (OutOfRange)*/;
 
     /**
@@ -786,26 +650,21 @@ namespace String
      * @param pos specified index in a SubString.
      * @return reference to SubString character.
      */
-    Reference
-    operator [](SizeType pos)
+    Reference operator [](SizeType pos)
       /*throw (OutOfRange)*/;
 
     /**
      * @return BasicString (i.e. std::basic_string<BasicStringValueType>)
      * object created on range
      */
-    BasicString
-    str() const
-      noexcept;
+    BasicString str() const noexcept;
 
     /**
      * Assigns itself to std::string
      * @param str string to assign to
      */
     template <typename BasicStringTraits, typename Allocator>
-    void
-    assign_to(std::basic_string<BasicStringValueType, BasicStringTraits,
-      Allocator>& str) const
+    void assign_to(std::basic_string<BasicStringValueType, BasicStringTraits, Allocator>& str) const
       /*throw (eh::Exception)*/;
 
     /**
@@ -813,9 +672,7 @@ namespace String
      * @param str string to append to
      */
     template <typename BasicStringTraits, typename Allocator>
-    void
-    append_to(std::basic_string<BasicStringValueType, BasicStringTraits,
-      Allocator>& str) const
+    void append_to(std::basic_string<BasicStringValueType, BasicStringTraits, Allocator>& str) const
       /*throw (eh::Exception)*/;
 
   private:
@@ -825,9 +682,7 @@ namespace String
      * @return number of elements that available in string
      * with this pos and count.
      */
-    SizeType
-    get_available_length_(SizeType pos, SizeType count) const
-      noexcept;
+    SizeType get_available_length_(SizeType pos, SizeType count) const noexcept;
 
     /**
      * Check awareness and shift begin pointer
@@ -836,8 +691,7 @@ namespace String
      * position requested.
      * @return shifted pointer on position
      */
-    Pointer
-    begin_plus_position_(SizeType position, const char* error_func) const
+    Pointer begin_plus_position_(SizeType position, const char* error_func) const
       /*throw (OutOfRange)*/;
 
     Pointer begin_;
@@ -847,29 +701,29 @@ namespace String
   /**
    * Auxiliary names and definitions for the implementation aims
    */
-  namespace Helper
-  {
-    // This names of incomplete classes will shown in compile errors
-    class ComparanceWithZeroPointerIsProhibited;
-    class UseDefaultConstructorToCreateEmptySubString;
+}
 
-    /**
-     * Short easy to use synonym of type
-     * ComparanceWithZeroPointerIsProhibited
-     */
-    ComparanceWithZeroPointerIsProhibited
-    pointers_case()
-      noexcept;
+namespace String::Helper
+{
+  // This names of incomplete classes will shown in compile errors
+  class ComparanceWithZeroPointerIsProhibited;
+  class UseDefaultConstructorToCreateEmptySubString;
 
-    /**
-     * Short easy to use synonym of type
-     * UseDefaultConstructorToCreateEmptySubString
-     */
-    UseDefaultConstructorToCreateEmptySubString
-    constructor_case()
-      noexcept;
-  }
+  /**
+   * Short easy to use synonym of type
+   * ComparanceWithZeroPointerIsProhibited
+   */
+  ComparanceWithZeroPointerIsProhibited pointers_case() noexcept;
 
+  /**
+   * Short easy to use synonym of type
+   * UseDefaultConstructorToCreateEmptySubString
+   */
+  UseDefaultConstructorToCreateEmptySubString constructor_case() noexcept;
+}
+
+namespace String
+{
   /**
    * Output the range to an ostream. Elements are outputted
    * in a sequence without separators.
@@ -965,33 +819,27 @@ namespace String
    * The operator is deleted to avoid error SubString a; if (0==a){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator ==(int,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  bool operator ==(int, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (a==0){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator ==(const String::BasicSubString<CharType, Traits, Checker>&,
-    int) = delete;
+  bool operator ==(const String::BasicSubString<CharType, Traits, Checker>&, int) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (nullptr==a){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator ==(std::nullptr_t,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  operator ==(std::nullptr_t, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (a==nullptr){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator ==(const String::BasicSubString<CharType, Traits, Checker>&,
-    std::nullptr_t) = delete;
+  operator ==(const String::BasicSubString<CharType, Traits, Checker>&, std::nullptr_t) = delete;
 
   /**
    * Comparison on inequality
@@ -1069,33 +917,27 @@ namespace String
    * The operator is deleted to avoid error SubString a; if (0!=a){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator !=(int,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  bool operator !=(int, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (a!=0){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator !=(const String::BasicSubString<CharType, Traits, Checker>&,
-    int) = delete;
+  bool operator !=(const String::BasicSubString<CharType, Traits, Checker>&, int) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (nullptr!=a){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator !=(std::nullptr_t,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  operator !=(std::nullptr_t, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (a!=nullptr){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator !=(const String::BasicSubString<CharType, Traits, Checker>&,
-    std::nullptr_t) = delete;
+  operator !=(const String::BasicSubString<CharType, Traits, Checker>&, std::nullptr_t) = delete;
 
   /**
    * Comparison on less
@@ -1170,33 +1012,27 @@ namespace String
    * The operator is deleted to avoid error SubString a; if (0<a){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator <(int,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  bool operator <(int, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted avoid error SubString a; if (a<0){}
    */
   template <typename CharType, typename Traits, typename Checker>
-  bool
-  operator <(const String::BasicSubString<CharType, Traits, Checker>&,
-    int) = delete;
+  bool operator <(const String::BasicSubString<CharType, Traits, Checker>&, int) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (nullptr<a){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator <(std::nullptr_t,
-    const String::BasicSubString<CharType, Traits, Checker>&) = delete;
+  operator <(std::nullptr_t, const String::BasicSubString<CharType, Traits, Checker>&) = delete;
 
   /**
    * The operator is deleted to avoid error SubString a; if (a<nullptr){}
    */
   template <typename CharType, typename Traits, typename Checker>
   bool
-  operator <(const String::BasicSubString<CharType, Traits, Checker>&,
-    std::nullptr_t) = delete;
+  operator <(const String::BasicSubString<CharType, Traits, Checker>&, std::nullptr_t) = delete;
 
   template <typename CharType, typename Traits1, typename Checker1,
     typename Traits2, typename Checker2>
@@ -1224,16 +1060,12 @@ namespace String
     const BasicSubString<CharType, Traits, Checker>& s2)
     /*throw (eh::Exception)*/;
 
-  typedef BasicSubString<const char, CharTraits<char>, CheckerNone<char> >
-    SubString;
-  typedef BasicSubString<const wchar_t, CharTraits<wchar_t>,
-    CheckerNone<wchar_t> > WSubString;
+  using SubString = BasicSubString<const char, CharTraits<char>, CheckerNone<char> >;
+  using WSubString = BasicSubString<const wchar_t, CharTraits<wchar_t>,
+    CheckerNone<wchar_t> >;
 
-  template <typename Hash,
-    typename CharType, typename Traits, typename Checker>
-  void
-  hash_add(Hash& hash,
-    const BasicSubString<CharType, Traits, Checker>& value) noexcept;
+  template <typename Hash, typename CharType, typename Traits, typename Checker>
+  void hash_add(Hash& hash, const BasicSubString<CharType, Traits, Checker>& value) noexcept;
 }
 
 #include <String/SubString.tpp>

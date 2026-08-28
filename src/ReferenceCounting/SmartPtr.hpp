@@ -22,32 +22,20 @@ namespace ReferenceCounting
   class PolicyThrow
   {
   public:
-    typedef eh::Exception NullPointer;
+    using NullPointer = eh::Exception;
     DECLARE_EXCEPTION(NotInitialized, eh::DescriptiveException);
 
-    static
-    void
-    check_init(const void* ptr) /*throw (NullPointer)*/
+    static void check_init(const void* ptr) /*throw (NullPointer)*/ __attribute__((always_inline));
+
+    static void check_dereference(const void* ptr) /*throw (NotInitialized)*/
       __attribute__((always_inline));
 
-    static
-    void
-    check_dereference(const void* ptr) /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    static void default_constructor() noexcept __attribute__((always_inline));
 
-    static
-    void
-    default_constructor() noexcept
-      __attribute__((always_inline));
-
-    static
-    void
-    retn() noexcept
-      __attribute__((always_inline));
+    static void retn() noexcept __attribute__((always_inline));
 
   private:
-    ~PolicyThrow() noexcept
-      __attribute__((always_inline));
+    ~PolicyThrow() noexcept __attribute__((always_inline));
   };
 
   /**
@@ -57,32 +45,20 @@ namespace ReferenceCounting
   class PolicyAssert
   {
   public:
-    typedef eh::Exception NullPointer;
-    typedef eh::Exception NotInitialized;
+    using NullPointer = eh::Exception;
+    using NotInitialized = eh::Exception;
 
-    static
-    void
-    check_init(const void* ptr) /*throw (NullPointer)*/
+    static void check_init(const void* ptr) /*throw (NullPointer)*/ __attribute__((always_inline));
+
+    static void check_dereference(const void* ptr) /*throw (NotInitialized)*/
       __attribute__((always_inline));
 
-    static
-    void
-    check_dereference(const void* ptr) /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    static void default_constructor() noexcept __attribute__((always_inline));
 
-    static
-    void
-    default_constructor() noexcept
-      __attribute__((always_inline));
-
-    static
-    void
-    retn() noexcept
-      __attribute__((always_inline));
+    static void retn() noexcept __attribute__((always_inline));
 
   private:
-    ~PolicyAssert() noexcept
-      __attribute__((always_inline));
+    ~PolicyAssert() noexcept __attribute__((always_inline));
   };
 
   /**
@@ -93,34 +69,22 @@ namespace ReferenceCounting
   {
   public:
     DECLARE_EXCEPTION(NullPointer, eh::DescriptiveException);
-    typedef eh::Exception NotInitialized;
+    using NotInitialized = eh::Exception;
 
-    static
-    void
-    check_init(const void* ptr) /*throw (NullPointer)*/
-      __attribute__((always_inline));
+    static void check_init(const void* ptr) /*throw (NullPointer)*/ __attribute__((always_inline));
 
-    static
-    void
-    check_dereference(const void* ptr) /*throw (NotInitialized)*/
+    static void check_dereference(const void* ptr) /*throw (NotInitialized)*/
       __attribute__((always_inline));
 
   private:
-    ~PolicyNotNull() noexcept
-      __attribute__((always_inline));
+    ~PolicyNotNull() noexcept __attribute__((always_inline));
   };
 
   struct PolicyChecker
   {
-    void
-    check_policy_(const PolicyThrow* policy) noexcept
-      __attribute__((always_inline));
-    void
-    check_policy_(const PolicyAssert* policy) noexcept
-      __attribute__((always_inline));
-    void
-    check_policy_(const PolicyNotNull* policy) noexcept
-      __attribute__((always_inline));
+    void check_policy_(const PolicyThrow* policy) noexcept __attribute__((always_inline));
+    void check_policy_(const PolicyAssert* policy) noexcept __attribute__((always_inline));
+    void check_policy_(const PolicyNotNull* policy) noexcept __attribute__((always_inline));
   };
 
   template <typename T, typename Policy>
@@ -133,38 +97,32 @@ namespace ReferenceCounting
   class ConstPtr;
 
 
-  std::nullptr_t
-  add_ref(std::nullptr_t ptr) noexcept;
+  std::nullptr_t add_ref(std::nullptr_t ptr) noexcept;
 
   template <typename T, typename Policy>
-  T*
-  add_ref(const SmartPtr<T, Policy>& ptr) noexcept;
+  T* add_ref(const SmartPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
-  T*
-  add_ref(SmartPtr<T, Policy>&& ptr) noexcept;
+  T* add_ref(SmartPtr<T, Policy>&& ptr) noexcept;
 
   template <typename T, typename Policy>
-  const T*
-  add_ref(const FixedPtr<T, Policy>& ptr) noexcept;
+  const T* add_ref(const FixedPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
-  T*
-  add_ref(FixedPtr<T, Policy>& ptr) noexcept;
+  T* add_ref(FixedPtr<T, Policy>& ptr) noexcept;
 
   template <typename T, typename Policy>
-  T*
-  add_ref(FixedPtr<T, Policy>&& ptr) noexcept;
+  T* add_ref(FixedPtr<T, Policy>&& ptr) noexcept;
 
 
   template <typename T, typename Policy = PolicyThrow>
   class SmartPtr : private PolicyChecker
   {
   public:
-    typedef T Type;
+    using Type = T;
 
-    typedef typename Policy::NullPointer NullPointer;
-    typedef typename Policy::NotInitialized NotInitialized;
+    using NullPointer = typename Policy::NullPointer;
+    using NotInitialized = typename Policy::NotInitialized;
 
   public:
     // c-tors
@@ -181,40 +139,28 @@ namespace ReferenceCounting
     ~SmartPtr() noexcept;
 
     // assignment & copy-assignment operators
-    SmartPtr&
-    operator =(const SmartPtr& sptr) /*throw (NullPointer)*/;
+    SmartPtr& operator =(const SmartPtr& sptr) /*throw (NullPointer)*/;
 
     template <typename Other>
-    SmartPtr&
-    operator =(Other&& sptr) /*throw (NullPointer)*/;
+    SmartPtr& operator =(Other&& sptr) /*throw (NullPointer)*/;
 
     template <typename OtherPolicy>
-    void
-    swap(SmartPtr<Type, OtherPolicy>& sptr)
+    void swap(SmartPtr<Type, OtherPolicy>& sptr)
       /*throw (NullPointer, typename OtherPolicy::NullPointer)*/;
 
-    void
-    reset() /*throw (NullPointer)*/;
+    void reset() /*throw (NullPointer)*/;
 
     // conversions
-    operator Type*() const noexcept
-      __attribute__((always_inline));
+    operator Type*() const noexcept __attribute__((always_inline));
 
     // accessors
-    Type*
-    operator ->() const /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    Type* operator ->() const /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    Type&
-    operator *() const /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    Type& operator *() const /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    Type*
-    in() const noexcept
-      __attribute__((always_inline));
+    Type* in() const noexcept __attribute__((always_inline));
 
-    Type*
-    retn() noexcept;
+    Type* retn() noexcept;
 
   private:
     Type* ptr_;
@@ -226,10 +172,10 @@ namespace ReferenceCounting
     private Generics::Uncopyable
   {
   public:
-    typedef T Type;
+    using Type = T;
 
-    typedef typename Policy::NullPointer NullPointer;
-    typedef typename Policy::NotInitialized NotInitialized;
+    using NullPointer = typename Policy::NullPointer;
+    using NotInitialized = typename Policy::NotInitialized;
 
   public:
     // c-tors
@@ -238,8 +184,7 @@ namespace ReferenceCounting
 
     FixedPtr(FixedPtr&& sptr) /*throw (NullPointer)*/;
 
-    FixedPtr(typename Generics::IfConst<T, int, const FixedPtr&>::Result) =
-      delete;
+    FixedPtr(typename Generics::IfConst<T, int, const FixedPtr&>::Result) = delete;
 
     template <typename Other>
     FixedPtr(Other&& sptr) /*throw (NullPointer)*/;
@@ -248,60 +193,43 @@ namespace ReferenceCounting
     ~FixedPtr() noexcept;
 
     // conversions
-    operator Type*() noexcept
-      __attribute__((always_inline));
+    operator Type*() noexcept __attribute__((always_inline));
 
-    operator const Type*() const noexcept
-      __attribute__((always_inline));
+    operator const Type*() const noexcept __attribute__((always_inline));
 
     // accessors
-    Type*
-    operator ->() /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    Type* operator ->() /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    const Type*
-    operator ->() const /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    const Type* operator ->() const /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    Type&
-    operator *() /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    Type& operator *() /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    const Type&
-    operator *() const /*throw (NotInitialized)*/
-      __attribute__((always_inline));
+    const Type& operator *() const /*throw (NotInitialized)*/ __attribute__((always_inline));
 
-    Type*
-    in() noexcept
-      __attribute__((always_inline));
+    Type* in() noexcept __attribute__((always_inline));
 
-    const Type*
-    in() const noexcept
-      __attribute__((always_inline));
+    const Type* in() const noexcept __attribute__((always_inline));
 
   protected:
     FixedPtr() noexcept;
 
-    Type*
-    retn() noexcept;
+    Type* retn() noexcept;
 
     Type* ptr_;
 
-    friend
-    Type*
-    add_ref<T, Policy>(FixedPtr&& ptr) noexcept;
+    friend Type* add_ref<T, Policy>(FixedPtr&& ptr) noexcept;
   };
 
   template <typename T, typename Policy = PolicyThrow>
   class QualPtr : public FixedPtr<T, Policy>
   {
   public:
-    typedef FixedPtr<T, Policy> Base;
+    using Base = FixedPtr<T, Policy>;
 
-    typedef typename Base::Type Type;
+    using Type = typename Base::Type;
 
-    typedef typename Base::NullPointer NullPointer;
-    typedef typename Base::NotInitialized NotInitialized;
+    using NullPointer = typename Base::NullPointer;
+    using NotInitialized = typename Base::NotInitialized;
 
   public:
     // c-tors
@@ -319,21 +247,16 @@ namespace ReferenceCounting
     operator =(typename Generics::IfConst<T, const QualPtr, QualPtr>::
       Result& sptr) /*throw (NullPointer)*/;
 
-    QualPtr&
-    operator =(typename Generics::IfConst<T, int, const QualPtr&>::Result) =
-      delete;
+    QualPtr& operator =(typename Generics::IfConst<T, int, const QualPtr&>::Result) = delete;
 
     template <typename Other>
-    QualPtr&
-    operator =(Other&& sptr) /*throw (NullPointer)*/;
+    QualPtr& operator =(Other&& sptr) /*throw (NullPointer)*/;
 
     template <typename OtherPolicy>
-    void
-    swap(QualPtr<Type, OtherPolicy>& sptr)
+    void swap(QualPtr<Type, OtherPolicy>& sptr)
       /*throw (NullPointer, typename OtherPolicy::NullPointer)*/;
 
-    void
-    reset() /*throw (NullPointer)*/;
+    void reset() /*throw (NullPointer)*/;
 
     using Base::retn;
 
@@ -345,12 +268,12 @@ namespace ReferenceCounting
   class ConstPtr : public QualPtr<const T, Policy>
   {
   public:
-    typedef QualPtr<const T, Policy> Base;
+    using Base = QualPtr<const T, Policy>;
 
-    typedef typename Base::Type Type;
+    using Type = typename Base::Type;
 
-    typedef typename Base::NullPointer NullPointer;
-    typedef typename Base::NotInitialized NotInitialized;
+    using NullPointer = typename Base::NullPointer;
+    using NotInitialized = typename Base::NotInitialized;
 
   public:
     // c-tors
@@ -364,33 +287,32 @@ namespace ReferenceCounting
     // assignment & copy-assignment operators
     using Base::operator =;
 
-    ConstPtr&
-    operator =(const ConstPtr& sptr) /*throw (NullPointer)*/;
+    ConstPtr& operator =(const ConstPtr& sptr) /*throw (NullPointer)*/;
   };
 
 
   template <typename T>
   struct ThrowPtr
   {
-    typedef SmartPtr<T, PolicyThrow> Ptr;
-    typedef FixedPtr<T, PolicyThrow> FPtr;
-    typedef QualPtr<T, PolicyThrow> QPtr;
+    using Ptr = SmartPtr<T, PolicyThrow>;
+    using FPtr = FixedPtr<T, PolicyThrow>;
+    using QPtr = QualPtr<T, PolicyThrow>;
   };
 
   template <typename T>
   struct AssertPtr
   {
-    typedef SmartPtr<T, PolicyAssert> Ptr;
-    typedef FixedPtr<T, PolicyAssert> FPtr;
-    typedef QualPtr<T, PolicyAssert> QPtr;
+    using Ptr = SmartPtr<T, PolicyAssert>;
+    using FPtr = FixedPtr<T, PolicyAssert>;
+    using QPtr = QualPtr<T, PolicyAssert>;
   };
 
   template <typename T>
   struct NonNullPtr
   {
-    typedef SmartPtr<T, PolicyNotNull> Ptr;
-    typedef FixedPtr<T, PolicyNotNull> FPtr;
-    typedef QualPtr<T, PolicyNotNull> QPtr;
+    using Ptr = SmartPtr<T, PolicyNotNull>;
+    using FPtr = FixedPtr<T, PolicyNotNull>;
+    using QPtr = QualPtr<T, PolicyNotNull>;
   };
 }
 

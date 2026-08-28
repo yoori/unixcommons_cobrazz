@@ -76,22 +76,18 @@ namespace Generics
      * @param clear_on_exit whether to call clear() in destructor or not
      */
     explicit
-    CompositeActiveObjectBase(bool sync_termination = false,
-      bool clear_on_exit = true) noexcept;
+    CompositeActiveObjectBase(bool sync_termination = false, bool clear_on_exit = true) noexcept;
 
     /**
      * Calls clear() for all owned objects
      */
-    virtual
-    void
-    clear() /*throw (eh::Exception)*/;
+    virtual void clear() /*throw (eh::Exception)*/;
 
     /**
      * Deactivate and wait for stop for all owned Active Objects.
      * Clears list of the objects.
      */
-    void
-    clear_children() /*throw (Exception, eh::Exception)*/;
+    void clear_children() /*throw (Exception, eh::Exception)*/;
 
     /**
      * This method fills CompositeActiveObject with other Active
@@ -104,26 +100,20 @@ namespace Generics
      * @param add_to_head whether the object should be added to the head
      * of the list of contained objects or to the tail.
      */
-    void
-    add_child_object(RefCountableActiveObject* child, bool add_to_head = false)
+    void add_child_object(RefCountableActiveObject* child, bool add_to_head = false)
       /*throw (Exception, eh::Exception)*/;
 
-    void
-    add_child_object(std::shared_ptr<ActiveObject> child, bool add_to_head = false)
+    void add_child_object(std::shared_ptr<ActiveObject> child, bool add_to_head = false)
       /*throw (Exception, eh::Exception)*/;
 
-    void
-    add_child_object(
-      typename Container::value_type child_holder,
-      bool add_to_head = false)
+    void add_child_object( typename Container::value_type child_holder, bool add_to_head = false)
       /*throw (Exception, eh::Exception)*/;
 
     /**
      * Perform deactivating all owned objects, and waits for
      * its completion.
      */
-    virtual
-    ~CompositeActiveObjectBase() noexcept;
+    virtual ~CompositeActiveObjectBase() noexcept;
 
   protected:
     // SimpleActiveObject interface
@@ -133,9 +123,7 @@ namespace Generics
      * if you try to activate twice. All object activated successfully
      * or stay deactivated, if we were not able to activate any in the set.
      */
-    virtual
-    void
-    activate_object_()
+    virtual void activate_object_()
       /*throw (CompositeAlreadyActive, ChildException, eh::Exception)*/;
 
     /**
@@ -144,32 +132,26 @@ namespace Generics
      * Perform deactivation as LIFO, last added Active Object
      * will start deactivation first.
      */
-    virtual
-    void
-    deactivate_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void deactivate_object_() /*throw (Exception, eh::Exception)*/;
 
     /**
      * Waits for deactivation all owned completion.
      * Perform waits as LIFO, last added Active Object will wait first.
      * That logic correspond deactivate_object method.
      */
-    virtual
-    void
-    wait_object_() /*throw (Exception, eh::Exception)*/;
+    virtual void wait_object_() /*throw (Exception, eh::Exception)*/;
 
     /**
      * Simply calls wait_object for the given interval of objects
      */
     template <typename ReverseIterator>
-    void
-    wait_for_some_objects_(ReverseIterator rbegin, ReverseIterator rend)
+    void wait_for_some_objects_(ReverseIterator rbegin, ReverseIterator rend)
       /*throw (Exception, eh::Exception)*/;
 
     /**
      * Thread-unsafe deactivation logic
      */
-    void
-    deactivate_object_(typename Container::reverse_iterator rit)
+    void deactivate_object_(typename Container::reverse_iterator rit)
       /*throw (Exception, eh::Exception)*/;
 
   protected:
@@ -182,11 +164,10 @@ namespace Generics
   /**
    * Default CompositeActiveObject containing active object holders.
    */
-  typedef CompositeActiveObjectBase<
+  using CompositeActiveObject = CompositeActiveObjectBase<
     std::deque<ActiveObjectHolder>,
     std::front_insert_iterator<std::deque<ActiveObjectHolder>>,
-    std::back_insert_iterator<std::deque<ActiveObjectHolder>>>
-    CompositeActiveObject;
+    std::back_insert_iterator<std::deque<ActiveObjectHolder>>>;
 
   class RefCountableCompositeActiveObject :
     public CompositeActiveObject,
@@ -200,12 +181,10 @@ namespace Generics
       bool clear_on_exit = true) noexcept;
 
   protected:
-    virtual
-    ~RefCountableCompositeActiveObject() noexcept = default;
+    virtual ~RefCountableCompositeActiveObject() noexcept = default;
   };
 
-  typedef ReferenceCounting::QualPtr<RefCountableCompositeActiveObject>
-    CompositeActiveObject_var;
+  using CompositeActiveObject_var = ReferenceCounting::QualPtr<RefCountableCompositeActiveObject>;
 
   struct ActiveObjectSet:
     CompositeActiveObjectBase<
@@ -215,8 +194,7 @@ namespace Generics
     public virtual RefCountableActiveObject,
     public virtual ReferenceCounting::AtomicImpl
   {};
-  typedef ReferenceCounting::QualPtr<ActiveObjectSet>
-    ActiveObjectSet_var;
+  using ActiveObjectSet_var = ReferenceCounting::QualPtr<ActiveObjectSet>;
 
   class RemovableActiveObject;
 
@@ -224,17 +202,13 @@ namespace Generics
     public virtual ReferenceCounting::Interface
   {
   protected:
-    virtual
-    void
-    remove_child_(ActiveObject* child) noexcept = 0;
+    virtual void remove_child_(ActiveObject* child) noexcept = 0;
 
-    virtual
-    ~ActiveObjectChildRemover() noexcept = default;
+    virtual ~ActiveObjectChildRemover() noexcept = default;
 
     friend class RemovableActiveObject;
   };
-  typedef ReferenceCounting::QualPtr<ActiveObjectChildRemover>
-    ActiveObjectChildRemover_var;
+  using ActiveObjectChildRemover_var = ReferenceCounting::QualPtr<ActiveObjectChildRemover>;
 
 
   /**
@@ -251,20 +225,15 @@ namespace Generics
     public ActiveObjectChildRemover
   {
   public:
-    explicit
-    CompositeSetActiveObject(bool sync_termination = false)
+    explicit CompositeSetActiveObject(bool sync_termination = false)
       /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~CompositeSetActiveObject() noexcept = default;
+    virtual ~CompositeSetActiveObject() noexcept = default;
 
-    virtual
-    void
-    remove_child_(ActiveObject* child) noexcept;
+    virtual void remove_child_(ActiveObject* child) noexcept;
   };
-  typedef ReferenceCounting::QualPtr<CompositeSetActiveObject>
-    CompositeSetActiveObject_var;
+  using CompositeSetActiveObject_var = ReferenceCounting::QualPtr<CompositeSetActiveObject>;
 
 
   /**
@@ -277,20 +246,14 @@ namespace Generics
     public virtual ReferenceCounting::AtomicImpl
   {
   public:
-    explicit
-    RemovableActiveObject(ActiveObjectChildRemover* owner) noexcept;
+    explicit RemovableActiveObject(ActiveObjectChildRemover* owner) noexcept;
 
   protected:
-    virtual
-    ~RemovableActiveObject() noexcept = default;
+    virtual ~RemovableActiveObject() noexcept = default;
 
-    virtual
-    void
-    delete_this_() const noexcept;
+    virtual void delete_this_() const noexcept;
 
-    virtual
-    void
-    before_remove_child_() noexcept;
+    virtual void before_remove_child_() noexcept;
 
     ActiveObjectChildRemover_var owner_;
   };
@@ -298,28 +261,21 @@ namespace Generics
 
 namespace Generics
 {
-  inline
-  ActiveObjectHolder::ActiveObjectHolder() noexcept
+  inline ActiveObjectHolder::ActiveObjectHolder() noexcept
   {
   }
 
-  inline
-  ActiveObjectHolder::ActiveObjectHolder(
-    RefCountableActiveObject* child) noexcept
+  inline ActiveObjectHolder::ActiveObjectHolder( RefCountableActiveObject* child) noexcept
     : ref_countable_child_(ReferenceCounting::add_ref(child))
   {
   }
 
-  inline
-  ActiveObjectHolder::ActiveObjectHolder(
-    std::shared_ptr<ActiveObject> child) noexcept
+  inline ActiveObjectHolder::ActiveObjectHolder( std::shared_ptr<ActiveObject> child) noexcept
     : shared_child_(std::move(child))
   {
   }
 
-  inline
-  ActiveObjectHolder::ActiveObjectHolder(
-    const ActiveObjectHolder& source) noexcept
+  inline ActiveObjectHolder::ActiveObjectHolder( const ActiveObjectHolder& source) noexcept
     : ref_countable_child_(
         source.ref_countable_child_.in() ?
           ReferenceCounting::add_ref(
@@ -331,8 +287,7 @@ namespace Generics
   }
 
   inline
-  ActiveObjectHolder&
-  ActiveObjectHolder::operator=(const ActiveObjectHolder& source) noexcept
+  ActiveObjectHolder& ActiveObjectHolder::operator=(const ActiveObjectHolder& source) noexcept
   {
     if (this != &source)
     {
@@ -346,37 +301,27 @@ namespace Generics
     return *this;
   }
 
-  inline
-  ActiveObject*
-  ActiveObjectHolder::operator->() const noexcept
+  inline ActiveObject* ActiveObjectHolder::operator->() const noexcept
   {
     return get_();
   }
 
-  inline
-  ActiveObject&
-  ActiveObjectHolder::operator*() const noexcept
+  inline ActiveObject& ActiveObjectHolder::operator*() const noexcept
   {
     return *get_();
   }
 
-  inline
-  bool
-  ActiveObjectHolder::operator<(const ActiveObjectHolder& right) const noexcept
+  inline bool ActiveObjectHolder::operator<(const ActiveObjectHolder& right) const noexcept
   {
     return get_() < right.get_();
   }
 
-  inline
-  bool
-  ActiveObjectHolder::operator==(const ActiveObjectHolder& right) const noexcept
+  inline bool ActiveObjectHolder::operator==(const ActiveObjectHolder& right) const noexcept
   {
     return get_() == right.get_();
   }
 
-  inline
-  ActiveObject*
-  ActiveObjectHolder::get_() const noexcept
+  inline ActiveObject* ActiveObjectHolder::get_() const noexcept
   {
     return ref_countable_child_.in() ?
       static_cast<ActiveObject*>(
@@ -385,24 +330,19 @@ namespace Generics
       shared_child_.get();
   }
 
-  inline
-  ActiveObject*
-  get_active_object_(const ActiveObjectHolder& child_holder) noexcept
+  inline ActiveObject* get_active_object_(const ActiveObjectHolder& child_holder) noexcept
   {
     return child_holder.operator->();
   }
 
-  inline
-  ActiveObject*
-  get_active_object_(ActiveObject* child) noexcept
+  inline ActiveObject* get_active_object_(ActiveObject* child) noexcept
   {
     return child;
   }
 
   template <typename Container, typename FrontIns, typename BackIns>
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
-    CompositeActiveObjectBase(bool sync_termination, bool clear_on_exit)
-    noexcept
+    CompositeActiveObjectBase(bool sync_termination, bool clear_on_exit) noexcept
     : SYNCHRONOUS_(sync_termination), CLEAR_ON_EXIT_(clear_on_exit)
   {
   }
@@ -493,8 +433,7 @@ namespace Generics
         copy_of_child_objects.insert(copy_of_child_objects.end(), *itor);
       }
     }
-    wait_for_some_objects_(copy_of_child_objects.rbegin(),
-      copy_of_child_objects.rend());
+    wait_for_some_objects_(copy_of_child_objects.rbegin(), copy_of_child_objects.rend());
   }
 
   template <typename Container, typename FrontIns, typename BackIns>
@@ -503,8 +442,7 @@ namespace Generics
     add_child_object(RefCountableActiveObject* child, bool add_to_head)
     /*throw (Exception, eh::Exception)*/
   {
-    add_child_object(
-      ActiveObjectHolder(child), add_to_head);
+    add_child_object( ActiveObjectHolder(child), add_to_head);
   }
 
   template <typename Container, typename FrontIns, typename BackIns>
@@ -519,9 +457,7 @@ namespace Generics
   template <typename Container, typename FrontIns, typename BackIns>
   void
   CompositeActiveObjectBase<Container, FrontIns, BackIns>::
-    add_child_object(
-      typename Container::value_type child_holder,
-      bool add_to_head)
+    add_child_object( typename Container::value_type child_holder, bool add_to_head)
     /*throw (Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(cond_);
@@ -544,6 +480,7 @@ namespace Generics
           child->wait_object();
         }
       }
+
       if (add_to_head)
       {
         *FrontIns(child_objects_) = std::move(child_holder);
@@ -556,8 +493,7 @@ namespace Generics
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't add object. Caught eh::Exception: " <<
-        ex.what();
+      ostr << FNS << "Can't add object. Caught eh::Exception: " << ex.what();
       throw Exception(ostr);
     }
   }
@@ -603,8 +539,7 @@ namespace Generics
     if (all_errors_str.size())
     {
       Stream::Error ostr;
-      ostr << FNS <<
-        "Can't wait child active object. Caught eh::Exception:\n";
+      ostr << FNS << "Can't wait child active object. Caught eh::Exception:\n";
       ostr << all_errors_str;
       throw Exception(ostr);
     }
@@ -637,8 +572,7 @@ namespace Generics
     if (all_errors_str.size())
     {
       Stream::Error ostr;
-      ostr << FNS <<
-        "Can't deactivate child active object. Caught eh::Exception:\n";
+      ostr << FNS << "Can't deactivate child active object. Caught eh::Exception:\n";
       ostr << all_errors_str;
       throw Exception(ostr);
     }
@@ -651,8 +585,7 @@ namespace Generics
   {
     Sync::PosixGuard guard(cond_);
 
-    for (typename Container::iterator it(child_objects_.begin());
-      it != child_objects_.end(); ++it)
+    for (typename Container::iterator it(child_objects_.begin()); it != child_objects_.end(); ++it)
     {
       (*it)->clear();
     }

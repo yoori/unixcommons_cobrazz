@@ -5,7 +5,6 @@
 
 namespace Generics
 {
-
   class Application
   {
   public:

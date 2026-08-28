@@ -19,16 +19,13 @@ namespace Generics
     /**
      * Method is called by TaskRunner when the object's order arrives.
      */
-    virtual
-    void
-    execute() /*throw (eh::Exception)*/ = 0;
+    virtual void execute() /*throw (eh::Exception)*/ = 0;
 
   protected:
-    virtual
-    ~Task() noexcept;
+    virtual ~Task() noexcept;
   };
 
-  typedef ReferenceCounting::QualPtr<Task> Task_var;
+  using Task_var = ReferenceCounting::QualPtr<Task>;
 
   struct TaskExecutor :
     public virtual RefCountableActiveObject
@@ -37,13 +34,12 @@ namespace Generics
     DECLARE_EXCEPTION(Overflow, Exception);
     DECLARE_EXCEPTION(NotActive, Exception);
 
-    virtual void
-    enqueue_task(Task* task, const Time* timeout = 0)
+    virtual void enqueue_task(Task* task, const Time* timeout = 0)
       /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/ = 0;
   };
 
-  typedef ReferenceCounting::QualPtr<TaskExecutor> TaskExecutor_var;
-  typedef ReferenceCounting::FixedPtr<TaskExecutor> FixedTaskExecutor_var;
+  using TaskExecutor_var = ReferenceCounting::QualPtr<TaskExecutor>;
+  using FixedTaskExecutor_var = ReferenceCounting::FixedPtr<TaskExecutor>;
 
   /**
    * Performs tasks in several threads simultaneously.
@@ -53,10 +49,10 @@ namespace Generics
     public ActiveObjectCommonImpl
   {
   public:
-    typedef TaskExecutor::Exception Exception;
-    typedef TaskExecutor::Overflow Overflow;
-    typedef TaskExecutor::NotActive NotActive;
-    typedef ActiveObject::InvalidArgument InvalidArgument;
+    using Exception = TaskExecutor::Exception;
+    using Overflow = TaskExecutor::Overflow;
+    using NotActive = TaskExecutor::NotActive;
+    using InvalidArgument = ActiveObject::InvalidArgument;
 
     /**
      * Constructor
@@ -72,9 +68,7 @@ namespace Generics
       unsigned start_threads = 0)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
-    virtual
-    void
-    activate_object()
+    virtual void activate_object()
       /*throw (AlreadyActive, Exception, eh::Exception)*/;
 
     /**
@@ -85,8 +79,7 @@ namespace Generics
      * If you put limitations on the size of the queue, and it's full,
      * method waits for the release up to timeout
      */
-    virtual void
-    enqueue_task(Task* task, const Time* timeout = 0)
+    virtual void enqueue_task(Task* task, const Time* timeout = 0)
       /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
     /**
@@ -94,27 +87,22 @@ namespace Generics
      * This number does not have much meaning in MT environment
      * @return number of tasks enqueued
      */
-    unsigned
-    task_count() const noexcept;
+    unsigned task_count() const noexcept;
 
     /**
      * Waits for the moment task queue is empty and returns control.
      * In MT environment tasks can be added at the very same moment of
      * return of control.
      */
-    void
-    wait_for_queue_exhausting() /*throw (eh::Exception)*/;
+    void wait_for_queue_exhausting() /*throw (eh::Exception)*/;
 
     /**
      * Clear task queue
      */
-    virtual
-    void
-    clear() /*throw (eh::Exception)*/;
+    virtual void clear() /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~TaskRunner() noexcept;
+    virtual ~TaskRunner() noexcept;
 
   private:
     class TaskRunnerJob : public SingleJob
@@ -127,41 +115,28 @@ namespace Generics
         unsigned start_threads)
         /*throw (eh::Exception)*/;
 
-      virtual
-      void
-      work() noexcept;
+      virtual void work() noexcept;
 
-      virtual
-      void
-      started(unsigned threads) noexcept;
+      virtual void started(unsigned threads) noexcept;
 
-      virtual
-      void
-      terminate() noexcept;
+      virtual void terminate() noexcept;
 
-      void
-      enqueue_task(Task* task, const Time* timeout,
-        ThreadRunner& thread_runner)
+      void enqueue_task(Task* task, const Time* timeout, ThreadRunner& thread_runner)
         /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/;
 
-      unsigned
-      task_count() const noexcept;
+      unsigned task_count() const noexcept;
 
-      void
-      wait_for_queue_exhausting() /*throw (eh::Exception)*/;
+      void wait_for_queue_exhausting() /*throw (eh::Exception)*/;
 
-      void
-      clear() /*throw (eh::Exception)*/;
+      void clear() /*throw (eh::Exception)*/;
 
     protected:
-      virtual
-      ~TaskRunnerJob() noexcept;
+      virtual ~TaskRunnerJob() noexcept;
 
-      void
-      add_thread_i_(ThreadRunner& thread_runner) noexcept;
+      void add_thread_i_(ThreadRunner& thread_runner) noexcept;
 
     private:
-      typedef ReferenceCounting::Deque<Task_var> Tasks;
+      using Tasks = ReferenceCounting::Deque<Task_var>;
 
       const unsigned NUMBER_OF_THREADS_;
       const unsigned int MAX_PENDING_TASKS_;
@@ -178,12 +153,12 @@ namespace Generics
       Generics::AtomicInt adding_thread_;
     };
 
-    typedef ReferenceCounting::FixedPtr<TaskRunnerJob> TaskRunnerJob_var;
+    using TaskRunnerJob_var = ReferenceCounting::FixedPtr<TaskRunnerJob>;
 
     TaskRunnerJob& job_;
   };
-  typedef ReferenceCounting::QualPtr<TaskRunner> TaskRunner_var;
-  typedef ReferenceCounting::FixedPtr<TaskRunner> FixedTaskRunner_var;
+  using TaskRunner_var = ReferenceCounting::QualPtr<TaskRunner>;
+  using FixedTaskRunner_var = ReferenceCounting::FixedPtr<TaskRunner>;
 
   /**
    * Task with specified RC implementation
@@ -196,8 +171,7 @@ namespace Generics
     /**
      * Destructor
      */
-    virtual
-    ~TaskImpl() noexcept;
+    virtual ~TaskImpl() noexcept;
   };
 
   /**
@@ -214,23 +188,19 @@ namespace Generics
      * Constructor
      * @param task_runner TaskExecutor to put the object into.
      */
-    explicit
-    TaskGoal(TaskExecutor* task_executor) /*throw (eh::Exception)*/;
+    explicit TaskGoal(TaskExecutor* task_executor) /*throw (eh::Exception)*/;
 
     /**
      * Implementation of Goal::deliver.
      * Puts the object into the TaskRunner.
      */
-    virtual
-    void
-    deliver() /*throw (eh::Exception)*/;
+    virtual void deliver() /*throw (eh::Exception)*/;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~TaskGoal() noexcept;
+    virtual ~TaskGoal() noexcept;
 
   private:
     TaskExecutor_var task_executor_;
@@ -260,23 +230,19 @@ namespace Generics
      * Implementation of Goal::deliver.
      * Puts the object into the TaskExecutor.
      */
-    virtual
-    void
-    deliver() /*throw (eh::Exception)*/;
+    virtual void deliver() /*throw (eh::Exception)*/;
 
     /**
      * Put the object into the Planner. Call this in execute().
      * @param time time of putting the object into the TaskRunner
      */
-    void
-    schedule(const Time& time) /*throw (eh::Exception)*/;
+    void schedule(const Time& time) /*throw (eh::Exception)*/;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~GoalTask() noexcept;
+    virtual ~GoalTask() noexcept;
 
   private:
     Planner_var planner_;
@@ -294,8 +260,7 @@ namespace Generics
   // Task class
   //
 
-  inline
-  Task::~Task() noexcept
+  inline Task::~Task() noexcept
   {
   }
 
@@ -304,8 +269,7 @@ namespace Generics
   // TaskImpl class
   //
 
-  inline
-  TaskImpl::~TaskImpl() noexcept
+  inline TaskImpl::~TaskImpl() noexcept
   {
   }
 
@@ -314,21 +278,17 @@ namespace Generics
   // TaskGoal class
   //
 
-  inline
-  TaskGoal::TaskGoal(TaskExecutor* task_executor)
+  inline TaskGoal::TaskGoal(TaskExecutor* task_executor)
     /*throw (eh::Exception)*/
     : task_executor_(ReferenceCounting::add_ref(task_executor))
   {
   }
 
-  inline
-  TaskGoal::~TaskGoal() noexcept
+  inline TaskGoal::~TaskGoal() noexcept
   {
   }
 
-  inline
-  void
-  TaskGoal::deliver() /*throw (eh::Exception)*/
+  inline void TaskGoal::deliver() /*throw (eh::Exception)*/
   {
     task_executor_->enqueue_task(this);
   }
@@ -338,29 +298,23 @@ namespace Generics
   // GoalTask class
   //
 
-  inline
-  GoalTask::GoalTask(Planner* planner, TaskExecutor* task_executor)
+  inline GoalTask::GoalTask(Planner* planner, TaskExecutor* task_executor)
     /*throw (eh::Exception)*/
     : planner_(ReferenceCounting::add_ref(planner)),
       task_executor_(ReferenceCounting::add_ref(task_executor))
   {
   }
 
-  inline
-  GoalTask::~GoalTask() noexcept
+  inline GoalTask::~GoalTask() noexcept
   {
   }
 
-  inline
-  void
-  GoalTask::deliver() /*throw (eh::Exception)*/
+  inline void GoalTask::deliver() /*throw (eh::Exception)*/
   {
     task_executor_->enqueue_task(this);
   }
 
-  inline
-  void
-  GoalTask::schedule(const Time& when) /*throw (eh::Exception)*/
+  inline void GoalTask::schedule(const Time& when) /*throw (eh::Exception)*/
   {
     planner_->schedule(this, when);
   }
@@ -370,9 +324,7 @@ namespace Generics
   // TaskRunner::TaskRunnerJob class
   //
 
-  inline
-  unsigned
-  TaskRunner::TaskRunnerJob::task_count() const noexcept
+  inline unsigned TaskRunner::TaskRunnerJob::task_count() const noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     return tasks_.size();
@@ -383,31 +335,23 @@ namespace Generics
   // TaskRunner class
   //
 
-  inline
-  void
-  TaskRunner::enqueue_task(Task* task, const Time* timeout)
+  inline void TaskRunner::enqueue_task(Task* task, const Time* timeout)
     /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/
   {
     job_.enqueue_task(task, timeout, thread_runner_);
   }
 
-  inline
-  unsigned
-  TaskRunner::task_count() const noexcept
+  inline unsigned TaskRunner::task_count() const noexcept
   {
     return job_.task_count();
   }
 
-  inline
-  void
-  TaskRunner::wait_for_queue_exhausting() /*throw (eh::Exception)*/
+  inline void TaskRunner::wait_for_queue_exhausting() /*throw (eh::Exception)*/
   {
     job_.wait_for_queue_exhausting();
   }
 
-  inline
-  void
-  TaskRunner::clear() /*throw (eh::Exception)*/
+  inline void TaskRunner::clear() /*throw (eh::Exception)*/
   {
     job_.clear();
   }

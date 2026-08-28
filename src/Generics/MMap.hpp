@@ -41,8 +41,7 @@ namespace Generics
      * actual place where the object will mapped may have another address
      * @param size size to mapped shared memory
      */
-    explicit
-    MMap(void* preferrable_address, std::size_t size)
+    explicit MMap(void* preferrable_address, std::size_t size)
       /*throw (eh::Exception, Exception)*/;
 
     ~MMap() noexcept;
@@ -50,13 +49,11 @@ namespace Generics
     /**
      * @return address of the mapped region
      */
-    void*
-    memory() const noexcept;
+    void* memory() const noexcept;
     /**
      * @return size of the mapped region
      */
-    size_t
-    length() const noexcept;
+    size_t length() const noexcept;
 
   protected:
     MMap() noexcept;
@@ -117,8 +114,7 @@ namespace Generics
     using MMap::memory;
     using MMap::length;
 
-    int
-    file_descriptor() const noexcept;
+    int file_descriptor() const noexcept;
 
   private:
     int fd_;

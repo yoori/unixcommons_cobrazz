@@ -23,12 +23,11 @@ public:
    * Two concurrency threads do select operation between two numbers.
    * SUCCESS if isn't race condition in results.
    */
-  void
-  do_lock_test() noexcept;
+  void do_lock_test() noexcept;
 
 private:
-  typedef typename TestingPolicy::Mutex TestingMutex;
-  typedef std::unique_ptr<TestingMutex> SmartMutex;
+  using TestingMutex = typename TestingPolicy::Mutex;
+  using SmartMutex = std::unique_ptr<TestingMutex>;
   /**
    * Context object transmits data to the thread
    */
@@ -55,22 +54,19 @@ private:
   /**
    * Cycle with pairs of random numbers
    */
-  void
-  do_lock_test_() noexcept;
+  void do_lock_test_() noexcept;
 
   /**
    * Select numbers by ordering thread actions
    * If second = true function must return beta value,
    * If second = false function must return alpha value.
    */
-  std::size_t
-  select_(std::size_t alpha, std::size_t beta, bool second) noexcept;
+  std::size_t select_(std::size_t alpha, std::size_t beta, bool second) noexcept;
 
   /**
    * Working code of concurrency threads
    */
-  void
-  rival_(const ThreadContext& context) noexcept;
+  void rival_(const ThreadContext& context) noexcept;
 
   class Active
   {
@@ -80,27 +76,23 @@ private:
      */
     Active(ThreadContext& context) noexcept;
 
-    virtual void
-    activate() noexcept = 0;
+    virtual void activate() noexcept = 0;
 
-    virtual void
-    join() noexcept = 0;
+    virtual void join() noexcept = 0;
 
     /**
      * Save number that Actor will push to shared memory
      */
-    void
-    set_number(std::size_t number) noexcept;
+    void set_number(std::size_t number) noexcept;
 
     /**
      * virtual empty destructor
      */
-    virtual
-    ~Active() noexcept;
+    virtual ~Active() noexcept;
   protected:
     ThreadContext& context_;
   };
-  typedef std::unique_ptr<Active> SmartActive;
+  using SmartActive = std::unique_ptr<Active>;
 
   /**
    * Do thread C++ object to do auto cleanup
@@ -116,20 +108,17 @@ private:
     /**
      * Start thread with stored context
      */
-    virtual void
-    activate() noexcept;
+    virtual void activate() noexcept;
 
     /**
      * do join to created thread
      */
-    virtual void
-    join() noexcept;
+    virtual void join() noexcept;
 
     /**
      * do join to created thread
      */
-    virtual
-    ~Thread() noexcept;
+    virtual ~Thread() noexcept;
   protected:
     bool active_state_;
   };
@@ -144,14 +133,12 @@ private:
     /**
      * Start process with stored context
      */
-    virtual void
-    activate() noexcept;
+    virtual void activate() noexcept;
 
     /**
      * do join to created process
      */
-    virtual void
-    join() noexcept;
+    virtual void join() noexcept;
 
   private:
     pid_t cpid_;
@@ -161,8 +148,7 @@ private:
   /**
    * Mediator to C++ from C-functions
    */
-  static void*
-  rival_(void* arg) noexcept;
+  static void* rival_(void* arg) noexcept;
 
   SmartMutex mutex1_;
   SmartMutex mutex2_;
@@ -175,8 +161,7 @@ private:
 
 };
 
-int
-main()
+int main()
 {
   try
   {
@@ -208,8 +193,7 @@ main()
 
 // Test body below
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::do_lock_test() noexcept
+void MutexTester<TestingPolicy>::do_lock_test() noexcept
 {
   shared_value_.reset(new std::size_t);
   //case 1
@@ -236,8 +220,7 @@ MutexTester<TestingPolicy>::do_lock_test() noexcept
   // Share two mutex and variable between processes
   Generics::MMap shared_memory(static_cast<void*>(0),
     sizeof(TestingMutex[2]) + sizeof(std::size_t));
-  TestingMutex* ptr =
-    static_cast<TestingMutex*>(shared_memory.memory());
+  TestingMutex* ptr = static_cast<TestingMutex*>(shared_memory.memory());
   mutex1_.reset(new (ptr) TestingMutex(PTHREAD_PROCESS_SHARED));
   mutex2_.reset(new (++ptr) TestingMutex(PTHREAD_PROCESS_SHARED));
   shared_value_.reset(new (++ptr) std::size_t);
@@ -250,8 +233,7 @@ MutexTester<TestingPolicy>::do_lock_test() noexcept
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::do_lock_test_() noexcept
+void MutexTester<TestingPolicy>::do_lock_test_() noexcept
 {
   for (std::size_t i = 0; i < 100; ++i)
   {
@@ -264,12 +246,10 @@ MutexTester<TestingPolicy>::do_lock_test_() noexcept
     while (alpha == beta);
 #ifdef DEBUG
     std::cout << "Alpha=" << alpha << ", Beta=" << beta
-      << ", select_1=" << select_(alpha, beta, false)
-      << ", select_2=" << select_(alpha, beta, true)
+      << ", select_1=" << select_(alpha, beta, false) << ", select_2=" << select_(alpha, beta, true)
       << std::endl;
 #endif
-    if (select_(alpha, beta, false) != alpha ||
-      select_(alpha, beta, true) != beta)
+    if (select_(alpha, beta, false) != alpha || select_(alpha, beta, true) != beta)
     {
       std::cerr << "Threads sync failed via mutex, "
         "race condition detected" << std::endl;
@@ -278,9 +258,7 @@ MutexTester<TestingPolicy>::do_lock_test_() noexcept
 }
 
 template <typename TestingPolicy>
-std::size_t
-MutexTester<TestingPolicy>::select_(std::size_t alpha,
-  std::size_t beta, bool second)
+std::size_t MutexTester<TestingPolicy>::select_(std::size_t alpha, std::size_t beta, bool second)
   noexcept
 {
   mutex1_->lock();
@@ -304,12 +282,11 @@ MutexTester<TestingPolicy>::select_(std::size_t alpha,
     actor1_->join();
     actor2_->join();
   }
-  return *shared_value_;    
+  return *shared_value_;
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::rival_(const ThreadContext& context) noexcept
+void MutexTester<TestingPolicy>::rival_(const ThreadContext& context) noexcept
 {
   {
     typename TestingPolicy::WriteGuard lock(*context.mutex);
@@ -319,8 +296,7 @@ MutexTester<TestingPolicy>::rival_(const ThreadContext& context) noexcept
 }
 
 template <typename TestingPolicy>
-void*
-MutexTester<TestingPolicy>::rival_(void* arg) noexcept
+void* MutexTester<TestingPolicy>::rival_(void* arg) noexcept
 {
   try
   {
@@ -360,8 +336,7 @@ MutexTester<TestingPolicy>::Active::Active(ThreadContext& context) noexcept
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::Active::set_number(std::size_t number) noexcept
+void MutexTester<TestingPolicy>::Active::set_number(std::size_t number) noexcept
 {
   context_.result_value = number;
 }
@@ -383,12 +358,10 @@ MutexTester<TestingPolicy>::Thread::Thread(ThreadContext& context) noexcept
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::Thread::activate() noexcept
+void MutexTester<TestingPolicy>::Thread::activate() noexcept
 {
   ThreadContext& ref = MutexTester<TestingPolicy>::Active::context_;
-  if (pthread_create(&ref.thread,
-    0, rival_, &ref))
+  if (pthread_create(&ref.thread, 0, rival_, &ref))
   {
     std::cerr << "Create thread fail" << std::endl;
     exit(EXIT_FAILURE);
@@ -397,8 +370,7 @@ MutexTester<TestingPolicy>::Thread::activate() noexcept
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::Thread::join() noexcept
+void MutexTester<TestingPolicy>::Thread::join() noexcept
 {
   pthread_join(MutexTester<TestingPolicy>::Active::context_.thread, 0);
   active_state_ = false;
@@ -418,15 +390,13 @@ MutexTester<TestingPolicy>::Thread::~Thread() noexcept
 //
 
 template <typename TestingPolicy>
-MutexTester<TestingPolicy>::Process::Process(ThreadContext& context)
-  noexcept
+MutexTester<TestingPolicy>::Process::Process(ThreadContext& context) noexcept
   : Active(context)
 {
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::Process::activate() noexcept
+void MutexTester<TestingPolicy>::Process::activate() noexcept
 {
   cpid_ = fork();
   if (cpid_ == -1)
@@ -434,6 +404,7 @@ MutexTester<TestingPolicy>::Process::activate() noexcept
     std::cerr << "fork fail" << std::endl;
     exit(EXIT_FAILURE);
   }
+
   if (cpid_ == 0)  // Child process
   {
     MutexTester<TestingPolicy>::Active::context_.this_ptr->rival_(
@@ -443,13 +414,12 @@ MutexTester<TestingPolicy>::Process::activate() noexcept
 }
 
 template <typename TestingPolicy>
-void
-MutexTester<TestingPolicy>::Process::join() noexcept
+void MutexTester<TestingPolicy>::Process::join() noexcept
 {
   // wait for child termination
   int status;
   pid_t wait_result;
-  do 
+  do
   {
     wait_result = waitpid(cpid_, &status, WUNTRACED | WCONTINUED);
     if (wait_result == -1)
@@ -458,5 +428,5 @@ MutexTester<TestingPolicy>::Process::join() noexcept
       exit(EXIT_FAILURE);
     }
   }
-  while(!WIFEXITED(status) && !WIFSIGNALED(status));
+  while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }

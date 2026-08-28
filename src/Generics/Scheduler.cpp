@@ -11,8 +11,7 @@ namespace Generics
   // Planner::PlannerJob class
   //
 
-  Planner::PlannerJob::PlannerJob(ActiveObjectCallback* callback,
-    bool delivery_time_adjustment)
+  Planner::PlannerJob::PlannerJob(ActiveObjectCallback* callback, bool delivery_time_adjustment)
     /*throw (eh::Exception)*/
     : SingleJob(callback),
       have_new_events_(false),
@@ -24,15 +23,13 @@ namespace Generics
   {
   }
 
-  void
-  Planner::PlannerJob::terminate() noexcept
+  void Planner::PlannerJob::terminate() noexcept
   {
     have_new_events_ = true;
     new_event_in_schedule_.signal(); // wake the working thread
   }
 
-  void
-  Planner::PlannerJob::schedule(Goal* goal, const Time& time)
+  void Planner::PlannerJob::schedule(Goal* goal, const Time& time)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     if (!goal)
@@ -98,8 +95,7 @@ namespace Generics
     trace_message(FNB, "leaving");
   }
 
-  unsigned
-  Planner::PlannerJob::unschedule(const Goal* goal)
+  unsigned Planner::PlannerJob::unschedule(const Goal* goal)
     /*throw (eh::Exception)*/
   {
     unsigned removed = 0;
@@ -107,8 +103,7 @@ namespace Generics
     {
       Sync::PosixGuard guard(mutex());
 
-      for (TimedList::iterator itor(messages_.begin());
-        itor != messages_.end();)
+      for (TimedList::iterator itor(messages_.begin()); itor != messages_.end();)
       {
         if (itor->is_goal(goal))
         {
@@ -125,8 +120,7 @@ namespace Generics
     return removed;
   }
 
-  void
-  Planner::PlannerJob::work() noexcept
+  void Planner::PlannerJob::work() noexcept
   {
     trace_message(FNB, "entering");
 
@@ -169,8 +163,7 @@ namespace Generics
             //  They will call immediately
             if (abs_time <= cur_time)
             {
-              pending.splice(pending.end(), std::move(messages_),
-                messages_.begin());
+              pending.splice(pending.end(), std::move(messages_), messages_.begin());
             }
             else
             {
@@ -205,8 +198,7 @@ namespace Generics
           bool new_event_in_schedule = true;
 
           {
-            Sync::ConditionalGuard cond_guard(new_event_in_schedule_,
-              mutex());
+            Sync::ConditionalGuard cond_guard(new_event_in_schedule_, mutex());
             while (!have_new_events_)
             {
               try
@@ -218,6 +210,7 @@ namespace Generics
                 callback()->critical(String::SubString(e.what()));
                 new_event_in_schedule = false;
               }
+
               if (!have_new_events_)
               {
                 new_event_in_schedule = false;
@@ -280,8 +273,7 @@ namespace Generics
     trace_message(FNB, "leaving");
   }
 
-  void
-  Planner::PlannerJob::clear() noexcept
+  void Planner::PlannerJob::clear() noexcept
   {
     Sync::PosixGuard guard(mutex());
     messages_.clear();
@@ -295,8 +287,7 @@ namespace Generics
   Planner::Planner(ActiveObjectCallback* callback, size_t stack_size,
     bool delivery_time_adjustment) /*throw (InvalidArgument, eh::Exception)*/
     : ActiveObjectCommonImpl(
-        PlannerJob_var(
-          new PlannerJob(callback, delivery_time_adjustment)),
+        PlannerJob_var( new PlannerJob(callback, delivery_time_adjustment)),
         1, stack_size),
       job_(static_cast<PlannerJob&>(*SINGLE_JOB_))
   {

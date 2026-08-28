@@ -14,10 +14,8 @@ public:
   ~Shutdowner() noexcept;
 
 private:
-  void
-  shutdown() noexcept;
-  static void*
-  thread_proc_(void* arg) noexcept;
+  void shutdown() noexcept;
+  static void* thread_proc_(void* arg) noexcept;
 
   CORBA::ORB_var orb_;
   pthread_t thread_;
@@ -36,14 +34,12 @@ Shutdowner::~Shutdowner() noexcept
   orb_ = 0;
 }
 
-void
-Shutdowner::shutdown() noexcept
+void Shutdowner::shutdown() noexcept
 {
   orb_->shutdown(true);
 }
 
-void*
-Shutdowner::thread_proc_(void* arg) noexcept
+void* Shutdowner::thread_proc_(void* arg) noexcept
 {
   static_cast<Shutdowner*>(arg)->shutdown();
   return NULL;
@@ -57,10 +53,8 @@ class Echo_i : public POA_Echo
 {
 public:
   Echo_i(CORBA::ORB_var orb) noexcept;
-  virtual CORBA::Long
-  echoString(CORBA::Long sent_client, const char* message) noexcept;
-  void
-  shutdown() noexcept;
+  virtual CORBA::Long echoString(CORBA::Long sent_client, const char* message) noexcept;
+  void shutdown() noexcept;
 
 private:
   pthread_mutex_t mutex_;
@@ -73,8 +67,7 @@ Echo_i::Echo_i(CORBA::ORB_var orb) noexcept
   pthread_mutex_init(&mutex_, 0);
 }
 
-CORBA::Long
-Echo_i::echoString(CORBA::Long sent_client, const char* message) noexcept
+CORBA::Long Echo_i::echoString(CORBA::Long sent_client, const char* message) noexcept
 {
   ++req;
   time_t received_server = time(NULL);
@@ -92,8 +85,7 @@ Echo_i::echoString(CORBA::Long sent_client, const char* message) noexcept
   return time(NULL);
 }
 
-void
-Echo_i::shutdown() noexcept
+void Echo_i::shutdown() noexcept
 {
   pthread_mutex_lock(&mutex_);
   if (orb_)
@@ -118,8 +110,7 @@ public:
     pthread_join(thread_, 0);
   }
 
-  static int
-  get_number_of_threads()
+  static int get_number_of_threads()
   {
     char buf[64];
     snprintf(buf, sizeof(buf), "/proc/%u/task", (unsigned)getpid());
@@ -137,16 +128,14 @@ public:
     return threads;
   }
 
-  static void*
-  thread_proc_(void* arg)
+  static void* thread_proc_(void* arg)
   {
     _Atomic_word last = 0;
     do
     {
       int cur = req.exchange_and_add(0);
       std::ostringstream ostr;
-      ostr << "Number of threads: " << get_number_of_threads() << " " <<
-        cur - last << std::endl;
+      ostr << "Number of threads: " << get_number_of_threads() << " " << cur - last << std::endl;
       const std::string& str = ostr.str();
       write(1, str.data(), str.length());
       last = cur;
@@ -162,8 +151,7 @@ private:
 };
 
 #ifdef ORB_TAO
-void*
-thread_proc(void* arg)
+void* thread_proc(void* arg)
 {
   (*static_cast<CORBA::ORB_var*>(arg))->run();
   std::cout << "Thread terminated" << std::endl;
@@ -171,8 +159,7 @@ thread_proc(void* arg)
 }
 #endif
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   {
   ThreadCounter counter;
@@ -185,8 +172,7 @@ main(int argc, char** argv)
   char LIMIT[] = "20";
 #endif
 #ifdef ORB_OMNI
-  const char* options[][2] =
-    {
+  const char* options[][2] = {
       { "threadPerConnectionPolicy", "0" },
       { "maxServerThreadPoolSize", LIMIT },
       { 0, 0 }

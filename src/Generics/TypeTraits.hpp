@@ -11,33 +11,29 @@ namespace Generics
   template <typename T, typename A, typename B>
   struct IfConst
   {
-    typedef B Result;
+    using Result = B;
   };
   template <typename T, typename A, typename B>
   struct IfConst<const T, A, B>
   {
-    typedef A Result;
+    using Result = A;
   };
 
   template <typename Container>
   class Inserter : private Generics::Uncopyable
   {
   public:
-    explicit
-    Inserter(Container& container) noexcept;
-    Inserter&
-    operator *() noexcept;
+    explicit Inserter(Container& container) noexcept;
+    Inserter& operator *() noexcept;
     template <typename T>
-    Inserter&
-    operator =(T&& data) /*throw (eh::Exception)*/;
+    Inserter& operator =(T&& data) /*throw (eh::Exception)*/;
 
   private:
     Container& container_;
   };
 
   template <typename Integer>
-  Integer
-  safe_next(Integer number) noexcept
+  Integer safe_next(Integer number) noexcept
   {
     return number < std::numeric_limits<Integer>::max() ?
       number + 1 : number;
@@ -50,8 +46,7 @@ namespace Generics
     PairPtr(From* from) noexcept;
     PairPtr(PairPtr&& other) noexcept;
 
-    To*
-    operator ->() noexcept;
+    To* operator ->() noexcept;
 
   private:
     To to;
@@ -71,16 +66,14 @@ namespace Generics
   }
 
   template <typename Container>
-  Inserter<Container>&
-  Inserter<Container>::operator *() noexcept
+  Inserter<Container>& Inserter<Container>::operator *() noexcept
   {
     return *this;
   }
 
   template <typename Container>
   template <typename T>
-  Inserter<Container>&
-  Inserter<Container>::operator =(T&& data) /*throw (eh::Exception)*/
+  Inserter<Container>& Inserter<Container>::operator =(T&& data) /*throw (eh::Exception)*/
   {
     container_.insert(std::forward<T>(data));
     return *this;
@@ -104,8 +97,7 @@ namespace Generics
   }
 
   template <typename From, typename To>
-  To*
-  PairPtr<From, To>::operator ->() noexcept
+  To* PairPtr<From, To>::operator ->() noexcept
   {
     return &to;
   }

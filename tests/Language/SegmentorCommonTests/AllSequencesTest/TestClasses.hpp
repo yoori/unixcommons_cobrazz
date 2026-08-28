@@ -53,8 +53,7 @@ public:
    * @param istrm is input stream if need
    * @param estrm is error stream for errors
    */
-  void
-  execute(std::istream& istrm, std::ostream& estrm) const
+  void execute(std::istream& istrm, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
 private:
@@ -62,36 +61,32 @@ private:
   /**
    * Type of execution part
    */
-  typedef void (Segment::*Scenario)(std::istream&, std::ostream&) const;
+  using Scenario = void (Segment::*)(std::istream&, std::ostream&) const;
 
   /**
    * Check all symbols
    */
-  void
-  check_all_(std::istream& istrm, std::ostream& estrm) const
+  void check_all_(std::istream& istrm, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
   /**
    * Check utf8 symbols set from specific Walker
    */
   template <class Walker>
-  void
-  check_with_walker_(std::istream&, std::ostream& estrm) const
+  void check_with_walker_(std::istream&, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
   /**
    * Check standard utf8 symbols to be eaten or converted to space
    */
-  void
-  check_separators_(std::istream& istrm, std::ostream& estrm) const
+  void check_separators_(std::istream& istrm, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
   /**
    * Check parsing by dictionary
    * @param istrm is input stream of this dictionary
    */
-  void
-  check_phrases_(std::istream& istrm, std::ostream& estrm) const
+  void check_phrases_(std::istream& istrm, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
   /**
@@ -99,8 +94,7 @@ private:
    * but use segmentation parsing method
    * @param istrm is input stream of this dictionary
    */
-  void
-  check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
+  void check_phrases_seq_(std::istream& istrm, std::ostream& estrm) const
     /*throw (SegmentError)*/;
 
   /**
@@ -125,26 +119,20 @@ private:
   Scenario scenario_;
 };
 
-typedef ReferenceCounting::SmartPtr<Segment> Segment_var;
+using Segment_var = ReferenceCounting::SmartPtr<Segment>;
 
-inline
-Segment::~Segment()
-  noexcept
+inline Segment::~Segment() noexcept
 {
 }
 
-inline
-void
-Segment::execute (std::istream& istrm, std::ostream& estrm) const
+inline void Segment::execute (std::istream& istrm, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   (this->*scenario_)(istrm, estrm);
 }
 
 template <class Walker>
-inline
-void
-Segment::check_with_walker_(std::istream&, std::ostream& estrm) const
+inline void Segment::check_with_walker_(std::istream&, std::ostream& estrm) const
   /*throw (SegmentError)*/
 {
   Walker test_str(start_border_);
@@ -152,8 +140,7 @@ Segment::check_with_walker_(std::istream&, std::ostream& estrm) const
   size_t octets = 0;
   while ((octets = test_str.octets()) <= finish_border_)
   {
-    std::cout << "Start processing of sequences of " 
-              << octets << " byte(s) length." << std::endl;
+    std::cout << "Start processing of sequences of " << octets << " byte(s) length." << std::endl;
     do
     {
       try
@@ -161,24 +148,19 @@ Segment::check_with_walker_(std::istream&, std::ostream& estrm) const
         std::string result;
         segmentor_->put_spaces(result, test_str, octets);
 
-        if (print_utf8_transforms_ &&
-            !Segment::equal_ignore_spaces(test_str, test_str.octets(), 
+        if (print_utf8_transforms_ && !Segment::equal_ignore_spaces(test_str, test_str.octets(),
                                           result.c_str(), result.size()))
         {
           // print transformation where input was changed, ignore spaces
           // for general purposes
-          std::cout << "transformation: '"
-                    << test_str << "' => '" << result << "\' ";
+          std::cout << "transformation: '" << test_str << "' => '" << result << "\' ";
           test_str.dump(std::cout);
-          std::cout << " (U+" << std::hex << test_str.code() << ')'
-                    << std::endl;
+          std::cout << " (U+" << std::hex << test_str.code() << ')' << std::endl;
         }
       }
       catch (const eh::Exception& e)
       {
-        estrm << "exception: '" << test_str
-              << "' => \"" << e.what() << '\"'
-              << std::endl;
+        estrm << "exception: '" << test_str << "' => \"" << e.what() << '\"' << std::endl;
       }
     }
     while (test_str.next());

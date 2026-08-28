@@ -12,22 +12,19 @@ class CallBackProxy : public HTTP::ResponseCallback,
 public:
   CallBackProxy(Sync::Semaphore& finish_semaphore,
     HTTP::ResponseCallback *p_impl) /*throw(eh::Exception)*/;
-  virtual
-  ~CallBackProxy() noexcept;
+  virtual ~CallBackProxy() noexcept;
     /**
      * Called when request succeeded
      * @param data response
      */
-    virtual void
-    on_response(const HTTP::ResponseInformation& data) noexcept;
+    virtual void on_response(const HTTP::ResponseInformation& data) noexcept;
 
     /**
      * Called when request succeeded and it is not possible to call on_response
      * Should return control ASAP
      * @param data response
      */
-    virtual void
-    quick_on_response(const HTTP::ResponseInformation& data) noexcept;
+    virtual void quick_on_response(const HTTP::ResponseInformation& data) noexcept;
 
     /**
      * Called when request failed
@@ -35,8 +32,7 @@ public:
      * @param data request
      */
     virtual void
-    on_error(const String::SubString& description, const HTTP::RequestInformation& data)
-      noexcept;
+    on_error(const String::SubString& description, const HTTP::RequestInformation& data) noexcept;
 
     /**
      * Called when request failed and it is not possible to call on_error
@@ -45,8 +41,7 @@ public:
      * @param data request
      */
     virtual void
-    quick_on_error(const String::SubString& description,
-      const HTTP::RequestInformation& data)
+    quick_on_error(const String::SubString& description, const HTTP::RequestInformation& data)
       noexcept;
 
 private:
@@ -66,23 +61,18 @@ public:
     const std::string& post_str, const std::string& pattern_beg,
     const std::string& pattern_end);
 
-  virtual void
-  on_response(const HTTP::ResponseInformation& data) noexcept;
+  virtual void on_response(const HTTP::ResponseInformation& data) noexcept;
 
   virtual void
-  on_error(const String::SubString& descr,
-    const HTTP::RequestInformation& data) noexcept;
+  on_error(const String::SubString& descr, const HTTP::RequestInformation& data) noexcept;
 
-  virtual void
-  print_stat(std::ostream& ostr) /*throw (eh::Exception)*/;
+  virtual void print_stat(std::ostream& ostr) /*throw (eh::Exception)*/;
 
-  const TestCommons::Counter&
-  get_checkup_counter() const noexcept;
+  const TestCommons::Counter& get_checkup_counter() const noexcept;
 
 protected:
 
-  virtual
-  ~CheckUpCallback() noexcept;
+  virtual ~CheckUpCallback() noexcept;
 
 private:
   const std::string GET_STR_;
@@ -93,7 +83,7 @@ private:
   TestCommons::Counter response_checkup_;
 };
 
-typedef ReferenceCounting::QualPtr<CheckUpCallback> CheckUpCallback_var;
+using CheckUpCallback_var = ReferenceCounting::QualPtr<CheckUpCallback>;
 
 //
 // class CTTestInterface
@@ -107,11 +97,9 @@ public:
     unsigned int making_requests_duration, unsigned int tasks_per_test,
     unsigned int functors_per_task) /*throw (eh::Exception)*/;
 
-  virtual const std::string
-  additional_http_query() /*throw (eh::Exception)*/;
+  virtual const std::string additional_http_query() /*throw (eh::Exception)*/;
 
-  virtual void
-  execute() noexcept;
+  virtual void execute() noexcept;
 
   bool
   is_error(const char* test_name, const TestCommons::Counter* add_counter,
@@ -119,13 +107,11 @@ public:
     const TestCommons::Counter* checkup_counter)
     /*throw (eh::Exception)*/;
 
-  virtual std::string
-  checkup_and_print_stat() /*throw (eh::Exception)*/ = 0;
+  virtual std::string checkup_and_print_stat() /*throw (eh::Exception)*/ = 0;
 
 protected:
 
-  virtual
-  ~CTTestInterface() noexcept;
+  virtual ~CTTestInterface() noexcept;
 
   HTTP::HttpInterface_var pool_;
   std::ostringstream stat_;
@@ -135,4 +121,4 @@ protected:
   unsigned int functors_count_;
 };
 
-typedef ReferenceCounting::QualPtr<CTTestInterface> CTTestInterface_var;
+using CTTestInterface_var = ReferenceCounting::QualPtr<CTTestInterface>;

@@ -7,8 +7,7 @@ namespace TestCommons
 {
   struct LoggerHolder
   {
-    explicit
-    LoggerHolder(Logging::Logger* logger) noexcept;
+    explicit LoggerHolder(Logging::Logger* logger) noexcept;
 
     Logging::FLogger_var logger;
   };
@@ -24,8 +23,7 @@ namespace TestCommons
       const char* aspect = 0, const char* code = 0) /*throw (eh::Exception)*/;
 
   protected:
-    virtual
-    ~ActiveObjectCallbackStreamImpl() noexcept;
+    virtual ~ActiveObjectCallbackStreamImpl() noexcept;
   };
 }
 
@@ -35,8 +33,7 @@ namespace TestCommons
   // LoggerHolder class
   //
 
-  inline
-  LoggerHolder::LoggerHolder(Logging::Logger* logger) noexcept
+  inline LoggerHolder::LoggerHolder(Logging::Logger* logger) noexcept
     : logger(ReferenceCounting::add_ref(logger))
   {
   }
@@ -52,13 +49,11 @@ namespace TestCommons
     const char* aspect, const char* code) /*throw (eh::Exception)*/
     : LoggerHolder(Logging::Logger_var(new Logging::OStream::Logger(
         Logging::OStream::Config(output_stream)))),
-      Logging::ActiveObjectCallbackImpl(LoggerHolder::logger, message_prefix,
-        aspect, code)
+      Logging::ActiveObjectCallbackImpl(LoggerHolder::logger, message_prefix, aspect, code)
   {
   }
 
-  inline
-  ActiveObjectCallbackStreamImpl::~ActiveObjectCallbackStreamImpl() noexcept
+  inline ActiveObjectCallbackStreamImpl::~ActiveObjectCallbackStreamImpl() noexcept
   {
   }
 }

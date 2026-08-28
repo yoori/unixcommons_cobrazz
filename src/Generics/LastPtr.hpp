@@ -27,29 +27,24 @@ namespace Generics
     /**
      * Waits for last remove_ref for the object.
      */
-    void
-    last_wait() const noexcept;
+    void last_wait() const noexcept;
 
     /**
      * Erases the object.
      */
-    void
-    last_delete_this() const noexcept;
+    void last_delete_this() const noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~Last() noexcept;
+    virtual ~Last() noexcept;
 
     /**
      * Overrider of AtomicImpl::delete_this_ - notifies last_wait() instead
      * of erasing the object.
      */
-    virtual
-    void
-    delete_this_() const noexcept;
+    virtual void delete_this_() const noexcept;
 
   private:
     mutable volatile sig_atomic_t wait_mode_;
@@ -74,8 +69,7 @@ namespace Generics
      * ptr->add_ref() before creating LastPtr object.
      * @param ptr non-NULL pointer to the object to hold.
      */
-    explicit
-    LastPtr(LastChild* ptr) /*throw (Exception)*/;
+    explicit LastPtr(LastChild* ptr) /*throw (Exception)*/;
 
     /**
      * Destructor
@@ -87,8 +81,7 @@ namespace Generics
      * Allows to access the object members.
      * @return pointer to the stored object.
      */
-    LastChild*
-    operator ->() const noexcept;
+    LastChild* operator ->() const noexcept;
 
   private:
     LastChild* ptr_;
@@ -117,8 +110,7 @@ namespace Generics
   }
 
   template <typename AtomicImplChild>
-  void
-  Last<AtomicImplChild>::last_wait() const noexcept
+  void Last<AtomicImplChild>::last_wait() const noexcept
   {
     wait_mode_ = true;
     this->remove_ref();
@@ -126,15 +118,13 @@ namespace Generics
   }
 
   template <typename AtomicImplChild>
-  void
-  Last<AtomicImplChild>::last_delete_this() const noexcept
+  void Last<AtomicImplChild>::last_delete_this() const noexcept
   {
     AtomicImplChild::delete_this_();
   }
 
   template <typename AtomicImplChild>
-  void
-  Last<AtomicImplChild>::delete_this_() const noexcept
+  void Last<AtomicImplChild>::delete_this_() const noexcept
   {
     if (!wait_mode_)
     {
@@ -169,8 +159,7 @@ namespace Generics
   }
 
   template <typename LastChild>
-  LastChild*
-  LastPtr<LastChild>::operator ->() const noexcept
+  LastChild* LastPtr<LastChild>::operator ->() const noexcept
   {
     return ptr_;
   }

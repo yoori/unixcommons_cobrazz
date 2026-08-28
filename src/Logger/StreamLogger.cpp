@@ -5,33 +5,29 @@
 #include <Logger/StreamLogger.hpp>
 
 
-namespace Logging
+namespace Logging::OStream
 {
-  namespace OStream
+  namespace Helper
   {
-    namespace Helper
+    void Handler::publish(const LogRecord& record)
+      /*throw (BadStream, Exception, eh::Exception)*/
     {
-      void
-      Handler::publish(const LogRecord& record)
-        /*throw (BadStream, Exception, eh::Exception)*/
+      FormatWrapper::Result line(formatter_.format(record));
+
+      if (!line.get())
       {
-        FormatWrapper::Result line(formatter_.format(record));
+        Stream::Error ostr;
+        ostr << FNS << "failed to format message";
+        throw Exception(ostr);
+      }
 
-        if (!line.get())
-        {
-          Stream::Error ostr;
-          ostr << FNS << "failed to format message";
-          throw Exception(ostr);
-        }
+      ostr_ << line.get() << std::flush;
 
-        ostr_ << line.get() << std::flush;
-
-        if (!ostr_.good())
-        {
-          Stream::Error ostr;
-          ostr << FNS << "stream is dead";
-          throw BadStream(ostr);
-        }
+      if (!ostr_.good())
+      {
+        Stream::Error ostr;
+        ostr << FNS << "stream is dead";
+        throw BadStream(ostr);
       }
     }
   }

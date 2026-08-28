@@ -21,52 +21,43 @@ NullLoggerHolder::NullLoggerHolder() /*throw (eh::Exception)*/
 class Logger1 : private NullLoggerHolder
 {
 public:
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
-  void
-  test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
+  void test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
 };
 
 class Logger2 : private NullLoggerHolder
 {
 public:
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
-  void
-  test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
+  void test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
 };
 
 class Logger3 : private NullLoggerHolder
 {
 public:
-  void
-  operator ()() /*throw (eh::Exception)*/;
+  void operator ()() /*throw (eh::Exception)*/;
 
 private:
-  void
-  test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
+  void test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/;
 };
 
-void
-print_mark(char c, void* mark1, void* mark2) /*throw (eh::Exception)*/
+void print_mark(char c, void* mark1, void* mark2) /*throw (eh::Exception)*/
 {
   std::cout << c << ' ' << (reinterpret_cast<size_t>(mark2) -
     reinterpret_cast<size_t>(mark1)) << std::endl;
 }
 
-void
-Logger1::operator ()() /*throw (eh::Exception)*/
+void Logger1::operator ()() /*throw (eh::Exception)*/
 {
   int d;
   test_log_(3, &d);
 }
 
-void
-Logger1::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
+void Logger1::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
 {
   {
     int a;
@@ -74,20 +65,13 @@ Logger1::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
   }
 
   {
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
-  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
-    Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
+  logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>( Logging::Logger::INFO) << "";
   /*logger_->stream<Logging::Logger::DEFAULT_BUFFER_SIZE>(
     Logging::Logger::INFO) << "";*/
   }
@@ -108,15 +92,13 @@ Logger1::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
   }
 }
 
-void
-Logger2::operator ()() /*throw (eh::Exception)*/
+void Logger2::operator ()() /*throw (eh::Exception)*/
 {
   int d;
   test_log_(16, &d);
 }
 
-void
-Logger2::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
+void Logger2::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
 {
   {
     int a;
@@ -150,15 +132,13 @@ Logger2::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
   }
 }
 
-void
-Logger3::operator ()() /*throw (eh::Exception)*/
+void Logger3::operator ()() /*throw (eh::Exception)*/
 {
   int d;
   test_log_(70, &d);
 }
 
-void
-Logger3::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
+void Logger3::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
 {
   {
     int a;
@@ -193,16 +173,14 @@ Logger3::test_log_(unsigned level, void* mark) /*throw (eh::Exception)*/
 }
 
 template <typename Logger>
-void
-test() /*throw (eh::Exception)*/
+void test() /*throw (eh::Exception)*/
 {
   Logger logger;
   TestCommons::MTTester<Logger&> tester(logger, 1);
   tester.run(1, 1, 1);
 }
 
-int
-main()
+int main()
 {
   test<Logger1>();
   test<Logger2>();

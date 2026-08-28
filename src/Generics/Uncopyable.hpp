@@ -10,21 +10,16 @@ namespace Generics
   class Uncopyable
   {
   protected:
-    constexpr
-    Uncopyable() = default;
+    constexpr Uncopyable() = default;
     ~Uncopyable() = default;
 
     Uncopyable(Uncopyable&) = delete;
     Uncopyable(const Uncopyable&) = delete;
     Uncopyable(Uncopyable&&) = delete;
     Uncopyable(const Uncopyable&&) = delete;
-    void
-    operator =(Uncopyable&) = delete;
-    void
-    operator =(const Uncopyable&) = delete;
-    void
-    operator =(Uncopyable&&) = delete;
-    void
-    operator =(const Uncopyable&&) = delete;
+    void operator =(Uncopyable&) = delete;
+    void operator =(const Uncopyable&) = delete;
+    void operator =(Uncopyable&&) = delete;
+    void operator =(const Uncopyable&&) = delete;
   };
 }

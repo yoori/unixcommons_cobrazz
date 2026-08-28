@@ -13,8 +13,7 @@ namespace Generics
 {
   class DescriptorListener;
   class ActiveDescriptorListener;
-  typedef ReferenceCounting::QualPtr<ActiveDescriptorListener>
-    ActiveDescriptorListener_var;
+  using ActiveDescriptorListener_var = ReferenceCounting::QualPtr<ActiveDescriptorListener>;
 
   /**
    * Callback for generalized DescriptorListener
@@ -31,15 +30,13 @@ namespace Generics
      * Useful for default on_all_closed() implementation.
      * @param new_listener pointer to object that calls the callback.
      */
-    void
-    listener(ListenerHolder new_listener) noexcept;
+    void listener(ListenerHolder new_listener) noexcept;
 
     /**
      * Stored listener
      * @return stored listener pointer
      */
-    Listener*
-    listener() noexcept;
+    Listener* listener() noexcept;
 
     /**
      * Event data available, data string is not zero terminated!
@@ -49,10 +46,7 @@ namespace Generics
      * @param str string with data, not zero terminated.
      * @param size length for data string.
      */
-    virtual
-    void
-    on_data_ready(int fd, size_t fd_index, const char* str, size_t size)
-      noexcept = 0;
+    virtual void on_data_ready(int fd, size_t fd_index, const char* str, size_t size) noexcept = 0;
 
     /**
      * Called when a read on a descriptor does not provide data.
@@ -63,33 +57,26 @@ namespace Generics
      * @param error 0 if someone closed descriptor, non zero
      * errno value if read() failed.
      */
-    virtual
-    void
-    on_closed(int fd, size_t fd_index, int error) noexcept;
+    virtual void on_closed(int fd, size_t fd_index, int error) noexcept;
 
     /**
      * Called when all descriptors used for Listener creation are closed.
      * Useful reaction is to terminate the listener and destroy it
      * as useless.
      */
-    virtual
-    void
-    on_all_closed() noexcept = 0;
+    virtual void on_all_closed() noexcept = 0;
 
     /**
      * Periodically called.
      * By default does nothing.
      */
-    virtual
-    void
-    on_periodic() noexcept;
+    virtual void on_periodic() noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~DescriptorListenerCallbackTempl() noexcept;
+    virtual ~DescriptorListenerCallbackTempl() noexcept;
 
   private:
     ListenerHolder listener_;
@@ -108,19 +95,15 @@ namespace Generics
     /**
      * Calls terminate() for the listener.
      */
-    virtual
-    void
-    on_all_closed() noexcept;
+    virtual void on_all_closed() noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~DescriptorListenerCallback() noexcept;
+    virtual ~DescriptorListenerCallback() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<DescriptorListenerCallback>
-    DescriptorListenerCallback_var;
+  using DescriptorListenerCallback_var = ReferenceCounting::QualPtr<DescriptorListenerCallback>;
 
   /**
    * Hang on descriptors and call callbacks when data available.
@@ -171,15 +154,13 @@ namespace Generics
     /**
      * Demultiplex events and call callbacks.
      */
-    void
-    listen() /*throw (eh::Exception, EventFailure)*/;
+    void listen() /*throw (eh::Exception, EventFailure)*/;
 
     /**
      * Put stop message in special pipe, when DescriptorListener read it
      * listen call exit.
      */
-    void
-    terminate() noexcept;
+    void terminate() noexcept;
 
   protected:
     DescriptorListenerCallback_var callback_;
@@ -214,8 +195,7 @@ namespace Generics
      * @param fd descriptor which allow reading.
      * @param context structure for fd maintenance
      */
-    void
-    handle_read_(int fd, DescriptorActionContext& context) noexcept;
+    void handle_read_(int fd, DescriptorActionContext& context) noexcept;
 
     /**
      * Translate system callbacks to class method handle_read_.
@@ -223,9 +203,7 @@ namespace Generics
      * @param type type of fd
      * @param arg supplementary info share when event registered.
      */
-    static
-    void
-    read_callback_(int fd, short type, void* arg) noexcept;
+    static void read_callback_(int fd, short type, void* arg) noexcept;
 
     /**
      * Calls when anyone writes data to termination pipe.
@@ -233,9 +211,7 @@ namespace Generics
      * @param type type of fd
      * @param arg supplementary info share when event registered.
      */
-    static
-    void
-    terminate_callback_(int fd, short type, void* arg) noexcept;
+    static void terminate_callback_(int fd, short type, void* arg) noexcept;
 
     /**
      * Called periodically.
@@ -243,11 +219,9 @@ namespace Generics
      * @param type type of fd
      * @param arg supplementary info share when event registered.
      */
-    static
-    void
-    periodic_callback_(int fd, short type, void* arg) noexcept;
+    static void periodic_callback_(int fd, short type, void* arg) noexcept;
 
-    typedef ArrayAutoPtr<DescriptorActionContext> ReadContexts;
+    using ReadContexts = ArrayAutoPtr<DescriptorActionContext>;
 
     static const Time PERIOD;
 
@@ -273,19 +247,16 @@ namespace Generics
     /**
      * Calls deactivate_object() for the listener.
      */
-    virtual
-    void
-    on_all_closed() noexcept;
+    virtual void on_all_closed() noexcept;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~ActiveDescriptorListenerCallback() noexcept;
+    virtual ~ActiveDescriptorListenerCallback() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<ActiveDescriptorListenerCallback>
-    ActiveDescriptorListenerCallback_var;
+  using ActiveDescriptorListenerCallback_var =
+    ReferenceCounting::QualPtr<ActiveDescriptorListenerCallback>;
 
   /**
    * Hangs on descriptors in separate thread.
@@ -315,8 +286,7 @@ namespace Generics
     /**
      * Destructor check active state and stop object if require.
      */
-    virtual
-    ~ActiveDescriptorListener() noexcept;
+    virtual ~ActiveDescriptorListener() noexcept;
 
   private:
     class ListenerJob :
@@ -329,21 +299,14 @@ namespace Generics
         size_t buffers_size, bool full_lines_only)
         /*throw (eh::Exception)*/;
 
-      void
-      active_listener(ActiveDescriptorListener* active_listener)
-        noexcept;
+      void active_listener(ActiveDescriptorListener* active_listener) noexcept;
 
-      virtual
-      void
-      work() noexcept;
+      virtual void work() noexcept;
 
-      virtual
-      void
-      terminate() noexcept;
+      virtual void terminate() noexcept;
 
     protected:
-      virtual
-      ~ListenerJob() noexcept;
+      virtual ~ListenerJob() noexcept;
 
     private:
       /**
@@ -362,12 +325,9 @@ namespace Generics
          * @param active_callback adapting to DLCallback ActiveDLCallback.
          * Must be != 0.
          */
-        DLCAdapter(ActiveDescriptorListenerCallback* active_callback)
-          noexcept;
+        DLCAdapter(ActiveDescriptorListenerCallback* active_callback) noexcept;
 
-        void
-        active_listener(ActiveDescriptorListener* active_listener)
-          noexcept;
+        void active_listener(ActiveDescriptorListener* active_listener) noexcept;
 
         /**
          * @param listener pointer to object which called callback method.
@@ -377,10 +337,7 @@ namespace Generics
          * @param str string with data, not zero terminated.
          * @param size length for data string.
          */
-        virtual
-        void
-        on_data_ready(int fd, size_t fd_index, const char* str, size_t size)
-          noexcept;
+        virtual void on_data_ready(int fd, size_t fd_index, const char* str, size_t size) noexcept;
 
         /**
          * @param listener pointer to object which called callback method.
@@ -390,18 +347,14 @@ namespace Generics
          * @param error 0 if someone closed descriptor, non zero
          * errno value if read() failed.
          */
-        virtual
-        void
-        on_closed(int fd, size_t fd_index, int error) noexcept;
+        virtual void on_closed(int fd, size_t fd_index, int error) noexcept;
 
         /**
          * Call when all descriptors used for DescriptorListener
          * creation closed. Excluding termination descriptor.
          * @param listener pointer to object that call callback.
          */
-        virtual
-        void
-        on_all_closed() noexcept;
+        virtual void on_all_closed() noexcept;
 
         /**
          * Sink for Active object errors.
@@ -419,15 +372,14 @@ namespace Generics
         /**
          * protected destructor because reference counting object.
          */
-        virtual
-        ~DLCAdapter() noexcept;
+        virtual ~DLCAdapter() noexcept;
 
       private:
         ActiveDescriptorListenerCallback_var active_callback_;
       };
-      typedef ReferenceCounting::QualPtr<DLCAdapter> DLCAdapter_var;
+      using DLCAdapter_var = ReferenceCounting::QualPtr<DLCAdapter>;
     };
-    typedef ReferenceCounting::QualPtr<ListenerJob> ListenerJob_var;
+    using ListenerJob_var = ReferenceCounting::QualPtr<ListenerJob>;
   };
 
 
@@ -435,16 +387,12 @@ namespace Generics
     public virtual DescriptorListenerCallback
   {
   public:
-    virtual
-    void
-    set_pid(pid_t pid) noexcept;
+    virtual void set_pid(pid_t pid) noexcept;
 
   protected:
-    virtual
-    ~ExecuteAndListenCallback() noexcept;
+    virtual ~ExecuteAndListenCallback() noexcept;
   };
-  typedef ReferenceCounting::QualPtr<ExecuteAndListenCallback>
-    ExecuteAndListenCallback_var;
+  using ExecuteAndListenCallback_var = ReferenceCounting::QualPtr<ExecuteAndListenCallback>;
 
   /**
    * Pass some descriptors numbers that we know program will write
@@ -508,9 +456,7 @@ namespace Generics
   }
 
   template <typename Listener, typename ListenerHolder>
-  Listener*
-  DescriptorListenerCallbackTempl<Listener, ListenerHolder>::listener()
-    noexcept
+  Listener* DescriptorListenerCallbackTempl<Listener, ListenerHolder>::listener() noexcept
   {
     return listener_;
   }
@@ -523,9 +469,7 @@ namespace Generics
   }
 
   template <typename Listener, typename ListenerHolder>
-  void
-  DescriptorListenerCallbackTempl<Listener, ListenerHolder>::on_periodic()
-    noexcept
+  void DescriptorListenerCallbackTempl<Listener, ListenerHolder>::on_periodic() noexcept
   {
   }
 
@@ -533,8 +477,7 @@ namespace Generics
   // DescriptorListenerCallback class
   //
 
-  inline
-  DescriptorListenerCallback::~DescriptorListenerCallback() noexcept
+  inline DescriptorListenerCallback::~DescriptorListenerCallback() noexcept
   {
   }
 
@@ -543,9 +486,7 @@ namespace Generics
   // ActiveDescriptorListenerCallback class
   //
 
-  inline
-  ActiveDescriptorListenerCallback::~ActiveDescriptorListenerCallback()
-    noexcept
+  inline ActiveDescriptorListenerCallback::~ActiveDescriptorListenerCallback() noexcept
   {
   }
 
@@ -554,8 +495,7 @@ namespace Generics
   // ExecuteAndListenCallback class
   //
 
-  inline
-  ExecuteAndListenCallback::~ExecuteAndListenCallback() noexcept
+  inline ExecuteAndListenCallback::~ExecuteAndListenCallback() noexcept
   {
   }
 }

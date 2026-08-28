@@ -9,18 +9,14 @@ class TestTasker
 public:
   TestTasker() /*throw (eh::Exception)*/;
 
-  virtual
-  ~TestTasker() noexcept;
+  virtual ~TestTasker() noexcept;
 
-  void
-  do_test() /*throw (eh::Exception)*/;
+  void do_test() /*throw (eh::Exception)*/;
 
-  void
-  do_release_queue_test() /*throw (eh::Exception)*/;
+  void do_release_queue_test() /*throw (eh::Exception)*/;
 
 private:
-  void
-  spawn_tasker_(std::size_t threads_number, std::size_t queue_size = 0)
+  void spawn_tasker_(std::size_t threads_number, std::size_t queue_size = 0)
     /*throw (eh::Exception)*/;
 
   Generics::ActiveObjectCallback_var task_runner_callback_;
@@ -46,9 +42,7 @@ TestTasker::~TestTasker() noexcept
   }
 }
 
-void
-TestTasker::spawn_tasker_(std::size_t threads_number,
-                          std::size_t queue_size)
+void TestTasker::spawn_tasker_(std::size_t threads_number, std::size_t queue_size)
   /*throw (eh::Exception)*/
 {
   if (task_runner_.in())
@@ -56,8 +50,6 @@ TestTasker::spawn_tasker_(std::size_t threads_number,
     task_runner_->deactivate_object();
     task_runner_->wait_object();
   }
-  task_runner_ =
-    new Generics::TaskRunner(task_runner_callback_,
-      threads_number, 0, queue_size);
+  task_runner_ = new Generics::TaskRunner(task_runner_callback_, threads_number, 0, queue_size);
   task_runner_->activate_object();
 }

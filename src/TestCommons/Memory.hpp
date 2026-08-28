@@ -16,7 +16,6 @@ namespace TestCommons
    * @param info structure to print. If 0 - retrieve current information
    * automatically before printing.
    */
-  void
-  print_mallinfo(std::ostream& ostr, struct mallinfo* info = 0)
+  void print_mallinfo(std::ostream& ostr, struct mallinfo* info = 0)
     /*throw (eh::Exception)*/;
 }

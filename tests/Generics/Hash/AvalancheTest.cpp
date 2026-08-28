@@ -6,10 +6,10 @@ void PrintAvalancheDiagram ( int x, int y, int reps, double scale, int * bins )
 {
   const char * symbols = ".123456789X";
 
-  for(int i = 0; i < y; i++)
+  for (int i = 0; i < y; i++)
   {
     printf("[");
-    for(int j = 0; j < x; j++)
+    for (int j = 0; j < x; j++)
     {
       int k = (y - i) -1;
 
@@ -22,8 +22,8 @@ void PrintAvalancheDiagram ( int x, int y, int reps, double scale, int * bins )
 
       int s = (int)floor(b*10);
 
-      if(s > 10) s = 10;
-      if(s < 0) s = 0;
+      if (s > 10) s = 10;
+      if (s < 0) s = 0;
 
       printf("%c",symbols[s]);
     }
@@ -38,13 +38,13 @@ double maxBias ( std::vector<int> & counts, int reps )
 {
   double worst = 0;
 
-  for(int i = 0; i < (int)counts.size(); i++)
+  for (int i = 0; i < (int)counts.size(); i++)
   {
     double c = double(counts[i]) / double(reps);
 
     double d = fabs(c * 2 - 1);
 
-    if(d > worst)
+    if (d > worst)
     {
       worst = d;
     }

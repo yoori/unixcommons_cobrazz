@@ -16,44 +16,32 @@ namespace Generics
   public:
     Application() /*throw (eh::Exception)*/;
 
-    virtual
-    ~Application() noexcept;
+    virtual ~Application() noexcept;
 
-    void
-    init(int& argc, char** argv)
+    void init(int& argc, char** argv)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
-    void
-    run() /*throw (InvalidOperationOrder, Exception, eh::Exception)*/;
+    void run() /*throw (InvalidOperationOrder, Exception, eh::Exception)*/;
 
-    bool
-    active() /*throw (eh::Exception)*/;
-    void
-    stop() /*throw (Exception, eh::Exception)*/;
+    bool active() /*throw (eh::Exception)*/;
+    void stop() /*throw (Exception, eh::Exception)*/;
 
   private:
 
-    void
-    print_results() /*throw (eh::Exception)*/;
+    void print_results() /*throw (eh::Exception)*/;
 
-    void
-    test() /*throw (Exception, eh::Exception)*/;
-    void
-    test_iteration() /*throw (Exception, eh::Exception)*/;
+    void test() /*throw (Exception, eh::Exception)*/;
+    void test_iteration() /*throw (Exception, eh::Exception)*/;
 
-    void
-    test_string_table() /*throw (Exception, eh::Exception)*/;
-    void
-    test_long_table() /*throw (Exception, eh::Exception)*/;
-    void
-    test_inserter_table() /*throw (Exception, eh::Exception)*/;
-    void
-    test_inserter_set() /*throw (Exception, eh::Exception)*/;
+    void test_string_table() /*throw (Exception, eh::Exception)*/;
+    void test_long_table() /*throw (Exception, eh::Exception)*/;
+    void test_inserter_table() /*throw (Exception, eh::Exception)*/;
+    void test_inserter_set() /*throw (Exception, eh::Exception)*/;
 
   private:
-    typedef Sync::PosixRWLock Mutex_;
-    typedef Sync::PosixRGuard Read_Guard_;
-    typedef Sync::PosixWGuard Write_Guard_;
+    using Mutex_ = Sync::PosixRWLock;
+    using Read_Guard_ = Sync::PosixRGuard;
+    using Write_Guard_ = Sync::PosixWGuard;
 
     mutable Mutex_ lock_;
 
@@ -78,8 +66,7 @@ namespace Generics
   // Application class
   //
 
-  inline bool
-  Application::active() /*throw (eh::Exception)*/
+  inline bool Application::active() /*throw (eh::Exception)*/
   {
     Read_Guard_ guard(lock_);
     return active_;

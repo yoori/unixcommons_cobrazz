@@ -26,39 +26,31 @@ class HTTPAddressTest
 {
 public:
   HTTPAddressTest() noexcept;
-  int
-  main(int argc, char** argv) noexcept;
+  int main(int argc, char** argv) noexcept;
 
 private:
-  void
-  print_url(const HTTPAddress &print_address, std::ostream& stream)
+  void print_url(const HTTPAddress &print_address, std::ostream& stream)
     /*throw (eh::Exception)*/;
-  bool
-  compare_url(const HTTPAddress &url1, const HTTPAddress &url2)
+  bool compare_url(const HTTPAddress &url1, const HTTPAddress &url2)
     /*throw (eh::Exception)*/;
 
-  int
-  test_url(const HTTPAddress& url) /*throw (eh::Exception)*/;
+  int test_url(const HTTPAddress& url) /*throw (eh::Exception)*/;
 
-  void
-  print_test_url(const HTTPAddress& url, int test_case = -1)
+  void print_test_url(const HTTPAddress& url, int test_case = -1)
     /*throw (eh::Exception)*/;
 
   template <typename Checker, typename Address>
-  bool
-  interactive_test2008(int argc, char** argv) /*throw (eh::Exception)*/;
+  bool interactive_test2008(int argc, char** argv) /*throw (eh::Exception)*/;
 
   template <typename Checker, typename Address>
-  int
-  run_tests(bool strct) /*throw (eh::Exception)*/;
+  int run_tests(bool strct) /*throw (eh::Exception)*/;
 
 private:
   bool strict_;
   static const HTTPAddressInfo test_cases[];
 };
 
-const HTTPAddressInfo HTTPAddressTest::test_cases[]=
-{
+const HTTPAddressInfo HTTPAddressTest::test_cases[]= {
   { false, "test12:90",
     "",
     false, "", "test12", 90, "", "", "" },
@@ -132,14 +124,11 @@ bool
 HTTPAddressTest::compare_url(const HTTPAddress &url1,
   const HTTPAddress &url2) /*throw (eh::Exception)*/
 {
-  return url1.secure() == url2.secure() &&
-    url1.port_number() == url2.port_number() &&
-    url1.host() == url2.host() && url1.path() == url2.path() &&
-    url1.query() == url2.query();
+  return url1.secure() == url2.secure() && url1.port_number() == url2.port_number() &&
+    url1.host() == url2.host() && url1.path() == url2.path() && url1.query() == url2.query();
 }
 
-int
-HTTPAddressTest::test_url(const HTTPAddress& url)
+int HTTPAddressTest::test_url(const HTTPAddress& url)
   /*throw (eh::Exception)*/
 {
   HTTPAddress url_assign1;
@@ -152,24 +141,28 @@ HTTPAddressTest::test_url(const HTTPAddress& url)
     BrowserAddress url_br(url.url());
     url_assign2 = url_br;
   }
+
   if (!compare_url(url, url_assign1))
   {
     print_url(url, std::cerr);
     print_url(url_assign1, std::cerr);
     return 1;
   }
+
   if (!compare_url(url, url_assign2))
   {
     print_url(url, std::cerr);
     print_url(url_assign2, std::cerr);
     return 2;
   }
+
   if (!compare_url(url, url_construct1))
   {
     print_url(url, std::cerr);
     print_url(url_construct1, std::cerr);
     return 3;
   }
+
   if (!compare_url(url, url_construct2))
   {
     print_url(url, std::cerr);
@@ -187,8 +180,7 @@ HTTPAddressTest::test_url(const HTTPAddress& url)
   return 0;
 }
 
-void
-HTTPAddressTest::print_test_url(const HTTPAddress& url, int test_case)
+void HTTPAddressTest::print_test_url(const HTTPAddress& url, int test_case)
   /*throw (eh::Exception)*/
 {
   switch (test_url(url))
@@ -208,6 +200,7 @@ HTTPAddressTest::print_test_url(const HTTPAddress& url, int test_case)
     std::cerr << " operator = has errors.";
     break;
   }
+
   if (test_case >= 0)
   {
     std::cerr << " test case " << test_case << ".";
@@ -216,8 +209,7 @@ HTTPAddressTest::print_test_url(const HTTPAddress& url, int test_case)
 }
 
 template <typename Checker, typename Address>
-bool
-HTTPAddressTest::interactive_test2008(int argc, char** argv)
+bool HTTPAddressTest::interactive_test2008(int argc, char** argv)
  /*throw (eh::Exception)*/
 {
   if (argc)
@@ -231,8 +223,7 @@ HTTPAddressTest::interactive_test2008(int argc, char** argv)
         Checker checker;
         if (!checker(String::SubString(test_url), &error))
         {
-          std::cerr << "Url: '" << test_url << "': check_url failed: " <<
-            error << std::endl;
+          std::cerr << "Url: '" << test_url << "': check_url failed: " << error << std::endl;
         }
 
         Address url(test_url);
@@ -242,7 +233,7 @@ HTTPAddressTest::interactive_test2008(int argc, char** argv)
       }
       catch (const eh::Exception& ex)
       {
-        std::cerr << "eh::Exception while processing '" << argv[i] << 
+        std::cerr << "eh::Exception while processing '" << argv[i] <<
           "': " << ex.what() << std::endl;
       }
     }
@@ -252,8 +243,7 @@ HTTPAddressTest::interactive_test2008(int argc, char** argv)
 }
 
 template <typename Checker, typename Address>
-int
-HTTPAddressTest::run_tests(bool strct) /*throw (eh::Exception)*/
+int HTTPAddressTest::run_tests(bool strct) /*throw (eh::Exception)*/
 {
   int ret_value = 0;
   for (size_t i = 0; i < sizeof(test_cases) / sizeof(*test_cases); i++)
@@ -267,12 +257,10 @@ HTTPAddressTest::run_tests(bool strct) /*throw (eh::Exception)*/
         Checker checker;
         if (!checker(String::SubString(test.url), &error))
         {
-          std::cerr << " check_url failed: " << error <<
-            " test case " << i << "." << std::endl;
+          std::cerr << " check_url failed: " << error << " test case " << i << "." << std::endl;
         }
 
-        const std::string& normal =
-          normalize_http_address(String::SubString(test.url));
+        const std::string& normal = normalize_http_address(String::SubString(test.url));
         if (strcmp(normal.c_str(), test.normal))
         {
           std::cerr << "Invalid normal form\n'" << normal <<
@@ -312,8 +300,7 @@ HTTPAddressTest::run_tests(bool strct) /*throw (eh::Exception)*/
 }
 
 
-int
-HTTPAddressTest::main(int argc, char** argv) noexcept
+int HTTPAddressTest::main(int argc, char** argv) noexcept
 {
   int ret_value = 0;
   try
@@ -332,8 +319,7 @@ HTTPAddressTest::main(int argc, char** argv) noexcept
     }
 
     if (strict_ ?
-      !interactive_test2008<HTTP::HTTPChecker, HTTP::HTTPAddress>(
-        argc - optind, argv + optind) :
+      !interactive_test2008<HTTP::HTTPChecker, HTTP::HTTPAddress>( argc - optind, argv + optind) :
       !interactive_test2008<HTTP::BrowserChecker,
         HTTP::BrowserAddress>(argc - optind, argv + optind))
     {
@@ -349,8 +335,7 @@ HTTPAddressTest::main(int argc, char** argv) noexcept
   return ret_value;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   HTTPAddressTest test;
   return test.main(argc, argv);

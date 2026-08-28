@@ -16,16 +16,15 @@ namespace
 
   struct Split
   {
-    typedef std::pair<std::string, bool> Part;
-    typedef std::list<Part> Parts;
+    using Part = std::pair<std::string, bool>;
+    using Parts = std::list<Part>;
 
     bool exact;
     Parts parts;
   };
 
 
-  const char*
-  find_quote(const char* cur, const char* const END) noexcept
+  const char* find_quote(const char* cur, const char* const END) noexcept
   {
     for (;; cur++)
     {
@@ -43,9 +42,7 @@ namespace
     return cur;
   }
 
-  const char*
-  find_space_or_quote(const char* cur, const char* const END, const bool EXACT)
-    noexcept
+  const char* find_space_or_quote(const char* cur, const char* const END, const bool EXACT) noexcept
   {
     for (;; cur++)
     {
@@ -63,6 +60,7 @@ namespace
       {
         return 0;
       }
+
       if (*cur == ']')
       {
         if (EXACT)
@@ -77,8 +75,7 @@ namespace
     return cur;
   }
 
-  bool
-  skip_spaces(const char*& cur, const char* END) noexcept
+  bool skip_spaces(const char*& cur, const char* END) noexcept
   {
     do
     {
@@ -93,8 +90,7 @@ namespace
     return false;
   }
 
-  void
-  shrink(std::string& str) noexcept
+  void shrink(std::string& str) noexcept
   {
     char* out = &str[0];
     const char* cur = out;
@@ -143,12 +139,10 @@ namespace
     const bool HAS_SEGMENTOR = segmentor;
 
     std::string res;
-    if (!String::case_change<String::Simplify>(str,
-      HAS_SEGMENTOR ? res : result))
+    if (!String::case_change<String::Simplify>(str, HAS_SEGMENTOR ? res : result))
     {
       Stream::Error ostr;
-      ostr << FNS << "invalid UTF-8 symbol in " << name << " >" <<
-        trigger << "<";
+      ostr << FNS << "invalid UTF-8 symbol in " << name << " >" << trigger << "<";
       throw Exception(ostr);
     }
 
@@ -179,8 +173,7 @@ namespace
     }
   }
 
-  bool
-  next(const char*& cur, const char* const END) noexcept
+  bool next(const char*& cur, const char* const END) noexcept
   {
     while (*cur == ' ' || *cur == '\t')
     {
@@ -204,8 +197,7 @@ namespace
     {
       std::string tmp;
 
-      simplify(trigger, "trigger", String::SubString(begin, end),
-        tmp, segmentor);
+      simplify(trigger, "trigger", String::SubString(begin, end), tmp, segmentor);
 
       if (!tmp.empty())
       {
@@ -285,8 +277,7 @@ namespace
       if (++cur == END || next(cur, END))
       {
         Stream::Error ostr;
-        ostr << FNS << "no right bracket in trigger >" <<
-          trigger << "<";
+        ostr << FNS << "no right bracket in trigger >" << trigger << "<";
         throw Exception(ostr);
       }
       size = 1;
@@ -300,8 +291,7 @@ namespace
         if (++cur != END && !next(cur, END))
         {
           Stream::Error ostr;
-          ostr << FNS << "symbols after right bracket in trigger >" <<
-            trigger << "<";
+          ostr << FNS << "symbols after right bracket in trigger >" << trigger << "<";
           throw Exception(ostr);
         }
         break;
@@ -321,11 +311,11 @@ namespace
           ostr << FNS << "unpaired quote in trigger >" << trigger << "<";
           throw Exception(ostr);
         }
+
         if (!end)
         {
           Stream::Error ostr;
-          ostr << FNS << "unexpected bracket in trigger >" <<
-            trigger << "<";
+          ostr << FNS << "unexpected bracket in trigger >" << trigger << "<";
           throw Exception(ostr);
         }
         cur = end + 1;
@@ -341,23 +331,20 @@ namespace
         if (!end)
         {
           Stream::Error ostr;
-          ostr << FNS << "unexpected bracket in trigger >" <<
-            trigger << "<";
+          ostr << FNS << "unexpected bracket in trigger >" << trigger << "<";
           throw Exception(ostr);
         }
         cur = end;
       }
 
-      add_part(begin, end, QUOTES, EXACT, trigger, split, segmentor,
-        parts, size);
+      add_part(begin, end, QUOTES, EXACT, trigger, split, segmentor, parts, size);
 
       if (cur == END || next(cur, END))
       {
         if (EXACT)
         {
           Stream::Error ostr;
-          ostr << FNS << "no right bracket in trigger >" <<
-            trigger << "<";
+          ostr << FNS << "no right bracket in trigger >" << trigger << "<";
           throw Exception(ostr);
         }
         break;
@@ -365,15 +352,14 @@ namespace
     }
   }
 
-  bool
-  is_substr(const String::SubString& small, const String::SubString& big)
-    noexcept
+  bool is_substr(const String::SubString& small, const String::SubString& big) noexcept
   {
     String::SubString::SizeType pos = big.find(small);
     if (pos == String::SubString::NPOS)
     {
       return false;
     }
+
     if (pos && big[pos - 1] != ' ')
     {
       return false;
@@ -386,8 +372,7 @@ namespace
     return true;
   }
 
-  bool
-  narrow_one(Split::Parts& parts, Split::Parts::iterator itor) noexcept
+  bool narrow_one(Split::Parts& parts, Split::Parts::iterator itor) noexcept
   {
     Split::Parts::iterator next(itor);
 
@@ -426,8 +411,7 @@ namespace
     return false;
   }
 
-  void
-  narrow(Split::Parts& parts) noexcept
+  void narrow(Split::Parts& parts) noexcept
   {
     for (Split::Parts::iterator itor = parts.begin(); itor != parts.end();)
     {
@@ -443,8 +427,7 @@ namespace
     parts.sort();
   }
 
-  void
-  combine(const Split& split, std::string& result)
+  void combine(const Split& split, std::string& result)
     /*throw (eh::Exception, Exception)*/
   {
     const bool EXACT = split.exact;
@@ -454,16 +437,14 @@ namespace
       result.push_back('[');
     }
 
-    for (Split::Parts::const_iterator itor = split.parts.begin();
-      itor != split.parts.end(); ++itor)
+    for (Split::Parts::const_iterator itor = split.parts.begin(); itor != split.parts.end(); ++itor)
     {
       if (itor != split.parts.begin())
       {
         result.push_back(' ');
       }
 
-      const bool QUOTES = !EXACT &&
-        itor->first.find(' ') != std::string::npos;
+      const bool QUOTES = !EXACT && itor->first.find(' ') != std::string::npos;
       if (QUOTES)
       {
         result.push_back('\"');
@@ -483,8 +464,7 @@ namespace
     }
   }
 
-  void
-  combine(const Split& split, Trigger& result)
+  void combine(const Split& split, Trigger& result)
     /*throw (eh::Exception, Exception)*/
   {
     const bool EXACT = split.exact;
@@ -494,16 +474,14 @@ namespace
       result.trigger.push_back('[');
     }
 
-    for (Split::Parts::const_iterator itor = split.parts.begin();
-      itor != split.parts.end(); ++itor)
+    for (Split::Parts::const_iterator itor = split.parts.begin(); itor != split.parts.end(); ++itor)
     {
       if (itor != split.parts.begin())
       {
         result.trigger.push_back(' ');
       }
 
-      const bool QUOTES = !EXACT &&
-        itor->first.find(' ') != std::string::npos;
+      const bool QUOTES = !EXACT && itor->first.find(' ') != std::string::npos;
       if (QUOTES)
       {
         result.trigger.push_back('\"');
@@ -511,8 +489,7 @@ namespace
 
       const char* const CUR = result.trigger.data() + result.trigger.size();
       result.trigger.append(itor->first);
-      Trigger::Part part =
-        {
+      Trigger::Part part = {
           String::SubString(CUR, itor->first.size()),
           QUOTES || itor->second
         };
@@ -531,73 +508,70 @@ namespace
   }
 }
 
-namespace Language
+namespace Language::Trigger
 {
-  namespace Trigger
+  void
+  normalize(const String::SubString& trigger, std::string& result,
+    const Segmentor::SegmentorInterface* segmentor)
+    /*throw (eh::Exception, Exception)*/
   {
-    void
-    normalize(const String::SubString& trigger, std::string& result,
-      const Segmentor::SegmentorInterface* segmentor)
-      /*throw (eh::Exception, Exception)*/
+    Split split;
+    unsigned parts, size;
+
+    divide(trigger, split, segmentor, parts, size);
+
+    result.clear();
+    if (!parts)
     {
-      Split split;
-      unsigned parts, size;
-
-      divide(trigger, split, segmentor, parts, size);
-
-      result.clear();
-      if (!parts)
-      {
-        return;
-      }
-
-      if (!split.exact)
-      {
-        narrow(split.parts);
-      }
-
-      result.reserve(size);
-
-      combine(split, result);
+      return;
     }
 
-    void
-    normalize(const String::SubString& trigger, Trigger& result,
-      const Segmentor::SegmentorInterface* segmentor)
-      /*throw (eh::Exception, Exception)*/
+    if (!split.exact)
     {
-      Split split;
-      unsigned parts, size;
-
-      divide(trigger, split, segmentor, parts, size);
-
-      result.exact = false;
-      result.parts.clear();
-      result.trigger.clear();
-
-      if (!parts)
-      {
-        return;
-      }
-
-      if (!split.exact)
-      {
-        narrow(split.parts);
-      }
-
-      result.exact = split.exact;
-      result.parts.reserve(parts);
-      result.trigger.reserve(size);
-
-      combine(split, result);
+      narrow(split.parts);
     }
 
-    void
-    normalize_phrase(const String::SubString& phrase, std::string& result,
-      const Language::Segmentor::SegmentorInterface* segmentor)
-      /*throw (eh::Exception, Exception)*/
+    result.reserve(size);
+
+    combine(split, result);
+  }
+
+  void
+  normalize(const String::SubString& trigger, Trigger& result,
+    const Segmentor::SegmentorInterface* segmentor)
+    /*throw (eh::Exception, Exception)*/
+  {
+    Split split;
+    unsigned parts, size;
+
+    divide(trigger, split, segmentor, parts, size);
+
+    result.exact = false;
+    result.parts.clear();
+    result.trigger.clear();
+
+    if (!parts)
     {
-      simplify(phrase, "phrase", phrase, result, segmentor);
+      return;
     }
+
+    if (!split.exact)
+    {
+      narrow(split.parts);
+    }
+
+    result.exact = split.exact;
+    result.parts.reserve(parts);
+    result.trigger.reserve(size);
+
+    combine(split, result);
+  }
+
+  void
+  normalize_phrase(const String::SubString& phrase, std::string& result,
+    const Language::Segmentor::SegmentorInterface* segmentor)
+    /*throw (eh::Exception, Exception)*/
+  {
+    simplify(phrase, "phrase", phrase, result, segmentor);
   }
 }

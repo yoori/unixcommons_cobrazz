@@ -6,8 +6,7 @@
 #include <omniORB4/sslContext.h>
 #endif
 
-static void
-hello(Echo_ptr e)
+static void hello(Echo_ptr e)
 {
   CORBA::String_var src = (const char*) "Hello!";
   CORBA::String_var dest = e->echoString(src);
@@ -16,8 +15,7 @@ hello(Echo_ptr e)
        << "The Echo object replied, \"" << dest <<"\"." << std::endl;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 #ifdef ORB_OMNI
   char CERTIFICATE[] = "root.pem";

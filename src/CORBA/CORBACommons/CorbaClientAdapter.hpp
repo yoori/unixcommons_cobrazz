@@ -26,8 +26,7 @@ namespace CORBACommons
   {
     CorbaObjectConnection() noexcept;
 
-    CorbaObjectConnection(
-      const SecureConnectionConfig& secure_connection_config_) noexcept;
+    CorbaObjectConnection( const SecureConnectionConfig& secure_connection_config_) noexcept;
 
     enum ConnectionType
     {
@@ -52,23 +51,20 @@ namespace CORBACommons
     CorbaObjectRef(const char* object_ref_) noexcept;
 
     /* initialize secure object ref */
-    CorbaObjectRef(const char* object_ref_,
-      const SecureConnectionConfig& secure_connection_config)
+    CorbaObjectRef(const char* object_ref_, const SecureConnectionConfig& secure_connection_config)
       noexcept;
 
-    void
-    load(const CORBACommons::CorbaObjectRefDef& in_corba_object_ref)
+    void load(const CORBACommons::CorbaObjectRefDef& in_corba_object_ref)
       /*throw (eh::Exception, Exception)*/;
 
-    void
-    save(CORBACommons::CorbaObjectRefDef& out_corba_object_ref) const
+    void save(CORBACommons::CorbaObjectRefDef& out_corba_object_ref) const
       /*throw (eh::Exception, Exception)*/;
 
     std::string object_ref;
   };
 
-  typedef std::list<CorbaObjectRef> CorbaObjectRefList;
-  
+  using CorbaObjectRefList = std::list<CorbaObjectRef>;
+
   /**X
    * CorbaClientAdapter
    */
@@ -78,37 +74,27 @@ namespace CORBACommons
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-    explicit
-    CorbaClientAdapter(Logging::Logger* logger = 0)
-      noexcept;
+    explicit CorbaClientAdapter(Logging::Logger* logger = 0) noexcept;
 
-    explicit
-    CorbaClientAdapter(const CorbaClientConfig& corba_config,
-      Logging::Logger* logger = 0)
+    explicit CorbaClientAdapter(const CorbaClientConfig& corba_config, Logging::Logger* logger = 0)
       /*throw (eh::Exception)*/;
 
-    std::string
-    object_to_string(CORBA::Object* obj) const
+    std::string object_to_string(CORBA::Object* obj) const
       /*throw (eh::Exception, Exception)*/;
 
-    CORBA::Object_ptr
-    resolve_object(const CorbaObjectRef& ref) const
+    CORBA::Object_ptr resolve_object(const CorbaObjectRef& ref) const
       /*throw (eh::Exception, Exception)*/;
 
     template <typename T>
-    T*
-    resolve_object(const CorbaObjectRef& ref) const
+    T* resolve_object(const CorbaObjectRef& ref) const
       /*throw (eh::Exception, Exception)*/;
 
 
-    void
-    register_value_factory(const char* type_name,
-      CORBA::ValueFactoryBase* factory) const
+    void register_value_factory(const char* type_name, CORBA::ValueFactoryBase* factory) const
       /*throw (eh::Exception)*/;
 
 
-    CORBA::ORB_var
-    designate_orb(const SecureConnectionConfig& config) const
+    CORBA::ORB_var designate_orb(const SecureConnectionConfig& config) const
       /*throw (eh::Exception)*/;
 
 
@@ -120,14 +106,11 @@ namespace CORBACommons
       std::string name;
     };
 
-    static
-    ObjectInfo
-    get_object_info(CORBA::Object* obj)
+    static ObjectInfo get_object_info(CORBA::Object* obj)
       /*throw (eh::Exception, Exception)*/;
 
   protected:
-    virtual
-    ~CorbaClientAdapter() noexcept;
+    virtual ~CorbaClientAdapter() noexcept;
 
 
     /**
@@ -144,17 +127,13 @@ namespace CORBACommons
         OrbDesignator(const CorbaClientConfig& corba_config,
           const SecureConnectionConfig& config) /*throw (eh::Exception)*/;
 
-        size_t
-        hash() const noexcept;
+        size_t hash() const noexcept;
 
-        bool
-        operator ==(const OrbDesignator& designator) const noexcept;
+        bool operator ==(const OrbDesignator& designator) const noexcept;
 
-        const Generics::Time&
-        timeout() const noexcept;
+        const Generics::Time& timeout() const noexcept;
 
-        const SecureConnectionConfig&
-        config() const noexcept;
+        const SecureConnectionConfig& config() const noexcept;
 
       private:
         Generics::Time timeout_;
@@ -171,8 +150,7 @@ namespace CORBACommons
        * @param designator a unique key for associated orb
        * @return orb uniquely associated with the key
        */
-      CORBA::ORB_ptr
-      get_orb(const OrbDesignator& designator)
+      CORBA::ORB_ptr get_orb(const OrbDesignator& designator)
         /*throw (eh::Exception, Exception)*/;
 
       /**
@@ -181,16 +159,13 @@ namespace CORBACommons
        * @param type_name ValueType name
        * @param factory factory to register
        */
-      void
-      register_value_factory(const char* type_name,
-        CORBA::ValueFactoryBase* factory)
+      void register_value_factory(const char* type_name, CORBA::ValueFactoryBase* factory)
         /*throw (eh::Exception, Exception)*/;
 
-      typedef Generics::GnuHashTable<OrbDesignator,
-        CORBA::ORB_var> OrbsHolder;
+      using OrbsHolder = Generics::GnuHashTable<OrbDesignator,
+        CORBA::ORB_var>;
 
-      const OrbsHolder&
-      get_orbs() const noexcept;
+      const OrbsHolder& get_orbs() const noexcept;
 
     private:
       /**
@@ -198,8 +173,7 @@ namespace CORBACommons
        * @param secure_connection_config secure connection config
        * @return created orb
        */
-      CORBA::ORB_ptr
-      create_orb_(const OrbDesignator& designator)
+      CORBA::ORB_ptr create_orb_(const OrbDesignator& designator)
         /*throw (eh::Exception)*/;
 
 
@@ -209,25 +183,22 @@ namespace CORBACommons
         CORBA::ValueFactoryBase_var value_factory;
       };
 
-      typedef std::list<ValueFactoryDescription>
-        ValueFactoryDescriptions;
+      using ValueFactoryDescriptions = std::list<ValueFactoryDescription>;
 
 
       Sync::PosixRWLock lock_;
       OrbsHolder orbs_;
       ValueFactoryDescriptions value_factories_;
     };
-    typedef Generics::Singleton<Orbs, Generics::Helper::AutoPtr<Orbs>,
-      Generics::AtExitDestroying::DP_CLIENT_ORBS> OrbsSingleton;
+    using OrbsSingleton = Generics::Singleton<Orbs, Generics::Helper::AutoPtr<Orbs>,
+      Generics::AtExitDestroying::DP_CLIENT_ORBS>;
 
   protected:
     CorbaClientConfig corba_config_;
     Logging::FLogger_var logger_;
   };
-  typedef ::ReferenceCounting::ConstPtr<CorbaClientAdapter>
-    CorbaClientAdapter_var;
-  typedef ::ReferenceCounting::FixedPtr<CorbaClientAdapter>
-    FixedCorbaClientAdapter_var;
+  using CorbaClientAdapter_var = ::ReferenceCounting::ConstPtr<CorbaClientAdapter>;
+  using FixedCorbaClientAdapter_var = ::ReferenceCounting::FixedPtr<CorbaClientAdapter>;
 }
 
 namespace CORBACommons
@@ -236,8 +207,7 @@ namespace CORBACommons
   // CorbaObjectConnection class
   //
 
-  inline
-  CorbaObjectConnection::CorbaObjectConnection() noexcept
+  inline CorbaObjectConnection::CorbaObjectConnection() noexcept
     : type(CT_NON_SECURE)
   {
   }
@@ -255,8 +225,7 @@ namespace CORBACommons
   // CorbaObjectRef class
   //
 
-  inline
-  CorbaObjectRef::CorbaObjectRef(const char* object_ref_) noexcept
+  inline CorbaObjectRef::CorbaObjectRef(const char* object_ref_) noexcept
     : object_ref(object_ref_)
   {
   }
@@ -275,9 +244,7 @@ namespace CORBACommons
   //
 
   template <typename T>
-  T*
-  CorbaClientAdapter::resolve_object(
-    const CorbaObjectRef& corba_object_ref) const
+  T* CorbaClientAdapter::resolve_object( const CorbaObjectRef& corba_object_ref) const
     /*throw (eh::Exception, Exception)*/
   {
     CORBA::ORB_var orb(OrbsSingleton::instance().get_orb(
@@ -285,15 +252,13 @@ namespace CORBACommons
         corba_object_ref.secure_connection_config)));
     try
     {
-      CORBA::Object_var obj =
-        orb->string_to_object(corba_object_ref.object_ref.c_str());
+      CORBA::Object_var obj = orb->string_to_object(corba_object_ref.object_ref.c_str());
       typename T::_var_type obj_var = T::_narrow(obj);
 
       if (CORBA::is_nil(obj) || CORBA::is_nil(obj_var))
       {
         Stream::Error ostr;
-        ostr << FNS << "Can't " <<
-          (CORBA::is_nil(obj) ? "resolve" : "narrow") << " object '" <<
+        ostr << FNS << "Can't " << (CORBA::is_nil(obj) ? "resolve" : "narrow") << " object '" <<
           corba_object_ref.object_ref << "' on " <<
           (corba_object_ref.secure_connection_config.is_secure() ?
             "secure" : "insecure") << " connection";
@@ -312,9 +277,7 @@ namespace CORBACommons
 
 }
 
-inline
-std::ostream&
-operator <<(std::ostream& ostr, const CORBACommons::CorbaObjectRef& ref)
+inline std::ostream& operator <<(std::ostream& ostr, const CORBACommons::CorbaObjectRef& ref)
   /*throw (eh::Exception)*/
 {
   ostr << "'" << ref.object_ref << "'";

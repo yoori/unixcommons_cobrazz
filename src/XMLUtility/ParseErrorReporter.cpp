@@ -11,8 +11,7 @@
 
 namespace XMLUtility
 {
-  void
-  ParseErrorReporter::warning(const SAXParseException& toCatch)
+  void ParseErrorReporter::warning(const SAXParseException& toCatch)
     /*throw (eh::Exception)*/
   {
     if (show_warnings_)
@@ -26,13 +25,11 @@ namespace XMLUtility
       ostream_ << "XMLUtility::ParseErrorReporter: "
         "Warning at file \"" << file.c_str() <<
         "\", line " << toCatch.getLineNumber() << ", column " <<
-        toCatch.getColumnNumber() << std::endl << "   Message: " <<
-        msg.c_str() << std::endl;
+        toCatch.getColumnNumber() << std::endl << "   Message: " << msg.c_str() << std::endl;
     }
   }
 
-  void
-  ParseErrorReporter::error(const SAXParseException& toCatch)
+  void ParseErrorReporter::error(const SAXParseException& toCatch)
     /*throw (eh::Exception)*/
   {
     errors_ = true;
@@ -44,14 +41,11 @@ namespace XMLUtility
     StringManip::xmlch_to_mbc(toCatch.getSystemId(), file);
 
     ostream_ << "XMLUtility::ParseErrorReporter: "
-      "Error at file \"" << file.c_str() <<
-      "\", line " << toCatch.getLineNumber() << ", column " <<
-      toCatch.getColumnNumber() << std::endl << "   Message: " <<
-      msg.c_str() << std::endl;
+      "Error at file \"" << file.c_str() << "\", line " << toCatch.getLineNumber() << ", column " <<
+      toCatch.getColumnNumber() << std::endl << "   Message: " << msg.c_str() << std::endl;
   }
 
-  void
-  ParseErrorReporter::fatalError(const SAXParseException& toCatch)
+  void ParseErrorReporter::fatalError(const SAXParseException& toCatch)
     /*throw (eh::Exception)*/
   {
     errors_ = true;
@@ -65,12 +59,10 @@ namespace XMLUtility
     ostream_ << "XMLUtility::ParseErrorReporter: "
       "Fatal Error at file \"" << file.c_str() <<
       "\", line " << toCatch.getLineNumber() << ", column " <<
-      toCatch.getColumnNumber() << std::endl << "   Message: " <<
-      msg.c_str() << std::endl;
+      toCatch.getColumnNumber() << std::endl << "   Message: " << msg.c_str() << std::endl;
   }
 
-  void
-  ParseErrorReporter::resetErrors() /*throw (eh::Exception)*/
+  void ParseErrorReporter::resetErrors() /*throw (eh::Exception)*/
   {
     errors_ = false;
   }

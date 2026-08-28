@@ -8,8 +8,7 @@
 
 pid_t pid;
 
-static void
-run()
+static void run()
 {
   switch (pid = fork())
   {
@@ -28,16 +27,14 @@ run()
 }
 
 #ifdef ADVANCED
-void*
-orbrun(void* orb)
+void* orbrun(void* orb)
 {
   static_cast<CORBA::ORB_ptr>(orb)->run();
   return NULL;
 }
 #endif
 
-static void
-one_way(Echo_ptr echo)
+static void one_way(Echo_ptr echo)
 {
   try
   {
@@ -50,8 +47,7 @@ one_way(Echo_ptr echo)
   }
 }
 
-int
-main()
+int main()
 {
   //TAO_debug_level = 100;
 

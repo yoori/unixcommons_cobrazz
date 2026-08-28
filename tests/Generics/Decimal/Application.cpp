@@ -6,11 +6,9 @@
 #include "PerformanceTest.hpp"
 
 
-uint16_t
-nine() noexcept;
+uint16_t nine() noexcept;
 
-void
-test_int() noexcept
+void test_int() noexcept
 {
   SimpleDecimal<uint64_t, 18, 9> dec1(false, nine(), 0);
   SimpleDecimal<uint64_t, 18, 9> dec2(false, 0, nine());
@@ -18,25 +16,22 @@ test_int() noexcept
   Decimal<uint64_t, 18, 9> dec4(false, 0, nine());
 }
 
-void
-test_cons() /*throw (eh::Exception)*/
+void test_cons() /*throw (eh::Exception)*/
 {
   SimpleDecimal<uint64_t, 18, 9> dec1(false, nine(), 0);
   SimpleDecimal<uint64_t, 15, 9> dec2(dec1);
   SimpleDecimal<uint64_t, 15, 10> dec3(dec1);
 }
 
-uint16_t
-nine() noexcept
+uint16_t nine() noexcept
 {
   return 9;
 }
 
 template <typename Element>
-void
-do_create_int() /*throw (eh::Exception)*/
+void do_create_int() /*throw (eh::Exception)*/
 {
-  typedef Decimal<Element, 4, 2> Self;
+  using Self = Decimal<Element, 4, 2>;
   Self null(false, 0 , 0);
   Self null2(true, 0 , 0);
   Self dec1(false, 9, 0);
@@ -46,38 +41,47 @@ do_create_int() /*throw (eh::Exception)*/
   {
     std::cerr << "Fail: Decimal null must == Decimal null" << std::endl;
   }
+
   if (null2 != null2)
   {
     std::cerr << "Fail: Decimal -null must == Decimal -null" << std::endl;
   }
+
   if (null2 != null)
   {
     std::cerr << "Fail: Decimal -null must == Decimal null" << std::endl;
   }
+
   if (null != null2)
   {
     std::cerr << "Fail: Decimal null must == Decimal -null" << std::endl;
   }
+
   if (dec1 == null)
   {
     std::cerr << "Fail: Decimal(9) must != Decimal null" << std::endl;
   }
+
   if (dec2 == null)
   {
     std::cerr << "Fail: Decimal(13) must != Decimal null" << std::endl;
   }
+
   if (dec3 == null)
   {
     std::cerr << "Fail: Decimal(-4) must != Decimal null" << std::endl;
   }
+
   if (dec1 == dec2)
   {
     std::cerr << "Fail: Decimal(9) must != Decimal(13)" << std::endl;
   }
+
   if (dec2 == dec3)
   {
     std::cerr << "Fail: Decimal(13) must != Decimal(-4)" << std::endl;
   }
+
   if (dec1 == dec3)
   {
     std::cerr << "Fail: Decimal(9) must != Decimal(-4)" << std::endl;
@@ -96,32 +100,29 @@ do_create_int() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-do_sum() /*throw (eh::Exception)*/
+void do_sum() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<Element, 4, 2> Self;
+    using Self = Decimal<Element, 4, 2>;
     Self dec1(false, 75, 12);
     Self dec2(false, 5, 88);
     Self sum1 = dec1 + dec2;
     Self res(false, 81, 0);
     if (sum1 != res)
     {
-      std::cerr << "Fail: must " << dec1.str() << " + "
-                << dec2.str()
+      std::cerr << "Fail: must " << dec1.str() << " + " << dec2.str()
                 << " = 81 but got: " << sum1.str() << std::endl;
     }
   }
   {
-    typedef Decimal<Element, 19, 0> Self;
+    using Self = Decimal<Element, 19, 0>;
     Self dec1(String::SubString("9223372036854775808"));
     Self dec2(String::SubString("9223372036854775808"));
     try
     {
       Self sum1 = dec1 + dec2;
       (void)sum1;
-      std::cerr << "Fail: must overflow " << dec1.str() << " + "
-                << dec2.str() << std::endl;
+      std::cerr << "Fail: must overflow " << dec1.str() << " + " << dec2.str() << std::endl;
     }
     catch (...)
     {
@@ -130,10 +131,9 @@ do_sum() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-do_create_str() /*throw (eh::Exception)*/
+void do_create_str() /*throw (eh::Exception)*/
 {
-  typedef Decimal<Element, 12, 4> Self;
+  using Self = Decimal<Element, 12, 4>;
   {
     Self dec1(String::SubString("123045"));
     Self dec2(false, 123045, 0);
@@ -155,8 +155,7 @@ do_create_str() /*throw (eh::Exception)*/
     Self dec2(false, 323645, 0);
     if (dec1 != dec2)
     {
-      std::cerr << "Fail: must \"+323645\" == 323645 #" << dec1.str() <<
-        std::endl;
+      std::cerr << "Fail: must \"+323645\" == 323645 #" << dec1.str() << std::endl;
     }
   }
   {
@@ -226,19 +225,16 @@ do_create_str() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-do_return_str() /*throw (eh::Exception)*/
+void do_return_str() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<Element, 12, 4> Self;
+    using Self = Decimal<Element, 12, 4>;
     {
       Self dec1(String::SubString("123045"));
       std::string dec2 = dec1.str();
       if (dec2 != "123045.0")
       {
-        std::cerr << "Fail: must \"123045\" == \"123045.0\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"123045\" == \"123045.0\" but got: " << dec2 << std::endl;
       }
     }
     {
@@ -246,9 +242,7 @@ do_return_str() /*throw (eh::Exception)*/
       std::string dec2 = dec1.str();
       if (dec2 != "-123045.0")
       {
-        std::cerr << "Fail: must \"-123045\" == \"-123045.0\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"-123045\" == \"-123045.0\" but got: " << dec2 << std::endl;
       }
     }
     {
@@ -256,9 +250,7 @@ do_return_str() /*throw (eh::Exception)*/
       std::string dec2 = dec1.str();
       if (dec2 != "-123045.12")
       {
-        std::cerr << "Fail: must \"-123045.12\" == \"-123045.12\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"-123045.12\" == \"-123045.12\" but got: " << dec2 << std::endl;
       }
     }
     {
@@ -266,70 +258,60 @@ do_return_str() /*throw (eh::Exception)*/
       std::string dec2 = dec1.str();
       if (dec2 != "-0.12")
       {
-        std::cerr << "Fail: must \"-0.12\" == \"-0.12\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"-0.12\" == \"-0.12\" but got: " << dec2 << std::endl;
       }
     }
   }
   {
-    typedef Decimal<Element, 12, 0> Self;
+    using Self = Decimal<Element, 12, 0>;
     {
       Self dec1(String::SubString("123045"));
       std::string dec2 = dec1.str();
       if (dec2 != "123045")
       {
-        std::cerr << "Fail: must \"123045\" == \"123045\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"123045\" == \"123045\" but got: " << dec2 << std::endl;
       }
     }
   }
   {
-    typedef Decimal<Element, 12, 0> Self;
+    using Self = Decimal<Element, 12, 0>;
     {
       Self dec1(true, 0, 0);
       std::string dec2 = dec1.str();
       if (dec2 == "-0")
       {
-        std::cerr << "Fail: must \"0\" == \"0\" but got: "
-                  << dec2
-                  << std::endl;
+        std::cerr << "Fail: must \"0\" == \"0\" but got: " << dec2 << std::endl;
       }
     }
   }
 }
 
 template <typename Element>
-void
-do_create_int2() /*throw (eh::Exception)*/
+void do_create_int2() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<Element, 4, 0> Self;
+    using Self = Decimal<Element, 4, 0>;
     Self dec1(false, 9, 0);
   }
 }
 
-void
-do_super_big() /*throw (eh::Exception)*/
+void do_super_big() /*throw (eh::Exception)*/
 {
-  typedef Decimal<unsigned long, 100, 50> Self;
+  using Self = Decimal<unsigned long, 100, 50>;
   Self dec1(String::SubString(
     "-12345678901234567890123456789012345678901234567890."
     "12345678901234567890123456789012345678901234567890"));
 }
-void
-do_sum_over() /*throw (eh::Exception)*/
+void do_sum_over() /*throw (eh::Exception)*/
 {
-  typedef Decimal<unsigned char, 4, 2> Self;
+  using Self = Decimal<unsigned char, 4, 2>;
   try
   {
     Self dec1(false, 50, 0);
     Self dec2(false, 51, 0);
     Self sum1 = dec1 + dec2;
     (void)sum1;
-    std::cerr << "Fail, must error for 4.2: 50.0 * 51.0 = 101.0 #"
-      << sum1.str() << std::endl;
+    std::cerr << "Fail, must error for 4.2: 50.0 * 51.0 = 101.0 #" << sum1.str() << std::endl;
   }
   catch (const Self::Overflow&)
   {
@@ -337,11 +319,10 @@ do_sum_over() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-do_mul() /*throw (eh::Exception)*/
+void do_mul() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<Element, 4, 2> Self;
+    using Self = Decimal<Element, 4, 2>;
     Self dec1(false, 3, 0);
     Self dec2(false, 4, 0);
     Self dec3(false, 12, 0);
@@ -352,7 +333,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 4, 2> Self;
+    using Self = Decimal<Element, 4, 2>;
     Self dec1(true, 1, 0);
     Self dec2(false, 1, 0);
     Self dec3(true, 1, 0);
@@ -363,7 +344,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 4, 2> Self;
+    using Self = Decimal<Element, 4, 2>;
     Self dec1(false, 1, 0);
     Self dec2(true, 1, 0);
     Self dec3(true, 1, 0);
@@ -374,7 +355,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 4, 2> Self;
+    using Self = Decimal<Element, 4, 2>;
     Self dec1(true, 1, 0);
     Self dec2(true, 1, 0);
     Self dec3(false, 1, 0);
@@ -385,21 +366,19 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 5, 2> Self;
+    using Self = Decimal<Element, 5, 2>;
     Self dec1(false, 10, 0);
     Self dec2(false, 10, 0);
     Self dec3(false, 100, 0);
     Self mul1 = Self::mul(dec1, dec2, DMR_FLOOR);
     if (mul1 != dec3)
     {
-      std::cerr << "Fail: 10.0 * 10.0 = 100.0 #" <<  mul1.str()
-                << " " << dec3.str() << std::endl
-                << " " << dec3.dump() << std::endl
-                << " " << mul1.dump() << std::endl;
+      std::cerr << "Fail: 10.0 * 10.0 = 100.0 #" <<  mul1.str() << " " << dec3.str() << std::endl
+                << " " << dec3.dump() << std::endl << " " << mul1.dump() << std::endl;
     }
   }
   {
-    typedef Decimal<Element, 7, 2> Self;
+    using Self = Decimal<Element, 7, 2>;
     Self dec1(false, 101, 0);
     Self dec2(false, 102, 0);
     Self dec3(false, 10302, 0);
@@ -410,21 +389,20 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 7, 3> Self;
+    using Self = Decimal<Element, 7, 3>;
     Self dec1(false, 101, 0);
     Self dec2(false, 102, 0);
     try
     {
       Self mul1 = Self::mul(dec1, dec2, DMR_FLOOR);
-      std::cerr << "Fail: 101.0 * 102.0 = overflow #"
-        << mul1.str() << std::endl;
+      std::cerr << "Fail: 101.0 * 102.0 = overflow #" << mul1.str() << std::endl;
     }
     catch (...)
     {
     }
   }
   {
-    typedef Decimal<Element, 10, 5> Self;
+    using Self = Decimal<Element, 10, 5>;
     Self dec1(false, 101, 0);
     Self dec2(false, 102, 0);
     Self dec3(false, 10302, 0);
@@ -435,7 +413,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 8, 3> Self;
+    using Self = Decimal<Element, 8, 3>;
     Self dec1(false, 101, 0);
     Self dec2(false, 102, 0);
     Self dec3(false, 10302, 0);
@@ -446,7 +424,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 8, 3> Self;
+    using Self = Decimal<Element, 8, 3>;
     Self dec1(false, 123, 0);
     Self dec2(false, 456, 0);
     Self dec3(false, 56088, 0);
@@ -457,19 +435,18 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 8, 3> Self;
+    using Self = Decimal<Element, 8, 3>;
     Self dec1(false, 12, 12);
     Self dec2(false, 11, 11);
     Self dec3(false, 132, 264);
     Self mul1 = Self::mul(dec1, dec2, DMR_FLOOR);
     if (mul1 != dec3)
     {
-      std::cerr << "Fail: 12.012 * 11.011 = 132.264 #"
-        << mul1.str() << std::endl;
+      std::cerr << "Fail: 12.012 * 11.011 = 132.264 #" << mul1.str() << std::endl;
     }
   }
   {
-    typedef Decimal<Element, 2, 1> Self;
+    using Self = Decimal<Element, 2, 1>;
     Self dec1(false, 0, 5);
     Self dec2(false, 0, 9);
     Self dec3(false, 0, 4);
@@ -480,7 +457,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 2, 1> Self;
+    using Self = Decimal<Element, 2, 1>;
     Self dec1(false, 0, 5);
     Self dec2(false, 0, 9);
     Self dec3(false, 0, 5);
@@ -491,7 +468,7 @@ do_mul() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<Element, 2, 1> Self;
+    using Self = Decimal<Element, 2, 1>;
     Self dec1(false, 0, 5);
     Self dec2(false, 0, 9);
     Self dec3(false, 0, 5);
@@ -504,12 +481,10 @@ do_mul() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-test_DecimalState() /*throw (eh::Exception)*/
+void test_DecimalState() /*throw (eh::Exception)*/
 {
   {
-    typedef typename RandomTestDecimal<Element, 4, 2, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 4, 2, Decimal>::DecimalState;
     DecimalState st1(false, 10, 50);
     DecimalState st2(false, 3, 60);
     DecimalState q, r;
@@ -521,8 +496,7 @@ test_DecimalState() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 4, 2, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 4, 2, Decimal>::DecimalState;
     DecimalState st1(false, 11, 50);
     DecimalState st2(false, 13, 60);
     DecimalState q, r;
@@ -534,8 +508,7 @@ test_DecimalState() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState;
     DecimalState st1(false, 1, 0);
     DecimalState st2(false, 3, 0);
     DecimalState q, r;
@@ -543,13 +516,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 0 || q.r != 0 || r.i != 1 || r.r != 0)
     {
-      std::cerr << "Fail: 1 / 3 = 0.0 (1.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 1 / 3 = 0.0 (1.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState;
     DecimalState st1(true, 1, 0);
     DecimalState st2(true, 3, 0);
     DecimalState q, r;
@@ -557,13 +528,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 0 || q.r != 0 || r.i != 1 || r.r != 0)
     {
-      std::cerr << "Fail: 1 / 3 = 0.0 (1.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 1 / 3 = 0.0 (1.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 1, 0, Decimal>::DecimalState;
     DecimalState st1(true, 2, 0);
     DecimalState st2(true, 6, 0);
     DecimalState q, r;
@@ -571,13 +540,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 0 || q.r != 0 || r.i != 2 || r.r != 0)
     {
-      std::cerr << "Fail: 2 / 6 = 0.0 (2.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 2 / 6 = 0.0 (2.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState;
     DecimalState st1(false, 4, 8);
     DecimalState st2(false, 0, 5);
     DecimalState q, r;
@@ -585,13 +552,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 9 || q.r != 6 || r.i != 0 || r.r != 0)
     {
-      std::cerr << "Fail: 4.8 / 0.5 = 9.6 (0.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 4.8 / 0.5 = 9.6 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState;
     DecimalState st1(false, 2, 8);
     DecimalState st2(false, 1, 0);
     DecimalState q, r;
@@ -599,13 +564,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 2 || q.r != 8 || r.i != 0 || r.r != 0)
     {
-      std::cerr << "Fail: 2.8 / 1.0 = 2.8 (0.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 2.8 / 1.0 = 2.8 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 2, 1, Decimal>::DecimalState;
     DecimalState st1(false, 8, 0);
     DecimalState st2(false, 9, 0);
     DecimalState q, r;
@@ -613,13 +576,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 0 || q.r != 8 || r.i != 0 || r.r != 8)
     {
-      std::cerr << "Fail: 2.8 / 1.0 = 2.8 (0.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 2.8 / 1.0 = 2.8 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState;
     DecimalState st1(false, 748, 0);
     DecimalState st2(false, 2, 0);
     DecimalState q, r;
@@ -627,13 +588,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 374 || q.r != 0 || r.i != 0 || r.r != 0)
     {
-      std::cerr << "Fail: 748 / 2 = 374 (0.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 748 / 2 = 374 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState;
     DecimalState st1(false, 2, 3);
     DecimalState st2(false, 7, 0);
     DecimalState q, r;
@@ -641,13 +600,11 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 0 || q.r != 29 || r.i != 0 || r.r != 0)
     {
-      std::cerr << "Fail: 2.03 / 7 = 0.29 (0.0) got " << q.str() << " " <<
-        r.str() << std::endl;
+      std::cerr << "Fail: 2.03 / 7 = 0.29 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
   {
-    typedef typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 5, 2, Decimal>::DecimalState;
     DecimalState st1(false, 2, 3);
     DecimalState st2(false, 0, 7);
     DecimalState q, r;
@@ -655,14 +612,12 @@ test_DecimalState() /*throw (eh::Exception)*/
     st1.div(st2, q, r, overflow);
     if (q.i != 29 || q.r != 0 || r.i != 0 || r.r != 0)
     {
-      std::cerr << "Fail: 2.03 / 0.07 = 29 (0.0) got "
-                << q.str() << " " << r.str() << std::endl;
+      std::cerr << "Fail: 2.03 / 0.07 = 29 (0.0) got " << q.str() << " " << r.str() << std::endl;
     }
   }
 #if 0
   {
-    typedef typename RandomTestDecimal<Element, 36, 18, Decimal>::DecimalState
-      DecimalState;
+    using DecimalState = typename RandomTestDecimal<Element, 36, 18, Decimal>::DecimalState;
     DecimalState st1(false, 0, 1135528036251086848LL);
     DecimalState st2(false, 0, 8384628349126416384LL);
     DecimalState q, r;
@@ -678,11 +633,10 @@ test_DecimalState() /*throw (eh::Exception)*/
 #endif
 }
 
-void
-test_to_integer() /*throw (eh::Exception)*/
+void test_to_integer() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<unsigned char, 5, 1> Self;
+    using Self = Decimal<unsigned char, 5, 1>;
     Self val(false, 2, 3);
     if (val.integer<int>() != 2)
     {
@@ -691,7 +645,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 3> Self;
+    using Self = Decimal<unsigned char, 5, 3>;
     Self val(false, 21, 133);
     if (val.integer<int>() != 21)
     {
@@ -700,7 +654,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 3> Self;
+    using Self = Decimal<unsigned char, 5, 3>;
     Self val(true, 21, 133);
     if (val.integer<int>() > 0)
     {
@@ -709,7 +663,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 3> Self;
+    using Self = Decimal<unsigned char, 5, 3>;
     Self val(true, 21, 133);
     bool  exception = false;
     try
@@ -720,6 +674,7 @@ test_to_integer() /*throw (eh::Exception)*/
     {
       exception = true;
     }
+
     if (!exception)
     {
       std::cerr << "Fail: expected Sign to get integer<unsigned int> from "
@@ -727,7 +682,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 6, 3> Self;
+    using Self = Decimal<unsigned char, 6, 3>;
     Self val(false, 256, 133);
     bool overflow = false;
     try
@@ -738,6 +693,7 @@ test_to_integer() /*throw (eh::Exception)*/
     {
       overflow = true;
     }
+
     if (!overflow)
     {
       std::cerr << "Fail: expected Overflow to get integer<char> from "
@@ -745,7 +701,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 6, 2> Self;
+    using Self = Decimal<unsigned char, 6, 2>;
     Self val(false, 3943, 78);
     bool overflow = false;
     try
@@ -756,6 +712,7 @@ test_to_integer() /*throw (eh::Exception)*/
     {
       overflow = true;
     }
+
     if (!overflow)
     {
       std::cerr << "Fail: expected Overflow to get integer<char> from "
@@ -763,7 +720,7 @@ test_to_integer() /*throw (eh::Exception)*/
     }
   }
   {
-    typedef Decimal<unsigned char, 7, 3> Self;
+    using Self = Decimal<unsigned char, 7, 3>;
     Self val(false, 2566, 133);
     bool overflow = false;
     try
@@ -774,6 +731,7 @@ test_to_integer() /*throw (eh::Exception)*/
     {
       overflow = true;
     }
+
     if (!overflow)
     {
       std::cerr << "Fail: expected Overflow to get integer<char> from "
@@ -782,47 +740,42 @@ test_to_integer() /*throw (eh::Exception)*/
   }
 }
 
-void
-test_from_float() /*throw (eh::Exception)*/
+void test_from_float() /*throw (eh::Exception)*/
 {
   {
-    typedef Decimal<unsigned char, 5, 1> Self;
+    using Self = Decimal<unsigned char, 5, 1>;
     Self val(1.5);
     if (val.str() != "1.5")
     {
-      std::cerr << "Fail: created from 1.5 got "
-                << val.str() << " " << val.dump() << std::endl;
+      std::cerr << "Fail: created from 1.5 got " << val.str() << " " << val.dump() << std::endl;
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 1> Self;
+    using Self = Decimal<unsigned char, 5, 1>;
     Self val(1.49);
     if (val.str() != "1.5")
     {
-      std::cerr << "Fail: created from 1.49 got "
-                << val.str() << " " << val.dump() << std::endl;
+      std::cerr << "Fail: created from 1.49 got " << val.str() << " " << val.dump() << std::endl;
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 1> Self;
+    using Self = Decimal<unsigned char, 5, 1>;
     Self val(-1.49);
     if (val.str() != "-1.5")
     {
-      std::cerr << "Fail: created from -1.49 got "
-                << val.str() << " " << val.dump() << std::endl;
+      std::cerr << "Fail: created from -1.49 got " << val.str() << " " << val.dump() << std::endl;
     }
   }
   {
-    typedef Decimal<unsigned char, 5, 1> Self;
+    using Self = Decimal<unsigned char, 5, 1>;
     Self val(-0.0);
     if (val.str() != "0.0")
     {
-      std::cerr << "Fail: created from 0.0 got "
-                << val.str() << " " << val.dump() << std::endl;
+      std::cerr << "Fail: created from 0.0 got " << val.str() << " " << val.dump() << std::endl;
     }
   }
   {
-    typedef Decimal<unsigned char, 4, 1> Self;
+    using Self = Decimal<unsigned char, 4, 1>;
     bool overflow = false;
     try
     {
@@ -832,21 +785,19 @@ test_from_float() /*throw (eh::Exception)*/
     {
       overflow = true;
     }
+
     if (!overflow)
     {
-      std::cerr << "Fail: expected Overflow to construct 4.1"
-                << " from -12345678901.123456789"
+      std::cerr << "Fail: expected Overflow to construct 4.1" << " from -12345678901.123456789"
                 << std::endl;
     }
   }
 }
 
 template <typename Decimal>
-void
-test_to_float(const char* where) /*throw (eh::Exception)*/
+void test_to_float(const char* where) /*throw (eh::Exception)*/
 {
-  static const char* data[] =
-  {
+  static const char* data[] = {
     "0.0",
     "1.0",
     "-1.0",
@@ -869,8 +820,7 @@ test_to_float(const char* where) /*throw (eh::Exception)*/
   }
 }
 
-void
-test_to_float() /*throw (eh::Exception)*/
+void test_to_float() /*throw (eh::Exception)*/
 {
   test_to_float<Generics::Decimal<uint8_t, 18, 8>>("D8");
   test_to_float<Generics::Decimal<uint32_t, 18, 8>>("D32");
@@ -888,8 +838,7 @@ struct Data
 };
 
 template <typename Element, typename TestType>
-void
-do_div_test(const Data* data)
+void do_div_test(const Data* data)
 {
   for (size_t i = 0; data[i].dividend; i++)
   {
@@ -911,6 +860,7 @@ do_div_test(const Data* data)
           std::cerr << "FAIL quotient: " << quotient.str();
           error = true;
         }
+
         if (remainder != expected_remainder)
         {
           std::cerr << "FAIL remainder: " << remainder.str();
@@ -931,10 +881,10 @@ do_div_test(const Data* data)
         error = true;
       }
     }
+
     if (error)
     {
-      std::cerr << " for test case " << d.dividend << " / " << d.divisor <<
-        " = ";
+      std::cerr << " for test case " << d.dividend << " / " << d.divisor << " = ";
       if (d.quotient)
       {
         std::cerr << d.quotient << " ( " << d.remainder << " )\n";
@@ -947,8 +897,7 @@ do_div_test(const Data* data)
   }
 }
 
-static const Data data_2_1[] =
-{
+static const Data data_2_1[] = {
   { "1.0", "1.0", "1.0", "0.0" },
   { "-1.0", "2.0", "-0.5", "0.0" },
   { "-2.0", "1.0", "-2.0", "0.0" },
@@ -959,36 +908,31 @@ static const Data data_2_1[] =
   { 0, 0, 0, 0 }
 };
 
-static const Data data_3_0[] =
-{
+static const Data data_3_0[] = {
   { "96", "233", "0", "96" },
   { "-18", "-648", "0", "-18" },
   { 0, 0, 0, 0 }
 };
 
-static const Data data_3_1[] =
-{
+static const Data data_3_1[] = {
   { "0.2", "10.0", "0.0", "0.2" },
   { "-64.3", "-64.3", "1.0", "0.0" },
   { "0.0", "-7.3", "0.0", "0.0" },
   { 0, 0, 0, 0 }
 };
 
-static const Data data_4_2[] =
-{
+static const Data data_4_2[] = {
   { "59.7", "-59.98", "-0.99", "0.32" },
   { 0, 0, 0, 0 }
 };
 
-static const Data data_4_3[] =
-{
+static const Data data_4_3[] = {
   { "9.464", "-6.381", "-1.483", "0.001" },
   { "3.446", "7.33", "0.47", "0.001" },
   { 0, 0, 0, 0 }
 };
 
-static const Data data_8_3[] =
-{
+static const Data data_8_3[] = {
   { "9999.0", "11.0", "909.0", "0.0" },
   { "-9998.0", "-99.0", "100.989", "-0.089" },
   { "-2.0", "1.0", "-2.0", "0.0" },
@@ -1000,8 +944,7 @@ static const Data data_8_3[] =
 };
 
 template <typename Element>
-void
-do_div() /*throw (eh::Exception)*/
+void do_div() /*throw (eh::Exception)*/
 {
   do_div_test<Element, Decimal<Element, 2, 1> >(data_2_1);
   do_div_test<Element, Decimal<Element, 3, 0> >(data_3_0);
@@ -1012,8 +955,7 @@ do_div() /*throw (eh::Exception)*/
 }
 
 template <typename Element>
-void
-batch_hand_test() /*throw (eh::Exception)*/
+void batch_hand_test() /*throw (eh::Exception)*/
 {
   do_create_int<Element>();
   do_create_int2<Element>();
@@ -1026,8 +968,7 @@ batch_hand_test() /*throw (eh::Exception)*/
   do_div<Element>();
 }
 
-void
-do_total_test() /*throw (eh::Exception)*/
+void do_total_test() /*throw (eh::Exception)*/
 {
   srandom(time(0));
 #if 0
@@ -1078,8 +1019,7 @@ struct ConstructorPower
   const char* result;
 };
 
-const ConstructorPower cp_data[] =
-{
+const ConstructorPower cp_data[] = {
   { 0, 0, "0.0" },
   { 1234, 0, "" },
   { -1234, 1, "-123.4" },
@@ -1107,10 +1047,9 @@ const ConstructorPower cp_data[] =
 
 template <template <typename Element, const unsigned TOTAL,
   const unsigned FRACTION> class Decimal, typename Base>
-void
-test_constructor_power(const char* desc) /*throw (eh::Exception)*/
+void test_constructor_power(const char* desc) /*throw (eh::Exception)*/
 {
-  typedef Decimal<Base, 4, 1> Type;
+  using Type = Decimal<Base, 4, 1>;
   for (unsigned i = 0; cp_data[i].result; i++)
   {
     try
@@ -1118,16 +1057,14 @@ test_constructor_power(const char* desc) /*throw (eh::Exception)*/
       Type test(cp_data[i].value, cp_data[i].power);
       if (!*cp_data[i].result)
       {
-        std::cerr << "No exception for " << desc << " constructor test " <<
-          i << std::endl;
+        std::cerr << "No exception for " << desc << " constructor test " << i << std::endl;
       }
       else
       {
         if (test.str() != cp_data[i].result)
         {
           std::cerr << "Invalid result " << test.str() << " vs " <<
-            cp_data[i].result << " for " << desc << " constructor test " <<
-            i << std::endl;
+            cp_data[i].result << " for " << desc << " constructor test " << i << std::endl;
         }
       }
     }
@@ -1142,15 +1079,11 @@ test_constructor_power(const char* desc) /*throw (eh::Exception)*/
   }
 }
 
-void
-test_constructor_power() /*throw (eh::Exception)*/
+void test_constructor_power() /*throw (eh::Exception)*/
 {
-  test_constructor_power<Generics::SimpleDecimal, uint16_t>(
-    "SimpleDecimal");
-  test_constructor_power<Generics::Decimal, uint16_t>(
-    "Decimal_16");
-  test_constructor_power<Generics::Decimal, uint8_t>(
-    "Decimal_8");
+  test_constructor_power<Generics::SimpleDecimal, uint16_t>( "SimpleDecimal");
+  test_constructor_power<Generics::Decimal, uint16_t>( "Decimal_16");
+  test_constructor_power<Generics::Decimal, uint8_t>( "Decimal_8");
 }
 
 struct DiffData
@@ -1159,8 +1092,7 @@ struct DiffData
   const char* to;
 };
 
-const DiffData diff_data[] =
-{
+const DiffData diff_data[] = {
   { "0", "0.0" },
   { "0.1", "0.1" },
   { "1", "1.0" },
@@ -1170,13 +1102,11 @@ const DiffData diff_data[] =
   { 0, 0 },
 };
 
-template <template <typename Element, const unsigned TOTAL,
-  const unsigned FRACTION> class Decimal>
-void
-test_diff_constructor(const char* desc) /*throw (eh::Exception)*/
+template <template <typename Element, const unsigned TOTAL, const unsigned FRACTION> class Decimal>
+void test_diff_constructor(const char* desc) /*throw (eh::Exception)*/
 {
-  typedef Decimal<uint16_t, 4, 1> From;
-  typedef Decimal<uint16_t, 4, 2> To;
+  using From = Decimal<uint16_t, 4, 1>;
+  using To = Decimal<uint16_t, 4, 2>;
   for (unsigned i = 0; diff_data[i].from; i++)
   {
     From from(diff_data[i].from);
@@ -1185,16 +1115,14 @@ test_diff_constructor(const char* desc) /*throw (eh::Exception)*/
       To to(from);
       if (!diff_data[i].to)
       {
-        std::cerr << "No exception for " << desc << " diff test " <<
-          i << std::endl;
+        std::cerr << "No exception for " << desc << " diff test " << i << std::endl;
       }
       else
       {
         if (to.str() != diff_data[i].to)
         {
           std::cerr << "Invalid result " << to.str() << " vs " <<
-            diff_data[i].to << " for " << desc << " diff test " <<
-            i << std::endl;
+            diff_data[i].to << " for " << desc << " diff test " << i << std::endl;
         }
       }
     }
@@ -1209,8 +1137,7 @@ test_diff_constructor(const char* desc) /*throw (eh::Exception)*/
   }
 }
 
-void
-test_diff_constructor() /*throw (eh::Exception)*/
+void test_diff_constructor() /*throw (eh::Exception)*/
 {
   test_diff_constructor<SimpleDecimal>("SimpleDecimal");
   test_diff_constructor<Decimal>("Decimal");
@@ -1222,8 +1149,7 @@ struct TestCase
   const char* const STANDARD;
 };
 
-const TestCase TEST_CASES_0[] =
-{
+const TestCase TEST_CASES_0[] = {
   {999999999999999, "999999999999999"},
   {1.123, "1"},
   {2.023, "2"},
@@ -1231,8 +1157,7 @@ const TestCase TEST_CASES_0[] =
   {10.123, "10"},
 };
 
-const TestCase TEST_CASES_1[] =
-{
+const TestCase TEST_CASES_1[] = {
   {0.123, "0.1"},
   {1.023, "1.0"},
   {10.023, "10.0"},
@@ -1242,8 +1167,7 @@ const TestCase TEST_CASES_1[] =
   {123, "123.0"},
 };
 
-const TestCase TEST_CASES_8[] =
-{
+const TestCase TEST_CASES_8[] = {
   {9999999999.12339973, "9999999999.12339973"},
   {9999999999, "9999999999.0"},
   {.99999999, "0.99999999"},
@@ -1347,32 +1271,27 @@ const TestCase TEST_CASES_8[] =
 };
 
 template <std::size_t FRACTION, std::size_t STD_SIZE>
-void
-test_str_fraction(const TestCase (&TEST_CASES)[STD_SIZE])
+void test_str_fraction(const TestCase (&TEST_CASES)[STD_SIZE])
 {
-  typedef Generics::SimpleDecimal<uint64_t, 18, FRACTION> Fixed;
-  for (std::size_t i = 0;
-     i < sizeof(TEST_CASES) / sizeof(TEST_CASES[0]);
-     ++i)
+  using Fixed = Generics::SimpleDecimal<uint64_t, 18, FRACTION>;
+  for (std::size_t i = 0; i < sizeof(TEST_CASES) / sizeof(TEST_CASES[0]); ++i)
   {
     Fixed number(TEST_CASES[i].number);
     if (number.str() != TEST_CASES[i].STANDARD)
     {
-      std::cerr << "Fail, incorrect output: " << number.str()
-       << std::endl << "correct result is: "
+      std::cerr << "Fail, incorrect output: " << number.str() << std::endl << "correct result is: "
        << TEST_CASES[i].STANDARD << std::endl;
     }
+
     if (number.negate().str() != std::string("-") + TEST_CASES[i].STANDARD)
     {
       std::cerr << "Fail, incorrect output: " << number.negate().str()
-        << std::endl << "correct result is: "
-        << '-' << TEST_CASES[i].STANDARD << std::endl;
+        << std::endl << "correct result is: " << '-' << TEST_CASES[i].STANDARD << std::endl;
     }
   }
 }
 
-void
-test_str()
+void test_str()
 {
   test_str_fraction<8>(TEST_CASES_8);
   test_str_fraction<1>(TEST_CASES_1);
@@ -1381,10 +1300,12 @@ test_str()
   {
     std::cerr << "Zero output fail, fraction 8" << std::endl;
   }
+
   if (Generics::SimpleDecimal<uint64_t, 18, 1>::ZERO.str() != "0.0")
   {
     std::cerr << "Zero output fail, fraction 1" << std::endl;
   }
+
   if (Generics::SimpleDecimal<uint64_t, 18, 0>::ZERO.str() != "0")
   {
     std::cerr << "Zero output fail, fraction 0" << std::endl;
@@ -1392,24 +1313,21 @@ test_str()
 }
 
 template <std::size_t FRACTION, std::size_t STD_SIZE>
-void
-test_input_fraction(const TestCase (&TEST_CASES)[STD_SIZE])
+void test_input_fraction(const TestCase (&TEST_CASES)[STD_SIZE])
 {
-  typedef Generics::SimpleDecimal<uint64_t, 18, FRACTION> Fixed;
-  for (std::size_t i = 0;
-     i < sizeof(TEST_CASES) / sizeof(TEST_CASES[0]);
-     ++i)
+  using Fixed = Generics::SimpleDecimal<uint64_t, 18, FRACTION>;
+  for (std::size_t i = 0; i < sizeof(TEST_CASES) / sizeof(TEST_CASES[0]); ++i)
   {
     Fixed number;
     {
       Stream::Parser istr(TEST_CASES[i].STANDARD);
       istr >> number;
     }
+
     if (number.str() != TEST_CASES[i].STANDARD)
     {
       std::cerr << FRACTION << " Fail, incorrect input: " << number
-        << std::endl << "correct result is: "
-        << TEST_CASES[i].STANDARD << std::endl;
+        << std::endl << "correct result is: " << TEST_CASES[i].STANDARD << std::endl;
     }
     {
       std::string s("-");
@@ -1418,22 +1336,20 @@ test_input_fraction(const TestCase (&TEST_CASES)[STD_SIZE])
       istr >> number;
       if (number.str() != s)
       {
-        std::cerr << "Fail, incorrect input: " << number
-          << std::endl << "correct result is: "
+        std::cerr << "Fail, incorrect input: " << number << std::endl << "correct result is: "
           << '-' << TEST_CASES[i].STANDARD << std::endl;
       }
     }
   }
 }
 
-void
-test_input()
+void test_input()
 {
   test_input_fraction<8>(TEST_CASES_8);
   test_input_fraction<1>(TEST_CASES_1);
   test_input_fraction<0>(TEST_CASES_0);
 
-  typedef Generics::SimpleDecimal<uint64_t, 18, 8> Fixed;
+  using Fixed = Generics::SimpleDecimal<uint64_t, 18, 8>;
   Stream::Parser istr("00012345678901++++");
   Fixed number;
   istr >> number;
@@ -1442,8 +1358,7 @@ test_input()
     std::cerr << "skip fail, read extra chars" << std::endl;
   }
 
-  static const char* INVALID_STRESSES[] =
-  {
+  static const char* INVALID_STRESSES[] = {
     "+00000000012345678900.12345678",
     "0000000001234567890.0012345678",
     "-000000000000000000000.1234567890123456789000001",
@@ -1468,9 +1383,7 @@ test_input()
     "-.0",
     ".0",
   };
-  for (std::size_t i = 0;
-    i < sizeof(INVALID_STRESSES) / sizeof(INVALID_STRESSES[0]);
-    ++i)
+  for (std::size_t i = 0; i < sizeof(INVALID_STRESSES) / sizeof(INVALID_STRESSES[0]); ++i)
   {
     Fixed number(123.123);
     Stream::Parser istr(INVALID_STRESSES[i]);
@@ -1481,8 +1394,7 @@ test_input()
         << "' successfully parsed" << std::endl;
     }
   }
-  static const char* VALID_STRESSES[] =
-  {
+  static const char* VALID_STRESSES[] = {
     "+0000000001234567890.12345678",
     "-0000000001234567890.12345678",
     "0000000001234567890.12345678",
@@ -1498,27 +1410,23 @@ test_input()
     "-000123.",
     "000123.",
   };
-  for (std::size_t i = 0;
-    i < sizeof(VALID_STRESSES) / sizeof(VALID_STRESSES[0]);
-    ++i)
+  for (std::size_t i = 0; i < sizeof(VALID_STRESSES) / sizeof(VALID_STRESSES[0]); ++i)
   {
     Fixed number;
     Stream::Parser istr(VALID_STRESSES[i]);
     istr >> number;
     if (!istr || !istr.eof())
     {
-      std::cerr << "Valid stresses parsing failed: "
-        << VALID_STRESSES[i] << std::endl;
+      std::cerr << "Valid stresses parsing failed: " << VALID_STRESSES[i] << std::endl;
     }
   }
 }
 
 
-void
-test_narrow() /*throw (eh::Exception)*/
+void test_narrow() /*throw (eh::Exception)*/
 {
-  typedef Generics::Decimal<uint64_t, 36, 18> D;
-  typedef Generics::SimpleDecimal<uint64_t, 18, 8> S;
+  using D = Generics::Decimal<uint64_t, 36, 18>;
+  using S = Generics::SimpleDecimal<uint64_t, 18, 8>;
   const String::SubString n("-1234567890.87654321");
   D d(n);
   S s;
@@ -1542,10 +1450,9 @@ test_narrow() /*throw (eh::Exception)*/
   std::cout << "Widen " << timer.elapsed_time() << std::endl;
 }
 
-void
-test_float() /*throw (eh::Exception)*/
+void test_float() /*throw (eh::Exception)*/
 {
-  typedef Generics::SimpleDecimal<uint64_t, 18, 8> D;
+  using D = Generics::SimpleDecimal<uint64_t, 18, 8>;
 
   Generics::convert_float<D>(0.0f);
   for (int i = 0; i < 100000; i++)
@@ -1560,16 +1467,15 @@ test_float() /*throw (eh::Exception)*/
     {
       d.negate();
     }
+
     if (d > D::EPSILON)
     {
-      std::cerr << FNS << s << " " << d1 << " " << d2 << " " << d <<
-        std::endl;
+      std::cerr << FNS << s << " " << d1 << " " << d2 << " " << d << std::endl;
     }
   }
 }
 
-int
-main()
+int main()
 {
   /*
   {
@@ -1584,7 +1490,7 @@ main()
     std::cout << "r: " << r << std::endl;
   }
   */
-      
+
   int result = 0;
   std::cout << "Decimal test started" << std::endl;
   try

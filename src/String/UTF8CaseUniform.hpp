@@ -5,9 +5,7 @@
 #include <String/UTF8Handler.hpp>
 
 
-bool
-String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
-  size_t& counter) noexcept
+bool String::ToUniform::to_uniform(Helper::Iterator it, char*& dest, size_t& counter) noexcept
 {
   for (counter = 0; !it.exhausted(); ++counter)
   {
@@ -28,8 +26,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
         {
           return false;
         }
-        const unsigned char SLOT_NUMBER =
-          FIRST - static_cast<unsigned char>(0xC2);
+        const unsigned char SLOT_NUMBER = FIRST - static_cast<unsigned char>(0xC2);
         if (SLOT_NUMBER > 20)
         {
           *dest++ = reinterpret_cast<const char&>(FIRST);
@@ -37,8 +34,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
           continue;
         }
 
-        const CodeUnit2Bytes& MODIFIED =
-          TABLE_2[SLOT_NUMBER][SECOND & 0x3F];
+        const CodeUnit2Bytes& MODIFIED = TABLE_2[SLOT_NUMBER][SECOND & 0x3F];
         if (MODIFIED[0] == 0)
         {
           // SPECIAL
@@ -163,8 +159,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
         {
         case 0xE1:
           {
-            const CodeUnit4Bytes& MODIFIED =
-              TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
+            const CodeUnit4Bytes& MODIFIED = TABLE_3_E1[SECOND & 0x3F][THIRD & 0x3F];
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -238,8 +233,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
                 }
               case 0xBF:
                 {
-                  const Table_3_E1_BF& MODIFIED =
-                    TABLE_3_E1_BF[THIRD & 0x3F];
+                  const Table_3_E1_BF& MODIFIED = TABLE_3_E1_BF[THIRD & 0x3F];
                   for (size_t i = 0; i < MODIFIED.substr.size(); i++)
                   {
                     *dest++ = MODIFIED.substr[i];
@@ -257,8 +251,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
           }
         case 0xE2:
           {
-            const CodeUnit2Bytes& MODIFIED =
-              TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
+            const CodeUnit2Bytes& MODIFIED = TABLE_3_E2[SECOND & 0x3F][THIRD & 0x3F];
             if (MODIFIED[0] == 0)
             {
               // SPECIAL
@@ -282,6 +275,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
                   *dest++ = '\x89';
                   continue;
                 }
+
                 if (THIRD == 0xAA)
                 {
                   *dest++ = '\x6B';
@@ -291,8 +285,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
                 *dest++ = '\xA5';
                 continue;
               }
-              const CodeUnit2Bytes& MODIFIED_SP =
-                TABLE_3_SP_E2[THIRD & 0x1F];
+              const CodeUnit2Bytes& MODIFIED_SP = TABLE_3_SP_E2[THIRD & 0x1F];
               *dest++ = MODIFIED_SP[0];
               *dest++ = MODIFIED_SP[1];
               if (THIRD == 0xA3)
@@ -308,12 +301,10 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
           }
         case 0xEA:
           {
-            const unsigned char SLOT_NUMBER =
-              SECOND - static_cast<unsigned char>(0x99);
+            const unsigned char SLOT_NUMBER = SECOND - static_cast<unsigned char>(0x99);
             if (SLOT_NUMBER < 6)
             {
-              const CodeUnit2Bytes& MODIFIED =
-                TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
+              const CodeUnit2Bytes& MODIFIED = TABLE_3_EA[SLOT_NUMBER][THIRD & 0x3F];
               if (MODIFIED[0] == 0)
               {
                 // SPECIAL
@@ -415,8 +406,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
             {
               if (THIRD >= 0x93 && THIRD <= 0x97)
               {
-                const CodeUnit2Bytes& MODIFIED =
-                  TABLE_3_EF_AC[THIRD & 0x7];
+                const CodeUnit2Bytes& MODIFIED = TABLE_3_EF_AC[THIRD & 0x7];
                 *dest++ = '\xD5';
                 *dest++ = MODIFIED[0];
                 *dest++ = '\xD5';
@@ -459,6 +449,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
         {
           return false;
         }
+
         if ((THIRD & 0xC0) != 0x80)
         {
           return false;
@@ -516,6 +507,7 @@ String::ToUniform::to_uniform(Helper::Iterator it, char*& dest,
                 }
               }
             }
+
             if (SECOND < 0x90 || SECOND > 0xBF)
             {
               return false;

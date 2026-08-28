@@ -13,16 +13,13 @@ namespace ReferenceCounting
   //
 
   template <typename T, typename Policy>
-  inline
-  T*
-  SmartPtr<T, Policy>::in() const noexcept
+  inline T* SmartPtr<T, Policy>::in() const noexcept
   {
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  T*
-  SmartPtr<T, Policy>::retn() noexcept
+  T* SmartPtr<T, Policy>::retn() noexcept
   {
     Policy::retn();
     Type* ret(ptr_);
@@ -31,17 +28,13 @@ namespace ReferenceCounting
   }
 
   template <typename T, typename Policy>
-  inline
-  T*
-  FixedPtr<T, Policy>::in() noexcept
+  inline T* FixedPtr<T, Policy>::in() noexcept
   {
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  const T*
-  FixedPtr<T, Policy>::in() const noexcept
+  inline const T* FixedPtr<T, Policy>::in() const noexcept
   {
     return ptr_;
   }
@@ -57,54 +50,46 @@ namespace ReferenceCounting
   }
 
 
-  inline
-  std::nullptr_t
-  add_ref(std::nullptr_t ptr) noexcept
+  inline std::nullptr_t add_ref(std::nullptr_t ptr) noexcept
   {
     return ptr;
   }
 
   // Specialization of add_ref function for SmartPtr
   template <typename T, typename Policy>
-  T*
-  add_ref(const SmartPtr<T, Policy>& ptr) noexcept
+  T* add_ref(const SmartPtr<T, Policy>& ptr) noexcept
   {
     return add_ref(ptr.in());
   }
 
   template <typename T, typename Policy>
-  T*
-  add_ref(SmartPtr<T, Policy>&& ptr) noexcept
+  T* add_ref(SmartPtr<T, Policy>&& ptr) noexcept
   {
     return ptr.retn();
   }
 
   // Specializations of add_ref function for FixedPtr/QualPtr
   template <typename T, typename Policy>
-  const T*
-  add_ref(const FixedPtr<T, Policy>& ptr) noexcept
+  const T* add_ref(const FixedPtr<T, Policy>& ptr) noexcept
   {
     return add_ref(ptr.in());
   }
 
   template <typename T, typename Policy>
-  T*
-  add_ref(FixedPtr<T, Policy>& ptr) noexcept
+  T* add_ref(FixedPtr<T, Policy>& ptr) noexcept
   {
     return add_ref(ptr.in());
   }
 
   template <typename T, typename Policy>
-  T*
-  add_ref(FixedPtr<T, Policy>&& ptr) noexcept
+  T* add_ref(FixedPtr<T, Policy>&& ptr) noexcept
   {
     return ptr.retn();
   }
 
 
   template <typename A>
-  A*
-  cond_add_ref(A* a) noexcept
+  A* cond_add_ref(A* a) noexcept
   {
     return a;
   }
@@ -189,8 +174,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Policy>
   template <typename OtherPolicy>
-  void
-  SmartPtr<T, Policy>::swap(SmartPtr<Type, OtherPolicy>& sptr)
+  void SmartPtr<T, Policy>::swap(SmartPtr<Type, OtherPolicy>& sptr)
     /*throw (NullPointer, typename OtherPolicy::NullPointer)*/
   {
     Type* new_ptr(sptr.in());
@@ -203,8 +187,7 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Policy>
-  void
-  SmartPtr<T, Policy>::reset() /*throw (NullPointer)*/
+  void SmartPtr<T, Policy>::reset() /*throw (NullPointer)*/
   {
     if (ptr_)
     {
@@ -216,26 +199,21 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Policy>
-  inline
-  SmartPtr<T, Policy>::operator T*() const noexcept
+  inline SmartPtr<T, Policy>::operator T*() const noexcept
   {
     return ptr_;
   }
 
 
   template <typename T, typename Policy>
-  inline
-  T*
-  SmartPtr<T, Policy>::operator ->() const /*throw (NotInitialized)*/
+  inline T* SmartPtr<T, Policy>::operator ->() const /*throw (NotInitialized)*/
   {
     Policy::check_dereference(ptr_);
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  T&
-  SmartPtr<T, Policy>::operator *() const /*throw (NotInitialized)*/
+  inline T& SmartPtr<T, Policy>::operator *() const /*throw (NotInitialized)*/
   {
     return *operator ->();
   }
@@ -290,49 +268,39 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Policy>
-  inline
-  FixedPtr<T, Policy>::operator T*() noexcept
+  inline FixedPtr<T, Policy>::operator T*() noexcept
   {
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  FixedPtr<T, Policy>::operator const T*() const noexcept
+  inline FixedPtr<T, Policy>::operator const T*() const noexcept
   {
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  T*
-  FixedPtr<T, Policy>::operator ->() /*throw (NotInitialized)*/
+  inline T* FixedPtr<T, Policy>::operator ->() /*throw (NotInitialized)*/
   {
     Policy::check_dereference(ptr_);
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  const T*
-  FixedPtr<T, Policy>::operator ->() const /*throw (NotInitialized)*/
+  inline const T* FixedPtr<T, Policy>::operator ->() const /*throw (NotInitialized)*/
   {
     Policy::check_dereference(ptr_);
     return ptr_;
   }
 
   template <typename T, typename Policy>
-  inline
-  T&
-  FixedPtr<T, Policy>::operator *() /*throw (NotInitialized)*/
+  inline T& FixedPtr<T, Policy>::operator *() /*throw (NotInitialized)*/
   {
     return *operator ->();
   }
 
   template <typename T, typename Policy>
-  inline
-  const T&
-  FixedPtr<T, Policy>::operator *() const /*throw (NotInitialized)*/
+  inline const T& FixedPtr<T, Policy>::operator *() const /*throw (NotInitialized)*/
   {
     return *operator ->();
   }
@@ -393,8 +361,7 @@ namespace ReferenceCounting
 
   template <typename T, typename Policy>
   template <typename OtherPolicy>
-  void
-  QualPtr<T, Policy>::swap(QualPtr<Type, OtherPolicy>& sptr)
+  void QualPtr<T, Policy>::swap(QualPtr<Type, OtherPolicy>& sptr)
     /*throw (NullPointer, typename OtherPolicy::NullPointer)*/
   {
     Type* new_ptr(sptr.in());
@@ -407,8 +374,7 @@ namespace ReferenceCounting
 
 
   template <typename T, typename Policy>
-  void
-  QualPtr<T, Policy>::reset() /*throw (NullPointer)*/
+  void QualPtr<T, Policy>::reset() /*throw (NullPointer)*/
   {
     if (ptr_)
     {

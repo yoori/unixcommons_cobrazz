@@ -27,9 +27,7 @@ namespace
     }
 
   private:
-    static
-    void
-    locking_function_(int mode, int n, const char* /*file*/, int /*line*/) noexcept
+    static void locking_function_(int mode, int n, const char* /*file*/, int /*line*/) noexcept
     {
       if (mode & CRYPTO_LOCK)
       {
@@ -41,9 +39,7 @@ namespace
       }
     }
 
-    static
-    unsigned long
-    id_function_() noexcept
+    static unsigned long id_function_() noexcept
     {
       return pthread_self();
     }

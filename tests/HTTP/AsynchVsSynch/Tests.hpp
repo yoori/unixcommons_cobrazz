@@ -19,16 +19,15 @@ class CommonTest : public VSTestInterface
 
   struct TestSuite
   {
-    typedef Requester RequesterType;
-    typedef TestCommons::MTTester<Requester&> TesterType;
+    using RequesterType = Requester;
+    using TesterType = TestCommons::MTTester<Requester&>;
 
     std::unique_ptr<RequesterType> requester;
     std::unique_ptr<TesterType> tester;
 
     TestSuite(RequesterType* new_requester, TesterType* new_tester);
     TestSuite(TestSuite&&);
-    TestSuite&
-    operator =(TestSuite&&);
+    TestSuite& operator =(TestSuite&&);
   };
 
 public:
@@ -48,28 +47,22 @@ public:
   static void* send_synch_req(void*) noexcept;
 
   virtual void print_stat(std::ostream& out) const /*throw(eh::Exception)*/;
-  
-  virtual const std::string
-  additional_http_query() /*throw (eh::Exception)*/;
+
+  virtual const std::string additional_http_query() /*throw (eh::Exception)*/;
 
 protected:
 
-  typedef std::vector<Sync::Semaphore*> Semaphores_;
+  using Semaphores_ = std::vector<Sync::Semaphore*>;
 
-  virtual
-  ~CommonTest() noexcept;
+  virtual ~CommonTest() noexcept;
 
-  void
-  check_error_(char*& error_buf, size_t buf_len) const /*throw(eh::Exception)*/;
+  void check_error_(char*& error_buf, size_t buf_len) const /*throw(eh::Exception)*/;
 
-  void
-  mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/;
+  void mt_testers_gen_(Semaphores_& sems) /*throw (eh::Exception)*/;
 
-  void
-  activation_() /*throw (eh::Exception)*/;
+  void activation_() /*throw (eh::Exception)*/;
 
-  void
-  deactivation_() /*throw (eh::Exception)*/;
+  void deactivation_() /*throw (eh::Exception)*/;
 
 private:
 

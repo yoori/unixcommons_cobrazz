@@ -5,7 +5,7 @@
 
 #define DECLARE_EXCEPTION(NAME, BASE) \
   class NAME##_tag_; \
-  typedef eh::Composite<NAME##_tag_, BASE> NAME
+  using NAME = eh::Composite<NAME##_tag_, BASE>
 
 namespace String
 {
@@ -38,9 +38,7 @@ namespace eh
      * @param description The message to be associated with the exception.
      * @param code Additional code associated with the message.
      */
-    explicit
-    DescriptiveException(const char* description, const char* code = 0)
-      noexcept;
+    explicit DescriptiveException(const char* description, const char* code = 0) noexcept;
 
     /**
      * Parametric constructor. Initializes the exception instance using
@@ -50,8 +48,7 @@ namespace eh
      * @param length The message's length
      * @param code Additional code associated with the message.
      */
-    DescriptiveException(const char* description, size_t length,
-      const char* code = 0) noexcept;
+    DescriptiveException(const char* description, size_t length, const char* code = 0) noexcept;
 
     /**
      * Parametric constructor.
@@ -66,34 +63,24 @@ namespace eh
     DescriptiveException(const DescriptiveException& exception) noexcept;
 
     /** Assignment operator. */
-    DescriptiveException&
-    operator =(const DescriptiveException& exception) noexcept;
+    DescriptiveException& operator =(const DescriptiveException& exception) noexcept;
 
   public:
     /** Destructor. */
-    virtual
-    ~DescriptiveException() noexcept;
+    virtual ~DescriptiveException() noexcept;
 
     /** Returns the message associated with the exception. */
-    virtual
-    const char*
-    what() const noexcept;
+    virtual const char* what() const noexcept;
 
-    virtual
-    const char*
-    code() const noexcept;
+    virtual const char* code() const noexcept;
 
   protected:
     DescriptiveException() noexcept;
 
-    void
-    copy_string_(const char* src, char* dst, size_t size) noexcept;
+    void copy_string_(const char* src, char* dst, size_t size) noexcept;
 
-    void
-    init_(const char* description, const char* code) noexcept;
-    void
-    init_(const char* description, size_t length, const char* code)
-      noexcept;
+    void init_(const char* description, const char* code) noexcept;
+    void init_(const char* description, size_t length, const char* code) noexcept;
 
   protected:
     enum { DESC_EXCEPTION_BUFFER_SIZE = 10 * 1024 };
@@ -118,9 +105,7 @@ namespace eh
      * @param description The message to be associated with the exception.
      * @param code Additional code associated with the message.
      */
-    explicit
-    Composite(const char* description, const char* code = 0)
-      noexcept;
+    explicit Composite(const char* description, const char* code = 0) noexcept;
 
     /**
      * Parametric constructor.
@@ -131,8 +116,7 @@ namespace eh
      * @param length The message's length
      * @param code Additional code associated with the message.
      */
-    Composite(const char* description, size_t length,
-      const char* code = 0) noexcept;
+    Composite(const char* description, size_t length, const char* code = 0) noexcept;
 
     /**
      * Parametric constructor.
@@ -163,15 +147,13 @@ namespace eh
      * @param stream The message to be associated with the exception.
      * @param code Additional code associated with the message.
      */
-    explicit
-    Composite(const Stream::Error& stream, const char* code = 0) noexcept;
+    explicit Composite(const Stream::Error& stream, const char* code = 0) noexcept;
 
   protected:
     Composite() noexcept;
   };
 
-  const char*
-  code(const Exception& ex) noexcept;
+  const char* code(const Exception& ex) noexcept;
 }
 
 //
@@ -184,15 +166,13 @@ namespace eh
   // DescriptiveException class
   //
 
-  inline
-  DescriptiveException::DescriptiveException() noexcept
+  inline DescriptiveException::DescriptiveException() noexcept
   {
     init_(0, 0);
   }
 
   inline
-  DescriptiveException::DescriptiveException(const char* description,
-    const char* code) noexcept
+  DescriptiveException::DescriptiveException(const char* description, const char* code) noexcept
   {
     init_(description, code);
   }
@@ -211,24 +191,20 @@ namespace eh
     init_(description.data(), description.size(), code);
   }
 
-  inline
-  DescriptiveException::~DescriptiveException() noexcept
+  inline DescriptiveException::~DescriptiveException() noexcept
   {
     ::std::fill(description_, description_ + sizeof(description_), 0);
     ::std::fill(code_, code_ + sizeof(code_), 0);
   }
 
-  inline
-  DescriptiveException::DescriptiveException(
-    const DescriptiveException& exception) noexcept
+  inline DescriptiveException::DescriptiveException( const DescriptiveException& exception) noexcept
     : Exception()
   {
     init_(exception.description_, exception.code_);
   }
 
   inline
-  DescriptiveException&
-  DescriptiveException::operator =(const DescriptiveException& exception)
+  DescriptiveException& DescriptiveException::operator =(const DescriptiveException& exception)
     noexcept
   {
     init_(exception.description_, exception.code_);
@@ -236,24 +212,17 @@ namespace eh
     return *this;
   }
 
-  inline
-  const char*
-  DescriptiveException::what() const noexcept
+  inline const char* DescriptiveException::what() const noexcept
   {
     return description_;
   }
 
-  inline
-  const char*
-  DescriptiveException::code() const noexcept
+  inline const char* DescriptiveException::code() const noexcept
   {
     return code_;
   }
 
-  inline
-  void
-  DescriptiveException::copy_string_(const char* src, char* dst, size_t size)
-    noexcept
+  inline void DescriptiveException::copy_string_(const char* src, char* dst, size_t size) noexcept
   {
     if (src)
     {
@@ -269,19 +238,14 @@ namespace eh
     }
   }
 
-  inline
-  void
-  DescriptiveException::init_(const char* description, const char* code)
-    noexcept
+  inline void DescriptiveException::init_(const char* description, const char* code) noexcept
   {
     copy_string_(description, description_, DESC_EXCEPTION_BUFFER_SIZE);
     copy_string_(code, code_, CODE_EXCEPTION_BUFFER_SIZE);
   }
 
   inline
-  void
-  DescriptiveException::init_(const char* description, size_t size,
-    const char* code) noexcept
+  void DescriptiveException::init_(const char* description, size_t size, const char* code) noexcept
   {
     if (size)
     {
@@ -307,16 +271,13 @@ namespace eh
   }
 
   template <typename Tag, typename Base>
-  Composite<Tag, Base>::Composite(const char* description, const char* code)
-    noexcept
+  Composite<Tag, Base>::Composite(const char* description, const char* code) noexcept
   {
     Base::init_(description, code);
   }
 
   template <typename Tag, typename Base>
-  Composite<Tag, Base>::Composite(const char* description, size_t size,
-    const char* code)
-    noexcept
+  Composite<Tag, Base>::Composite(const char* description, size_t size, const char* code) noexcept
   {
     Base::init_(description, size, code);
   }
@@ -328,12 +289,9 @@ namespace eh
   }
 
 
-  inline
-  const char*
-  code(const Exception& ex) noexcept
+  inline const char* code(const Exception& ex) noexcept
   {
-    if (const DescriptiveException* de =
-      dynamic_cast<const DescriptiveException*>(&ex))
+    if (const DescriptiveException* de = dynamic_cast<const DescriptiveException*>(&ex))
     {
       return de->code();
     }

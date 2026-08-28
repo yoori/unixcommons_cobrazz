@@ -12,20 +12,16 @@ namespace TestCommons
   class Errors
   {
   public:
-    void
-    add(const String::SubString& error, bool write = false) noexcept;
+    void add(const String::SubString& error, bool write = false) noexcept;
 
-    void
-    print() const noexcept;
+    void print() const noexcept;
 
-    void
-    print(std::ostream& ostr) const noexcept;
+    void print(std::ostream& ostr) const noexcept;
 
-    bool
-    empty() const noexcept;
+    bool empty() const noexcept;
 
   private:
-    typedef std::map<std::string, int> AllErrors;
+    using AllErrors = std::map<std::string, int>;
 
     mutable Sync::PosixMutex mutex_;
     AllErrors errors_;
@@ -38,9 +34,7 @@ namespace TestCommons
 
 namespace TestCommons
 {
-  inline
-  bool
-  Errors::empty() const noexcept
+  inline bool Errors::empty() const noexcept
   {
     Sync::PosixGuard guard(mutex_);
 

@@ -80,8 +80,7 @@ namespace Generics
     swap(right);
   }
 
-  MemBuf::MemBuf(const void* ptr, std::size_t size,
-    Allocator::Base* allocator)
+  MemBuf::MemBuf(const void* ptr, std::size_t size, Allocator::Base* allocator)
     /*throw (RangeError, OutOfMemory)*/
     : allocator_(ReferenceCounting::add_ref(allocator ? allocator :
         Allocator::Base::get_default_allocator())),
@@ -105,8 +104,7 @@ namespace Generics
     clear();
   }
 
-  void
-  MemBuf::clear() noexcept
+  void MemBuf::clear() noexcept
   {
     if (capacity())
     {
@@ -129,8 +127,7 @@ namespace Generics
     capacity_ = 2 * DEV_MEMBUF_BOUNDS;
   }
 
-  void
-  MemBuf::alloc(std::size_t size) /*throw (eh::Exception, OutOfMemory)*/
+  void MemBuf::alloc(std::size_t size) /*throw (eh::Exception, OutOfMemory)*/
   {
     if (capacity() < size)
     {
@@ -156,21 +153,18 @@ namespace Generics
     size_ = size;
   }
 
-  void
-  MemBuf::resize(std::size_t size) /*throw (RangeError)*/
+  void MemBuf::resize(std::size_t size) /*throw (RangeError)*/
   {
     if (size > capacity())
     {
       Stream::Error ostr;
-      ostr << FNS << "requested size=" << size << " exceeds capacity=" <<
-        capacity();
+      ostr << FNS << "requested size=" << size << " exceeds capacity=" << capacity();
       throw RangeError(ostr);
     }
     size_ = size;
   }
 
-  void
-  MemBuf::swap(MemBuf& right) noexcept
+  void MemBuf::swap(MemBuf& right) noexcept
   {
     std::swap(ptr_, right.ptr_);
     std::swap(size_, right.size_);
@@ -178,16 +172,14 @@ namespace Generics
     std::swap(allocator_, right.allocator_);
   }
 
-  void
-  MemBuf::assign(const void* ptr, std::size_t size)
+  void MemBuf::assign(const void* ptr, std::size_t size)
     /*throw (eh::Exception, OutOfMemory)*/
   {
     alloc(size);
     memcpy(data(), ptr, size);
   }
 
-  MemBuf&
-  MemBuf::operator =(MemBuf&& right) noexcept
+  MemBuf& MemBuf::operator =(MemBuf&& right) noexcept
   {
     if (&right != this)
     {
@@ -197,8 +189,7 @@ namespace Generics
   }
 
 
-  ConstSmartMemBuf_var
-  transfer_membuf(SmartMemBuf* ptr) /*throw (eh::Exception)*/
+  ConstSmartMemBuf_var transfer_membuf(SmartMemBuf* ptr) /*throw (eh::Exception)*/
   {
     return new ConstSmartMemBuf(std::move(ptr->membuf()));
   }

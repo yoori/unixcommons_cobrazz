@@ -19,15 +19,13 @@ TestModule::~TestModule() noexcept
 {
 }
 
-int
-TestModule::handler(request_rec* r) noexcept
+int TestModule::handler(request_rec* r) noexcept
 {
   ap_rprintf(r, "You requested %s", r->uri);
   return OK;
 }
 
-const char*
-TestModule::handle_command(const ConfigArgs& args) noexcept
+const char* TestModule::handle_command(const ConfigArgs& args) noexcept
 {
   try
   {
@@ -41,13 +39,11 @@ TestModule::handle_command(const ConfigArgs& args) noexcept
 
   if (!strcmp(args.name(), "TestVoid"))
   {
-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0,
-                 args.command()->server, "Handling TestVoid.");
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, args.command()->server, "Handling TestVoid.");
   }
   else if (!strcmp(args.name(), "TestFlag"))
   {
-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, args.command()->server,
-                 "Handling TestFlag.");
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, args.command()->server, "Handling TestFlag.");
 
     try
     {
@@ -62,8 +58,7 @@ TestModule::handle_command(const ConfigArgs& args) noexcept
   }
   else if (!strcmp(args.name(), "TestTake12"))
   {
-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, args.command()->server,
-                 "Handling TestTake12.");
+    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, args.command()->server, "Handling TestTake12.");
 
     try
     {
@@ -100,8 +95,7 @@ TestModule::handle_command(const ConfigArgs& args) noexcept
   return 0;
 }
 
-bool
-TestModule::will_handle(const char*) noexcept
+bool TestModule::will_handle(const char*) noexcept
 {
   return true;
 }
@@ -138,8 +132,7 @@ TestModule::handle_request(const Apache::HttpRequest& request,
   return OK;
 }
 
-void
-TestModule::init() noexcept
+void TestModule::init() noexcept
 {
   try
   {
@@ -150,8 +143,7 @@ TestModule::init() noexcept
   }
 }
 
-void
-TestModule::shutdown() noexcept
+void TestModule::shutdown() noexcept
 {
   try
   {

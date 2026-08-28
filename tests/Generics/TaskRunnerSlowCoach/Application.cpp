@@ -9,28 +9,22 @@ using namespace Generics;
 
 class TestEmptyTask : public Generics::TaskImpl
 {
-  virtual void
-  execute() noexcept;
+  virtual void execute() noexcept;
 };
 
-void
-TestEmptyTask::execute() noexcept
+void TestEmptyTask::execute() noexcept
 {
   // empty task
 }
 
 struct TasksSpreader
 {
-  TasksSpreader(
-    TaskRunner_var task_runner,
-    const Time& next_time)
+  TasksSpreader( TaskRunner_var task_runner, const Time& next_time)
     /*throw (eh::Exception)*/;
 
-  void
-  operator()() /*throw (eh::Exception)*/;
+  void operator()() /*throw (eh::Exception)*/;
 
-  std::size_t
-  get_count() const noexcept;
+  std::size_t get_count() const noexcept;
 
 private:
   Generics::TaskRunner_var task_runner_;
@@ -38,9 +32,7 @@ private:
   volatile _Atomic_word tasks_counter_;
 };
 
-TasksSpreader::TasksSpreader(
-  TaskRunner_var task_runner,
-  const Time& next_time)
+TasksSpreader::TasksSpreader( TaskRunner_var task_runner, const Time& next_time)
   /*throw (eh::Exception)*/
   : task_runner_(task_runner),
     NEXT_TIME_(next_time),
@@ -48,22 +40,18 @@ TasksSpreader::TasksSpreader(
 {
 }
 
-void
-TasksSpreader::operator()() /*throw (eh::Exception)*/
+void TasksSpreader::operator()() /*throw (eh::Exception)*/
 {
   __gnu_cxx::__atomic_add(&tasks_counter_, 1);
-  task_runner_->enqueue_task(Generics::Task_var(new TestEmptyTask),
-                        &NEXT_TIME_);
+  task_runner_->enqueue_task(Generics::Task_var(new TestEmptyTask), &NEXT_TIME_);
 }
 
-std::size_t
-TasksSpreader::get_count() const noexcept
+std::size_t TasksSpreader::get_count() const noexcept
 {
   return tasks_counter_;
 }
 
-void
-TestTasker::do_test() /*throw (eh::Exception)*/
+void TestTasker::do_test() /*throw (eh::Exception)*/
 {
   try
   {
@@ -75,44 +63,35 @@ TestTasker::do_test() /*throw (eh::Exception)*/
     };
 
     //    const std::size_t TASKS_AMOUNT = 10;
-    const TestParams TEST_PARAMS[] =
-    {
+    const TestParams TEST_PARAMS[] = {
       {2, 5, Time(1)},
     };
     // + 10 for detection waitlocks.
     std::size_t wait_lock_gap = 10;
-    for (std::size_t j = 0;
-      j < sizeof(TEST_PARAMS) /
-      sizeof(TEST_PARAMS[0]);
-    ++j)
+    for (std::size_t j = 0; j < sizeof(TEST_PARAMS) / sizeof(TEST_PARAMS[0]); ++j)
     {
-      spawn_tasker_(TEST_PARAMS[j].THREADS_AMOUNT,
-        TEST_PARAMS[j].QUEUE_LIMIT);
+      spawn_tasker_(TEST_PARAMS[j].THREADS_AMOUNT, TEST_PARAMS[j].QUEUE_LIMIT);
 
       Time now = Time::get_time_of_day();
-      const Generics::Time NEXT_TIME(
-        now + TEST_PARAMS[j].DURATION + wait_lock_gap);
+      const Generics::Time NEXT_TIME( now + TEST_PARAMS[j].DURATION + wait_lock_gap);
 
       TasksSpreader tasks_spreader(task_runner_, NEXT_TIME);
 
-      std::cout << "Original duration="
-        << TEST_PARAMS[j].DURATION.tv_sec << std::endl;
+      std::cout << "Original duration=" << TEST_PARAMS[j].DURATION.tv_sec << std::endl;
 
-      TestCommons::MTTester<TasksSpreader&> mt_tester(
-        tasks_spreader, 5);
+      TestCommons::MTTester<TasksSpreader&> mt_tester( tasks_spreader, 5);
 
       CPUTimer timer;
       timer.start();
       mt_tester.run(1, TEST_PARAMS[j].DURATION.tv_sec);
       timer.stop();
-      // Test fail if we have overflows and 
+      // Test fail if we have overflows and
       // execution time  > 1 + wait_lock_gap seconds
       // because queueing threads are locking on enqueue task.
 
       std::cout << "Start time = " << now.get_local_time() << std::endl;
       std::cout << "Put " << tasks_spreader.get_count() << " tasks." << std::endl;
-      std::cout << "Acquire " 
-        << timer.elapsed_time() << std::endl;
+      std::cout << "Acquire " << timer.elapsed_time() << std::endl;
 
     } // for
   }
@@ -123,8 +102,7 @@ TestTasker::do_test() /*throw (eh::Exception)*/
   }
 }
 
-int
-main()
+int main()
 {
   std::cout << "TaskRunner performance tests started.." << std::endl;
   try

@@ -33,14 +33,12 @@ namespace XMLUtility
    * Performs per process Xerces initialization.
    * You must call <code>initialize</code> before parsing.
    */
-  void
-  initialize() /*throw (Exception, eh::Exception)*/;
+  void initialize() /*throw (Exception, eh::Exception)*/;
 
   /**
    * Performs per process Xerces termination.
    */
-  void
-  terminate() noexcept;
+  void terminate() noexcept;
 
   /**
    * Retrieves an attribute value for the specified XML node.
@@ -54,8 +52,7 @@ namespace XMLUtility
    * <code>false</code> otherwise.
    */
   template <typename T>
-  bool
-  get_attribute(DOMElement* node, const char* attr, T& value)
+  bool get_attribute(DOMElement* node, const char* attr, T& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/;
 
   /**
@@ -68,8 +65,7 @@ namespace XMLUtility
    * @return <code>true</code> if the attribute value was retrieved;
    * <code>false</code> otherwise.
    */
-  bool
-  get_attribute(DOMElement* node, const char* attr, std::string& value)
+  bool get_attribute(DOMElement* node, const char* attr, std::string& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/;
 
   /**
@@ -82,8 +78,7 @@ namespace XMLUtility
    * @return <code>true</code> if the attribute value was retrieved;
    * <code>false</code> otherwise.
    */
-  bool
-  get_attribute(DOMElement* node, const char* attr, bool& value)
+  bool get_attribute(DOMElement* node, const char* attr, bool& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/;
 
   /**
@@ -100,8 +95,7 @@ namespace XMLUtility
    * @return <code>true</code> on success; <code>false</code> otherwise.
    */
   template <typename T>
-  bool
-  get_element(DOMNode* node, T& value, bool content_only = true)
+  bool get_element(DOMNode* node, T& value, bool content_only = true)
     /*throw (InvalidFormat, Exception, eh::Exception)*/;
 
   /**
@@ -116,8 +110,7 @@ namespace XMLUtility
    *
    * @return <code>true</code> on success; <code>false</code> otherwise.
    */
-  bool
-  get_element(DOMNode* node, std::string& value, bool content_only = true)
+  bool get_element(DOMNode* node, std::string& value, bool content_only = true)
     /*throw (InvalidFormat, Exception, eh::Exception)*/;
 
   /**
@@ -141,9 +134,7 @@ namespace XMLUtility
 
 namespace XMLUtility
 {
-  inline
-  bool
-  get_attribute(DOMElement* node, const char* attr, std::string& value)
+  inline bool get_attribute(DOMElement* node, const char* attr, std::string& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/
   {
     if (node == 0 || attr == 0)
@@ -164,9 +155,7 @@ namespace XMLUtility
     return true;
   }
 
-  inline
-  bool
-  get_attribute(DOMElement* node, const char* attr, bool& value)
+  inline bool get_attribute(DOMElement* node, const char* attr, bool& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/
   {
     std::string str_val;
@@ -212,8 +201,7 @@ namespace XMLUtility
   }
 
   template <typename T>
-  bool
-  get_attribute(DOMElement* node, const char* attr, T& value)
+  bool get_attribute(DOMElement* node, const char* attr, T& value)
     /*throw (InvalidFormat, Exception, eh::Exception)*/
   {
     std::string str_val;
@@ -229,17 +217,14 @@ namespace XMLUtility
     {
       Stream::Error ostr;
       ostr << "XMLUtility::get_attribute(): "
-        "failed to convert attribute '" << attr << "' value '" <<
-        str_val << "' to target type";
+        "failed to convert attribute '" << attr << "' value '" << str_val << "' to target type";
       throw InvalidFormat(ostr);
     }
 
     return true;
   }
 
-  inline
-  bool
-  get_element(DOMNode* node, std::string& value, bool content_only)
+  inline bool get_element(DOMNode* node, std::string& value, bool content_only)
     /*throw (InvalidFormat, Exception, eh::Exception)*/
   {
     if (node == 0)
@@ -256,25 +241,19 @@ namespace XMLUtility
       {
       }
 
-      virtual
-      FilterAction
-      acceptNode (const DOMNode* node) const
+      virtual FilterAction acceptNode (const DOMNode* node) const
       {
 //        std::cerr << "acceptNode : 0x" << std::hex << node->getNodeType() <<
 //          std::endl;
         return node == node_ && content_only_ ? FILTER_SKIP : FILTER_ACCEPT;
       }
 
-      virtual
-      unsigned long
-      getWhatToShow() const
+      virtual unsigned long getWhatToShow() const
       {
         return to_show_;
       }
 
-      virtual
-      void
-      setWhatToShow(unsigned long to_show)
+      virtual void setWhatToShow(unsigned long to_show)
       {
         to_show_ = to_show;
       }
@@ -290,15 +269,13 @@ namespace XMLUtility
       GetStringFilter filter(node, content_only);
 
       DOMImplementation* impl =
-        DOMImplementationRegistry::getDOMImplementation(
-          StringManip::XMLChAdapter("LS"));
+        DOMImplementationRegistry::getDOMImplementation( StringManip::XMLChAdapter("LS"));
 
       std::unique_ptr<DOMLSSerializer> serializer(impl->createLSSerializer());
 
       serializer.get()->setFilter(&filter);
 
-      value = reinterpret_cast<const char*>(
-        serializer.get()->writeToString(node));
+      value = reinterpret_cast<const char*>( serializer.get()->writeToString(node));
     }
     catch (const XMLException& e)
     {
@@ -314,8 +291,7 @@ namespace XMLUtility
   }
 
   template <typename T>
-  bool
-  get_element(DOMNode* node, T& value, bool content_only)
+  bool get_element(DOMNode* node, T& value, bool content_only)
     /*throw (InvalidFormat, Exception, eh::Exception)*/
   {
     std::string str_val;
@@ -338,14 +314,11 @@ namespace XMLUtility
     return true;
   }
 
-  inline
-  bool
-  has_name(const DOMNode* node, const char* name, const char* name_space)
+  inline bool has_name(const DOMNode* node, const char* name, const char* name_space)
     /*throw (eh::Exception)*/
   {
     return node != 0 && name != 0 &&
-      !strcasecmp(StringManip::XMLMbcAdapter(node->getLocalName()), name) &&
-      (name_space == 0 ||
+      !strcasecmp(StringManip::XMLMbcAdapter(node->getLocalName()), name) && (name_space == 0 ||
         !strcasecmp(StringManip::XMLMbcAdapter(node->getNamespaceURI()),
           name_space));
   }

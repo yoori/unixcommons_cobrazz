@@ -4,18 +4,15 @@
 class Echo_i : public POA_Echo
 {
 public:
-  virtual char*
-  echoString(const char* message) noexcept;
+  virtual char* echoString(const char* message) noexcept;
 };
 
-char*
-Echo_i::echoString(const char* message) noexcept
+char* Echo_i::echoString(const char* message) noexcept
 {
   return CORBA::string_dup(message);
 }
 
-void
-hello(CORBA::Object_ptr obj)
+void hello(CORBA::Object_ptr obj)
 {
   Echo_var e = Echo::_narrow(obj);
 
@@ -30,12 +27,10 @@ hello(CORBA::Object_ptr obj)
 
   dest = e->echoString(src);
 
-  std::cerr << "I said, \"" << src << "\"." <<
-    " The Object said, \"" << dest <<"\"" << std::endl;
+  std::cerr << "I said, \"" << src << "\"." << " The Object said, \"" << dest <<"\"" << std::endl;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_ptr orb = CORBA::ORB_init(argc, argv, ORB_NAME);
 

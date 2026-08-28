@@ -44,10 +44,7 @@ int main()
 {
   const int LOCK_COUNT = 1000000;
 
-  TEST("Vector filling",
-       std::vector<int> v,
-       v.push_back(i),
-       LOCK_COUNT);
+  TEST("Vector filling", std::vector<int> v, v.push_back(i), LOCK_COUNT);
   TEST("Posix Mutex",
        pthread_mutex_t lock_ = PTHREAD_MUTEX_INITIALIZER,
        if (pthread_mutex_lock(&lock_) != 0) \
@@ -60,18 +57,9 @@ int main()
          break; \
        },
        LOCK_COUNT);
-  TEST("Posix Guard",
-       Sync::PosixMutex lock_,
-       Sync::PosixGuard lock(lock_),
-       LOCK_COUNT);
-  TEST("Posix Read Guard",
-       Sync::PosixRWLock lock_,
-       Sync::PosixRGuard lock(lock_),
-       LOCK_COUNT);
-  TEST("Posix Write Guard",
-       Sync::PosixRWLock lock_,
-       Sync::PosixWGuard lock(lock_),
-       LOCK_COUNT);
+  TEST("Posix Guard", Sync::PosixMutex lock_, Sync::PosixGuard lock(lock_), LOCK_COUNT);
+  TEST("Posix Read Guard", Sync::PosixRWLock lock_, Sync::PosixRGuard lock(lock_), LOCK_COUNT);
+  TEST("Posix Write Guard", Sync::PosixRWLock lock_, Sync::PosixWGuard lock(lock_), LOCK_COUNT);
   TEST("Ace Mutex No Guard",
        ACE_Thread_Mutex lock_,
        lock_.acquire(); \

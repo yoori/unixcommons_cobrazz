@@ -42,8 +42,7 @@ namespace Generics
      * Returns pointer to the key
      * @return pointer to the key
      */
-    RSA*
-    key() const noexcept;
+    RSA* key() const noexcept;
 
   private:
     RSA* key_;
@@ -90,8 +89,7 @@ namespace Generics
   }
 
   template <const bool PRIVATE_KEY>
-  RSA*
-  RSAKey<PRIVATE_KEY>::key() const noexcept
+  RSA* RSAKey<PRIVATE_KEY>::key() const noexcept
   {
     return key_;
   }

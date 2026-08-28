@@ -12,22 +12,19 @@ DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
 struct StringIndexAccessor
 {
-  unsigned int
-  size(const std::string& key)
+  unsigned int size(const std::string& key)
     /*throw(eh::Exception)*/
   {
     return key.length();
   }
 
-  void
-  load(const void* buf, unsigned long size, std::string& key)
+  void load(const void* buf, unsigned long size, std::string& key)
     /*throw(eh::Exception)*/
   {
     key = std::string((const char*)buf, size);
   }
 
-  void
-  save(const std::string& key, void* buf, unsigned long size)
+  void save(const std::string& key, void* buf, unsigned long size)
     /*throw(eh::Exception)*/
   {
     unsigned int sz = key.length();
@@ -41,12 +38,11 @@ struct StringIndexAccessor
 
 namespace
 {
-  typedef PlainStorage::Map<std::string, StringIndexAccessor> Map;
+  using Map = PlainStorage::Map<std::string, StringIndexAccessor>;
 
-  const char* KEYS[] =
-  {
+  const char* KEYS[] = {
     "KEY0", "KEY1", "KEY2", "KEY3", "KEY4", "KEY5", "KEY6", "KEY7", "KEY8",
-    "KEY9", 
+    "KEY9",
   };
   const std::size_t TEST_BUF_SIZE = 20000;
   const std::size_t RECORDS_COUNT = 1000;
@@ -73,10 +69,8 @@ find_and_test(
 
     if (sz != etalone_buf_size)
     {
-      std::cerr << "ERROR(" << test_name << "): "
-        << "saved and read data has diff size "
-        << "(" << sz << "!=" << etalone_buf_size << ")."
-        << std::endl;
+      std::cerr << "ERROR(" << test_name << "): " << "saved and read data has diff size "
+        << "(" << sz << "!=" << etalone_buf_size << ")." << std::endl;
       return false;
     }
 
@@ -92,20 +86,16 @@ find_and_test(
 
     if (first_diff_pos != -1)
     {
-      std::cerr << "ERROR(" << test_name << "): "
-        << "saved and read data has diff in pos "
-        << first_diff_pos
-        << "(" << (int)(buf[first_diff_pos])
-        << "!=" << (int)(etalone_buf[first_diff_pos]) << ")."
-        << std::endl;
+      std::cerr << "ERROR(" << test_name << "): " << "saved and read data has diff in pos "
+        << first_diff_pos << "(" << (int)(buf[first_diff_pos])
+        << "!=" << (int)(etalone_buf[first_diff_pos]) << ")." << std::endl;
 
       return false;
     }
   }
   else
   {
-    std::cerr << "ERROR(" << test_name << "): "
-      << "inserted key not exist." << std::endl;
+    std::cerr << "ERROR(" << test_name << "): " << "inserted key not exist." << std::endl;
 
     return false;
   }
@@ -116,11 +106,10 @@ find_and_test(
 class Reader
 {
 public:
-  typedef PlainStorage::PlainWriter PlainWriter;
+  using PlainWriter = PlainStorage::PlainWriter;
   Reader(PlainWriter* plain_writer) noexcept;
 
-  void
-  operator ()() const /*throw (eh::Exception)*/;
+  void operator ()() const /*throw (eh::Exception)*/;
 private:
   PlainStorage::PlainWriter_var plain_writer_;
 };
@@ -128,11 +117,10 @@ private:
 class Writer
 {
 public:
-  typedef PlainStorage::PlainWriter PlainWriter;
+  using PlainWriter = PlainStorage::PlainWriter;
   Writer(PlainWriter* plain_writer) noexcept;
 
-  void
-  operator ()() const /*throw (eh::Exception)*/;
+  void operator ()() const /*throw (eh::Exception)*/;
 private:
   PlainStorage::PlainWriter_var plain_writer_;
 };
@@ -145,8 +133,7 @@ Writer::Writer(PlainWriter* plain_writer) noexcept
 {
 }
 
-void
-Writer::operator ()() const /*throw (eh::Exception)*/
+void Writer::operator ()() const /*throw (eh::Exception)*/
 {
   PlainStorage::PlainReadWriteTransaction_var transac_(
     plain_writer_->create_readwrite_transaction());
@@ -182,11 +169,9 @@ Reader::Reader(PlainStorage::PlainWriter* plain_writer) noexcept
 {
 }
 
-void
-Reader::operator ()() const /*throw (eh::Exception)*/
+void Reader::operator ()() const /*throw (eh::Exception)*/
 {
-  PlainStorage::PlainTransaction_var transac_(
-    plain_writer_->create_readonly_transaction());
+  PlainStorage::PlainTransaction_var transac_( plain_writer_->create_readonly_transaction());
   std::size_t transac_size_ = transac_->size();
   Generics::ArrayChar test_buf(transac_size_);
 
@@ -195,8 +180,7 @@ Reader::operator ()() const /*throw (eh::Exception)*/
 }
 //////////////////////////////////////////////////////////////////////////
 
-void
-transaction_creating_test(Map& test_map) /*throw (eh::Exception)*/
+void transaction_creating_test(Map& test_map) /*throw (eh::Exception)*/
 {
   bool completed = true;
   const char* key1 = KEYS[0];
@@ -235,20 +219,16 @@ transaction_creating_test(Map& test_map) /*throw (eh::Exception)*/
   {
     completed = false;
 
-    std::cerr << "ERROR(" << test_name << "): "
-      << "Caught exception: " << ex.what() << std::endl;
+    std::cerr << "ERROR(" << test_name << "): " << "Caught exception: " << ex.what() << std::endl;
   }
 
   if (completed)
   {
-    std::cout << "Test with name '" << test_name
-      << "' successfully completed." << std::endl;
+    std::cout << "Test with name '" << test_name << "' successfully completed." << std::endl;
   }
 }
 
-void
-insert_find_test(
-  Map& test_map)
+void insert_find_test( Map& test_map)
   /*throw (eh::Exception)*/
 {
   const char FUN[] = "insert_find_test(): ";
@@ -281,15 +261,13 @@ insert_find_test(
 */
 
     test_map[KEYS[5]]->write(buffs[0].get(), TEST_BUF_SIZE);
-    if (!find_and_test(FUN,
-      test_map, KEYS[5], buffs[0].get(), TEST_BUF_SIZE))
+    if (!find_and_test(FUN, test_map, KEYS[5], buffs[0].get(), TEST_BUF_SIZE))
     {
       completed = false;
     }
 
     test_map[KEYS[5]]->write(buffs[1].get(), TEST_BUF_SIZE);
-    if (!find_and_test(FUN,
-      test_map, KEYS[5], buffs[1].get(), TEST_BUF_SIZE))
+    if (!find_and_test(FUN, test_map, KEYS[5], buffs[1].get(), TEST_BUF_SIZE))
     {
       completed = false;
     }
@@ -297,8 +275,7 @@ insert_find_test(
     test_map[KEYS[5]]->write(buffs[5].get(), TEST_BUF_SIZE);
     test_map[KEYS[1]]->write(buffs[1].get(), TEST_BUF_SIZE);
 
-    if (!find_and_test(FUN,
-      test_map, KEYS[1], buffs[1].get(), TEST_BUF_SIZE))
+    if (!find_and_test(FUN, test_map, KEYS[1], buffs[1].get(), TEST_BUF_SIZE))
     {
       completed = false;
     }
@@ -312,15 +289,12 @@ insert_find_test(
   {
     completed = false;
 
-    std::cerr
-      << "ERROR(" << FUN << "): "
-      << "Caught exception: " << ex.what() << std::endl;
+    std::cerr << "ERROR(" << FUN << "): " << "Caught exception: " << ex.what() << std::endl;
   }
 
   if (completed)
   {
-    std::cout << "Test '" << FUN << "' completed successfully."
-      << std::endl;
+    std::cout << "Test '" << FUN << "' completed successfully." << std::endl;
   }
   else
   {
@@ -328,8 +302,7 @@ insert_find_test(
   }
 }
 
-void
-erase_test(Map& test_map) /*throw (eh::Exception)*/
+void erase_test(Map& test_map) /*throw (eh::Exception)*/
 {
   const char FUN[] = "erase_test";
   bool completed = true;
@@ -357,8 +330,7 @@ erase_test(Map& test_map) /*throw (eh::Exception)*/
     if (it != test_map.end())
     {
       completed = false;
-      std::cerr << "ERROR(" << FUN << "): "
-        << "find key '" << key1 << "' after erasing."
+      std::cerr << "ERROR(" << FUN << "): " << "find key '" << key1 << "' after erasing."
         << std::endl;
     };
   }
@@ -366,24 +338,20 @@ erase_test(Map& test_map) /*throw (eh::Exception)*/
   {
     completed = false;
 
-    std::cerr << "ERROR(" << FUN << "): "
-      << "Caught exception: " << ex.what() << std::endl;
+    std::cerr << "ERROR(" << FUN << "): " << "Caught exception: " << ex.what() << std::endl;
   }
 
   if (completed)
   {
-    std::cout << "Test with name '" << FUN << "' successfully completed."
-      << std::endl;
+    std::cout << "Test with name '" << FUN << "' successfully completed." << std::endl;
   }
 }
 
-void
-full_fetching_test(Map& test_map) /*throw (eh::Exception)*/
+void full_fetching_test(Map& test_map) /*throw (eh::Exception)*/
 {
   std::cout << "FULL FETCHING, READED KEYS: " << std::endl;
 
-  for (Map::iterator it = test_map.begin();
-    it != test_map.end(); ++it)
+  for (Map::iterator it = test_map.begin(); it != test_map.end(); ++it)
   {
     std::cout << "  '" << it->first << "'" << std::endl;
   }
@@ -391,11 +359,7 @@ full_fetching_test(Map& test_map) /*throw (eh::Exception)*/
   std::cout << "FULL FETCHING FINISHED" << std::endl;
 }
 
-void
-performance_test(
-  Map& test_map,
-  unsigned int record_size,
-  bool content_test = true)
+void performance_test( Map& test_map, unsigned int record_size, bool content_test = true)
   /*throw (eh::Exception)*/
 {
   const char* test_name = "performance_test";
@@ -408,8 +372,7 @@ performance_test(
 
   try
   {
-    std::cout << "PERFORMANCE TESTING for record size = "
-      << record_size << ": " << std::endl;
+    std::cout << "PERFORMANCE TESTING for record size = " << record_size << ": " << std::endl;
     Generics::Timer timer;
 
     timer.start();
@@ -418,8 +381,7 @@ performance_test(
     {
       std::ostringstream ostr;
       ostr << key_str << i;
-      PlainStorage::PlainWriter_var plain_writer =
-        test_map[ostr.str()];
+      PlainStorage::PlainWriter_var plain_writer = test_map[ostr.str()];
 
       PlainStorage::PlainReadWriteTransaction_var trans =
         plain_writer->create_readwrite_transaction();
@@ -449,10 +411,8 @@ performance_test(
 
     std::cout << "read count: " << RECORDS_COUNT << std::endl;
     std::cout << "average time: ";
-    std::cout << msec / 1000 % 10 << "."
-      << msec / 100 % 10
-      << msec / 10 % 10
-      << msec % 10 << std::endl;
+    std::cout << msec / 1000 % 10 << "." << msec / 100 % 10
+      << msec / 10 % 10 << msec % 10 << std::endl;
 
     if (content_test)
     {
@@ -460,11 +420,9 @@ performance_test(
       {
         std::ostringstream ostr;
         ostr << key_str << i;
-        PlainStorage::PlainWriter_var plain_writer =
-          test_map[ostr.str()];
+        PlainStorage::PlainWriter_var plain_writer = test_map[ostr.str()];
 
-        PlainStorage::PlainTransaction_var trans =
-          plain_writer->create_readonly_transaction();
+        PlainStorage::PlainTransaction_var trans = plain_writer->create_readonly_transaction();
 
         if (trans->size() != record_size)
         {
@@ -478,8 +436,7 @@ performance_test(
 
         if (test_buf[0] != 'X')
         {
-          throw Exception(
-            "read test record has non correct content");
+          throw Exception( "read test record has non correct content");
         }
       }
     }
@@ -488,14 +445,11 @@ performance_test(
   }
   catch (const eh::Exception& ex)
   {
-    std::cerr
-      << "ERROR(" << test_name << "): "
-      << "Caught exception: " << ex.what() << std::endl;
+    std::cerr << "ERROR(" << test_name << "): " << "Caught exception: " << ex.what() << std::endl;
   }
 }
 
-void
-test_iterators() /*throw (eh::Exception)*/
+void test_iterators() /*throw (eh::Exception)*/
 {
   const char FUN[] = "test_iterators(): ";
   Map test_map("test.db");
@@ -519,13 +473,11 @@ test_iterators() /*throw (eh::Exception)*/
   test_map[key]->write(FUN, sizeof(FUN));
 
   // Code for instantiate const_iterator members
-  for (Map::const_iterator it = test_map.begin();
-    it != test_map.end(); ++it)
+  for (Map::const_iterator it = test_map.begin(); it != test_map.end(); ++it)
   {
   }
 
-  for (Map::iterator it = test_map.begin();
-    it != test_map.end(); ++it)
+  for (Map::iterator it = test_map.begin(); it != test_map.end(); ++it)
   {
     std::cout << " first '" << it->first << "'" << std::endl;
     std::cout << " first reference '" << (*it).first << "'" << std::endl;
@@ -548,8 +500,7 @@ test_iterators() /*throw (eh::Exception)*/
   std::cout << "Test " << FUN << "completed" << std::endl;
 }
 
-void
-test_default_parameters() /*throw (eh::Exception)*/
+void test_default_parameters() /*throw (eh::Exception)*/
 {
 //  Map test_map0("empty0.db", 0); // core
   Map test_map1("empty1.db", 1);
@@ -557,15 +508,14 @@ test_default_parameters() /*throw (eh::Exception)*/
   Map test_map16("empty16.db", 16);
   Map test_map32("empty32.db", 32);
 
-  typedef PlainStorage::Map<std::string> MapDefault;
+  using MapDefault = PlainStorage::Map<std::string>;
   MapDefault test_map("test.db");
 }
 
 /**
  * Remove all test artifacts on disk
  */
-void
-cleanup() noexcept
+void cleanup() noexcept
 {
   unlink("./test.db");
   unlink("./empty1.db");
@@ -574,19 +524,15 @@ cleanup() noexcept
   unlink("./empty8.db");
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   cleanup();
   if (argc > 1)
   {
     if (strcmp(argv[1], "struct") == 0)
     {
-      PlainStorage::ReadBlockFileAdapter read_block_file_adapter(
-        "test.db", 64*1024);
-      for (PlainStorage::BlockIndex i = 0;
-        i < read_block_file_adapter.max_block_index();
-        ++i)
+      PlainStorage::ReadBlockFileAdapter read_block_file_adapter( "test.db", 64*1024);
+      for (PlainStorage::BlockIndex i = 0; i < read_block_file_adapter.max_block_index(); ++i)
       {
         PlainStorage::ReadBlockFileAdapter::ReadBlockStruct_var
           block = read_block_file_adapter.get_block(i);
@@ -594,6 +540,7 @@ main(int argc, char* argv[])
         std::cout << i << "=>" << block->next_index() << std::endl;
       }
     }
+
     if (strcmp(argv[1], "keys") == 0)
     {
       Map test_map("test.db");
@@ -624,4 +571,3 @@ main(int argc, char* argv[])
   cleanup();
   return 0;
 }
-

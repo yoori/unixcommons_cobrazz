@@ -7,8 +7,7 @@
 
 //#define DP
 
-const char* tests[][2] =
-{
+const char* tests[][2] = {
   {
     "     aaa  \"   bbb   ccc    ddd  \"  eee   ",
     "aaa \"bbb ccc ddd\" eee"
@@ -193,23 +192,20 @@ const char* tests[][2] =
 
 static Language::Segmentor::SegmentorInterface_var segmentor;
 
-void
-test() /*throw (eh::Exception)*/
+void test() /*throw (eh::Exception)*/
 {
   for (int i = 0; tests[i][0]; i++)
   {
 #ifdef DP
     std::cout << i << ": >" << tests[i][0] << "<" << std::endl;
-    std::cout << i << ": >" << (tests[i][1] ? tests[i][1] : "ERROR") <<
-      "<" << std::endl;
+    std::cout << i << ": >" << (tests[i][1] ? tests[i][1] : "ERROR") << "<" << std::endl;
 #endif
 
     try
     {
       Language::Trigger::Trigger result;
 
-      Language::Trigger::normalize(String::SubString(tests[i][0]), result,
-        segmentor.in());
+      Language::Trigger::normalize(String::SubString(tests[i][0]), result, segmentor.in());
 
 #ifdef DP
       for (size_t j = 0; j < result.parts.size(); j++)
@@ -254,8 +250,7 @@ int main(int argc, char** argv)
 {
   try
   {
-    segmentor = new Language::Segmentor::NormalizePolyglotSegmentor(
-      "/opt/oix/polyglot/dict/");
+    segmentor = new Language::Segmentor::NormalizePolyglotSegmentor( "/opt/oix/polyglot/dict/");
 
     test();
 
@@ -295,8 +290,7 @@ int main(int argc, char** argv)
       }
       catch (const eh::Exception& ex)
       {
-        std::cerr << "Error normalizing trigger >>" << src << "<<: " <<
-          ex.what() << std::endl;
+        std::cerr << "Error normalizing trigger >>" << src << "<<: " << ex.what() << std::endl;
       }
 
       Language::Trigger::Trigger trigger;
@@ -316,8 +310,7 @@ int main(int argc, char** argv)
       }
       catch (const eh::Exception& ex)
       {
-        std::cerr << "Error normalizing trigger >>" << src << "<<: " <<
-          ex.what() << std::endl;
+        std::cerr << "Error normalizing trigger >>" << src << "<<: " << ex.what() << std::endl;
       }
     }
 

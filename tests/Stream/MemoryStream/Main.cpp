@@ -5,8 +5,7 @@
 #include <Stream/MemoryStream.hpp>
 
 
-void
-test_output(std::string& result) /*throw (eh::Exception)*/
+void test_output(std::string& result) /*throw (eh::Exception)*/
 {
   std::ostringstream ostr;
   Stream::MemoryStream::OutputMemoryStream<char> omem;
@@ -34,8 +33,7 @@ test_output(std::string& result) /*throw (eh::Exception)*/
   std::cout << symbols << " symbols sent to output" << std::endl;
 }
 
-void
-test_input(const char* result) /*throw (eh::Exception)*/
+void test_input(const char* result) /*throw (eh::Exception)*/
 {
   std::istringstream istr(result);
   Stream::Parser imem(result);
@@ -47,12 +45,12 @@ test_input(const char* result) /*throw (eh::Exception)*/
     imem >> in2;
     if (in1 != in2)
     {
-      std::cerr << "Failure reading of '" << in1 << "' vs '" << in2 <<
-        "'" << std::endl;
+      std::cerr << "Failure reading of '" << in1 << "' vs '" << in2 << "'" << std::endl;
       return;
     }
     readings++;
   }
+
   if (imem.str().size())
   {
     std::cerr << "Invalid finish state" << std::endl;
@@ -61,8 +59,7 @@ test_input(const char* result) /*throw (eh::Exception)*/
   std::cout << readings << " readings complete" << std::endl;
 }
 
-int
-main()
+int main()
 {
   std::string result;
   test_output(result);

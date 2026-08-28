@@ -13,14 +13,13 @@
 
 namespace XMLUtility
 {
-  typedef Sync::PosixMutex Mutex_;
-  typedef Sync::PosixGuard Guard_;
+  using Mutex_ = Sync::PosixMutex;
+  using Guard_ = Sync::PosixGuard;
 
   static Mutex_ lock_;
   static unsigned long init_counter_ = 0;
 
-  void
-  initialize() /*throw (Exception, eh::Exception)*/
+  void initialize() /*throw (Exception, eh::Exception)*/
   {
     Guard_ guard(lock_);
 
@@ -45,8 +44,7 @@ namespace XMLUtility
     init_counter_++;
   }
 
-  void
-  terminate() noexcept
+  void terminate() noexcept
   {
     Guard_ guard(lock_);
 

@@ -35,8 +35,7 @@ namespace Sync
     /**
      * Constructor
      */
-    constexpr
-    Conditional() noexcept;
+    constexpr Conditional() noexcept;
 
     /**
      * Destructor
@@ -52,8 +51,7 @@ namespace Sync
      * shall be called with mutex locked by the calling thread
      * or undefined behavior results.
      */
-    void
-    wait(pthread_mutex_t& mutex) /*throw (Exception, eh::Exception)*/;
+    void wait(pthread_mutex_t& mutex) /*throw (Exception, eh::Exception)*/;
 
     /**
      * Block on condition, or until absolute time-of-day has passed.
@@ -70,9 +68,7 @@ namespace Sync
      * @return false if timeout.
      */
     bool
-    timed_wait(pthread_mutex_t& mutex,
-      const Generics::Time* time,
-      bool time_is_relative = false)
+    timed_wait(pthread_mutex_t& mutex, const Generics::Time* time, bool time_is_relative = false)
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -80,15 +76,13 @@ namespace Sync
      * of the threads that are blocked on Conditional
      * (if any threads are blocked on this).
      */
-    void
-    signal() /*throw (Exception, eh::Exception)*/;
+    void signal() /*throw (Exception, eh::Exception)*/;
 
     /**
      * Signal *all* waiting threads. This method shall unblock all threads
      * currently blocked on Conditional
      */
-    void
-    broadcast() /*throw (Exception, eh::Exception)*/;
+    void broadcast() /*throw (Exception, eh::Exception)*/;
 
   private:
     pthread_cond_t cond_;
@@ -112,8 +106,7 @@ namespace Sync
      * shall be called when internal_mutex locked by the calling thread
      * or undefined behavior results.
      */
-    void
-    wait() /*throw (Exception, eh::Exception)*/;
+    void wait() /*throw (Exception, eh::Exception)*/;
 
     /**
      * Block on condition, or until absolute time-of-day has passed.
@@ -128,9 +121,7 @@ namespace Sync
      * Implementation add this time interval to current system time.
      * @return bool: false if timeout.
      */
-    bool
-    timed_wait(const Generics::Time* time,
-      bool time_is_relative = false)
+    bool timed_wait(const Generics::Time* time, bool time_is_relative = false)
       /*throw (Exception, eh::Exception)*/;
   };
 
@@ -150,17 +141,14 @@ namespace Sync
      * @param condition Lock internal_mutex of condition.
      * Methods calls will be delegate to condition.
      */
-    explicit
-    ConditionalGuard(Condition& condition)
-      noexcept;
+    explicit ConditionalGuard(Condition& condition) noexcept;
 
     /**
      * Constructor with Conditional and mutex.
      * @param conditional methods calls will be delegate to this object
      * @param mutex lock mutex for conditional using
      */
-    ConditionalGuard(Conditional& conditional, pthread_mutex_t& mutex)
-      noexcept;
+    ConditionalGuard(Conditional& conditional, pthread_mutex_t& mutex) noexcept;
 
     /**
      * Destructor unlocks mutex that locked by constructor.
@@ -169,8 +157,7 @@ namespace Sync
     /**
      * Block on condition. Delegate call to conditional.
      */
-    void
-    wait() /*throw (Conditional::Exception, eh::Exception)*/;
+    void wait() /*throw (Conditional::Exception, eh::Exception)*/;
 
     /**
      * Block on condition or until absolute time-of-day has passed.
@@ -183,9 +170,7 @@ namespace Sync
      * interval.
      * Implementation add this time interval to current system time.
      */
-    bool
-    timed_wait(const Generics::Time* time,
-      bool time_is_relative = false)
+    bool timed_wait(const Generics::Time* time, bool time_is_relative = false)
       /*throw (Conditional::Exception, eh::Exception)*/;
 
   private:
@@ -204,9 +189,7 @@ namespace Sync
   // class Conditional
   //
 
-  inline
-  constexpr
-  Conditional::Conditional() noexcept
+  inline constexpr Conditional::Conditional() noexcept
     : cond_ PTHREAD_COND_INITIALIZER
   {
   }

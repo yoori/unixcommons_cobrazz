@@ -15,10 +15,8 @@
 
 namespace
 {
-  Logging::FLogger_var logger(new Logging::OStream::Logger(
-    Logging::OStream::Config(std::cerr)));
-  Generics::ActiveObjectCallback_var callback(
-    new Logging::ActiveObjectCallbackImpl(logger));
+  Logging::FLogger_var logger(new Logging::OStream::Logger( Logging::OStream::Config(std::cerr)));
+  Generics::ActiveObjectCallback_var callback( new Logging::ActiveObjectCallbackImpl(logger));
 
   const String::SubString MSG_UNKNOWN_EXCEP("Unknown exception");
   const String::SubString MSG_FAILED_TO_WAIT("Failed to wait in wait test");
@@ -29,21 +27,18 @@ class WorkGenerator
 public:
   WorkGenerator() /*throw (eh::Exception)*/;
 
-  void
-  operator()() /*throw (eh::Exception)*/;
+  void operator()() /*throw (eh::Exception)*/;
 
-  void
-  stop() /*throw (eh::Exception)*/;
+  void stop() /*throw (eh::Exception)*/;
 private:
-  typedef Sync::PosixMutex Mutex_;
-  typedef Sync::PosixGuard Guard_;
+  using Mutex_ = Sync::PosixMutex;
+  using Guard_ = Sync::PosixGuard;
 
   Mutex_ mutex_;
   Generics::CompositeActiveObject_var active_objects_composite_;
 };
 
-void
-WorkGenerator::stop() /*throw (eh::Exception)*/
+void WorkGenerator::stop() /*throw (eh::Exception)*/
 {
   std::cout << "WorkGenerator::stop() " << std::endl;
   Guard_ guard(mutex_);
@@ -55,23 +50,20 @@ WorkGenerator::WorkGenerator() /*throw (eh::Exception)*/
 {
 }
 
-void
-WorkGenerator::operator()() /*throw (eh::Exception)*/
+void WorkGenerator::operator()() /*throw (eh::Exception)*/
 {
   switch(Generics::safe_integral_rand(2))
   {
     case 0 :  // Add active
       {
-        Generics::TaskRunner_var tasker(
-          new Generics::TaskRunner(callback, 5, 0, 2));
+        Generics::TaskRunner_var tasker( new Generics::TaskRunner(callback, 5, 0, 2));
         tasker->activate_object();
         active_objects_composite_->add_child_object(tasker.in());
       }
       break;
     case 1 :  // Add inactive
       {
-        Generics::Planner_var scheduler(
-          new Generics::Planner(callback));
+        Generics::Planner_var scheduler( new Generics::Planner(callback));
 
         active_objects_composite_->add_child_object(scheduler.in(), true);
       }
@@ -93,14 +85,12 @@ WorkGenerator::operator()() /*throw (eh::Exception)*/
   }
 }
 
-void
-TestComposeActors::do_test() /*throw (eh::Exception, TestFailed)*/
+void TestComposeActors::do_test() /*throw (eh::Exception, TestFailed)*/
 {
   try
   {
     WorkGenerator worker;
-    TestCommons::MTTester<WorkGenerator&> mt_tester(
-      worker, 10);
+    TestCommons::MTTester<WorkGenerator&> mt_tester( worker, 10);
 
     mt_tester.run(100, 0, 100);
     worker.stop();
@@ -114,19 +104,16 @@ TestComposeActors::do_test() /*throw (eh::Exception, TestFailed)*/
   }
 }
 
-void
-TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
+void TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
 {
   using namespace Generics;
   try
   {
-    Generics::CompositeActiveObject_var active_objects_composite(
-      new CompositeActiveObjectImpl);
+    Generics::CompositeActiveObject_var active_objects_composite( new CompositeActiveObjectImpl);
 
-    Generics::TaskRunner_var tasker(
-      new Generics::TaskRunner(callback, 5, 0, 2));
+    Generics::TaskRunner_var tasker( new Generics::TaskRunner(callback, 5, 0, 2));
     active_objects_composite->add_child_object(tasker.in());
-    
+
     FailActiveObject_var looser(new FailActiveObjectImpl);
     active_objects_composite->add_child_object(looser.in()); // OK
     looser->set_active(true);
@@ -209,15 +196,13 @@ TestComposeActors::do_negative_test() /*throw (eh::Exception, TestFailed)*/
 
 }
 
-Waiter::Waiter(Generics::RefCountableCompositeActiveObject* active_object,
-  bool add_child) noexcept
+Waiter::Waiter(Generics::RefCountableCompositeActiveObject* active_object, bool add_child) noexcept
   : ACTIVE_OBJECT_(ReferenceCounting::add_ref(active_object)),
     ADD_CHILD_(add_child), order_(0)
 {
 }
 
-void
-Waiter::operator ()() /*throw (eh::Exception)*/
+void Waiter::operator ()() /*throw (eh::Exception)*/
 {
   if (__gnu_cxx::__exchange_and_add(&order_, 1))
   {
@@ -242,13 +227,11 @@ Waiter::operator ()() /*throw (eh::Exception)*/
   }
 }
 
-void
-TestComposeActors::do_wait_test() /*throw (eh::Exception, TestFailed)*/
+void TestComposeActors::do_wait_test() /*throw (eh::Exception, TestFailed)*/
 {
   try
   {
-    Generics::CompositeActiveObject_var active_object(
-      new CompositeActiveObjectImpl);
+    Generics::CompositeActiveObject_var active_object( new CompositeActiveObjectImpl);
     for (int i = 0; i < 3; i++)
     {
       active_object->activate_object();
@@ -270,11 +253,9 @@ TestComposeActors::do_wait_test() /*throw (eh::Exception, TestFailed)*/
   }
 }
 
-int
-main()
+int main()
 {
-  std::cout << "CompositeActiveObject functional test started.."
-    << std::endl;
+  std::cout << "CompositeActiveObject functional test started.." << std::endl;
   try
   {
     TestComposeActors tester;

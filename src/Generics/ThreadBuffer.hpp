@@ -12,12 +12,10 @@ namespace Generics
   public:
     ThreadBuffer() noexcept;
 
-    static
-    char*
-    get_buffer() noexcept;
+    static char* get_buffer() noexcept;
 
   private:
-    typedef char Buffer[BUFFER_SIZE];
+    using Buffer = char[BUFFER_SIZE];
 
     static Sync::Key<char> buffer_key_;
     static Sync::Key<void> type_key_;
@@ -26,9 +24,7 @@ namespace Generics
     static char* buffer_pointers_[THREADS];
     static size_t available_;
 
-    static
-    void
-    free_buffer_(void* buffer) noexcept;
+    static void free_buffer_(void* buffer) noexcept;
   };
 }
 
@@ -39,8 +35,7 @@ namespace Generics
 namespace Generics
 {
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
-  Sync::Key<char>
-    ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::buffer_key_(free_buffer_);
+  Sync::Key<char> ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::buffer_key_(free_buffer_);
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
   Sync::Key<void> ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::type_key_;
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
@@ -63,8 +58,7 @@ namespace Generics
   }
 
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
-  char*
-  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::get_buffer() noexcept
+  char* ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::get_buffer() noexcept
   {
     char* buffer = buffer_key_.get_data();
     if (buffer)
@@ -99,8 +93,7 @@ namespace Generics
   }
 
   template <typename Tag, const size_t BUFFER_SIZE, const size_t THREADS>
-  void
-  ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::free_buffer_(void* buffer) noexcept
+  void ThreadBuffer<Tag, BUFFER_SIZE, THREADS>::free_buffer_(void* buffer) noexcept
   {
     if (type_key_.get_data())
     {

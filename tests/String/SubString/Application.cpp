@@ -9,10 +9,10 @@
 #include <Generics/Function.hpp>
 
 
-typedef String::BasicSubString<const char, String::CharTraits<char>,
-  String::CheckerRough<char> > RoughSubString;
-typedef String::BasicSubString<const wchar_t, String::CharTraits<char>,
-  String::CheckerRough<char> > WRoughSubString;
+using RoughSubString = String::BasicSubString<const char, String::CharTraits<char>,
+  String::CheckerRough<char> >;
+using WRoughSubString = String::BasicSubString<const wchar_t, String::CharTraits<char>,
+  String::CheckerRough<char> >;
 
 namespace
 {
@@ -24,74 +24,86 @@ namespace
   RoughSubString substr_b(str_b);
 }
 
-void
-check_operators() /*throw (eh::Exception)*/
+void check_operators() /*throw (eh::Exception)*/
 {
   if (!(substr == STR))
   {
     std::cerr << FNS << "fail 1" << std::endl;
   }
+
   if (!(STR == substr))
   {
     std::cerr << FNS << "fail 2" << std::endl;
   }
+
   if (!(substr == substr))
   {
     std::cerr << FNS << "fail 3" << std::endl;
   }
+
   if (!(substr == str))
   {
     std::cerr << FNS << "fail 4" << std::endl;
   }
+
   if (!(str == substr))
   {
     std::cerr << FNS << "fail 5" << std::endl;
   }
+
   if (substr != STR)
   {
     std::cerr << FNS << "fail 6" << std::endl;
   }
+
   if (STR != substr)
   {
     std::cerr << FNS << "fail 7" << std::endl;
   }
+
   if (substr != substr)
   {
     std::cerr << FNS << "fail 8" << std::endl;
   }
+
   if (substr != str)
   {
     std::cerr << FNS << "fail 9" << std::endl;
   }
+
   if (str != substr)
   {
     std::cerr << FNS << "fail 10" << std::endl;
   }
 }
 
-void
-check_less() /*throw (eh::Exception)*/
+void check_less() /*throw (eh::Exception)*/
 {
   if (!(substr < substr_b))
   {
     std::cerr << FNS << "fail 1" << std::endl;
   }
+
   if (!(substr < STR_B))
   {
     std::cerr << FNS << "fail 2" << std::endl;
   }
+
   if (substr < substr)
   {
     std::cerr << FNS << "fail 3" << std::endl;
   }
+
   if (substr < str)
   {
     std::cerr << FNS << "fail 4" << std::endl;
   }
+
   if (str < substr)
   {
     std::cerr << FNS << "fail 5" << std::endl;
   }
+
   if (STR_B < substr)
   {
     std::cerr << FNS << "fail 6" << std::endl;
@@ -103,12 +115,10 @@ namespace
   std::string str2test("BEEE");
 }
 
-void
-check_compare() /*throw (eh::Exception)*/
+void check_compare() /*throw (eh::Exception)*/
 {
   const std::string STANDARD("BE");
-  const char* STRINGS[] =
-  {
+  const char* STRINGS[] = {
     "A", "D", "BEE", "BE"
   };
   RoughSubString range(STANDARD.data(), STANDARD.size());
@@ -130,6 +140,7 @@ check_compare() /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 1" << std::endl;
   }
+
   if (range.compare(0, 5, S, 2) != 0)
   {
     std::cerr << FNS << "fail 2" << std::endl;
@@ -152,8 +163,7 @@ check_compare() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_constructor() /*throw (eh::Exception)*/
+void check_constructor() /*throw (eh::Exception)*/
 {
   try
   {
@@ -165,8 +175,7 @@ check_constructor() /*throw (eh::Exception)*/
   }
   catch (...)
   {
-    std::cerr << "Expected LogicError, but unknown type thrown."
-      << std::endl;
+    std::cerr << "Expected LogicError, but unknown type thrown." << std::endl;
   }
   try
   {
@@ -178,13 +187,11 @@ check_constructor() /*throw (eh::Exception)*/
   }
   catch (...)
   {
-    std::cerr << "Expected LogicError, but unknown type thrown."
-      << std::endl;
+    std::cerr << "Expected LogicError, but unknown type thrown." << std::endl;
   }
 }
 
-void
-check_copy_constructible() /*throw (eh::Exception)*/
+void check_copy_constructible() /*throw (eh::Exception)*/
 {
   const char S1[] = "str1";
   const char S2[] = "str2";
@@ -246,18 +253,15 @@ check_copy_constructible() /*throw (eh::Exception)*/
     sstr_vector.push_back(copy_long_str1);
     sstr_vector.push_back(copy_str2);
     sstr_vector.push_back(copy_long_str2);
-    if (!(sstr_vector[0] == str1 &&
-          sstr_vector[1] == long_str1 &&
-          sstr_vector[2] == str2 &&
-          sstr_vector[3] == long_str2))
+    if (!(sstr_vector[0] == str1 && sstr_vector[1] == long_str1 &&
+          sstr_vector[2] == str2 && sstr_vector[3] == long_str2))
     {
       std::cerr << FNS << "fail 5" << std::endl;
     }
   }
 }
 
-void
-check_erase() /*throw (eh::Exception)*/
+void check_erase() /*throw (eh::Exception)*/
 {
   const char c_str[] = "Hello, World!";
   RoughSubString str(c_str);
@@ -283,6 +287,7 @@ check_erase() /*throw (eh::Exception)*/
         }
     }
   }
+
   if (str.size())
   {
     std::cerr << FNS << "fail 0" << std::endl;
@@ -306,14 +311,14 @@ check_erase() /*throw (eh::Exception)*/
         }
     }
   }
+
   if (str.size())
   {
     std::cerr << FNS << "fail 7" << std::endl;
   }
 }
 
-void
-check_copy() /*throw (eh::Exception)*/
+void check_copy() /*throw (eh::Exception)*/
 {
   RoughSubString s("foo");
   char dest[4];
@@ -324,14 +329,17 @@ check_copy() /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 1" << std::endl;
   }
+
   if (dest[pos++] != 'o')
   {
     std::cerr << FNS << "fail 2" << std::endl;
   }
+
   if (dest[pos++] != 'o')
   {
     std::cerr << FNS << "fail 3" << std::endl;
   }
+
   if (dest[pos++] != 1)
   {
     std::cerr << FNS << "fail 4" << std::endl;
@@ -344,14 +352,14 @@ check_copy() /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 5 " << dest[0] << std::endl;
   }
+
   if (dest[pos++] != 1)
   {
     std::cerr << FNS << "fail 6" << std::endl;
   }
 }
 
-void
-check_assign() /*throw (eh::Exception)*/
+void check_assign() /*throw (eh::Exception)*/
 {
   RoughSubString s;
   const char C_STR[] = "test string for assign";
@@ -381,6 +389,7 @@ check_assign() /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 3" << std::endl;
   }
+
   if (str2[29] != '0')
   {
     std::cerr << FNS << "fail 4" << std::endl;
@@ -393,8 +402,7 @@ check_assign() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_out() /*throw (eh::Exception)*/
+void check_out() /*throw (eh::Exception)*/
 {
   RoughSubString str("RoughSubString");
   {
@@ -404,6 +412,7 @@ check_out() /*throw (eh::Exception)*/
     {
       std::cerr << FNS << "fail 1" << std::endl;
     }
+
     if (str != ostr.str())
     {
       std::cerr << FNS << "fail 2" << std::endl;
@@ -411,30 +420,31 @@ check_out() /*throw (eh::Exception)*/
   }
 }
 
-void
-check_traits() /*throw (eh::Exception)*/
+void check_traits() /*throw (eh::Exception)*/
 {
   RoughSubString s1, s2;
   if (!s1.compare("str1"))
   {
     std::cerr << FNS << "fail 1 " << std::endl;
   }
+
   if (s1.compare(s2))
   {
     std::cerr << FNS << "fail 2 " << std::endl;
   }
+
   if (s1.compare(0, 2, s2))
   {
     std::cerr << FNS << "fail 3 " << std::endl;
   }
+
   if (s1.compare(0, 2, s2, 0, 5))
   {
     std::cerr << FNS << "fail 4 " << std::endl;
   }
 }
 
-void
-check_equal() /*throw (eh::Exception)*/
+void check_equal() /*throw (eh::Exception)*/
 {
 #if __GNUC__ < 4 || __GNUC__ == 4 && __GNUC_MINOR__ <= 1
   char c_str[] = "str***";
@@ -444,18 +454,22 @@ check_equal() /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 1" << std::endl;
   }
+
   if (s != "str")
   {
     std::cerr << FNS << "fail 2" << std::endl;
   }
+
   if (s == "str1")
   {
     std::cerr << FNS << "fail 3" << std::endl;
   }
+
   if (!substr.equal(STR))
   {
     std::cerr << FNS << "fail 4" << std::endl;
   }
+
   if (!substr.equal(str))
   {
     std::cerr << FNS << "fail 5" << std::endl;
@@ -464,8 +478,7 @@ check_equal() /*throw (eh::Exception)*/
 }
 
 template <typename T>
-void
-check_find(const char* type, T s0, T sn, T s12, T s4) /*throw (eh::Exception)*/
+void check_find(const char* type, T s0, T sn, T s12, T s4) /*throw (eh::Exception)*/
 {
   const char STR[] = "Saample";
   RoughSubString s(STR, sizeof(STR));
@@ -474,43 +487,42 @@ check_find(const char* type, T s0, T sn, T s12, T s4) /*throw (eh::Exception)*/
   {
     std::cerr << FNS << "fail 0" << type << std::endl;
   }
+
   if (s.rfind(s12) != 2)
   {
     std::cerr << FNS << "fail 1" << type << std::endl;
   }
+
   if (s.rfind(sn) != RoughSubString::NPOS)
   {
     std::cerr << FNS << "fail 2" << type << std::endl;
   }
-  if (s.rfind(s12, sizeof(STR)) != 2 ||
-      s.rfind(s12, sizeof(STR) + 100) != 2 ||
-      s.rfind(s12, sizeof(STR) - 1) != 2 ||
-      s.rfind(s12, 1) != 1)
+
+  if (s.rfind(s12, sizeof(STR)) != 2 || s.rfind(s12, sizeof(STR) + 100) != 2 ||
+      s.rfind(s12, sizeof(STR) - 1) != 2 || s.rfind(s12, 1) != 1)
   {
     std::cerr << FNS << "fail 3" << type << std::endl;
   }
-  if (s_null.rfind('\0') != RoughSubString::NPOS ||
-      s_null.rfind('\0', 0) != RoughSubString::NPOS)
+
+  if (s_null.rfind('\0') != RoughSubString::NPOS || s_null.rfind('\0', 0) != RoughSubString::NPOS)
   {
     std::cerr << FNS << "fail 4" << type << std::endl;
   }
-  if (s.find(s4, 1) != 4 || s.find(s4, 4) != 4 ||
-    s.find(s4, 5) != RoughSubString::NPOS)
+
+  if (s.find(s4, 1) != 4 || s.find(s4, 4) != 4 || s.find(s4, 5) != RoughSubString::NPOS)
   {
     std::cerr << FNS << "fail 5" << std::endl;
   }
 }
 
-void
-check_find() /*throw (eh::Exception)*/
+void check_find() /*throw (eh::Exception)*/
 {
- check_find("char", 'S', 'A', 'a', 'p');
- check_find("string", RoughSubString("S"), RoughSubString("A"), RoughSubString("a"),
-   RoughSubString("p"));
+  check_find("char", 'S', 'A', 'a', 'p');
+  check_find("string", RoughSubString("S"), RoughSubString("A"), RoughSubString("a"),
+    RoughSubString("p"));
 }
 
-void
-check_compile_constrain() noexcept
+void check_compile_constrain() noexcept
 {
   String::SubString a;
 #if 0
@@ -537,8 +549,7 @@ check_compile_constrain() noexcept
 }
 
 template <typename T1, typename T2>
-void
-check_plus(const T1& s1, const T2& s2) /*throw (eh::Exception)*/
+void check_plus(const T1& s1, const T2& s2) /*throw (eh::Exception)*/
 {
   if (s1 + s2 != "123")
   {
@@ -546,16 +557,14 @@ check_plus(const T1& s1, const T2& s2) /*throw (eh::Exception)*/
   }
 }
 
-void
-check_plus() /*throw (eh::Exception)*/
+void check_plus() /*throw (eh::Exception)*/
 {
   check_plus(String::SubString("1"), String::SubString("23"));
   check_plus(std::string("12"), String::SubString("3"));
   check_plus(String::SubString("1"), std::string("23"));
 }
 
-int
-main(int /*argc*/, char** /*argv*/)
+int main(int /*argc*/, char** /*argv*/)
 {
   try
   {

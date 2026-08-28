@@ -19,11 +19,9 @@ namespace
 
     ~FileHandleAdapter() noexcept;
 
-    size_t
-    read(void* buf, size_t size) /*throw (eh::Exception)*/;
+    size_t read(void* buf, size_t size) /*throw (eh::Exception)*/;
 
-    void
-    write(const void* buf, size_t size) /*throw (eh::Exception)*/;
+    void write(const void* buf, size_t size) /*throw (eh::Exception)*/;
 
   private:
     gzFile gzip_handle_;
@@ -66,8 +64,7 @@ namespace
   }
 
   template <typename InvalidArgument, typename IOError>
-  size_t
-  FileHandleAdapter<InvalidArgument, IOError>::read(void* buf, size_t size)
+  size_t FileHandleAdapter<InvalidArgument, IOError>::read(void* buf, size_t size)
     /*throw (eh::Exception)*/
   {
     int bytes_read = ::gzread(gzip_handle_, buf, size);
@@ -77,8 +74,7 @@ namespace
       ::gzerror(gzip_handle_, &gz_errnum);
 
       Stream::Error ostr;
-      ostr << FNS << "::gzread has returned error. Error code = " <<
-        gz_errnum;
+      ostr << FNS << "::gzread has returned error. Error code = " << gz_errnum;
       throw IOError(ostr);
     }
     return bytes_read;
@@ -96,8 +92,7 @@ namespace
       ::gzerror(gzip_handle_, &gz_errnum);
 
       Stream::Error ostr;
-      ostr << FNS << "::gzwrite has returned error. Error code = " <<
-        gz_errnum;
+      ostr << FNS << "::gzwrite has returned error. Error code = " << gz_errnum;
       throw IOError(ostr);
     }
   }
@@ -105,8 +100,7 @@ namespace
 
 namespace Stream
 {
-  GzipInStream::GzipInStream(const char* gzip_file_name,
-    size_t buffer_size, size_t put_back_size)
+  GzipInStream::GzipInStream(const char* gzip_file_name, size_t buffer_size, size_t put_back_size)
     /*throw (eh::Exception)*/
     : std::basic_istream<char, std::char_traits<char> >(0),
       buf_(new FileHandleAdapter<
@@ -117,8 +111,7 @@ namespace Stream
     init(&buf_);
   }
 
-  GzipOutStream::GzipOutStream(const char* gzip_file_name,
-    size_t buffer_size)
+  GzipOutStream::GzipOutStream(const char* gzip_file_name, size_t buffer_size)
     /*throw (eh::Exception)*/
     : std::basic_ostream<char, std::char_traits<char> >(0),
       buf_(new FileHandleAdapter<

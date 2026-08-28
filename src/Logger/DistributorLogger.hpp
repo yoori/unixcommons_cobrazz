@@ -34,9 +34,7 @@ namespace Logging
      * Returns minimum of high severity bound and stored logger log level
      * @return effective trace level
      */
-    virtual
-    unsigned long
-    log_level() noexcept;
+    virtual unsigned long log_level() noexcept;
 
     /**
      * Passes log data to the contained logger if severity matches
@@ -56,8 +54,7 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~SeveritySelectorLogger() noexcept;
+    virtual ~SeveritySelectorLogger() noexcept;
 
   private:
     unsigned long low_;
@@ -85,17 +82,13 @@ namespace Logging
      * Gets max logger level of stored loggers
      * @return current trace level
      */
-    virtual
-    unsigned long
-    log_level() noexcept;
+    virtual unsigned long log_level() noexcept;
 
     /*
      * Sets new trace level to the stored loggers
      * @param value new trace level
      */
-    virtual
-    void
-    log_level(unsigned long value) noexcept;
+    virtual void log_level(unsigned long value) noexcept;
 
     /**
      * Passes log data to all of the stored loggers
@@ -114,11 +107,10 @@ namespace Logging
     /**
      * Destructor
      */
-    virtual
-    ~DistributorLogger() noexcept;
+    virtual ~DistributorLogger() noexcept;
 
   private:
-    typedef ReferenceCounting::Deque<QLogger_var> Loggers;
+    using Loggers = ReferenceCounting::Deque<QLogger_var>;
 
     Loggers loggers_;
   };

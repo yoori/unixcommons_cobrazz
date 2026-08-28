@@ -19,11 +19,9 @@ namespace
 
     ~FileHandleAdapter() noexcept;
 
-    size_t
-    read(void* buf, size_t size) /*throw (eh::Exception)*/;
+    size_t read(void* buf, size_t size) /*throw (eh::Exception)*/;
 
-    void
-    write(const void* buf, size_t size) /*throw (eh::Exception)*/;
+    void write(const void* buf, size_t size) /*throw (eh::Exception)*/;
 
   private:
     FILE* handle_;
@@ -67,8 +65,7 @@ namespace
   }
 
   template <typename InvalidArgument, typename IOError, const bool READ>
-  FileHandleAdapter<InvalidArgument, IOError, READ>::~FileHandleAdapter()
-    noexcept
+  FileHandleAdapter<InvalidArgument, IOError, READ>::~FileHandleAdapter() noexcept
   {
     int bz_error = BZ_OK;
     if (READ)
@@ -98,10 +95,10 @@ namespace
     if (bz_error != BZ_OK && bz_error != BZ_STREAM_END)
     {
       Stream::Error ostr;
-      ostr << FNS << "::BZ2_bzRead has returned error. Error code = " <<
-        bz_error;
+      ostr << FNS << "::BZ2_bzRead has returned error. Error code = " << bz_error;
       throw IOError(ostr);
     }
+
     if (bz_error == BZ_STREAM_END)
     {
       stream_end_ = true;
@@ -119,8 +116,7 @@ namespace
     if (bz_error != BZ_OK)
     {
       Stream::Error ostr;
-      ostr << FNS << "::BZ2_bzWrite has returned error. Error code = " <<
-        bz_error;
+      ostr << FNS << "::BZ2_bzWrite has returned error. Error code = " << bz_error;
       throw IOError(ostr);
     }
   }
@@ -128,8 +124,7 @@ namespace
 
 namespace Stream
 {
-  BzlibInStream::BzlibInStream(const char* bzip_file_name,
-    size_t buffer_size, size_t put_back_size)
+  BzlibInStream::BzlibInStream(const char* bzip_file_name, size_t buffer_size, size_t put_back_size)
     /*throw (eh::Exception)*/
     : std::basic_istream<char, std::char_traits<char> >(0),
       buf_(new FileHandleAdapter<
@@ -140,8 +135,7 @@ namespace Stream
     init(&buf_);
   }
 
-  BzlibOutStream::BzlibOutStream(const char* bzip_file_name,
-    size_t buffer_size)
+  BzlibOutStream::BzlibOutStream(const char* bzip_file_name, size_t buffer_size)
     /*throw (eh::Exception)*/
     : std::basic_ostream<char, std::char_traits<char> >(0),
       buf_(new FileHandleAdapter<

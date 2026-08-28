@@ -11,19 +11,16 @@
 //#include "../Server/TestCrash.hpp"
 #include "tests/CrashCall/TestCrash.hpp"
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
 
     CORBACommons::CorbaClientAdapter_var corba_client_adapter(
       new CORBACommons::CorbaClientAdapter(logger));
 
-    CORBAConfigParser::CorbaRefOption<CORBATest::TestCrash> opt_url(
-      corba_client_adapter.in());
+    CORBAConfigParser::CorbaRefOption<CORBATest::TestCrash> opt_url( corba_client_adapter.in());
     CORBAConfigParser::CorbaRefOption<CORBATest::TestCrash> opt_secure_url(
       corba_client_adapter.in(),
       "server.key:adserver:server.der;ce.der");
@@ -31,12 +28,10 @@ main(int argc, char** argv)
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("url") ||
-      Generics::AppUtils::short_name("u"),
+      Generics::AppUtils::equal_name("url") || Generics::AppUtils::short_name("u"),
       opt_url);
     args.add(
-      Generics::AppUtils::equal_name("secure-url") ||
-      Generics::AppUtils::short_name("su"),
+      Generics::AppUtils::equal_name("secure-url") || Generics::AppUtils::short_name("su"),
       opt_secure_url);
 
     args.parse(argc - 1, argv + 1);

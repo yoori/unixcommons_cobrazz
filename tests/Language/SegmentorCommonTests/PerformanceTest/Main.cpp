@@ -34,8 +34,7 @@ enum SegmentorIds
   ALL_SEGMENTORS
 };
 
-const char* SegmentorsNames[] =
-{
+const char* SegmentorsNames[] = {
   "Composite",
   "KLT",
   "MeCab",
@@ -66,8 +65,7 @@ struct Config
   Config();
 };
 
-const char* RealPhrasesFileNames[] =
-{
+const char* RealPhrasesFileNames[] = {
   "korean_phrases_01.bz2",
   "japanese_phrases_01.bz2",
   "de_book_01.bz2",
@@ -94,16 +92,14 @@ const char* RealPhrasesFileNames[] =
   "chineese_book_01.bz2",
 };
 
-const size_t ThreadsCount[] =
-{
+const size_t ThreadsCount[] = {
   1,
   2,
   5
 };
 
 
-const char USAGE[] =
-  "Usage: <path>/SegmentorPerformanceTest [-i <integer>] [-t <integer>] "
+const char USAGE[] = "Usage: <path>/SegmentorPerformanceTest [-i <integer>] [-t <integer>] "
     "[-qac[m | l]] [-s <name>] [data_dir_name]\n"
   "  -i: specify max iterations number (max number of segmentation/put_spaces "
     "calls for each segmentor) (default: 1 000 000)\n"
@@ -129,14 +125,13 @@ const char USAGE[] =
     "~/projects/unixcommons/trunk/tests/Language/Data/\n";
 
 
-typedef Language::Segmentor::SegmentorInterface_var SegmentorInterface_var;
-typedef Language::Segmentor::SegmentorInterface SegmentorInterface;
+using SegmentorInterface_var = Language::Segmentor::SegmentorInterface_var;
+using SegmentorInterface = Language::Segmentor::SegmentorInterface;
 
 
 void init_segmentors(Segmentors& segms, const Config& conf);
 
-void print_test_stats(const Segmentors& segms,
-  const CommonFunctor& fun, const Config& conf);
+void print_test_stats(const Segmentors& segms, const CommonFunctor& fun, const Config& conf);
 
 void print_stats(std::ostream& out, const CommonFunctor& fun,
   const SegmentorInterface* id, const Config& conf);
@@ -165,44 +160,36 @@ int main(int argc, char **argv)
       return -1;
     }
 
-    Segmentors segms(SEGMENTORS_COUNT,
-      Language::Segmentor::SegmentorInterface_var());
+    Segmentors segms(SEGMENTORS_COUNT, Language::Segmentor::SegmentorInterface_var());
     init_segmentors(segms, CONF);
 
     size_t i_end = sizeof(ThreadsCount) / sizeof(ThreadsCount[0]);
     for (size_t i = 0; i < i_end; ++i)
     {
-      const size_t ACTUAL_THREADS_COUNT =
-        CONF.threads_count ? CONF.threads_count : ThreadsCount[i];
+      const size_t ACTUAL_THREADS_COUNT = CONF.threads_count ? CONF.threads_count : ThreadsCount[i];
       if (CONF.quick && ACTUAL_THREADS_COUNT > 2)
       {
         continue;
       }
 
-      const int CUR_RANDOM_ITERATION_NUMBER =
-        CONF.rand_iteration_number / ACTUAL_THREADS_COUNT;
+      const int CUR_RANDOM_ITERATION_NUMBER = CONF.rand_iteration_number / ACTUAL_THREADS_COUNT;
 
       if (CONF.read_from_cin)
       {
-        parse_input_test(segms, CONF, ACTUAL_THREADS_COUNT,
-          CUR_RANDOM_ITERATION_NUMBER);
+        parse_input_test(segms, CONF, ACTUAL_THREADS_COUNT, CUR_RANDOM_ITERATION_NUMBER);
         break;
       }
 
       if (!CONF.data_dir.empty())
       {
-        parse_files_test(segms, CONF, ACTUAL_THREADS_COUNT,
-          CUR_RANDOM_ITERATION_NUMBER);
+        parse_files_test(segms, CONF, ACTUAL_THREADS_COUNT, CUR_RANDOM_ITERATION_NUMBER);
       }
 
-      random_ascii_test(segms, CONF, ACTUAL_THREADS_COUNT,
-        CUR_RANDOM_ITERATION_NUMBER);
+      random_ascii_test(segms, CONF, ACTUAL_THREADS_COUNT, CUR_RANDOM_ITERATION_NUMBER);
 
-      random_nonstandart_utf8_test(segms, CONF, ACTUAL_THREADS_COUNT,
-        CUR_RANDOM_ITERATION_NUMBER);
+      random_nonstandart_utf8_test(segms, CONF, ACTUAL_THREADS_COUNT, CUR_RANDOM_ITERATION_NUMBER);
 
-      random_utf8_test(segms, CONF, ACTUAL_THREADS_COUNT,
-        CUR_RANDOM_ITERATION_NUMBER);
+      random_utf8_test(segms, CONF, ACTUAL_THREADS_COUNT, CUR_RANDOM_ITERATION_NUMBER);
 
       if (CONF.threads_count)
       {
@@ -228,64 +215,55 @@ print_stats(std::ostream& out, const CommonFunctor& fun,
     return;
   }
 
-  const CheckSegmentResult::SegmentorStats* const stats =
-    fun.find_segmentor_stats(id);
+  const CheckSegmentResult::SegmentorStats* const stats = fun.find_segmentor_stats(id);
 
   out << "  Total processings: " << fun.get_segmentations_count()
       << " (ave sequences len: " << fun.get_average_seqs_length()
-      << ")\n  segmented w/o partially dropping: " 
-        << stats->segmented_count
-      << "\n  segmented with partially dropping: " 
-        << stats->segmented_dropped_count
-      << "\n  partially dropped w/o segmenting: " 
-        << stats->partially_dropped_count
+      << ")\n  segmented w/o partially dropping: " << stats->segmented_count
+      << "\n  segmented with partially dropping: " << stats->segmented_dropped_count
+      << "\n  partially dropped w/o segmenting: " << stats->partially_dropped_count
       << "\n  fully dropped: " << stats->dropped_count
       << "\n  exceptions thrown: " << stats->exceptions_count
       << "\n  Total processing time: " << stats->processing_time
       << ", average: " << (!fun.get_segmentations_count() ?
         Generics::Time::ZERO :
-        stats->processing_time / fun.get_segmentations_count())
-      << '\n';
+        stats->processing_time / fun.get_segmentations_count()) << '\n';
 
   if (conf.check_all_transforms)
   {
     {
       out << "\n\n  ======= SEGMENTATIONS =======\n\n";
-      CheckSegmentResult::Transforms::const_iterator it =
-        stats->segment_transforms.begin();
+      CheckSegmentResult::Transforms::const_iterator it = stats->segment_transforms.begin();
       for (; it != stats->segment_transforms.end(); ++it)
       {
         out << it->from << " => " << it->to << '\n';
       }
       out << "\n\n\n";
     }
-  
+
     {
       out << "  ======= SEGMENTATIONS + DROPS =======\n\n";
-      CheckSegmentResult::Transforms::const_iterator it =
-        stats->segment_drop_transforms.begin();
+      CheckSegmentResult::Transforms::const_iterator it = stats->segment_drop_transforms.begin();
       for (; it != stats->segment_drop_transforms.end(); ++it)
       {
         out << it->from << " => " << it->to << '\n';
       }
       out << "\n\n\n";
     }
-  
+
     {
       out << "  ======= DROPS =======\n\n";
-      CheckSegmentResult::Transforms::const_iterator it =
-        stats->drop_transforms.begin();
+      CheckSegmentResult::Transforms::const_iterator it = stats->drop_transforms.begin();
       for (; it != stats->drop_transforms.end(); ++it)
       {
         out << it->from << " => " << it->to << '\n';
       }
       out << "\n\n\n";
     }
-  
+
     {
       out << "  ======= PARTIALLY DROPS =======\n\n";
-      CheckSegmentResult::Transforms::const_iterator it =
-        stats->partially_drop_transforms.begin();
+      CheckSegmentResult::Transforms::const_iterator it = stats->partially_drop_transforms.begin();
       for (; it != stats->partially_drop_transforms.end(); ++it)
       {
         out << it->from << " => " << it->to << '\n';
@@ -295,47 +273,37 @@ print_stats(std::ostream& out, const CommonFunctor& fun,
   }
 }
 
-void
-init_segmentors(Segmentors& segms, const Config& conf)
+void init_segmentors(Segmentors& segms, const Config& conf)
 {
   /*
-  if (conf.segms == ALL_SEGMENTORS || conf.segms == KLT ||
-      conf.test_compound)
+  if (conf.segms == ALL_SEGMENTORS || conf.segms == KLT || conf.test_compound)
   {
-    segms[KLT] = new Language::Segmentor::Korean::KltSegmentor(
-      "/opt/KLT/hdic/KLT2000.ini", "-p");
+    segms[KLT] = new Language::Segmentor::Korean::KltSegmentor( "/opt/KLT/hdic/KLT2000.ini", "-p");
   }
 
-  if (conf.segms == ALL_SEGMENTORS || conf.segms == MECAB ||
-      conf.test_compound)
+  if (conf.segms == ALL_SEGMENTORS || conf.segms == MECAB || conf.test_compound)
   {
-    segms[MECAB] = new Language::Segmentor::Japanese::MecabSegmentor(
-      "/usr/etc/mecabrc");
+    segms[MECAB] = new Language::Segmentor::Japanese::MecabSegmentor( "/usr/etc/mecabrc");
   }
 
 #ifdef MORAN_TEST
-  if (conf.segms == ALL_SEGMENTORS || conf.segms == MORAN ||
-      conf.test_compound)
+  if (conf.segms == ALL_SEGMENTORS || conf.segms == MORAN || conf.test_compound)
   {
-    segms[MORAN] = new Language::Segmentor::Korean::MoranSegmentor(
-      "/opt/Moran/dic/moran.dbs");
+    segms[MORAN] = new Language::Segmentor::Korean::MoranSegmentor( "/opt/Moran/dic/moran.dbs");
   }
 #endif
 
 #ifdef NLPIR_TEST
-  if (conf.segms == ALL_SEGMENTORS || conf.segms == NLPIR ||
-      conf.test_compound)
+  if (conf.segms == ALL_SEGMENTORS || conf.segms == NLPIR || conf.test_compound)
   {
     segms[NLPIR] = new Language::Segmentor::Chineese::NlpirSegmentor();
   }
 #endif
   */
 
-  if (!conf.quick && (conf.segms == ALL_SEGMENTORS ||
-      conf.segms == POLYGLOT))
+  if (!conf.quick && (conf.segms == ALL_SEGMENTORS || conf.segms == POLYGLOT))
   {
-    segms[POLYGLOT] = new Language::Segmentor::PolyglotSegmentor(
-      "/opt/oix/polyglot/dict/");
+    segms[POLYGLOT] = new Language::Segmentor::PolyglotSegmentor( "/opt/oix/polyglot/dict/");
   }
 
   /*
@@ -359,9 +327,7 @@ init_segmentors(Segmentors& segms, const Config& conf)
   */
 }
 
-void
-print_test_stats(const Segmentors& segms,
-  const CommonFunctor& fun, const Config& conf)
+void print_test_stats(const Segmentors& segms, const CommonFunctor& fun, const Config& conf)
 {
   std::cout << "\n Test results:\n";
 
@@ -416,9 +382,7 @@ const Config parse_cmd(int argc, char **argv)
 
           if (istr.bad() || istr.fail())
           {
-            std::cerr << "Error: Incorrect value of \"i\" parameter.\n\n"
-                      << USAGE
-                      << std::endl;
+            std::cerr << "Error: Incorrect value of \"i\" parameter.\n\n" << USAGE << std::endl;
             return res;
           }
         }
@@ -430,9 +394,7 @@ const Config parse_cmd(int argc, char **argv)
 
           if (istr.bad() || istr.fail())
           {
-            std::cerr << "Error: Incorrect value of \"t\" parameter.\n\n"
-                      << USAGE
-                      << std::endl;
+            std::cerr << "Error: Incorrect value of \"t\" parameter.\n\n" << USAGE << std::endl;
             return res;
           }
         }
@@ -489,16 +451,13 @@ const Config parse_cmd(int argc, char **argv)
           else
           {
             std::cerr << "Error: Incorrect value of \"s\" parameter: unknown "
-                         "segmentor name: \"" << val << "\"\n\n"
-                      << USAGE
-                      << std::endl;
+                         "segmentor name: \"" << val << "\"\n\n" << USAGE << std::endl;
             return res;
           }
         }
         break;
       default:
-        std::cerr << "Error: Unknown parameter \"" 
-                  << static_cast<char>(opt) << "\".\n\n"
+        std::cerr << "Error: Unknown parameter \"" << static_cast<char>(opt) << "\".\n\n"
                   << USAGE << std::endl;
         return res;
     }
@@ -531,8 +490,7 @@ void
 parse_input_test(const Segmentors& segms, const Config& conf,
   size_t threads_num, size_t /*iteration_num*/)
 {
-  std::cout << "\nPhrases from input test ("
-            << threads_num << " thread(s)) started " << std::endl;
+  std::cout << "\nPhrases from input test (" << threads_num << " thread(s)) started " << std::endl;
 
   ParseStdIn fun(segms, conf.check_all_transforms);
   TestCommons::MTTester<ParseStdIn&> mt_tester(fun, threads_num);
@@ -540,24 +498,21 @@ parse_input_test(const Segmentors& segms, const Config& conf,
 
   print_test_stats(segms, fun, conf);
 
-  std::cout << "\nPhrases from input test ("
-            << threads_num << " thread(s)) finished " << std::endl;
+  std::cout << "\nPhrases from input test (" << threads_num << " thread(s)) finished " << std::endl;
 }
 
 void
 parse_files_test(const Segmentors& segms, const Config& conf,
   size_t threads_num, size_t iteration_num)
 {
-  std::cout << "\nReal phrases test ("
-            << threads_num << " thread(s)) started " << std::endl;
+  std::cout << "\nReal phrases test (" << threads_num << " thread(s)) started " << std::endl;
 
   size_t files_count = sizeof(RealPhrasesFileNames) /
     sizeof(RealPhrasesFileNames[0]);
   for (size_t j = 0; j < files_count; ++j)
   {
     std::string full_name = conf.data_dir + RealPhrasesFileNames[j];
-    std::cout << "\nProcessed file: \"" << full_name << " " <<
-      threads_num << " thread(s)";
+    std::cout << "\nProcessed file: \"" << full_name << " " << threads_num << " thread(s)";
     ParseFile fun(full_name.c_str(), segms, (conf.quick? iteration_num: -1),
       conf.check_all_transforms);
     TestCommons::MTTester<ParseFile&> mt_tester(fun, threads_num);
@@ -566,27 +521,22 @@ parse_files_test(const Segmentors& segms, const Config& conf,
     print_test_stats(segms, fun, conf);
   }
 
-  std::cout << "\nReal phrases test ("
-            << threads_num << " thread(s)) finished " << std::endl;
+  std::cout << "\nReal phrases test (" << threads_num << " thread(s)) finished " << std::endl;
 }
 
 void
 random_ascii_test(const Segmentors& segms, const Config& conf,
   size_t threads_num, size_t iteration_num)
 {
-  std::cout << "\nRandom ASCII test ("
-            << threads_num << " thread(s)) started " << std::endl;
+  std::cout << "\nRandom ASCII test (" << threads_num << " thread(s)) started " << std::endl;
 
-  RandomAsciiSegmentFunctor fun(segms, iteration_num, conf.sequence_len,
-    conf.check_all_transforms);
-  TestCommons::MTTester<RandomAsciiSegmentFunctor&> mt_tester(
-    fun, threads_num);
+  RandomAsciiSegmentFunctor fun(segms, iteration_num, conf.sequence_len, conf.check_all_transforms);
+  TestCommons::MTTester<RandomAsciiSegmentFunctor&> mt_tester( fun, threads_num);
   mt_tester.run(threads_num, 0, threads_num);
 
   print_test_stats(segms, fun, conf);
 
-  std::cout << "\nRandom ASCII test ("
-            << threads_num << " thread(s)) finished " << std::endl;
+  std::cout << "\nRandom ASCII test (" << threads_num << " thread(s)) finished " << std::endl;
 }
 
 void
@@ -598,8 +548,7 @@ random_nonstandart_utf8_test(const Segmentors& segms, const Config& conf,
 
   RandomUtf8SegmentFunctor fun(segms, iteration_num, conf.sequence_len,
     conf.check_all_transforms, false);
-  TestCommons::MTTester<RandomUtf8SegmentFunctor&> mt_tester(
-    fun, threads_num);
+  TestCommons::MTTester<RandomUtf8SegmentFunctor&> mt_tester( fun, threads_num);
   mt_tester.run(threads_num, 0, threads_num);
 
   print_test_stats(segms, fun, conf);
@@ -612,17 +561,13 @@ void
 random_utf8_test(const Segmentors& segms, const Config& conf,
   size_t threads_num, size_t iteration_num)
 {
-  std::cout << "\nRandom Utf8 test ("
-            << threads_num << " thread(s)) started " << std::endl;
+  std::cout << "\nRandom Utf8 test (" << threads_num << " thread(s)) started " << std::endl;
 
-  RandomUtf8SegmentFunctor fun(segms, iteration_num,
-    conf.sequence_len, conf.check_all_transforms);
-  TestCommons::MTTester<RandomUtf8SegmentFunctor&> mt_tester(
-    fun, threads_num);
+  RandomUtf8SegmentFunctor fun(segms, iteration_num, conf.sequence_len, conf.check_all_transforms);
+  TestCommons::MTTester<RandomUtf8SegmentFunctor&> mt_tester( fun, threads_num);
   mt_tester.run(threads_num, 0, threads_num);
 
   print_test_stats(segms, fun, conf);
 
-  std::cout << "\nRandom Utf8 test ("
-            << threads_num << " thread(s)) finished " << std::endl;
+  std::cout << "\nRandom Utf8 test (" << threads_num << " thread(s)) finished " << std::endl;
 }

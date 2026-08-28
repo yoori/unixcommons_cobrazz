@@ -14,10 +14,7 @@ namespace Generics
     : waiting_threads_(0)
   {}
 
-  void
-  TaskPool::TaskQueue::enqueue_task(
-    Task* task,
-    const Time* /*timeout*/)
+  void TaskPool::TaskQueue::enqueue_task( Task* task, const Time* /*timeout*/)
     /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/
   {
     if (!task)
@@ -37,22 +34,20 @@ namespace Generics
       new_task_signal = (waiting_threads_ > 0);
     }
 
-    if(new_task_signal)
+    if (new_task_signal)
     {
       // Wake any working thread
       new_task_.signal();
     }
   }
 
-  void
-  TaskPool::TaskQueue::terminate() noexcept
+  void TaskPool::TaskQueue::terminate() noexcept
   {
     Sync::PosixGuard guard(tasks_lock_);
     new_task_.broadcast();
   }
 
-  void
-  TaskPool::TaskQueue::clear() /*throw (eh::Exception)*/
+  void TaskPool::TaskQueue::clear() /*throw (eh::Exception)*/
   {
     Tasks destroy_tasks;
 
@@ -68,28 +63,20 @@ namespace Generics
     TaskQueue* task_queue,
     unsigned stack_size)
     noexcept
-    : ActiveObjectCommonImpl(
-        Job_var(
-          new Job(callback, task_queue)),
-        1,
-        stack_size,
-        1)
+    : ActiveObjectCommonImpl( Job_var( new Job(callback, task_queue)), 1, stack_size, 1)
   {}
 
   //
   // TaskPool::Job class
   //
 
-  TaskPool::TaskQueueProcessor::Job::Job(
-    ActiveObjectCallback* callback,
-    TaskQueue* task_queue)
+  TaskPool::TaskQueueProcessor::Job::Job( ActiveObjectCallback* callback, TaskQueue* task_queue)
     /*throw (eh::Exception)*/
     : SingleJob(callback),
       task_queue_(ReferenceCounting::add_ref(task_queue))
   {}
 
-  void
-  TaskPool::TaskQueueProcessor::Job::terminate() noexcept
+  void TaskPool::TaskQueueProcessor::Job::terminate() noexcept
   {
     task_queue_->terminate();
   }
@@ -97,26 +84,25 @@ namespace Generics
   TaskPool::TaskQueueProcessor::Job::~Job() noexcept
   {}
 
-  void
-  TaskPool::TaskQueueProcessor::Job::work() noexcept
+  void TaskPool::TaskQueueProcessor::Job::work() noexcept
   {
     TaskQueue* task_queue = task_queue_.in();
 
     try
     {
-      while(true)
+      while (true)
       {
         Task_var run_task;
 
         {
           Sync::ConditionalGuard guard(task_queue->new_task_, task_queue->tasks_lock_);
 
-          if(is_terminating())
+          if (is_terminating())
           {
             return;
           }
 
-          while(task_queue->tasks_.empty())
+          while (task_queue->tasks_.empty())
           {
             ++task_queue->waiting_threads_;
 
@@ -124,13 +110,13 @@ namespace Generics
 
             --task_queue->waiting_threads_;
 
-            if(is_terminating())
+            if (is_terminating())
             {
               return;
             }
           }
 
-          if(!task_queue->tasks_.empty())
+          if (!task_queue->tasks_.empty())
           {
             run_task.swap(task_queue->tasks_.front());
             task_queue->tasks_.pop_front();
@@ -159,19 +145,16 @@ namespace Generics
   // TaskPool class
   //
 
-  TaskPool::TaskPool(
-    ActiveObjectCallback* callback,
-    unsigned threads_number,
-    size_t stack_size)
+  TaskPool::TaskPool( ActiveObjectCallback* callback, unsigned threads_number, size_t stack_size)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
     : task_queue_pos_(0)
   {
-    for(unsigned job_i = 0; job_i < threads_number; ++job_i)
+    for (unsigned job_i = 0; job_i < threads_number; ++job_i)
     {
       task_queues_.push_back(TaskQueue_var());
     }
 
-    for(unsigned job_i = 0; job_i < threads_number; ++job_i)
+    for (unsigned job_i = 0; job_i < threads_number; ++job_i)
     {
       task_queues_[job_i] = new TaskQueue();
 
@@ -184,29 +167,26 @@ namespace Generics
     }
   }
 
-  void
-  TaskPool::enqueue_task(Task* task, const Time* timeout)
+  void TaskPool::enqueue_task(Task* task, const Time* timeout)
     /*throw (InvalidArgument, Overflow, NotActive, eh::Exception)*/
   {
     unsigned pos = ++task_queue_pos_;
     task_queues_[pos % task_queues_.size()]->enqueue_task(task, timeout);
   }
 
-  void
-  TaskPool::deactivate_object() noexcept
+  void TaskPool::deactivate_object() noexcept
   {
     CompositeActiveObject::deactivate_object();
 
-    for(auto it = task_queues_.begin(); it != task_queues_.end(); ++it)
+    for (auto it = task_queues_.begin(); it != task_queues_.end(); ++it)
     {
       (*it)->terminate();
     }
   }
 
-  void
-  TaskPool::clear() /*throw (eh::Exception)*/
+  void TaskPool::clear() /*throw (eh::Exception)*/
   {
-    for(auto it = task_queues_.begin(); it != task_queues_.end(); ++it)
+    for (auto it = task_queues_.begin(); it != task_queues_.end(); ++it)
     {
       (*it)->clear();
     }

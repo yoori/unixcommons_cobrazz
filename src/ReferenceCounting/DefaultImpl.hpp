@@ -26,23 +26,18 @@ namespace ReferenceCounting
     private Generics::Uncopyable
   {
   public:
-    virtual
-    void
-    add_ref() const noexcept;
+    virtual void add_ref() const noexcept;
 
-    virtual
-    void
-    remove_ref() const noexcept;
+    virtual void remove_ref() const noexcept;
 
   protected:
     DefaultImpl() noexcept;
-    virtual
-    ~DefaultImpl() noexcept;
+    virtual ~DefaultImpl() noexcept;
 
 
   private:
-    typedef typename SynchPolicy::Mutex Mutex;
-    typedef typename SynchPolicy::WriteGuard Guard;
+    using Mutex = typename SynchPolicy::Mutex;
+    using Guard = typename SynchPolicy::WriteGuard;
 
     mutable Mutex lock_;
     mutable unsigned long ref_count_;
@@ -66,16 +61,14 @@ namespace ReferenceCounting
   }
 
   template <typename SynchPolicy>
-  void
-  DefaultImpl<SynchPolicy>::add_ref() const noexcept
+  void DefaultImpl<SynchPolicy>::add_ref() const noexcept
   {
     Guard guard(lock_);
     ref_count_++;
   }
 
   template <typename SynchPolicy>
-  void
-  DefaultImpl<SynchPolicy>::remove_ref() const noexcept
+  void DefaultImpl<SynchPolicy>::remove_ref() const noexcept
   {
     bool delete_this;
 

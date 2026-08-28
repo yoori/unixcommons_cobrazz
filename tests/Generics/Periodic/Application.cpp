@@ -9,13 +9,10 @@ class PeriodicPrint : public Generics::PeriodicTask
 public:
   PeriodicPrint(int time) noexcept;
 
-  virtual
-  void
-  task(bool forced) noexcept;
+  virtual void task(bool forced) noexcept;
 
 protected:
-  virtual
-  ~PeriodicPrint() noexcept;
+  virtual ~PeriodicPrint() noexcept;
 
 private:
   int index_;
@@ -27,8 +24,7 @@ PeriodicPrint::PeriodicPrint(int time) noexcept
 {
 }
 
-void
-PeriodicPrint::task(bool forced) noexcept
+void PeriodicPrint::task(bool forced) noexcept
 {
   out->stream(Logging::Logger::INFO) << index_ << (forced ? " forced" : "");
 }
@@ -37,13 +33,11 @@ PeriodicPrint::~PeriodicPrint() noexcept
 {
 }
 
-void
-test1() /*throw (eh::Exception)*/
+void test1() /*throw (eh::Exception)*/
 {
   const int N = 4;
   Generics::PeriodicTask_var tasks[N];
-  Generics::PeriodicRunner_var pr(
-    new Generics::PeriodicRunner(0));
+  Generics::PeriodicRunner_var pr( new Generics::PeriodicRunner(0));
   for (int i = 0; i < N; i++)
   {
     pr->add_task(tasks[i] = new PeriodicPrint(i + 1), true);
@@ -81,8 +75,7 @@ test1() /*throw (eh::Exception)*/
 
 }
 
-int
-main()
+int main()
 {
   std::cout << "Periodic tests started.." << std::endl;
   try

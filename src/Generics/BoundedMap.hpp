@@ -34,8 +34,7 @@ namespace Generics
   template <typename Key, typename Data>
   struct DefaultSizePolicy
   {
-    size_t
-    operator ()(const Key&, const Data&) const noexcept;
+    size_t operator ()(const Key&, const Data&) const noexcept;
   };
 
   /**
@@ -54,7 +53,7 @@ namespace Generics
       Time last_used;
     };
 
-    typedef std::list<Ordered> Queue;
+    using Queue = std::list<Ordered>;
 
     /**
      * Item is stored in the hash allowing to update last used time on usage
@@ -95,26 +94,25 @@ namespace Generics
   template <typename Key, typename Data,
     typename SizePolicy = DefaultSizePolicy<Key, Data>,
     typename SyncPolicy = Sync::Policy::PosixThread,
-    typename Container =
-      ReferenceCounting::HashTable<Key,
+    typename Container = ReferenceCounting::HashTable<Key,
         typename BoundedMapTypes<Key, Data>::Item> >
   class BoundedMap
   {
   public:
-    typedef Key key_type;
-    typedef Data data_type;
-    typedef Data mapped_type;
-    typedef std::pair<const Key, Data> value_type;
+    using key_type = Key;
+    using data_type = Data;
+    using mapped_type = Data;
+    using value_type = std::pair<const Key, Data>;
 
-    typedef std::pair<Key, Data> Value;
-    typedef std::pair<const Key&, Data&> ValueRef;
-    typedef std::pair<const Key&, const Data&> ValueCRef;
+    using Value = std::pair<Key, Data>;
+    using ValueRef = std::pair<const Key&, Data&>;
+    using ValueCRef = std::pair<const Key&, const Data&>;
 
-    typedef typename Container::size_type size_type;
-    typedef PairPtr<Value, ValueRef> pointer;
-    typedef PairPtr<const Value, ValueCRef> const_pointer;
-    typedef ValueRef reference;
-    typedef ValueCRef const_reference;
+    using size_type = typename Container::size_type;
+    using pointer = PairPtr<Value, ValueRef>;
+    using const_pointer = PairPtr<const Value, ValueCRef>;
+    using reference = ValueRef;
+    using const_reference = ValueCRef;
 
     /**
      * Iterator Base
@@ -131,30 +129,26 @@ namespace Generics
        * @param itor another IteratorBase to compare with
        * @return true only if both this and itor equal to end()
        */
-      bool
-      operator ==(const IteratorBase& itor) const noexcept;
+      bool operator ==(const IteratorBase& itor) const noexcept;
 
       /**
        * Non-equal comparison operator
        * @param itor another IteratorBase to compare with
        * @return false only if both this and itor equal to end()
        */
-      bool
-      operator !=(const IteratorBase& itor) const noexcept;
+      bool operator !=(const IteratorBase& itor) const noexcept;
 
       /**
        * Asterisk operator
        * @return reference (const) to the stored pair of key and data
        */
-      const_reference
-      operator *() const noexcept;
+      const_reference operator *() const noexcept;
 
       /**
        * Arrow operator
        * @return pointer (const) to the stored pair of key and data
        */
-      const_pointer
-      operator ->() const noexcept;
+      const_pointer operator ->() const noexcept;
 
     protected:
       /**
@@ -197,22 +191,19 @@ namespace Generics
        * Copies value from another one
        * @param itor source iterator
        */
-      void
-      operator =(IteratorBase& itor) /*throw (eh::Exception)*/;
+      void operator =(IteratorBase& itor) /*throw (eh::Exception)*/;
 
       /**
        * Assignment operator
        * Moves value from another one
        * @param itor source iterator
        */
-      void
-      operator =(IteratorBase&& itor) noexcept;
+      void operator =(IteratorBase&& itor) noexcept;
 
       /**
        * Destroys value_ if necessary
        */
-      void
-      clear_() noexcept;
+      void clear_() noexcept;
 
 
       char buf_[sizeof(Value)];
@@ -264,16 +255,14 @@ namespace Generics
        * Copies value from another one
        * @param itor source iterator
        */
-      const_iterator&
-      operator =(const IteratorBase& itor) /*throw (eh::Exception)*/;
+      const_iterator& operator =(const IteratorBase& itor) /*throw (eh::Exception)*/;
 
       /**
        * Assignment operator
        * Moves value from another one
        * @param itor source iterator
        */
-      const_iterator&
-      operator =(IteratorBase&& itor) /*throw (eh::Exception)*/;
+      const_iterator& operator =(IteratorBase&& itor) /*throw (eh::Exception)*/;
     };
 
     /**
@@ -291,15 +280,13 @@ namespace Generics
        * Asterisk operator
        * @return reference to the stored pair of key and data
        */
-      reference
-      operator *() noexcept;
+      reference operator *() noexcept;
 
       /**
        * Arrow operator
        * @return pointer to the stored pair of key and data
        */
-      pointer
-      operator ->() noexcept;
+      pointer operator ->() noexcept;
 
       /**
        * Constructor
@@ -336,25 +323,21 @@ namespace Generics
        * Copies value from another one
        * @param itor source iterator
        */
-      iterator&
-      operator =(iterator& itor) /*throw (eh::Exception)*/;
+      iterator& operator =(iterator& itor) /*throw (eh::Exception)*/;
 
       /**
        * Assignment operator
        * Moves value from another one
        * @param itor source iterator
        */
-      iterator&
-      operator =(iterator&& itor) /*throw (eh::Exception)*/;
+      iterator& operator =(iterator&& itor) /*throw (eh::Exception)*/;
     };
 
     class Inserter
     {
     public:
-      void
-      operator =(Data& data) /*throw (eh::Exception)*/;
-      void
-      operator =(Data&& data) /*throw (eh::Exception)*/;
+      void operator =(Data& data) /*throw (eh::Exception)*/;
+      void operator =(Data&& data) /*throw (eh::Exception)*/;
 
     private:
       Inserter(BoundedMap& map, const Key& key) noexcept;
@@ -374,8 +357,7 @@ namespace Generics
      * @param timeout time interval allowing to name an element outdated
      * @param size_policy size policy object
      */
-    BoundedMap(size_type bound, const Time& timeout,
-      SizePolicy size_policy = SizePolicy())
+    BoundedMap(size_type bound, const Time& timeout, SizePolicy size_policy = SizePolicy())
       /*throw (eh::Exception)*/;
 
     /**
@@ -387,8 +369,7 @@ namespace Generics
      * @param args arguments for container's constructor
      */
     template <typename... T>
-    BoundedMap(size_type bound, const Time& timeout,
-      SizePolicy size_policy, T... args)
+    BoundedMap(size_type bound, const Time& timeout, SizePolicy size_policy, T... args)
       /*throw (eh::Exception)*/;
 
     /**
@@ -398,8 +379,7 @@ namespace Generics
      * @return iterator with the value of found element or
      * iterator equal to end() if not found
      */
-    iterator
-    find(const key_type& key) /*throw (eh::Exception)*/;
+    iterator find(const key_type& key) /*throw (eh::Exception)*/;
 
     /**
      * Finds element by the key (const version).
@@ -408,8 +388,7 @@ namespace Generics
      * @return const iterator with the value of found element or
      * const iterator equal to end() if not found
      */
-    const_iterator
-    find(const key_type& key) const /*throw (eh::Exception)*/;
+    const_iterator find(const key_type& key) const /*throw (eh::Exception)*/;
 
     /**
      * Tries to inserts another item into the container.
@@ -454,8 +433,7 @@ namespace Generics
      * size is updated
      * @param key key describing changing element
      */
-    void
-    update(const Key& key) noexcept;
+    void update(const Key& key) noexcept;
 
     /**
      * Updates the size of the specified item
@@ -468,16 +446,14 @@ namespace Generics
      * size is updated
      * @param iterator iterator describing changing element
      */
-    void
-    update(const IteratorBase& iterator) noexcept;
+    void update(const IteratorBase& iterator) noexcept;
 
     /**
      * Either replaces the existing item or tries to insert it if it's
      * absent.
      * It also calls update() allowing to erase the item if it's too big.
      */
-    void
-    insert_or_update(const Key& key, Data& data) /*throw (eh::Exception)*/;
+    void insert_or_update(const Key& key, Data& data) /*throw (eh::Exception)*/;
 
     /**
      * Either replaces the existing item or tries to insert it if it's
@@ -485,53 +461,46 @@ namespace Generics
      * It also calls update() allowing to erase the item if it's too big.
      * Move semantics is used.
      */
-    void
-    insert_or_update(const Key& key, Data&& data) /*throw (eh::Exception)*/;
+    void insert_or_update(const Key& key, Data&& data) /*throw (eh::Exception)*/;
 
     /**
      * Calls insert_or_update in std::map-compatible way.
      * @param key key of the item
      * @return proxy object allowing assignment of Data
      */
-    Inserter
-    operator [](const Key& key) noexcept;
+    Inserter operator [](const Key& key) noexcept;
 
     /**
      * Removes the item from the container by the key.
      * It is possible to remove a different item with the same key.
      * @param key item key
      */
-    void
-    erase(const Key& key) noexcept;
+    void erase(const Key& key) noexcept;
 
     /**
      * Removes the item from the container by the key.
      * It is possible to remove a different item with the same key.
      * @param itor item descriptor
      */
-    void
-    erase(const IteratorBase& itor) noexcept;
+    void erase(const IteratorBase& itor) noexcept;
 
     /**
      * Clears the container
      */
-    void
-    clear() noexcept;
+    void clear() noexcept;
 
     /**
      * Beyond-the-last iterator is required for success test of
      * find() and insert()
      * @return iterator referencing to nothing
      */
-    const const_iterator&
-    end() const noexcept;
+    const const_iterator& end() const noexcept;
 
     /**
      * Actual number of elements stored
      * @return number of elements in the map
      */
-    size_type
-    size() const noexcept;
+    size_type size() const noexcept;
 
     /**
      * Copies all of value pairs to insert iterator
@@ -539,52 +508,45 @@ namespace Generics
      * @result value of insert iterator after copying
      */
     template <typename InsertIterator>
-    InsertIterator
-    copy_to(InsertIterator insert) /*throw (eh::Exception)*/;
+    InsertIterator copy_to(InsertIterator insert) /*throw (eh::Exception)*/;
 
     /**
      * Container usage statistics
      * @param reset whether or not reset usage statistics
      * @return gathered statistics
      */
-    BoundedMapStat
-    statistics(bool reset = false) noexcept;
+    BoundedMapStat statistics(bool reset = false) noexcept;
 
     /**
      * Current bound limit
      * @return current bound limit
      */
-    size_type
-    bound() const noexcept;
+    size_type bound() const noexcept;
 
     /**
      * Sets new bound limit. No removal of extra elements is made
      * @param new_bound new bound limit
      */
-    void
-    bound(size_type new_bound) noexcept;
+    void bound(size_type new_bound) noexcept;
 
     /**
      * Current expiration timeout
      * @return expiration timeout
      */
-    Time
-    timeout() const noexcept;
+    Time timeout() const noexcept;
 
     /**
      * Sets new expiration timeout. No removal of expired elements is made
      */
-    void
-    timeout(Time new_timeout) noexcept;
+    void timeout(Time new_timeout) noexcept;
 
 
   private:
-    typedef typename BoundedMapTypes<Key, Data>::Ordered Ordered;
-    typedef typename BoundedMapTypes<Key, Data>::Queue Queue;
-    typedef typename BoundedMapTypes<Key, Data>::Item Item;
+    using Ordered = typename BoundedMapTypes<Key, Data>::Ordered;
+    using Queue = typename BoundedMapTypes<Key, Data>::Queue;
+    using Item = typename BoundedMapTypes<Key, Data>::Item;
 
-    typename Container::iterator
-    find_(const key_type& key, const Time& now) const noexcept;
+    typename Container::iterator find_(const key_type& key, const Time& now) const noexcept;
 
     template <typename DataType>
     std::pair<iterator, bool>
@@ -595,12 +557,10 @@ namespace Generics
     std::pair<iterator, bool>
     insert_(ValueType&& value) /*throw (eh::Exception)*/;
 
-    bool
-    update_(typename Container::iterator itor, const Time& now) noexcept;
+    bool update_(typename Container::iterator itor, const Time& now) noexcept;
 
     template <typename DataType>
-    void
-    insert_or_update_(const Key& key, DataType&& data)
+    void insert_or_update_(const Key& key, DataType&& data)
       /*throw (eh::Exception)*/;
 
 
@@ -628,8 +588,7 @@ namespace Generics
   // BoundedMapStat class
   //
 
-  inline
-  BoundedMapStat::BoundedMapStat() noexcept
+  inline BoundedMapStat::BoundedMapStat() noexcept
     : inserted_new(0), insert_existing(0),
       removed_outdated(0), removed_updated(0), not_inserted(0),
       replaced(0)
@@ -642,9 +601,7 @@ namespace Generics
   //
 
   template <typename Key, typename Data>
-  size_t
-  DefaultSizePolicy<Key, Data>::operator ()(const Key&, const Data&) const
-    noexcept
+  size_t DefaultSizePolicy<Key, Data>::operator ()(const Key&, const Data&) const noexcept
   {
     return 1;
   }
@@ -711,8 +668,7 @@ namespace Generics
     typename SyncPolicy, typename Container>
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     IteratorBase::IteratorBase(IteratorBase&& itor) noexcept
-    : value_(itor.value_ ? new (buf_) Value(std::move(*itor.value_)) :
-        nullptr)
+    : value_(itor.value_ ? new (buf_) Value(std::move(*itor.value_)) : nullptr)
   {
   }
 
@@ -1023,8 +979,7 @@ namespace Generics
   BoundedMap<Key, Data, SizePolicy, SyncPolicy, Container>::
     find_(const key_type& key, const Time& now) const noexcept
   {
-    typename Container::iterator itor(
-      const_cast<Container&>(container_).find(key));
+    typename Container::iterator itor( const_cast<Container&>(container_).find(key));
 
     if (itor != container_.end())
     {
@@ -1108,8 +1063,7 @@ namespace Generics
     try
     {
       Item item(std::forward<DataType>(data), size, order);
-      result = container_.insert(
-        typename Container::value_type(key, std::move(item)));
+      result = container_.insert( typename Container::value_type(key, std::move(item)));
       assert(result.second);
       stat_.inserted_new++;
       size_ += size;
@@ -1141,8 +1095,7 @@ namespace Generics
       if (itor != container_.end())
       {
         stat_.insert_existing++;
-        return std::pair<iterator, bool>(
-          iterator(itor->first, itor->second.data), false);
+        return std::pair<iterator, bool>( iterator(itor->first, itor->second.data), false);
       }
     }
 
@@ -1261,6 +1214,7 @@ namespace Generics
         container_.erase(itor);
         return false;
       }
+
       if (order != itor->second.order)
       {
         typename Container::iterator itor(container_.find(order->key));
@@ -1378,8 +1332,7 @@ namespace Generics
     {
       typename SyncPolicy::ReadGuard guard(mutex_);
 
-      for (typename Container::iterator itor(container_.begin());
-        itor != container_.end(); ++itor)
+      for (typename Container::iterator itor(container_.begin()); itor != container_.end(); ++itor)
       {
         *insert = value_type(itor->first, itor->second.data);
         ++insert;

@@ -21,9 +21,7 @@ namespace CORBACommons
      * @param type whether wait for completion of pending CORBA requests
      * or not
      */
-    virtual
-    void
-    shutdown(bool type) noexcept = 0;
+    virtual void shutdown(bool type) noexcept = 0;
 
   protected:
     /**
@@ -33,10 +31,9 @@ namespace CORBACommons
     /**
      * Destructor
      */
-    virtual
-    ~OrbShutdowner() noexcept;
+    virtual ~OrbShutdowner() noexcept;
   };
-  typedef ::ReferenceCounting::QualPtr<OrbShutdowner> OrbShutdowner_var;
+  using OrbShutdowner_var = ::ReferenceCounting::QualPtr<OrbShutdowner>;
 
   /**
    * One ORB shutdowner
@@ -50,23 +47,19 @@ namespace CORBACommons
      * Constructor
      * @param orb orb to shutdown
      */
-    explicit
-    SimpleOrbShutdowner(CORBA::ORB_ptr orb) noexcept;
+    explicit SimpleOrbShutdowner(CORBA::ORB_ptr orb) noexcept;
     /**
      * Shutdowns controlled ORB
      * @param type whether wait for completion of pending CORBA requests
      * or not
      */
-    virtual
-    void
-    shutdown(bool type) noexcept;
+    virtual void shutdown(bool type) noexcept;
 
   private:
     /**
      * Destructor
      */
-    virtual
-    ~SimpleOrbShutdowner() noexcept;
+    virtual ~SimpleOrbShutdowner() noexcept;
 
     CORBA::ORB_var orb_;
   };
@@ -81,9 +74,7 @@ namespace CORBACommons
      * pending corba requests passing 1 to CORBA::ORB::shutdown, otherwise
      * terminate process immediately passing 0 to CORBA::ORB::shutdown.
      */
-    virtual
-    void
-    shutdown(CORBA::Boolean wait_for_completion)
+    virtual void shutdown(CORBA::Boolean wait_for_completion)
       /*throw (CORBA::SystemException)*/;
 
     /**
@@ -92,16 +83,13 @@ namespace CORBACommons
      * return value
      */
     virtual
-    CORBACommons::IProcessControl::ALIVE_STATUS
-    is_alive() /*throw (CORBA::SystemException)*/;
+    CORBACommons::IProcessControl::ALIVE_STATUS is_alive() /*throw (CORBA::SystemException)*/;
 
     /**
      * Provides extended status of the process to the caller
      * @return empty string, may be reimplemented in derived classes
      */
-    virtual
-    char*
-    comment() /*throw (OutOfMemory)*/;
+    virtual char* comment() /*throw (OutOfMemory)*/;
 
     /**
      * Performs specific action on remote object
@@ -109,25 +97,20 @@ namespace CORBACommons
      * @param param_value additional action data
      * @return action result
      */
-    virtual
-    char*
-    control(const char* param_name, const char* param_value)
+    virtual char* control(const char* param_name, const char* param_value)
       /*throw (OutOfMemory, ImplementationError)*/;
 
   protected:
     /*
      * Destructor
      */
-    virtual
-    ~ProcessControlDefault() noexcept;
+    virtual ~ProcessControlDefault() noexcept;
     /**
      * Called by is_alive implementation to determine AS_ALIVE or AS_READY
      * status
      * @return true now, can be reimplemented in derived classes
      */
-    virtual
-    bool
-    is_ready_() noexcept;
+    virtual bool is_ready_() noexcept;
   };
 
   /**
@@ -155,15 +138,13 @@ namespace CORBACommons
      * ORBs which receive signal to escape message loop.
      * @param shutdowner shutdowner to call by external request
      */
-    explicit
-    ProcessControlImpl(OrbShutdowner* shutdowner = 0)
+    explicit ProcessControlImpl(OrbShutdowner* shutdowner = 0)
       /*throw (InvalidArgument, Exception, eh::Exception)*/;
 
     /**
      * Waits until object fully stops.
      */
-    void
-    wait() /*throw (eh::Exception)*/;
+    void wait() /*throw (eh::Exception)*/;
 
     /**
      * Shutdowns a process calling CORBA::ORB::shutdown on ORB passed as a
@@ -172,42 +153,34 @@ namespace CORBACommons
      * pending corba requests passing 1 to CORBA::ORB::shutdown, otherwise
      * terminate process immediately passing 0 to CORBA::ORB::shutdown.
      */
-    virtual
-    void
-    shutdown(CORBA::Boolean wait_for_completion)
+    virtual void shutdown(CORBA::Boolean wait_for_completion)
       /*throw (CORBA::SystemException)*/;
 
   protected:
     /**
      * Destructor
      */
-    virtual
-    ~ProcessControlImpl() noexcept;
+    virtual ~ProcessControlImpl() noexcept;
 
   private:
     class ShutdownJob : public Generics::ThreadJob
     {
     public:
-      explicit
-      ShutdownJob(OrbShutdowner_var& shutdowner) noexcept;
+      explicit ShutdownJob(OrbShutdowner_var& shutdowner) noexcept;
 
-      virtual
-      void
-      work() noexcept;
+      virtual void work() noexcept;
 
-      void
-      wake(bool shutdown) noexcept;
+      void wake(bool shutdown) noexcept;
 
     protected:
-      virtual
-      ~ShutdownJob() noexcept;
+      virtual ~ShutdownJob() noexcept;
 
     private:
       OrbShutdowner_var& shutdowner_;
       bool shutdown_;
       Sync::Semaphore sem_;
     };
-    typedef ::ReferenceCounting::FixedPtr<ShutdownJob> ShutdownJob_var;
+    using ShutdownJob_var = ::ReferenceCounting::FixedPtr<ShutdownJob>;
 
   protected:
     OrbShutdowner_var shutdowner_;
@@ -251,11 +224,9 @@ namespace CORBACommons
     /**
      * Destructor
      */
-    virtual
-    ~ProcessControlWithLogger() noexcept;
+    virtual ~ProcessControlWithLogger() noexcept;
   };
-  typedef ::ReferenceCounting::QualPtr<ProcessControlWithLogger>
-    ProcessControlWithLogger_var;
+  using ProcessControlWithLogger_var = ::ReferenceCounting::QualPtr<ProcessControlWithLogger>;
 }
 
 //
@@ -269,15 +240,12 @@ namespace CORBACommons
   //
 
   template <typename Parent>
-  ProcessControlDefault<Parent>::~ProcessControlDefault()
-    noexcept
+  ProcessControlDefault<Parent>::~ProcessControlDefault() noexcept
   {
   }
 
   template <typename Parent>
-  void
-  ProcessControlDefault<Parent>::shutdown(
-    CORBA::Boolean /*wait_for_completion*/)
+  void ProcessControlDefault<Parent>::shutdown( CORBA::Boolean /*wait_for_completion*/)
     /*throw (CORBA::SystemException)*/
   {
   }
@@ -291,23 +259,20 @@ namespace CORBACommons
   }
 
   template <typename Parent>
-  bool
-  ProcessControlDefault<Parent>::is_ready_() noexcept
+  bool ProcessControlDefault<Parent>::is_ready_() noexcept
   {
     return true;
   }
 
   template <typename Parent>
-  char*
-  ProcessControlDefault<Parent>::comment() /*throw (OutOfMemory)*/
+  char* ProcessControlDefault<Parent>::comment() /*throw (OutOfMemory)*/
   {
     return 0;
   }
 
   template <typename Parent>
   char*
-  ProcessControlDefault<Parent>::control(const char* /*param_name*/,
-    const char* /*param_value*/)
+  ProcessControlDefault<Parent>::control(const char* /*param_name*/, const char* /*param_value*/)
     /*throw (OutOfMemory, ImplementationError)*/
   {
     return 0;
@@ -327,10 +292,8 @@ namespace CORBACommons
       ProcessControlImpl(shutdowner)
   {
   }
-  
-  inline
-  ProcessControlWithLogger::~ProcessControlWithLogger()
-    noexcept
+
+  inline ProcessControlWithLogger::~ProcessControlWithLogger() noexcept
   {
   }
 }

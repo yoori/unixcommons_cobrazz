@@ -11,31 +11,26 @@ namespace CORBATest
       CORBACommons::ReferenceCounting::ServantImpl<POA_CORBATest::TestInt>
   {
   public:
-    virtual
-    void
-    test() noexcept
+    virtual void test() noexcept
     {
     }
 
   protected:
-    virtual
-    ~TestIntImpl() noexcept
+    virtual ~TestIntImpl() noexcept
     {
     }
   };
-  typedef ReferenceCounting::QualPtr<TestIntImpl> TestIntImpl_var;
+  using TestIntImpl_var = ReferenceCounting::QualPtr<TestIntImpl>;
 }
 
-void
-Client::work() /*throw (eh::Exception)*/
+void Client::work() /*throw (eh::Exception)*/
 {
 }
 
 class Client1 : public Client
 {
 public:
-  void
-  run() /*throw (eh::Exception)*/
+  void run() /*throw (eh::Exception)*/
   {
     sleep(1);
   }
@@ -44,17 +39,13 @@ public:
 class Server1 : public Server
 {
 public:
-  virtual
-  void
-  init_endpoint(CORBACommons::EndpointConfig& endpoint_config)
+  virtual void init_endpoint(CORBACommons::EndpointConfig& endpoint_config)
     /*throw (eh::Exception)*/
   {
     endpoint_config.objects[TEST_INT].insert(TEST_INT);
   }
 
-  virtual
-  void
-  work() /*throw (eh::Exception)*/
+  virtual void work() /*throw (eh::Exception)*/
   {
     Server::work();
     test_int_impl_ = new CORBATest::TestIntImpl();
@@ -63,8 +54,7 @@ public:
     pthread_create(&th, 0, thread, this);
   }
 
-  void
-  stop() /*throw (eh::Exception)*/
+  void stop() /*throw (eh::Exception)*/
   {
     shutdowner_->shutdown(true);
     shutdowner_.reset();
@@ -72,9 +62,7 @@ public:
   }
 
 private:
-  static
-  void*
-  thread(void* arg)
+  static void* thread(void* arg)
   {
     static_cast<Server1*>(arg)->corba_server_adapter->run();
     return 0;
@@ -89,17 +77,14 @@ template <typename Client, typename Server>
 class Usage1 : public Usage<Client, Server>
 {
 public:
-  virtual
-  void
-  action(Client& client, Server& server) /*throw (eh::Exception)*/
+  virtual void action(Client& client, Server& server) /*throw (eh::Exception)*/
   {
     client.run();
     server.stop();
   }
 };
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   Usage1<Client1, Server1> usage;
   return usage.use(argc, argv);

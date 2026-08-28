@@ -26,17 +26,13 @@ class TestContext
 public:
 
   template<typename Arg1, typename Arg2>
-  void
-  check_equal(const Arg1& a, const Arg2& b) const /*throw (Exception)*/;
+  void check_equal(const Arg1& a, const Arg2& b) const /*throw (Exception)*/;
 
   template<typename Arg1, typename Arg2>
-  void
-  test_equal(const Arg1& a, const Arg2& b) const /*throw (eh::Exception)*/;
+  void test_equal(const Arg1& a, const Arg2& b) const /*throw (eh::Exception)*/;
 
-  void
-  set_operation(const char* name) /*throw (eh::Exception)*/;
-  void
-  set_operation(const String::SubString& name) /*throw (eh::Exception)*/;
+  void set_operation(const char* name) /*throw (eh::Exception)*/;
+  void set_operation(const String::SubString& name) /*throw (eh::Exception)*/;
 
 private:
   std::string operation_;
@@ -45,8 +41,7 @@ private:
 #include "StressTest.hpp"
 
 template<typename Arg1, typename Arg2>
-void
-TestContext::check_equal(const Arg1& a, const Arg2& b) const
+void TestContext::check_equal(const Arg1& a, const Arg2& b) const
   /*throw (Exception)*/
 {
   if (a != b)
@@ -58,31 +53,26 @@ TestContext::check_equal(const Arg1& a, const Arg2& b) const
 }
 
 template<typename Arg1, typename Arg2>
-void
-TestContext::test_equal(const Arg1& a, const Arg2& b) const
+void TestContext::test_equal(const Arg1& a, const Arg2& b) const
   /*throw (eh::Exception)*/
 {
   if (a != b)
   {
-    std::cerr << "Opfail: " << operation_ << ". '"<< a << "' != '" << b <<
-      "'" << std::endl;
+    std::cerr << "Opfail: " << operation_ << ". '"<< a << "' != '" << b << "'" << std::endl;
   }
 }
 
-void
-TestContext::set_operation(const char* name) /*throw (eh::Exception)*/
+void TestContext::set_operation(const char* name) /*throw (eh::Exception)*/
 {
   operation_ = name;
 }
 
-void
-TestContext::set_operation(const String::SubString& name) /*throw (eh::Exception)*/
+void TestContext::set_operation(const String::SubString& name) /*throw (eh::Exception)*/
 {
   name.assign_to(operation_);
 }
 
-bool
-load_file(const char* fn, std::string& result) /*throw (eh::Exception)*/
+bool load_file(const char* fn, std::string& result) /*throw (eh::Exception)*/
 {
   try
   {
@@ -90,14 +80,12 @@ load_file(const char* fn, std::string& result) /*throw (eh::Exception)*/
 
     std::getline(ifs, result, '\0'); // read reason phrase
 
-    std::cout << "File " << fn << " loaded. Size=" << result.size()
-      << std::endl;
+    std::cout << "File " << fn << " loaded. Size=" << result.size() << std::endl;
     return true;
   }
   catch (const eh::Exception& ex)
   {
-    std::cerr << "File " << fn << " open error. "
-      << ex.what() << std::endl;
+    std::cerr << "File " << fn << " open error. " << ex.what() << std::endl;
     return false;
   }
 }
@@ -107,10 +95,9 @@ struct Replacement
   std::string str;
   size_t symbols;
 };
-typedef std::map<UnicodeSymbol, Replacement> Utf8Dictionary;
+using Utf8Dictionary = std::map<UnicodeSymbol, Replacement>;
 
-void
-load_reflections(const char* fn, Utf8Dictionary& dict)
+void load_reflections(const char* fn, Utf8Dictionary& dict)
   /*throw (eh::Exception)*/
 {
   std::ifstream ifs(fn);
@@ -124,8 +111,7 @@ load_reflections(const char* fn, Utf8Dictionary& dict)
   for (int ln = 1; !ifs.eof(); ln++)
   {
     ifs.getline(line, 1024, '\n');
-    if (line[0] == '#' || line[0] == '\0' ||
-      line[0] == '\n' || line[0] == '\r')
+    if (line[0] == '#' || line[0] == '\0' || line[0] == '\n' || line[0] == '\r')
     {
       continue;
     }
@@ -150,6 +136,7 @@ load_reflections(const char* fn, Utf8Dictionary& dict)
       second.str.append(tmp.c_str());
       second.symbols++;
     }
+
     if (second.str.empty())
     {
       continue; // or failed on broken file ?
@@ -163,16 +150,14 @@ load_reflections(const char* fn, Utf8Dictionary& dict)
   }
 #if 0
   std::ofstream ofs((std::string(fn) + ".tmp").c_str());
-  for (Utf8Dictionary::const_iterator itor(dict.begin()); itor != dict.end();
-    ++itor)
+  for (Utf8Dictionary::const_iterator itor(dict.begin()); itor != dict.end(); ++itor)
   {
     ofs << itor->first << " " << itor->second << "\n";
   }
 #endif
 }
 
-void
-load_reflections2(const char* fn, Utf8Dictionary& dict)
+void load_reflections2(const char* fn, Utf8Dictionary& dict)
   /*throw (eh::Exception)*/
 {
   std::ifstream ifs(fn);
@@ -186,8 +171,7 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
   for (int ln = 1; !ifs.eof(); ln++)
   {
     ifs.getline(line, 1024, '\n');
-    if (line[0] == '#' || line[0] == '\0' ||
-      line[0] == '\n' || line[0] == '\r')
+    if (line[0] == '#' || line[0] == '\0' || line[0] == '\n' || line[0] == '\r')
     {
       continue;
     }
@@ -203,16 +187,14 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
       sstr >> str;
       if (!sstr)
       {
-        std::cerr << fn << ":" << ln << ": failed to read a range" <<
-          std::endl;
+        std::cerr << fn << ":" << ln << ": failed to read a range" << std::endl;
         continue;
       }
       Stream::Parser sstr2(str);
       sstr2 >> first;
       if (!sstr2)
       {
-        std::cerr << fn << ":" << ln << ": failed to read UnicodeSymbol" <<
-          std::endl;
+        std::cerr << fn << ":" << ln << ": failed to read UnicodeSymbol" << std::endl;
         continue;
       }
       char ch = ' ';
@@ -221,15 +203,13 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
       {
         if (ch != '-')
         {
-          std::cerr << fn << ":" << ln << ": failed to read range symbol" <<
-            std::endl;
+          std::cerr << fn << ":" << ln << ": failed to read range symbol" << std::endl;
           continue;
         }
         sstr2 >> second;
         if (!sstr2)
         {
-          std::cerr << fn << ":" << ln <<
-            ": failed to read second UnicodeSymbol" << std::endl;
+          std::cerr << fn << ":" << ln << ": failed to read second UnicodeSymbol" << std::endl;
           continue;
         }
         has_second = true;
@@ -241,8 +221,7 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
       String::StringManip::trim(str, str);
       if (!sstr || str.empty())
       {
-        std::cerr << fn << ":" << ln << ": failed to read a replacement" <<
-          std::endl;
+        std::cerr << fn << ":" << ln << ": failed to read a replacement" << std::endl;
         continue;
       }
       switch (str[0])
@@ -270,11 +249,13 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
         }
       }
     }
+
     if (!dict.insert(Utf8Dictionary::value_type(first, repl)).second)
     {
       std::cerr << fn << ":" << ln << " contain content errors" << std::endl;
       return;
     }
+
     if (has_second)
     {
       for (;;)
@@ -285,6 +266,7 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
           std::cerr << fn << ":" << ln << " contain content errors" << std::endl;
           return;
         }
+
         if (first == second)
         {
           break;
@@ -303,14 +285,11 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
     unsigned v = (n % 588) / 28;
     unsigned t = n % 28;
     unsigned long octets;
-    String::UTF8Handler::wchar_to_utf8_char(0x1100 + l, &val.str[0],
-      octets);
-    String::UTF8Handler::wchar_to_utf8_char(0x1161 + v, &val.str[3],
-      octets);
+    String::UTF8Handler::wchar_to_utf8_char(0x1100 + l, &val.str[0], octets);
+    String::UTF8Handler::wchar_to_utf8_char(0x1161 + v, &val.str[3], octets);
     if (t)
     {
-      String::UTF8Handler::wchar_to_utf8_char(0x11A7 + t, &val.str[6],
-        octets);
+      String::UTF8Handler::wchar_to_utf8_char(0x11A7 + t, &val.str[6], octets);
     }
     else
     {
@@ -321,16 +300,14 @@ load_reflections2(const char* fn, Utf8Dictionary& dict)
   }
 #if 0
   std::ofstream ofs((std::string(fn) + ".tmp").c_str());
-  for (Utf8Dictionary::const_iterator itor(dict.begin()); itor != dict.end();
-    ++itor)
+  for (Utf8Dictionary::const_iterator itor(dict.begin()); itor != dict.end(); ++itor)
   {
     ofs << itor->first << " " << itor->second << "\n";
   }
 #endif
 }
 
-void
-stress_test() /*throw (eh::Exception)*/
+void stress_test() /*throw (eh::Exception)*/
 {
   using namespace Generics;
 
@@ -374,8 +351,7 @@ stress_test() /*throw (eh::Exception)*/
 
   std::string invalid = std::string(Eth) + bad_octet + "rest string";
 
-  test_context.check_equal(
-    case_change<Uniform>(String::SubString(b2), destination), false);
+  test_context.check_equal( case_change<Uniform>(String::SubString(b2), destination), false);
   test_context.check_equal(strcmp(bad_octet, b2), 0);
 
   // transform methods stop on bad utf8 octet. Check this feature,
@@ -386,8 +362,7 @@ stress_test() /*throw (eh::Exception)*/
   test_context.check_equal(EthL, sdest);
 }
 
-void
-ill_formed_test() /*throw (eh::Exception)*/
+void ill_formed_test() /*throw (eh::Exception)*/
 {
   using namespace String;
   std::string z;
@@ -401,23 +376,18 @@ ill_formed_test() /*throw (eh::Exception)*/
   std::string sL;
   const char* end = z.data() + z.size();
 
-  for (const char* cit = &z[3],* itn = cit;
-      itn != end;
-      ++itn, cit = itn)
+  for (const char* cit = &z[3],* itn = cit; itn != end; ++itn, cit = itn)
   {
     while (itn != end && *itn != '\n')
     {
       ++itn;
     }
     test_context.set_operation("case_change<Uniform>(cit, itn, sL)");
-    test_context.test_equal(
-      case_change<Uniform>(String::SubString(cit, itn), sL), false);
+    test_context.test_equal( case_change<Uniform>(String::SubString(cit, itn), sL), false);
     test_context.set_operation("case_change<Lower>(cit, itn, sL)");
-    test_context.test_equal(
-      case_change<Lower>(String::SubString(cit, itn), sL), false);
+    test_context.test_equal( case_change<Lower>(String::SubString(cit, itn), sL), false);
     test_context.set_operation("case_change<Upper>(cit, itn, sL)");
-    test_context.test_equal(
-      case_change<Upper>(String::SubString(cit, itn), sL), false);
+    test_context.test_equal( case_change<Upper>(String::SubString(cit, itn), sL), false);
 
     if (itn == end)
     {
@@ -438,13 +408,11 @@ one_utf8_check(const char* operation, const UnicodeSymbol& symbol,
 
   Stream::Dynamic ostr;
   char buf[32];
-  snprintf(buf, sizeof(buf), "U+%04X",
-    static_cast<unsigned>(static_cast<wchar_t>(symbol)));
+  snprintf(buf, sizeof(buf), "U+%04X", static_cast<unsigned>(static_cast<wchar_t>(symbol)));
   ostr << operation << "(" << symbol_str << ") " << buf;
   test_context.set_operation(ostr.str());
   size_t counter;
-  test_context.test_equal(true,
-    case_change<Action>(symbol_str, result, &counter));
+  test_context.test_equal(true, case_change<Action>(symbol_str, result, &counter));
   looked_up_value = dict.find(symbol);
   if (looked_up_value == dict.end())
   {
@@ -464,8 +432,7 @@ one_utf8_check(const char* operation, const UnicodeSymbol& symbol,
   }
 }
 
-void
-all_utf8_space_test() /*throw (eh::Exception)*/
+void all_utf8_space_test() /*throw (eh::Exception)*/
 {
   using namespace String;
   Utf8Dictionary dict_to_lower;
@@ -490,24 +457,19 @@ all_utf8_space_test() /*throw (eh::Exception)*/
       symbol_str.push_back('\0');
     }
     // uniform
-    one_utf8_check<Uniform>("case_change<Uniform>", symbol, symbol_str,
-      dict_to_uniform);
+    one_utf8_check<Uniform>("case_change<Uniform>", symbol, symbol_str, dict_to_uniform);
     // lower
-    one_utf8_check<Lower>("case_change<Lower>", symbol, symbol_str,
-      dict_to_lower);
+    one_utf8_check<Lower>("case_change<Lower>", symbol, symbol_str, dict_to_lower);
     // upper
-    one_utf8_check<Upper>("case_change<Upper>", symbol, symbol_str,
-      dict_to_upper);
+    one_utf8_check<Upper>("case_change<Upper>", symbol, symbol_str, dict_to_upper);
     // simplify
-    one_utf8_check<Simplify>("case_change<Simplify>", symbol, symbol_str,
-      dict_simplify, false);
+    one_utf8_check<Simplify>("case_change<Simplify>", symbol, symbol_str, dict_simplify, false);
   }
 }
 
-void
-random_buffer_test() /*throw (eh::Exception)*/
+void random_buffer_test() /*throw (eh::Exception)*/
 {
-  typedef std::tr1::array<char, 100> data_type;
+  using data_type = std::tr1::array<char, 100>;
   data_type buf;
   using namespace String;
   std::cout << "Random test started" << std::endl;
@@ -534,8 +496,7 @@ random_buffer_test() /*throw (eh::Exception)*/
 }
 
 
-int
-main()
+int main()
 {
   std::cout << "Functional and stress UTF-8 API test started...\n";
   char* ev = getenv("TEST_TOP_SRC_DIR");

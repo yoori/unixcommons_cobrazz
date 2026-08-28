@@ -8,8 +8,7 @@
 
 
 template <typename Type>
-Type
-generate_lowest(unsigned bit) noexcept
+Type generate_lowest(unsigned bit) noexcept
 {
   const unsigned BITS = std::numeric_limits<Type>::digits;
   Type number = static_cast<Type>(1) << bit;
@@ -21,8 +20,7 @@ generate_lowest(unsigned bit) noexcept
 }
 
 template <typename Type>
-Type
-generate_highest(unsigned bit) noexcept
+Type generate_highest(unsigned bit) noexcept
 {
   Type number = static_cast<Type>(1) << bit;
   for (unsigned bits = Generics::safe_rand(4); bits--;)
@@ -33,8 +31,7 @@ generate_highest(unsigned bit) noexcept
 }
 
 template <typename Type, typename Lowest, typename Highest>
-void
-test_type(const char* type, Lowest lowest, Highest highest)
+void test_type(const char* type, Lowest lowest, Highest highest)
   /*throw (eh::Exception)*/
 {
   const unsigned BITS = std::numeric_limits<Type>::digits;
@@ -75,14 +72,12 @@ test_type(const char* type, Lowest lowest, Highest highest)
     al = Generics::BitAlgs::leave_highest_64(value);
     if (al != (static_cast<Type>(1) << bit))
     {
-      std::cerr << "leave_highest for " << value << " (" <<
-        bit << ") failed " << al << std::endl;
+      std::cerr << "leave_highest for " << value << " (" << bit << ") failed " << al << std::endl;
     }
   }
 }
 
-void
-test() /*throw (eh::Exception)*/
+void test() /*throw (eh::Exception)*/
 {
   test_type<uint64_t>("uint64_t", Generics::BitAlgs::lowest_bit_64,
     Generics::BitAlgs::highest_bit_64);
@@ -90,8 +85,7 @@ test() /*throw (eh::Exception)*/
     Generics::BitAlgs::highest_bit_32);
 }
 
-int
-main()
+int main()
 {
   test();
   return 0;

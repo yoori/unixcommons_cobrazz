@@ -26,29 +26,26 @@ namespace
   // Network interfaces
   //
 
-  typedef std::vector<std::string> NetworkInterfaces;
+  using NetworkInterfaces = std::vector<std::string>;
   Sync::PosixMutex interfaces_mutex;
   NetworkInterfaces all_interfaces;
 
   class IPToString
   {
   public:
-    const char*
-    operator ()(const sockaddr_in* address) noexcept;
+    const char* operator ()(const sockaddr_in* address) noexcept;
 
   private:
     char ip_[32];
   };
 
-  const char*
-  IPToString::operator ()(const sockaddr_in* address) noexcept
+  const char* IPToString::operator ()(const sockaddr_in* address) noexcept
   {
     return inet_ntop(AF_INET, &address->sin_addr, ip_, sizeof(ip_));
   }
 
   void
-  get_interfaces(NetworkInterfaces& network_interfaces,
-    const char* host) /*throw (eh::Exception)*/
+  get_interfaces(NetworkInterfaces& network_interfaces, const char* host) /*throw (eh::Exception)*/
   {
     if (*host == '*')
     {
@@ -70,8 +67,7 @@ namespace
 
 namespace CORBACommons
 {
-  ACE_Reactor_Impl*
-  create_reactor_impl(ACE_Timer_Queue* tq) noexcept;
+  ACE_Reactor_Impl* create_reactor_impl(ACE_Timer_Queue* tq) noexcept;
 
   //
   // Data for control of number of unoccupied threads per orb
@@ -79,8 +75,7 @@ namespace CORBACommons
 
   struct Threads
   {
-    Threads(Sync::PosixMutex& mutex, unsigned& threads_running,
-      CorbaConfig& corba_config)
+    Threads(Sync::PosixMutex& mutex, unsigned& threads_running, CorbaConfig& corba_config)
       /*throw (eh::Exception)*/;
 
     Sync::PosixMutex& mutex;
@@ -106,31 +101,24 @@ namespace CORBACommons
       CorbaRefCountImpl<IORTable::Locator>
   {
   public:
-    Locator(CORBA::ORB_ptr orb,
-      TAO::Transport::IIOP::Current_ptr current_transport)
+    Locator(CORBA::ORB_ptr orb, TAO::Transport::IIOP::Current_ptr current_transport)
       /*throw (eh::Exception)*/;
 
-    void
-    bind(const EndpointAddress& address, const char* name,
-      CORBA::Object_ptr object)
+    void bind(const EndpointAddress& address, const char* name, CORBA::Object_ptr object)
       /*throw (eh::Exception, Exception)*/;
 
-    void
-    unbind(const EndpointAddress& address)
+    void unbind(const EndpointAddress& address)
       /*throw (eh::Exception)*/;
 
-    virtual
-    char*
-    locate(const char* name) /*throw (eh::Exception, IORTable::NotFound)*/;
+    virtual char* locate(const char* name) /*throw (eh::Exception, IORTable::NotFound)*/;
 
   protected:
-    virtual
-    ~Locator() noexcept;
+    virtual ~Locator() noexcept;
 
   private:
-    typedef Generics::GnuHashTable<Generics::StringHashAdapter,
-      CORBA::Object_var> EndpointServants;
-    typedef std::map<EndpointAddress, EndpointServants> Mapping;
+    using EndpointServants = Generics::GnuHashTable<Generics::StringHashAdapter,
+      CORBA::Object_var>;
+    using Mapping = std::map<EndpointAddress, EndpointServants>;
 
     Sync::PosixRWLock lock_;
     CORBA::ORB_var orb_;
@@ -141,8 +129,7 @@ namespace CORBACommons
   class CorbaServerAdapter::POACreator
   {
   public:
-    POACreator(CORBA::ORB_ptr orb,
-      PortableServer::POA_ptr root_poa) /*throw (eh::Exception)*/;
+    POACreator(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa) /*throw (eh::Exception)*/;
 
     void
     create_poa(const char* suffix, const char* host, int port,
@@ -160,24 +147,17 @@ namespace CORBACommons
   class CorbaServerAdapter::ServerAdapterJob : public Generics::ThreadJob
   {
   public:
-    void
-    set(Orb* orb, Threads* threads) noexcept;
+    void set(Orb* orb, Threads* threads) noexcept;
 
-    virtual
-    void
-    work() noexcept;
+    virtual void work() noexcept;
 
   protected:
-    virtual
-    ~ServerAdapterJob() noexcept;
+    virtual ~ServerAdapterJob() noexcept;
 
   private:
-    void
-    check_waiters_(int waiters) noexcept;
+    void check_waiters_(int waiters) noexcept;
 
-    static
-    void
-    waiters_cb_(int waiters) noexcept;
+    static void waiters_cb_(int waiters) noexcept;
 
     Orb* orb_;
     Threads* threads_;
@@ -194,8 +174,7 @@ namespace CORBACommons
 
   const int EndpointConfig::BIND_PORT_OFFSET = 50;
 
-  int
-  EndpointConfig::bind_port() const noexcept
+  int EndpointConfig::bind_port() const noexcept
   {
     return secure_connection_config.is_secure() ?
       port + BIND_PORT_OFFSET : port;
@@ -212,8 +191,7 @@ namespace CORBACommons
   {
     hostent addresses;
     char buf[2048];
-    Generics::Network::Resolver::get_host_by_name(host, addresses,
-      buf, sizeof(buf));
+    Generics::Network::Resolver::get_host_by_name(host, addresses, buf, sizeof(buf));
     inet_ntop(AF_INET, addresses.h_addr, buf, sizeof(buf));
     ip_ = buf;
   }
@@ -227,8 +205,7 @@ namespace CORBACommons
     TAO::Transport::IIOP::Current_ptr current_transport)
     /*throw (eh::Exception)*/
     : orb_(CORBA::ORB::_duplicate(orb)),
-      current_transport_(TAO::Transport::IIOP::Current::_duplicate(
-        current_transport))
+      current_transport_(TAO::Transport::IIOP::Current::_duplicate( current_transport))
   {
   }
 
@@ -261,8 +238,7 @@ namespace CORBACommons
     stored_object = CORBA::Object::_duplicate(object);
   }
 
-  void
-  CorbaServerAdapter::Locator::unbind(const EndpointAddress& address)
+  void CorbaServerAdapter::Locator::unbind(const EndpointAddress& address)
     /*throw (eh::Exception)*/
   {
     Sync::PosixWGuard guard(lock_);
@@ -274,15 +250,13 @@ namespace CORBACommons
     }
   }
 
-  char*
-  CorbaServerAdapter::Locator::locate(const char* name)
+  char* CorbaServerAdapter::Locator::locate(const char* name)
     /*throw (eh::Exception, IORTable::NotFound)*/
   {
     Sync::PosixRGuard guard(lock_);
 
     CORBA::String_var local_host(current_transport_->local_host());
-    EndpointAddress address(local_host,
-      current_transport_->local_port());
+    EndpointAddress address(local_host, current_transport_->local_port());
 
 #if 0
     std::cout << "Request " << address.get_host_addr() << ":" <<
@@ -295,8 +269,7 @@ namespace CORBACommons
       throw IORTable::NotFound();
     }
 
-    EndpointServants::const_iterator servant =
-      endpoint->second.find(name);
+    EndpointServants::const_iterator servant = endpoint->second.find(name);
     if (servant == endpoint->second.end())
     {
       throw IORTable::NotFound();
@@ -350,15 +323,13 @@ namespace CORBACommons
 
   CorbaServerAdapter::Endpoint::~Endpoint() noexcept
   {
-    for (BindPoints::const_iterator itor(bind_points_.begin());
-      itor != bind_points_.end(); ++itor)
+    for (BindPoints::const_iterator itor(bind_points_.begin()); itor != bind_points_.end(); ++itor)
     {
       locator_->unbind(itor->address);
     }
   }
 
-  const ObjectsExternalNames&
-  CorbaServerAdapter::Endpoint::find_name_(const char* name) const
+  const ObjectsExternalNames& CorbaServerAdapter::Endpoint::find_name_(const char* name) const
     /*throw (eh::Exception, Exception)*/
   {
     EndpointObjectTable::const_iterator it = object_bind_names_.find(name);
@@ -373,14 +344,12 @@ namespace CORBACommons
   }
 
   void
-  CorbaServerAdapter::Endpoint::add_binding(const char* name,
-    PortableServer::ServantBase* servant)
+  CorbaServerAdapter::Endpoint::add_binding(const char* name, PortableServer::ServantBase* servant)
     /*throw (eh::Exception, Exception)*/
   {
     const ObjectsExternalNames& result_names = find_name_(name);
 
-    for (BindPoints::const_iterator itor(bind_points_.begin());
-     itor != bind_points_.end(); ++itor)
+    for (BindPoints::const_iterator itor(bind_points_.begin()); itor != bind_points_.end(); ++itor)
     {
       add_binding_(itor, servant, result_names);
     }
@@ -409,13 +378,11 @@ namespace CORBACommons
           PortableServer::string_to_ObjectId(result_name->c_str());
         bind_point->poa->activate_object_with_id(obj_id, servant);
 
-        CORBA::Object_var obj_ref =
-          bind_point->poa->id_to_reference(obj_id);
+        CORBA::Object_var obj_ref = bind_point->poa->id_to_reference(obj_id);
 
         if (!CORBA::is_nil(access_decision_))
         {
-          access_decision_->add_object(orb_id_.c_str(),
-            bind_point->poa_id.in(), obj_id, true);
+          access_decision_->add_object(orb_id_.c_str(), bind_point->poa_id.in(), obj_id, true);
         }
 
         locator_->bind(bind_point->address, result_name->c_str(), obj_ref);
@@ -433,11 +400,9 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaServerAdapter::Endpoint::activate() noexcept
+  void CorbaServerAdapter::Endpoint::activate() noexcept
   {
-    for (BindPoints::const_iterator itor(bind_points_.begin());
-     itor != bind_points_.end(); ++itor)
+    for (BindPoints::const_iterator itor(bind_points_.begin()); itor != bind_points_.end(); ++itor)
     {
       itor->poa_manager->activate();
     }
@@ -466,25 +431,20 @@ namespace CORBACommons
 
   Sync::Key<CorbaServerAdapter::ServerAdapterJob>
     CorbaServerAdapter::ServerAdapterJob::key_(
-      (
-       (ACE_Token::waiters_callback_ = waiters_cb_),
-       static_cast<void (*)(void*)>(0))
+      ( (ACE_Token::waiters_callback_ = waiters_cb_), static_cast<void (*)(void*)>(0))
       );
 
   CorbaServerAdapter::ServerAdapterJob::~ServerAdapterJob() noexcept
   {
   }
 
-  void
-  CorbaServerAdapter::ServerAdapterJob::set(Orb* orb, Threads* threads)
-    noexcept
+  void CorbaServerAdapter::ServerAdapterJob::set(Orb* orb, Threads* threads) noexcept
   {
     orb_ = orb;
     threads_ = threads;
   }
 
-  void
-  CorbaServerAdapter::ServerAdapterJob::work() noexcept
+  void CorbaServerAdapter::ServerAdapterJob::work() noexcept
   {
     key_.set_data(this);
 
@@ -503,8 +463,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaServerAdapter::ServerAdapterJob::check_waiters_(int waiters) noexcept
+  void CorbaServerAdapter::ServerAdapterJob::check_waiters_(int waiters) noexcept
   {
     Sync::PosixGuard guard(threads_->mutex);
     orb_->waiters = waiters;
@@ -513,16 +472,15 @@ namespace CORBACommons
       return;
     }
 
-    if (static_cast<unsigned>(waiters) <
-      threads_->corba_config_.min_threads)
+    if (static_cast<unsigned>(waiters) < threads_->corba_config_.min_threads)
     {
       orb_->expanding = true;
     }
-    else if (static_cast<unsigned>(waiters) >=
-      threads_->corba_config_.normal_threads)
+    else if (static_cast<unsigned>(waiters) >= threads_->corba_config_.normal_threads)
     {
       orb_->expanding = false;
     }
+
     if (orb_->expanding)
     {
       static_cast<ServerAdapterJob*>(threads_->current_job->in())->
@@ -541,8 +499,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaServerAdapter::ServerAdapterJob::waiters_cb_(int waiters) noexcept
+  void CorbaServerAdapter::ServerAdapterJob::waiters_cb_(int waiters) noexcept
   {
     if (ServerAdapterJob* job = key_.get_data())
     {
@@ -564,11 +521,12 @@ namespace CORBACommons
     {
       corba_config_.thread_pool += PARTS;
     }
-    if (!corba_config_.normal_threads ||
-      corba_config_.normal_threads > corba_config_.thread_pool)
+
+    if (!corba_config_.normal_threads || corba_config_.normal_threads > corba_config_.thread_pool)
     {
       corba_config_.normal_threads = corba_config_.thread_pool;
     }
+
     if (corba_config_.min_threads > corba_config_.normal_threads)
     {
       corba_config_.min_threads = corba_config_.normal_threads;
@@ -579,8 +537,7 @@ namespace CORBACommons
       AceLogger::add_logger(logger_);
     }
 
-    TAO_Default_Resource_Factory::custom_reactor_impl_factory =
-      &create_reactor_impl;
+    TAO_Default_Resource_Factory::custom_reactor_impl_factory = &create_reactor_impl;
 
     init_env_();
   }
@@ -614,9 +571,7 @@ namespace CORBACommons
     AceLogger::remove_logger(logger_);
   }
 
-  void
-  CorbaServerAdapter::add_binding(const char* name,
-    PortableServer::ServantBase* servant)
+  void CorbaServerAdapter::add_binding(const char* name, PortableServer::ServantBase* servant)
     /*throw (eh::Exception, Exception)*/
   {
     ObjectEndpointsMap::iterator it = object_to_endpoints_.find(name);
@@ -629,8 +584,7 @@ namespace CORBACommons
 
     try
     {
-      for (Endpoints::iterator ep_it = endpoint_list.begin();
-        ep_it != endpoint_list.end(); ++ep_it)
+      for (Endpoints::iterator ep_it = endpoint_list.begin(); ep_it != endpoint_list.end(); ++ep_it)
       {
         (*ep_it)->add_binding(name, servant);
       }
@@ -665,8 +619,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaServerAdapter::run()
+  void CorbaServerAdapter::run()
     /*throw (eh::Exception, Exception)*/
   {
     Threads threads(threads_mutex_, threads_running_, corba_config_);
@@ -680,8 +633,7 @@ namespace CORBACommons
         return;
       }
 
-      for (Endpoints::iterator it = endpoints_.begin();
-        it != endpoints_.end(); ++it)
+      for (Endpoints::iterator it = endpoints_.begin(); it != endpoints_.end(); ++it)
       {
         (*it)->activate();
       }
@@ -701,13 +653,11 @@ namespace CORBACommons
       }
       for (Orbs::iterator orb(orbs_.begin()); orb != orbs_.end(); ++orb)
       {
-        orb->threads_left =
-          corba_config_.thread_pool - threads_to_run;
+        orb->threads_left = corba_config_.thread_pool - threads_to_run;
         orb->expanding = false;
         for (unsigned i = 0; i < threads_to_run; i++)
         {
-          static_cast<ServerAdapterJob*>(threads.current_job++->in())->set(
-            &*orb, &threads);
+          static_cast<ServerAdapterJob*>(threads.current_job++->in())->set( &*orb, &threads);
         }
       }
       threads.threads_running = threads.current_job - threads.jobs.get();
@@ -737,8 +687,7 @@ namespace CORBACommons
       }
 #if 0
       Sync::PosixGuard guard(threads.mutex);
-      std::cerr << "Threads: " <<
-        threads.thread_runner->running() << std::endl;
+      std::cerr << "Threads: " << threads.thread_runner->running() << std::endl;
 #endif
     }
 #endif
@@ -746,8 +695,7 @@ namespace CORBACommons
     threads.thread_runner->wait_for_completion();
   }
 
-  void
-  CorbaServerAdapter::activate_object_()
+  void CorbaServerAdapter::activate_object_()
     /*throw (eh::Exception, Exception)*/
   {
     run_exception_ = std::exception_ptr();
@@ -766,15 +714,13 @@ namespace CORBACommons
       });
   }
 
-  void
-  CorbaServerAdapter::deactivate_object_()
+  void CorbaServerAdapter::deactivate_object_()
     /*throw (eh::Exception, Exception)*/
   {
     shutdown(false);
   }
 
-  void
-  CorbaServerAdapter::wait_object_()
+  void CorbaServerAdapter::wait_object_()
     /*throw (eh::Exception, Exception)*/
   {
     if (run_thread_.joinable())
@@ -796,8 +742,7 @@ namespace CORBACommons
     NetworkInterfaces network_interfaces;
     get_interfaces(network_interfaces, endpoint_config.host.c_str());
 
-    const char* const PREFIX =
-      endpoint_config.secure_connection_config.is_secure() ?
+    const char* const PREFIX = endpoint_config.secure_connection_config.is_secure() ?
       "ssliop://" : "iiop://";
 
     for (NetworkInterfaces::const_iterator itor(network_interfaces.begin());
@@ -820,17 +765,14 @@ namespace CORBACommons
     const EndpointConfigs& endpoints)
     /*throw (eh::Exception)*/
   {
-    PropertiesHandling::create_common_properties(properties,
-      corba_config_.custom_reactor);
+    PropertiesHandling::create_common_properties(properties, corba_config_.custom_reactor);
 
     if (secure_connection_config.is_secure())
     {
-      PropertiesHandling::create_secure_properties(properties,
-        secure_connection_config);
+      PropertiesHandling::create_secure_properties(properties, secure_connection_config);
     }
 
-    for (EndpointConfigs::const_iterator it = endpoints.begin();
-      it != endpoints.end(); ++it)
+    for (EndpointConfigs::const_iterator it = endpoints.begin(); it != endpoints.end(); ++it)
     {
       create_corba_endpoints_(*it, properties);
     }
@@ -838,8 +780,7 @@ namespace CORBACommons
     properties.emplace_front();
   }
 
-  void
-  CorbaServerAdapter::init_env_() /*throw (eh::Exception, Exception)*/
+  void CorbaServerAdapter::init_env_() /*throw (eh::Exception, Exception)*/
   {
     {
       // check unique ex-name of objects
@@ -847,8 +788,7 @@ namespace CORBACommons
         it = corba_config_.endpoints.begin();
         it != corba_config_.endpoints.end(); ++it)
       {
-        for (EndpointObjectTable::const_iterator object_it =
-          it->objects.begin();
+        for (EndpointObjectTable::const_iterator object_it = it->objects.begin();
           object_it != it->objects.end(); ++object_it)
         {
           EndpointObjectTable::const_iterator sub_object_it = object_it;
@@ -896,8 +836,8 @@ namespace CORBACommons
     else
     {
       // Group endpoints by secure_connection_config
-      typedef Generics::GnuHashTable<SecureConnectionConfigAdaptor,
-        EndpointConfigs> ConfigEndpoints;
+      using ConfigEndpoints = Generics::GnuHashTable<SecureConnectionConfigAdaptor,
+        EndpointConfigs>;
       ConfigEndpoints config_endpoints;
 
       for (EndpointConfigs::iterator it = corba_config_.endpoints.begin();
@@ -929,13 +869,11 @@ namespace CORBACommons
       CORBA::ORB_var orb;
       if (secure_config.is_secure())
       {
-        orb = OrbCreator::create_orb(properties,
-          ORB_SERVER_SECURE_NAME, &secure_config);
+        orb = OrbCreator::create_orb(properties, ORB_SERVER_SECURE_NAME, &secure_config);
       }
       else
       {
-        orb = OrbCreator::create_orb(properties,
-          ORB_SERVER_NON_SECURE_NAME);
+        orb = OrbCreator::create_orb(properties, ORB_SERVER_NON_SECURE_NAME);
       }
 
       CORBA::String_var orb_id = orb->id();
@@ -947,8 +885,7 @@ namespace CORBACommons
 
       Locator_var locator(new Locator(orb, current_transport));
 
-      IORTable::Table_var ior_table =
-        resolve_initial_reference_<IORTable::Table>(orb, "IORTable");
+      IORTable::Table_var ior_table = resolve_initial_reference_<IORTable::Table>(orb, "IORTable");
 
       try
       {
@@ -971,8 +908,7 @@ namespace CORBACommons
 
         try
         {
-          SecurityLevel2::AccessDecision_var ad =
-            security_manager->access_decision();
+          SecurityLevel2::AccessDecision_var ad = security_manager->access_decision();
           access_decision = TAO::SL2::AccessDecision::_narrow(ad);
         }
         catch (const CORBA::SystemException& ex)
@@ -991,8 +927,7 @@ namespace CORBACommons
       {
         POACreator poa_creator(orb, root_poa);
 
-        for (EndpointConfigs::const_iterator it = endpoints.begin();
-          it != endpoints.end(); ++it)
+        for (EndpointConfigs::const_iterator it = endpoints.begin(); it != endpoints.end(); ++it)
         {
           Endpoint_var new_endpoint(
             new Endpoint(poa_creator, locator, it->host.c_str(),
@@ -1002,8 +937,7 @@ namespace CORBACommons
 
           endpoints_.push_back(new_endpoint);
 
-          for (EndpointObjectTable::const_iterator object_it =
-            it->objects.begin();
+          for (EndpointObjectTable::const_iterator object_it = it->objects.begin();
             object_it != it->objects.end(); ++object_it)
           {
             object_to_endpoints_[object_it->first].push_back(new_endpoint);
@@ -1019,8 +953,7 @@ namespace CORBACommons
       Stream::Error ostr;
       ostr << ex.what() << " (Probably failed to bind with ";
       bool is_secure = secure_config.is_secure();
-      for (EndpointConfigs::const_iterator itor(endpoints.begin());
-        itor != endpoints.end(); ++itor)
+      for (EndpointConfigs::const_iterator itor(endpoints.begin()); itor != endpoints.end(); ++itor)
       {
         if (itor != endpoints.begin())
         {
@@ -1037,8 +970,7 @@ namespace CORBACommons
     }
   }
 
-  void
-  CorbaServerAdapter::shutdown(bool type) noexcept
+  void CorbaServerAdapter::shutdown(bool type) noexcept
   {
     Sync::PosixGuard guard_(mutex_);
 
@@ -1061,23 +993,20 @@ namespace CORBACommons
     shutdown_complete_ = true;
   }
 
-  OrbShutdowner_var
-  CorbaServerAdapter::shutdowner() noexcept
+  OrbShutdowner_var CorbaServerAdapter::shutdowner() noexcept
   {
     add_ref();
     return OrbShutdowner_var(static_cast<OrbShutdowner*>(this));
   }
 
-  void
-  CorbaServerAdapter::get_threads_usage(ThreadsUsage& usage)
+  void CorbaServerAdapter::get_threads_usage(ThreadsUsage& usage)
     /*throw (eh::Exception)*/
   {
     unsigned waiting = 0, running;
     {
       Sync::PosixGuard guard(threads_mutex_);
       running = threads_running_;
-      for (Orbs::const_iterator itor(orbs_.begin());
-        itor != orbs_.end(); ++itor)
+      for (Orbs::const_iterator itor(orbs_.begin()); itor != orbs_.end(); ++itor)
       {
         waiting += itor->waiters;
       }
@@ -1098,12 +1027,10 @@ namespace CORBACommons
   {
     poa_manager_factory_ = root_poa_->the_POAManagerFactory();
     policies_.length(3);
-    policies_[0] = policies_var[0] =
-      root_poa_->create_lifespan_policy(PortableServer::PERSISTENT);
+    policies_[0] = policies_var[0] = root_poa_->create_lifespan_policy(PortableServer::PERSISTENT);
     policies_[1] = policies_var[1] =
       root_poa_->create_id_uniqueness_policy(PortableServer::MULTIPLE_ID);
-    policies_[2] = policies_var[2] =
-      root_poa->create_id_assignment_policy(PortableServer::USER_ID);
+    policies_[2] = policies_var[2] = root_poa->create_id_assignment_policy(PortableServer::USER_ID);
   }
 
   void
@@ -1122,8 +1049,7 @@ namespace CORBACommons
 
       poa_manager_name << POA_MANAGER_NAME_PREFIX << suffix;
 
-      EndpointPolicy::EndpointValueBase_var endpoint =
-        new IIOPEndpointValue_i(host, port);
+      EndpointPolicy::EndpointValueBase_var endpoint = new IIOPEndpointValue_i(host, port);
       EndpointPolicy::EndpointList list;
       list.length(1);
       list[0] = endpoint;
@@ -1142,7 +1068,6 @@ namespace CORBACommons
         poa_manager_name.str().c_str(), manager_policies);
     }
 
-    poa = root_poa_->create_POA(poa_name.str().c_str(), poa_manager,
-      policies_);
+    poa = root_poa_->create_POA(poa_name.str().c_str(), poa_manager, policies_);
   }
 }

@@ -19,25 +19,24 @@ namespace ReferenceCounting
       typename Helper::Allocator<std::pair<const Key, T>, Allocator>>
   {
   public:
-    typedef std::map<Key, T, Compare,
-      typename Helper::Allocator<std::pair<const Key, T>, Allocator>>
-      Base;
+    using Base = std::map<Key, T, Compare,
+      typename Helper::Allocator<std::pair<const Key, T>, Allocator>>;
 
-    typedef typename Base::key_type key_type;
-    typedef typename Base::mapped_type mapped_type;
-    typedef typename Base::value_type value_type;
-    typedef typename Base::key_compare key_compare;
-    typedef typename Base::value_compare value_compare;
-    typedef typename Base::pointer pointer;
-    typedef typename Base::const_pointer const_pointer;
-    typedef typename Base::reference reference;
-    typedef typename Base::const_reference const_reference;
-    typedef typename Base::iterator iterator;
-    typedef typename Base::const_iterator const_iterator;
-    typedef typename Base::reverse_iterator reverse_iterator;
-    typedef typename Base::const_reverse_iterator const_reverse_iterator;
-    typedef typename Base::size_type size_type;
-    typedef typename Base::difference_type difference_type;
+    using key_type = typename Base::key_type;
+    using mapped_type = typename Base::mapped_type;
+    using value_type = typename Base::value_type;
+    using key_compare = typename Base::key_compare;
+    using value_compare = typename Base::value_compare;
+    using pointer = typename Base::pointer;
+    using const_pointer = typename Base::const_pointer;
+    using reference = typename Base::reference;
+    using const_reference = typename Base::const_reference;
+    using iterator = typename Base::iterator;
+    using const_iterator = typename Base::const_iterator;
+    using reverse_iterator = typename Base::reverse_iterator;
+    using const_reverse_iterator = typename Base::const_reverse_iterator;
+    using size_type = typename Base::size_type;
+    using difference_type = typename Base::difference_type;
 
     using Base::begin;
     using Base::end;
@@ -62,8 +61,7 @@ namespace ReferenceCounting
     using Base::upper_bound;
     using Base::equal_range;
 
-    explicit
-    Map(const Compare& cmp = Compare()) /*throw (eh::Exception)*/;
+    explicit Map(const Compare& cmp = Compare()) /*throw (eh::Exception)*/;
 
     Map(Map& m) /*throw (eh::Exception)*/;
 
@@ -75,11 +73,9 @@ namespace ReferenceCounting
     Map(InputIterator first, InputIterator last,
       const Compare& cmp = Compare()) /*throw (eh::Exception)*/;
 
-    Map&
-    operator =(Map& m) /*throw (eh::Exception)*/;
+    Map& operator =(Map& m) /*throw (eh::Exception)*/;
 
-    Map&
-    operator =(Map&& m) noexcept;
+    Map& operator =(Map&& m) noexcept;
 
     std::pair<iterator, bool>
     insert(value_type& x) /*throw (eh::Exception)*/;
@@ -87,26 +83,21 @@ namespace ReferenceCounting
     std::pair<iterator, bool>
     insert(value_type&& x) /*throw (eh::Exception)*/;
 
-    iterator
-    insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type& x) /*throw (eh::Exception)*/;
 
-    iterator
-    insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
+    iterator insert(iterator position, value_type&& x) /*throw (eh::Exception)*/;
 
     template<class... Args>
     std::pair<iterator,bool>
     emplace(Args&&... args);
 
     template <typename InputIterator>
-    void
-    insert(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
+    void insert(InputIterator first, InputIterator last) /*throw (eh::Exception)*/;
 
-    void
-    swap(Map& m) noexcept;
+    void swap(Map& m) noexcept;
 
   private:
-    value_type
-    value_type_(value_type& x) /*throw (eh::Exception)*/;
+    value_type value_type_(value_type& x) /*throw (eh::Exception)*/;
   };
 
   template <typename Allocator = std::allocator<char>,
@@ -116,7 +107,7 @@ namespace ReferenceCounting
     template <typename Key, typename T>
     struct Rebind
     {
-      typedef Map<Key, T, Compare<Key>, Allocator> Type;
+      using Type = Map<Key, T, Compare<Key>, Allocator>;
     };
   };
 }
@@ -224,8 +215,7 @@ namespace ReferenceCounting
   }
 
   template <typename Key, typename T, typename Compare, typename Allocator>
-  void
-  Map<Key, T, Compare, Allocator>::swap(Map& m) noexcept
+  void Map<Key, T, Compare, Allocator>::swap(Map& m) noexcept
   {
     Base::swap(m);
   }
@@ -240,25 +230,19 @@ namespace ReferenceCounting
 
 
   template <typename Key, typename T, typename Compare, typename Allocator>
-  void
-  swap(Map<Key, T, Compare, Allocator>& x,
-    Map<Key, T, Compare, Allocator>& y) noexcept
+  void swap(Map<Key, T, Compare, Allocator>& x, Map<Key, T, Compare, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename Key, typename T, typename Compare, typename Allocator>
-  void
-  swap(Map<Key, T, Compare, Allocator>&& x,
-    Map<Key, T, Compare, Allocator>& y) noexcept
+  void swap(Map<Key, T, Compare, Allocator>&& x, Map<Key, T, Compare, Allocator>& y) noexcept
   {
     x.swap(y);
   }
 
   template <typename Key, typename T, typename Compare, typename Allocator>
-  void
-  swap(Map<Key, T, Compare, Allocator>& x,
-    Map<Key, T, Compare, Allocator>&& y) noexcept
+  void swap(Map<Key, T, Compare, Allocator>& x, Map<Key, T, Compare, Allocator>&& y) noexcept
   {
     x.swap(y);
   }

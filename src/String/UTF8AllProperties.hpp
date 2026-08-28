@@ -19,38 +19,32 @@ namespace String
     /**
      * @return true if object store is_space info
      */
-    bool
-    is_space() const noexcept;
+    bool is_space() const noexcept;
 
     /**
      * @return true if object store is_digit info
      */
-    bool
-    is_digit() const noexcept;
+    bool is_digit() const noexcept;
 
     /**
      * @return true if object store is_letter info
      */
-    bool
-    is_letter() const noexcept;
+    bool is_letter() const noexcept;
 
     /**
      * @return true if object store is_lower_letter info
      */
-    bool
-    is_lower_letter() const noexcept;
+    bool is_lower_letter() const noexcept;
 
     /**
      * @return true if object store is_title_letter info
      */
-    bool
-    is_title_letter() const noexcept;
+    bool is_title_letter() const noexcept;
 
     /**
      * @return true if object store is_upper_letter info
      */
-    bool
-    is_upper_letter() const noexcept;
+    bool is_upper_letter() const noexcept;
 
   protected:
     uint8_t cumulative_value_;
@@ -63,33 +57,33 @@ namespace String
    * @return Value contain bits mask with information about
    * Unicode properties for UTF-8 byte sequence from str
    */
-  AllProperties
-  all_properties(const char* str) noexcept;
+  AllProperties all_properties(const char* str) noexcept;
 
-  namespace UnicodeProperty
+}
+
+namespace String::UnicodeProperty
+{
+  /**
+   * Enum use to return information about all properties for
+   * some code unit
+   */
+  enum CODE_UNIT_PROPERTY
   {
-    /**
-     * Enum use to return information about all properties for
-     * some code unit
-     */
-    enum CODE_UNIT_PROPERTY
-    {
-      CUP_SPACE = 0x01,
-      CUP_DIGIT = 0x02,
-      CUP_LETTER = 0x04,
-      CUP_LOWER_LETTER = 0x08,
-      CUP_TITLE_LETTER = 0x10,
-      CUP_UPPER_LETTER = 0x20,
-    };
+    CUP_SPACE = 0x01,
+    CUP_DIGIT = 0x02,
+    CUP_LETTER = 0x04,
+    CUP_LOWER_LETTER = 0x08,
+    CUP_TITLE_LETTER = 0x10,
+    CUP_UPPER_LETTER = 0x20,
+  };
 
-    typedef const uint8_t AllTreeLeaf[64];
-    typedef const void* const AllTreeStartNode[128];
-    typedef const void* const AllTreeNode[64];
+  using AllTreeLeaf = const uint8_t[64];
+  using AllTreeStartNode = const void* const[128];
+  using AllTreeNode = const void* const[64];
 
-    extern AllTreeStartNode ALL_PROPERTIES_TREE;
-    extern const uint8_t ALL_PROPERTIES_READY_VALUES[0x80];
-  } // namespace UnicodeProperty
-} // namespace String
+  extern AllTreeStartNode ALL_PROPERTIES_TREE;
+  extern const uint8_t ALL_PROPERTIES_READY_VALUES[0x80];
+}
 
 //
 // INLINES
@@ -97,57 +91,42 @@ namespace String
 
 namespace String
 {
-  inline
-  AllProperties::AllProperties(uint8_t value) noexcept
+  inline AllProperties::AllProperties(uint8_t value) noexcept
     : cumulative_value_(value)
   {
   }
 
-  inline
-  bool
-  AllProperties::is_space() const noexcept
+  inline bool AllProperties::is_space() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_SPACE;
   }
 
-  inline
-  bool
-  AllProperties::is_digit() const noexcept
+  inline bool AllProperties::is_digit() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_DIGIT;
   }
 
-  inline
-  bool
-  AllProperties::is_letter() const noexcept
+  inline bool AllProperties::is_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_LETTER;
   }
 
-  inline
-  bool
-  AllProperties::is_lower_letter() const noexcept
+  inline bool AllProperties::is_lower_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_LOWER_LETTER;
   }
 
-  inline
-  bool
-  AllProperties::is_title_letter() const noexcept
+  inline bool AllProperties::is_title_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_TITLE_LETTER;
   }
 
-  inline
-  bool
-  AllProperties::is_upper_letter() const noexcept
+  inline bool AllProperties::is_upper_letter() const noexcept
   {
     return cumulative_value_ & UnicodeProperty::CUP_UPPER_LETTER;
   }
 
-  inline
-  AllProperties
-  all_properties(const char* str) noexcept
+  inline AllProperties all_properties(const char* str) noexcept
   {
     if (static_cast<uint8_t>(*str) < 0x80)
     {
@@ -162,10 +141,12 @@ namespace String
       {
         return UnicodeProperty::CUP_LETTER;
       }
+
       if (!current_tree)
       {
         return 0;
       }
+
       if (--depth < 2)
       {
         break;

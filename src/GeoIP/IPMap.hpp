@@ -52,8 +52,7 @@ namespace GeoIPMapping
      *
      * @param file The GeoIP database filename.
      */
-    explicit
-    IPMap(const char* file) /*throw (Exception)*/;
+    explicit IPMap(const char* file) /*throw (Exception)*/;
 
     /**
      * Retrieves country code by IP address.
@@ -65,8 +64,7 @@ namespace GeoIPMapping
      *
      * @return Country code, if found.
      */
-    std::string
-    country_code_by_addr(uint32_t ip, bool net_byte_order = false)
+    std::string country_code_by_addr(uint32_t ip, bool net_byte_order = false)
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -79,8 +77,7 @@ namespace GeoIPMapping
      *
      * @return Country code, if found.
      */
-    std::string
-    country_code_by_addr(const char* ip, bool no_throw = false)
+    std::string country_code_by_addr(const char* ip, bool no_throw = false)
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -90,8 +87,7 @@ namespace GeoIPMapping
      *
      * @return 3-letter country code, if found.
      */
-    std::string
-    country_code3_by_addr(const char* ip)
+    std::string country_code3_by_addr(const char* ip)
       /*throw (Exception, eh::Exception)*/;
 
     /**
@@ -101,8 +97,7 @@ namespace GeoIPMapping
      *
      * @return Country name, if found.
      */
-    std::string
-    country_name_by_addr(const char* ip)
+    std::string country_name_by_addr(const char* ip)
       /*throw (Exception, eh::Exception)*/;
   };
 
@@ -128,8 +123,7 @@ namespace GeoIPMapping
      *
      * @param file The GeoIP city database filename.
      */
-    explicit
-    IPMapCity(const char* file) /*throw (Exception)*/;
+    explicit IPMapCity(const char* file) /*throw (Exception)*/;
 
     /**
      * Retrieves city location information by IP address.
@@ -171,11 +165,9 @@ namespace GeoIPMapping
      *
      * @param file The GeoIP city database filename.
      */
-    explicit
-    IPMapCity2(const char* file) /*throw (FileNotExists, InvalidFormat)*/;
+    explicit IPMapCity2(const char* file) /*throw (FileNotExists, InvalidFormat)*/;
 
-    virtual
-    ~IPMapCity2() noexcept;
+    virtual ~IPMapCity2() noexcept;
 
     /**
      * Retrieves city location information by IP address.
@@ -198,9 +190,7 @@ namespace GeoIPMapping
   protected:
     struct CityLocationHolder
     {
-      explicit
-      CityLocationHolder(
-        Generics::MonoAllocatorArena* resource) noexcept
+      explicit CityLocationHolder( Generics::MonoAllocatorArena* resource) noexcept
         : country_code(resource),
           region(resource),
           city(resource)
@@ -213,9 +203,7 @@ namespace GeoIPMapping
 
     struct PrefixNode
     {
-      explicit
-      PrefixNode(
-        Generics::MonoAllocatorArena* resource) noexcept
+      explicit PrefixNode( Generics::MonoAllocatorArena* resource) noexcept
         : children(resource),
           partial_locations{
             Generics::MonoUnorderedMap<uint8_t, CityLocationHolder*>(resource),
@@ -234,44 +222,24 @@ namespace GeoIPMapping
     };
 
   protected:
-    static
-    std::size_t
-    estimate_arena_size_(const char* filename) noexcept;
+    static std::size_t estimate_arena_size_(const char* filename) noexcept;
+
+    static uint8_t get_byte_(uint32_t ip, unsigned int byte_index) noexcept;
 
     static
-    uint8_t
-    get_byte_(uint32_t ip, unsigned int byte_index) noexcept;
+    uint8_t get_masked_byte_( uint32_t ip, unsigned int byte_index, unsigned int bits) noexcept;
 
-    static
-    uint8_t
-    get_masked_byte_(
-      uint32_t ip,
-      unsigned int byte_index,
-      unsigned int bits) noexcept;
+    PrefixNode& add_node_();
 
-    PrefixNode&
-    add_node_();
+    bool city_location_by_addr_( CityLocation& location, uint32_t ip) const noexcept;
 
-    bool
-    city_location_by_addr_(
-      CityLocation& location,
-      uint32_t ip)
-      const noexcept;
-
-    void
-    load_(const String::SubString& file)
+    void load_(const String::SubString& file)
       /*throw(FileNotExists, InvalidFormat)*/;
 
-    bool
-    parse_ip_mask_(
-      unsigned char& bits,
-      uint32_t& mask,
-      const String::SubString& ip_mask_str);
+    bool parse_ip_mask_( unsigned char& bits, uint32_t& mask, const String::SubString& ip_mask_str);
 
     bool
-    parse_city_location_(
-      CityLocationHolder& city_location,
-      const String::SubString& city_loc_str);
+    parse_city_location_( CityLocationHolder& city_location, const String::SubString& city_loc_str);
 
   protected:
     Generics::MonoAllocatorArena arena_;

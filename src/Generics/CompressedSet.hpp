@@ -31,8 +31,7 @@ namespace Generics
      * Checks if the set is empty
      * @return true if no element is present in the set
      */
-    bool
-    empty() const noexcept;
+    bool empty() const noexcept;
 
     /**
      * Adds interval [low, high] to the set. Merges stored intervals
@@ -40,24 +39,21 @@ namespace Generics
      * @param low low bound of the interval
      * @param high high bound of the interval
      */
-    void
-    add(Integer low, Integer high) /*throw (eh::Exception)*/;
+    void add(Integer low, Integer high) /*throw (eh::Exception)*/;
 
     /**
      * Adds interval [value, value] to the set. Merges stored intervals
      * if required
      * @param value value to insert
      */
-    void
-    add(Integer value) /*throw (eh::Exception)*/;
+    void add(Integer value) /*throw (eh::Exception)*/;
 
     /**
      * Adds all intervals from cset to the set. Merges stored intervals
      * if required
      * @param cset set of intervals to insert
      */
-    void
-    add(const CompressedSet<Integer>& cset) /*throw (eh::Exception)*/;
+    void add(const CompressedSet<Integer>& cset) /*throw (eh::Exception)*/;
 
     /**
      * Removes interval [low, high] from the set. Splits stored intervals
@@ -65,38 +61,33 @@ namespace Generics
      * @param low low bound of the interval
      * @param high high bound of the interval
      */
-    void
-    remove(Integer low, Integer high) /*throw (eh::Exception)*/;
+    void remove(Integer low, Integer high) /*throw (eh::Exception)*/;
 
     /**
      * Removes interval [value, value] from the set. Splits stored intervals
      * if required
      * @param value value to remove
      */
-    void
-    remove(Integer value) /*throw (eh::Exception)*/;
+    void remove(Integer value) /*throw (eh::Exception)*/;
 
     /**
      * Removes all intervals from cset from the set. Splits stored intervals
      * if required
      * @param cset set of intervals to remove
      */
-    void
-    remove(const CompressedSet<Integer>& cset) /*throw (eh::Exception)*/;
+    void remove(const CompressedSet<Integer>& cset) /*throw (eh::Exception)*/;
 
     /**
      * Clears the entire set
      */
-    void
-    clear() /*throw (eh::Exception)*/;
+    void clear() /*throw (eh::Exception)*/;
 
     /**
      * Checks if value belongs to any interval stored in the map
      * @param value value to check
      * @return if value belongs to the set
      */
-    bool
-    belongs(Integer value) const /*throw (eh::Exception)*/;
+    bool belongs(Integer value) const /*throw (eh::Exception)*/;
 
 
     enum CheckStatus
@@ -112,11 +103,10 @@ namespace Generics
      * @param high high bound of the interval
      * @return status of presence of every value of interval in the set
      */
-    CheckStatus
-    check_presence(Integer low, Integer high) const /*throw (eh::Exception)*/;
+    CheckStatus check_presence(Integer low, Integer high) const /*throw (eh::Exception)*/;
 
   protected:
-    typedef std::map<Integer, Integer> Holder;
+    using Holder = std::map<Integer, Integer>;
 
     Holder holder_;
     mutable typename Holder::const_iterator last_found_;
@@ -136,15 +126,13 @@ namespace Generics
   }
 
   template <typename Integer>
-  bool
-  CompressedSet<Integer>::empty() const noexcept
+  bool CompressedSet<Integer>::empty() const noexcept
   {
     return holder_.empty();
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::add(Integer low, Integer high)
+  void CompressedSet<Integer>::add(Integer low, Integer high)
     /*throw (eh::Exception)*/
   {
     if (low > high)
@@ -156,15 +144,13 @@ namespace Generics
 
     // Finding start element max(itor->first) <= low
     typename Holder::iterator itor(holder_.lower_bound(low));
-    if ((itor == holder_.end() || itor->first != low) &&
-      itor != holder_.begin())
+    if ((itor == holder_.end() || itor->first != low) && itor != holder_.begin())
     {
       --itor;
     }
 
     // Inserting new element or modifying existing
-    if (itor == holder_.end() || itor->first > low ||
-      safe_next(itor->second) < low)
+    if (itor == holder_.end() || itor->first > low || safe_next(itor->second) < low)
     {
       itor = holder_.insert(typename Holder::value_type(low, high)).first;
     }
@@ -193,15 +179,13 @@ namespace Generics
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::add(Integer value) /*throw (eh::Exception)*/
+  void CompressedSet<Integer>::add(Integer value) /*throw (eh::Exception)*/
   {
     add(value, value);
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::add(const CompressedSet<Integer>& cset)
+  void CompressedSet<Integer>::add(const CompressedSet<Integer>& cset)
     /*throw (eh::Exception)*/
   {
     if (this == &cset)
@@ -217,8 +201,7 @@ namespace Generics
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::remove(Integer low, Integer high)
+  void CompressedSet<Integer>::remove(Integer low, Integer high)
     /*throw (eh::Exception)*/
   {
     if (low > high)
@@ -230,8 +213,7 @@ namespace Generics
 
     // Finding start element max(itor->first) <= low
     typename Holder::iterator itor(holder_.lower_bound(low));
-    if ((itor == holder_.end() || itor->first != low) &&
-      itor != holder_.begin())
+    if ((itor == holder_.end() || itor->first != low) && itor != holder_.begin())
     {
       --itor;
     }
@@ -274,15 +256,13 @@ namespace Generics
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::remove(Integer value) /*throw (eh::Exception)*/
+  void CompressedSet<Integer>::remove(Integer value) /*throw (eh::Exception)*/
   {
     remove(value, value);
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::remove(const CompressedSet<Integer>& cset)
+  void CompressedSet<Integer>::remove(const CompressedSet<Integer>& cset)
     /*throw (eh::Exception)*/
   {
     if (this == &cset)
@@ -298,19 +278,16 @@ namespace Generics
   }
 
   template <typename Integer>
-  void
-  CompressedSet<Integer>::clear() /*throw (eh::Exception)*/
+  void CompressedSet<Integer>::clear() /*throw (eh::Exception)*/
   {
     holder_.clear();
     last_found_ = holder_.end();
   }
 
   template <typename Integer>
-  bool
-  CompressedSet<Integer>::belongs(Integer value) const /*throw (eh::Exception)*/
+  bool CompressedSet<Integer>::belongs(Integer value) const /*throw (eh::Exception)*/
   {
-    if (last_found_ != holder_.end() && last_found_->first <= value &&
-      last_found_->second >= value)
+    if (last_found_ != holder_.end() && last_found_->first <= value && last_found_->second >= value)
     {
       return true;
     }

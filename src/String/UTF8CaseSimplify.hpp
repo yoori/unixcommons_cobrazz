@@ -5,145 +5,138 @@
 #include <String/UTF8Handler.hpp>
 
 
-namespace String
+namespace String::ToSimplify
 {
-  namespace ToSimplify
+  namespace Helper
   {
-    namespace Helper
+    inline
+    unsigned
+    status(const Plane2Bits TABLE[], const unsigned char SECOND,
+      const unsigned char BASE, const unsigned char THIRD)
+      /*throw (eh::Exception)*/
     {
-      inline
-      unsigned
-      status(const Plane2Bits TABLE[], const unsigned char SECOND,
-        const unsigned char BASE, const unsigned char THIRD)
-        /*throw (eh::Exception)*/
-      {
-        const unsigned char OFFSET = THIRD & 0x3F;
-        return (TABLE[SECOND - BASE][OFFSET >> 5] >>
-          ((OFFSET & 0x1F) << 1)) & 3;
-      }
+      const unsigned char OFFSET = THIRD & 0x3F;
+      return (TABLE[SECOND - BASE][OFFSET >> 5] >> ((OFFSET & 0x1F) << 1)) & 3;
+    }
 
-      template <typename OutputIterator>
-      void
-      copy(const SubString& STR, OutputIterator& dest) /*throw (eh::Exception)*/
+    template <typename OutputIterator>
+    void copy(const SubString& STR, OutputIterator& dest) /*throw (eh::Exception)*/
+    {
+      for (SubString::SizeType i = 0; i != STR.size(); ++i)
       {
-        for (SubString::SizeType i = 0; i != STR.size(); ++i)
-        {
-          *dest++ = STR[i];
-        }
+        *dest++ = STR[i];
       }
+    }
 
-      template <typename OutputIterator>
-      void
-      replace(const char MODIFIED, const SubString REPL[],
-        OutputIterator& dest) /*throw (eh::Exception)*/
+    template <typename OutputIterator>
+    void
+    replace(const char MODIFIED, const SubString REPL[],
+      OutputIterator& dest) /*throw (eh::Exception)*/
+    {
+      if (static_cast<unsigned char>(MODIFIED) < 0x20)
       {
-        if (static_cast<unsigned char>(MODIFIED) < 0x20)
+        if (!MODIFIED)
         {
-          if (!MODIFIED)
-          {
-            return;
-          }
-          copy(REPL[static_cast<unsigned char>(MODIFIED)], dest);
           return;
         }
-
-        *dest++ = MODIFIED;
+        copy(REPL[static_cast<unsigned char>(MODIFIED)], dest);
+        return;
       }
 
-      template <typename OutputIterator>
-      bool
-      replace(const CodeUnit2Bytes& MODIFIED,
-        const SubString REPL[], OutputIterator& dest) /*throw (eh::Exception)*/
+      *dest++ = MODIFIED;
+    }
+
+    template <typename OutputIterator>
+    bool
+    replace(const CodeUnit2Bytes& MODIFIED,
+      const SubString REPL[], OutputIterator& dest) /*throw (eh::Exception)*/
+    {
+      if (!MODIFIED[0])
       {
-        if (!MODIFIED[0])
+        switch (MODIFIED[1])
         {
-          switch (MODIFIED[1])
-          {
-          case '\0':
-            break;
-          case '\xFF':
-            return false;
-          default:
-            copy(REPL[static_cast<unsigned char>(MODIFIED[1])], dest);
-            break;
-          }
-          return true;
+        case '\0':
+          break;
+        case '\xFF':
+          return false;
+        default:
+          copy(REPL[static_cast<unsigned char>(MODIFIED[1])], dest);
+          break;
         }
-
-        *dest++ = MODIFIED[0];
-        if (MODIFIED[1])
-        {
-          *dest++ = MODIFIED[1];
-        }
-
         return true;
       }
 
-      template <typename OutputIterator>
-      void
-      replace(const CodeUnit4Bytes& MODIFIED,
-        const SubString REPL[], OutputIterator& dest) /*throw (eh::Exception)*/
+      *dest++ = MODIFIED[0];
+      if (MODIFIED[1])
       {
-        if (!MODIFIED[0])
-        {
-          if (MODIFIED[1])
-          {
-            copy(REPL[static_cast<unsigned char>(MODIFIED[1])], dest);
-          }
-          return;
-        }
+        *dest++ = MODIFIED[1];
+      }
 
-        *dest++ = MODIFIED[0];
+      return true;
+    }
+
+    template <typename OutputIterator>
+    void
+    replace(const CodeUnit4Bytes& MODIFIED,
+      const SubString REPL[], OutputIterator& dest) /*throw (eh::Exception)*/
+    {
+      if (!MODIFIED[0])
+      {
         if (MODIFIED[1])
         {
-          *dest++ = MODIFIED[1];
-          if (MODIFIED[2])
+          copy(REPL[static_cast<unsigned char>(MODIFIED[1])], dest);
+        }
+        return;
+      }
+
+      *dest++ = MODIFIED[0];
+      if (MODIFIED[1])
+      {
+        *dest++ = MODIFIED[1];
+        if (MODIFIED[2])
+        {
+          *dest++ = MODIFIED[2];
+          if (MODIFIED[3])
           {
-            *dest++ = MODIFIED[2];
-            if (MODIFIED[3])
-            {
-              *dest++ = MODIFIED[3];
-            }
+            *dest++ = MODIFIED[3];
           }
         }
       }
+    }
 
-      void
-      out_hangul(unsigned ch, char*& dest) noexcept
-      {
-        unsigned char tmp = (ch >> 12) | 0xE0;
-        *dest++ = reinterpret_cast<const char&>(tmp);
-        tmp = ((ch >> 6) & 0x3F) | 0x80;
-        *dest++ = reinterpret_cast<const char&>(tmp);
-        tmp = (ch & 0x3F) | 0x80;
-        *dest++ = reinterpret_cast<const char&>(tmp);
-      }
+    void out_hangul(unsigned ch, char*& dest) noexcept
+    {
+      unsigned char tmp = (ch >> 12) | 0xE0;
+      *dest++ = reinterpret_cast<const char&>(tmp);
+      tmp = ((ch >> 6) & 0x3F) | 0x80;
+      *dest++ = reinterpret_cast<const char&>(tmp);
+      tmp = (ch & 0x3F) | 0x80;
+      *dest++ = reinterpret_cast<const char&>(tmp);
+    }
 
-      void
-      decompose_hangul(const unsigned char FIRST,
-        const unsigned char SECOND,
-        const unsigned char THIRD, char*& dest) noexcept
+    void
+    decompose_hangul(const unsigned char FIRST,
+      const unsigned char SECOND,
+      const unsigned char THIRD, char*& dest) noexcept
+    {
+      unsigned ch = (((static_cast<unsigned>(FIRST) & 0x0F) << 12) |
+        ((static_cast<unsigned>(SECOND) & 0x3F) << 6) |
+        (static_cast<unsigned>(THIRD) & 0x3F)) - 0xAC00;
+      unsigned l = ch / 588;
+      unsigned v = (ch % 588) / 28;
+      unsigned t = ch % 28;
+      out_hangul(0x1100 + l, dest);
+      out_hangul(0x1161 + v, dest);
+      if (t)
       {
-        unsigned ch = (((static_cast<unsigned>(FIRST) & 0x0F) << 12) |
-          ((static_cast<unsigned>(SECOND) & 0x3F) << 6) |
-          (static_cast<unsigned>(THIRD) & 0x3F)) - 0xAC00;
-        unsigned l = ch / 588;
-        unsigned v = (ch % 588) / 28;
-        unsigned t = ch % 28;
-        out_hangul(0x1100 + l, dest);
-        out_hangul(0x1161 + v, dest);
-        if (t)
-        {
-          out_hangul(0x11A7 + t, dest);
-        }
+        out_hangul(0x11A7 + t, dest);
       }
     }
   }
 }
 
 bool
-String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
-  size_t& counter) noexcept
+String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest, size_t& counter) noexcept
 {
   counter = 0;
 
@@ -169,8 +162,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
           it.backward(1);
           continue;
         }
-        Helper::replace(TABLE_2[FIRST - 0xC2][SECOND & 0x3F],
-          TABLE_2_, dest);
+        Helper::replace(TABLE_2[FIRST - 0xC2][SECOND & 0x3F], TABLE_2_, dest);
         continue;
       }
 
@@ -302,33 +294,33 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                 {
                 case 0x83:
                   {
-                   *dest++ = '\x82';
-                   break;
+                    *dest++ = '\x82';
+                    break;
                   }
                 case 0x8D:
                   {
-                   *dest++ = '\x8C';
-                   break;
+                    *dest++ = '\x8C';
+                    break;
                   }
                 case 0x92:
                   {
-                   *dest++ = '\x91';
-                   break;
+                    *dest++ = '\x91';
+                    break;
                   }
                 case 0x97:
                   {
-                   *dest++ = '\x96';
-                   break;
+                    *dest++ = '\x96';
+                    break;
                   }
                 case 0x9C:
                   {
-                   *dest++ = '\x9B';
-                   break;
+                    *dest++ = '\x9B';
+                    break;
                   }
                 case 0xA9:
                   {
-                   *dest++ = '\x80';
-                   break;
+                    *dest++ = '\x80';
+                    break;
                   }
                 }
                 *dest++ = ' ';
@@ -440,16 +432,14 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               {
                 if (SECOND < 0x85)
                 {
-                  Helper::replace(TABLE_3_E2_1[SECOND - 0x80][THIRD & 0x3F],
-                    TABLE_3_E2_1_, dest);
+                  Helper::replace(TABLE_3_E2_1[SECOND - 0x80][THIRD & 0x3F], TABLE_3_E2_1_, dest);
                   continue;
                 }
                 else
                 {
                   if (SECOND < 0x87)
                   {
-                    Helper::replace(
-                      TABLE_3_E2_2[SECOND - 0x85][THIRD & 0x3F], 0, dest);
+                    Helper::replace( TABLE_3_E2_2[SECOND - 0x85][THIRD & 0x3F], 0, dest);
                   }
                   else
                   {
@@ -464,14 +454,11 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                 {
                   if (SECOND < 0x94)
                   {
-                    Helper::replace(
-                      TABLE_3_E2_3[SECOND - 0x91][THIRD & 0x3F],
-                      0, dest);
+                    Helper::replace( TABLE_3_E2_3[SECOND - 0x91][THIRD & 0x3F], 0, dest);
                   }
                   else
                   {
-                    if ((SECOND == 0x9D && THIRD >= 0xB6) ||
-                      (SECOND == 0x9E && THIRD <= 0x93))
+                    if ((SECOND == 0x9D && THIRD >= 0xB6) || (SECOND == 0x9E && THIRD <= 0x93))
                     {
                       break;
                     }
@@ -480,9 +467,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                 }
                 else
                 {
-                  Helper::replace(
-                    TABLE_3_E2_4[SECOND - 0xB0][THIRD & 0x3F],
-                    0, dest);
+                  Helper::replace( TABLE_3_E2_4[SECOND - 0xB0][THIRD & 0x3F], 0, dest);
                 }
                 continue;
               }
@@ -493,8 +478,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
             {
               if (SECOND < 0x90)
               {
-                Helper::replace(TABLE_3_E3[SECOND - 0x80][THIRD & 0x3F],
-                  TABLE_3_E3_, dest);
+                Helper::replace(TABLE_3_E3[SECOND - 0x80][THIRD & 0x3F], TABLE_3_E3_, dest);
                 continue;
               }
               break;
@@ -549,8 +533,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                 }
                 else
                 {
-                  Helper::replace(TABLE_3_EA_1[SECOND - 0x99][THIRD & 0x3F],
-                    0, dest);
+                  Helper::replace(TABLE_3_EA_1[SECOND - 0x99][THIRD & 0x3F], 0, dest);
                   continue;
                 }
               }
@@ -673,8 +656,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               }
               else
               {
-                Helper::replace(TABLE_3_EF[SECOND - 0xA4][THIRD & 0x3F],
-                  TABLE_3_EF_, dest);
+                Helper::replace(TABLE_3_EF[SECOND - 0xA4][THIRD & 0x3F], TABLE_3_EF_, dest);
               }
               continue;
             }
@@ -737,8 +719,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                   {
                     *dest++ = '\xF0';
                     *dest++ = '\x90';
-                    const CodeUnit2Bytes& MODIFIED =
-                      TABLE_4_F0_90_2[0][FOURTH & 0x3F];
+                    const CodeUnit2Bytes& MODIFIED = TABLE_4_F0_90_2[0][FOURTH & 0x3F];
                     *dest++ = MODIFIED[0];
                     *dest++ = MODIFIED[1];
                   }
@@ -844,8 +825,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
 
           case 0x94:
             {
-              if (THIRD < 0x90 || THIRD > 0x99 ||
-                (THIRD == 0x99 && FOURTH >= 0x87))
+              if (THIRD < 0x90 || THIRD > 0x99 || (THIRD == 0x99 && FOURTH >= 0x87))
               {
                 *dest++ = ' ';
                 continue;
@@ -865,8 +845,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               }
               else
               {
-                switch (Helper::status(TABLE_4_F0_96, THIRD, 0xA8,
-                  FOURTH))
+                switch (Helper::status(TABLE_4_F0_96, THIRD, 0xA8, FOURTH))
                 {
                 case 0:
                   continue;
@@ -907,8 +886,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
                   }
                   else
                   {
-                    switch (Helper::status(TABLE_4_F0_9B, THIRD, 0xB1,
-                      FOURTH))
+                    switch (Helper::status(TABLE_4_F0_9B, THIRD, 0xB1, FOURTH))
                     {
                     case 0:
                       continue;
@@ -930,8 +908,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
             {
               if (THIRD < 0x90)
               {
-                switch (Helper::status(TABLE_4_F0_9D_1, THIRD, 0x80,
-                  FOURTH))
+                switch (Helper::status(TABLE_4_F0_9D_1, THIRD, 0x80, FOURTH))
                 {
                 case 0:
                   continue;
@@ -948,8 +925,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               {
                 if (THIRD < 0xA0)
                 {
-                  Helper::replace(
-                    TABLE_4_F0_9D_2[THIRD - 0x90][FOURTH & 0x3F], 0, dest);
+                  Helper::replace( TABLE_4_F0_9D_2[THIRD - 0x90][FOURTH & 0x3F], 0, dest);
                   continue;
                 }
                 else
@@ -967,8 +943,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               {
                 if (THIRD == 0xA3)
                 {
-                  switch (Helper::status(TABLE_4_F0_9E_1, THIRD, 0xA3,
-                    FOURTH))
+                  switch (Helper::status(TABLE_4_F0_9E_1, THIRD, 0xA3, FOURTH))
                   {
                   case 0:
                     continue;
@@ -994,8 +969,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
               {
                 if (THIRD >= 0xB8 && THIRD < 0xBB)
                 {
-                  Helper::replace(TABLE_4_F0_9E_2[THIRD - 0xB8][FOURTH & 0x3F],
-                    0, dest);
+                  Helper::replace(TABLE_4_F0_9E_2[THIRD - 0xB8][FOURTH & 0x3F], 0, dest);
                   continue;
                 }
                 else
@@ -1011,8 +985,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
             {
               if (THIRD >= 0x84 && THIRD < 0x8A)
               {
-                Helper::replace(TABLE_4_F0_9F[THIRD - 0x84][FOURTH & 0x3F],
-                  TABLE_4_F0_9F_, dest);
+                Helper::replace(TABLE_4_F0_9F[THIRD - 0x84][FOURTH & 0x3F], TABLE_4_F0_9F_, dest);
               }
               else
               {
@@ -1056,8 +1029,7 @@ String::ToSimplify::to_simplify(String::Helper::Iterator it, char*& dest,
             {
               if (THIRD >= 0xA0 && THIRD <= 0xA8)
               {
-                Helper::replace(TABLE_4_F0_AF[THIRD - 0xA0][FOURTH & 0x3F],
-                  0, dest);
+                Helper::replace(TABLE_4_F0_AF[THIRD - 0xA0][FOURTH & 0x3F], 0, dest);
               }
               else
               {

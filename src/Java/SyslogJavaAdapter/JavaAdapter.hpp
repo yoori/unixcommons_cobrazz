@@ -6,8 +6,7 @@
 extern "C"
 {
   JNIEXPORT jstring JNICALL
-  Java_com_phorm_oix_logging_UnixcommonsSyslog_init(
-    JNIEnv* env, jobject cls, jstring identity);
+  Java_com_phorm_oix_logging_UnixcommonsSyslog_init( JNIEnv* env, jobject cls, jstring identity);
 
   JNIEXPORT jstring JNICALL
   Java_com_phorm_oix_logging_UnixcommonsSyslog_publish(

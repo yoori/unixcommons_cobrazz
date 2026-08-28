@@ -12,7 +12,7 @@ inline uint32_t MurmurOAAT ( const void * key, int len, uint32_t seed )
 
   uint32_t h = seed;
 
-  for(int i = 0; i < len; i++)
+  for (int i = 0; i < len; i++)
   {
     h ^= data[i];
     h *= 0x5bd1e995;
@@ -21,4 +21,3 @@ inline uint32_t MurmurOAAT ( const void * key, int len, uint32_t seed )
 
   return h;
 }
-

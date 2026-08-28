@@ -20,27 +20,20 @@ namespace
   const char MEDIATOR('.');
 }
 
-namespace SNMPAgentX
+namespace SNMPAgentX::Helper
 {
-  namespace Helper
+  inline int proxy(void* reginfo, void* requests) noexcept
   {
-    inline
-    int
-    proxy(void* reginfo, void* requests)
-      noexcept
+    try
     {
-      try
-      {
-        GenericSNMPAgent::RegInfo* reg =
-          static_cast<GenericSNMPAgent::RegInfo*>(reginfo);
-        return reg->agent->process_requests_(*reg->info, requests);
-      }
-      catch (...)
-      {
-      }
-
-      return SNMP_ERR_GENERR;
+      GenericSNMPAgent::RegInfo* reg = static_cast<GenericSNMPAgent::RegInfo*>(reginfo);
+      return reg->agent->process_requests_(*reg->info, requests);
     }
+    catch (...)
+    {
+    }
+
+    return SNMP_ERR_GENERR;
   }
 }
 
@@ -58,8 +51,7 @@ namespace
   }
 
 #ifdef SNMP_DEBUG
-  void
-  print_name(const oid* name, size_t name_length)
+  void print_name(const oid* name, size_t name_length)
   {
     while (name_length--)
     {
@@ -82,8 +74,7 @@ namespace SNMPAgentX
   // GenericSNMPAgent::RootInfo class
   //
 
-  GenericSNMPAgent::RootInfo::RootInfo(GenericSNMPAgent* agent)
-    noexcept
+  GenericSNMPAgent::RootInfo::RootInfo(GenericSNMPAgent* agent) noexcept
     : agent(agent)
   {
   }
@@ -95,9 +86,7 @@ namespace SNMPAgentX
   {
   }
 
-  void
-  GenericSNMPAgent::RootInfo::register_index(size_t size,
-    const unsigned* ids) const
+  void GenericSNMPAgent::RootInfo::register_index(size_t size, const unsigned* ids) const
     /*throw (eh::Exception)*/
   {
     agent->register_index_(this, size, ids);
@@ -127,8 +116,7 @@ namespace SNMPAgentX
     : logger_(ReferenceCounting::add_ref(logger)), profile_(profile)
   {
     // Init logging
-    GenericSNMPAgent** arg = static_cast<GenericSNMPAgent**>(
-      malloc(sizeof(GenericSNMPAgent*)));
+    GenericSNMPAgent** arg = static_cast<GenericSNMPAgent**>( malloc(sizeof(GenericSNMPAgent*)));
     *arg = this;
     if (snmp_register_callback(SNMP_CALLBACK_LIBRARY, SNMP_CALLBACK_LOGGING,
       log_callback_, arg) != SNMPERR_SUCCESS)
@@ -142,11 +130,9 @@ namespace SNMPAgentX
     // Init agent
     if (agentx_socket)
     {
-      netsnmp_ds_set_string(NETSNMP_DS_APPLICATION_ID,
-        NETSNMP_DS_AGENT_X_SOCKET, agentx_socket);
+      netsnmp_ds_set_string(NETSNMP_DS_APPLICATION_ID, NETSNMP_DS_AGENT_X_SOCKET, agentx_socket);
     }
-    netsnmp_ds_set_boolean(NETSNMP_DS_APPLICATION_ID,
-      NETSNMP_DS_AGENT_ROLE, 1);
+    netsnmp_ds_set_boolean(NETSNMP_DS_APPLICATION_ID, NETSNMP_DS_AGENT_ROLE, 1);
     init_agent(profile_.c_str());
 
 #ifdef SNMP_DEBUG
@@ -190,8 +176,7 @@ namespace SNMPAgentX
     init_snmp(profile_.c_str());
   }
 
-  GenericSNMPAgent::~GenericSNMPAgent()
-    noexcept
+  GenericSNMPAgent::~GenericSNMPAgent() noexcept
   {
 #ifdef SNMP_DEBUG
     snmp_set_do_debugging(0);
@@ -205,20 +190,17 @@ namespace SNMPAgentX
       registrations_.pop_front();
       if (reg)
       {
-        netsnmp_unregister_handler(
-          static_cast<netsnmp_handler_registration*>(reg->registration));
+        netsnmp_unregister_handler( static_cast<netsnmp_handler_registration*>(reg->registration));
         delete reg;
       }
     }
 
-    snmp_unregister_callback(SNMP_CALLBACK_LIBRARY, SNMP_CALLBACK_LOGGING,
-      log_callback_, this, 1);
+    snmp_unregister_callback(SNMP_CALLBACK_LIBRARY, SNMP_CALLBACK_LOGGING, log_callback_, this, 1);
 
     shutdown_agent();
   }
 
-  void
-  GenericSNMPAgent::stop()
+  void GenericSNMPAgent::stop()
     /*throw (eh::Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -227,22 +209,18 @@ namespace SNMPAgentX
     pipe_.write_n(&ZERO, sizeof(ZERO));
   }
 
-  void
-  GenericSNMPAgent::do_register_index_(const RootInfo* root,
-    size_t size, const unsigned* ids)
+  void GenericSNMPAgent::do_register_index_(const RootInfo* root, size_t size, const unsigned* ids)
     /*throw (eh::Exception, Exception)*/
   {
     oid curoid[1024];
 
-    for (Vars::const_iterator itor(root->vars.begin());
-      itor != root->vars.end(); ++itor)
+    for (Vars::const_iterator itor(root->vars.begin()); itor != root->vars.end(); ++itor)
     {
       const char* cname = itor->name.text().c_str();
 
       registrations_.push_back(0);
 
-      netsnmp_mib_handler* handler =
-        netsnmp_create_handler(cname, &request_handler);
+      netsnmp_mib_handler* handler = netsnmp_create_handler(cname, &request_handler);
       if (!handler)
       {
         Stream::Error ostr;
@@ -295,8 +273,7 @@ namespace SNMPAgentX
   GenericSNMPAgent::get_rootinfo(const Generics::Values::Key& prefix)
     /*throw (eh::Exception)*/
   {
-    for (Roots::const_iterator itor(roots_.begin()); itor != roots_.end();
-      ++itor)
+    for (Roots::const_iterator itor(roots_.begin()); itor != roots_.end(); ++itor)
     {
       if (itor->prefix == prefix)
       {
@@ -306,9 +283,7 @@ namespace SNMPAgentX
     return 0;
   }
 
-  void
-  GenericSNMPAgent::register_index_(const RootInfo* root,
-    size_t size, const unsigned* ids)
+  void GenericSNMPAgent::register_index_(const RootInfo* root, size_t size, const unsigned* ids)
     /*throw (eh::Exception, Exception)*/
   {
     Sync::PosixGuard guard(mutex_);
@@ -318,8 +293,7 @@ namespace SNMPAgentX
     pipe_.write_n(ids, size * sizeof(*ids));
   }
 
-  void
-  GenericSNMPAgent::main_loop_()
+  void GenericSNMPAgent::main_loop_()
     /*throw (eh::Exception)*/
   {
     for (;;)
@@ -334,8 +308,7 @@ namespace SNMPAgentX
       {
         snmp_select_info(&descriptors, &readset, &timeout, &block);
 
-        int result = select(descriptors, &readset, 0, 0,
-          block ? &block_timeout : &timeout);
+        int result = select(descriptors, &readset, 0, 0, block ? &block_timeout : &timeout);
         if (result < 0)
         {
           if (errno == EINTR)
@@ -377,13 +350,10 @@ namespace SNMPAgentX
     }
   }
 
-  int
-  GenericSNMPAgent::process_requests_(
-    const VariableInfo& info, void* requests)
+  int GenericSNMPAgent::process_requests_( const VariableInfo& info, void* requests)
     /*throw (eh::Exception)*/
   {
-    for (netsnmp_request_info* request =
-      static_cast<netsnmp_request_info*>(requests); request;
+    for (netsnmp_request_info* request = static_cast<netsnmp_request_info*>(requests); request;
       request = request->next)
     {
       for (netsnmp_variable_list* variable = request->requestvb; variable;
@@ -392,15 +362,13 @@ namespace SNMPAgentX
 #ifdef SNMP_DEBUG
         std::cout << variable << "\t" << info.root << " \t";
         print_name(variable->name, variable->name_length);
-        std::cout << " \t" << static_cast<unsigned>(variable->type) <<
-          std::endl;
+        std::cout << " \t" << static_cast<unsigned>(variable->type) << std::endl;
 #endif
 
         bool success = true;
         unsigned size = variable->name_length - info.oid_length;
         unsigned ids[1024];
-        std::copy(variable->name + info.oid_length,
-          variable->name + variable->name_length, ids);
+        std::copy(variable->name + info.oid_length, variable->name + variable->name_length, ids);
         try
         {
           if (!process_variable_(variable, info, size, ids))
@@ -440,19 +408,15 @@ namespace SNMPAgentX
     logger_->log(ostr.str(), no_such_value_severity_());
   }
 
-  unsigned
-  GenericSNMPAgent::no_such_value_severity_()
-    noexcept
+  unsigned GenericSNMPAgent::no_such_value_severity_() noexcept
   {
     return Logging::Logger::DEBUG;
   }
 
-  void
-  GenericSNMPAgent::log_handler_(void* arg)
+  void GenericSNMPAgent::log_handler_(void* arg)
     /*throw (eh::Exception)*/
   {
-    struct snmp_log_message* slm =
-      static_cast<struct snmp_log_message*>(arg);
+    struct snmp_log_message* slm = static_cast<struct snmp_log_message*>(arg);
     unsigned long severity = Logging::Logger::TRACE;
 
     if (slm->priority == LOG_ERR)
@@ -496,8 +460,7 @@ namespace SNMPAgentX
   }
 
   int
-  GenericSNMPAgent::log_callback_(int /*major*/, int /*minor*/,
-    void* serverarg, void* clientarg)
+  GenericSNMPAgent::log_callback_(int /*major*/, int /*minor*/, void* serverarg, void* clientarg)
     noexcept
   {
     try
@@ -522,8 +485,7 @@ namespace SNMPAgentX
     if (pn->indexes)
     {
       unsigned index_length = 0;
-      for (struct index_list* index = pn->indexes; index;
-        index = index->next)
+      for (struct index_list* index = pn->indexes; index; index = index->next)
       {
         index_length++;
       }
@@ -542,13 +504,13 @@ namespace SNMPAgentX
 
     // Translate textual-conventions of indices
     bool has_children = false;
-    for (struct tree* child = pn->child_list; child;
-      child = child->next_peer)
+    for (struct tree* child = pn->child_list; child; child = child->next_peer)
     {
       if (child->child_list)
       {
         has_children = true;
       }
+
       if (struct index_list* index = pn->indexes)
       {
         size_t iindex = 0;
@@ -581,7 +543,7 @@ namespace SNMPAgentX
     }
 
     RootInfo* sequence_root = nullptr;
-    // Check if 
+    // Check if
     // 1. it's a sequence and
     // 2. at least one index and
     // 3. the first index is TEXTUAL-CONVENSION and
@@ -595,15 +557,13 @@ namespace SNMPAgentX
       }
       else
       {
-        roots_.emplace_back(parent,
-          root->prefix.text() + MEDIATOR + pn->indexes->ilabel, 0);
+        roots_.emplace_back(parent, root->prefix.text() + MEDIATOR + pn->indexes->ilabel, 0);
         sequence_root = &roots_.back();
       }
     }
 
     // Map all of the values
-    for (struct tree* child = pn->child_list; child;
-      child = child->next_peer)
+    for (struct tree* child = pn->child_list; child; child = child->next_peer)
     {
       const std::string& var_name = prefix + child->label;
 
@@ -612,8 +572,7 @@ namespace SNMPAgentX
         static_cast<unsigned>(child->subid) << " \t" << child->type <<
         " \t" << child->access << " \t" << child->status << " \t" <<
         child->tc_index << " \t" << child->enums << " \t" <<
-        child->ranges << " \t" << child->indexes << " \t" <<
-        child->varbinds << std::endl;
+        child->ranges << " \t" << child->indexes << " \t" << child->varbinds << std::endl;
 #endif
 
       // Skip indices
@@ -672,37 +631,29 @@ namespace SNMPAgentX
       if (sequence_root)
       {
         const EnumValue& ev = root->indices[0];
-        for (EnumValue::const_iterator itor(ev.begin());
-          itor != ev.end(); ++itor)
+        for (EnumValue::const_iterator itor(ev.begin()); itor != ev.end(); ++itor)
         {
           curoid[length] = itor->first;
           const std::string& field = var_name + MEDIATOR + itor->second;
-          sequence_root->vars.emplace_back(*sequence_root, length + 1,
-            curoid, field, type);
+          sequence_root->vars.emplace_back(*sequence_root, length + 1, curoid, field, type);
         }
       }
     }
   }
 
-  void
-  GenericSNMPAgent::set_variable(void* variable, unsigned long value)
-    noexcept
+  void GenericSNMPAgent::set_variable(void* variable, unsigned long value) noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_UNSIGNED, reinterpret_cast<const u_char*>(&value), sizeof(value));
   }
 
-  void
-  GenericSNMPAgent::set_variable(void* variable, long value)
-    noexcept
+  void GenericSNMPAgent::set_variable(void* variable, long value) noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_INTEGER, reinterpret_cast<const u_char*>(&value), sizeof(value));
   }
 
-  void
-  GenericSNMPAgent::set_variable64(void* variable, unsigned long value)
-    noexcept
+  void GenericSNMPAgent::set_variable64(void* variable, unsigned long value) noexcept
   {
     counter64 v;
     v.high = value >> 32;
@@ -711,10 +662,7 @@ namespace SNMPAgentX
       ASN_COUNTER64, reinterpret_cast<const u_char*>(&v), sizeof(v));
   }
 
-  void
-  GenericSNMPAgent::set_variable(void* variable,
-    const String::SubString& value)
-    noexcept
+  void GenericSNMPAgent::set_variable(void* variable, const String::SubString& value) noexcept
   {
     snmp_set_var_typed_value(static_cast<netsnmp_variable_list*>(variable),
       ASN_OCTET_STR, reinterpret_cast<const u_char*>(value.data()),
@@ -734,14 +682,11 @@ namespace SNMPAgentX
   {
   }
 
-  SNMPAgentAsync::SNMPJob::~SNMPJob()
-    noexcept
+  SNMPAgentAsync::SNMPJob::~SNMPJob() noexcept
   {
   }
 
-  void
-  SNMPAgentAsync::SNMPJob::work()
-    noexcept
+  void SNMPAgentAsync::SNMPJob::work() noexcept
   {
     try
     {
@@ -749,8 +694,7 @@ namespace SNMPAgentX
     }
     catch (const eh::Exception& ex)
     {
-      logger_->sstream(Logging::Logger::CRITICAL) << FNS <<
-        "exception caught: " << ex.what();
+      logger_->sstream(Logging::Logger::CRITICAL) << FNS << "exception caught: " << ex.what();
     }
   }
 
@@ -767,8 +711,7 @@ namespace SNMPAgentX
     thread_runner_.start();
   }
 
-  SNMPAgentAsync::~SNMPAgentAsync()
-    noexcept
+  SNMPAgentAsync::~SNMPAgentAsync() noexcept
   {
     agent_.stop();
     //thread_runner_.wait_for_completion(); // will be called in destructor
@@ -779,8 +722,7 @@ namespace SNMPAgentX
 extern "C"
 {
   NETSNMP_INLINE void*
-  netsnmp_request_get_list_data(netsnmp_request_info* /*request*/,
-    const char* /*name*/)
+  netsnmp_request_get_list_data(netsnmp_request_info* /*request*/, const char* /*name*/)
   {
     return 0;
   }

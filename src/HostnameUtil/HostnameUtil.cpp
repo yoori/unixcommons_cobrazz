@@ -12,24 +12,18 @@ class IsThis
 public:
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-  int
-  run(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/;
+  int run(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/;
 
 private:
-  void
-  init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/;
-  void
-  create_names_from_list_(const String::SubString& list)
+  void init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/;
+  void create_names_from_list_(const String::SubString& list)
     /*throw (eh::Exception, Exception)*/;
-  void
-  create_names_from_dir_(const char* dir) /*throw (eh::Exception, Exception)*/;
-  void
-  determine_() /*throw (eh::Exception)*/;
-  int
-  resolute_() /*throw (eh::Exception)*/;
+  void create_names_from_dir_(const char* dir) /*throw (eh::Exception, Exception)*/;
+  void determine_() /*throw (eh::Exception)*/;
+  int resolute_() /*throw (eh::Exception)*/;
 
 
-  typedef std::deque<std::string> Names;
+  using Names = std::deque<std::string>;
 
 
   Generics::AppUtils::CheckOption single_;
@@ -45,12 +39,10 @@ private:
 class Application
 {
 public:
-  int
-  run(int argc, char* argv[]) /*throw (eh::Exception)*/;
+  int run(int argc, char* argv[]) /*throw (eh::Exception)*/;
 
 private:
-  void
-  usage_() /*throw (eh::Exception)*/;
+  void usage_() /*throw (eh::Exception)*/;
 };
 
 
@@ -58,8 +50,7 @@ private:
 // IsThis class
 //
 
-void
-IsThis::create_names_from_list_(const String::SubString& list)
+void IsThis::create_names_from_list_(const String::SubString& list)
   /*throw (eh::Exception, Exception)*/
 {
   String::StringManip::SplitComma tokenizer(list);
@@ -70,8 +61,7 @@ IsThis::create_names_from_list_(const String::SubString& list)
   }
 }
 
-void
-IsThis::create_names_from_dir_(const char* dir)
+void IsThis::create_names_from_dir_(const char* dir)
   /*throw (eh::Exception, Exception)*/
 {
   Generics::DirSelect::directory_selector(dir,
@@ -84,8 +74,7 @@ IsThis::create_names_from_dir_(const char* dir)
     Generics::DirSelect::DSF_FILE_NAME_ONLY);
 }
 
-void
-IsThis::init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
+void IsThis::init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
 {
   Generics::AppUtils::Args args(1);
 
@@ -96,8 +85,7 @@ IsThis::init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
 
   const Generics::AppUtils::Args::CommandList& commands = args.commands();
 
-  if (commands.size() != 1 ||
-    (single_.enabled() && single_check_.enabled()))
+  if (commands.size() != 1 || (single_.enabled() && single_check_.enabled()))
   {
     throw Exception("Invalid arguments");
   }
@@ -113,15 +101,13 @@ IsThis::init_(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
 
 }
 
-void
-IsThis::determine_() /*throw (eh::Exception)*/
+void IsThis::determine_() /*throw (eh::Exception)*/
 {
   Generics::Network::IsLocalInterface is_local;
 
   hits_ = 0;
 
-  for (Names::const_iterator itor(names_.begin()); itor != names_.end();
-    ++itor)
+  for (Names::const_iterator itor(names_.begin()); itor != names_.end(); ++itor)
   {
     bool check = false;
     try
@@ -152,8 +138,7 @@ IsThis::determine_() /*throw (eh::Exception)*/
   }
 }
 
-int
-IsThis::resolute_() /*throw (eh::Exception)*/
+int IsThis::resolute_() /*throw (eh::Exception)*/
 {
   if (!hits_)
   {
@@ -162,8 +147,7 @@ IsThis::resolute_() /*throw (eh::Exception)*/
 
   if (hits_ > 1 && single_check_.enabled())
   {
-    std::cerr << "More than one name suits to current host: '" <<
-      hosts_.str() << "'" << std::endl;
+    std::cerr << "More than one name suits to current host: '" << hosts_.str() << "'" << std::endl;
     return 2;
   }
 
@@ -172,8 +156,7 @@ IsThis::resolute_() /*throw (eh::Exception)*/
   return 0;
 }
 
-int
-IsThis::run(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
+int IsThis::run(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
 {
   init_(argc, argv);
 
@@ -192,8 +175,7 @@ IsThis::run(int argc, char* argv[]) /*throw (eh::Exception, Exception)*/
 // Application class
 //
 
-void
-Application::usage_() /*throw (eh::Exception)*/
+void Application::usage_() /*throw (eh::Exception)*/
 {
   std::cout << "Usage: \n"
     "HostnameUtil is-this [--single | --single-check] "
@@ -209,8 +191,7 @@ Application::usage_() /*throw (eh::Exception)*/
     "" << std::endl;
 }
 
-int
-Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
+int Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
 {
   try
   {
@@ -233,8 +214,7 @@ Application::run(int argc, char* argv[]) /*throw (eh::Exception)*/
   return -1;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {

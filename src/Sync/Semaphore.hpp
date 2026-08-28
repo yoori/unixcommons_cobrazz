@@ -16,25 +16,19 @@ namespace Sync
   public:
     DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-    explicit
-    Semaphore(int count) /*throw (Exception)*/;
+    explicit Semaphore(int count) /*throw (Exception)*/;
     ~Semaphore() noexcept;
 
-    void
-    acquire() /*throw (Exception)*/;
+    void acquire() /*throw (Exception)*/;
 
-    bool
-    try_acquire() /*throw (Exception)*/;
+    bool try_acquire() /*throw (Exception)*/;
 
-    bool
-    timed_acquire(const Generics::Time* time, bool time_is_relative = false)
+    bool timed_acquire(const Generics::Time* time, bool time_is_relative = false)
       /*throw (Exception)*/;
 
-    void
-    release() /*throw (Exception)*/;
+    void release() /*throw (Exception)*/;
 
-    int
-    value() /*throw (Exception)*/;
+    int value() /*throw (Exception)*/;
 
   private:
     Condition condition_lock_;
@@ -47,25 +41,20 @@ namespace Sync
 namespace Sync
 {
   /*
-  inline
-  Semaphore::Semaphore(int count) throw (Exception)
+  inline Semaphore::Semaphore(int count) throw (Exception)
   {
     if (sem_init(&semaphore_, 0, count))
     {
-      eh::throw_errno_exception<Exception>(FNE,
-        "Failed to initialize semaphore");
+      eh::throw_errno_exception<Exception>(FNE, "Failed to initialize semaphore");
     }
   }
 
-  inline
-  Semaphore::~Semaphore() noexcept
+  inline Semaphore::~Semaphore() noexcept
   {
     sem_destroy(&semaphore_);
   }
 
-  inline
-  void
-  Semaphore::acquire() throw (Exception)
+  inline void Semaphore::acquire() throw (Exception)
   {
     for (;;)
     {
@@ -73,100 +62,84 @@ namespace Sync
       {
         break;
       }
+
       if (errno != EINTR)
       {
-        eh::throw_errno_exception<Exception>(FNE,
-          "Failed to wait on semaphore");
+        eh::throw_errno_exception<Exception>(FNE, "Failed to wait on semaphore");
       }
     }
   }
 
-  inline
-  bool
-  Semaphore::try_acquire() throw (Exception)
+  inline bool Semaphore::try_acquire() throw (Exception)
   {
     if (!sem_trywait(&semaphore_))
     {
       return true;
     }
+
     if (errno != EAGAIN)
     {
-      eh::throw_errno_exception<Exception>(FNE,
-        "Failed to wait on semaphore");
+      eh::throw_errno_exception<Exception>(FNE, "Failed to wait on semaphore");
     }
     return false;
   }
 
   inline
-  bool
-  Semaphore::timed_acquire(const Generics::Time* time,
-    bool time_is_relative) throw (Exception)
+  bool Semaphore::timed_acquire(const Generics::Time* time, bool time_is_relative) throw (Exception)
   {
     if (!time)
     {
       acquire();
       return true;
     }
-    Generics::Time real_time(time_is_relative ?
-      Generics::Time::get_time_of_day() + *time : *time);
-    const timespec RESTRICT =
-      { real_time.tv_sec, real_time.tv_usec * 1000 };
+    Generics::Time real_time(time_is_relative ? Generics::Time::get_time_of_day() + *time : *time);
+    const timespec RESTRICT = { real_time.tv_sec, real_time.tv_usec * 1000 };
     while (sem_timedwait(&semaphore_, &RESTRICT) < 0)
     {
       if (errno == ETIMEDOUT)
       {
         return false;
       }
+
       if (errno != EINTR)
       {
-        eh::throw_errno_exception<Exception>(FNE,
-          "Failed to wait on semaphore");
+        eh::throw_errno_exception<Exception>(FNE, "Failed to wait on semaphore");
       }
     }
     return true;
   }
 
-  inline
-  void
-  Semaphore::release() throw (Exception)
+  inline void Semaphore::release() throw (Exception)
   {
     if (sem_post(&semaphore_))
     {
-      eh::throw_errno_exception<Exception>(FNE,
-        "Failed to release semaphore");
+      eh::throw_errno_exception<Exception>(FNE, "Failed to release semaphore");
     }
   }
 
-  inline
-  int
-  Semaphore::value() throw (Exception)
+  inline int Semaphore::value() throw (Exception)
   {
     int value;
     if (sem_getvalue(&semaphore_, &value) < 0)
     {
-      eh::throw_errno_exception<Exception>(FNE,
-        "Failed to value semaphore");
+      eh::throw_errno_exception<Exception>(FNE, "Failed to value semaphore");
     }
     return value;
   }
   */
 
-  inline
-  Semaphore::Semaphore(int count) /*throw (Exception)*/
+  inline Semaphore::Semaphore(int count) /*throw (Exception)*/
     : count_(count)
   {}
 
-  inline
-  Semaphore::~Semaphore() noexcept
+  inline Semaphore::~Semaphore() noexcept
   {}
 
-  inline
-  void
-  Semaphore::acquire() /*throw (Exception)*/
+  inline void Semaphore::acquire() /*throw (Exception)*/
   {
     ConditionalGuard lock(condition_lock_);
 
-    while(count_ <= 0)
+    while (count_ <= 0)
     {
       lock.wait();
     }
@@ -174,13 +147,11 @@ namespace Sync
     --count_;
   }
 
-  inline
-  bool
-  Semaphore::try_acquire() /*throw (Exception)*/
+  inline bool Semaphore::try_acquire() /*throw (Exception)*/
   {
     ConditionalGuard lock(condition_lock_);
 
-    if(count_ > 0)
+    if (count_ > 0)
     {
       --count_;
       return true;
@@ -189,27 +160,22 @@ namespace Sync
     return false;
   }
 
-  inline
-  bool
-  Semaphore::timed_acquire(
-    const Generics::Time* time,
-    bool time_is_relative)
+  inline bool Semaphore::timed_acquire( const Generics::Time* time, bool time_is_relative)
     /*throw (Exception)*/
   {
-    if(!time)
+    if (!time)
     {
       acquire();
       return true;
     }
 
-    Generics::Time real_time(time_is_relative ?
-      Generics::Time::get_time_of_day() + *time : *time);
+    Generics::Time real_time(time_is_relative ? Generics::Time::get_time_of_day() + *time : *time);
 
     ConditionalGuard lock(condition_lock_);
 
-    while(count_ <= 0)
+    while (count_ <= 0)
     {
-      if(!lock.timed_wait(&real_time))
+      if (!lock.timed_wait(&real_time))
       {
         return false;
       }
@@ -219,20 +185,16 @@ namespace Sync
     return true;
   }
 
-  inline
-  void
-  Semaphore::release() /*throw (Exception)*/
+  inline void Semaphore::release() /*throw (Exception)*/
   {
     ConditionalGuard lock(condition_lock_);
-    if(++count_ > 0)
+    if (++count_ > 0)
     {
       condition_lock_.signal();
     }
   }
 
-  inline
-  int
-  Semaphore::value() /*throw (Exception)*/
+  inline int Semaphore::value() /*throw (Exception)*/
   {
     ConditionalGuard lock(condition_lock_);
     return count_;

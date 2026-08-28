@@ -21,8 +21,7 @@ namespace CORBAConfigParser
       const char* default_secure_params = "")
       /*throw (eh::Exception)*/;
 
-    void
-    set(const char*, const char* corba_url)
+    void set(const char*, const char* corba_url)
       /*throw (eh::Exception, Generics::AppUtils::InvalidParam)*/;
 
   private:
@@ -34,8 +33,7 @@ namespace CORBAConfigParser
     public Generics::AppUtils::Option<CORBACommons::SecureConnectionConfig>
   {
   public:
-    void
-    set(const char*, const char* strval)
+    void set(const char*, const char* strval)
       /*throw (eh::Exception, Generics::AppUtils::InvalidParam)*/;
   };
 }
@@ -54,8 +52,7 @@ namespace CORBAConfigParser
   }
 
   template <typename CorbaObject>
-  void
-  CorbaRefOption<CorbaObject>::set(const char*, const char* corba_url)
+  void CorbaRefOption<CorbaObject>::set(const char*, const char* corba_url)
     /*throw (eh::Exception, Generics::AppUtils::InvalidParam)*/
   {
     std::string ref;
@@ -86,8 +83,7 @@ namespace CORBAConfigParser
         }
 
         ref = url_pos + 1;
-        CORBACommons::CorbaObjectRef corba_object_ref(ref.c_str(),
-          secure_params);
+        CORBACommons::CorbaObjectRef corba_object_ref(ref.c_str(), secure_params);
 
         obj = client_adapter_->resolve_object<CorbaObject>(corba_object_ref);
       }
@@ -97,8 +93,7 @@ namespace CORBAConfigParser
     catch (const CORBACommons::CorbaClientAdapter::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Can't resolve corba reference '" << ref << "': " <<
-        ex.what();
+      ostr << FNS << "Can't resolve corba reference '" << ref << "': " << ex.what();
       throw Generics::AppUtils::InvalidParam(ostr);
     }
     catch (const CORBA::SystemException& ex)

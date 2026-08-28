@@ -27,6 +27,7 @@ namespace Generics
     {
       pptr = &(*pptr)->lower_priority_;
     }
+
     if (*pptr && (*pptr)->priority_ == priority_)
     {
       lower_priority_ = (*pptr)->lower_priority_;
@@ -42,12 +43,10 @@ namespace Generics
     }
   }
 
-  void
-  AtExitDestroying::destroy_at_exit_() noexcept
+  void AtExitDestroying::destroy_at_exit_() noexcept
   {
     Sync::PosixGuard guard(mutex_);
-    for (AtExitDestroying* current_priority = lower_priority_head_;
-      current_priority;)
+    for (AtExitDestroying* current_priority = lower_priority_head_; current_priority;)
     {
       AtExitDestroying* next_priority = current_priority->lower_priority_;
       for (AtExitDestroying* current = current_priority; current;)

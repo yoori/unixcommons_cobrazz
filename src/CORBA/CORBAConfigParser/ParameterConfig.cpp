@@ -10,8 +10,7 @@ namespace
     bool empty;
   };
 
-  const Token TOKENS[] =
-  {
+  const Token TOKENS[] = {
     { "key file", false },
     { "password", true },
     { "certificate", false },
@@ -35,8 +34,7 @@ namespace CORBAConfigParser
       std::string values[NUMBER_OF_TOKENS];
       for (size_t i = 0; i < NUMBER_OF_TOKENS; i++)
       {
-        if (!tokenizer.get_token(token) ||
-          (token.empty() && !TOKENS[i].empty))
+        if (!tokenizer.get_token(token) || (token.empty() && !TOKENS[i].empty))
         {
           Stream::Error ostr;
           ostr << FNS << "Not defined " << TOKENS[i].name;
@@ -45,20 +43,17 @@ namespace CORBAConfigParser
         token.assign_to(values[i]);
       }
 
-      config.parse(values[0].c_str(), values[1].c_str(), values[2].c_str(),
-        values[3].c_str());
+      config.parse(values[0].c_str(), values[1].c_str(), values[2].c_str(), values[3].c_str());
     }
     catch (const eh::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS << "Error parsing secure params '" << str <<
-        "': " << ex.what();
+      ostr << FNS << "Error parsing secure params '" << str << "': " << ex.what();
       throw Generics::AppUtils::InvalidParam(ostr);
     }
   }
 
-  void
-  SecureParamsOption::set(const char*, const char* strval)
+  void SecureParamsOption::set(const char*, const char* strval)
     /*throw (eh::Exception, Generics::AppUtils::InvalidParam)*/
   {
     try
@@ -70,9 +65,7 @@ namespace CORBAConfigParser
     catch (const CORBACommons::SecureConnectionConfig::Exception& ex)
     {
       Stream::Error ostr;
-      ostr << FNS <<
-        "Can't initialize secure connection. Caught Exception: " <<
-        ex.what();
+      ostr << FNS << "Can't initialize secure connection. Caught Exception: " << ex.what();
       throw Generics::AppUtils::InvalidParam(ostr);
     }
   }

@@ -19,12 +19,10 @@ const std::string REQUEST = std::string("http://") + SERVER.first + ':'
 // EchoTest Constants
 //
 
-const std::string ECHO_GET_STRING =
-  "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
+const std::string ECHO_GET_STRING = "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
   "body&glbfcap=0&referer=act.com";
-const std::string ECHO_POST_STRING =
-  "login=Petya%20Vasechkin&password=qq";
+const std::string ECHO_POST_STRING = "login=Petya%20Vasechkin&password=qq";
 
 const std::string GET_RESPONSE_BEGIN = "<BODY>\n";
 const std::string GET_RESPONSE_END = "\n</BODY>";
@@ -34,8 +32,7 @@ const std::string ECHO_POST_REQUEST = REQUEST + "/cgi-bin/echo.pl";
 
 const char echo_test_name[] = "EchoTest";
 
-const char*
-EchoTest::usage() noexcept
+const char* EchoTest::usage() noexcept
 {
   return "[EchoTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -61,14 +58,12 @@ EchoTest::EchoTest(Sync::Semaphore& finish_semaphore,
 {
   my_cb_ = new CheckUpCallback(HTTP::PoolPolicy_var(new SimplePolicy).in(),
     ECHO_GET_STRING, ECHO_POST_STRING, GET_RESPONSE_BEGIN, GET_RESPONSE_END);
-  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore,
-    my_cb_));
+  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore, my_cb_));
   requester_.reset(new Requester(*this, pool_.in(), proxy, ECHO_GET_REQUEST,
     ECHO_POST_REQUEST, ECHO_POST_STRING));
 }
 
-std::string
-EchoTest::checkup_and_print_stat() /*throw (eh::Exception)*/
+std::string EchoTest::checkup_and_print_stat() /*throw (eh::Exception)*/
 {
   if (stat_.str().empty())
   {
@@ -105,8 +100,7 @@ EchoTest::~EchoTest() noexcept
 const std::string UNREQUITED_REQ = REQUEST + "/cgi-bin/nonexistant.pl";
 const char nonexistance_test_name[] = "NonexistanceTest";
 
-const char*
-NonExistanceTest::usage() noexcept
+const char* NonExistanceTest::usage() noexcept
 {
   return "[NonExistanceTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -121,24 +115,20 @@ NonExistanceTest::usage() noexcept
 //
 
 NonExistanceTest::NonExistanceTest(Sync::Semaphore& finish_semaphore,
-     HTTP::HttpInterface* pool, unsigned int test_duration,
-     unsigned int making_requests_duration, unsigned int tasks_per_test,
-     unsigned int functors_per_task, bool log_needed)
+  HTTP::HttpInterface* pool, unsigned int test_duration,
+  unsigned int making_requests_duration, unsigned int tasks_per_test,
+  unsigned int functors_per_task, bool log_needed)
   /*throw (eh::Exception)*/:
     CTTestInterface(pool, test_duration, making_requests_duration,
                     tasks_per_test, functors_per_task),
     log_needed_(log_needed)
 {
-  my_cb_ = new SimpleCounterCallback(
-    HTTP::PoolPolicy_var(new SimplePolicy).in());
-  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore,
-    my_cb_));
-  requester_.reset(new Requester(*this, pool_.in(), proxy,
-    UNREQUITED_REQ, UNREQUITED_REQ));
+  my_cb_ = new SimpleCounterCallback( HTTP::PoolPolicy_var(new SimplePolicy).in());
+  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore, my_cb_));
+  requester_.reset(new Requester(*this, pool_.in(), proxy, UNREQUITED_REQ, UNREQUITED_REQ));
 }
 
-std::string
-NonExistanceTest::checkup_and_print_stat() /*throw (eh::Exception)*/
+std::string NonExistanceTest::checkup_and_print_stat() /*throw (eh::Exception)*/
 {
   if (stat_.str().empty())
   {
@@ -176,8 +166,7 @@ const std::string BAD_REQ = std::string("http://") + SERVER.first +
   ":65493/cgi-bin/nonexistant.pl";
 const char bad_address_test_name[] = "BadAddressTest";
 
-const char*
-BadAddressTest::usage() noexcept
+const char* BadAddressTest::usage() noexcept
 {
   return "[BadAddressTest]\n"
          "1. Sends GET and POST requests one after another to server,\n"
@@ -199,16 +188,12 @@ BadAddressTest::BadAddressTest(Sync::Semaphore& finish_semaphore,
                     tasks_per_test, functors_per_task),
     log_needed_(log_needed)
 {
-  my_cb_ = new SimpleCounterCallback(
-    HTTP::PoolPolicy_var(new SimplePolicy).in());
-  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore,
-    my_cb_));
-  requester_.reset(new Requester(*this, pool_.in(), proxy,
-    BAD_REQ, BAD_REQ));
+  my_cb_ = new SimpleCounterCallback( HTTP::PoolPolicy_var(new SimplePolicy).in());
+  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore, my_cb_));
+  requester_.reset(new Requester(*this, pool_.in(), proxy, BAD_REQ, BAD_REQ));
 }
 
-std::string
-BadAddressTest::checkup_and_print_stat() /*throw (eh::Exception)*/
+std::string BadAddressTest::checkup_and_print_stat() /*throw (eh::Exception)*/
 {
   if (stat_.str().empty())
   {
@@ -246,8 +231,7 @@ const std::string INTERRUPT_REQ = std::string("http://") + SERVER.first +
   ':' + ApachePorts::get_port_string(31) + "/cgi-bin/interrupt.pl";
 const char interrupt_test_name[] = "InterruptTest";
 
-const char*
-InterruptTest::usage() noexcept
+const char* InterruptTest::usage() noexcept
 {
   return "[InterruptTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -274,8 +258,7 @@ InterruptCallback::~InterruptCallback() noexcept
 {
 }
 
-void
-InterruptCallback::on_response(const HTTP::ResponseInformation& data) noexcept
+void InterruptCallback::on_response(const HTTP::ResponseInformation& data) noexcept
 {
   check();
   SimpleCounterCallback::on_response(data);
@@ -289,9 +272,7 @@ InterruptCallback::on_error(const String::SubString& description,
   SimpleCounterCallback::on_error(description, data);
 }
 
-inline
-void
-InterruptCallback::check() noexcept
+inline void InterruptCallback::check() noexcept
 {
   if (cnt_ >= 50)
   {
@@ -323,16 +304,12 @@ InterruptTest::InterruptTest(Sync::Semaphore& finish_semaphore,
   char *p = getenv("TEST_TMP_DIR");
   tmp_dir = p ? p : "../../../test/tmp";
 
-  my_cb_ = new InterruptCallback(
-    HTTP::PoolPolicy_var(new SimplePolicy).in(), sem_);
-  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore,
-    my_cb_));
-  requester_.reset(new Requester(*this, pool_.in(), proxy,
-    INTERRUPT_REQ, INTERRUPT_REQ));
+  my_cb_ = new InterruptCallback( HTTP::PoolPolicy_var(new SimplePolicy).in(), sem_);
+  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore, my_cb_));
+  requester_.reset(new Requester(*this, pool_.in(), proxy, INTERRUPT_REQ, INTERRUPT_REQ));
 }
 
-const std::string
-InterruptTest::additional_http_query() /*throw (eh::Exception)*/
+const std::string InterruptTest::additional_http_query() /*throw (eh::Exception)*/
 {
   Sync::PosixGuard guard(mutex_);
   if (counter_ == 51)
@@ -344,20 +321,18 @@ InterruptTest::additional_http_query() /*throw (eh::Exception)*/
   return ostr.str();
 };
 
-std::string
-InterruptTest::checkup_and_print_stat() /*throw (eh::Exception)*/
+std::string InterruptTest::checkup_and_print_stat() /*throw (eh::Exception)*/
 {
   if (stat_.str().empty())
   {
     if (!is_error(interrupt_test_name, &requester_->get_counter(), &my_cb_->get_counter(), 0)
-        && (my_cb_->get_counter().succeeded() < 51 || 
+        && (my_cb_->get_counter().succeeded() < 51 ||
             my_cb_->get_counter().failed() < my_cb_->get_counter().succeeded()))
     {
       std::cerr << "[ERROR] " << interrupt_test_name << " failed. Description: "
                 << "There are at least 51 successful requests should be present "
                    "(more, than half of all requests should be failed requests), "
-                   "but we have "
-                << my_cb_->get_counter().succeeded() << " succeeded and "
+                   "but we have " << my_cb_->get_counter().succeeded() << " succeeded and "
                 << my_cb_->get_counter().failed() << " failed" << std::endl;
     }
 
@@ -385,8 +360,7 @@ InterruptTest::~InterruptTest() noexcept
 const std::string BAD_RESP_REQ = REQUEST + "/cgi-bin/bad_resp.pl";
 const char bad_response_test_name[] = "BadResponseTest";
 
-const char*
-BadRespTest::usage() noexcept
+const char* BadRespTest::usage() noexcept
 {
   return "[BadRespTest]\n"
          "1. Sends GET and POST requests one after another to server\n"
@@ -412,16 +386,12 @@ BadRespTest::BadRespTest(Sync::Semaphore& finish_semaphore,
 {
   counter_ = 0;
 
-  my_cb_ = new SimpleCounterCallback(
-    HTTP::PoolPolicy_var(new SimplePolicy).in());
-  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore,
-    my_cb_));
-  requester_.reset(new Requester(*this, pool_.in(), proxy,
-    BAD_RESP_REQ, BAD_RESP_REQ));
+  my_cb_ = new SimpleCounterCallback( HTTP::PoolPolicy_var(new SimplePolicy).in());
+  HTTP::ResponseCallback_var proxy(new CallBackProxy(finish_semaphore, my_cb_));
+  requester_.reset(new Requester(*this, pool_.in(), proxy, BAD_RESP_REQ, BAD_RESP_REQ));
 }
 
-const std::string
-BadRespTest::additional_http_query() /*throw (eh::Exception)*/
+const std::string BadRespTest::additional_http_query() /*throw (eh::Exception)*/
 {
   std::ostringstream ostr;
   ostr << '?';
@@ -432,8 +402,7 @@ BadRespTest::additional_http_query() /*throw (eh::Exception)*/
   return ostr.str();
 }
 
-std::string
-BadRespTest::checkup_and_print_stat() /*throw (eh::Exception)*/
+std::string BadRespTest::checkup_and_print_stat() /*throw (eh::Exception)*/
 {
   if (stat_.str().empty())
   {

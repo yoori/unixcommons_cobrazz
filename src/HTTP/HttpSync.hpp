@@ -7,8 +7,8 @@
 
 namespace HTTP
 {
-  typedef std::list<std::string> ExpectedHeaders;
-  typedef std::vector<char> ResponseBody;
+  using ExpectedHeaders = std::list<std::string>;
+  using ResponseBody = std::vector<char>;
 
   /**
    * Function performs synchronous get request using
@@ -34,8 +34,7 @@ namespace HTTP
 
     HttpInterface& http,
     const char* http_request,
-    const HttpServer& peer = HttpServer(),
-    const HeaderList& headers = HeaderList())
+    const HttpServer& peer = HttpServer(), const HeaderList& headers = HeaderList())
     /*throw (eh::Exception, eh::DescriptiveException)*/;
 
   /**
@@ -63,8 +62,7 @@ namespace HTTP
 
     HttpInterface& http,
     const char* http_request,
-    const String::SubString& body = String::SubString(),
-    const HttpServer& peer = HttpServer(),
+    const String::SubString& body = String::SubString(), const HttpServer& peer = HttpServer(),
     const HeaderList& headers = HeaderList())
     /*throw (eh::Exception, eh::DescriptiveException)*/;
 }

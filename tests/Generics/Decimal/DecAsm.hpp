@@ -3,8 +3,7 @@
 static const uint64_t MAX64 = static_cast<uint64_t>(-1);
 
 template <const uint64_t BASE>
-uint64_t
-add64(uint64_t a, uint64_t b, uint64_t& l) noexcept
+uint64_t add64(uint64_t a, uint64_t b, uint64_t& l) noexcept
 {
 #ifdef __x86_64__
   uint64_t rh, rl;
@@ -25,7 +24,7 @@ add64(uint64_t a, uint64_t b, uint64_t& l) noexcept
   if (BASE - a <= b)
   {
     h++;
-    l = b - (BASE - a); 
+    l = b - (BASE - a);
   }
   else
   {
@@ -36,8 +35,7 @@ add64(uint64_t a, uint64_t b, uint64_t& l) noexcept
 }
 
 template <const uint64_t BASE>
-void
-sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) noexcept
+void sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) noexcept
 {
   if (l > lo)
   {
@@ -48,11 +46,10 @@ sub64(uint64_t& hi, uint64_t& lo, uint64_t h, uint64_t l) noexcept
   {
     hi = hi - h;
     lo = lo - l;
-  }  
+  }
 }
 
-void
-subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) noexcept
+void subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) noexcept
 {
   assert(h > sh || (h == sh && l >= sl));
   if (l >= sl)
@@ -67,8 +64,7 @@ subq(uint64_t& h, uint64_t& l, uint64_t sh, uint64_t sl) noexcept
   }
 }
 
-void
-mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) noexcept
+void mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) noexcept
 {
   static const uint64_t MASK = static_cast<uint32_t>(-1);
   l = (a & MASK) * (b & MASK);
@@ -89,8 +85,7 @@ mulq(uint64_t a, uint64_t b, uint64_t& h, uint64_t& l) noexcept
   l += tmp3;
 }
 
-void
-divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) noexcept
+void divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) noexcept
 {
   assert(h < d);
   q = 0;
@@ -107,8 +102,7 @@ divq(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r) noexcept
 }
 
 template <const uint64_t BASE>
-void
-mul64(uint64_t a, uint64_t b, uint64_t& l, uint64_t& h) noexcept
+void mul64(uint64_t a, uint64_t b, uint64_t& l, uint64_t& h) noexcept
 {
 #ifdef __x86_64__
   uint64_t rh, rl;
@@ -127,8 +121,7 @@ mul64(uint64_t a, uint64_t b, uint64_t& l, uint64_t& h) noexcept
 }
 
 template <const uint64_t BASE>
-uint64_t
-mul64(uint64_t hi, uint64_t lo, uint64_t v, uint64_t& h, uint64_t& l)
+uint64_t mul64(uint64_t hi, uint64_t lo, uint64_t v, uint64_t& h, uint64_t& l)
 {
   uint64_t over1, over2;
   mul64<BASE>(hi, v, h, over1);
@@ -137,8 +130,7 @@ mul64(uint64_t hi, uint64_t lo, uint64_t v, uint64_t& h, uint64_t& l)
 }
 
 template <const uint64_t BASE>
-bool
-div64(uint64_t h, uint64_t l, uint64_t d, uint64_t& q)
+bool div64(uint64_t h, uint64_t l, uint64_t d, uint64_t& q)
 {
 #ifdef __x86_64__
   uint64_t ret;
@@ -178,8 +170,7 @@ div64(uint64_t h, uint64_t l, uint64_t d, uint64_t& q)
 }
 
 template <const uint64_t BASE>
-void
-div64_unsafe(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r)
+void div64_unsafe(uint64_t h, uint64_t l, uint64_t d, uint64_t& q, uint64_t& r)
 {
 #ifdef __x86_64__
   uint64_t rq, rr;

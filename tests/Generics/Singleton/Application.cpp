@@ -46,8 +46,7 @@ class ActiveContainer
 {
 public:
   ActiveContainer(const char* kind = "singleton") /*throw (eh::Exception)*/;
-  virtual
-  ~ActiveContainer() noexcept;
+  virtual ~ActiveContainer() noexcept;
 
 private:
   class Callback :
@@ -59,17 +58,12 @@ private:
     report_error(Severity severity, const String::SubString& description,
       const char* error_code = 0) noexcept;
 
-    virtual
-    void
-    on_start() noexcept;
+    virtual void on_start() noexcept;
 
-    virtual
-    void
-    on_stop() noexcept;
+    virtual void on_stop() noexcept;
 
   protected:
-    virtual
-    ~Callback() noexcept;
+    virtual ~Callback() noexcept;
   };
   const char* const KIND_;
   Generics::Planner_var active_object_;
@@ -77,8 +71,7 @@ private:
 
 ActiveContainer::ActiveContainer(const char* kind) /*throw (eh::Exception)*/
   : KIND_(kind),
-    active_object_(new Generics::Planner(
-      Generics::ActiveObjectCallback_var(new Callback)))
+    active_object_(new Generics::Planner( Generics::ActiveObjectCallback_var(new Callback)))
 {
   std::cout << "ActiveContainer::ActiveContainer() " << KIND_ << std::endl;
   active_object_->activate_object();
@@ -91,14 +84,12 @@ ActiveContainer::~ActiveContainer() noexcept
   active_object_->wait_object();
 }
 
-void
-ActiveContainer::Callback::on_start() noexcept
+void ActiveContainer::Callback::on_start() noexcept
 {
   std::cout << "Started thread " << pthread_self() << std::endl;
 }
 
-void
-ActiveContainer::Callback::on_stop() noexcept
+void ActiveContainer::Callback::on_stop() noexcept
 {
   std::cout << "Stopping thread " << pthread_self() << std::endl;
 }
@@ -116,8 +107,7 @@ ActiveContainer::Callback::~Callback() noexcept
 
 ActiveContainer ac("static");
 
-int
-main()
+int main()
 {
   ActiveContainer ac("auto");
   Generics::Singleton<ActiveContainer>::instance();

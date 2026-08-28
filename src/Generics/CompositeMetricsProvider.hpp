@@ -13,23 +13,19 @@ namespace Generics
   class CompositeMetricsProvider : public MetricsProvider
   {
   public:
-    void
-    add_provider(MetricsProvider* provider);
+    void add_provider(MetricsProvider* provider);
 
-    MetricArray
-    get_values() override;
+    MetricArray get_values() override;
 
     std::map<std::string, std::string>
     getStringValues();
 
   private:
-    typedef std::set<ReferenceCounting::SmartPtr<MetricsProvider> >
-      ProviderSet;
+    using ProviderSet = std::set<ReferenceCounting::SmartPtr<MetricsProvider> >;
 
     ProviderSet providers_;
     std::mutex lock_;
   };
 
-  typedef ReferenceCounting::SmartPtr<CompositeMetricsProvider>
-    CompositeMetricsProvider_var;
+  using CompositeMetricsProvider_var = ReferenceCounting::SmartPtr<CompositeMetricsProvider>;
 }

@@ -5,8 +5,7 @@ class Echo_i : public POA_Echo
 {
 public:
   Echo_i() noexcept;
-  virtual char*
-  echoString(const char* message) noexcept;
+  virtual char* echoString(const char* message) noexcept;
 private:
   unsigned sleep;
 };
@@ -16,8 +15,7 @@ Echo_i::Echo_i() noexcept
 {
 }
 
-char*
-Echo_i::echoString(const char* message) noexcept
+char* Echo_i::echoString(const char* message) noexcept
 {
   timeval tv = { sleep / 1000, (sleep % 1000) * 1000 };
   sleep *= 2;
@@ -25,8 +23,7 @@ Echo_i::echoString(const char* message) noexcept
   return CORBA::string_dup(message);
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, ORB_NAME);
 

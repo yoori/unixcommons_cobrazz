@@ -33,24 +33,18 @@ namespace TestCommons
     MTTasker(Generics::TaskRunner* task_runner)
       /*throw (eh::Exception)*/;
 
-    virtual
-    ~MTTasker() noexcept;
+    virtual ~MTTasker() noexcept;
 
-    void
-    enqueue(Generics::Task* task) /*throw (eh::Exception)*/;
+    void enqueue(Generics::Task* task) /*throw (eh::Exception)*/;
 
-    bool
-    enqueue_conditionally(Generics::Task* task) /*throw (eh::Exception)*/;
+    bool enqueue_conditionally(Generics::Task* task) /*throw (eh::Exception)*/;
 
-    void
-    report_error(const String::SubString& message) noexcept;
+    void report_error(const String::SubString& message) noexcept;
 
-    void
-    start(int limit, Sync::Semaphore* semaphore)
+    void start(int limit, Sync::Semaphore* semaphore)
       /*throw (eh::Exception)*/;
 
-    void
-    stop() /*throw (eh::Exception)*/;
+    void stop() /*throw (eh::Exception)*/;
 
   private:
     Sync::PosixMutex mutex_;
@@ -71,8 +65,7 @@ namespace TestCommons
     MTTester(Functor functor, Generics::TaskRunner_var task_runner)
       /*throw (eh::Exception)*/;
 
-    void
-    run(int tasks, time_t interval, int limit = -1) /*throw (eh::Exception)*/;
+    void run(int tasks, time_t interval, int limit = -1) /*throw (eh::Exception)*/;
 
   private:
     class FunctorTask :
@@ -83,13 +76,10 @@ namespace TestCommons
       FunctorTask(Functor functor, MTTasker& tasker)
         /*throw (eh::Exception)*/;
 
-      virtual
-      void
-      execute() noexcept;
+      virtual void execute() noexcept;
 
     protected:
-      virtual
-      ~FunctorTask() noexcept;
+      virtual ~FunctorTask() noexcept;
 
     private:
       Functor functor_;
@@ -101,55 +91,44 @@ namespace TestCommons
   };
 
   template <typename Functor>
-  bool
-  mp_test(Functor functor, int processes) /*throw (eh::Exception)*/;
+  bool mp_test(Functor functor, int processes) /*throw (eh::Exception)*/;
 }
 
 namespace TestCommons
 {
-
   //
   // MTTasker class
   //
 
-  inline
-  MTTasker::MTTasker(int threads) /*throw (eh::Exception)*/
+  inline MTTasker::MTTasker(int threads) /*throw (eh::Exception)*/
     : own_task_runner_(true),
       limit_(0),
       semaphore_(0),
-      callback_(new ActiveObjectCallbackStreamImpl(std::cerr,
-        "MTTasker")),
+      callback_(new ActiveObjectCallbackStreamImpl(std::cerr, "MTTasker")),
       task_runner_(new Generics::TaskRunner(callback_, threads))
   {
   }
 
-  inline
-  MTTasker::MTTasker(Generics::TaskRunner* task_runner)
+  inline MTTasker::MTTasker(Generics::TaskRunner* task_runner)
     /*throw (eh::Exception)*/
     : own_task_runner_(false),
       limit_(0),
       semaphore_(0),
-      callback_(new ActiveObjectCallbackStreamImpl(std::cerr,
-        "MTTasker")),
+      callback_(new ActiveObjectCallbackStreamImpl(std::cerr, "MTTasker")),
       task_runner_(ReferenceCounting::add_ref(task_runner))
   {
   }
 
-  inline
-  MTTasker::~MTTasker() noexcept
+  inline MTTasker::~MTTasker() noexcept
   {
   }
 
-  inline
-  void
-  MTTasker::enqueue(Generics::Task* task) /*throw (eh::Exception)*/
+  inline void MTTasker::enqueue(Generics::Task* task) /*throw (eh::Exception)*/
   {
     task_runner_->enqueue_task(task);
   }
 
-  inline
-  bool
-  MTTasker::enqueue_conditionally(Generics::Task* task) /*throw (eh::Exception)*/
+  inline bool MTTasker::enqueue_conditionally(Generics::Task* task) /*throw (eh::Exception)*/
   {
 #ifdef BUILD_WITH_DEBUG_MESSAGES
     const char FUN[] = "MTTasker::enqueue_conditionally(): ";
@@ -161,6 +140,7 @@ namespace TestCommons
       trace_message(FUN, "!limit return false");
       return false;
     }
+
     if (limit_ > 0)
     {
       trace_message(FUN, limit_);
@@ -182,16 +162,12 @@ namespace TestCommons
     return true;
   }
 
-  inline
-  void
-  MTTasker::report_error(const String::SubString& message) noexcept
+  inline void MTTasker::report_error(const String::SubString& message) noexcept
   {
     callback_->error(message);
   }
 
-  inline
-  void
-  MTTasker::start(int limit, Sync::Semaphore* semaphore)
+  inline void MTTasker::start(int limit, Sync::Semaphore* semaphore)
     /*throw (eh::Exception)*/
   {
     limit_ = limit;
@@ -202,15 +178,14 @@ namespace TestCommons
     }
   }
 
-  inline
-  void
-  MTTasker::stop() /*throw (eh::Exception)*/
+  inline void MTTasker::stop() /*throw (eh::Exception)*/
   {
     {
       Sync::PosixGuard guard(mutex_);
       limit_ = 0;
       semaphore_ = 0;
     }
+
     if (own_task_runner_)
     {
       task_runner_->deactivate_object();
@@ -223,8 +198,7 @@ namespace TestCommons
   //
 
   template <typename Functor>
-  MTTester<Functor>::FunctorTask::FunctorTask(
-    Functor functor, MTTasker& tasker)
+  MTTester<Functor>::FunctorTask::FunctorTask( Functor functor, MTTasker& tasker)
     /*throw (eh::Exception)*/
     : functor_(functor), tasker_(tasker)
   {
@@ -236,8 +210,7 @@ namespace TestCommons
   }
 
   template <typename Functor>
-  void
-  MTTester<Functor>::FunctorTask::execute() noexcept
+  void MTTester<Functor>::FunctorTask::execute() noexcept
   {
     try
     {
@@ -273,16 +246,14 @@ namespace TestCommons
   }
 
   template <typename Functor>
-  MTTester<Functor>::MTTester(Functor functor,
-    Generics::TaskRunner_var task_runner)
+  MTTester<Functor>::MTTester(Functor functor, Generics::TaskRunner_var task_runner)
     /*throw (eh::Exception)*/
     : tasker_(task_runner), functor_(functor)
   {
   }
 
   template <typename Functor>
-  void
-  MTTester<Functor>::run(int tasks, time_t interval, int limit)
+  void MTTester<Functor>::run(int tasks, time_t interval, int limit)
     /*throw (eh::Exception)*/
   {
     Sync::Semaphore semaphore(0);
@@ -294,10 +265,12 @@ namespace TestCommons
         tasker_.enqueue(task);
       }
     }
+
     if (interval)
     {
       sleep(interval);
     }
+
     if (limit > 0)
     {
       semaphore.acquire();
@@ -307,12 +280,11 @@ namespace TestCommons
 
 
   template <typename Functor>
-  bool
-  mp_test(Functor functor, int processes) /*throw (eh::Exception)*/
+  bool mp_test(Functor functor, int processes) /*throw (eh::Exception)*/
   {
     bool result = true;
 
-    typedef std::vector<pid_t> Children;
+    using Children = std::vector<pid_t>;
     Children children;
     children.reserve(processes);
 
@@ -334,8 +306,7 @@ namespace TestCommons
       children.push_back(pid);
     }
 
-    for (Children::const_iterator itor(children.begin());
-      itor != children.end(); ++itor)
+    for (Children::const_iterator itor(children.begin()); itor != children.end(); ++itor)
     {
       waitpid(*itor, 0, 0);
     }

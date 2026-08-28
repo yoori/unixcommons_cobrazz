@@ -12,15 +12,12 @@
 
 namespace XMLUtility
 {
-  void
-  DOMDocumentAdapter::parse_file(const char* file,
-    AbstractDOMParser::ValSchemes validate)
+  void DOMDocumentAdapter::parse_file(const char* file, AbstractDOMParser::ValSchemes validate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     if (file == 0 || *file == '\0')
     {
-      throw Exception("XMLUtility::DOMDocumentAdapter::parse_file(): "
-        "file is undefined");
+      throw Exception("XMLUtility::DOMDocumentAdapter::parse_file(): " "file is undefined");
     }
 
     try
@@ -57,13 +54,11 @@ namespace XMLUtility
 
         Stream::Error ostr;
         ostr << "XMLUtility:: DOMDocumentAdapter::parse_file(): "
-          "XMLException thrown by XercesDOMParser::parse. Description:" <<
-          std::endl << msg.c_str();
+          "XMLException thrown by XercesDOMParser::parse. Description:" << std::endl << msg.c_str();
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         throw Exception(ostr);
@@ -89,8 +84,7 @@ namespace XMLUtility
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         ostr << std::endl << "File:" << std::endl << file;
@@ -108,8 +102,7 @@ namespace XMLUtility
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         throw Exception(ostr);
@@ -141,15 +134,12 @@ namespace XMLUtility
     }
   }
 
-  void
-  DOMDocumentAdapter::parse(const char* text,
-    AbstractDOMParser::ValSchemes validate)
+  void DOMDocumentAdapter::parse(const char* text, AbstractDOMParser::ValSchemes validate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
     if (text == 0 || *text == '\0')
     {
-      throw Exception("XMLUtility::DOMDocumentAdapter::parse(): "
-        "text is undefined");
+      throw Exception("XMLUtility::DOMDocumentAdapter::parse(): " "text is undefined");
     }
 
     try
@@ -189,13 +179,11 @@ namespace XMLUtility
 
         Stream::Error ostr;
         ostr << "XMLUtility:: DOMDocumentAdapter::parse: "
-          "XMLException thrown by XercesDOMParser::parse. Description:" <<
-          std::endl << msg.c_str();
+          "XMLException thrown by XercesDOMParser::parse. Description:" << std::endl << msg.c_str();
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         throw Exception(ostr);
@@ -221,8 +209,7 @@ namespace XMLUtility
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         ostr << std::endl << "Content:" << std::endl << text;
@@ -235,13 +222,11 @@ namespace XMLUtility
 
         Stream::Error ostr;
         ostr << "XMLUtility:: DOMDocumentAdapter::parse: unknown exception "
-          "thrown by XercesDOMParser::parse. Content:\"" << std::endl <<
-          text << "\"";
+          "thrown by XercesDOMParser::parse. Content:\"" << std::endl << text << "\"";
 
         if (!errors.empty())
         {
-          ostr << std::endl << "Parser Diagnostics:" << std::endl <<
-            errors.c_str();
+          ostr << std::endl << "Parser Diagnostics:" << std::endl << errors.c_str();
         }
 
         throw Exception(ostr);
@@ -273,21 +258,18 @@ namespace XMLUtility
     }
   }
 
-  DOMDocument*
-  DOMDocumentAdapter::root()
+  DOMDocument* DOMDocumentAdapter::root()
     /*throw (NotParsed, Exception, eh::Exception)*/
   {
     if (parser_.get() == 0)
     {
-      throw NotParsed("XMLUtility::DOMDocumentAdapter::root(): "
-        "need to parse first");
+      throw NotParsed("XMLUtility::DOMDocumentAdapter::root(): " "need to parse first");
     }
 
     DOMDocument* doc = parser_->getDocument();
     if (doc == 0)
     {
-      throw NotParsed("XMLUtility::DOMDocumentAdapter::root(): "
-        "document empty.");
+      throw NotParsed("XMLUtility::DOMDocumentAdapter::root(): " "document empty.");
     }
 
     return doc;

@@ -30,8 +30,7 @@ namespace
   const std::size_t DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST = 10;
 }
 
-void
-TestTasker::do_auto_test(bool buffering_mode) /*throw (eh::Exception)*/
+void TestTasker::do_auto_test(bool buffering_mode) /*throw (eh::Exception)*/
 {
   // Prepare file descriptors
   spawn_descriptors_(read_descriptors, write_descriptors, PIPES_COUNT_);
@@ -63,32 +62,27 @@ TestTasker::do_auto_test(bool buffering_mode) /*throw (eh::Exception)*/
     }
   }
   buf += '\n';
-  std::cout << "Random string length: " << buf.size()
-    << std::endl;
+  std::cout << "Random string length: " << buf.size() << std::endl;
 
   Writer writer(write_descriptors, buf.c_str());
-  TestCommons::MTTester<Writer&> mt_tester(
-    writer, 5);
+  TestCommons::MTTester<Writer&> mt_tester( writer, 5);
   mt_tester.run(PIPES_COUNT_, 0, PIPES_COUNT_);
 
-  for(std::size_t i = 0; i < PIPES_COUNT_; ++i)
+  for (std::size_t i = 0; i < PIPES_COUNT_; ++i)
   {
     close(write_descriptors[i]);
   }
   dl->wait_object();
   if (callback_->received_data() != buf)
   {
-    std::cerr << "Test error: didn't got send message\n"
-      << "Buffering is "
-      << (buffering_mode ? "true" : "false") << std::endl
-      << "ORIGINAL: " << buf << std::endl
+    std::cerr << "Test error: didn't got send message\n" << "Buffering is "
+      << (buffering_mode ? "true" : "false") << std::endl << "ORIGINAL: " << buf << std::endl
       << "RESULT: " << callback_->received_data() << std::endl;
   }
   callback_->reset();
 }
 
-void
-TestTasker::do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/
+void TestTasker::do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/
 {
   // Prepare file descriptors
   spawn_descriptors_(read_descriptors, write_descriptors, PIPES_COUNT_);
@@ -114,11 +108,10 @@ TestTasker::do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/
   buf[sizeof(buf) - 1] = 0;
   buf[sizeof(buf) - 2] = '\n';
   Writer writer(write_descriptors, buf);
-  TestCommons::MTTester<Writer&> mt_tester(
-    writer, 5);
+  TestCommons::MTTester<Writer&> mt_tester( writer, 5);
   mt_tester.run(PIPES_COUNT_, 0, PIPES_COUNT_);
 
-  for(std::size_t i = 0; i < PIPES_COUNT_; ++i)
+  for (std::size_t i = 0; i < PIPES_COUNT_; ++i)
   {
     close(write_descriptors[i]);
   }
@@ -138,8 +131,7 @@ TestTasker::do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/
         break;
       }
     }
-    std::cerr << "Test error: didn't got send message\n"
-      << "Buffering is "
+    std::cerr << "Test error: didn't got send message\n" << "Buffering is "
       << (buffering_mode ? "true" : "false") << std::endl
       << "ORIG: " << std::string(buf, sizeof(buf) - 1) << std::endl
       << "RESULT: " << callback_->received_data() << std::endl;
@@ -149,8 +141,7 @@ TestTasker::do_overflow_test(bool buffering_mode) /*throw (eh::Exception)*/
   callback_->reset();
 }
 
-void
-TestTasker::do_closed_descriptors_test(bool buffering_mode)
+void TestTasker::do_closed_descriptors_test(bool buffering_mode)
   /*throw (eh::Exception)*/
 {
   // File descriptors
@@ -167,10 +158,9 @@ TestTasker::do_closed_descriptors_test(bool buffering_mode)
   dl->activate_object();
 
   Writer writer(write_descriptors, "Hi!! there..");
-  TestCommons::MTTester<Writer&> mt_tester(
-    writer, 5);
+  TestCommons::MTTester<Writer&> mt_tester( writer, 5);
 
-  for(std::size_t i = 0; i < PIPES_COUNT_ / 2; ++i)
+  for (std::size_t i = 0; i < PIPES_COUNT_ / 2; ++i)
   {
     close(write_descriptors[i]);
   }
@@ -186,26 +176,23 @@ TestTasker::do_closed_descriptors_test(bool buffering_mode)
   if (failures != PIPES_COUNT_)
   {
     std::cerr << "Test error: don't hook exactly on_close events"
-    << "Await: " << PIPES_COUNT_ << " happened failures: "
-    << failures << std::endl;
+    << "Await: " << PIPES_COUNT_ << " happened failures: " << failures << std::endl;
   }
   callback_->reset();
 }
 
-void
-TestTasker::do_execute_and_listen_test(const char* program_name)
+void TestTasker::do_execute_and_listen_test(const char* program_name)
   /*throw (eh::Exception)*/
 {
   std::cout << "try perform execute_and_listen test" << std::endl;
 
-  typedef std::vector<int> Descriptors;
+  using Descriptors = std::vector<int>;
   Descriptors descriptors;
   // you must push back DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST
   // at minimum.
 //  descriptors.push_back(STDOUT_FILENO);
 //  descriptors.push_back(STDERR_FILENO);
-  for (std::size_t i = 0; i < DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST;
-    ++i)
+  for (std::size_t i = 0; i < DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST; ++i)
   {
     descriptors.push_back(i);
   }
@@ -230,8 +217,7 @@ TestTasker::do_execute_and_listen_test(const char* program_name)
   }
   buf += '\n';
 //  buf = "TMP TEST STRING\n";
-  std::cout << "Random string length: " << buf.size()
-    << std::endl;
+  std::cout << "Random string length: " << buf.size() << std::endl;
 
   std::vector<char*> args;
   args.reserve(4);   // name + descriptors + standard + zero ptr
@@ -249,37 +235,31 @@ TestTasker::do_execute_and_listen_test(const char* program_name)
 
   if (callback_->received_data() != buf)
   {
-    std::cerr << "Test error: didn't got send message\n"
-      << "ORIGINAL: " << buf << std::endl
+    std::cerr << "Test error: didn't got send message\n" << "ORIGINAL: " << buf << std::endl
       << "RESULT: " << callback_->received_data() << std::endl;
   }
   callback_->reset();
 }
 
-void
-do_execute_and_listen_test_child_code(char* argv[])
+void do_execute_and_listen_test_child_code(char* argv[])
   /*throw (eh::Exception)*/
 {
   Descriptors descriptors(DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST);
   std::string descriptors_string;
-  String::StringManip::base64mod_decode(descriptors_string,
-    String::SubString(argv[1]));
-  memcpy(descriptors.get(), descriptors_string.data(),
-    descriptors_string.size());
+  String::StringManip::base64mod_decode(descriptors_string, String::SubString(argv[1]));
+  memcpy(descriptors.get(), descriptors_string.data(), descriptors_string.size());
 
 //  std::cout << argv[2] << std::flush;
   Writer writer(descriptors, argv[2]);
-  TestCommons::MTTester<Writer&> mt_tester(
-    writer, 1);
+  TestCommons::MTTester<Writer&> mt_tester( writer, 1);
 
-  for(std::size_t i = 0; i < DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST / 2; ++i)
+  for (std::size_t i = 0; i < DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST / 2; ++i)
   {
     close(descriptors[i]);
   }
-  mt_tester.run(DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST, 0,
-    DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST);
+  mt_tester.run(DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST, 0, DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST);
 
-  for(std::size_t i = DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST / 2;
+  for (std::size_t i = DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST / 2;
       i < DESCRIPTORS_AMOUNT_EXECUTE_LISTEN_TEST; ++i)
   {
     close(descriptors[i]);
@@ -292,24 +272,21 @@ class Aggregator :
 {
 public:
   virtual void
-  on_data_ready(int fd, std::size_t fd_index,
-    const char* str, std::size_t size) noexcept;
+  on_data_ready(int fd, std::size_t fd_index, const char* str, std::size_t size) noexcept;
 
   virtual void
   report_error(Severity severity, const String::SubString& description,
     const char* error_code = 0) noexcept;
 
-  std::string
-  buffer(int index) /*throw (eh::Exception)*/;
+  std::string buffer(int index) /*throw (eh::Exception)*/;
 
 protected:
-  virtual
-  ~Aggregator() noexcept;
+  virtual ~Aggregator() noexcept;
 
 private:
   std::map<int, std::string> buffers_;
 };
-typedef ReferenceCounting::QualPtr<Aggregator> Aggregator_var;
+using Aggregator_var = ReferenceCounting::QualPtr<Aggregator>;
 
 Aggregator::~Aggregator() noexcept
 {
@@ -330,8 +307,7 @@ Aggregator::report_error(Severity /*severity*/,
   std::cerr << description << std::endl;
 }
 
-std::string
-Aggregator::buffer(int index) /*throw (eh::Exception)*/
+std::string Aggregator::buffer(int index) /*throw (eh::Exception)*/
 {
   return buffers_[index];
 }
@@ -357,14 +333,12 @@ pipe_test(const char* command, const char* argv1, const char* argv2,
     if (str.find(EXPECTED[i]) == std::string::npos)
     {
       std::cerr << "While executing '" << command << "' expected " << i <<
-        " to contain '" << EXPECTED[i] << "' but it is '" << str << "'" <<
-        std::endl;
+        " to contain '" << EXPECTED[i] << "' but it is '" << str << "'" << std::endl;
     }
   }
 }
 
-void
-pipes_test() /*throw (eh::Exception)*/
+void pipes_test() /*throw (eh::Exception)*/
 {
   pipe_test("/bin/echo", "-n", "Yes", "Yes", "", "");
   pipe_test("sh", "-c", "/bin/echo -n No >&2", "", "No", "");
@@ -376,30 +350,26 @@ MTAdapter::MTAdapter(const char* progname) noexcept
 {
 }
 
-void
-MTAdapter::operator ()() /*throw (eh::Exception)*/
+void MTAdapter::operator ()() /*throw (eh::Exception)*/
 {
   TestTasker tasker;
   tasker.do_execute_and_listen_test(progname);
 }
 
 
-MPAdapter::MPAdapter(const char* progname, int threads, time_t interval,
-  int limit) noexcept
+MPAdapter::MPAdapter(const char* progname, int threads, time_t interval, int limit) noexcept
   : progname(progname), threads(threads), interval(interval), limit(limit)
 {
 }
 
-void
-MPAdapter::operator ()() /*throw (eh::Exception)*/
+void MPAdapter::operator ()() /*throw (eh::Exception)*/
 {
   MTAdapter adapter(progname);
   TestCommons::MTTester<MTAdapter&> tester(adapter, threads);
   tester.run(threads, interval, limit);
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
@@ -492,8 +462,7 @@ Writer::Writer(Descriptors& dscs, const char* msg) noexcept
 {
 }
 
-void
-Writer::operator()() /*throw (eh::Exception)*/
+void Writer::operator()() /*throw (eh::Exception)*/
 {
   std::size_t my_index = __gnu_cxx::__exchange_and_add(&multiplexor_, 1);
 
@@ -505,14 +474,14 @@ Writer::operator()() /*throw (eh::Exception)*/
   {
     write(write_pipes_[my_index], str, PORTION);
   }
+
   if (length % PORTION)
   {
     write(write_pipes_[my_index], str, length % PORTION);
   }
 }
 
-void
-Writer::reset() noexcept
+void Writer::reset() noexcept
 {
   multiplexor_ = 0;
 }
@@ -521,8 +490,7 @@ Writer::reset() noexcept
 // class DescriptorListenerCallbackTester
 //
 
-DescriptorListenerCallbackTester::DescriptorListenerCallbackTester()
-  noexcept
+DescriptorListenerCallbackTester::DescriptorListenerCallbackTester() noexcept
   : close_counter_(0),
     checking_descriptor_(0),
     full_lines_test_(0)
@@ -541,11 +509,13 @@ DescriptorListenerCallbackTester::on_data_ready(
       checking_descriptor_ = fd;
       ready_data_.clear();
     }
+
     if (checking_descriptor_ == fd)
     {
       ready_data_.append(str, size);
     }
   }
+
   if (full_lines_test_)
   {
     if (size != FULL_LINES_TEST_BUF_SIZE && str[size - 1] != '\n')
@@ -557,8 +527,7 @@ DescriptorListenerCallbackTester::on_data_ready(
       const char* ptr = static_cast<const char*>(memchr(str, '\n', size - 1));
       if (ptr)
       {
-        std::cerr << "Test Error: excess carrying '\\n'"
-        << "DATA:" << str << std::endl;
+        std::cerr << "Test Error: excess carrying '\\n'" << "DATA:" << str << std::endl;
         std::cerr << "Position=" << ptr - str << std::endl;
       }
     }
@@ -566,15 +535,13 @@ DescriptorListenerCallbackTester::on_data_ready(
 }
 
 void
-DescriptorListenerCallbackTester::on_closed(int fd, std::size_t /*fd_index*/,
-  int error) noexcept
+DescriptorListenerCallbackTester::on_closed(int fd, std::size_t /*fd_index*/, int error) noexcept
 {
   __gnu_cxx::__atomic_add(&close_counter_, 1);
   std::cout << "on_closed: " << error << " fd=" << fd << std::endl;
 }
 
-void
-DescriptorListenerCallbackTester::on_all_closed() noexcept
+void DescriptorListenerCallbackTester::on_all_closed() noexcept
 {
   std::cout << "Deactivation by callback.." << std::endl;
   Generics::ActiveDescriptorListenerCallback::on_all_closed();
@@ -589,22 +556,19 @@ DescriptorListenerCallbackTester::report_error(Severity /*severity*/,
   std::cerr << "on_error: " << std::endl;
 }
 
-std::size_t
-DescriptorListenerCallbackTester::get_and_reset_closed() noexcept
+std::size_t DescriptorListenerCallbackTester::get_and_reset_closed() noexcept
 {
   std::size_t old = close_counter_;
   close_counter_ = 0;
   return old;
 }
 
-std::string
-DescriptorListenerCallbackTester::received_data() const noexcept
+std::string DescriptorListenerCallbackTester::received_data() const noexcept
 {
   return ready_data_;
 }
 
-void
-DescriptorListenerCallbackTester::reset() noexcept
+void DescriptorListenerCallbackTester::reset() noexcept
 {
   ready_data_.clear();
   close_counter_ = 0;
@@ -612,8 +576,7 @@ DescriptorListenerCallbackTester::reset() noexcept
   full_lines_test_ = false;
 }
 
-void
-DescriptorListenerCallbackTester::set_full_lines_test(bool new_value) noexcept
+void DescriptorListenerCallbackTester::set_full_lines_test(bool new_value) noexcept
 {
   full_lines_test_ = new_value;
 }

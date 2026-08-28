@@ -10,8 +10,7 @@
 
 #include "Test.hpp"
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   // Add Phorm hash classes to test environment
   // x - The phorm's increment hash class name
@@ -33,8 +32,7 @@ main(int argc, char** argv)
 
   if (argc < 2)
   {
-    printf(
-      "(No test hash given on command line, testing all known functions.)\n");
+    printf( "(No test hash given on command line, testing all known functions.)\n");
   }
   else
   {
@@ -67,8 +65,7 @@ main(int argc, char** argv)
 
   if (!hashToTest)
   {
-    for (Hashes::const_iterator cit(g_hashes.begin());
-      cit != g_hashes.end(); ++cit)
+    for (Hashes::const_iterator cit(g_hashes.begin()); cit != g_hashes.end(); ++cit)
     {
       testHash(cit->name.c_str());
     }
@@ -83,8 +80,10 @@ main(int argc, char** argv)
   int timeEnd = clock();
 
   printf("\n");
-  printf("Input vcode 0x%08x, Output vcode 0x%08x, Result vcode 0x%08x\n",g_inputVCode,g_outputVCode,g_resultVCode);
-  printf("Verification value is 0x%08x - Testing took %f seconds\n",g_verify,double(timeEnd-timeBegin)/double(CLOCKS_PER_SEC));
+  printf("Input vcode 0x%08x, Output vcode 0x%08x, Result vcode 0x%08x\n", g_inputVCode,
+    g_outputVCode, g_resultVCode);
+  printf("Verification value is 0x%08x - Testing took %f seconds\n", g_verify,
+    double(timeEnd - timeBegin) / double(CLOCKS_PER_SEC));
   printf("-------------------------------------------------------------------------------\n");
   return 0;
 }

@@ -13,8 +13,7 @@
 
 DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
 
-void
-test(CORBATest::TestInt_ptr test)
+void test(CORBATest::TestInt_ptr test)
 {
   test->print_memory(true);
   for (int i = 0; i < 5; i++)
@@ -24,21 +23,18 @@ test(CORBATest::TestInt_ptr test)
   }
 }
 
-void
-run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
+void run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
 {
   try
   {
-    Logging::FLogger_var logger(
-      new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
+    Logging::FLogger_var logger( new Logging::OStream::Logger(Logging::OStream::Config(std::cout)));
 
     CORBACommons::CorbaClientConfig config;
 
     CORBACommons::CorbaClientAdapter_var corba_client_adapter(
       new CORBACommons::CorbaClientAdapter(config, logger));
 
-    CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_url(
-      corba_client_adapter.in());
+    CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_url( corba_client_adapter.in());
     CORBAConfigParser::CorbaRefOption<CORBATest::TestInt> opt_secure_url(
       corba_client_adapter.in(),
       "server.key:adserver:server.der;ce.der");
@@ -46,12 +42,10 @@ run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
     Generics::AppUtils::Args args;
 
     args.add(
-      Generics::AppUtils::equal_name("url") ||
-      Generics::AppUtils::short_name("u"),
+      Generics::AppUtils::equal_name("url") || Generics::AppUtils::short_name("u"),
       opt_url);
     args.add(
-      Generics::AppUtils::equal_name("secure-url") ||
-      Generics::AppUtils::short_name("su"),
+      Generics::AppUtils::equal_name("secure-url") || Generics::AppUtils::short_name("su"),
       opt_secure_url);
 
     args.parse(argc - 1, argv + 1);
@@ -81,15 +75,13 @@ run(int argc, char* argv[]) /*throw (Exception, eh::Exception)*/
   catch (const CORBA::Exception& e)
   {
     std::ostringstream ostr;
-    ostr << "Application::run: CORBA::Exception caught. Description:\n"
-         << e;
+    ostr << "Application::run: CORBA::Exception caught. Description:\n" << e;
 
     throw Exception(ostr.str());
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
@@ -99,8 +91,7 @@ main(int argc, char** argv)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr
-      << "main: eh::Exception exception caught. Description:" << std::endl
+    std::cerr << "main: eh::Exception exception caught. Description:" << std::endl
       << e.what() << std::endl;
   }
   catch (...)

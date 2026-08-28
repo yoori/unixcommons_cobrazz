@@ -15,11 +15,11 @@
 #include <limits>
 
 #ifdef USE_STD_ATOMIC
-  typedef int AtomicHolderInternalType;
-  typedef std::atomic<int> AtomicHolder;
+  using AtomicHolderInternalType = int;
+  using AtomicHolder = std::atomic<int>;
 #else
-  typedef _Atomic_word AtomicHolderInternalType;
-  typedef _Atomic_word AtomicHolder;
+  using AtomicHolderInternalType = _Atomic_word;
+  using AtomicHolder = _Atomic_word;
 #endif
 
 namespace Generics
@@ -35,17 +35,13 @@ namespace Generics
 
     AtomicInt& operator-=(int val);
 
-    int
-    operator++();
+    int operator++();
 
-    int
-    operator++(int);
+    int operator++(int);
 
-    int
-    operator--();
+    int operator--();
 
-    int
-    operator--(int);
+    int operator--(int);
 
     operator int() const;
 
@@ -61,33 +57,26 @@ namespace Generics
   public:
     AtomicUInt(unsigned int val);
 
-    unsigned int
-    exchange_and_add(int val);
+    unsigned int exchange_and_add(int val);
 
     AtomicUInt& operator+=(int val);
 
     AtomicUInt& operator-=(int val);
 
-    unsigned int
-    operator++();
+    unsigned int operator++();
 
-    unsigned int
-    operator++(int);
+    unsigned int operator++(int);
 
-    unsigned int
-    operator--();
+    unsigned int operator--();
 
-    unsigned int
-    operator--(int);
+    unsigned int operator--(int);
 
     operator unsigned int() const;
 
   protected:
-    int
-    exchange_and_add_(int val);
+    int exchange_and_add_(int val);
 
-    static unsigned int
-    get_value_(int val);
+    static unsigned int get_value_(int val);
 
   private:
     volatile AtomicHolder value_;
@@ -97,14 +86,11 @@ namespace Generics
 namespace Generics
 {
   // AtomicInt
-  inline
-  AtomicInt::AtomicInt(int val)
+  inline AtomicInt::AtomicInt(int val)
     : value_(val)
   {}
 
-  inline
-  int
-  AtomicInt::exchange_and_add(int val)
+  inline int AtomicInt::exchange_and_add(int val)
   {
 #ifdef USE_STD_ATOMIC
     return value_.fetch_add(val);
@@ -113,9 +99,7 @@ namespace Generics
 #endif
   }
 
-  inline
-  AtomicInt&
-  AtomicInt::operator+=(int val)
+  inline AtomicInt& AtomicInt::operator+=(int val)
   {
 #ifdef USE_STD_ATOMIC
     value_ += val;
@@ -125,59 +109,43 @@ namespace Generics
     return *this;
   }
 
-  inline
-  AtomicInt&
-  AtomicInt::operator-=(int val)
+  inline AtomicInt& AtomicInt::operator-=(int val)
   {
     *this += -val;
     return *this;
   }
 
-  inline
-  int
-  AtomicInt::operator++()
+  inline int AtomicInt::operator++()
   {
     return exchange_and_add(1) + 1;
   }
 
-  inline
-  int
-  AtomicInt::operator++(int)
+  inline int AtomicInt::operator++(int)
   {
     return exchange_and_add(1);
   }
 
-  inline
-  int
-  AtomicInt::operator--()
+  inline int AtomicInt::operator--()
   {
     return exchange_and_add(-1) - 1;
   }
 
-  inline
-  int
-  AtomicInt::operator--(int)
+  inline int AtomicInt::operator--(int)
   {
     return exchange_and_add(-1);
   }
 
-  inline
-  AtomicInt::operator int() const
+  inline AtomicInt::operator int() const
   {
     return value_;
   }
 
   // AtomicUInt
-  inline
-  AtomicUInt::AtomicUInt(unsigned int val)
-    : value_(
-      static_cast<int64_t>(val) +
-      std::numeric_limits<AtomicHolderInternalType>::min())
+  inline AtomicUInt::AtomicUInt(unsigned int val)
+    : value_( static_cast<int64_t>(val) + std::numeric_limits<AtomicHolderInternalType>::min())
   {}
 
-  inline
-  unsigned int
-  AtomicUInt::exchange_and_add(int val)
+  inline unsigned int AtomicUInt::exchange_and_add(int val)
   {
 #ifdef USE_STD_ATOMIC
     return get_value_(value_.fetch_add(val));
@@ -186,9 +154,7 @@ namespace Generics
 #endif
   }
 
-  inline
-  AtomicUInt&
-  AtomicUInt::operator+=(int val)
+  inline AtomicUInt& AtomicUInt::operator+=(int val)
   {
 #ifdef USE_STD_ATOMIC
     value_ += val;
@@ -198,53 +164,40 @@ namespace Generics
     return *this;
   }
 
-  inline
-  AtomicUInt&
-  AtomicUInt::operator-=(int val)
+  inline AtomicUInt& AtomicUInt::operator-=(int val)
   {
     *this += -val;
     return *this;
   }
 
-  inline
-  unsigned int
-  AtomicUInt::operator++()
+  inline unsigned int AtomicUInt::operator++()
   {
     return get_value_(exchange_and_add_(1) + 1);
   }
 
-  inline
-  unsigned int
-  AtomicUInt::operator++(int)
+  inline unsigned int AtomicUInt::operator++(int)
   {
     return get_value_(exchange_and_add_(1));
   }
 
-  inline
-  unsigned int
-  AtomicUInt::operator--()
+  inline unsigned int AtomicUInt::operator--()
   {
     return get_value_(exchange_and_add_(-1) - 1);
   }
 
-  inline
-  unsigned int
-  AtomicUInt::operator--(int)
+  inline unsigned int AtomicUInt::operator--(int)
   {
     return get_value_(exchange_and_add_(-1));
   }
 
-  inline
-  AtomicUInt::operator unsigned int() const
+  inline AtomicUInt::operator unsigned int() const
   {
     return get_value_(
       static_cast<int64_t>(value_) -
       std::numeric_limits<AtomicHolderInternalType>::min());
   }
 
-  inline
-  int
-  AtomicUInt::exchange_and_add_(int val)
+  inline int AtomicUInt::exchange_and_add_(int val)
   {
 #ifdef USE_STD_ATOMIC
     return value_.fetch_add(val);
@@ -253,9 +206,7 @@ namespace Generics
 #endif
   }
 
-  inline
-  unsigned int
-  AtomicUInt::get_value_(int val)
+  inline unsigned int AtomicUInt::get_value_(int val)
   {
     return static_cast<int64_t>(val) -
       std::numeric_limits<AtomicHolderInternalType>::min();

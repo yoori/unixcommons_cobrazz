@@ -9,13 +9,11 @@
 
 namespace PlainStorage
 {
-
   //
   // BaseBlockAllocator interface
   //
 
-  inline
-  BaseBlockAllocator::~BaseBlockAllocator() noexcept
+  inline BaseBlockAllocator::~BaseBlockAllocator() noexcept
   {
   }
 
@@ -23,8 +21,7 @@ namespace PlainStorage
   // PlainReader class
   //
 
-  inline
-  PlainReader::~PlainReader() noexcept
+  inline PlainReader::~PlainReader() noexcept
   {
   }
 
@@ -45,16 +42,13 @@ namespace PlainStorage
   }
 
   template <typename LockPolicy>
-  unsigned long
-  PlainTransaction<LockPolicy>::size() const
-    noexcept
+  unsigned long PlainTransaction<LockPolicy>::size() const noexcept
   {
     return LockPolicy::plain_actor_->size_i_();
   }
 
   template <typename LockPolicy>
-  bool
-  PlainTransaction<LockPolicy>::read(void* buf, unsigned long buf_size) const
+  bool PlainTransaction<LockPolicy>::read(void* buf, unsigned long buf_size) const
     /*throw (eh::Exception)*/
   {
     return LockPolicy::plain_actor_->read_i_(buf, buf_size);
@@ -68,22 +62,18 @@ namespace PlainStorage
   // Write class
   //
 
-  inline
-  Write::Write(PlainActor* plain_actor) noexcept
+  inline Write::Write(PlainActor* plain_actor) noexcept
     : plain_actor_(plain_actor)
   {
     plain_actor_->write_lock_();
   }
 
-  inline
-  Write::~Write() noexcept
+  inline Write::~Write() noexcept
   {
     plain_actor_->unlock_();
   }
 
-  inline
-  void
-  Write::write(const void* buf, unsigned long buf_size)
+  inline void Write::write(const void* buf, unsigned long buf_size)
     /*throw (eh::Exception)*/
   {
     plain_actor_->write_i_(buf, buf_size);
@@ -93,15 +83,13 @@ namespace PlainStorage
   // Read class
   //
 
-  inline
-  Read::Read(PlainActor* plain_actor) noexcept
+  inline Read::Read(PlainActor* plain_actor) noexcept
     : plain_actor_(plain_actor)
   {
     plain_actor_->read_lock_();
   }
 
-  inline
-  Read::~Read() noexcept
+  inline Read::~Read() noexcept
   {
     plain_actor_->unlock_();
   }
@@ -122,24 +110,18 @@ namespace PlainStorage
   {
   }
 
-  inline
-  unsigned long
-  PlainReader::size() const noexcept
+  inline unsigned long PlainReader::size() const noexcept
   {
     ReadGuard_ lock(lock_);
     return size_i_();
   }
 
-  inline
-  unsigned long
-  PlainReader::size_i_() const noexcept
+  inline unsigned long PlainReader::size_i_() const noexcept
   {
     return data_size_;
   }
 
-  inline
-  unsigned long
-  PlainReader::read(void* buf, unsigned long buf_size) const
+  inline unsigned long PlainReader::read(void* buf, unsigned long buf_size) const
     /*throw (eh::Exception)*/
   {
     ReadGuard_ lock(lock_);
@@ -147,29 +129,22 @@ namespace PlainStorage
   }
 
   inline
-  PlainReadOnlyTransaction*
-  PlainReader::create_readonly_transaction() /*throw (eh::Exception)*/
+  PlainReadOnlyTransaction* PlainReader::create_readonly_transaction() /*throw (eh::Exception)*/
   {
     return new PlainReadOnlyTransaction(this);
   }
 
-  inline
-  BlockIndex
-  PlainReader::index() const noexcept
+  inline BlockIndex PlainReader::index() const noexcept
   {
     return FIRST_BLOCK_INDEX_;
   }
 
-  inline
-  void
-  PlainReader::read_lock_() noexcept
+  inline void PlainReader::read_lock_() noexcept
   {
     lock_.lock_read();
   }
 
-  inline
-  void
-  PlainReader::unlock_() noexcept
+  inline void PlainReader::unlock_() noexcept
   {
     lock_.unlock();
   }
@@ -201,30 +176,24 @@ namespace PlainStorage
     }*/
   }
 
-  inline
-  PlainWriter::~PlainWriter() noexcept
+  inline PlainWriter::~PlainWriter() noexcept
   {
   }
 
   inline
-  PlainReadWriteTransaction*
-  PlainWriter::create_readwrite_transaction() /*throw (eh::Exception)*/
+  PlainReadWriteTransaction* PlainWriter::create_readwrite_transaction() /*throw (eh::Exception)*/
   {
     return new PlainReadWriteTransaction(this);
   }
 
-  inline
-  void
-  PlainWriter::write(const void* buf, unsigned long buf_size)
+  inline void PlainWriter::write(const void* buf, unsigned long buf_size)
     /*throw (eh::Exception)*/
   {
     WriteGuard_ lock(lock_);
     write_i_(buf, buf_size);
   }
 
-  inline
-  void
-  PlainWriter::write_lock_() noexcept
+  inline void PlainWriter::write_lock_() noexcept
   {
     lock_.lock_write();
   }
@@ -234,9 +203,7 @@ namespace PlainStorage
   //
 
   template <typename Key>
-  void
-  DefaultReadIndexAccessor<Key>::load(const void* buf,
-    unsigned long size, Key& out)
+  void DefaultReadIndexAccessor<Key>::load(const void* buf, unsigned long size, Key& out)
     /*throw (eh::Exception)*/
   {
     out = std::string(static_cast<const char*>(buf), size);
@@ -252,16 +219,13 @@ namespace PlainStorage
   }
 
   template <typename Key>
-  unsigned long
-  DefaultWriteIndexAccessor<Key>::size(const Key& in) /*throw (eh::Exception)*/
+  unsigned long DefaultWriteIndexAccessor<Key>::size(const Key& in) /*throw (eh::Exception)*/
   {
     return in.size();
   }
 
   template <typename Key>
-  void
-  DefaultWriteIndexAccessor<Key>::save(const Key& in,
-    void* buf, unsigned long size)
+  void DefaultWriteIndexAccessor<Key>::save(const Key& in, void* buf, unsigned long size)
     /*throw (eh::Exception)*/
   {
     memcpy(buf, in.data(), std::min(size, in.length()));
@@ -280,16 +244,12 @@ namespace PlainStorage
   // SyncIndexStrategy::GenericField class
   //
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::GenericField::value() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::GenericField::value() noexcept
   {
     return data_;
   }
 
-  inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::GenericField::value() const noexcept
+  inline SyncIndexStrategy::FieldType SyncIndexStrategy::GenericField::value() const noexcept
   {
     return data_;
   }
@@ -298,30 +258,24 @@ namespace PlainStorage
   // SyncIndexStrategy::FileHeader class
   //
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::FileHeader::allocator_index() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::FileHeader::allocator_index() noexcept
   {
     return data_[FH_FIRST_ALLOCATOR_DESC_BLOCK];
   }
 
   inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::FileHeader::allocator_index() const noexcept
+  SyncIndexStrategy::FieldType SyncIndexStrategy::FileHeader::allocator_index() const noexcept
   {
     return data_[FH_FIRST_ALLOCATOR_DESC_BLOCK];
   }
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::FileHeader::first_index_block() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::FileHeader::first_index_block() noexcept
   {
     return data_[FH_FIRST_INDEX_DESC_BLOCK];
   }
 
   inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::FileHeader::first_index_block() const noexcept
+  SyncIndexStrategy::FieldType SyncIndexStrategy::FileHeader::first_index_block() const noexcept
   {
     return data_[FH_FIRST_INDEX_DESC_BLOCK];
   }
@@ -330,65 +284,48 @@ namespace PlainStorage
   // SyncIndexStrategy::KeyHeader class
   //
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::KeyHeader::key_size() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::KeyHeader::key_size() noexcept
   {
     return data_[KH_KEYSIZE];
   }
 
-  inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::KeyHeader::key_size() const noexcept
+  inline SyncIndexStrategy::FieldType SyncIndexStrategy::KeyHeader::key_size() const noexcept
   {
     return data_[KH_KEYSIZE];
   }
 
-  inline
-  unsigned long
-  SyncIndexStrategy::KeyHeader::get_key_body_size() const noexcept
+  inline unsigned long SyncIndexStrategy::KeyHeader::get_key_body_size() const noexcept
   {
     return data_[KH_KEYSIZE] - KEY_HEADER_SIZE;
   }
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::KeyHeader::data_block_index() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::KeyHeader::data_block_index() noexcept
   {
     return data_[KH_DATABLOCK];
   }
 
   inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::KeyHeader::data_block_index() const noexcept
+  SyncIndexStrategy::FieldType SyncIndexStrategy::KeyHeader::data_block_index() const noexcept
   {
     return data_[KH_DATABLOCK];
   }
 
-  inline
-  SyncIndexStrategy::FieldType&
-  SyncIndexStrategy::KeyHeader::mark() noexcept
+  inline SyncIndexStrategy::FieldType& SyncIndexStrategy::KeyHeader::mark() noexcept
   {
     return data_[KH_MARK];
   }
 
-  inline
-  SyncIndexStrategy::FieldType
-  SyncIndexStrategy::KeyHeader::mark() const noexcept
+  inline SyncIndexStrategy::FieldType SyncIndexStrategy::KeyHeader::mark() const noexcept
   {
     return data_[KH_MARK];
   }
 
-  inline
-  void*
-  SyncIndexStrategy::KeyHeader::key_value() noexcept
+  inline void* SyncIndexStrategy::KeyHeader::key_value() noexcept
   {
     return &data_[KH_NUMBER_FIELDS];
   }
 
-  inline
-  const void*
-  SyncIndexStrategy::KeyHeader::key_value() const noexcept
+  inline const void* SyncIndexStrategy::KeyHeader::key_value() const noexcept
   {
     return &data_[KH_NUMBER_FIELDS];
   }
@@ -400,8 +337,7 @@ namespace PlainStorage
   template <typename Key, typename KeyAccessor, typename MapTraits>
   template <typename SecondType>
   Map<Key, KeyAccessor, MapTraits>::NodeValueType<SecondType>::
-    NodeValueType(const Key& key,
-      SecondType plain_writer) noexcept
+    NodeValueType(const Key& key, SecondType plain_writer) noexcept
     : first(key),
       second(plain_writer)
   {
@@ -412,8 +348,7 @@ namespace PlainStorage
   //
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::MapBaseIterator()
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::MapBaseIterator() noexcept
     : container_ref_(0)
   {
   }
@@ -428,8 +363,7 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::inc_()
+  void Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::inc_()
     /*throw (OutOfRange)*/
   {
     if (container_ref_ == 0 || it_ == container_ref_->end())
@@ -443,8 +377,7 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::dec_()
+  void Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::dec_()
     /*throw (OutOfRange)*/
   {
     if (container_ref_ == 0 || it_ == container_ref_->begin())
@@ -458,8 +391,7 @@ namespace PlainStorage
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   void
-  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::set_(
-    const MapBaseIterator& right) noexcept
+  Map<Key, KeyAccessor, MapTraits>::MapBaseIterator::set_( const MapBaseIterator& right) noexcept
   {
     it_ = right.it_;
     container_ref_ = right.container_ref_;
@@ -477,9 +409,7 @@ namespace PlainStorage
   template <typename Key, typename KeyAccessor, typename MapTraits>
   template <typename Reference>
   Map<Key, KeyAccessor, MapTraits>::BiDiIterator<Reference>::
-    ReturnedMediator::ReturnedMediator(const Key& key,
-      PlainWriter_var& plain_writer)
-      noexcept
+    ReturnedMediator::ReturnedMediator(const Key& key, PlainWriter_var& plain_writer) noexcept
     : Reference(key, plain_writer)
   {
   }
@@ -488,8 +418,7 @@ namespace PlainStorage
   template <typename Reference>
   Reference*
   Map<Key, KeyAccessor, MapTraits>::BiDiIterator<Reference>::
-    ReturnedMediator::operator ->()
-      noexcept
+    ReturnedMediator::operator ->() noexcept
   {
     return this;
   }
@@ -504,8 +433,7 @@ namespace PlainStorage
   template <typename Key, typename KeyAccessor, typename MapTraits>
   template <typename Reference>
   Map<Key, KeyAccessor, MapTraits>::BiDiIterator<Reference>::
-    BiDiIterator(const typename IndexContainer::iterator& it,
-      IndexContainer& container) noexcept
+    BiDiIterator(const typename IndexContainer::iterator& it, IndexContainer& container) noexcept
     : MapBaseIterator(it, &container)
   {
   }
@@ -524,8 +452,7 @@ namespace PlainStorage
   Map<Key, KeyAccessor, MapTraits>::BiDiIterator<Reference>::
     operator *() const noexcept
   {
-    return Reference(MapBaseIterator::it_->first,
-      MapBaseIterator::it_->second.first);
+    return Reference(MapBaseIterator::it_->first, MapBaseIterator::it_->second.first);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
@@ -535,8 +462,7 @@ namespace PlainStorage
   Map<Key, KeyAccessor, MapTraits>::BiDiIterator<Reference>::
     operator ->() const noexcept
   {
-    return ReturnedMediator(MapBaseIterator::it_->first,
-      MapBaseIterator::it_->second.first);
+    return ReturnedMediator(MapBaseIterator::it_->first, MapBaseIterator::it_->second.first);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
@@ -614,75 +540,64 @@ namespace PlainStorage
   //
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  Map<Key, KeyAccessor, MapTraits>::Map()
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::Map() noexcept
   {
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  Map<Key, KeyAccessor, MapTraits>::Map(
-    const char* filename, unsigned long block_size)
+  Map<Key, KeyAccessor, MapTraits>::Map( const char* filename, unsigned long block_size)
     /*throw (eh::Exception)*/
   {
     load(filename, block_size);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  Map<Key, KeyAccessor, MapTraits>::~Map()
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::~Map() noexcept
   {
     close();
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::iterator
-  Map<Key, KeyAccessor, MapTraits>::begin()
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::begin() noexcept
   {
     return iterator(index_container_.begin(), index_container_);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::const_iterator
-  Map<Key, KeyAccessor, MapTraits>::begin() const
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::begin() const noexcept
   {
     return const_iterator(index_container_.begin(), index_container_);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::iterator
-  Map<Key, KeyAccessor, MapTraits>::end()
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::end() noexcept
   {
     return iterator(index_container_.end(), index_container_);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::const_iterator
-  Map<Key, KeyAccessor, MapTraits>::end() const
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::end() const noexcept
   {
     return const_iterator(index_container_.end(), index_container_);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::iterator
-  Map<Key, KeyAccessor, MapTraits>::find(const Key& key)
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::find(const Key& key) noexcept
   {
-    return 
-      typename Map<Key, KeyAccessor, MapTraits>::iterator(
+    return typename Map<Key, KeyAccessor, MapTraits>::iterator(
         index_container_.find(key), index_container_);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::const_iterator
-  Map<Key, KeyAccessor, MapTraits>::find(const Key& key) const
-    noexcept
+  Map<Key, KeyAccessor, MapTraits>::find(const Key& key) const noexcept
   {
-    return 
-      typename Map<Key, KeyAccessor, MapTraits>::const_iterator(
+    return typename Map<Key, KeyAccessor, MapTraits>::const_iterator(
         index_container_.find(key), index_container_);
   }
 
@@ -703,9 +618,7 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::erase(
-    Map<Key, KeyAccessor, MapTraits>::iterator it)
+  void Map<Key, KeyAccessor, MapTraits>::erase( Map<Key, KeyAccessor, MapTraits>::iterator it)
     /*throw (eh::Exception)*/
   {
     typename IndexContainer::iterator i_it = it.it_;
@@ -728,11 +641,9 @@ namespace PlainStorage
 
       KeyAddition key_addition;
 
-      sync_index_strategy_->insert(
-        key, new_plain_writer->index(), key_addition);
+      sync_index_strategy_->insert( key, new_plain_writer->index(), key_addition);
 
-      std::pair<typename IndexContainer::iterator, bool> pair_ib_ =
-        index_container_.insert(
+      std::pair<typename IndexContainer::iterator, bool> pair_ib_ = index_container_.insert(
           typename IndexContainer::value_type(
             key, ContainerValue(
               new_plain_writer,
@@ -746,8 +657,7 @@ namespace PlainStorage
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   typename Map<Key, KeyAccessor, MapTraits>::Pairib_
-  Map<Key, KeyAccessor, MapTraits>::insert(
-    const Map<Key, KeyAccessor, MapTraits>::ValueType& val)
+  Map<Key, KeyAccessor, MapTraits>::insert( const Map<Key, KeyAccessor, MapTraits>::ValueType& val)
     /*throw (eh::Exception)*/
   {
     PlainWriter_var new_plain_writer;
@@ -755,45 +665,37 @@ namespace PlainStorage
     copy_value_(new_plain_writer, val.second);
 
     // erasing if key exist
-    typename IndexContainer::iterator it = 
-      index_container_.find(val.first);
+    typename IndexContainer::iterator it = index_container_.find(val.first);
 
     KeyAddition key_addition;
 
     if (it != index_container_.end())
     {
       it->second.size(0);
-      sync_index_strategy_->update(
-        it->first, new_plain_writer->index(), it->second.second);
+      sync_index_strategy_->update( it->first, new_plain_writer->index(), it->second.second);
 
       it->second.first = new_plain_writer;
 
-      return 
-        std::pair<iterator, bool>(
-          iterator(it, index_container_), false);
+      return std::pair<iterator, bool>( iterator(it, index_container_), false);
     }
     else
     {
       KeyAddition key_addition;
-      sync_index_strategy_->insert(
-        val.first, new_plain_writer->index(), key_addition);
+      sync_index_strategy_->insert( val.first, new_plain_writer->index(), key_addition);
 
-      std::pair<typename IndexContainer::iterator, bool> 
+      std::pair<typename IndexContainer::iterator, bool>
         pair_ib_ = index_container_.insert(
           val.first, std::pair<PlainWriter, KeyAddition>(
             new_plain_writer,
             key_addition));
 
-      return 
-        std::pair<iterator, bool>(
-          iterator(pair_ib_.first, index_container_), true);
+      return std::pair<iterator, bool>( iterator(pair_ib_.first, index_container_), true);
     }
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
   PlainWriter_var
-  Map<Key, KeyAccessor, MapTraits>::operator [](
-    const Key& key) /*throw (eh::Exception)*/
+  Map<Key, KeyAccessor, MapTraits>::operator []( const Key& key) /*throw (eh::Exception)*/
   {
     typename IndexContainer::iterator it = index_container_.find(key);
 
@@ -808,12 +710,10 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void 
-  Map<Key, KeyAccessor, MapTraits>::clear()
+  void Map<Key, KeyAccessor, MapTraits>::clear()
     /*throw (eh::Exception)*/
   {
-    for (typename IndexContainer::const_iterator it = 
-           index_container_.begin();
+    for (typename IndexContainer::const_iterator it = index_container_.begin();
          it != index_container_.end(); ++it)
     {
       sync_index_strategy_->erase(it->first, it->second.second);
@@ -823,16 +723,13 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  std::size_t
-  Map<Key, KeyAccessor, MapTraits>::size() const noexcept
+  std::size_t Map<Key, KeyAccessor, MapTraits>::size() const noexcept
   {
     return index_container_.size();
-  }  
+  }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::load(
-    const char* filename, unsigned long block_size)
+  void Map<Key, KeyAccessor, MapTraits>::load( const char* filename, unsigned long block_size)
     /*throw (eh::Exception)*/
   {
     BlockIndex first_allocator_desc_block;
@@ -873,24 +770,21 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::close()
+  void Map<Key, KeyAccessor, MapTraits>::close()
     /*throw (eh::Exception)*/
   {
     if (write_block_file_adapter_.get())
     {
       if (sync_index_strategy_->begin_saving())
       {
-        for (typename IndexContainer::const_iterator it =
-               index_container_.begin();
+        for (typename IndexContainer::const_iterator it = index_container_.begin();
              it != index_container_.end(); ++it)
         {
-          sync_index_strategy_->save(
-            it->first, it->second.first->index(), it->second.second);
+          sync_index_strategy_->save( it->first, it->second.first->index(), it->second.second);
         }
       }
 
-      sync_index_strategy_->end_saving(); 
+      sync_index_strategy_->end_saving();
 
       sync_index_strategy_.reset(0);
       block_allocator_.reset(0);
@@ -899,20 +793,13 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
-  void
-  Map<Key, KeyAccessor, MapTraits>::init_value_(
-    PlainWriter_var& plain_writer)
+  void Map<Key, KeyAccessor, MapTraits>::init_value_( PlainWriter_var& plain_writer)
     /*throw (eh::Exception)*/
   {
-    BlockIndex first_index = 
-      block_allocator_->allocate();
+    BlockIndex first_index = block_allocator_->allocate();
 
-    plain_writer = 
-      new PlainWriter(
-        write_block_file_adapter_.get(),
-        block_allocator_.get(),
-        first_index,
-        0);
+    plain_writer =
+      new PlainWriter( write_block_file_adapter_.get(), block_allocator_.get(), first_index, 0);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
@@ -922,8 +809,7 @@ namespace PlainStorage
     PlainWriter* source_plain_writer)
     /*throw (eh::Exception)*/
   {
-    plain_writer = 
-      ReferenceCounting::add_ref(source_plain_writer);
+    plain_writer = ReferenceCounting::add_ref(source_plain_writer);
   }
 
   template <typename Key, typename KeyAccessor, typename MapTraits>
@@ -944,8 +830,7 @@ namespace PlainStorage
         throw CorruptedFile("Header block size is small");
       }
 
-      const FileHeader& head = *static_cast<const FileHeader*>(
-        header_block->read_content());
+      const FileHeader& head = *static_cast<const FileHeader*>( header_block->read_content());
       first_allocator_desc_block = head.allocator_index();
       first_index_desc_block = head.first_index_block();
     }
@@ -970,7 +855,7 @@ namespace PlainStorage
       WriteBlockFileAdapter::WriteBlockStruct_var
         index_desc_block = write_block_adapter->get_block(2);
 
-      typedef GenericField FirstKeysIndexBlock;
+      using FirstKeysIndexBlock = GenericField;
       index_desc_block->size(FirstKeysIndexBlock::SIZE);
       static_cast<FirstKeysIndexBlock*>(index_desc_block->content())->value()
         = 0;
@@ -978,16 +863,15 @@ namespace PlainStorage
       WriteBlockFileAdapter::WriteBlockStruct_var
         allocator_desc_block = write_block_adapter->get_block(1);
       allocator_desc_block->next_index(0);
- 
-      typedef GenericField AllocatedIndex;
+
+      using AllocatedIndex = GenericField;
       allocator_desc_block->size(AllocatedIndex::SIZE);
       static_cast<AllocatedIndex*>(allocator_desc_block->content())->value()
         = 0;
 
-      WriteBlockFileAdapter::WriteBlockStruct_var
-        header_block = write_block_adapter->get_block(0);
+      WriteBlockFileAdapter::WriteBlockStruct_var header_block = write_block_adapter->get_block(0);
       header_block->next_index(0);
-      
+
       header_block->size(FileHeader::FILE_HEADER_SIZE);
 
       FileHeader& head =
@@ -1023,7 +907,7 @@ namespace PlainStorage
 
       {
         // data size counting
-        ReadBlockFileAdapter::ReadBlockStruct_var 
+        ReadBlockFileAdapter::ReadBlockStruct_var
           cur_block = write_block_file_adapter_->get_block(first_data_block);
 
         while (cur_block.in())
@@ -1033,8 +917,7 @@ namespace PlainStorage
         }
       }
 
-      PlainWriter_var plain_writer = 
-        new PlainWriter(
+      PlainWriter_var plain_writer = new PlainWriter(
           write_block_file_adapter_.get(),
           block_allocator_.get(),
           first_data_block,

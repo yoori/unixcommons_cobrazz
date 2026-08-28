@@ -3,8 +3,7 @@
 
 namespace TestCommons
 {
-  void
-  Errors::add(const String::SubString& error, bool write) noexcept
+  void Errors::add(const String::SubString& error, bool write) noexcept
   {
     try
     {
@@ -24,14 +23,12 @@ namespace TestCommons
     }
   }
 
-  void
-  Errors::print() const noexcept
+  void Errors::print() const noexcept
   {
     print(std::cout);
   }
 
-  void
-  Errors::print(std::ostream& ostr) const noexcept
+  void Errors::print(std::ostream& ostr) const noexcept
   {
     Sync::PosixGuard guard(mutex_);
 
@@ -41,11 +38,9 @@ namespace TestCommons
     }
     else
     {
-      for (AllErrors::const_iterator itor(errors_.begin());
-        itor != errors_.end(); ++itor)
+      for (AllErrors::const_iterator itor(errors_.begin()); itor != errors_.end(); ++itor)
       {
-        ostr << "    " << itor->second << ": " << itor->first
-          << std::endl;
+        ostr << "    " << itor->second << ": " << itor->first << std::endl;
       }
     }
   }

@@ -4,19 +4,16 @@
 struct Tester
 {
   DECLARE_EXCEPTION(Exception, eh::DescriptiveException);
-  void
-  operator ()() /*throw (Exception)*/;
+  void operator ()() /*throw (Exception)*/;
 };
 
-void
-Tester::operator ()() /*throw (Exception)*/
+void Tester::operator ()() /*throw (Exception)*/
 {
   throw Exception("Something wrong");
 }
 
 
-int
-main() noexcept
+int main() noexcept
 {
   dup2(STDOUT_FILENO, STDERR_FILENO);
 

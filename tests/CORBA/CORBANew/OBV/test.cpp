@@ -9,10 +9,8 @@ public:
   ~Shutdowner() noexcept;
 
 private:
-  void
-  shutdown() noexcept;
-  static void*
-  thread_proc_(void* arg) noexcept;
+  void shutdown() noexcept;
+  static void* thread_proc_(void* arg) noexcept;
 
   CORBA::ORB_var orb_;
   pthread_t thread_;
@@ -31,14 +29,12 @@ Shutdowner::~Shutdowner() noexcept
   orb_ = 0;
 }
 
-void
-Shutdowner::shutdown() noexcept
+void Shutdowner::shutdown() noexcept
 {
   orb_->shutdown(true);
 }
 
-void*
-Shutdowner::thread_proc_(void* arg) noexcept
+void* Shutdowner::thread_proc_(void* arg) noexcept
 {
   static_cast<Shutdowner*>(arg)->shutdown();
   return NULL;
@@ -51,10 +47,8 @@ class Echo_i : public POA_Echo
 public:
   Echo_i(CORBA::ORB_var orb) noexcept;
 
-  virtual MessageHolder*
-  echoString(MessageHolder* message) noexcept;
-  virtual void
-  shutdown() noexcept;
+  virtual MessageHolder* echoString(MessageHolder* message) noexcept;
+  virtual void shutdown() noexcept;
 
 private:
   CORBA::ORB_var orb_;
@@ -65,22 +59,19 @@ Echo_i::Echo_i(CORBA::ORB_var orb) noexcept
 {
 }
 
-MessageHolder*
-Echo_i::echoString(MessageHolder* message) noexcept
+MessageHolder* Echo_i::echoString(MessageHolder* message) noexcept
 {
   CORBA::String_var message_string(message->get_message());
   return new MessageHolder_i(message_string);
 }
 
-void
-Echo_i::shutdown(void) noexcept
+void Echo_i::shutdown(void) noexcept
 {
   shut.reset(new Shutdowner(orb_));
   orb_ = 0;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, ORB_NAME);
 

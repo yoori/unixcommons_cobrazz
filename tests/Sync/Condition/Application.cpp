@@ -10,14 +10,12 @@
 using Sync::Conditional;
 using Sync::ConditionalGuard;
 
-ConsumerProducer::ThreadContext::ThreadContext(
-  ConsumerProducer *this_ptr_val) noexcept
+ConsumerProducer::ThreadContext::ThreadContext( ConsumerProducer *this_ptr_val) noexcept
   : this_ptr(this_ptr_val), work_done_stat(0)
 {
 }
 
-ConsumerProducer::ConsumerProducer(std::size_t max_item_count,
-  std::size_t producer_threads_count)
+ConsumerProducer::ConsumerProducer(std::size_t max_item_count, std::size_t producer_threads_count)
   /*throw(Conditional::Exception)*/
   : MAX_ITEM_COUNT_(max_item_count), next_value_(0), ready_number_(0)
 {
@@ -42,28 +40,25 @@ ConsumerProducer::ConsumerProducer(std::size_t max_item_count,
   }
 
   threads_.push_back(thread_context);
-  ThreadsContainer::reference stored_context =
-    threads_.at(producer_threads_count);
+  ThreadsContainer::reference stored_context = threads_.at(producer_threads_count);
   pthread_create(&stored_context.thread, 0, consumer, this);
 }
 
 ConsumerProducer::~ConsumerProducer() noexcept
 {
-  for(std::size_t i = 0; !threads_.empty(); threads_.pop_back())
+  for (std::size_t i = 0; !threads_.empty(); threads_.pop_back())
   {
     ThreadsContainer::reference stored_context = threads_.back();
     pthread_join(stored_context.thread, 0);
-    std::cout << ++i << " done "
-      << stored_context.work_done_stat << " products." << std::endl;
+    std::cout << ++i << " done " << stored_context.work_done_stat << " products." << std::endl;
   }
   std::cout << std::endl;
 }
 
-void
-ConsumerProducer::producer(std::size_t &work_stat)
+void ConsumerProducer::producer(std::size_t &work_stat)
   /*throw(Conditional::Exception)*/
 {
-  for(;;)
+  for (;;)
   {
     { // Produce
       Sync::PosixGuard guard(mutex_);
@@ -87,8 +82,7 @@ ConsumerProducer::producer(std::size_t &work_stat)
   }
 }
 
-void *
-ConsumerProducer::producer(void *arg) noexcept
+void * ConsumerProducer::producer(void *arg) noexcept
 {
   try
   {
@@ -101,15 +95,14 @@ ConsumerProducer::producer(void *arg) noexcept
   return 0;
 }
 
-void
-ConsumerProducer::consumer()
+void ConsumerProducer::consumer()
   /*throw(Conditional::Exception)*/
 {
-  for(std::size_t i = 0; i < MAX_ITEM_COUNT_; ++i)
+  for (std::size_t i = 0; i < MAX_ITEM_COUNT_; ++i)
   {
     {
       ConditionalGuard condition(cond_);
-      while(ready_number_ == 0)
+      while (ready_number_ == 0)
       {
         condition.wait();
       }
@@ -124,12 +117,10 @@ ConsumerProducer::consumer()
       }
     }
   }
-  std::cout << "All consumed. Consumed " << buffer_.size()
-    << " elements." << std::endl;
+  std::cout << "All consumed. Consumed " << buffer_.size() << " elements." << std::endl;
 }
 
-void *
-ConsumerProducer::consumer(void *arg) noexcept
+void * ConsumerProducer::consumer(void *arg) noexcept
 {
   try
   {
@@ -141,8 +132,7 @@ ConsumerProducer::consumer(void *arg) noexcept
   return 0;
 }
 
-int
-main(int /*argc*/, char** /*argv*/)
+int main(int /*argc*/, char** /*argv*/)
 {
   std::cout << "Conditional variable tests started.." << std::endl;
   {

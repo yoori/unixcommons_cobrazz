@@ -27,8 +27,7 @@ const std::string REQUEST_1 = std::string("http://") + SERVER_1.first + ":"
 const std::string REQUEST_2 = std::string("http://") + SERVER_2.first + ":"
   + ApachePorts::get_port_string(35);
 
-const std::string GET_STRING =
-  "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
+const std::string GET_STRING = "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
   "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
@@ -140,8 +139,7 @@ const std::string GET_STRING =
   "app=PS&v=1.3.0-3.ssv1&tid=108&rnd=388334&"
   "xinfopsid=0&format=html&require-debug-info="
   "body&glbfcap=0&referer=act.com";
-const std::string POST_STRING =
-  "login=Petya%20Vasechkin&password=qq";
+const std::string POST_STRING = "login=Petya%20Vasechkin&password=qq";
 
 const std::string GET_RESPONSE_BEGIN = "<BODY>\n";
 const std::string GET_RESPONSE_END = "\n</BODY>";
@@ -153,8 +151,7 @@ const std::string POST_REQUEST = REQUEST_2 + "/cgi-bin/echo.pl";
 class ResponseChecker
 {
 public:
-  void
-  print() /*throw (eh::Exception)*/
+  void print() /*throw (eh::Exception)*/
   {
     std::cout << "Check up: ";
     response_checkup_.print();
@@ -162,12 +159,9 @@ public:
     response_checkup_data_.print();
   }
 
-  void
-  operator ()(HTTP::HttpMethod method,
-    const String::SubString& body)
+  void operator ()(HTTP::HttpMethod method, const String::SubString& body)
   {
-    const std::string& CHECKUP_STR =
-      method == HM_GET ? GET_STRING : POST_STRING;
+    const std::string& CHECKUP_STR = method == HM_GET ? GET_STRING : POST_STRING;
 
     String::SubString::SizeType beg = body.find(GET_RESPONSE_BEGIN);
     String::SubString::SizeType end = body.rfind(GET_RESPONSE_END);
@@ -194,21 +188,18 @@ private:
 class ResponseCounter
 {
 public:
-  void
-  success() noexcept
+  void success() noexcept
   {
     counter_.success();
   }
 
-  void
-  failure(const String::SubString& description)
+  void failure(const String::SubString& description)
   {
     counter_.failure();
     errors_.add(description);
   }
 
-  void
-  print() /*throw (eh::Exception)*/
+  void print() /*throw (eh::Exception)*/
   {
     std::cout << "Execution: ";
     counter_.print();
@@ -221,8 +212,7 @@ private:
   TestCommons::Errors errors_;
 };
 
-void
-sync_calls(const char* type, HttpInterface& http)
+void sync_calls(const char* type, HttpInterface& http)
 {
   std::cout << type << std::endl;
   ResponseCounter counter;
@@ -254,11 +244,11 @@ sync_calls(const char* type, HttpInterface& http)
             POST_STRING);
           method = HTTP::HM_POST;
         }
+
         if (response_error.empty())
         {
           counter.success();
-          checker(method, String::SubString(&response_body[0],
-            response_body.size()));
+          checker(method, String::SubString(&response_body[0], response_body.size()));
         }
         else
         {
@@ -299,9 +289,7 @@ public:
   {
   }
 
-  virtual void
-  server_connection_added(Identifier server, Identifier connection)
-    noexcept
+  virtual void server_connection_added(Identifier server, Identifier connection) noexcept
   {
     PoolPolicySimpleDecider::server_connection_added(server, connection);
     __gnu_cxx::__atomic_add(&connections_, 1);
@@ -314,8 +302,7 @@ public:
     errors_.add(description, true);
   }
 protected:
-  virtual
-  ~MyPolicy() noexcept
+  virtual ~MyPolicy() noexcept
   {
     std::cout << "Number of connections created: " << connections_ << std::endl;
     std::cout << "Policy errors:" << std::endl;
@@ -336,22 +323,19 @@ public:
   {
   }
 
-  virtual void
-  on_response(const ResponseInformation& data) noexcept
+  virtual void on_response(const ResponseInformation& data) noexcept
   {
     counter_.success();
     checker_(data.method(), data.body());
   }
 
   virtual void
-  on_error(const String::SubString& description,
-    const RequestInformation& /*data*/) noexcept
+  on_error(const String::SubString& description, const RequestInformation& /*data*/) noexcept
   {
     counter_.failure(description);
   }
 protected:
-  virtual
-  ~MyCallback() noexcept
+  virtual ~MyCallback() noexcept
   {
     counter_.print();
     checker_.print();
@@ -368,8 +352,7 @@ private:
 class Requester
 {
 public:
-  Requester(HttpInterface* pool, ResponseCallback* cb,
-    const char* type)
+  Requester(HttpInterface* pool, ResponseCallback* cb, const char* type)
     : pool_(ReferenceCounting::add_ref(pool)),
       cb_(ReferenceCounting::add_ref(cb)), type_(type)
   {
@@ -384,8 +367,7 @@ public:
     std::cout << std::endl;
   }
 
-  void
-  operator ()() noexcept
+  void operator ()() noexcept
   {
     for (int i = 0; i < 100; i++)
     {
@@ -425,8 +407,7 @@ private:
   TestCommons::Errors errors_;
 };
 
-void
-print_cookie(const CookieDef& cookie)
+void print_cookie(const CookieDef& cookie)
 {
   std::cout << cookie.name << "=" << cookie.value << " " << cookie.domain << " "
     << cookie.path << " " << HTTP::cookie_date(cookie.expires)
@@ -436,34 +417,29 @@ print_cookie(const CookieDef& cookie)
 class PClientCookieFacility : public HTTP::ClientCookieFacility
 {
 public:
-  void
-  print_cookies() /*throw (eh::Exception)*/;
+  void print_cookies() /*throw (eh::Exception)*/;
 };
 
-void
-PClientCookieFacility::print_cookies() /*throw (eh::Exception)*/
+void PClientCookieFacility::print_cookies() /*throw (eh::Exception)*/
 {
   std::cout << std::endl << "Cookies:" << std::endl;
   std::for_each(begin(), end(), print_cookie);
   std::cout << std::endl;
 }
 
-int
-main()
+int main()
 {
   try
   {
     MyPolicy* policy_ptr = new MyPolicy;
     PoolPolicy_var policy(policy_ptr);
 
-    Generics::TaskRunner_var task_runner(
-      new Generics::TaskRunner(policy_ptr, 5));
+    Generics::TaskRunner_var task_runner( new Generics::TaskRunner(policy_ptr, 5));
     task_runner->activate_object();
 
     HttpActiveInterface_var pool(CreatePool(policy.in(), task_runner));
 
-    CookiePool_var cookie(
-      new CookiePoolPtr(new PClientCookieFacility));
+    CookiePool_var cookie( new CookiePoolPtr(new PClientCookieFacility));
     HttpInterface_var npool(CreateCookieClient(pool.in(), cookie.in()));
 
     pool->activate_object();
@@ -479,14 +455,12 @@ main()
     Sync::Semaphore semaphore(0);
     ResponseCallback_var my_cb(new MyCallback(semaphore));
     {
-      Requester requester(spool.in(), my_cb,
-        "Async calls on sync implementation");
+      Requester requester(spool.in(), my_cb, "Async calls on sync implementation");
       TestCommons::MTTester<Requester&> tester(requester, 5);
       tester.run(10, 3);
     }
     {
-      Requester requester(npool.in(), my_cb,
-        "Async calls on async implementation");
+      Requester requester(npool.in(), my_cb, "Async calls on async implementation");
       TestCommons::MTTester<Requester&> tester(requester, 5);
       tester.run(10, 3);
     }

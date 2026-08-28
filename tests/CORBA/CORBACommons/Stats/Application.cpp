@@ -12,8 +12,7 @@ class Test
 public:
   Test() /*throw (eh::Exception, CORBA::Exception)*/;
 
-  void
-  test() /*throw (eh::Exception, CORBA::Exception)*/;
+  void test() /*throw (eh::Exception, CORBA::Exception)*/;
 
 
 private:
@@ -34,53 +33,43 @@ private:
     DECLARE_EXCEPTION(CORBAException, eh::DescriptiveException);
 
     PublicAdaptor(Test& test) noexcept;
-    void
-    operator ()() /*throw (eh::Exception, CORBAException)*/;
+    void operator ()() /*throw (eh::Exception, CORBAException)*/;
 
   private:
     Test& test_;
   };
 
-  std::string
-  name_(Prefix prefix, sig_atomic_t index)
+  std::string name_(Prefix prefix, sig_atomic_t index)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  set_simple_(Prefix prefix, sig_atomic_t index, T value)
+  void set_simple_(Prefix prefix, sig_atomic_t index, T value)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  set_(Prefix prefix, T value)
+  void set_(Prefix prefix, T value)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  add_(Prefix prefix, sig_atomic_t index, T value)
+  void add_(Prefix prefix, sig_atomic_t index, T value)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  set_random_(Prefix prefix, T value)
+  void set_random_(Prefix prefix, T value)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  add_random_(Prefix prefix, T value)
+  void add_random_(Prefix prefix, T value)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  add_or_set_random_(Prefix prefix, T value) /*throw (eh::Exception)*/;
+  void add_or_set_random_(Prefix prefix, T value) /*throw (eh::Exception)*/;
 
-  void
-  get_(Prefix prefix)
+  void get_(Prefix prefix)
     /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  add_fail_(Prefix prefix, sig_atomic_t index, T value, const char* type)
+  void add_fail_(Prefix prefix, sig_atomic_t index, T value, const char* type)
     /*throw (eh::Exception)*/;
 
   template <typename T>
@@ -89,18 +78,14 @@ private:
     Prefix value_type) /*throw (eh::Exception)*/;
 
   template <typename T>
-  void
-  test_num_(Prefix prefix, sig_atomic_t index, T value, const char* type)
+  void test_num_(Prefix prefix, sig_atomic_t index, T value, const char* type)
     /*throw (eh::Exception)*/;
 
-  void
-  func_test_() /*throw (eh::Exception, CORBA::Exception)*/;
+  void func_test_() /*throw (eh::Exception, CORBA::Exception)*/;
 
-  void
-  operator ()() /*throw (eh::Exception, CORBA::Exception)*/;
+  void operator ()() /*throw (eh::Exception, CORBA::Exception)*/;
 
-  void
-  mt_test_() /*throw (eh::Exception, CORBA::Exception)*/;
+  void mt_test_() /*throw (eh::Exception, CORBA::Exception)*/;
 
 
   Generics::Values_var stat_, stat2_;
@@ -113,8 +98,7 @@ Test::PublicAdaptor::PublicAdaptor(Test& test) noexcept
 {
 }
 
-void
-Test::PublicAdaptor::operator ()() /*throw (eh::Exception, CORBAException)*/
+void Test::PublicAdaptor::operator ()() /*throw (eh::Exception, CORBAException)*/
 {
   try
   {
@@ -142,8 +126,7 @@ Test::Test() /*throw (eh::Exception, CORBA::Exception)*/
 }
 
 template <typename T>
-void
-Test::set_simple_(Prefix prefix, sig_atomic_t index, T value)
+void Test::set_simple_(Prefix prefix, sig_atomic_t index, T value)
   /*throw (eh::Exception)*/
 {
   const std::string& id = name_(prefix, index);
@@ -151,8 +134,7 @@ Test::set_simple_(Prefix prefix, sig_atomic_t index, T value)
 }
 
 template <typename T>
-void
-Test::set_(Prefix prefix, T value)
+void Test::set_(Prefix prefix, T value)
   /*throw (eh::Exception)*/
 {
   sig_atomic_t saved = counters_[prefix];
@@ -161,8 +143,7 @@ Test::set_(Prefix prefix, T value)
 }
 
 template <typename T>
-void
-Test::add_(Prefix prefix, sig_atomic_t index, T value)
+void Test::add_(Prefix prefix, sig_atomic_t index, T value)
   /*throw (eh::Exception)*/
 {
   const std::string& id = name_(prefix, index);
@@ -170,8 +151,7 @@ Test::add_(Prefix prefix, sig_atomic_t index, T value)
 }
 
 template <typename T>
-void
-Test::set_random_(Prefix prefix, T value)
+void Test::set_random_(Prefix prefix, T value)
   /*throw (eh::Exception)*/
 {
   if (!Generics::safe_rand(10))
@@ -181,16 +161,14 @@ Test::set_random_(Prefix prefix, T value)
 }
 
 template <typename T>
-void
-Test::add_random_(Prefix prefix, T value)
+void Test::add_random_(Prefix prefix, T value)
   /*throw (eh::Exception)*/
 {
   add_(prefix, Generics::safe_rand(counters_[prefix]), value);
 }
 
 template <typename T>
-void
-Test::add_or_set_random_(Prefix prefix, T value) /*throw (eh::Exception)*/
+void Test::add_or_set_random_(Prefix prefix, T value) /*throw (eh::Exception)*/
 {
   if (Generics::safe_rand(10))
   {
@@ -201,15 +179,13 @@ Test::add_or_set_random_(Prefix prefix, T value) /*throw (eh::Exception)*/
 }
 
 template <typename T>
-void
-Test::add_fail_(Prefix prefix, sig_atomic_t index, T value, const char* type)
+void Test::add_fail_(Prefix prefix, sig_atomic_t index, T value, const char* type)
   /*throw (eh::Exception)*/
 {
   try
   {
     add_(prefix, index, value);
-    std::cerr << "Failed to fail on adding " << type <<
-      " to inexistent key" << std::endl;
+    std::cerr << "Failed to fail on adding " << type << " to inexistent key" << std::endl;
   }
   catch (const Generics::Values::KeyNotFound&)
   {
@@ -241,43 +217,36 @@ Test::add_test_(Prefix prefix, sig_atomic_t index, T value,
 }
 
 template <typename T>
-void
-Test::test_num_(Prefix prefix, sig_atomic_t index, T value, const char* type)
+void Test::test_num_(Prefix prefix, sig_atomic_t index, T value, const char* type)
   /*throw (eh::Exception)*/
 {
   const std::string& id = name_(prefix, index);
-  std::unique_ptr<CORBA::Any> any(
-    CORBACommons::ValuesConverter::get_any(*stat_, id.c_str()));
+  std::unique_ptr<CORBA::Any> any( CORBACommons::ValuesConverter::get_any(*stat_, id.c_str()));
   T result;
   (*any) >>= result;
   if (std::fabs(result - value) > 0.1)
   {
-    std::cerr << "Invalid " << type << " result " << result <<
-      " expected " << value << std::endl;
+    std::cerr << "Invalid " << type << " result " << result << " expected " << value << std::endl;
   }
 }
 
-void
-Test::get_(Prefix prefix)
+void Test::get_(Prefix prefix)
   /*throw (eh::Exception)*/
 {
   for (sig_atomic_t index = 0; index < counters_[prefix]; index++)
   {
     const std::string& id = name_(prefix, index);
-    CORBA::Any_var any(
-      CORBACommons::ValuesConverter::get_any(*stat_, id.c_str()));
+    CORBA::Any_var any( CORBACommons::ValuesConverter::get_any(*stat_, id.c_str()));
   }
 }
 
-void
-Test::test() /*throw (eh::Exception, CORBA::Exception)*/
+void Test::test() /*throw (eh::Exception, CORBA::Exception)*/
 {
   func_test_();
   mt_test_();
 }
 
-void
-Test::func_test_() /*throw (eh::Exception, CORBA::Exception)*/
+void Test::func_test_() /*throw (eh::Exception, CORBA::Exception)*/
 {
   for (int prefix = 0; prefix < P_LAST; prefix++)
   {
@@ -315,21 +284,17 @@ Test::func_test_() /*throw (eh::Exception, CORBA::Exception)*/
   test_num_(P_ULONG, 0, 2ul, "unsigned long");
   test_num_(P_DOUBLE, 0, 4.0, "double");
   {
-    CORBA::Any_var any(
-      CORBACommons::ValuesConverter::get_any(*stat_,
-        name_(P_STRING, 0).c_str()));
+    CORBA::Any_var any( CORBACommons::ValuesConverter::get_any(*stat_, name_(P_STRING, 0).c_str()));
     const CORBA::Char* result = 0;
     any >>= result;
     if (!result || strcmp(result, "08"))
     {
-      std::cerr << "Invalid string result " << result <<
-        " expected 01" << std::endl;
+      std::cerr << "Invalid string result " << result << " expected 01" << std::endl;
     }
   }
 }
 
-void
-Test::mt_test_() /*throw (eh::Exception, CORBA::Exception)*/
+void Test::mt_test_() /*throw (eh::Exception, CORBA::Exception)*/
 {
   set_(P_LONG, 0l);
   set_(P_ULONG, 0lu);
@@ -345,22 +310,18 @@ Test::mt_test_() /*throw (eh::Exception, CORBA::Exception)*/
     get_(static_cast<Prefix>(prefix));
   }
 
-  CORBACommons::StatsValueSeq_var stats(
-    CORBACommons::ValuesConverter::get_stats(*stat_));
+  CORBACommons::StatsValueSeq_var stats( CORBACommons::ValuesConverter::get_stats(*stat_));
 }
 
-std::string
-Test::name_(Prefix prefix, sig_atomic_t index)
+std::string Test::name_(Prefix prefix, sig_atomic_t index)
   /*throw (eh::Exception)*/
 {
   char buf[32];
-  snprintf(buf, sizeof(buf), "%c%lu", LETTERS_[prefix],
-    static_cast<unsigned long>(index));
+  snprintf(buf, sizeof(buf), "%c%lu", LETTERS_[prefix], static_cast<unsigned long>(index));
   return buf;
 }
 
-void
-Test::operator ()() /*throw (eh::Exception, CORBA::Exception)*/
+void Test::operator ()() /*throw (eh::Exception, CORBA::Exception)*/
 {
   set_random_(P_LONG, 0l);
   set_random_(P_ULONG, 0lu);
@@ -378,8 +339,7 @@ Test::operator ()() /*throw (eh::Exception, CORBA::Exception)*/
   add_or_set_random_(P_STRING, "a");
 }
 
-int
-main()
+int main()
 {
   try
   {

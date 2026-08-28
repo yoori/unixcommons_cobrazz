@@ -15,16 +15,14 @@ namespace
 }
 
 template <typename T>
-void
-print(const CORBA::Any& any) /*throw (CORBA::Exception, eh::Exception)*/
+void print(const CORBA::Any& any) /*throw (CORBA::Exception, eh::Exception)*/
 {
   T value;
   any >>= value;
   std::cout << value;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   try
   {
@@ -63,8 +61,7 @@ main(int argc, char* argv[])
       if (CORBA::is_nil(stats_control))
       {
         Stream::Error ostr;
-        ostr << "CORBACommons::ProcessStatsControl::_narrow failed for '" <<
-          argv[1] << "'";
+        ostr << "CORBACommons::ProcessStatsControl::_narrow failed for '" << argv[1] << "'";
         throw Exception(ostr);
       }
 
@@ -73,11 +70,9 @@ main(int argc, char* argv[])
       {
         stats = stats_control->get_stats();
       }
-      catch (const
-        CORBACommons::ProcessStatsControl::ImplementationException&)
+      catch (const CORBACommons::ProcessStatsControl::ImplementationException&)
       {
-        throw Exception("Received "
-          "CORBACommons::ProcessStatsControl::ImplementationException");
+        throw Exception("Received " "CORBACommons::ProcessStatsControl::ImplementationException");
       }
 
       std::cout << "Total: " << stats->length() << " stats(s)" << std::endl;

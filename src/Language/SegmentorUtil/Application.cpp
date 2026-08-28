@@ -24,14 +24,12 @@ using namespace Language::Segmentor;
 
 namespace
 {
-  const char USAGE[] =
-    "[OPTIONS] ( help | parse-input | parse-lines | put-spaces TEXT | "
+  const char USAGE[] = "[OPTIONS] ( help | parse-input | parse-lines | put-spaces TEXT | "
       "segment TEXT )\n"
     "OPTIONS:\n";
 }
 
-std::ostream&
-print_mime(const String::SubString& str, std::ostream& out)
+std::ostream& print_mime(const String::SubString& str, std::ostream& out)
   /*throw (eh::Exception)*/
 {
   std::string res;
@@ -40,8 +38,7 @@ print_mime(const String::SubString& str, std::ostream& out)
   return out;
 }
 
-std::ostream&
-print_bin(const String::SubString& str, std::ostream& out) /*throw (eh::Exception)*/
+std::ostream& print_bin(const String::SubString& str, std::ostream& out) /*throw (eh::Exception)*/
 {
   for (const char* cur = str.begin(), * const END = str.end(); cur != END;)
   {
@@ -54,8 +51,7 @@ print_bin(const String::SubString& str, std::ostream& out) /*throw (eh::Exceptio
     if (!String::UTF8Handler::is_correct_utf8_sequence(cur, octets) ||
       static_cast<size_t>(END - cur) < octets)
     {
-      std::cout << "??? (" <<
-        static_cast<int>(static_cast<unsigned char>(*cur++)) << ")";
+      std::cout << "??? (" << static_cast<int>(static_cast<unsigned char>(*cur++)) << ")";
       continue;
     }
 
@@ -84,7 +80,7 @@ put_spaces_wrap(
   Language::Segmentor::SegmentorInterface* segmentor,
   bool normalize)
 {
-  if(normalize)
+  if (normalize)
   {
     Language::Trigger::normalize_phrase(src, res, segmentor);
   }
@@ -101,7 +97,7 @@ segment_wrap(
   String::SubString str,
   bool normalize)
 {
-  if(normalize)
+  if (normalize)
   {
     std::string nstr;
     Language::Trigger::normalize_phrase(str, nstr, 0);
@@ -125,23 +121,15 @@ void put_spaces_i(
 
   put_spaces_wrap(str, istr, &ling_server, normalize);
 
-  out
-    << "  in string: '" << istr << "'" << std::endl
-    << "  in binary view: ";
+  out << "  in string: '" << istr << "'" << std::endl << "  in binary view: ";
   print_bin(istr, out);
-  out
-    << std::endl
-    << "  out string: '" << str << "'" << std::endl
-    << "  out mime view: '";
+  out << std::endl << "  out string: '" << str << "'" << std::endl << "  out mime view: '";
   print_mime(str, out);
-  out
-    << "'" << std::endl
-    << "  out binary view: ";
+  out << "'" << std::endl << "  out binary view: ";
   print_bin(str, out);
   out << std::endl;
   out << "  out size: " << str.size() << std::endl;
-  out << "  input and output are " <<
-    (str == istr ? "equal" : "non equal") << std::endl;
+  out << "  input and output are " << (str == istr ? "equal" : "non equal") << std::endl;
 }
 
 void segment_i(
@@ -154,9 +142,7 @@ void segment_i(
   segment_wrap(res, ling_server, str, normalize);
 
   size_t i = 0;
-  for(Language::Segmentor::WordsList::const_iterator it =
-        res.begin();
-      it != res.end(); ++it, ++i)
+  for (Language::Segmentor::WordsList::const_iterator it = res.begin(); it != res.end(); ++it, ++i)
   {
     out << "  " << i << ": '" << *it << "'" << std::endl;
     out << "    ";
@@ -169,7 +155,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
 {
   try
   {
-    typedef Generics::AppUtils::Args::CommandList CommandList;
+    using CommandList = Generics::AppUtils::Args::CommandList;
 
     Generics::AppUtils::Option<unsigned long> opt_count;
     Generics::AppUtils::Option<unsigned long> opt_sleep(0);
@@ -198,59 +184,46 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
     Generics::AppUtils::Args args(-1);
 
     args.add(
-      Generics::AppUtils::equal_name("sleep") ||
-      Generics::AppUtils::short_name("s"),
+      Generics::AppUtils::equal_name("sleep") || Generics::AppUtils::short_name("s"),
       opt_sleep, "Sleep before action", "seconds");
     args.add(
-      Generics::AppUtils::equal_name("count") ||
-      Generics::AppUtils::short_name("c"),
+      Generics::AppUtils::equal_name("count") || Generics::AppUtils::short_name("c"),
       opt_count, "Perform action several times", "number");
     args.add(
-      Generics::AppUtils::equal_name("ini-time") ||
-      Generics::AppUtils::short_name("t"),
+      Generics::AppUtils::equal_name("ini-time") || Generics::AppUtils::short_name("t"),
       opt_ini_time, "Print out initialization time");
     args.add(
-      Generics::AppUtils::equal_name("help") ||
-      Generics::AppUtils::short_name("h"),
+      Generics::AppUtils::equal_name("help") || Generics::AppUtils::short_name("h"),
       opt_help, "Print out help");
     args.add(
-      Generics::AppUtils::equal_name("mime") ||
-      Generics::AppUtils::short_name("m"),
+      Generics::AppUtils::equal_name("mime") || Generics::AppUtils::short_name("m"),
       opt_input_mime, "Perform mime decoding on input first");
     args.add(
-      Generics::AppUtils::equal_name("mime-out") ||
-      Generics::AppUtils::short_name("mo"),
+      Generics::AppUtils::equal_name("mime-out") || Generics::AppUtils::short_name("mo"),
       opt_output_mime, "Perform mime encoding on text output");
 
     /*
     args.add(
-      Generics::AppUtils::equal_name("klt") ||
-      Generics::AppUtils::short_name("k"),
+      Generics::AppUtils::equal_name("klt") || Generics::AppUtils::short_name("k"),
       opt_klt, "Use KLT");
     args.add(
-      Generics::AppUtils::equal_name("moran") ||
-      Generics::AppUtils::short_name("mn"),
+      Generics::AppUtils::equal_name("moran") || Generics::AppUtils::short_name("mn"),
       opt_moran, "Use Moran");
     args.add(
-      Generics::AppUtils::equal_name("mecab") ||
-      Generics::AppUtils::short_name("mb"),
+      Generics::AppUtils::equal_name("mecab") || Generics::AppUtils::short_name("mb"),
       opt_mecab, "Use Mecab");
     args.add(
-      Generics::AppUtils::equal_name("nlpir") ||
-      Generics::AppUtils::short_name("nl"),
+      Generics::AppUtils::equal_name("nlpir") || Generics::AppUtils::short_name("nl"),
       opt_nlpir, "Use NLPIR");
     */
     args.add(
-      Generics::AppUtils::equal_name("gen") ||
-      Generics::AppUtils::short_name("g"),
+      Generics::AppUtils::equal_name("gen") || Generics::AppUtils::short_name("g"),
       opt_gen, "Use Polyglot");
     args.add(
-      Generics::AppUtils::equal_name("gen-norm") ||
-      Generics::AppUtils::short_name("gn"),
+      Generics::AppUtils::equal_name("gen-norm") || Generics::AppUtils::short_name("gn"),
       opt_gen_norm, "Use Normalized Polyglot");
     args.add(
-      Generics::AppUtils::equal_name("norm") ||
-      Generics::AppUtils::short_name("n"),
+      Generics::AppUtils::equal_name("norm") || Generics::AppUtils::short_name("n"),
       opt_normalize, "Normalize trigger");
 
     /*
@@ -308,7 +281,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
       {
         composite_segmentor->add_segmentor(
           Language::Segmentor::SegmentorInterface_var(
-            new Language::Segmentor::Korean::MoranSegmentor(  
+            new Language::Segmentor::Korean::MoranSegmentor(
               opt_moran_ini->c_str())));
       }
 
@@ -349,8 +322,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
       {
         ini_timer.stop();
 
-        std::cout << "Initialization time: " << ini_timer.elapsed_time() <<
-          std::endl << std::endl;
+        std::cout << "Initialization time: " << ini_timer.elapsed_time() << std::endl << std::endl;
       }
     }
 
@@ -392,7 +364,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
       std::string res_str;
       put_spaces_wrap(res_str, str, composite_segmentor, opt_normalize.enabled());
 
-      if(opt_output_mime.enabled())
+      if (opt_output_mime.enabled())
       {
         std::string mime_res_str;
         String::StringManip::mime_url_encode(res_str, mime_res_str);
@@ -421,7 +393,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
         std::string res;
         put_spaces_wrap(res, line, composite_segmentor, opt_normalize.enabled());
 
-        if(opt_output_mime.enabled())
+        if (opt_output_mime.enabled())
         {
           std::string mime_res_str;
           String::StringManip::mime_url_encode(res, mime_res_str);
@@ -504,8 +476,7 @@ void Application::run(int argc, char* argv[]) /*throw(Exception, eh::Exception)*
   }
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   try
   {
@@ -517,8 +488,7 @@ main(int argc, char** argv)
   }
   catch (const eh::Exception& e)
   {
-    std::cerr << FNS << "eh::Exception exception caught: " << e.what() <<
-      std::endl;
+    std::cerr << FNS << "eh::Exception exception caught: " << e.what() << std::endl;
   }
   catch (...)
   {

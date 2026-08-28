@@ -7,8 +7,7 @@
 #define __USE_GNU
 #include <dlfcn.h>
 
-static void
-hello(Echo_ptr e)
+static void hello(Echo_ptr e)
 {
   CORBA::String_var src = (const char*) "Hello!";
   CORBA::String_var dest = e->echoString(src);
@@ -43,8 +42,7 @@ public:
   }
 
 private:
-  void
-  thread_proc_()
+  void thread_proc_()
   {
     CORBA::Object_var obj = orb_->string_to_object(ior_);
     Echo_var echoref = Echo::_narrow(obj);
@@ -60,8 +58,7 @@ private:
     }
   }
 
-  static void*
-  thread_proc_(void* arg) noexcept
+  static void* thread_proc_(void* arg) noexcept
   {
     try
     {
@@ -82,7 +79,7 @@ private:
 extern "C" int
 connect(int sockfd, const struct sockaddr* serv_addr, socklen_t addrlen)
 {
-  typedef int (*Connect)(int, const struct sockaddr*, socklen_t);
+  using Connect = int (*)(int, const struct sockaddr*, socklen_t);
   static Connect con;
 
   if (!con)
@@ -95,8 +92,7 @@ connect(int sockfd, const struct sockaddr* serv_addr, socklen_t addrlen)
   return con(sockfd, serv_addr, addrlen);
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
   if (argc != 2)
   {

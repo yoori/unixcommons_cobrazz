@@ -14,14 +14,12 @@ namespace HTTP
    * @param value header value
    * @return whether or not header is RFC compliant
    */
-  bool
-  check_header(const char* name, const char* value) noexcept;
+  bool check_header(const char* name, const char* value) noexcept;
 
   /**
    * Checks headers for RFC compliance
    * @param headers list of headers
    * @return true only if every header is RFC compliant
    */
-  bool
-  check_headers(const HeaderList& headers) noexcept;
+  bool check_headers(const HeaderList& headers) noexcept;
 }

@@ -19,7 +19,7 @@ namespace TestCommons
   {
     std::cout << "Checking..." << std::endl;
 
-    typedef std::vector<std::string> Files;
+    using Files = std::vector<std::string>;
     Files files;
 
     if (!file.length() || file[0] != '/')
@@ -50,6 +50,7 @@ namespace TestCommons
       {
         throw CheckException("Failed to stat");
       }
+
       if (size_span && st.st_size > size_span + 1024)
       {
         throw CheckException("Too great size");
@@ -82,11 +83,11 @@ namespace TestCommons
         Generics::Time time;
         time.set(line, "%a %d %b %Y %H:%M:%S");
         time_t sec = time.tv_sec;
-        if (sec < timestamps_[msg] ||
-          sec > timestamps_[msg] + max_delay_)
+        if (sec < timestamps_[msg] || sec > timestamps_[msg] + max_delay_)
         {
           throw CheckException("Invalid time of message");
         }
+
         if (sec < last)
         {
           throw CheckException("Invalid time sequence of messages");
@@ -106,6 +107,7 @@ namespace TestCommons
         {
           throw CheckException("Invalid number of message (unexpected)");
         }
+
         if (msg > timestamps_.size())
         {
           throw CheckException("Invalid number of message (too great)");
@@ -117,6 +119,7 @@ namespace TestCommons
         }
       }
     }
+
     if (msg != timestamps_.size())
     {
       throw CheckException("Invalid number of messages (different)");
@@ -129,8 +132,7 @@ namespace TestCommons
   {
   }
 
-  bool
-  CheckFileMessages::FileNameComparer::operator ()(
+  bool CheckFileMessages::FileNameComparer::operator ()(
     const std::string& left, const std::string& right) noexcept
   {
     return left == common_ ? false : right == common_ ? true : left < right;

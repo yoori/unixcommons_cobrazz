@@ -28,9 +28,7 @@ namespace Generics
   public:
     static constexpr std::size_t DEFAULT_INITIAL_SIZE = 128 * sizeof(void*);
 
-    explicit
-    MonoAllocatorArena(
-      std::size_t initial_size = DEFAULT_INITIAL_SIZE) noexcept;
+    explicit MonoAllocatorArena( std::size_t initial_size = DEFAULT_INITIAL_SIZE) noexcept;
 
     MonoAllocatorArena(
       void* buffer,
@@ -44,31 +42,21 @@ namespace Generics
     MonoAllocatorArena(MonoAllocatorArena&&) = delete;
     MonoAllocatorArena& operator=(MonoAllocatorArena&&) = delete;
 
-    void
-    release() noexcept;
+    void release() noexcept;
 
   private:
     template<typename>
     friend class MonoAllocator;
 
-    [[nodiscard]]
-    void*
-    allocate_(std::size_t bytes, std::size_t alignment);
+    [[nodiscard]] void* allocate_(std::size_t bytes, std::size_t alignment);
 
-    void
-    add_chunk_(std::size_t bytes, std::size_t alignment);
+    void add_chunk_(std::size_t bytes, std::size_t alignment);
 
-    static
-    std::size_t
-    normalize_buffer_size_(std::size_t size) noexcept;
+    static std::size_t normalize_buffer_size_(std::size_t size) noexcept;
 
-    static
-    unsigned char*
-    buffer_end_(unsigned char* buffer, std::size_t size) noexcept;
+    static unsigned char* buffer_end_(unsigned char* buffer, std::size_t size) noexcept;
 
-    static
-    std::size_t
-    calc_next_buffer_size_(std::size_t size) noexcept;
+    static std::size_t calc_next_buffer_size_(std::size_t size) noexcept;
 
     struct Chunk
     {
@@ -93,22 +81,18 @@ namespace Generics
   public:
     static_assert(Size > 0, "MonoAllocatorFixedArena size must be non-zero");
 
-    explicit
-    MonoAllocatorFixedArena(std::size_t next_buffer_size = 0) noexcept;
+    explicit MonoAllocatorFixedArena(std::size_t next_buffer_size = 0) noexcept;
 
     MonoAllocatorFixedArena(const MonoAllocatorFixedArena&) = delete;
     MonoAllocatorFixedArena& operator=(const MonoAllocatorFixedArena&) = delete;
     MonoAllocatorFixedArena(MonoAllocatorFixedArena&&) = delete;
     MonoAllocatorFixedArena& operator=(MonoAllocatorFixedArena&&) = delete;
 
-    MonoAllocatorArena&
-    arena() noexcept;
+    MonoAllocatorArena& arena() noexcept;
 
-    const MonoAllocatorArena&
-    arena() const noexcept;
+    const MonoAllocatorArena& arena() const noexcept;
 
-    void
-    release() noexcept;
+    void release() noexcept;
 
   private:
     alignas(std::max_align_t) unsigned char buffer_[Size];
@@ -143,15 +127,11 @@ namespace Generics
     template<typename U>
     MonoAllocator(const MonoAllocator<U>& init) noexcept;
 
-    [[nodiscard]]
-    T*
-    allocate(std::size_t count);
+    [[nodiscard]] T* allocate(std::size_t count);
 
-    void
-    deallocate(T*, std::size_t) noexcept;
+    void deallocate(T*, std::size_t) noexcept;
 
-    MonoAllocatorArena*
-    arena() const noexcept;
+    MonoAllocatorArena* arena() const noexcept;
 
   private:
     MonoAllocatorArena* arena_ = nullptr;
@@ -169,30 +149,21 @@ namespace Generics
   template<typename Key, typename Compare = std::less<Key>>
   using MonoSet = std::set<Key, Compare, MonoAllocator<Key>>;
 
-  template<
-    typename Key,
-    typename Value,
-    typename Compare = std::less<Key>>
+  template< typename Key, typename Value, typename Compare = std::less<Key>>
   using MonoMap = std::map<
     Key,
     Value,
     Compare,
     MonoAllocator<std::pair<const Key, Value>>>;
 
-  template<
-    typename Key,
-    typename Value,
-    typename Compare = std::less<Key>>
+  template< typename Key, typename Value, typename Compare = std::less<Key>>
   using MonoMultiMap = std::multimap<
     Key,
     Value,
     Compare,
     MonoAllocator<std::pair<const Key, Value>>>;
 
-  template<
-    typename Key,
-    typename Hash = std::hash<Key>,
-    typename Equal = std::equal_to<Key>>
+  template< typename Key, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
   using MonoUnorderedSet = boost::unordered_flat_set<
     Key,
     Hash,
@@ -219,8 +190,7 @@ namespace Generics
 
 namespace Generics
 {
-  inline
-  MonoAllocatorArena::MonoAllocatorArena(std::size_t initial_size) noexcept
+  inline MonoAllocatorArena::MonoAllocatorArena(std::size_t initial_size) noexcept
     : initial_next_buffer_size_(normalize_buffer_size_(initial_size)),
       next_buffer_size_(initial_next_buffer_size_)
   {}
@@ -241,24 +211,19 @@ namespace Generics
       next_buffer_size_(initial_next_buffer_size_)
   {}
 
-  inline
-  MonoAllocatorArena::~MonoAllocatorArena() noexcept
+  inline MonoAllocatorArena::~MonoAllocatorArena() noexcept
   {
     release();
   }
 
-  inline
-  void
-  MonoAllocatorArena::release() noexcept
+  inline void MonoAllocatorArena::release() noexcept
   {
-    while(chunks_)
+    while (chunks_)
     {
       Chunk* chunk = chunks_;
       chunks_ = chunk->next;
 
-      ::operator delete(
-        chunk->memory,
-        std::align_val_t(chunk->alignment));
+      ::operator delete( chunk->memory, std::align_val_t(chunk->alignment));
       delete chunk;
     }
 
@@ -267,24 +232,22 @@ namespace Generics
     next_buffer_size_ = initial_next_buffer_size_;
   }
 
-  inline
-  void*
-  MonoAllocatorArena::allocate_(std::size_t bytes, std::size_t alignment)
+  inline void* MonoAllocatorArena::allocate_(std::size_t bytes, std::size_t alignment)
   {
-    if(bytes == 0)
+    if (bytes == 0)
     {
       bytes = 1;
     }
 
     void* aligned = nullptr;
-    if(current_)
+    if (current_)
     {
       void* ptr = current_;
       std::size_t space = static_cast<std::size_t>(end_ - current_);
       aligned = std::align(alignment, bytes, ptr, space);
     }
 
-    if(!aligned)
+    if (!aligned)
     {
       add_chunk_(bytes, alignment);
 
@@ -293,7 +256,7 @@ namespace Generics
       aligned = std::align(alignment, bytes, ptr, space);
     }
 
-    if(!aligned)
+    if (!aligned)
     {
       throw std::bad_alloc();
     }
@@ -302,17 +265,12 @@ namespace Generics
     return aligned;
   }
 
-  inline
-  void
-  MonoAllocatorArena::add_chunk_(std::size_t bytes, std::size_t alignment)
+  inline void MonoAllocatorArena::add_chunk_(std::size_t bytes, std::size_t alignment)
   {
     const std::size_t chunk_size = std::max(bytes, next_buffer_size_);
-    const std::size_t chunk_alignment =
-      std::max(alignment, alignof(std::max_align_t));
+    const std::size_t chunk_alignment = std::max(alignment, alignof(std::max_align_t));
 
-    void* memory = ::operator new(
-      chunk_size,
-      std::align_val_t(chunk_alignment));
+    void* memory = ::operator new( chunk_size, std::align_val_t(chunk_alignment));
 
     try
     {
@@ -333,30 +291,23 @@ namespace Generics
     next_buffer_size_ = calc_next_buffer_size_(chunk_size);
   }
 
-  inline
-  std::size_t
-  MonoAllocatorArena::normalize_buffer_size_(std::size_t size) noexcept
+  inline std::size_t MonoAllocatorArena::normalize_buffer_size_(std::size_t size) noexcept
   {
     return size ? size : 1;
   }
 
   inline
-  unsigned char*
-  MonoAllocatorArena::buffer_end_(
-    unsigned char* buffer,
-    std::size_t size) noexcept
+  unsigned char* MonoAllocatorArena::buffer_end_( unsigned char* buffer, std::size_t size) noexcept
   {
     return buffer ? buffer + size : nullptr;
   }
 
-  inline
-  std::size_t
-  MonoAllocatorArena::calc_next_buffer_size_(std::size_t size) noexcept
+  inline std::size_t MonoAllocatorArena::calc_next_buffer_size_(std::size_t size) noexcept
   {
     size = normalize_buffer_size_(size);
 
     const std::size_t increment = (size + 1) / 2;
-    if(std::numeric_limits<std::size_t>::max() - size < increment)
+    if (std::numeric_limits<std::size_t>::max() - size < increment)
     {
       return std::numeric_limits<std::size_t>::max();
     }
@@ -366,127 +317,98 @@ namespace Generics
 
   template<std::size_t Size>
   inline
-  MonoAllocatorFixedArena<Size>::MonoAllocatorFixedArena(
-    std::size_t next_buffer_size) noexcept
+  MonoAllocatorFixedArena<Size>::MonoAllocatorFixedArena( std::size_t next_buffer_size) noexcept
     : arena_(buffer_, Size, next_buffer_size)
   {}
 
   template<std::size_t Size>
-  inline
-  MonoAllocatorArena&
-  MonoAllocatorFixedArena<Size>::arena() noexcept
+  inline MonoAllocatorArena& MonoAllocatorFixedArena<Size>::arena() noexcept
   {
     return arena_;
   }
 
   template<std::size_t Size>
-  inline
-  const MonoAllocatorArena&
-  MonoAllocatorFixedArena<Size>::arena() const noexcept
+  inline const MonoAllocatorArena& MonoAllocatorFixedArena<Size>::arena() const noexcept
   {
     return arena_;
   }
 
   template<std::size_t Size>
-  inline
-  void
-  MonoAllocatorFixedArena<Size>::release() noexcept
+  inline void MonoAllocatorFixedArena<Size>::release() noexcept
   {
     arena_.release();
   }
 
   template<typename T>
-  inline
-  MonoAllocator<T>::MonoAllocator(MonoAllocatorArena& arena) noexcept
+  inline MonoAllocator<T>::MonoAllocator(MonoAllocatorArena& arena) noexcept
     : arena_(&arena)
   {}
 
   template<typename T>
-  inline
-  MonoAllocator<T>::MonoAllocator(MonoAllocatorArena* arena) noexcept
+  inline MonoAllocator<T>::MonoAllocator(MonoAllocatorArena* arena) noexcept
     : arena_(arena)
   {}
 
   template<typename T>
   template<typename U>
-  inline
-  MonoAllocator<T>::MonoAllocator(const MonoAllocator<U>& init) noexcept
+  inline MonoAllocator<T>::MonoAllocator(const MonoAllocator<U>& init) noexcept
     : arena_(init.arena_)
   {}
 
   template<typename T>
-  inline
-  T*
-  MonoAllocator<T>::allocate(std::size_t count)
+  inline T* MonoAllocator<T>::allocate(std::size_t count)
   {
-    if(count > std::numeric_limits<std::size_t>::max() / sizeof(T))
+    if (count > std::numeric_limits<std::size_t>::max() / sizeof(T))
     {
       throw std::bad_array_new_length();
     }
 
-    if(!arena_)
+    if (!arena_)
     {
       throw std::bad_alloc();
     }
 
-    return static_cast<T*>(
-      arena_->allocate_(count * sizeof(T), alignof(T)));
+    return static_cast<T*>( arena_->allocate_(count * sizeof(T), alignof(T)));
   }
 
   template<typename T>
-  inline
-  void
-  MonoAllocator<T>::deallocate(T*, std::size_t) noexcept
+  inline void MonoAllocator<T>::deallocate(T*, std::size_t) noexcept
   {}
 
   template<typename T>
-  inline
-  MonoAllocatorArena*
-  MonoAllocator<T>::arena() const noexcept
+  inline MonoAllocatorArena* MonoAllocator<T>::arena() const noexcept
   {
     return arena_;
   }
 
   template<typename T>
-  inline
-  MonoAllocator<T>
-  mono_allocator(MonoAllocatorArena* arena) noexcept
+  inline MonoAllocator<T> mono_allocator(MonoAllocatorArena* arena) noexcept
   {
     return MonoAllocator<T>(arena);
   }
 
   template<typename T>
-  inline
-  MonoAllocator<T>
-  mono_allocator(MonoAllocatorArena& arena) noexcept
+  inline MonoAllocator<T> mono_allocator(MonoAllocatorArena& arena) noexcept
   {
     return MonoAllocator<T>(arena);
   }
 
   template<typename T, std::size_t Size>
-  inline
-  MonoAllocator<T>
-  mono_allocator(MonoAllocatorFixedArena<Size>& arena) noexcept
+  inline MonoAllocator<T> mono_allocator(MonoAllocatorFixedArena<Size>& arena) noexcept
   {
     return MonoAllocator<T>(arena.arena());
   }
 
   template<typename Left, typename Right>
   inline
-  bool
-  operator==(
-    const MonoAllocator<Left>& left,
-    const MonoAllocator<Right>& right) noexcept
+  bool operator==( const MonoAllocator<Left>& left, const MonoAllocator<Right>& right) noexcept
   {
     return left.arena() == right.arena();
   }
 
   template<typename Left, typename Right>
   inline
-  bool
-  operator!=(
-    const MonoAllocator<Left>& left,
-    const MonoAllocator<Right>& right) noexcept
+  bool operator!=( const MonoAllocator<Left>& left, const MonoAllocator<Right>& right) noexcept
   {
     return !(left == right);
   }

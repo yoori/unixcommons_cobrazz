@@ -21,26 +21,23 @@ namespace PlainStorage
   {
     try
     {
-      descr_block_ = 
-        write_block_file_adapter_->get_block(descr_block_index);
-      
-      typedef const GenericField FirstKeysIndexBlock;
-      BlockIndex first_keys_block_index = 
+      descr_block_ = write_block_file_adapter_->get_block(descr_block_index);
+
+      using FirstKeysIndexBlock = const GenericField;
+      BlockIndex first_keys_block_index =
         static_cast<FirstKeysIndexBlock*>(descr_block_->content())->value();
 
       if (first_keys_block_index == 0)
       {
         first_keys_block_index = block_allocator_->allocate();
 
-        first_keys_block_ = 
-          write_block_file_adapter_->get_block(first_keys_block_index);
+        first_keys_block_ = write_block_file_adapter_->get_block(first_keys_block_index);
 
         sync_();
       }
       else
-      { 
-        first_keys_block_ = 
-          write_block_file_adapter_->get_block(first_keys_block_index);
+      {
+        first_keys_block_ = write_block_file_adapter_->get_block(first_keys_block_index);
       }
     }
     catch (const eh::Exception& ex)
@@ -57,9 +54,9 @@ namespace PlainStorage
   DefaultSyncIndexStrategy<Key, KeyAccessor>::
   save_(
     WriteBlockFileAdapter::WriteBlockStruct_var& write_block,
-    const Key& key, 
+    const Key& key,
     BlockIndex first_data_block,
-    DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition& 
+    DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition&
       key_addition)
     /*throw (eh::Exception, typename BaseType::FileFormatError)*/
   {
@@ -72,22 +69,19 @@ namespace PlainStorage
 
     KeyAccessor key_accessor;
     const unsigned long SIZE_OF_KEY = key_accessor.size(key);
-    
-    BlockIndex old_first_keys_block_index = 
-      first_keys_block_->index();
+
+    BlockIndex old_first_keys_block_index = first_keys_block_->index();
 
     // if not used available memory < space need to save Key
-    if (all_data_size - used_size <
-      SIZE_OF_KEY + KeyHeader::KEY_HEADER_SIZE)
+    if (all_data_size - used_size < SIZE_OF_KEY + KeyHeader::KEY_HEADER_SIZE)
     {
       // allocate additional block and insert in front of Data blocks chain
       // that store keys - it is creating Keys chain
       BlockIndex new_keys_block_index = block_allocator_->allocate();
-      
+
       // write_block IS REFERENCE ON first_keys_block_
-      write_block = 
-        write_block_file_adapter_->get_block(new_keys_block_index);
-      
+      write_block = write_block_file_adapter_->get_block(new_keys_block_index);
+
       write_block->next_index(old_first_keys_block_index);
 
       all_data_size = write_block->available_size();
@@ -119,13 +113,12 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor>
-  void
-  DefaultSyncIndexStrategy<Key, KeyAccessor>::sync_() 
+  void DefaultSyncIndexStrategy<Key, KeyAccessor>::sync_()
     /*throw (eh::Exception)*/
   {
     ReadGuard_ lock(lock_);
-    
-    typedef GenericField FirstKeysIndexBlock;
+
+    using FirstKeysIndexBlock = GenericField;
     static_cast<FirstKeysIndexBlock*>(descr_block_->content())->value() =
       first_keys_block_->index();
   }
@@ -134,9 +127,9 @@ namespace PlainStorage
   void
   DefaultSyncIndexStrategy<Key, KeyAccessor>::
   insert(
-    const Key& key, 
+    const Key& key,
     BlockIndex first_data_block,
-    DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition& 
+    DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition&
       key_addition)
     /*throw (eh::Exception)*/
   {
@@ -150,35 +143,33 @@ namespace PlainStorage
   void
   DefaultSyncIndexStrategy<Key, KeyAccessor>::
   update(
-    const Key& key, 
+    const Key& key,
     BlockIndex first_data_block,
-    const DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition& 
-      key_addition)
-    /*throw (eh::Exception)*/
-  {
-    WriteBlockFileAdapter::WriteBlockStruct_var key_block = 
-      write_block_file_adapter_->get_block(
-        key_addition.block_index);
-
-    KeyHeader& key_pos = 
-      *reinterpret_cast<KeyHeader*>(
-        static_cast<char*>(key_block->content()) +
-          key_addition.block_offset);
-
-    key_pos.data_block_index() = first_data_block;    
-  }
-
-  template <typename Key, typename KeyAccessor>
-  void 
-  DefaultSyncIndexStrategy<Key, KeyAccessor>::erase(
-    const Key& /*key*/, 
     const DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition&
       key_addition)
     /*throw (eh::Exception)*/
   {
-    WriteBlockFileAdapter::WriteBlockStruct_var key_block = 
-      write_block_file_adapter_->get_block(
-        key_addition.block_index);
+    WriteBlockFileAdapter::WriteBlockStruct_var key_block =
+      write_block_file_adapter_->get_block( key_addition.block_index);
+
+    KeyHeader& key_pos =
+      *reinterpret_cast<KeyHeader*>(
+        static_cast<char*>(key_block->content()) +
+          key_addition.block_offset);
+
+    key_pos.data_block_index() = first_data_block;
+  }
+
+  template <typename Key, typename KeyAccessor>
+  void
+  DefaultSyncIndexStrategy<Key, KeyAccessor>::erase(
+    const Key& /*key*/,
+    const DefaultSyncIndexStrategy<Key, KeyAccessor>::KeyAddition&
+      key_addition)
+    /*throw (eh::Exception)*/
+  {
+    WriteBlockFileAdapter::WriteBlockStruct_var key_block =
+      write_block_file_adapter_->get_block( key_addition.block_index);
 
     const unsigned long SIZE = key_block->size();
 
@@ -192,13 +183,13 @@ namespace PlainStorage
       key_block->size(key_addition.block_offset);
     }
     else
-    { 
+    {
       key_pos.mark() = KeyHeader::MARK_DELETED;
     }
   }
 
   template <typename Key, typename KeyAccessor>
-  void 
+  void
   DefaultSyncIndexStrategy<Key, KeyAccessor>::load(
     DefaultSyncIndexStrategy<Key, KeyAccessor>::IndexLoadCallback*
       index_load_callback)
@@ -219,8 +210,7 @@ namespace PlainStorage
         unsigned long sz = block_cur->size();
         block_index = block_cur->index();
         in_block_offset = 0;
-        const char* pos =
-          static_cast<const char*>(block_cur->read_content());
+        const char* pos = static_cast<const char*>(block_cur->read_content());
 
         while (in_block_offset < sz)
         {
@@ -231,14 +221,12 @@ namespace PlainStorage
             Key new_key;
             KeyAddition new_key_addition;
 
-            key_accessor.load(keyhead.key_value(),
-              keyhead.get_key_body_size(), new_key);
+            key_accessor.load(keyhead.key_value(), keyhead.get_key_body_size(), new_key);
 
             new_key_addition.block_index = block_cur->index();
             new_key_addition.block_offset = in_block_offset;
 
-            index_load_callback->load_key(
-              new_key, keyhead.data_block_index(), new_key_addition);
+            index_load_callback->load_key( new_key, keyhead.data_block_index(), new_key_addition);
           }
 
           pos += keyhead.key_size();
@@ -254,20 +242,19 @@ namespace PlainStorage
       ostr << FNS << "Can't load index. "
         "Block #" << block_index << ", offset=" << in_block_offset <<
         ". Caught eh::Exception: " << ex.what();
-      throw typename BaseType::LoadIndexFail(ostr); 
+      throw typename BaseType::LoadIndexFail(ostr);
     }
   }
 
   template <typename Key, typename KeyAccessor>
-  bool 
-  DefaultSyncIndexStrategy<Key, KeyAccessor>::begin_saving()
+  bool DefaultSyncIndexStrategy<Key, KeyAccessor>::begin_saving()
     /*throw (eh::Exception)*/
   {
     return false;
   }
 
   template <typename Key, typename KeyAccessor>
-  void 
+  void
   DefaultSyncIndexStrategy<Key, KeyAccessor>::save(
     const Key& /*key*/,
     BlockIndex /*first_data_block*/,
@@ -277,29 +264,26 @@ namespace PlainStorage
   }
 
   template <typename Key, typename KeyAccessor>
-  void 
-  DefaultSyncIndexStrategy<Key, KeyAccessor>::end_saving()
+  void DefaultSyncIndexStrategy<Key, KeyAccessor>::end_saving()
     /*throw (eh::Exception)*/
   {
     // erase marked as deleted keys
 /*
-    ReadBlockFileAdapter::ReadBlockStruct_var 
+    ReadBlockFileAdapter::ReadBlockStruct_var
       block_cur = ReferenceCounting::add_ref(first_keys_block_);
-    
+
     KeyAccessor key_accessor;
 
     BlockIndex new_keys_index = block_allocator_->allocate();
-    
-    WriteBlockFileAdapter::WriteBlockStruct_var 
-      new_first_keys_block =
-        write_block_file_adapter_->get_block(new_keys_index);
+
+    WriteBlockFileAdapter::WriteBlockStruct_var
+      new_first_keys_block = write_block_file_adapter_->get_block(new_keys_index);
 
     while (block_cur.in())
     {
       unsigned long sz = block_cur->size();
       unsigned long in_block_offset = 0;
-      const KeyHeader* cur_exkey =
-        static_cast<const KeyHeader*>(block_cur->read_content());
+      const KeyHeader* cur_exkey = static_cast<const KeyHeader*>(block_cur->read_content());
 
       while (in_block_offset < sz)
       {

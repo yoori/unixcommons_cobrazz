@@ -9,8 +9,7 @@ namespace
 {
   // RFC 2616
   const String::AsciiStringManip::CharCategory LWS(" \t");
-  const String::AsciiStringManip::CharCategory SEPARATORS(
-    "()<>@,;:\\\"/[]?={} \t");
+  const String::AsciiStringManip::CharCategory SEPARATORS( "()<>@,;:\\\"/[]?={} \t");
 
   const String::AsciiStringManip::CharCategory NAME(
     Generics::and1(
@@ -22,8 +21,7 @@ namespace
 
 namespace HTTP
 {
-  bool
-  check_header(const char* name, const char* value) noexcept
+  bool check_header(const char* name, const char* value) noexcept
   {
     if (!name || !value)
     {
@@ -49,11 +47,9 @@ namespace HTTP
     return true;
   }
 
-  bool
-  check_headers(const HeaderList& headers) noexcept
+  bool check_headers(const HeaderList& headers) noexcept
   {
-    for (HeaderList::const_iterator itor(headers.begin());
-      itor != headers.end(); ++itor)
+    for (HeaderList::const_iterator itor(headers.begin()); itor != headers.end(); ++itor)
     {
       if (!check_header(itor->name.c_str(), itor->value.c_str()))
       {

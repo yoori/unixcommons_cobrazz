@@ -29,8 +29,7 @@ namespace Generics
     }
   }
 
-  void
-  SimpleActiveObject::activate_object()
+  void SimpleActiveObject::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     {
@@ -55,8 +54,7 @@ namespace Generics
     throw AlreadyActive(ostr);
   }
 
-  void
-  SimpleActiveObject::deactivate_object() /*throw (Exception, eh::Exception)*/
+  void SimpleActiveObject::deactivate_object() /*throw (Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(cond_);
     if (state_ != AS_ACTIVE)
@@ -76,8 +74,7 @@ namespace Generics
     }
   }
 
-  void
-  SimpleActiveObject::wait_object() /*throw (Exception, eh::Exception)*/
+  void SimpleActiveObject::wait_object() /*throw (Exception, eh::Exception)*/
   {
     {
       Sync::ConditionalGuard guard(cond_);
@@ -94,30 +91,25 @@ namespace Generics
     }
   }
 
-  bool
-  SimpleActiveObject::active() const /*throw (eh::Exception)*/
+  bool SimpleActiveObject::active() const /*throw (eh::Exception)*/
   {
     return state_ == AS_ACTIVE;
   }
 
-  void
-  SimpleActiveObject::activate_object_() /*throw (Exception, eh::Exception)*/
+  void SimpleActiveObject::activate_object_() /*throw (Exception, eh::Exception)*/
   {
   }
 
-  void
-  SimpleActiveObject::deactivate_object_() /*throw (Exception, eh::Exception)*/
+  void SimpleActiveObject::deactivate_object_() /*throw (Exception, eh::Exception)*/
   {
   }
 
-  bool
-  SimpleActiveObject::wait_more_() /*throw (Exception, eh::Exception)*/
+  bool SimpleActiveObject::wait_more_() /*throw (Exception, eh::Exception)*/
   {
     return false;
   }
 
-  void
-  SimpleActiveObject::wait_object_() /*throw (Exception, eh::Exception)*/
+  void SimpleActiveObject::wait_object_() /*throw (Exception, eh::Exception)*/
   {
   }
 
@@ -130,8 +122,7 @@ namespace Generics
     unsigned threads_number, size_t stack_size, unsigned start_threads)
     /*throw (InvalidArgument)*/
     : SINGLE_JOB_(ReferenceCounting::add_ref(job)),
-      thread_runner_(job, threads_number,
-        ThreadRunner::Options(stack_size, job->callback())),
+      thread_runner_(job, threads_number, ThreadRunner::Options(stack_size, job->callback())),
       start_threads_(start_threads), work_mutex_(job->mutex()),
       active_state_(AS_NOT_ACTIVE)
   {
@@ -208,8 +199,7 @@ namespace Generics
     }
   }
 
-  void
-  ActiveObjectCommonImpl::activate_object()
+  void ActiveObjectCommonImpl::activate_object()
     /*throw (AlreadyActive, Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(work_mutex_);
@@ -239,8 +229,7 @@ namespace Generics
     trace_message(FNB, "activated");
   }
 
-  void
-  ActiveObjectCommonImpl::wait_object() /*throw (Exception, eh::Exception)*/
+  void ActiveObjectCommonImpl::wait_object() /*throw (Exception, eh::Exception)*/
   {
     Sync::PosixGuard termination_guard(termination_mutex_);
     if (active_state_ != AS_NOT_ACTIVE)
@@ -265,8 +254,7 @@ namespace Generics
     }
   }
 
-  void
-  ActiveObjectCommonImpl::deactivate_object()
+  void ActiveObjectCommonImpl::deactivate_object()
     /*throw (Exception, eh::Exception)*/
   {
     Sync::PosixGuard guard(work_mutex_);
@@ -277,8 +265,7 @@ namespace Generics
     }
   }
 
-  bool
-  ActiveObjectCommonImpl::active() const /*throw (eh::Exception)*/
+  bool ActiveObjectCommonImpl::active() const /*throw (eh::Exception)*/
   {
     return active_state_ == AS_ACTIVE;
   }

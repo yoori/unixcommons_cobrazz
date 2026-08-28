@@ -24,22 +24,19 @@ namespace Sync
      * @param destructor optional destructor called for data on thread
      * termination
      */
-    explicit
-    Key(void (*destructor)(void*) = 0) /*throw (Exception)*/;
+    explicit Key(void (*destructor)(void*) = 0) /*throw (Exception)*/;
 
     /**
      * Store data for the current thread
      * @param data to store
      */
-    void
-    set_data(Data* data) /*throw (Exception)*/;
+    void set_data(Data* data) /*throw (Exception)*/;
 
     /**
      * Get stored data for the current thread
      * @return stored data
      */
-    Data*
-    get_data() noexcept;
+    Data* get_data() noexcept;
 
   private:
     pthread_key_t key_;
@@ -54,26 +51,22 @@ namespace Sync
     const int RES = pthread_key_create(&key_, destructor);
     if (RES)
     {
-      eh::throw_errno_exception<Exception>(RES, FNE,
-        "Failed to create key");
+      eh::throw_errno_exception<Exception>(RES, FNE, "Failed to create key");
     }
   }
 
   template <typename Data>
-  void
-  Key<Data>::set_data(Data* data) /*throw (Exception)*/
+  void Key<Data>::set_data(Data* data) /*throw (Exception)*/
   {
     const int RES = pthread_setspecific(key_, data);
     if (RES)
     {
-      eh::throw_errno_exception<Exception>(RES, FNE,
-        "Failed to set data");
+      eh::throw_errno_exception<Exception>(RES, FNE, "Failed to set data");
     }
   }
 
   template <typename Data>
-  Data*
-  Key<Data>::get_data() noexcept
+  Data* Key<Data>::get_data() noexcept
   {
     return static_cast<Data*>(pthread_getspecific(key_));
   }

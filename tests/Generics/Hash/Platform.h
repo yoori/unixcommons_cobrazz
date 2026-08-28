@@ -23,7 +23,8 @@ void SetAffinity ( int cpu );
 #define ROTR32(x,y) _rotr(x,y)
 #define ROTR64(x,y) _rotr64(x,y)
 
-#pragma warning(disable : 4127) // "conditional expression is constant" in the if()s for avalanchetest
+#pragma warning(                                                                                   \
+  disable : 4127) // "conditional expression is constant" in the if ()s for avalanchetest
 #pragma warning(disable : 4100)
 #pragma warning(disable : 4702)
 

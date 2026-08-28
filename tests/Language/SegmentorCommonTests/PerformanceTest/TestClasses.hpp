@@ -7,7 +7,7 @@
 #include <Sync/PosixLock.hpp>
 
 
-typedef std::vector<Language::Segmentor::SegmentorInterface_var> Segmentors;
+using Segmentors = std::vector<Language::Segmentor::SegmentorInterface_var>;
 
 //
 // class CheckSegmentResult
@@ -27,7 +27,7 @@ public:
       to(to_val)
     {};
   };
-  typedef std::list<Transform> Transforms;
+  using Transforms = std::list<Transform>;
 
   struct SegmentorStats
   {
@@ -56,8 +56,7 @@ public:
     ADD
   };
 
-  CheckSegmentResult(const Segmentors& segms_map, 
-    bool check_transforms);
+  CheckSegmentResult(const Segmentors& segms_map, bool check_transforms);
 
   void check(const char* phrase, size_t phrase_len);
 
@@ -77,7 +76,7 @@ private:
 
   static bool is_space_(const char ch) noexcept;
 
-  typedef std::vector<SegmentorStats> SegmentorsStats_;
+  using SegmentorsStats_ = std::vector<SegmentorStats>;
 
   SegmentorsStats_ segmentors_stats_vect_;
   Segmentors segmentors_vect_;

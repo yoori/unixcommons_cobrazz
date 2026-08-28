@@ -9,166 +9,146 @@
 #include <Language/SegmentorCommons/SegmentorInterface.hpp>
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  //
+  // class CompositeSegmentor
+  //
+
+  class CompositeSegmentor : public SegmentorInterface
   {
-    //
-    // class CompositeSegmentor
-    //
-
-    class CompositeSegmentor : public SegmentorInterface
-    {
-    public:
-      CompositeSegmentor() noexcept;
-
-      template <typename Iterator>
-      CompositeSegmentor(const Iterator& begin, const Iterator& end)
-        /*throw (SegmException)*/;
-
-      void
-      add_segmentor(const SegmentorInterface* segmentor)
-        /*throw (SegmException)*/;
-
-      virtual
-      void
-      segmentation(WordsList& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/;
-
-      virtual
-      void
-      put_spaces(std::string& result, const char* phrase,
-        size_t phrase_len) const
-        /*throw (SegmException)*/;
-
-    protected:
-      virtual
-      ~CompositeSegmentor() noexcept;
-
-    private:
-      typedef std::list<SegmentorInterface_var> SegmentorList;
-      SegmentorList segmentors_;
-    };
-    typedef ReferenceCounting::QualPtr<CompositeSegmentor>
-      CompositeSegmentor_var;
-  } //namespace Segmentor
-} //namespace Language
-
-namespace Language
-{
-  namespace Segmentor
-  {
-    //
-    // class CompositeSegmentor
-    //
-
-    inline
-    CompositeSegmentor::CompositeSegmentor() noexcept
-    {
-    }
-
-    inline
-    CompositeSegmentor::~CompositeSegmentor() noexcept
-    {
-    }
+  public:
+    CompositeSegmentor() noexcept;
 
     template <typename Iterator>
-    CompositeSegmentor::CompositeSegmentor(
-      const Iterator& begin, const Iterator& end) /*throw (SegmException)*/
-    {
-      try
-      {
-        segmentors_.assign(begin, end);
-      }
-      catch (const eh::Exception& e)
-      {
-        Stream::Error error;
-        error << FNS << "eh::Exception caught: " << e.what();
-        throw SegmException(error);
-      }
-    }
+    CompositeSegmentor(const Iterator& begin, const Iterator& end)
+      /*throw (SegmException)*/;
 
-    inline
+    void add_segmentor(const SegmentorInterface* segmentor)
+      /*throw (SegmException)*/;
+
+    virtual
     void
-    CompositeSegmentor::add_segmentor(const SegmentorInterface* segmentor)
-      /*throw (SegmException)*/
+    segmentation(WordsList& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/;
+
+    virtual void put_spaces(std::string& result, const char* phrase, size_t phrase_len) const
+      /*throw (SegmException)*/;
+
+  protected:
+    virtual ~CompositeSegmentor() noexcept;
+
+  private:
+    using SegmentorList = std::list<SegmentorInterface_var>;
+    SegmentorList segmentors_;
+  };
+  using CompositeSegmentor_var = ReferenceCounting::QualPtr<CompositeSegmentor>;
+}
+
+namespace Language::Segmentor
+{
+  //
+  // class CompositeSegmentor
+  //
+
+  inline CompositeSegmentor::CompositeSegmentor() noexcept
+  {
+  }
+
+  inline CompositeSegmentor::~CompositeSegmentor() noexcept
+  {
+  }
+
+  template <typename Iterator>
+  CompositeSegmentor::CompositeSegmentor(
+    const Iterator& begin, const Iterator& end) /*throw (SegmException)*/
+  {
+    try
     {
-      try
-      {
-        segmentors_.push_back(SegmentorInterface_var(
-          ReferenceCounting::add_ref(segmentor)));
-      }
-      catch (const eh::Exception& e)
-      {
-        Stream::Error error;
-        error << FNS << "eh::Exception caught: " << e.what();
-        throw SegmException(error);
-      }
+      segmentors_.assign(begin, end);
     }
-
-    inline
-    void
-    CompositeSegmentor::segmentation(WordsList& result, const char* phrase,
-      size_t phrase_len) const /*throw (SegmException)*/
+    catch (const eh::Exception& e)
     {
-      try
-      {
-        result.clear();
-        result.emplace_back(phrase, phrase_len);
+      Stream::Error error;
+      error << FNS << "eh::Exception caught: " << e.what();
+      throw SegmException(error);
+    }
+  }
 
-        for (SegmentorList::const_iterator it = segmentors_.begin();
-          it != segmentors_.end(); ++it)
+  inline void CompositeSegmentor::add_segmentor(const SegmentorInterface* segmentor)
+    /*throw (SegmException)*/
+  {
+    try
+    {
+      segmentors_.push_back(SegmentorInterface_var( ReferenceCounting::add_ref(segmentor)));
+    }
+    catch (const eh::Exception& e)
+    {
+      Stream::Error error;
+      error << FNS << "eh::Exception caught: " << e.what();
+      throw SegmException(error);
+    }
+  }
+
+  inline
+  void
+  CompositeSegmentor::segmentation(WordsList& result, const char* phrase,
+    size_t phrase_len) const /*throw (SegmException)*/
+  {
+    try
+    {
+      result.clear();
+      result.emplace_back(phrase, phrase_len);
+
+      for (SegmentorList::const_iterator it = segmentors_.begin(); it != segmentors_.end(); ++it)
+      {
+        WordsList new_result;
+
+        for (WordsList::const_iterator w_it = result.begin(); w_it != result.end(); ++w_it)
         {
-          WordsList new_result;
-
-          for (WordsList::const_iterator w_it = result.begin();
-            w_it != result.end(); ++w_it)
-          {
-            WordsList local_result;
-            (*it)->segmentation(local_result, w_it->data(), w_it->length());
-            new_result.splice(new_result.end(), local_result);
-          }
-
-          new_result.swap(result);
+          WordsList local_result;
+          (*it)->segmentation(local_result, w_it->data(), w_it->length());
+          new_result.splice(new_result.end(), local_result);
         }
-      }
-      catch (const SegmException&)
-      {
-        throw;
-      }
-      catch (const eh::Exception& e)
-      {
-        Stream::Error error;
-        error << FNS << "eh::Exception caught: " << e.what();
-        throw SegmException(error);
+
+        new_result.swap(result);
       }
     }
-
-    inline
-    void
-    CompositeSegmentor::put_spaces(std::string& result, const char* phrase,
-      size_t phrase_len) const /*throw (SegmException)*/
+    catch (const SegmException&)
     {
-      try
-      {
-        std::string(phrase, phrase_len).swap(result);
+      throw;
+    }
+    catch (const eh::Exception& e)
+    {
+      Stream::Error error;
+      error << FNS << "eh::Exception caught: " << e.what();
+      throw SegmException(error);
+    }
+  }
 
-        for (SegmentorList::const_iterator it = segmentors_.begin();
-          it != segmentors_.end(); ++it)
-        {
-          (*it)->put_spaces(result, result.data(), result.length());
-        }
-      }
-      catch (const SegmException&)
+  inline
+  void
+  CompositeSegmentor::put_spaces(std::string& result, const char* phrase,
+    size_t phrase_len) const /*throw (SegmException)*/
+  {
+    try
+    {
+      std::string(phrase, phrase_len).swap(result);
+
+      for (SegmentorList::const_iterator it = segmentors_.begin(); it != segmentors_.end(); ++it)
       {
-        throw;
-      }
-      catch (const eh::Exception& e)
-      {
-        Stream::Error error;
-        error << FNS << "eh::Exception caught: " << e.what();
-        throw SegmException(error);
+        (*it)->put_spaces(result, result.data(), result.length());
       }
     }
-  } //namespace Segmentor
-} //namespace Language
+    catch (const SegmException&)
+    {
+      throw;
+    }
+    catch (const eh::Exception& e)
+    {
+      Stream::Error error;
+      error << FNS << "eh::Exception caught: " << e.what();
+      throw SegmException(error);
+    }
+  }
+}

@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-typedef std::vector<Language::Segmentor::SegmentorInterface_var> CurHolder;
+using CurHolder = std::vector<Language::Segmentor::SegmentorInterface_var>;
 
 template <typename CompositeType>
 void test_me(const std::string& name, bool strict);
@@ -18,8 +18,7 @@ int main(int /*argc*/, char** /*argv*/)
 {
   try
   {
-    test_me<Language::Segmentor::CompositeSegmentor>(
-      "CompositeSegmentor", true);
+    test_me<Language::Segmentor::CompositeSegmentor>( "CompositeSegmentor", true);
 
     return 0;
   }
@@ -32,8 +31,7 @@ int main(int /*argc*/, char** /*argv*/)
 }
 
 template <typename CompositeType>
-void
-test_me(const std::string& name, bool strict)
+void test_me(const std::string& name, bool strict)
 {
   std::ostringstream errors;
   put_spaces_scenario<CompositeType>(errors, strict);
@@ -53,8 +51,7 @@ test_me(const std::string& name, bool strict)
 }
 
 template <typename CompositeType>
-void
-put_spaces_scenario(std::ostream& err, bool strict)
+void put_spaces_scenario(std::ostream& err, bool strict)
 {
   const char TEST[] = "APRICOTMY";
   std::ostringstream out;
@@ -63,38 +60,31 @@ put_spaces_scenario(std::ostream& err, bool strict)
 
   for (size_t i = 0; i < SEGMS_COUNT; ++i)
   {
-    segms.push_back(Language::Segmentor::SegmentorInterface_var(
-      new DummySegmentor(i + 1, out)));
+    segms.push_back(Language::Segmentor::SegmentorInterface_var( new DummySegmentor(i + 1, out)));
   }
 
-   Language::Segmentor::SegmentorInterface_var segm(
-     new CompositeType(segms.begin(), segms.end()));
+   Language::Segmentor::SegmentorInterface_var segm( new CompositeType(segms.begin(), segms.end()));
 
   std::string res;
   segm->put_spaces(res, TEST, sizeof(TEST) - 1);
 
   if (res != "A P R I C O T M Y")
   {
-    err << SEGMS_COUNT << " DummySegmentor-s should put "
-        << SEGMS_COUNT << " spaces. "
-           "Src: " << TEST
-        << " Expected: A P R I C O T M Y "
-           "Got " << res
-        << std::endl;
+    err << SEGMS_COUNT << " DummySegmentor-s should put " << SEGMS_COUNT << " spaces. "
+           "Src: " << TEST << " Expected: A P R I C O T M Y "
+           "Got " << res << std::endl;
   }
+
   if (strict && out.str() != "#1#2#3#4#5#6#7#8")
   {
     err << SEGMS_COUNT << " DummySegmentor-s should be invoked "
-           " once (from put_spaces) in alphabetical order. "
-        << "Expected: #1#2#3#4#5#6#7#8 "
-           "Got " << out.str()
-        << std::endl;
+           " once (from put_spaces) in alphabetical order. " << "Expected: #1#2#3#4#5#6#7#8 "
+           "Got " << out.str() << std::endl;
   }
 }
 
 template <typename CompositeType>
-void
-segmentation_scenario(std::ostream& err, bool strict)
+void segmentation_scenario(std::ostream& err, bool strict)
 {
   const char TEST[] = "APRICOTMY";
   std::ostringstream out;
@@ -103,12 +93,10 @@ segmentation_scenario(std::ostream& err, bool strict)
 
   for (size_t i = 0; i < SEGMS_COUNT; ++i)
   {
-    segms.push_back(Language::Segmentor::SegmentorInterface_var(
-      new DummySegmentor(i + 1, out)));
+    segms.push_back(Language::Segmentor::SegmentorInterface_var( new DummySegmentor(i + 1, out)));
   }
 
-  Language::Segmentor::SegmentorInterface_var segm(
-    new CompositeType(segms.begin(), segms.end()));
+  Language::Segmentor::SegmentorInterface_var segm( new CompositeType(segms.begin(), segms.end()));
 
   Language::Segmentor::WordsList wlist;
   segm->segmentation(wlist, TEST, sizeof(TEST) - 1);
@@ -116,7 +104,7 @@ segmentation_scenario(std::ostream& err, bool strict)
   std::string res;
   Language::Segmentor::WordsList::const_iterator it = wlist.begin();
   Language::Segmentor::WordsList::const_iterator end = wlist.end();
-  while(it != end)
+  while (it != end)
   {
     res += *it;
     ++it;
@@ -129,18 +117,15 @@ segmentation_scenario(std::ostream& err, bool strict)
   if (res != "A P R I C O T M Y")
   {
     err << SEGMS_COUNT << " DummySegmentor-s should segment as follows: "
-           "Src: " << TEST
-        << " Expected: A P R I C O T M Y "
-           "Got " << res
-        << std::endl;
+           "Src: " << TEST << " Expected: A P R I C O T M Y "
+           "Got " << res << std::endl;
   }
+
   if (strict && out.str() != "#1#2#2#3#3#3#3#4#4#4#4#4#4#4#4")
   {
     err << "Every of " << SEGMS_COUNT << " DummySegmentor-s should be "
            "invoked (from segmentation) double times than previous "
-           "(begin from 1) in alphabetical order. "
-        << "Expected: #1#2#2#3#3#3#3#4#4#4#4#4#4#4#4 "
-           "Got " << out.str()
-        << std::endl;
+           "(begin from 1) in alphabetical order. " << "Expected: #1#2#2#3#3#3#3#4#4#4#4#4#4#4#4 "
+           "Got " << out.str() << std::endl;
   }
 }

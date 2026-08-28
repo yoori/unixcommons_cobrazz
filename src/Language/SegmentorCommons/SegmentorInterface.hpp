@@ -8,66 +8,55 @@
 #include <Generics/Singleton.hpp>
 
 
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  using WordsList = std::list<std::string>;
+
+  DECLARE_EXCEPTION(BaseSegmException, eh::DescriptiveException);
+
+  class SegmentorInterface : public ReferenceCounting::AtomicImpl
   {
-    typedef std::list<std::string> WordsList;
+  public:
+    DECLARE_EXCEPTION(SegmException, BaseSegmException);
 
-    DECLARE_EXCEPTION(BaseSegmException, eh::DescriptiveException);
+    virtual
+    void
+    segmentation(WordsList& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/ = 0;
 
-    class SegmentorInterface : public ReferenceCounting::AtomicImpl
-    {
-    public:
-      DECLARE_EXCEPTION(SegmException, BaseSegmException);
+    virtual
+    void
+    put_spaces(std::string& result, const char* phrase,
+      size_t phrase_len) const /*throw (SegmException)*/ = 0;
 
-      virtual
-      void
-      segmentation(WordsList& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/ = 0;
+  protected:
+    virtual ~SegmentorInterface() noexcept;
+  };
+  using SegmentorInterface_var = ReferenceCounting::ConstPtr<SegmentorInterface>;
 
-      virtual
-      void
-      put_spaces(std::string& result, const char* phrase,
-        size_t phrase_len) const /*throw (SegmException)*/ = 0;
+  template <typename Implementation>
+  class UniqueSegmentorInterface :
+    public SegmentorInterface,
+    private Generics::Unique<Implementation,
+      SegmentorInterface::SegmException>
+  {
+  protected:
+    using UniqueException = typename Generics::Unique<Implementation,
+      SegmentorInterface::SegmException>::Exception;
 
-    protected:
-      virtual
-      ~SegmentorInterface() noexcept;
-    };
-    typedef ReferenceCounting::ConstPtr<SegmentorInterface>
-      SegmentorInterface_var;
+    virtual ~UniqueSegmentorInterface() noexcept;
+  };
+}
 
-    template <typename Implementation>
-    class UniqueSegmentorInterface :
-      public SegmentorInterface,
-      private Generics::Unique<Implementation,
-        SegmentorInterface::SegmException>
-    {
-    protected:
-      typedef typename Generics::Unique<Implementation,
-        SegmentorInterface::SegmException>::Exception
-        UniqueException;
-
-      virtual
-      ~UniqueSegmentorInterface() noexcept;
-    };
-  } //Segmentor
-} //namespace Language
-
-namespace Language
+namespace Language::Segmentor
 {
-  namespace Segmentor
+  inline SegmentorInterface::~SegmentorInterface() noexcept
   {
-    inline
-    SegmentorInterface::~SegmentorInterface() noexcept
-    {
-    }
+  }
 
-    template <typename Implementation>
-    UniqueSegmentorInterface<Implementation>::
-      ~UniqueSegmentorInterface() noexcept
-    {
-    }
+  template <typename Implementation>
+  UniqueSegmentorInterface<Implementation>::
+    ~UniqueSegmentorInterface() noexcept
+  {
   }
 }

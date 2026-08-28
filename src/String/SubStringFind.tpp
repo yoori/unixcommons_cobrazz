@@ -6,9 +6,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find(ValueType ch,
-    SizeType pos) const
-    noexcept
+  BasicSubString<CharType, Traits, Checker>::find(ValueType ch, SizeType pos) const noexcept
   {
     if (pos < length_)
     {
@@ -27,8 +25,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find(const BasicSubString& str,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find(const BasicSubString& str, SizeType pos) const
     noexcept
   {
     if (!str.length_)
@@ -50,8 +47,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find(ConstPointer ptr,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find(ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
     return find(BasicSubString<CharType, Traits, Checker>(ptr), pos);
@@ -72,9 +68,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::rfind(ValueType ch,
-    SizeType pos) const
-    noexcept
+  BasicSubString<CharType, Traits, Checker>::rfind(ValueType ch, SizeType pos) const noexcept
   {
     if (length_)
     {
@@ -85,6 +79,7 @@ namespace String
         {
           return last - begin_;
         }
+
         if (last == begin_)
         {
           return NPOS;
@@ -100,8 +95,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::rfind(const BasicSubString& str,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::rfind(const BasicSubString& str, SizeType pos) const
     noexcept
   {
     if (str.length_ > length_)
@@ -130,6 +124,7 @@ namespace String
       {
         return data - begin_;
       }
+
       if (data == begin_)
       {
         break;
@@ -141,8 +136,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::rfind(ConstPointer ptr,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::rfind(ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
     return rfind(BasicSubString<CharType, Traits, Checker>(ptr), pos);
@@ -163,8 +157,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_first_of(ValueType ch,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find_first_of(ValueType ch, SizeType pos) const
     noexcept
   {
     return find(ch, pos);
@@ -192,12 +185,10 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_first_of(
-    ConstPointer ptr, SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find_first_of( ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
-    return find_first_of(BasicSubString<CharType, Traits, Checker>(ptr),
-      pos);
+    return find_first_of(BasicSubString<CharType, Traits, Checker>(ptr), pos);
   }
 
   template <typename CharType, typename Traits, typename Checker>
@@ -206,8 +197,7 @@ namespace String
     ConstPointer ptr, SizeType pos, SizeType count) const
     /*throw (LogicError)*/
   {
-    return find_first_of(
-      BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
+    return find_first_of( BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
   }
 
   //
@@ -216,8 +206,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_first_not_of(ValueType ch,
-    SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find_first_not_of(ValueType ch, SizeType pos) const
     noexcept
   {
     for (; pos < length_; pos++)
@@ -256,8 +245,7 @@ namespace String
     ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
-    return find_first_not_of(BasicSubString<CharType, Traits, Checker>(ptr),
-      pos);
+    return find_first_not_of(BasicSubString<CharType, Traits, Checker>(ptr), pos);
   }
 
   template <typename CharType, typename Traits, typename Checker>
@@ -266,8 +254,7 @@ namespace String
     ConstPointer ptr, SizeType pos, SizeType count) const
     /*throw (LogicError)*/
   {
-    return find_first_not_of(
-      BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
+    return find_first_not_of( BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
   }
 
   //
@@ -276,9 +263,7 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_last_of(ValueType ch,
-    SizeType pos) const
-    noexcept
+  BasicSubString<CharType, Traits, Checker>::find_last_of(ValueType ch, SizeType pos) const noexcept
   {
     return rfind(ch, pos);
   }
@@ -313,12 +298,10 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_last_of(
-    ConstPointer ptr, SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find_last_of( ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
-    return find_last_of(BasicSubString<CharType, Traits, Checker>(ptr),
-      pos);
+    return find_last_of(BasicSubString<CharType, Traits, Checker>(ptr), pos);
   }
 
   template <typename CharType, typename Traits, typename Checker>
@@ -327,8 +310,7 @@ namespace String
     ConstPointer ptr, SizeType pos, SizeType count) const
     /*throw (LogicError)*/
   {
-    return find_last_of(
-      BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
+    return find_last_of( BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
   }
 
   //
@@ -361,12 +343,10 @@ namespace String
 
   template <typename CharType, typename Traits, typename Checker>
   typename BasicSubString<CharType, Traits, Checker>::SizeType
-  BasicSubString<CharType, Traits, Checker>::find_last_not_of(
-    ConstPointer ptr, SizeType pos) const
+  BasicSubString<CharType, Traits, Checker>::find_last_not_of( ConstPointer ptr, SizeType pos) const
     /*throw (LogicError)*/
   {
-    return find_last_not_of(BasicSubString<CharType, Traits, Checker>(ptr),
-      pos);
+    return find_last_not_of(BasicSubString<CharType, Traits, Checker>(ptr), pos);
   }
 
   template <typename CharType, typename Traits, typename Checker>
@@ -375,7 +355,6 @@ namespace String
     ConstPointer ptr, SizeType pos, SizeType count) const
     /*throw (LogicError)*/
   {
-    return find_last_not_of(
-      BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
+    return find_last_not_of( BasicSubString<CharType, Traits, Checker>(ptr, count), pos);
   }
 }
