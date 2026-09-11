@@ -132,7 +132,7 @@ namespace Generics::HashHelper
 
     explicit Adapter(std::size_t& result, Calc seed = 0) noexcept;
     ~Adapter() noexcept;
-    void add(const void* key, std::size_t len) noexcept;
+    inline void add(const void* key, std::size_t len) noexcept __attribute__((always_inline));
 
   private:
     Hasher hasher_;
@@ -347,7 +347,7 @@ namespace Generics::HashHelper
   }
 
   template <typename Hasher>
-  void Adapter<Hasher>::add(const void* key, std::size_t len) noexcept
+  inline void Adapter<Hasher>::add(const void* key, std::size_t len) noexcept
   {
     hasher_.add(key, len);
   }

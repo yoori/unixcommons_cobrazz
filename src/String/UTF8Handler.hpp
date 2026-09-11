@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include <Generics/ArrayAutoPtr.hpp>
 
@@ -23,10 +24,10 @@ namespace String::UTF8Handler
 
   /**
    * Iteratively checks each symbol in the string to be UTF8-valid one.
-   * @param str zero terminated string to check
+   * @param str string to check
    * @return pointer to invalid symbol or 0
    */
-  const char* is_correct_utf8_string(const char* str) noexcept;
+  const char* is_correct_utf8_string(std::string_view str) noexcept;
 
   unsigned long get_octet_count(char ch) noexcept;
 
@@ -142,16 +143,26 @@ namespace String::UTF8Handler
     return true;
   }
 
-  inline const char* is_correct_utf8_string(const char* str) noexcept
+  inline const char* is_correct_utf8_string(std::string_view str) noexcept
   {
-    for (unsigned long octets_count; *str; str += octets_count)
+    std::size_t offset = 0;
+    while (offset < str.size())
     {
-      if (!is_correct_utf8_sequence(str, octets_count))
+      const char* const current = str.data() + offset;
+      const unsigned long expected_octets = get_octet_count(*current);
+      if (!expected_octets || str.size() - offset < expected_octets)
       {
-        return str;
+        return current;
       }
+
+      unsigned long octets_count = 0;
+      if (!is_correct_utf8_sequence(current, octets_count))
+      {
+        return current;
+      }
+      offset += octets_count;
     }
-    return 0;
+    return nullptr;
   }
 
   /**
