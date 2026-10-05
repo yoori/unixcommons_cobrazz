@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <string>
 #include <limits>
 #include <utility>
@@ -37,6 +40,26 @@ namespace Generics
    * hasher is not usable here.
    * Hashers are copyable.
    */
+
+  // XXH3-64, with allocation-free incremental state and a one-shot string path.
+  class XXH3Hasher
+  {
+  public:
+    using Calc = std::uint64_t;
+
+    explicit XXH3Hasher(Calc seed = 0) noexcept;
+    XXH3Hasher(const XXH3Hasher& other) noexcept;
+    XXH3Hasher& operator=(const XXH3Hasher& other) noexcept;
+
+    void add(const void* key, std::size_t len) noexcept;
+    std::size_t finalize() const noexcept;
+
+    static std::size_t hash(const void* key, std::size_t len, Calc seed = 0) noexcept;
+
+  private:
+    // xxHash 0.8.3 state layout; size and alignment are checked in HashXxh3.cpp.
+    alignas(64) std::byte state_[576];
+  };
 
   class CRC32Hasher
   {
@@ -142,6 +165,18 @@ namespace Generics::HashHelper
 
 namespace Generics
 {
+  // One-shot hash: the algorithm depends on the total buffer length, not on add() chunks.
+  class FastHash
+  {
+  public:
+    using Calc = std::uint64_t;
+    static constexpr std::size_t MURMUR_MAX_SIZE = 48;
+
+    static inline std::size_t hash(const void* key, std::size_t len, Calc seed = 0) noexcept
+      __attribute__((always_inline));
+  };
+
+  using XXH3Hash = HashHelper::Adapter<XXH3Hasher>;
   using CRC32Hash = HashHelper::Adapter<CRC32Hasher>;
   using Murmur64Hash = HashHelper::Adapter<Murmur64Hasher>;
   using Murmur32v3Hash = HashHelper::Adapter<Murmur32v3Hasher>;
@@ -355,6 +390,68 @@ namespace Generics::HashHelper
 
 namespace Generics
 {
+
+  inline std::size_t FastHash::hash(const void* key, std::size_t len, Calc seed) noexcept
+  {
+    if (len > MURMUR_MAX_SIZE)
+    {
+      return XXH3Hasher::hash(key, len, seed);
+    }
+
+    HashHelper::Murmur64 mix(seed);
+    const auto* data = static_cast<const unsigned char*>(key);
+    Calc tail = 0;
+    if (len >= 8)
+    {
+      Calc word;
+      std::memcpy(&word, data, sizeof(word));
+      mix(word);
+      if (len == sizeof(word))
+      {
+        return mix(0, 0, sizeof(word));
+      }
+
+      data += sizeof(word);
+      auto remaining = len - sizeof(word);
+      // Keep the inline short path compact instead of unrolling up to six full rounds.
+#pragma GCC unroll 1
+      while (remaining >= sizeof(word))
+      {
+        std::memcpy(&word, data, sizeof(word));
+        mix(word);
+        data += sizeof(word);
+        remaining -= sizeof(word);
+      }
+
+      if (remaining == 0)
+      {
+        return mix(0, 0, len);
+      }
+
+      // Reuse bytes inside the buffer; never read past the final partial word.
+      std::memcpy(&tail, data + remaining - sizeof(tail), sizeof(tail));
+      tail >>= (sizeof(tail) - remaining) * 8;
+    }
+    else if (len >= 4)
+    {
+      std::uint32_t first;
+      std::uint32_t last;
+      std::memcpy(&first, data, sizeof(first));
+      std::memcpy(&last, data + len - sizeof(last), sizeof(last));
+      tail = first | (static_cast<Calc>(last) << ((len - sizeof(last)) * 8));
+    }
+    else if (len >= 2)
+    {
+      std::uint16_t first;
+      std::memcpy(&first, data, sizeof(first));
+      tail = first | (static_cast<Calc>(data[len - 1]) << ((len - 1) * 8));
+    }
+    else if (len != 0)
+    {
+      tail = data[0];
+    }
+    return mix(0, tail, len);
+  }
 
   //
   // Hash adders' implementations

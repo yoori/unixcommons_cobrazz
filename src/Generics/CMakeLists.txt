@@ -12,6 +12,7 @@ add_library(${proj} SHARED
   CRC.cpp
   Crypto.cpp
   Hash.cpp
+  HashXxh3.cpp
   Listener.cpp
   MMap.cpp
   MemBuf.cpp
@@ -121,5 +122,21 @@ if(string_manip_json_escape_x86)
       PROPERTIES COMPILE_OPTIONS "-mavx512f;-mavx512bw")
     target_compile_definitions(${proj} PRIVATE
       STRING_MANIP_JSON_ESCAPE_HAS_AVX512BW)
+  endif()
+endif()
+
+if(string_manip_json_escape_x86)
+  if(STRING_MANIP_JSON_ESCAPE_CAN_COMPILE_AVX2)
+    target_sources(${proj} PRIVATE HashXxh3Avx2.cpp)
+    set_source_files_properties(HashXxh3Avx2.cpp PROPERTIES COMPILE_OPTIONS "-mavx2")
+    target_compile_definitions(${proj} PRIVATE GENERICS_XXH3_HAS_AVX2)
+  endif()
+
+  if(STRING_MANIP_JSON_ESCAPE_CAN_COMPILE_AVX512F AND
+    STRING_MANIP_JSON_ESCAPE_CAN_COMPILE_AVX512BW)
+    target_sources(${proj} PRIVATE HashXxh3Avx512.cpp)
+    set_source_files_properties(HashXxh3Avx512.cpp
+      PROPERTIES COMPILE_OPTIONS "-mavx512f;-mavx512bw")
+    target_compile_definitions(${proj} PRIVATE GENERICS_XXH3_HAS_AVX512)
   endif()
 endif()

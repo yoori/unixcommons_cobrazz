@@ -64,7 +64,7 @@ namespace Generics
     operator const std::string&() const noexcept;
 
   protected:
-    void hash_i() /*throw (eh::Exception)*/;
+    inline void hash_i() __attribute__((always_inline)) /*throw (eh::Exception)*/;
 
   protected:
     std::string text_;
@@ -97,7 +97,7 @@ namespace Generics
     const String::SubString& text() const noexcept;
 
   protected:
-    void calc_hash_() noexcept;
+    inline void calc_hash_() noexcept __attribute__((always_inline));
 
   protected:
     String::SubString text_;
@@ -129,7 +129,7 @@ namespace Generics
     std::string_view text() const noexcept;
 
   private:
-    void calc_hash_() noexcept;
+    inline void calc_hash_() noexcept __attribute__((always_inline));
 
   private:
     std::string_view text_;
@@ -286,8 +286,7 @@ namespace Generics
 
   inline void StringHashAdapter::hash_i() /*throw (eh::Exception)*/
   {
-    Murmur64Hash hash(hash_);
-    hash_add(hash, text_);
+    hash_ = FastHash::hash(text_.data(), text_.size());
   }
 
   inline const std::string& StringHashAdapter::text() const noexcept
@@ -355,8 +354,7 @@ namespace Generics
 
   inline void SubStringHashAdapter::calc_hash_() noexcept
   {
-    Murmur64Hash hash(hash_);
-    hash_add(hash, text_);
+    hash_ = FastHash::hash(text_.data(), text_.size());
   }
 
 //
@@ -415,8 +413,7 @@ namespace Generics
 
   inline void StringViewHashAdapter::calc_hash_() noexcept
   {
-    Murmur64Hash hash(hash_);
-    hash_add(hash, text_);
+    hash_ = FastHash::hash(text_.data(), text_.size());
   }
 
 //
