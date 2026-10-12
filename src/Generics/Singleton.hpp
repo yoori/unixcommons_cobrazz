@@ -37,8 +37,6 @@ namespace Generics
     enum DEFAULT_PRIORITIES
     {
       DP_USUAL_SINGLETON = 0,
-      // CorbaClientAdapter::Orbs may be used by usual singletons
-      DP_CLIENT_ORBS = 8192,
       // LoudCounters must be destroyed after all
       DP_LOUD_COUNTER = 16384,
     };

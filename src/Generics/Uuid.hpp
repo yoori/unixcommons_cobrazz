@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <ios>
 
 #include <Sync/PosixLock.hpp>
@@ -267,14 +268,7 @@ namespace Generics
 
   inline bool Uuid::operator ==(const Uuid& rhs) const noexcept
   {
-    for (size_t i = 0; i < DATA_SIZE; i++)
-    {
-      if (data_[i] != rhs.data_[i])
-      {
-        return false;
-      }
-    }
-    return true;
+    return std::memcmp(data_, rhs.data_, DATA_SIZE) == 0;
   }
 
   inline bool Uuid::operator !=(const Uuid& rhs) const noexcept
@@ -284,19 +278,12 @@ namespace Generics
 
   inline bool Uuid::operator <(const Uuid& rhs) const noexcept
   {
-    for (size_t i = 0; i < DATA_SIZE; i++)
-    {
-      if (data_[i] < rhs.data_[i])
-      {
-        return true;
-      }
-
-      if (data_[i] > rhs.data_[i])
-      {
-        break;
-      }
-    }
-    return false;
+    uint64_t left[2];
+    uint64_t right[2];
+    // Copying permits unaligned packed UUIDs without reading an inactive union member.
+    std::memcpy(left, data_, DATA_SIZE);
+    std::memcpy(right, rhs.data_, DATA_SIZE);
+    return left[0] < right[0] || (left[0] == right[0] && left[1] < right[1]);
   }
 
   inline bool Uuid::operator >(const Uuid& rhs) const noexcept
