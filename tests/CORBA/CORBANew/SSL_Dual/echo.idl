@@ -1,4 +1,0 @@
-interface Echo
-{
-  string echoString(in string message, in string ior);
-};

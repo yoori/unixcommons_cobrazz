@@ -1,6 +1,5 @@
 include_directories(.)
 #add_subdirectory(Apache)
-add_subdirectory(CORBA)
 #add_subdirectory(Data)
 add_subdirectory(Generics)
 add_subdirectory(GeoIP)

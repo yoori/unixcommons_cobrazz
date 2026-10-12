@@ -12,11 +12,6 @@
 #include <Stream/MemoryStream.hpp>
 #include <Sync/PosixLock.hpp>
 
-namespace CORBACommons
-{
-  class ValuesConverter;
-}
-
 namespace Generics::ValuesHelper
 {
   template <typename ParamValue>
@@ -228,8 +223,6 @@ namespace Generics
 
     template <typename ParamValue>
     friend struct ValuesHelper::StoredMember;
-
-    friend class CORBACommons::ValuesConverter;
   };
   using Values_var = ReferenceCounting::QualPtr<Values>;
 

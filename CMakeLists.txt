@@ -27,7 +27,6 @@ endif()
 
 add_library(atomic INTERFACE) # workaround for third party libraries that try to link it
 find_package(ACE REQUIRED)
-find_package(TAO REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(BZip2 REQUIRED)
@@ -70,16 +69,12 @@ if(NOT "-msse2" IN_LIST BOOST_HEADERS_COMPILE_OPTIONS)
 endif()
 unset(BOOST_HEADERS_COMPILE_OPTIONS)
 
-find_package(IDL REQUIRED)
 find_package(Nghttp2 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 set(DUSERVER_FEATURE_TESTSUITE OFF)
 
-include_directories(src src/CORBA)
-
-set(IDL_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/IDL_COMMON)
-include_directories(${IDL_DIRECTORY})
+include_directories(src)
 
 add_subdirectory(src)
 add_subdirectory(tests)
