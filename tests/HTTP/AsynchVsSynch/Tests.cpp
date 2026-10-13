@@ -178,7 +178,7 @@ void* CommonTest::send_synch_req(void* arg) noexcept
   InfoToCallback* info = static_cast<InfoToCallback*>(arg);
   try
   {
-    HTTP_Connection::HttpBody* body = 0;
+    HTTP_Connection::HttpBody body;
     HTTP_Connection::HTTP_Method method;
     std::string http_request;
     http_request = info->requests_by_type[info->type];
@@ -188,7 +188,7 @@ void* CommonTest::send_synch_req(void* arg) noexcept
     }
     else if ((info->type & 0x01) == C_POST_TYPE)
     {
-      body = new HTTP_Connection::HttpBody( ECHO_POST_STRING.c_str(), ECHO_POST_STRING.length());
+      body = ECHO_POST_STRING;
       method = HTTP_Connection::HM_Post;
     }
 
@@ -211,8 +211,6 @@ void* CommonTest::send_synch_req(void* arg) noexcept
                                     &bytes_out,
                                     &bytes_in,
                                     &latency);
-
-    body->release();
   }
   catch(const eh::Exception& e)
   {

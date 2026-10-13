@@ -8,3 +8,8 @@ add_subdirectory(HTTPCookie)
 add_subdirectory(HttpTestCommons)
 add_subdirectory(IDNA)
 add_subdirectory(HttpJavaFunctions)
+
+add_executable(HttpConnectionTest HttpConnectionTest.cpp)
+target_link_libraries(HttpConnectionTest PRIVATE HTTP)
+add_test(NAME HttpConnectionTest COMMAND python3
+  ${CMAKE_CURRENT_SOURCE_DIR}/HttpConnectionTest.py $<TARGET_FILE:HttpConnectionTest>)

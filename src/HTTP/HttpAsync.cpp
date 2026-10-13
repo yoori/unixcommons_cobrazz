@@ -275,11 +275,7 @@ namespace HTTP
 
       Response response(method, request, headers);
 
-      HTTP_Connection::HttpBody* http_body = new HTTP_Connection::HttpBody();
-      if (!body.empty())
-      {
-        http_body->init(body.data(), body.size());
-      }
+      HTTP_Connection::HttpBody http_body(body.str());
 
       try
       {
@@ -303,19 +299,8 @@ namespace HTTP
           response_headers, http_body, callback != 0, send_timeout_.get(),
           recv_timeout_.get());
 
-        std::vector<char> response_body;
-        if (http_body)
-        {
-          response_body.reserve(http_body->total_size());
-          for (HTTP_Connection::HttpBody* block = http_body; block; block = block->cont())
-          {
-            response_body.insert(response_body.end(), block->base(), block->base() + block->size());
-          }
-        }
-
         response.response(status, response_headers,
-          http_body ? String::SubString(&response_body.front(),
-            response_body.size()) : String::SubString(),
+          http_body ? String::SubString(*http_body) : String::SubString(),
           callback);
       }
       catch (const HTTP_Connection::StatusException& ex)
@@ -340,11 +325,6 @@ namespace HTTP
           ostr << FNS << "Unknown exception";
           callback->on_error(ostr.str(), response);
         }
-      }
-
-      if (http_body)
-      {
-        http_body->release();
       }
     }
   }

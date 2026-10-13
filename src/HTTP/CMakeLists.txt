@@ -16,8 +16,8 @@ target_link_libraries(${proj}
   PUBLIC
     Generics
     Sync
-    ACE::ACE
   PRIVATE
+    Boost::system
     Stream
     Event::Event
 )
