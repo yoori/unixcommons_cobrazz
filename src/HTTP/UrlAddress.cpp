@@ -1299,7 +1299,7 @@ namespace HTTP
     // Assemble url
     std::string new_url;
     new_url.reserve(parts.scheme.size() + parts.userinfo.size() +
-      parts.host.size() + parts.port.size() + parts.path.size() +
+      parts.host.size() + parts.port.size() + parts.path.size() + parts.query.size() +
       parts.fragment.size() + ALL_SEPS_SIZE);
     if (!parts.scheme.empty())
     {
@@ -1674,57 +1674,7 @@ namespace HTTP
   const std::string& HTTPAddress::get_view(unsigned long flags, std::string& str) const
     /*throw (eh::Exception)*/
   {
-    str.clear();
-    str.reserve(url_.size() + 36);
-
-    if (flags & VW_PROTOCOL)
-    {
-      if (parts_.has_scheme)
-      {
-        (secure_ ? HTTPS_PREFIX : HTTP_PREFIX).str.append_to(str);
-      }
-      str += AUTHORITY_PREFIX;
-    }
-
-    if (flags & VW_HOSTNAME)
-    {
-      if ((flags & VW_HOSTNAME_WWW) == VW_HOSTNAME_WWW && !WWW.start(host()))
-      {
-        WWW.str.append_to(str);
-      }
-      host().append_to(str);
-    }
-
-    if ((flags & VW_PORT) || (!default_port_ && (flags & VW_NDEF_PORT)))
-    {
-      char port[8] = ":";
-      snprintf(port + 1, sizeof(port) - 1, "%hu", port_number_);
-      str += port;
-    }
-
-    if (flags & VW_PATH)
-    {
-      const String::SubString& path_ref = path();
-      size_t path_len = path_ref.size();
-      if ((flags & VW_STRIP_PATH) == VW_STRIP_PATH && path_ref[path_len - 1] == PATH_SEPARATOR)
-      {
-        path_len -= PATH_SEPARATOR_SIZE;
-      }
-      str.append(path_ref.data(), path_len);
-    }
-
-    if (flags & VW_QUERY && parts_.has_query)
-    {
-      str += QUERY_SEPARATOR;
-      query().append_to(str);
-    }
-
-    if (flags & VW_FRAGMENT && parts_.has_fragment)
-    {
-      str += FRAGMENT_SEPARATOR;
-      fragment().append_to(str);
-    }
-    return str;
+    return get_view<std::string>(flags, str);
   }
 
   //
@@ -1841,8 +1791,16 @@ namespace HTTP
   bool BrowserAddress::additional_checks_()
     /*throw (InvalidURL, Exception, eh::Exception)*/
   {
-    process_host_(parts_.host);
-    return true;
+    const auto original_host = parts_.host;
+    process_host_(original_host);
+    if (original_host != parts_.host)
+    {
+      return true;
+    }
+
+    // Keep host views in url_ when no reconstruction follows.
+    parts_.host = original_host;
+    return false;
   }
 
 

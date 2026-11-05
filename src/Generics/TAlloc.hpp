@@ -622,6 +622,7 @@ namespace Generics::TAlloc
   Type* ThreadPool<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
     /*throw (eh::Exception)*/
   {
+    (void)n;
     assert(n == 1);
     return static_cast<Type*>( ThreadPoolBase<sizeof(Type), SIZE>::allocate_());
   }
@@ -723,6 +724,7 @@ namespace Generics::TAlloc
   Type* GlobalPool<Type, SIZE, HASH_HACK>::allocate(size_t n, const void*)
     /*throw (eh::Exception)*/
   {
+    (void)n;
     assert(n == 1);
     return static_cast<Type*>(holder_.allocate());
   }

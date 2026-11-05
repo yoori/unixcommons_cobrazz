@@ -2,8 +2,8 @@ include_guard(GLOBAL)
 
 # set base compile options
 set(CPP_DEBUGINFO_FLAGS "-ggdb3")
-# -Wno-address suppresses warnings from ACE headers.
-set(CPP_COMMON_FLAGS "-Wno-deprecated-declarations -Wno-address -D_REENTRANT -m64 -march=x86-64 -DPIC -pthread -W -Wall -Werror -Wno-error=nonnull-compare -Wno-error=maybe-uninitialized")
+set(CPP_COMMON_FLAGS "-Wno-deprecated-declarations -D_REENTRANT -m64 -march=x86-64")
+string(APPEND CPP_COMMON_FLAGS " -DPIC -pthread -W -Wall -Werror")
 set(CPP_DEBUG_OPT_FLAGS "-O0 -fno-inline -DDEV_DEBUG -rdynamic")
 set(CPP_RELEASE_OPT_FLAGS "-O3")
 set(CPP_LINKER_FLAGS "-pthread -W -Wall -m64 -march=x86-64")

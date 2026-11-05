@@ -522,7 +522,7 @@ namespace HTTP
   void CookieList::load_from_headers_(const HeaderList& headers, bool replace_duplicate)
     /*throw (InvalidArgument, Exception, eh::Exception)*/
   {
-    for (typename HeaderList::const_iterator it(headers.begin()); it != headers.end(); ++it)
+    for (auto it = headers.begin(); it != headers.end(); ++it)
     {
       if (it->name != COOKIE)
       {
@@ -596,6 +596,12 @@ namespace HTTP
         }
       }
     }
+  }
+
+  void CookieList::load_from_headers(SubHeaderSpan headers, bool replace_duplicate)
+    /*throw (InvalidArgument, Exception, eh::Exception)*/
+  {
+    load_from_headers_(headers, replace_duplicate);
   }
 
   void CookieList::load_from_headers(const SubHeaderList& headers, bool replace_duplicate)

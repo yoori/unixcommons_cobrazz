@@ -5,9 +5,6 @@
 #include <vector>
 #include <pthread.h>
 
-#include <ace/Thread_Mutex.h>
-#include <ace/Guard_T.h>
-
 #include <Generics/AtomicInt.hpp>
 #include <ReferenceCounting/ReferenceCounting.hpp>
 #include <Sync/SyncPolicy.hpp>
@@ -60,31 +57,6 @@ int main()
   TEST("Posix Guard", Sync::PosixMutex lock_, Sync::PosixGuard lock(lock_), LOCK_COUNT);
   TEST("Posix Read Guard", Sync::PosixRWLock lock_, Sync::PosixRGuard lock(lock_), LOCK_COUNT);
   TEST("Posix Write Guard", Sync::PosixRWLock lock_, Sync::PosixWGuard lock(lock_), LOCK_COUNT);
-  TEST("Ace Mutex No Guard",
-       ACE_Thread_Mutex lock_,
-       lock_.acquire(); \
-       lock_.release(),
-       LOCK_COUNT);
-  TEST("Ace Mutex Guard",
-       ACE_Thread_Mutex lock_,
-       ACE_Guard<ACE_Thread_Mutex> lock(lock_),
-       LOCK_COUNT);
-  TEST("Ace Mutex Read Guard",
-       ACE_Thread_Mutex lock_,
-       ACE_Read_Guard<ACE_Thread_Mutex> lock(lock_),
-       LOCK_COUNT);
-  TEST("Ace Mutex Write Guard",
-       ACE_Thread_Mutex lock_,
-       ACE_Write_Guard<ACE_Thread_Mutex> lock(lock_),
-       LOCK_COUNT);
-  TEST("Ace RW Mutex Read Guard",
-       ACE_RW_Thread_Mutex lock_,
-       ACE_Read_Guard<ACE_RW_Thread_Mutex> lock(lock_),
-       LOCK_COUNT);
-  TEST("Ace RW Mutex Write Guard",
-       ACE_RW_Thread_Mutex lock_,
-       ACE_Write_Guard<ACE_RW_Thread_Mutex> lock(lock_),
-       LOCK_COUNT);
   TEST("PosixThreadPolicy",
        class Lock : public DefaultImpl<Sync::Policy::PosixThread> {} lock_,
        lock_.add_ref(); \

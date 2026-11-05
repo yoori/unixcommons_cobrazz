@@ -26,7 +26,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 add_library(atomic INTERFACE) # workaround for third party libraries that try to link it
-find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(BZip2 REQUIRED)
@@ -39,7 +38,6 @@ pkg_check_modules(PCRE2 REQUIRED IMPORTED_TARGET libpcre2-8)
 find_package(EV REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Iconv REQUIRED)
-find_package(GTest REQUIRED)
 find_package(JNI REQUIRED)
 set(FOROS_BOOST_ROOT "/opt/foros/boost185" CACHE PATH "Boost installation root")
 if(NOT EXISTS "${FOROS_BOOST_ROOT}/include/boost/version.hpp")
@@ -51,7 +49,7 @@ set(Boost_DIR
   CACHE PATH "Boost CMake config directory"
   FORCE)
 
-find_package(Boost 1.85.0 CONFIG REQUIRED COMPONENTS system thread)
+find_package(Boost 1.85.0 CONFIG REQUIRED COMPONENTS system)
 
 if(NOT TARGET Boost::headers)
   message(FATAL_ERROR "Boost::headers target not found")
@@ -68,8 +66,6 @@ if(NOT "-msse2" IN_LIST BOOST_HEADERS_COMPILE_OPTIONS)
   set_property(TARGET Boost::headers APPEND PROPERTY INTERFACE_COMPILE_OPTIONS -msse2)
 endif()
 unset(BOOST_HEADERS_COMPILE_OPTIONS)
-
-find_package(Nghttp2 REQUIRED)
 
 include_directories(src)
 

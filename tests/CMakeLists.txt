@@ -1,3 +1,6 @@
+# Assertions are test checks and must run in optimized builds too.
+add_compile_options(-UNDEBUG)
+
 include_directories(.)
 #add_subdirectory(Apache)
 #add_subdirectory(Data)

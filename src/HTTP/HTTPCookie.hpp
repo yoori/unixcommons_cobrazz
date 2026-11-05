@@ -78,6 +78,9 @@ namespace HTTP
 
     virtual ~CookieList() noexcept;
 
+    void load_from_headers(SubHeaderSpan headers, bool replace_duplicate = false)
+      /*throw (Exception, InvalidArgument, eh::Exception)*/;
+
     void load_from_headers(const SubHeaderList& headers, bool replace_duplicate = false)
       /*throw (Exception, InvalidArgument, eh::Exception)*/;
 

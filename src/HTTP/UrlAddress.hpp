@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cstdio>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -323,6 +324,9 @@ namespace HTTP
      */
     const std::string& get_view(unsigned long flags, std::string& str) const
       /*throw (eh::Exception)*/;
+
+    template<typename StringType>
+    const StringType& get_view(unsigned long flags, StringType& str) const;
 
     enum VW_FLAGS
     {
@@ -655,5 +659,84 @@ namespace HTTP
 
   inline HTTPChecker::~HTTPChecker() noexcept
   {
+  }
+}
+
+namespace HTTP
+{
+  template<typename StringType>
+  const StringType& HTTPAddress::get_view(unsigned long flags, StringType& str) const
+  {
+    const bool add_protocol = flags & VW_PROTOCOL;
+    const bool add_host = flags & VW_HOSTNAME;
+    const bool add_www = add_host && (flags & VW_HOSTNAME_WWW) == VW_HOSTNAME_WWW &&
+      !String::AsciiStringManip::Caseless("www.").start(host());
+    const bool add_port = (flags & VW_PORT) || (!default_port_ && (flags & VW_NDEF_PORT));
+    const bool add_query = (flags & VW_QUERY) && parts_.has_query;
+    const bool add_fragment = (flags & VW_FRAGMENT) && parts_.has_fragment;
+    const auto& protocol = (secure_ ? HTTPS_PREFIX : HTTP_PREFIX).str;
+    std::size_t path_size = (flags & VW_PATH) ? path().size() : 0;
+    if ((flags & VW_STRIP_PATH) == VW_STRIP_PATH && path_size != 0 &&
+      path()[path_size - 1] == '/')
+    {
+      --path_size;
+    }
+
+    char port[8];
+    const std::size_t port_size = add_port ?
+      std::snprintf(port, sizeof(port), ":%hu", port_number_) : 0;
+    const std::size_t size =
+      (add_protocol ? 2 + (parts_.has_scheme ? protocol.size() : 0) : 0) +
+      (add_host ? host().size() : 0) + (add_www ? 4 : 0) + port_size + path_size +
+      (add_query ? 1 + query().size() : 0) + (add_fragment ? 1 + fragment().size() : 0);
+
+    str.clear();
+    if (size > str.capacity())
+    {
+      str.reserve(size);
+    }
+
+    if (add_protocol)
+    {
+      if (parts_.has_scheme)
+      {
+        protocol.append_to(str);
+      }
+
+      str += "//";
+    }
+
+    if (add_host)
+    {
+      if (add_www)
+      {
+        str += "www.";
+      }
+
+      host().append_to(str);
+    }
+
+    if (add_port)
+    {
+      str.append(port, port_size);
+    }
+
+    if (path_size != 0)
+    {
+      str.append(path().data(), path_size);
+    }
+
+    if (add_query)
+    {
+      str += '?';
+      query().append_to(str);
+    }
+
+    if (add_fragment)
+    {
+      str += '#';
+      fragment().append_to(str);
+    }
+    return str;
   }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <span>
 
 #include <String/SubString.hpp>
 
@@ -40,6 +41,7 @@ namespace HTTP
   };
 
   using SubHeaderList = std::list<SubHeader>;
+  using SubHeaderSpan = std::span<const SubHeader>;
 
   /**
    * HTTP Parameter

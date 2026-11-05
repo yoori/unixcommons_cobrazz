@@ -6,7 +6,7 @@ Main.cpp
 
 target_link_libraries(${proj}
   PRIVATE
-    ACE::ACE
+    Threads::Threads
 )
 add_test(NAME ${proj}
          COMMAND ${proj})
