@@ -72,9 +72,6 @@ unset(BOOST_HEADERS_COMPILE_OPTIONS)
 
 find_package(IDL REQUIRED)
 find_package(Nghttp2 REQUIRED)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
-set(DUSERVER_FEATURE_TESTSUITE OFF)
 
 include_directories(src src/CORBA)
 
