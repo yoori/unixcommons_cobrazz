@@ -22,6 +22,7 @@ add_library(${proj} SHARED
   Proc.cpp
   Rand.cpp
   Scheduler.cpp
+  SharedActiveObject.cpp
   SimdCapabilities.cpp
   Singleton.cpp
   Statistics.cpp

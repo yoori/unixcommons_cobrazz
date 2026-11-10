@@ -1,0 +1,4 @@
+add_executable(TestSharedActiveObject Application.cpp)
+target_link_libraries(TestSharedActiveObject PRIVATE Generics Sync)
+add_test(NAME TestSharedActiveObject COMMAND TestSharedActiveObject)
+set_tests_properties(TestSharedActiveObject PROPERTIES TIMEOUT 30)
