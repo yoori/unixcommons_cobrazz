@@ -1,3 +1,9 @@
+#include <array>
+#include <atomic>
+#include <cstdlib>
+
+#include <openssl/rand.h>
+
 #include <Generics/ISAAC.hpp>
 #include <Generics/Time.hpp>
 #include <Generics/Uuid.hpp>
@@ -5,12 +11,20 @@
 
 namespace
 {
-  Sync::PosixMutex global_mutex;
-  uint8_t
-  random_byte() noexcept // Called under mutex
+  Generics::ISAAC make_uuid_generator() noexcept
   {
-    static Generics::ISAAC generator;
-    return static_cast<uint8_t>(generator.rand() >> 24);
+    std::array<uint32_t, 256> seed;
+    if (RAND_bytes(reinterpret_cast<unsigned char*>(seed.data()), sizeof(seed)) != 1)
+    {
+      std::abort();
+    }
+
+    // Keep seeds distinct across thread recreation, independently of the random prefix.
+    static std::atomic<uint64_t> next_seed{0};
+    const auto seed_id = next_seed.fetch_add(1, std::memory_order_relaxed);
+    seed[0] = static_cast<uint32_t>(seed_id);
+    seed[1] = static_cast<uint32_t>(seed_id >> 32);
+    return Generics::ISAAC(seed.data());
   }
 }
 
@@ -121,14 +135,12 @@ namespace Generics
   //random number based
   Uuid Uuid::create_random_based() noexcept
   {
+    thread_local ISAAC generator = make_uuid_generator();
     Uuid result;
 
+    for (size_type i = 0; i < size(); ++i)
     {
-      Sync::PosixGuard lock(global_mutex);
-      for (size_type i = 0; i < size(); ++i)
-      {
-        result.data_[i] = random_byte();
-      }
+      result.data_[i] = static_cast<uint8_t>(generator.rand() >> 24);
     }
 
     // This code need for RFC 4122 compliance... see 4.4. paragraph.
